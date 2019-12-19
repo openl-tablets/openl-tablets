@@ -1,8 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
-import org.openl.config.ConfigurationManager;
 import org.openl.config.PropertiesHolder;
-import org.springframework.core.env.PropertyResolver;
 
 public class AWSS3RepositorySettings extends RepositorySettings {
     private String bucketName;
@@ -17,23 +15,23 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     private final String SECRET_KEY;
     private final String LISTENER_TIMER_PERIOD;
 
-    AWSS3RepositorySettings(PropertyResolver propertyResolver, String configPrefix) {
-        super(propertyResolver, configPrefix);
+    AWSS3RepositorySettings(PropertiesHolder properties, String configPrefix) {
+        super(properties, configPrefix);
         BUCKET_NAME = configPrefix + ".bucket-name";
         REGION_NAME = configPrefix + ".region-name";
         ACCESS_KEY = configPrefix + ".access-key";
         SECRET_KEY = configPrefix + ".secret-key";
         LISTENER_TIMER_PERIOD = configPrefix + ".listener-timer-period";
 
-        load(propertyResolver);
+        load(properties);
     }
 
-    private void load(PropertyResolver propertyResolver) {
-        bucketName = propertyResolver.getProperty(BUCKET_NAME);
-        regionName = propertyResolver.getProperty(REGION_NAME);
-        accessKey = propertyResolver.getProperty(ACCESS_KEY);
-        secretKey = propertyResolver.getProperty(SECRET_KEY);
-        listenerTimerPeriod = Integer.parseInt(propertyResolver.getProperty(LISTENER_TIMER_PERIOD, "10"));
+    private void load(PropertiesHolder properties) {
+        bucketName = properties.getProperty(BUCKET_NAME);
+        regionName = properties.getProperty(REGION_NAME);
+        accessKey = properties.getProperty(ACCESS_KEY);
+        secretKey = properties.getProperty(SECRET_KEY);
+        listenerTimerPeriod = Integer.parseInt(properties.getProperty(LISTENER_TIMER_PERIOD));
     }
 
     public String getBucketName() {
@@ -90,11 +88,11 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     }
 
     @Override
-    protected void revert(ConfigurationManager configurationManager) {
-        super.revert(configurationManager);
+    protected void revert(PropertiesHolder properties) {
+        super.revert(properties);
 
-        configurationManager.revertProperties(BUCKET_NAME, REGION_NAME, ACCESS_KEY, SECRET_KEY, LISTENER_TIMER_PERIOD);
-        load(null);
+        properties.revertProperties(BUCKET_NAME, REGION_NAME, ACCESS_KEY, SECRET_KEY, LISTENER_TIMER_PERIOD);
+        load(properties);
     }
 
     @Override

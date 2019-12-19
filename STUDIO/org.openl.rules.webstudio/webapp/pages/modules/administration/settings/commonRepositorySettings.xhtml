@@ -12,7 +12,7 @@
 
     <h:panelGrid id="#{prependId}repoSettings" columns="2" columnClasses="titleColumn">
         <h:outputText value="#{repository.type eq 'local' ? 'Directory' : 'URL'}:" styleClass="required" />
-        <h:inputText value="#{settings.path}" disabled="#{settings.repositoryPathSystem}" id="#{prependId}uri" validator="#{validators.url}"/>
+        <h:inputText value="#{settings.path}" id="#{prependId}uri" validator="#{validators.url}"/>
         <h:outputText value=""/>
         <h:message for="#{prependId}uri" styleClass="error"/>
         <h:outputLabel value="Secure connection:" for="#{prependId}repositorySecureConnection" />

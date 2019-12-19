@@ -2,19 +2,11 @@ package org.openl.rules.webstudio.web.admin;
 
 import java.io.File;
 
-import org.eclipse.jgit.lib.Constants;
-import org.openl.config.ConfigurationManager;
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.repository.config.PassCoder;
 import org.openl.rules.webstudio.util.PreferencesManager;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.env.PropertyResolver;
 
 public class GitRepositorySettings extends RepositorySettings {
-    private final Logger log = LoggerFactory.getLogger(GitRepositorySettings.class);
-
     private boolean remoteRepository;
 
     private String uri;
@@ -44,8 +36,8 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String SETTINGS_PATH;
     private String CONFIG_PREFIX;
 
-    GitRepositorySettings(PropertyResolver propertyResolver, String configPrefix) {
-        super(propertyResolver, configPrefix);
+    GitRepositorySettings(PropertiesHolder properties, String configPrefix) {
+        super(properties, configPrefix);
         CONFIG_PREFIX = configPrefix;
         URI = configPrefix + ".uri";
         LOGIN = configPrefix + ".login";
@@ -60,42 +52,29 @@ public class GitRepositorySettings extends RepositorySettings {
         CONNECTION_TIMEOUT = configPrefix + ".connection-timeout";
         SETTINGS_PATH = ".git-settings-path";
 
-        load(propertyResolver);
+        load(properties);
     }
 
-    private void load(PropertyResolver propertyResolver) {
+    private void load(PropertiesHolder properties) {
         String type = CONFIG_PREFIX;
 
-        String localPath = propertyResolver.getProperty(LOCAL_REPOSITORY_PATH);
+        String localPath = properties.getProperty(LOCAL_REPOSITORY_PATH);
         String defaultLocalPath = localPath != null ? localPath
-                                                    : propertyResolver.getProperty(
+                                                    : properties.getProperty(
                                                         PreferencesManager.WEBSTUDIO_WORKING_DIR_KEY) + File.separator + type + "-repository";
 
-        uri = propertyResolver.getProperty(URI);
-        login = propertyResolver.getProperty(LOGIN);
-        String propertyKeyValue = propertyResolver.getProperty("repository.encode.decode.key");
-        String key = propertyKeyValue != null ? StringUtils.trimToEmpty(propertyKeyValue) : "";
-        String pass = propertyResolver.getProperty(PASSWORD);
-        String encodedPassword = null;
-        if (StringUtils.isEmpty(key)) {
-            encodedPassword = pass;
-        } else {
-            try {
-                encodedPassword = PassCoder.decode(pass, propertyKeyValue);
-            } catch (Exception e) {
-                log.error("Error when getting password property: {}", key, e);
-            }
-        }
-        password = encodedPassword;
-        userDisplayName = propertyResolver.getProperty(USER_DISPLAY_NAME);
-        userEmail = propertyResolver.getProperty(USER_EMAIL);
+        uri = properties.getProperty(URI);
+        login = properties.getProperty(LOGIN);
+        password = properties.getPassword(PASSWORD);
+        userDisplayName = properties.getProperty(USER_DISPLAY_NAME);
+        userEmail = properties.getProperty(USER_EMAIL);
         localRepositoryPath = defaultLocalPath;
-        branch = propertyResolver.getProperty(BRANCH, Constants.MASTER);
-        tagPrefix = propertyResolver.getProperty(TAG_PREFIX);
-        listenerTimerPeriod = Integer.parseInt(propertyResolver.getProperty(LISTENER_TIMER_PERIOD, "10"));
-        connectionTimeout = Integer.parseInt(propertyResolver.getProperty(CONNECTION_TIMEOUT, "60"));
-        settingsPath = propertyResolver.getProperty(SETTINGS_PATH);
-        newBranchTemplate = propertyResolver.getProperty(NEW_BRANCH_TEMPLATE);
+        branch = properties.getProperty(BRANCH);
+        tagPrefix = properties.getProperty(TAG_PREFIX);
+        listenerTimerPeriod = Integer.parseInt(properties.getProperty(LISTENER_TIMER_PERIOD));
+        connectionTimeout = Integer.parseInt(properties.getProperty(CONNECTION_TIMEOUT));
+        settingsPath = properties.getProperty(SETTINGS_PATH);
+        newBranchTemplate = properties.getProperty(NEW_BRANCH_TEMPLATE);
 
         remoteRepository = StringUtils.isNotBlank(uri);
     }
@@ -237,10 +216,10 @@ public class GitRepositorySettings extends RepositorySettings {
     }
 
     @Override
-    protected void revert(ConfigurationManager configurationManager) {
-        super.revert(configurationManager);
+    protected void revert(PropertiesHolder properties) {
+        super.revert(properties);
 
-        configurationManager.revertProperties(URI,
+        properties.revertProperties(URI,
             LOGIN,
             PASSWORD,
             USER_DISPLAY_NAME,
@@ -251,7 +230,7 @@ public class GitRepositorySettings extends RepositorySettings {
             TAG_PREFIX,
             LISTENER_TIMER_PERIOD,
             SETTINGS_PATH);
-        load(null);
+        load(properties);
     }
 
     @Override

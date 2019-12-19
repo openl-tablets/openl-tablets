@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.config.ReadOnlyPropertiesHolder;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 
@@ -25,42 +26,55 @@ public class RepositoryConfiguration {
     private RepositorySettings settings;
 
     private String errorMessage;
+    private final PropertiesHolder properties;
+    private final String nameWithPrefix;
 
-    public RepositoryConfiguration(String configName, PropertyResolver propertyResolver) {
+    public RepositoryConfiguration(String configName, PropertyResolver propertiesResolver) {
+        this(configName, new ReadOnlyPropertiesHolder(propertiesResolver));
+    }
+
+    public RepositoryConfiguration(String configName, PropertiesHolder properties) {
         this.configName = configName.toLowerCase();
-        String nameWithPrefix = "repository." + configName.toLowerCase();
+        this.properties = properties;
+        nameWithPrefix = "repository." + configName.toLowerCase();
         REPOSITORY_FACTORY = nameWithPrefix + ".factory";
         REPOSITORY_NAME = nameWithPrefix + ".name";
 
-        load(propertyResolver, nameWithPrefix);
+        load(nameWithPrefix);
     }
 
-    private void load(PropertyResolver propertyResolver, String configName) {
-        String factoryClassName = propertyResolver.getProperty(REPOSITORY_FACTORY);
+    public PropertiesHolder getProperties() {
+        return properties;
+    }
+
+    private void load(String configName) {
+        String factoryClassName = properties.getProperty(REPOSITORY_FACTORY);
         repositoryType = RepositoryType.findByFactory(factoryClassName);
         if (repositoryType == null) {
             // Fallback to default value and save error message
             errorMessage = "Unsupported repository type. Repository factory: " + factoryClassName + ".";
         }
-        name = propertyResolver.getProperty(REPOSITORY_NAME);
-        settings = createSettings(repositoryType, propertyResolver, configName);
+        name = properties.getProperty(REPOSITORY_NAME);
+        if (repositoryType != null) {
+            settings = createSettings(repositoryType, properties, configName);
+        }
 
         fixState();
     }
 
     private RepositorySettings createSettings(RepositoryType repositoryType,
-            PropertyResolver propertyResolver,
+            PropertiesHolder properties,
             String configPrefix) {
         RepositorySettings newSettings;
         switch (repositoryType) {
             case AWS_S3:
-                newSettings = new AWSS3RepositorySettings(propertyResolver, configPrefix);
+                newSettings = new AWSS3RepositorySettings(properties, configPrefix);
                 break;
             case GIT:
-                newSettings = new GitRepositorySettings(propertyResolver, configPrefix);
+                newSettings = new GitRepositorySettings(properties, configPrefix);
                 break;
             default:
-                newSettings = new CommonRepositorySettings(propertyResolver, configPrefix, repositoryType);
+                newSettings = new CommonRepositorySettings(properties, configPrefix, repositoryType);
                 break;
         }
 
@@ -78,17 +92,15 @@ public class RepositoryConfiguration {
         settings.store(propertiesHolder);
     }
 
-    void revert() {
-        // configManager.revertProperty(REPOSITORY_NAME);
-        // configManager.revertProperty(REPOSITORY_FACTORY);
-        // load(false, null, null);
-        //
-        // settings.revert(configManager);
+    public void revert() {
+        properties.revertProperties(REPOSITORY_NAME, REPOSITORY_FACTORY);
+        load(nameWithPrefix);
+        settings.revert(properties);
     }
 
-    void commit() {
+    public void commit() {
         fixState();
-        // store(configManager);
+        store(properties);
     }
 
     public String getErrorMessage() {
@@ -129,7 +141,7 @@ public class RepositoryConfiguration {
             }
             repositoryType = newRepositoryType;
             errorMessage = null;
-            RepositorySettings newSettings = createSettings(newRepositoryType, null, null);
+            RepositorySettings newSettings = createSettings(newRepositoryType, properties, nameWithPrefix);
             newSettings.copyContent(settings);
             settings = newSettings;
             settings.onTypeChanged(newRepositoryType);
@@ -140,18 +152,7 @@ public class RepositoryConfiguration {
         return configName;
     }
 
-    public boolean save() {
-        // store(configManager);
-        // return configManager.save();
-        return false;
-    }
-
-    public boolean delete() {
-        // return configManager.delete();
-        return false;
-    }
-
-    public void copyContent(RepositoryConfiguration other) {
+    void copyContent(RepositoryConfiguration other) {
         // do not copy configName, only content
         setName(other.getName());
         setType(other.getType());
@@ -159,15 +160,9 @@ public class RepositoryConfiguration {
         fixState();
     }
 
-    public boolean isNameChangedIgnoreCase() {
+    boolean isNameChangedIgnoreCase() {
         return name != null && !name.equalsIgnoreCase(oldName) || name == null && oldName != null;
     }
-
-    // public Map<String, Object> getProperties() {
-    // InMemoryProperties propertiesHolder = new InMemoryProperties(configManager.getProperties());
-    // store(propertiesHolder);
-    // return propertiesHolder.getProperties();
-    // }
 
     public RepositorySettings getSettings() {
         return settings;

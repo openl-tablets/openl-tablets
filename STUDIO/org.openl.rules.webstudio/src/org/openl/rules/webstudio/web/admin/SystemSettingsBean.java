@@ -1,12 +1,9 @@
 package org.openl.rules.webstudio.web.admin;
 
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.DATE_PATTERN;
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PROJECT_HISTORY_COUNT;
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PROJECT_HISTORY_HOME;
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PROJECT_HISTORY_UNLIMITED;
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.UPDATE_SYSTEM_PROPERTIES;
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.USER_WORKSPACE_HOME;
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -16,10 +13,11 @@ import javax.faces.bean.ViewScoped;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigNames;
-import org.openl.config.ConfigurationManager;
+import org.openl.config.InMemoryProperties;
+import org.openl.config.PropertiesHolder;
 import org.openl.engine.OpenLSystemProperties;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
+import org.openl.rules.webstudio.util.PreferencesManager;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
@@ -27,10 +25,12 @@ import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
+import org.openl.spring.env.PropertySourcesLoader;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * TODO Remove property getters/setters when migrating to EL 2.2
@@ -59,8 +59,8 @@ public class SystemSettingsBean {
 
     @ManagedProperty(value = "#{environment}")
     private PropertyResolver propertyResolver;
+    private PropertiesHolder properties;
 
-    private ConfigurationManager configManager;
     private RepositoryConfiguration designRepositoryConfiguration;
     private RepositoryConfiguration deployConfigRepositoryConfiguration;
 
@@ -69,27 +69,25 @@ public class SystemSettingsBean {
 
     public void setPropertyResolver(PropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;
+        properties = new InMemoryProperties(propertyResolver);
     }
 
     @PostConstruct
     public void afterPropertiesSet() {
         try {
-            designRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DESIGN_CONFIG, propertyResolver);
+            designRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DESIGN_CONFIG, properties);
             if (designRepositoryConfiguration.getErrorMessage() != null) {
                 log.error(designRepositoryConfiguration.getErrorMessage());
                 FacesUtils.addErrorMessage("Incorrect design repository configuration, please fix it.");
             }
 
-            deployConfigRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DEPLOY_CONFIG,
-                propertyResolver);
+            deployConfigRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DEPLOY_CONFIG, properties);
             if (!isUseDesignRepo() && deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                 log.error(deployConfigRepositoryConfiguration.getErrorMessage());
                 FacesUtils.addErrorMessage("Incorrect deploy config repository configuration, please fix it.");
             }
 
-            productionRepositoryEditor = new ProductionRepositoryEditor(configManager,
-                productionRepositoryFactoryProxy,
-                propertyResolver);
+            productionRepositoryEditor = new ProductionRepositoryEditor(productionRepositoryFactoryProxy, properties);
 
             validator = new SystemSettingsValidator(this);
         } catch (Exception e) {
@@ -107,7 +105,7 @@ public class SystemSettingsBean {
     }
 
     public void setUserWorkspaceHome(String userWorkspaceHome) {
-        configManager.setProperty(USER_WORKSPACE_HOME, userWorkspaceHome);
+        properties.setProperty(USER_WORKSPACE_HOME, userWorkspaceHome);
     }
 
     public String getDatePattern() {
@@ -115,7 +113,7 @@ public class SystemSettingsBean {
     }
 
     public void setDatePattern(String datePattern) {
-        configManager.setProperty(DATE_PATTERN, datePattern);
+        properties.setProperty(DATE_PATTERN, datePattern);
     }
 
     public boolean isUpdateSystemProperties() {
@@ -123,7 +121,7 @@ public class SystemSettingsBean {
     }
 
     public void setUpdateSystemProperties(boolean updateSystemProperties) {
-        configManager.setProperty(UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
+        properties.setProperty(UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
     }
 
     public String getProjectHistoryHome() {
@@ -131,7 +129,7 @@ public class SystemSettingsBean {
     }
 
     public void setProjectHistoryHome(String projectHistoryHome) {
-        configManager.setProperty(PROJECT_HISTORY_HOME, projectHistoryHome);
+        properties.setProperty(PROJECT_HISTORY_HOME, projectHistoryHome);
     }
 
     public String getProjectHistoryCount() {
@@ -143,7 +141,7 @@ public class SystemSettingsBean {
     }
 
     public void setProjectHistoryCount(String count) {
-        configManager.setProperty(PROJECT_HISTORY_COUNT, Integer.parseInt(count));
+        properties.setProperty(PROJECT_HISTORY_COUNT, Integer.parseInt(count));
     }
 
     public boolean isUnlimitHistory() {
@@ -151,7 +149,7 @@ public class SystemSettingsBean {
     }
 
     public void setUnlimitHistory(boolean unlimited) {
-        configManager.setProperty(PROJECT_HISTORY_UNLIMITED, unlimited);
+        properties.setProperty(PROJECT_HISTORY_UNLIMITED, unlimited);
     }
 
     public RepositoryConfiguration getDesignRepositoryConfiguration() {
@@ -168,7 +166,7 @@ public class SystemSettingsBean {
     }
 
     public void setUseDesignRepo(boolean useDesignRepo) {
-        configManager.setProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO, !useDesignRepo);
+        properties.setProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO, !useDesignRepo);
     }
 
     public FolderStructureSettings getDesignFolderStructure() {
@@ -183,8 +181,12 @@ public class SystemSettingsBean {
         return productionRepositoryEditor.getProductionRepositoryConfigurations();
     }
 
+    public PropertiesHolder getProperties() {
+        return properties;
+    }
+
     public void setDispatchingValidationEnabled(boolean dispatchingValidationEnabled) {
-        configManager.setProperty(OpenLSystemProperties.DISPATCHING_VALIDATION, dispatchingValidationEnabled);
+        properties.setProperty(OpenLSystemProperties.DISPATCHING_VALIDATION, dispatchingValidationEnabled);
     }
 
     public boolean isDispatchingValidationEnabled() {
@@ -196,7 +198,7 @@ public class SystemSettingsBean {
     }
 
     public void setRunTestsInParallel(boolean runTestsInParallel) {
-        configManager.setProperty(OpenLSystemProperties.RUN_TESTS_IN_PARALLEL, runTestsInParallel);
+        properties.setProperty(OpenLSystemProperties.RUN_TESTS_IN_PARALLEL, runTestsInParallel);
     }
 
     public String getTestRunThreadCount() {
@@ -204,7 +206,7 @@ public class SystemSettingsBean {
     }
 
     public void setTestRunThreadCount(String testRunThreadCount) {
-        configManager.setProperty(OpenLSystemProperties.TEST_RUN_THREAD_COUNT_PROPERTY,
+        properties.setProperty(OpenLSystemProperties.TEST_RUN_THREAD_COUNT_PROPERTY,
             Integer.parseInt(StringUtils.trim(testRunThreadCount)));
     }
 
@@ -213,7 +215,7 @@ public class SystemSettingsBean {
     }
 
     public void setAutoCompile(boolean autoCompile) {
-        configManager.setProperty(OpenLSystemProperties.AUTO_COMPILE, autoCompile);
+        properties.setProperty(OpenLSystemProperties.AUTO_COMPILE, autoCompile);
     }
 
     public void applyChanges() {
@@ -223,14 +225,12 @@ public class SystemSettingsBean {
 
             RepositoryValidators.validate(designRepositoryConfiguration);
             RepositoryValidators.validateConnectionForDesignRepository(designRepositoryConfiguration,
-                designTimeRepository,
-                RepositoryMode.DESIGN);
+                designTimeRepository);
 
             if (!isUseDesignRepo()) {
                 RepositoryValidators.validate(deployConfigRepositoryConfiguration);
                 RepositoryValidators.validateConnectionForDesignRepository(deployConfigRepositoryConfiguration,
-                    designTimeRepository,
-                    RepositoryMode.DEPLOY_CONFIG);
+                    designTimeRepository);
             }
 
             productionRepositoryEditor.validate();
@@ -254,35 +254,45 @@ public class SystemSettingsBean {
         }
     }
 
-    private void saveSystemConfig() {
-        // TODO: This line also do configManager.save() implicitly
-        boolean saved = designRepositoryConfiguration.save();
+    private void saveSystemConfig() throws IOException {
+        designRepositoryConfiguration.commit();
         if (!isUseDesignRepo()) {
-            saved &= deployConfigRepositoryConfiguration.save();
+            deployConfigRepositoryConfiguration.commit();
         }
 
-        if (saved) {
-            refreshConfig();
-        }
+        String workingDir = propertyResolver.getProperty(PreferencesManager.WEBSTUDIO_WORKING_DIR_KEY);
+        properties.writeTo(new File(workingDir, getAppName() + ".properties"));
+
+        refreshConfig();
+    }
+
+    private String getAppName() {
+        return PropertySourcesLoader
+            .getAppName(WebApplicationContextUtils.getRequiredWebApplicationContext(FacesUtils.getServletContext()));
     }
 
     public void restoreDefaults() {
-        designRepositoryConfiguration.revert();
+        try {
+            designRepositoryConfiguration.revert();
 
-        configManager.revertProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO);
-        deployConfigRepositoryConfiguration.revert();
+            properties.revertProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO);
+            deployConfigRepositoryConfiguration.revert();
 
-        productionRepositoryEditor.revertChanges();
+            productionRepositoryEditor.revertChanges();
 
-        // We cannot invoke configManager.restoreDefaults(): in this case some
-        // settings (such as user.mode etc) not edited in this page
-        // will be reverted too. We should revert only settings edited in Administration page
-        for (String setting : AdministrationSettings.getAllSettings()) {
-            configManager.revertProperty(setting);
+            // We cannot invoke configManager.restoreDefaults(): in this case some
+            // settings (such as user.mode etc) not edited in this page
+            // will be reverted too. We should revert only settings edited in Administration page
+            for (String setting : AdministrationSettings.getAllSettings()) {
+                properties.revertProperty(setting);
+            }
+            saveSystemConfig();
+
+            productionRepositoryEditor.reload();
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            FacesUtils.addErrorMessage(e.getMessage());
         }
-        saveSystemConfig();
-
-        productionRepositoryEditor.reload();
     }
 
     public void setDeploymentManager(DeploymentManager deploymentManager) {

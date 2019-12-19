@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.install;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -8,7 +9,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
@@ -24,13 +24,16 @@ import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.validator.ValidatorException;
 import javax.naming.directory.InvalidSearchFilterException;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flywaydb.core.api.FlywayException;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigNames;
-import org.openl.config.ConfigurationManager;
-import org.openl.config.ConfigurationManagerFactory;
-import org.openl.rules.repository.RepositoryMode;
+import org.openl.config.InMemoryProperties;
+import org.openl.config.PropertiesHolder;
+import org.openl.rules.repository.RepositoryFactoryInstatiator;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
@@ -51,13 +54,11 @@ import org.openl.rules.webstudio.web.admin.RepositoryValidators;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.spring.env.PropertySourcesLoader;
+import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.db.JDBCDriverRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -109,9 +110,6 @@ public class InstallWizard {
     private CASSettings casSettings;
     private SAMLSettings samlSettings;
 
-    private ConfigurationManager systemConfig;
-    private ConfigurationManager dbConfig;
-
     private RepositoryConfiguration designRepositoryConfiguration;
     private RepositoryConfiguration deployConfigRepositoryConfiguration;
 
@@ -123,16 +121,19 @@ public class InstallWizard {
 
     @ManagedProperty(value = "#{groupManagementService}")
     private GroupManagementService groupManagementService;
-    private XmlWebApplicationContext temporaryContext;
+    private XmlWebApplicationContext dbContext;
+    private XmlWebApplicationContext propertiesContext;
     private Boolean allowAccessToNewUsers;
     private String externalAdmins;
 
     @ManagedProperty(value = "#{environment}")
     private PropertyResolver propertyResolver;
+    private PropertiesHolder properties;
 
     @PostConstruct
     public void init() {
         workingDir = propertyResolver.getProperty(PreferencesManager.WEBSTUDIO_WORKING_DIR_KEY);
+        workingDirChanged = true;
     }
 
     public String getPreviousPage() {
@@ -149,18 +150,16 @@ public class InstallWizard {
     }
 
     public String next() {
-        ConfigurationManager previousConfig = systemConfig;
         try {
             // Validations
             if (step == 2) {
                 try {
                     RepositoryValidators.validate(designRepositoryConfiguration);
-                    validateConnectionToDesignRepo(designRepositoryConfiguration, RepositoryMode.DESIGN);
+                    validateConnectionToDesignRepo(designRepositoryConfiguration, ConfigNames.DESIGN_CONFIG);
 
                     if (!isUseDesignRepo()) {
                         RepositoryValidators.validate(deployConfigRepositoryConfiguration);
-                        validateConnectionToDesignRepo(deployConfigRepositoryConfiguration,
-                            RepositoryMode.DEPLOY_CONFIG);
+                        validateConnectionToDesignRepo(deployConfigRepositoryConfiguration, ConfigNames.DEPLOY_CONFIG);
                     }
 
                     productionRepositoryEditor.validate();
@@ -174,31 +173,23 @@ public class InstallWizard {
             ++step;
             if (step == 2) {
                 // Get defaults from 'system.properties'
-                if (workingDirChanged || systemConfig == null) {
-                    systemConfig = new ConfigurationManager(workingDir + "/system-settings/system.properties",
-                        "system.properties");
-                    String repoPassKey = StringUtils
-                        .trimToEmpty(systemConfig.getStringProperty(ConfigurationManager.REPO_PASS_KEY));
-                    // Make it globally available. It will not be changed during application execution.
-                    System.setProperty(ConfigurationManager.REPO_PASS_KEY, repoPassKey);
-
-                    // TODO: put there propertyResolver
-                    designRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DESIGN_CONFIG, null);
+                if (workingDirChanged) {
+                    designRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DESIGN_CONFIG, properties);
                     if (designRepositoryConfiguration.getErrorMessage() != null) {
                         log.error(designRepositoryConfiguration.getErrorMessage());
                     }
 
-                    // TODO: put there propertyResolver
-                    deployConfigRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DEPLOY_CONFIG, null);
+                    deployConfigRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DEPLOY_CONFIG,
+                        properties);
                     if (deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                         log.error(deployConfigRepositoryConfiguration.getErrorMessage());
                     }
 
                     initProductionRepositoryEditor();
 
-                    dbConfig = new ConfigurationManager(workingDir + "/system-settings/db.properties", "db.properties");
+                    userMode = propertyResolver.getProperty("user.mode");
 
-                    userMode = systemConfig.getStringProperty("user.mode");
+                    workingDirChanged = false;
                 }
             } else if (step == 3) {
                 readDbProperties();
@@ -208,30 +199,30 @@ public class InstallWizard {
 
                 switch (userMode) {
                     case AD_USER_MODE:
-                        groupsAreManagedInStudio = systemConfig
-                            .getBooleanProperty("security.ad.groups-are-managed-in-studio");
+                        groupsAreManagedInStudio = propertyResolver
+                            .getRequiredProperty("security.ad.groups-are-managed-in-studio", Boolean.class);
                         allowAccessToNewUsers = !StringUtils
-                            .isBlank(systemConfig.getStringProperty("security.ad.default-group"));
+                            .isBlank(propertyResolver.getProperty("security.ad.default-group"));
                         break;
                     case CAS_USER_MODE:
                         groupsAreManagedInStudio = StringUtils
-                            .isBlank(systemConfig.getStringProperty("security.cas.attribute.groups"));
+                            .isBlank(propertyResolver.getProperty("security.cas.attribute.groups"));
                         allowAccessToNewUsers = !StringUtils
-                            .isBlank(systemConfig.getStringProperty("security.cas.default-group"));
+                            .isBlank(propertyResolver.getProperty("security.cas.default-group"));
                         break;
                     case SAML_USER_MODE:
                         groupsAreManagedInStudio = StringUtils
-                            .isBlank(systemConfig.getStringProperty("security.saml.attribute.groups"));
+                            .isBlank(propertyResolver.getProperty("security.saml.attribute.groups"));
                         allowAccessToNewUsers = !StringUtils
-                            .isBlank(systemConfig.getStringProperty("security.saml.default-group"));
+                            .isBlank(propertyResolver.getProperty("security.saml.default-group"));
                         break;
                 }
             } else if (step == 4) {
-                initializeTemporaryContext();
+                initializeDbContext();
 
                 if (groupManagementService instanceof GroupManagementServiceWrapper) {
                     // GroupManagementService delegate is transactional and properly initialized
-                    GroupManagementService delegate = (GroupManagementService) temporaryContext
+                    GroupManagementService delegate = (GroupManagementService) dbContext
                         .getBean("groupManagementService");
                     // Initialize groupManagementService before first usage in GroupsBean
                     ((GroupManagementServiceWrapper) groupManagementService).setDelegate(delegate);
@@ -246,162 +237,149 @@ public class InstallWizard {
                 FacesUtils.addErrorMessage("Cannot save the configuration. Check the logs for details.");
             }
             step--;
-            systemConfig = previousConfig;
             return null;
         }
     }
 
     private void validateConnectionToDesignRepo(RepositoryConfiguration designRepositoryConfiguration,
-            RepositoryMode repositoryMode) throws RepositoryValidationException {
-        // try {
-        // Map<String, Object> config = designRepositoryConfiguration.getProperties();
-        //// Repository repository = RepositoryFactoryInstatiator.newFactory(config, repositoryMode);
-        //// if (repository instanceof Closeable) {
-        //// Release resources after validation
-        //// IOUtils.closeQuietly((Closeable) repository);
-        //// }
-        // } catch (RRepositoryException e) {
-        // Throwable rootCause = ExceptionUtils.getRootCause(e);
-        // String message = "Incorrect Design Repository configuration: " + (rootCause == null ? e
-        // .getMessage() : rootCause.getMessage());
-        // throw new RepositoryValidationException(message, e);
-        // }
+            String configName) throws RepositoryValidationException {
+        try {
+            designRepositoryConfiguration.commit();
+            PropertyResolver propertiesResolver = DelegatedPropertySource
+                .createPropertiesResolver(designRepositoryConfiguration.getProperties());
+            Repository repository = RepositoryFactoryInstatiator.newFactory(propertiesResolver, configName);
+            if (repository instanceof Closeable) {
+                // Release resources after validation
+                IOUtils.closeQuietly((Closeable) repository);
+            }
+        } catch (RRepositoryException e) {
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+            String message = "Incorrect Design Repository configuration: " + (rootCause == null ? e
+                .getMessage() : rootCause.getMessage());
+            throw new RepositoryValidationException(message, e);
+        }
     }
 
-    private void initializeTemporaryContext() {
-        destroyTemporaryContext();
+    private void initializeDbContext() {
+        destroyDbContext();
 
         setProductionDbProperties();
 
-        final Map<String, Object> dbProperties = dbConfig.getProperties();
-        migrateDatabase(dbProperties);
+        migrateDatabase();
 
         // Load groupDao and initialize groupManagementService
-        temporaryContext = new XmlWebApplicationContext();
-        temporaryContext.setServletContext(FacesUtils.getServletContext());
-        temporaryContext.setConfigLocations("/WEB-INF/spring/security/db-services.xml");
-        temporaryContext.addBeanFactoryPostProcessor(new BeanFactoryPostProcessor() {
-
-            @Override
-            public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-                beanFactory.registerSingleton("dbConfig", dbProperties);
-            }
-        });
-        temporaryContext.refresh();
+        dbContext = new XmlWebApplicationContext();
+        dbContext.setServletContext(FacesUtils.getServletContext());
+        dbContext.setConfigLocations("/WEB-INF/spring/security/db-services.xml");
+        dbContext.addBeanFactoryPostProcessor(beanFactory -> beanFactory.registerSingleton("propertyLoader",
+            new DelegatedPropertySourceLoader(properties)));
+        dbContext.refresh();
     }
 
     private void readDbProperties() {
-        dbUrl = dbConfig.getStringProperty("db.url");
-        dbUsername = dbConfig.getStringProperty("db.user");
-        dbPassword = dbConfig.getStringProperty("db.password");
+        dbUrl = properties.getProperty("db.url");
+        dbUsername = properties.getProperty("db.user");
+        dbPassword = properties.getProperty("db.password");
     }
 
     private void readAdProperties() {
-        adDomain = systemConfig.getStringProperty("security.ad.domain");
-        adUrl = systemConfig.getStringProperty("security.ad.server-url");
-        ldapFilter = systemConfig.getStringProperty("security.ad.search-filter");
+        adDomain = propertyResolver.getProperty("security.ad.domain");
+        adUrl = propertyResolver.getProperty("security.ad.server-url");
+        ldapFilter = propertyResolver.getProperty("security.ad.search-filter");
     }
 
     private void readCasProperties() {
-        casSettings = new CASSettings(systemConfig.getStringProperty("security.cas.app-url"),
-            systemConfig.getStringProperty("security.cas.cas-server-url-prefix"),
-            systemConfig.getStringProperty("security.cas.default-group"),
-            systemConfig.getStringProperty("security.cas.attribute.first-name"),
-            systemConfig.getStringProperty("security.cas.attribute.last-name"),
-            systemConfig.getStringProperty("security.cas.attribute.groups"));
+        casSettings = new CASSettings(propertyResolver.getProperty("security.cas.app-url"),
+            propertyResolver.getProperty("security.cas.cas-server-url-prefix"),
+            propertyResolver.getProperty("security.cas.default-group"),
+            propertyResolver.getProperty("security.cas.attribute.first-name"),
+            propertyResolver.getProperty("security.cas.attribute.last-name"),
+            propertyResolver.getProperty("security.cas.attribute.groups"));
     }
 
     private void readSamlProperties() {
-        samlSettings = new SAMLSettings(systemConfig.getStringProperty("security.saml.app-url"),
-            systemConfig.getStringProperty("security.saml.saml-server-metadata-url"),
-            systemConfig.getIntegerProperty("security.saml.request-timeout"),
-            systemConfig.getStringProperty("security.saml.keystore-file-path"),
-            systemConfig.getStringProperty("security.saml.keystore-password"),
-            systemConfig.getStringProperty("security.saml.keystore-sp-alias"),
-            systemConfig.getStringProperty("security.saml.keystore-sp-password"),
-            systemConfig.getStringProperty("security.saml.default-group"),
-            systemConfig.getStringProperty("security.saml.attribute.username"),
-            systemConfig.getStringProperty("security.saml.attribute.first-name"),
-            systemConfig.getStringProperty("security.saml.attribute.last-name"),
-            systemConfig.getStringProperty("security.saml.attribute.groups"),
-            systemConfig.getStringProperty("security.saml.authentication-contexts"),
-            systemConfig.getBooleanProperty("security.saml.local-logout"));
+        samlSettings = new SAMLSettings(propertyResolver.getProperty("security.saml.app-url"),
+            propertyResolver.getProperty("security.saml.saml-server-metadata-url"),
+            propertyResolver.getRequiredProperty("security.saml.request-timeout", Integer.class),
+            propertyResolver.getProperty("security.saml.keystore-file-path"),
+            propertyResolver.getProperty("security.saml.keystore-password"),
+            propertyResolver.getProperty("security.saml.keystore-sp-alias"),
+            propertyResolver.getProperty("security.saml.keystore-sp-password"),
+            propertyResolver.getProperty("security.saml.default-group"),
+            propertyResolver.getProperty("security.saml.attribute.username"),
+            propertyResolver.getProperty("security.saml.attribute.first-name"),
+            propertyResolver.getProperty("security.saml.attribute.last-name"),
+            propertyResolver.getProperty("security.saml.attribute.groups"),
+            propertyResolver.getProperty("security.saml.authentication-contexts"),
+            propertyResolver.getRequiredProperty("security.saml.local-logout", Boolean.class));
     }
 
     public String finish() {
         try {
             if (MULTI_USER_MODE.equals(userMode)) {
                 setProductionDbProperties();
-                migrateDatabase(dbConfig.getProperties());
-
-                dbConfig.save();
+                migrateDatabase();
             } else {
                 if (AD_USER_MODE.equals(userMode)) {
                     fillDbForUserManagement();
-                    dbConfig.save();
 
-                    systemConfig.setProperty("security.ad.domain", adDomain);
-                    systemConfig.setProperty("security.ad.server-url", adUrl);
-                    systemConfig.setProperty("security.ad.search-filter", ldapFilter);
-                    systemConfig.setProperty("security.ad.groups-are-managed-in-studio", groupsAreManagedInStudio);
-                    systemConfig.setProperty("security.ad.default-group", allowAccessToNewUsers ? VIEWERS_GROUP : "");
+                    properties.setProperty("security.ad.domain", adDomain);
+                    properties.setProperty("security.ad.server-url", adUrl);
+                    properties.setProperty("security.ad.search-filter", ldapFilter);
+                    properties.setProperty("security.ad.groups-are-managed-in-studio", groupsAreManagedInStudio);
+                    properties.setProperty("security.ad.default-group", allowAccessToNewUsers ? VIEWERS_GROUP : "");
                 } else if (CAS_USER_MODE.equals(userMode)) {
                     fillDbForUserManagement();
-                    dbConfig.save();
 
                     casSettings.setDefaultGroup(allowAccessToNewUsers ? VIEWERS_GROUP : "");
 
-                    systemConfig.setProperty("security.cas.app-url", casSettings.getWebStudioUrl());
-                    systemConfig.setProperty("security.cas.cas-server-url-prefix", casSettings.getCasServerUrl());
-                    systemConfig.setProperty("security.cas.default-group", casSettings.getDefaultGroup());
-                    systemConfig.setProperty("security.cas.attribute.first-name", casSettings.getFirstNameAttribute());
-                    systemConfig.setProperty("security.cas.attribute.last-name", casSettings.getSecondNameAttribute());
-                    systemConfig.setProperty("security.cas.attribute.groups", casSettings.getGroupsAttribute());
+                    properties.setProperty("security.cas.app-url", casSettings.getWebStudioUrl());
+                    properties.setProperty("security.cas.cas-server-url-prefix", casSettings.getCasServerUrl());
+                    properties.setProperty("security.cas.default-group", casSettings.getDefaultGroup());
+                    properties.setProperty("security.cas.attribute.first-name", casSettings.getFirstNameAttribute());
+                    properties.setProperty("security.cas.attribute.last-name", casSettings.getSecondNameAttribute());
+                    properties.setProperty("security.cas.attribute.groups", casSettings.getGroupsAttribute());
                 } else if (SAML_USER_MODE.equals(userMode)) {
                     fillDbForUserManagement();
-                    dbConfig.save();
 
                     samlSettings.setDefaultGroup(allowAccessToNewUsers ? VIEWERS_GROUP : "");
 
-                    systemConfig.setProperty("security.saml.app-url", samlSettings.getWebStudioUrl());
-                    systemConfig.setProperty("security.saml.saml-server-metadata-url",
+                    properties.setProperty("security.saml.app-url", samlSettings.getWebStudioUrl());
+                    properties.setProperty("security.saml.saml-server-metadata-url",
                         samlSettings.getSamlServerMetadataUrl());
-                    systemConfig.setProperty("security.saml.request-timeout", samlSettings.getRequestTimeout());
-                    systemConfig.setProperty("security.saml.keystore-file-path", samlSettings.getKeystoreFilePath());
-                    systemConfig.setProperty("security.saml.keystore-password", samlSettings.getKeystorePassword());
-                    systemConfig.setProperty("security.saml.keystore-sp-alias", samlSettings.getKeystoreSpAlias());
-                    systemConfig.setProperty("security.saml.keystore-sp-password",
-                        samlSettings.getKeystoreSpPassword());
-                    systemConfig.setProperty("security.saml.default-group", samlSettings.getDefaultGroup());
-                    systemConfig.setProperty("security.saml.attribute.username", samlSettings.getUsernameAttribute());
-                    systemConfig.setProperty("security.saml.attribute.first-name",
-                        samlSettings.getFirstNameAttribute());
-                    systemConfig.setProperty("security.saml.attribute.last-name",
-                        samlSettings.getSecondNameAttribute());
-                    systemConfig.setProperty("security.saml.attribute.groups", samlSettings.getGroupsAttribute());
-                    systemConfig.setProperty("security.saml.authentication-contexts",
+                    properties.setProperty("security.saml.request-timeout", samlSettings.getRequestTimeout());
+                    properties.setProperty("security.saml.keystore-file-path", samlSettings.getKeystoreFilePath());
+                    properties.setProperty("security.saml.keystore-password", samlSettings.getKeystorePassword());
+                    properties.setProperty("security.saml.keystore-sp-alias", samlSettings.getKeystoreSpAlias());
+                    properties.setProperty("security.saml.keystore-sp-password", samlSettings.getKeystoreSpPassword());
+                    properties.setProperty("security.saml.default-group", samlSettings.getDefaultGroup());
+                    properties.setProperty("security.saml.attribute.username", samlSettings.getUsernameAttribute());
+                    properties.setProperty("security.saml.attribute.first-name", samlSettings.getFirstNameAttribute());
+                    properties.setProperty("security.saml.attribute.last-name", samlSettings.getSecondNameAttribute());
+                    properties.setProperty("security.saml.attribute.groups", samlSettings.getGroupsAttribute());
+                    properties.setProperty("security.saml.authentication-contexts",
                         samlSettings.getAuthenticationContexts());
-                    systemConfig.setProperty("security.saml.local-logout", samlSettings.isLocalLogout());
-                } else {
-                    dbConfig.restoreDefaults();
+                    properties.setProperty("security.saml.local-logout", samlSettings.isLocalLogout());
                 }
             }
 
             productionRepositoryEditor.save();
 
-            systemConfig.setProperty("user.mode", userMode);
+            properties.setProperty("user.mode", userMode);
 
             // TODO: This line also do systemConfig.save() implicitly
-            designRepositoryConfiguration.save();
+            designRepositoryConfiguration.commit();
             if (!isUseDesignRepo()) {
-                deployConfigRepositoryConfiguration.save();
+                deployConfigRepositoryConfiguration.commit();
             }
+            properties.writeTo(new File(workingDir, getAppName() + ".properties"));
 
             System.setProperty("user.mode", userMode);
             PreferencesManager.INSTANCE.webStudioConfigured(getAppName());
 
             destroyRepositoryObjects();
-            destroyTemporaryContext();
+            destroyDbContext();
+            destroyPropertyContext();
 
             System.setProperty("webstudio.mode", "webstudio");
             ReloadableDelegatingFilter.reloadApplicationContext(FacesUtils.getServletContext());
@@ -422,10 +400,10 @@ public class InstallWizard {
 
     private void fillDbForUserManagement() {
         if (groupsAreManagedInStudio) {
-            initializeTemporaryContext();
-            GroupManagementService groupManagementService = (GroupManagementService) temporaryContext
+            initializeDbContext();
+            GroupManagementService groupManagementService = (GroupManagementService) dbContext
                 .getBean("groupManagementService");
-            UserManagementService userManagementService = (UserManagementService) temporaryContext
+            UserManagementService userManagementService = (UserManagementService) dbContext
                 .getBean("userManagementService");
 
             if (allowAccessToNewUsers) {
@@ -458,16 +436,16 @@ public class InstallWizard {
                 }
             }
             setProductionDbProperties();
-            migrateDatabase(dbConfig.getProperties());
+            migrateDatabase();
         } else {
             setProductionDbProperties();
         }
     }
 
     private void setProductionDbProperties() {
-        dbConfig.setProperty("db.url", dbUrl);
-        dbConfig.setProperty("db.user", dbUsername);
-        dbConfig.setProperty("db.password", dbPassword);
+        properties.setProperty("db.url", dbUrl);
+        properties.setProperty("db.user", dbUsername);
+        properties.setProperty("db.password", dbPassword);
     }
 
     /**
@@ -818,16 +796,31 @@ public class InstallWizard {
     }
 
     public void setWorkingDir(String workingDir) {
-        workingDirChanged = !workingDir.equals(this.workingDir);
+        destroyPropertyContext();
+
+        workingDirChanged = workingDirChanged || !workingDir.equals(this.workingDir);
         this.workingDir = workingDir;
 
         // Other configurations depend on this property
         PreferencesManager.INSTANCE.setWebStudioHomeDir(getAppName(), this.workingDir);
+
+        propertiesContext = new XmlWebApplicationContext();
+        propertiesContext.setServletContext(FacesUtils.getServletContext());
+        propertiesContext.setConfigLocations("/WEB-INF/spring/webstudio-property-placeholder.xml");
+        propertiesContext.refresh();
+        propertyResolver = propertiesContext.getBean(PropertyResolver.class);
+        properties = new InMemoryProperties(propertyResolver);
+
+        String newWorkingDir = propertyResolver.getProperty(PreferencesManager.WEBSTUDIO_WORKING_DIR_KEY);
+        if (!workingDir.equals(newWorkingDir)) {
+            log.warn("Expected working dir {} but WebStudio sees it as {}", workingDir, newWorkingDir);
+            throw new IllegalStateException("WebStudio sees working dir as " + newWorkingDir);
+        }
     }
 
     private String getAppName() {
-        return PropertySourcesLoader.getAppName(WebApplicationContextUtils
-            .getRequiredWebApplicationContext(FacesUtils.getServletContext()));
+        return PropertySourcesLoader
+            .getAppName(WebApplicationContextUtils.getRequiredWebApplicationContext(FacesUtils.getServletContext()));
     }
 
     public String getGroupsAreManagedInStudio() {
@@ -957,21 +950,19 @@ public class InstallWizard {
 
     public boolean isUseDesignRepo() {
         return !Boolean
-            .parseBoolean(systemConfig.getStringProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO));
+            .parseBoolean(propertyResolver.getProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO));
     }
 
     public void setUseDesignRepo(boolean useDesignRepo) {
-        systemConfig.setProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO, !useDesignRepo);
+        properties.setProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO, !useDesignRepo);
     }
 
-    // todo: put there property resolver
     public FolderStructureSettings getDesignFolderStructure() {
-        return new FolderStructureSettings(null, ConfigNames.DESIGN_CONFIG);
+        return new FolderStructureSettings(propertyResolver, ConfigNames.DESIGN_CONFIG);
     }
 
-    // todo: put there property resolver
     public FolderStructureSettings getDeployConfigFolderStructure() {
-        return new FolderStructureSettings(null, ConfigNames.DEPLOY_CONFIG);
+        return new FolderStructureSettings(propertyResolver, ConfigNames.DEPLOY_CONFIG);
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
@@ -994,19 +985,16 @@ public class InstallWizard {
     @PreDestroy
     public void destroy() {
         destroyRepositoryObjects();
-        destroyTemporaryContext();
+        destroyDbContext();
+        destroyPropertyContext();
     }
 
-    private void migrateDatabase(final Map<String, Object> dbProperties) {
+    private void migrateDatabase() {
         try (XmlWebApplicationContext ctx = new XmlWebApplicationContext()) {
             ctx.setServletContext(FacesUtils.getServletContext());
             ctx.setConfigLocations("classpath:META-INF/standalone/spring/security-hibernate-beans.xml");
-            ctx.addBeanFactoryPostProcessor(new BeanFactoryPostProcessor() {
-                @Override
-                public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-                    beanFactory.registerSingleton("dbConfig", dbProperties);
-                }
-            });
+            ctx.addBeanFactoryPostProcessor(beanFactory -> beanFactory.registerSingleton("propertyLoader",
+                new DelegatedPropertySourceLoader(properties)));
             ctx.refresh();
             ctx.getBean("dbMigration");
         }
@@ -1015,18 +1003,11 @@ public class InstallWizard {
     private void initProductionRepositoryEditor() {
         destroyRepositoryObjects();
 
-        final ConfigurationManagerFactory productionConfigManagerFactory = new ConfigurationManagerFactory(
-            "/rules-production.properties",
-            workingDir + "/system-settings/",
-            "");
-        productionRepositoryFactoryProxy = null;
-        // productionRepositoryFactoryProxy.setConfigManagerFactory(productionConfigManagerFactory);
-        // productionRepositoryEditor = new ProductionRepositoryEditor(systemConfig,
-        // productionConfigManagerFactory,
-        // productionRepositoryFactoryProxy);
+        productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy(propertyResolver);
+        productionRepositoryEditor = new ProductionRepositoryEditor(productionRepositoryFactoryProxy, properties);
 
         connectionProductionRepoController = new ConnectionProductionRepoController();
-        connectionProductionRepoController.setProductionConfigManagerFactory(productionConfigManagerFactory);
+        connectionProductionRepoController.setProperties(properties);
         connectionProductionRepoController.setProductionRepositoryFactoryProxy(productionRepositoryFactoryProxy);
         connectionProductionRepoController
             .setProductionRepositoryConfigurations(getProductionRepositoryConfigurations());
@@ -1044,13 +1025,20 @@ public class InstallWizard {
         }
     }
 
-    private void destroyTemporaryContext() {
-        if (temporaryContext != null) {
+    private void destroyDbContext() {
+        if (dbContext != null) {
             if (groupManagementService instanceof GroupManagementServiceWrapper) {
                 ((GroupManagementServiceWrapper) groupManagementService).setDelegate(null);
             }
-            temporaryContext.close();
-            temporaryContext = null;
+            dbContext.close();
+            dbContext = null;
+        }
+    }
+
+    private void destroyPropertyContext() {
+        if (propertiesContext != null) {
+            propertiesContext.close();
+            propertiesContext = null;
         }
     }
 
@@ -1060,5 +1048,6 @@ public class InstallWizard {
 
     public void setPropertyResolver(PropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;
+        properties = new InMemoryProperties(propertyResolver);
     }
 }

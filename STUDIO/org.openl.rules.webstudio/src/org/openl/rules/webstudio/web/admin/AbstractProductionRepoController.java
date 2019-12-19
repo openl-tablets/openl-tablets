@@ -5,11 +5,9 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedProperty;
 
-import org.openl.config.ConfigurationManager;
-import org.openl.config.ConfigurationManagerFactory;
+import org.openl.config.PropertiesHolder;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.util.StringUtils;
-import org.springframework.core.env.PropertyResolver;
 
 /**
  * @author Pavel Tarasevich
@@ -21,30 +19,22 @@ public abstract class AbstractProductionRepoController {
     private boolean checked = false;
     private String errorMessage = "";
 
-    @ManagedProperty(value = "#{productionRepositoryConfigManagerFactory}")
-    private ConfigurationManagerFactory productionConfigManagerFactory;
-
     @ManagedProperty(value = "#{systemSettingsBean}")
     private SystemSettingsBean systemSettingsBean;
 
     @ManagedProperty(value = "#{productionRepositoryFactoryProxy}")
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
-    @ManagedProperty(value = "#{environment}")
-    PropertyResolver propertyResolver;
+    private PropertiesHolder properties;
 
-    private RepositoryConfiguration defaultRepoConfig;
     private List<RepositoryConfiguration> productionRepositoryConfigurations;
 
     @PostConstruct
     public void afterPropertiesSet() {
         setProductionRepositoryConfigurations(systemSettingsBean.getProductionRepositoryConfigurations());
-//        repositoryConfiguration = createDummyRepositoryConfiguration();
+        setProperties(systemSettingsBean.getProperties());
+        repositoryConfiguration = createDummyRepositoryConfiguration();
         systemSettingsBean = null;
-    }
-
-    public void setPropertyResolver(PropertyResolver propertyResolver) {
-        this.propertyResolver = propertyResolver;
     }
 
     protected void addProductionRepoToMainConfig(RepositoryConfiguration repoConf) {
@@ -60,14 +50,8 @@ public abstract class AbstractProductionRepoController {
         this.productionRepositoryConfigurations = productionRepositoryConfigurations;
     }
 
-    private String getConfigurationName(String name) {
-        String configName = "rules-";
-        if (name != null) {
-            configName += name.toLowerCase();
-        }
-        configName += ".properties";
-
-        return configName;
+    public void setProperties(PropertiesHolder properties) {
+        this.properties = properties;
     }
 
     public RepositoryConfiguration getRepositoryConfiguration() {
@@ -76,30 +60,10 @@ public abstract class AbstractProductionRepoController {
 
     protected RepositoryConfiguration createRepositoryConfiguration() {
         String name = repositoryConfiguration.getName();
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(getConfigurationName(name), propertyResolver);
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(name, properties);
 
         repoConfig.copyContent(repositoryConfiguration);
         repoConfig.commit();
-        return repoConfig;
-    }
-
-    protected RepositoryConfiguration createAdminRepositoryConfiguration() {
-        String name = repositoryConfiguration.getName();
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(name, propertyResolver);
-
-        repoConfig.copyContent(repositoryConfiguration);
-
-        RepositorySettings settings = repoConfig.getSettings();
-        if (settings instanceof CommonRepositorySettings) {
-            CommonRepositorySettings repoSettings = (CommonRepositorySettings) settings;
-
-            if (repoSettings.isSecure()) {
-                /* Default Admin credentials for creating new admin user in repo */
-                repoSettings.setLogin("admin");
-                repoSettings.setPassword("admin");
-            }
-        }
-
         return repoConfig;
     }
 
@@ -109,7 +73,10 @@ public abstract class AbstractProductionRepoController {
     }
 
     private RepositoryConfiguration createDummyRepositoryConfiguration() {
-        RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration("def", propertyResolver);
+        RepositoryConfiguration previousConfig = productionRepositoryConfigurations
+            .get(productionRepositoryConfigurations.size() - 1);
+        RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration(previousConfig.getConfigName(),
+            properties);
         repositoryConfiguration.setType(RepositoryType.DB.name().toLowerCase());
         return repositoryConfiguration;
     }
@@ -135,14 +102,6 @@ public abstract class AbstractProductionRepoController {
     }
 
     public abstract void save();
-
-    public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
-        this.productionConfigManagerFactory = productionConfigManagerFactory;
-    }
-
-    private ConfigurationManager getProductionConfigManager(String name) {
-        return productionConfigManagerFactory.getConfigurationManager(getConfigurationName(name));
-    }
 
     public void setSystemSettingsBean(SystemSettingsBean systemSettingsBean) {
         this.systemSettingsBean = systemSettingsBean;

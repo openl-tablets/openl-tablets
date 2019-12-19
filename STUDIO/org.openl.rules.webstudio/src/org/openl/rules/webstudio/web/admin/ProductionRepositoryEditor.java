@@ -6,26 +6,22 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.openl.config.ConfigurationManager;
+import org.openl.config.PropertiesHolder;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.util.StringUtils;
-import org.springframework.core.env.PropertyResolver;
 
 public class ProductionRepositoryEditor {
-    private final ConfigurationManager configManager;
     private final ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
     private List<RepositoryConfiguration> productionRepositoryConfigurations = new ArrayList<>();
     private List<RepositoryConfiguration> deletedConfigurations = new ArrayList<>();
 
-    private PropertyResolver propertyResolver;
+    private PropertiesHolder properties;
 
-    public ProductionRepositoryEditor(ConfigurationManager configManager,
-            ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy,
-            PropertyResolver propertyResolver) {
-        this.configManager = configManager;
+    public ProductionRepositoryEditor(ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy,
+        PropertiesHolder properties) {
         this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
-        this.propertyResolver = propertyResolver;
+        this.properties = properties;
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
@@ -40,9 +36,9 @@ public class ProductionRepositoryEditor {
         productionRepositoryConfigurations.clear();
 
         String[] repositoryConfigNames = split(
-            propertyResolver.getProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS));
+            properties.getProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS));
         for (String configName : repositoryConfigNames) {
-            RepositoryConfiguration config = new RepositoryConfiguration(configName, propertyResolver);
+            RepositoryConfiguration config = new RepositoryConfiguration(configName, properties);
             productionRepositoryConfigurations.add(config);
         }
     }
@@ -84,7 +80,7 @@ public class ProductionRepositoryEditor {
             if (callback != null) {
                 callback.onDelete(prodConfig.getConfigName());
             }
-            prodConfig.delete();
+            prodConfig.revert();
         }
 
         deletedConfigurations.clear();
@@ -96,33 +92,33 @@ public class ProductionRepositoryEditor {
             productionRepositoryConfigurations.set(i, newProdConfig);
             configNames[i] = newProdConfig.getConfigName();
         }
-        configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, join(configNames));
+        properties.setProperty(PRODUCTION_REPOSITORY_CONFIGS, join(configNames));
     }
 
     public void revertChanges() {
         for (RepositoryConfiguration prodConfig : deletedConfigurations) {
-            prodConfig.delete();
+            prodConfig.revert();
         }
         deletedConfigurations.clear();
 
         for (RepositoryConfiguration productionRepositoryConfiguration : productionRepositoryConfigurations) {
-            productionRepositoryConfiguration.delete();
+            productionRepositoryConfiguration.revert();
         }
         productionRepositoryConfigurations.clear();
+
+        properties.revertProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS);
     }
 
     private RepositoryConfiguration saveProductionRepository(RepositoryConfiguration prodConfig, Callback callback) {
-        boolean changed = prodConfig.save();
-        if (changed) {
-            String oldConfigName = prodConfig.getConfigName();
-            if (prodConfig.isNameChangedIgnoreCase()) {
-                prodConfig = renameConfigName(prodConfig);
-            }
-            String newConfigName = prodConfig.getConfigName();
+        prodConfig.commit();
+        String oldConfigName = prodConfig.getConfigName();
+        if (prodConfig.isNameChangedIgnoreCase()) {
+            prodConfig = renameConfigName(prodConfig);
+        }
+        String newConfigName = prodConfig.getConfigName();
 
-            if (callback != null) {
-                callback.onRename(oldConfigName, newConfigName);
-            }
+        if (callback != null) {
+            callback.onRename(oldConfigName, newConfigName);
         }
         return prodConfig;
     }
@@ -130,24 +126,24 @@ public class ProductionRepositoryEditor {
     private RepositoryConfiguration renameConfigName(RepositoryConfiguration prodConfig) {
         // Move config to a new file
         String newConfigName = prodConfig.getName();
-        RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, propertyResolver);
+        RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, properties);
         newConfig.copyContent(prodConfig);
-        newConfig.save();
+        newConfig.commit();
 
         // Rename link to a file in system config
         String[] configNames = split(
-            configManager.getStringProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS));
+            properties.getProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS));
         for (int i = 0; i < configNames.length; i++) {
             if (configNames[i].equals(prodConfig.getConfigName())) {
                 // Found necessary link - rename it
                 configNames[i] = newConfigName;
-                configManager.setProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS, join(configNames));
+                properties.setProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS, join(configNames));
                 break;
             }
         }
 
         // Delete old config file
-        prodConfig.delete();
+        prodConfig.revert();
 
         return newConfig;
     }
