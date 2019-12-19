@@ -63,6 +63,7 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
@@ -382,7 +383,7 @@ public final class DecisionTableHelper {
             firstColumnHeight,
             bindingContext);
 
-        writeEmptyColumns(decisionTable, originalTable, dtHeaders, firstColumnHeight, bindingContext);
+        writeUnmatchedColumns(decisionTable, originalTable, dtHeaders, firstColumnHeight, bindingContext);
 
         writeActions(decisionTable, originalTable, grid, dtHeaders, firstColumnHeight, bindingContext);
 
@@ -1089,16 +1090,16 @@ public final class DecisionTableHelper {
     private static final String[] MIN_MAX_ORDER = new String[] { "min", "max" };
     private static final String[] MAX_MIN_ORDER = new String[] { "max", "min" };
 
-    private static void writeEmptyColumns(DecisionTable decisionTable,
+    private static void writeUnmatchedColumns(DecisionTable decisionTable,
             ILogicalTable originalTable,
             List<DTHeader> dtHeaders,
             int firstColumnHeight,
             IBindingContext bindingContext) throws OpenLCompilationException {
-        List<DTHeader> empties = dtHeaders.stream()
+        List<DTHeader> unmatched = dtHeaders.stream()
             .filter(e -> e instanceof UnmatchedDtHeader)
             .collect(collectingAndThen(toList(), Collections::unmodifiableList));
-        for (DTHeader empty : empties) {
-            int column = empty.getColumn();
+        for (DTHeader dtHeader : unmatched) {
+            int column = dtHeader.getColumn();
             if (column > originalTable.getSource().getWidth()) {
                 String message = "Wrong table structure: Columns count is less than parameters count";
                 throw new OpenLCompilationException(message);
@@ -1108,7 +1109,7 @@ public final class DecisionTableHelper {
                 throw new OpenLCompilationException(message);
             }
             if (!bindingContext.isExecutionMode()) {
-                writeMetaInfoForDescription(originalTable, decisionTable, firstColumnHeight, column);
+                writeMetaInfoForUnmatched(originalTable, decisionTable, column, firstColumnHeight - 1);
             }
         }
     }
@@ -1154,16 +1155,15 @@ public final class DecisionTableHelper {
                 //
                 numOfVCondition++;
                 if (numOfVCondition == 1 && numberOfHCondition == 0 && conditions.size() < 2) {
-                    header = (DecisionTableColumnHeaders.MERGED_CONDITION.getHeaderKey() + numOfVCondition + 1)
-                        .intern();
+                    header = (DecisionTableColumnHeaders.MERGED_CONDITION.getHeaderKey() + numOfVCondition);
                 } else {
-                    header = (DecisionTableColumnHeaders.CONDITION.getHeaderKey() + numOfVCondition).intern();
+                    header = (DecisionTableColumnHeaders.CONDITION.getHeaderKey() + numOfVCondition);
                 }
             } else {
                 // write horizontal condition
                 //
                 numOfHCondition++;
-                header = (DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey() + numOfHCondition).intern();
+                header = (DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey() + numOfHCondition);
             }
 
             if (condition instanceof DeclaredDTHeader) {
@@ -1305,14 +1305,14 @@ public final class DecisionTableHelper {
         }
     }
 
-    private static void writeMetaInfoForDescription(ILogicalTable originalTable,
+    private static void writeMetaInfoForUnmatched(ILogicalTable originalTable,
             DecisionTable decisionTable,
             int column,
-            int firstColumnHeight) {
+            int row) {
         MetaInfoReader metaReader = decisionTable.getSyntaxNode().getMetaInfoReader();
         if (metaReader instanceof DecisionTableMetaInfoReader) {
             DecisionTableMetaInfoReader metaInfoReader = (DecisionTableMetaInfoReader) metaReader;
-            ICell cell = originalTable.getSource().getCell(column, firstColumnHeight - 1);
+            ICell cell = originalTable.getSource().getCell(column, row);
             cell = cell.getTopLeftCellFromRegion();
             metaInfoReader.addDescription(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
         }
@@ -1872,7 +1872,7 @@ public final class DecisionTableHelper {
     private static final int FITS_MAX_LIMIT = 10000;
     private static final int MAX_NUMBER_OF_RETURNS = 3;
 
-    private static void bruteForceHeaders(ILogicalTable originalTable,
+    private static boolean bruteForceHeaders(ILogicalTable originalTable,
             int column,
             int numberOfVConditionParameters,
             int firstColumnHeight,
@@ -1888,7 +1888,7 @@ public final class DecisionTableHelper {
             int numberOfReturns,
             int fuzzyReturnsFlag) {
         if (fits.size() > FITS_MAX_LIMIT) {
-            return;
+            return column >= lastColumn;
         }
         List<Integer> indexes = columnToIndex.get(column);
         if (indexes == null || usedParameterIndexes.size() >= numberOfVConditionParameters) {
@@ -1898,7 +1898,7 @@ public final class DecisionTableHelper {
             }
             fits.add(Collections.unmodifiableList(fit));
         }
-        boolean noReturnUsableForThisColumn = false;
+        boolean lastColumnReached = column >= lastColumn;
         if (indexes != null) {
             boolean last = true;
             for (Integer index : indexes) {
@@ -1911,8 +1911,6 @@ public final class DecisionTableHelper {
                 }
                 if (f) {
                     DTHeader dtHeader = dtHeaders.get(index);
-                    noReturnUsableForThisColumn = noReturnUsableForThisColumn || dtHeader.isCondition() || dtHeader
-                        .isAction() || dtHeader.isHCondition();
                     boolean isFuzzyReturn = false;
                     if (dtHeader instanceof FuzzyDTHeader) {
                         FuzzyDTHeader fuzzyDTHeader = (FuzzyDTHeader) dtHeader;
@@ -1936,7 +1934,7 @@ public final class DecisionTableHelper {
                             last = false;
                             usedIndexes.add(index);
                             used.add(dtHeaders.get(index));
-                            bruteForceHeaders(originalTable,
+                            lastColumnReached = lastColumnReached | bruteForceHeaders(originalTable,
                                 column + dtHeader.getWidth(),
                                 numberOfVConditionParameters,
                                 firstColumnHeight,
@@ -1961,11 +1959,11 @@ public final class DecisionTableHelper {
                 failedToFit.addAll(indexes);
             }
         }
-        if (indexes == null || !noReturnUsableForThisColumn && numberOfReturns == 0) {
+        if (!lastColumnReached && numberOfReturns == 0) {
             ICell cell = originalTable.getSource().getCell(column, firstColumnHeight - 1);
             if (column + cell.getWidth() < lastColumn) {
                 used.add(new UnmatchedDtHeader(new int[] {}, StringUtils.EMPTY, column, cell.getWidth()));
-                bruteForceHeaders(originalTable,
+                lastColumnReached = bruteForceHeaders(originalTable,
                     column + cell.getWidth(),
                     firstColumnHeight,
                     numberOfVConditionParameters,
@@ -1983,6 +1981,7 @@ public final class DecisionTableHelper {
                 used.remove(used.size() - 1);
             }
         }
+        return lastColumnReached;
     }
 
     private static List<List<DTHeader>> filterHeadersByMax(List<List<DTHeader>> fits,
@@ -2290,8 +2289,6 @@ public final class DecisionTableHelper {
             all);
         fits = filterHeadersByMatchType(fits);
 
-        fits = filterHeadersByMin(fits, e -> e.stream().filter(e1 -> e1 instanceof UnmatchedDtHeader).count(), all);
-
         if (numberOfHCondition != numberOfParameters) {
             // full matches with condition headers
             fits = filterHeadersByMax(fits, e -> e.stream().anyMatch(DTHeader::isCondition) ? 1L : 0L, all);
@@ -2304,6 +2301,8 @@ public final class DecisionTableHelper {
             // Lookup table with no returns columns
             fits = fits.stream().filter(e -> e.stream().noneMatch(DTHeader::isReturn)).collect(toList());
         }
+
+        fits = filterHeadersByMin(fits, e -> e.stream().filter(e1 -> e1 instanceof UnmatchedDtHeader).count(), all);
 
         fits = filterHeadersByMax(fits,
             e -> e.stream().flatMapToInt(c -> Arrays.stream(c.getMethodParameterIndexes())).distinct().count(),
@@ -2369,8 +2368,10 @@ public final class DecisionTableHelper {
                     all);
             }
             if (fits.get(0).stream().anyMatch(e -> e instanceof UnmatchedDtHeader)) {
-                bindingContext.addError(
-                    SyntaxNodeExceptionUtils.createError("Smart table has unmatched columns.", tableSyntaxNode));
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Smart table has unmatched columns.",
+                    tableSyntaxNode);
+                bindingContext.addError(error);
+                tableSyntaxNode.addError(error);
             }
             return fits.get(0);
         }
