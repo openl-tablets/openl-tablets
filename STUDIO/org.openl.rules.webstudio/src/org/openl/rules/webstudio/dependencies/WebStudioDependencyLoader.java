@@ -6,7 +6,6 @@ import java.util.LinkedHashSet;
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
@@ -35,8 +34,7 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
     }
 
     @Override
-    protected CompiledDependency onCompilationFailure(Exception ex,
-            AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
+    protected CompiledDependency onCompilationFailure(Exception ex, AbstractDependencyManager dependencyManager) {
         ClassLoader classLoader = dependencyManager.getClassLoader(getProject());
         return createFailedCompiledDependency(getDependencyName(), classLoader, ex);
     }

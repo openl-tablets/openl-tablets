@@ -20,7 +20,6 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
-import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
@@ -73,15 +72,18 @@ import com.rits.cloning.Cloner;
  *
  */
 public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableModuleOpenClass {
+
+    public static final String DISABLED_CLEAN_UP = "XLS_OPEN_CLASS_DISABLED_CLEANUP";
+
     private final Logger log = LoggerFactory.getLogger(XlsModuleOpenClass.class);
 
-    private IDataBase dataBase = null;
+    private IDataBase dataBase;
 
     /**
      * Whether DecisionTable should be used as a dispatcher for overloaded tables. By default(this flag equals false)
      * dispatching logic will be performed in Java code.
      */
-    private boolean useDescisionTableDispatcher;
+    private boolean useDecisionTableDispatcher;
 
     private boolean dispatchingValidationEnabled;
 
@@ -96,8 +98,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private XlsDefinitions xlsDefinitions = new XlsDefinitions();
 
     private String csrBeansPackage;
-
-    private boolean clearedData = false;
 
     public RulesModuleBindingContext getRulesModuleBindingContext() {
         return rulesModuleBindingContext;
@@ -118,8 +118,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
         this.dataBase = dbase;
         this.metaInfo = metaInfo;
-        this.useDescisionTableDispatcher = OpenLSystemProperties
-            .isDTDispatchingMode(bindingContext.getExternalParams());
+        this.useDecisionTableDispatcher = OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams());
         this.dispatchingValidationEnabled = OpenLSystemProperties
             .isDispatchingValidationEnabled(bindingContext.getExternalParams());
         this.classLoader = classLoader;
@@ -158,8 +157,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return csrBeansPackage;
     }
 
-    public boolean isUseDescisionTableDispatcher() {
-        return useDescisionTableDispatcher;
+    public boolean isUseDecisionTableDispatcher() {
+        return useDecisionTableDispatcher;
     }
 
     public ClassLoader getClassLoader() {
@@ -298,9 +297,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     if (XlsNodeTypes.XLS_DATA.toString().equals(table.getTableSyntaxNode().getType())) {
                         try {
                             getDataBase().registerTable(table);
-                        } catch (DuplicatedTableException e) {
-                            addError(e);
-                        } catch (OpenlNotCheckedException e) {
+                        } catch (DuplicatedTableException | OpenlNotCheckedException e) {
                             addError(e);
                         }
                     }
@@ -538,7 +535,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private OpenMethodDispatcher getOpenMethodDispatcher(IOpenMethod method) {
         OpenMethodDispatcher decorator;
         IOpenMethod decorated = undecorateForMultimoduleDispatching(method);
-        if (useDescisionTableDispatcher) {
+        if (useDecisionTableDispatcher) {
             decorator = new OverloadedMethodsDispatcherTable(decorated, this);
         } else {
             decorator = new MatchingOpenMethodDispatcher(decorated, this);
@@ -548,19 +545,12 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     @Override
     public void clearOddDataForExecutionMode() {
-        if (clearedData) {
-            return;
+        if (rulesModuleBindingContext == null || !Boolean.TRUE
+            .equals(rulesModuleBindingContext.getExternalParams().get(DISABLED_CLEAN_UP))) {
+            super.clearOddDataForExecutionMode();
+            dataBase = null;
+            rulesModuleBindingContext = null;
         }
-        super.clearOddDataForExecutionMode();
-        dataBase = null;
-        rulesModuleBindingContext = null;
-        for (CompiledDependency dependency : getDependencies()) {
-            IOpenClass openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
-            if (openClass instanceof ComponentOpenClass) {
-                ((ComponentOpenClass) openClass).clearOddDataForExecutionMode();
-            }
-        }
-        clearedData = true;
     }
 
     public void completeOpenClassBuilding() {

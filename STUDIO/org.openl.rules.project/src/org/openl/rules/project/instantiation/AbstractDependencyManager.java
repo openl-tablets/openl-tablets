@@ -3,11 +3,14 @@ package org.openl.rules.project.instantiation;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
+import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
@@ -18,6 +21,7 @@ import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
+import org.openl.types.IOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +35,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     private final Map<String, ClassLoader> classLoaders = new HashMap<>();
     private final ClassLoader rootClassLoader;
     protected boolean executionMode;
-    protected Map<String, Object> externalParameters;
+    private Map<String, Object> externalParameters;
 
     public static class DependencyReference {
         String reference;
@@ -79,13 +83,10 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                 return false;
             }
             if (dependency == null) {
-                if (other.dependency != null) {
-                    return false;
-                }
-            } else if (!dependency.equals(other.dependency)) {
-                return false;
+                return other.dependency == null;
+            } else {
+                return dependency.equals(other.dependency);
             }
-            return true;
         }
 
         @Override
@@ -100,7 +101,12 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             Map<String, Object> externalParameters) {
         this.rootClassLoader = rootClassLoader;
         this.executionMode = executionMode;
-        this.externalParameters = externalParameters == null ? Collections.emptyMap() : externalParameters;
+        this.externalParameters = new HashMap<>();
+        this.externalParameters.put(XlsModuleOpenClass.DISABLED_CLEAN_UP, Boolean.TRUE);
+        if (externalParameters != null) {
+            this.externalParameters.putAll(externalParameters);
+        }
+        this.externalParameters = Collections.unmodifiableMap(this.externalParameters);
     }
 
     public final Map<String, IDependencyLoader> getDependencyLoaders() {
@@ -154,7 +160,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                     extractCircularDependencyDetails(dependencyName, compilationStack)));
             }
 
-            CompiledDependency compiledDependency = null;
+            CompiledDependency compiledDependency;
             try {
                 compilationStack.push(dependencyName);
                 log.debug("Dependency '{}' is added to compilation stack.", dependencyName);
@@ -175,6 +181,17 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         } finally {
             if (compilationStack.isEmpty()) {
                 compilationStackThreadLocal.remove(); // Clean thread
+                // for (Collection<IDependencyLoader> dependencyLoaders : getDependencyLoaders().values()) {
+                for (IDependencyLoader dl : getDependencyLoaders().values()) {
+                    if (dl.isCompiled()) {
+                        CompiledOpenClass compiledOpenClass = dl.getCompiledDependency().getCompiledOpenClass();
+                        IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
+                        if (openClass instanceof ComponentOpenClass) {
+                            ((ComponentOpenClass) openClass).clearOddDataForExecutionMode();
+                        }
+                    }
+                }
+                // }
             }
         }
     }
@@ -318,9 +335,6 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     /**
      * In execution mode all meta info that is not used in rules running is being cleaned.
-     *
-     * @param executionMode flag indicating is it execution mode or not.
-     *
      */
     @Override
     public boolean isExecutionMode() {
@@ -329,12 +343,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     @Override
     public Map<String, Object> getExternalParameters() {
-        return Collections.unmodifiableMap(externalParameters);
+        return externalParameters;
     }
 
-    @Override
-    public boolean isEmptyDependencyCompilationStack() {
-        Deque<String> compilationStack = getCompilationStack();
-        return compilationStack == null || compilationStack.isEmpty();
-    }
 }

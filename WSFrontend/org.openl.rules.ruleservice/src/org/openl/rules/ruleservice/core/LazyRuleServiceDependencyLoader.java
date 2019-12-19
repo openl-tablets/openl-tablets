@@ -32,7 +32,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
 
     private final RuleServiceDeploymentRelatedDependencyManager dependencyManager;
     private final String dependencyName;
-    private final boolean realCompileRequred;
+    private final boolean realCompileRequired;
     private CompiledOpenClass lazyCompiledOpenClass;
     private final DeploymentDescription deployment;
     private final ProjectDescriptor project;
@@ -41,14 +41,19 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
     public LazyRuleServiceDependencyLoader(DeploymentDescription deployment,
             ProjectDescriptor project,
             Module module,
-            boolean realCompileRequred,
+            boolean realCompileRequired,
             RuleServiceDeploymentRelatedDependencyManager dependencyManager) {
         this.deployment = Objects.requireNonNull(deployment, "deployment cannot null.");
         this.project = Objects.requireNonNull(project, "project cannot be null");
         this.module = module;
-        this.realCompileRequred = realCompileRequred;
+        this.realCompileRequired = realCompileRequired;
         this.dependencyManager = Objects.requireNonNull(dependencyManager, "dependencyManager cannot be null");
         this.dependencyName = SimpleDependencyLoader.buildDependencyName(project, module);
+    }
+
+    @Override
+    public boolean isCompiled() {
+        return lazyCompiledOpenClass != null;
     }
 
     private Collection<Module> getModules() {
@@ -85,7 +90,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
             dependencyName);
 
         final ClassLoader classLoader = buildClassLoader(dependencyManager);
-        RulesInstantiationStrategy rulesInstantiationStrategy = null;
+        RulesInstantiationStrategy rulesInstantiationStrategy;
         Collection<Module> modules = getModules();
         if (isProject()) {
             if (modules.isEmpty()) {
@@ -179,7 +184,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
             try {
                 dependencyManager.compilationBegin(this);
                 lazyCompiledOpenClass = rulesInstantiationStrategy.compile();
-                if (!isProject() && realCompileRequred) {
+                if (!isProject() && realCompileRequired) {
                     compileAfterLazyCompile(lazyCompiledOpenClass,
                         dependencyName,
                         dependencyManager,
@@ -187,12 +192,12 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                         modules.iterator().next());
                 }
                 dependencyManager.compilationCompleted(this,
-                    realCompileRequred ? DependencyCompilationType.UNLOADABLE : DependencyCompilationType.LAZY,
+                    realCompileRequired ? DependencyCompilationType.UNLOADABLE : DependencyCompilationType.LAZY,
                     !lazyCompiledOpenClass.hasErrors());
             } finally {
                 if (lazyCompiledOpenClass == null) {
                     dependencyManager.compilationCompleted(this,
-                        realCompileRequred ? DependencyCompilationType.UNLOADABLE : DependencyCompilationType.LAZY,
+                        realCompileRequired ? DependencyCompilationType.UNLOADABLE : DependencyCompilationType.LAZY,
                         false);
                 }
             }

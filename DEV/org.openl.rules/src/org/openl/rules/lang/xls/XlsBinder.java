@@ -222,28 +222,36 @@ public class XlsBinder implements IOpenBinder {
             getModuleDatabase(),
             compiledDependencies,
             bindingContext);
-        RulesModuleBindingContext rulesModuleBindingContext = moduleOpenClass.getRulesModuleBindingContext();
+        try {
+            RulesModuleBindingContext rulesModuleBindingContext = moduleOpenClass.getRulesModuleBindingContext();
 
-        if (compiledDependencies != null) {
-            /*
-             * Bind module with processing dependent modules, previously compiled.<br> Creates {@link
-             * XlsModuleOpenClass} with dependencies and<br> populates {@link RulesModuleBindingContext} for current
-             * module with types<br> from dependent modules.
-             */
-            try {
-                for (IOpenClass type : moduleOpenClass.getTypes()) {
-                    rulesModuleBindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, type);
+            if (compiledDependencies != null) {
+                /*
+                 * Bind module with processing dependent modules, previously compiled.<br> Creates {@link
+                 * XlsModuleOpenClass} with dependencies and<br> populates {@link RulesModuleBindingContext} for current
+                 * module with types<br> from dependent modules.
+                 */
+                try {
+                    for (IOpenClass type : moduleOpenClass.getTypes()) {
+                        rulesModuleBindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, type);
+                    }
+                } catch (Exception ex) {
+                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
+                        String.format("Failed to add a datatype from dependency '%s'.", moduleOpenClass.getName()),
+                        ex,
+                        moduleNode);
+                    bindingContext.addError(error);
                 }
-            } catch (Exception ex) {
-                SyntaxNodeException error = SyntaxNodeExceptionUtils
-                    .createError("Cannot add datatype from dependency", ex, moduleNode);
-                bindingContext.addError(error);
+            }
+
+            topNode = processBinding(moduleNode, openl, rulesModuleBindingContext, moduleOpenClass, bindingContext);
+
+            return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), bindingContext.getMessages());
+        } finally {
+            if (bindingContext.isExecutionMode()) {
+                moduleOpenClass.clearOddDataForExecutionMode();
             }
         }
-
-        topNode = processBinding(moduleNode, openl, rulesModuleBindingContext, moduleOpenClass, bindingContext);
-
-        return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), bindingContext.getMessages());
     }
 
     protected IDataBase getModuleDatabase() {
@@ -344,7 +352,7 @@ public class XlsBinder implements IOpenBinder {
             TableSyntaxNode[] testTables = selectNodes(moduleNode, testMethodSelector);
             topNode = bindInternal(moduleNode, moduleOpenClass, testTables, openl, rulesModuleBindingContext);
 
-            if (moduleOpenClass.isUseDescisionTableDispatcher()) {
+            if (moduleOpenClass.isUseDecisionTableDispatcher()) {
                 DispatcherTablesBuilder dispTableBuilder = new DispatcherTablesBuilder(
                     (XlsModuleOpenClass) topNode.getType(),
                     rulesModuleBindingContext);

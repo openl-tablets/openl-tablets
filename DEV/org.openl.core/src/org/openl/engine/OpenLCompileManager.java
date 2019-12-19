@@ -10,9 +10,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.ANodeBinder;
-import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.binding.impl.module.MethodBindingContext;
-import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.message.OpenLMessage;
 import org.openl.source.IOpenSourceCodeModule;
@@ -63,12 +61,7 @@ public class OpenLCompileManager extends OpenLHolder {
             processedCode = sourceManager.processSource(source, SourceType.MODULE, dependencyManager);
         }
 
-        IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
-        if (executionMode) {
-            ((ModuleOpenClass) openClass).clearOddDataForExecutionMode();
-        }
-
-        return openClass;
+        return processedCode.getBoundCode().getTopNode().getType();
     }
 
     /**
@@ -82,7 +75,6 @@ public class OpenLCompileManager extends OpenLHolder {
     public CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule source,
             boolean executionMode,
             IDependencyManager dependencyManager) {
-        boolean isRootModule = dependencyManager == null || dependencyManager.isEmptyDependencyCompilationStack();
         ProcessedCode processedCode;
         if (executionMode) {
             IBindingContext bindingContext = sourceManager.getOpenL().getBinder().makeBindingContext();
@@ -99,17 +91,12 @@ public class OpenLCompileManager extends OpenLHolder {
         if (!executionMode) {
             // for WebStudio
             List<ValidationResult> validationResults = validationManager.validate(openClass);
-
             for (ValidationResult result : validationResults) {
                 messages.addAll(result.getMessages());
             }
         }
 
         messages.addAll(processedCode.getMessages());
-
-        if (executionMode && isRootModule && openClass instanceof ComponentOpenClass) {
-            ((ComponentOpenClass) openClass).clearOddDataForExecutionMode();
-        }
 
         return new CompiledOpenClass(openClass, messages, parsingErrors, bindingErrors);
     }
