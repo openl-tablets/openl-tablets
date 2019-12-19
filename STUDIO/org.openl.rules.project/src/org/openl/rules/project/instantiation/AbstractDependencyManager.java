@@ -3,7 +3,6 @@ package org.openl.rules.project.instantiation;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
@@ -186,17 +185,18 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         } finally {
             if (compilationStack.isEmpty()) {
                 compilationStackThreadLocal.remove(); // Clean thread
-                // for (Collection<IDependencyLoader> dependencyLoaders : getDependencyLoaders().values()) {
-                for (IDependencyLoader dl : getDependencyLoaders().values()) {
-                    if (dl.isCompiled()) {
-                        CompiledOpenClass compiledOpenClass = dl.getCompiledDependency().getCompiledOpenClass();
-                        IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
-                        if (openClass instanceof ComponentOpenClass) {
-                            ((ComponentOpenClass) openClass).clearOddDataForExecutionMode();
+                for (Collection<IDependencyLoader> depLoaders : getDependencyLoaders().values()) {
+                    for (IDependencyLoader depLoader : depLoaders) {
+                        if (depLoader.isCompiled()) {
+                            IOpenClass openClass = depLoader.getCompiledDependency()
+                                .getCompiledOpenClass()
+                                .getOpenClassWithErrors();
+                            if (openClass instanceof ComponentOpenClass) {
+                                ((ComponentOpenClass) openClass).clearOddDataForExecutionMode();
+                            }
                         }
                     }
                 }
-                // }
             }
         }
     }
@@ -330,9 +330,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         }
         classLoaders.clear();
         for (Collection<IDependencyLoader> dependencyLoaders : getDependencyLoaders().values()) {
-            for (IDependencyLoader dependencyLoader : dependencyLoaders) {
-                dependencyLoader.reset();
-            }
+            dependencyLoaders.forEach(IDependencyLoader::reset);
         }
     }
 
