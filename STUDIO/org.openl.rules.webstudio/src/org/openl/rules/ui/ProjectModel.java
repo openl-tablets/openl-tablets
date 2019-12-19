@@ -1,7 +1,9 @@
 package org.openl.rules.ui;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.*;
+import static org.openl.rules.security.Privileges.CREATE_TABLES;
+import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
+import static org.openl.rules.security.Privileges.EDIT_TABLES;
 
 import java.io.File;
 import java.util.*;
@@ -17,8 +19,12 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
-import org.openl.rules.lang.xls.*;
+import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
+import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.XlsWorkbookListener;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule.ModificationChecker;
+import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.load.LazyWorkbookLoaderFactory;
 import org.openl.rules.lang.xls.load.WorkbookLoaders;
@@ -29,7 +35,12 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.project.instantiation.*;
+import org.openl.rules.project.instantiation.IDependencyLoader;
+import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
+import org.openl.rules.project.instantiation.SimpleDependencyLoader;
+import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -41,7 +52,11 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.testmethod.*;
+import org.openl.rules.testmethod.ProjectHelper;
+import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.testmethod.TestSuiteExecutor;
+import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
@@ -935,8 +950,17 @@ public class ProjectModel {
             final String moduleName = moduleInfo.getName();
 
             compiledOpenClass = instantiationStrategy.compile();
-            IDependencyLoader dependencyLoader = webStudioWorkspaceDependencyManager.getDependencyLoaders()
+            Collection<IDependencyLoader> dependencyLoaders = webStudioWorkspaceDependencyManager.getDependencyLoaders()
                 .get(moduleName);
+            IDependencyLoader dependencyLoader = null;
+            for (IDependencyLoader dl : dependencyLoaders) {
+                if (Objects.equals(dl.getProject().getName(), moduleInfo.getProject().getName())) {
+                    dependencyLoader = dl;
+                }
+            }
+            if (dependencyLoader == null) {
+                throw new IllegalStateException(String.format("Module '%s' is not found!", moduleName));
+            }
             XlsMetaInfo metaInfo = (XlsMetaInfo) dependencyLoader.getCompiledDependency()
                 .getCompiledOpenClass()
                 .getOpenClassWithErrors()
