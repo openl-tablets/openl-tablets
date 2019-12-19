@@ -1,0 +1,1 @@
+ERROR: Smart table has unmatched columns.

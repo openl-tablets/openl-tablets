@@ -295,9 +295,9 @@ public final class TestMojo extends BaseOpenLMojo {
                     try {
                         Thread.currentThread().setContextClassLoader(openLRules.getClassLoader());
                         if (testSuiteExecutor == null) {
-                            result = new TestSuite(test, testRunner).invokeSequentially(openClass, 1L);
+                            result = new TestSuite(test, testRunner).invokeSequentially(openClass, 1);
                         } else {
-                            result = new TestSuite(test, testRunner).invokeParallel(testSuiteExecutor, openClass, 1L);
+                            result = new TestSuite(test, testRunner).invokeParallel(testSuiteExecutor, openClass, 1);
                         }
                     } finally {
                         Thread.currentThread().setContextClassLoader(oldClassLoader);

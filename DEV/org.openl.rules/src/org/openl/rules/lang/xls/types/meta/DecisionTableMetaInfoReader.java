@@ -82,6 +82,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
          */
         private final List<Pair<String, String>> inputParametersToReturn = new ArrayList<>();
 
+        private final List<CellKey> unmatchedColumns = new ArrayList<>();
+
         public Map<CellKey, HeaderMetaInfo> getSimpleRulesConditionMap() {
             return simpleRulesConditionMap;
         }
@@ -98,6 +100,10 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             return inputParametersToReturn;
         }
 
+        public List<CellKey> getUnmatchedColumns() {
+            return unmatchedColumns;
+        }
+
         public void merge(MetaInfoHolder metaInfoHolder) {
             if (metaInfoHolder == null) {
                 return;
@@ -106,6 +112,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             simpleRulesActionMap.putAll(metaInfoHolder.simpleRulesActionMap);
             simpleRulesReturnMap.putAll(metaInfoHolder.simpleRulesReturnMap);
             inputParametersToReturn.addAll(metaInfoHolder.inputParametersToReturn);
+            unmatchedColumns.addAll(metaInfoHolder.unmatchedColumns);
         }
     }
 
@@ -162,14 +169,14 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                 if (conditionRows != null) {
                     // Condition description
                     for (IBaseCondition conditionRow : conditionRows) {
-                        saveDescriptionMetaInfo((FunctionalRow) conditionRow, region);
+                        saveExpressionMetaInfo((FunctionalRow) conditionRow, region);
                     }
                 }
 
                 if (actionRows != null) {
                     // Action description
                     for (IBaseAction action : actionRows) {
-                        saveDescriptionMetaInfo((FunctionalRow) action, region);
+                        saveExpressionMetaInfo((FunctionalRow) action, region);
                     }
                 }
             }
@@ -180,7 +187,6 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                     saveValueMetaInfo(funcRow, region);
                 }
             }
-
             if (actionRows != null) {
                 // Action values
                 for (IBaseAction action : actionRows) {
@@ -323,6 +329,23 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         for (Map.Entry<CellKey, HeaderMetaInfo> entry : simpleRulesActionMap.entrySet()) {
             setMetaInfo(entry.getKey(), entry.getValue(), region, this::buildStringForAction);
         }
+        final List<CellKey> unmatchedColumns = getMetaInfos().getUnmatchedColumns();
+        for (CellKey cellKey : unmatchedColumns) {
+            setMetaInfoForUnmatchedColumn(cellKey);
+        }
+    }
+
+    private void setMetaInfoForUnmatchedColumn(CellKey cellKey) {
+        IGrid grid = getTableSyntaxNode().getGridTable().getGrid();
+        String cellValue = grid.getCell(cellKey.getColumn(), cellKey.getRow()).getStringValue();
+        SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0,
+            cellValue.length() - 1,
+            "Unmatched column",
+            null,
+            NodeType.OTHER);
+        setPreparedMetaInfo(cellKey.getRow(),
+            cellKey.getColumn(),
+            new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage)));
     }
 
     private void saveCompoundReturnColumn(IGridRegion region) {
@@ -365,6 +388,10 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         getMetaInfos().getSimpleRulesConditionMap()
             .put(CellKey.CellKeyFactory.getCellKey(col, row),
                 new HeaderMetaInfo(header, parameterNames, statement, columnTypes, url, additionalDetails));
+    }
+
+    public void addDescription(int row, int col) {
+        getMetaInfos().getUnmatchedColumns().add(CellKey.CellKeyFactory.getCellKey(col, row));
     }
 
     public void addSimpleRulesAction(int row,
@@ -434,7 +461,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
     }
 
-    private void saveDescriptionMetaInfo(FunctionalRow funcRow, IGridRegion region) {
+    private void saveExpressionMetaInfo(FunctionalRow funcRow, IGridRegion region) {
         // Condition/Action code (expression)
         ICell codeCell = funcRow.getCodeTable().getCell(0, 0);
         int row = codeCell.getAbsoluteRow();
