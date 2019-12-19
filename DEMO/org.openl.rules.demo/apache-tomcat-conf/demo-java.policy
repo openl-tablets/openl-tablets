@@ -178,6 +178,9 @@ grant codeBase "file:${catalina.home}/webapps/webservice/-" {
         permission java.io.FilePermission "${java.io.tmpdir}", "read,write,delete";
         permission java.io.FilePermission "${java.io.tmpdir}/-", "read,write,delete";
 
+        permission java.io.FilePermission "${openl.home}", "read,write,delete";
+        permission java.io.FilePermission "${openl.home}/-", "read,write,delete";
+
         //org.springframework.beans.factory
         permission java.io.FilePermission "${catalina.base}", "read";
         permission java.io.FilePermission "${catalina.base}/-", "read";
