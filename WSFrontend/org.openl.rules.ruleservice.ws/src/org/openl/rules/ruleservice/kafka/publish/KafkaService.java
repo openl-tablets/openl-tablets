@@ -200,22 +200,23 @@ public final class KafkaService implements Runnable {
                                 }
                                 String outputTopic = getOutTopic(consumerRecord);
                                 RequestMessage requestMessage = consumerRecord.value();
-
                                 if (storeLogData != null) {
                                     storeLogData.setServiceMethod(requestMessage.getMethod());
                                     storeLogData.setParameters(requestMessage.getParameters());
                                 }
-
                                 Object result = requestMessage.getMethod()
                                     .invoke(service.getServiceBean(), requestMessage.getParameters());
-                                ProducerRecord<String, Object> producerRecord;
                                 Header header = consumerRecord.headers().lastHeader(KafkaHeaders.REPLY_PARTITION);
+                                ProducerRecord<String, Object> producerRecord;
                                 if (header == null) {
-                                    producerRecord = new ProducerRecord<>(outputTopic, result);
+                                    producerRecord = new ProducerRecord<>(outputTopic, consumerRecord.key(), result);
                                 } else {
                                     Integer partition = Integer
                                         .parseInt(new String(header.value(), StandardCharsets.UTF_8));
-                                    producerRecord = new ProducerRecord<>(outputTopic, partition, null, result);
+                                    producerRecord = new ProducerRecord<>(outputTopic,
+                                        partition,
+                                        consumerRecord.key(),
+                                        result);
                                 }
                                 forwardHeadersToOutput(consumerRecord, producerRecord);
                                 if (storeLogData != null) {
@@ -353,10 +354,10 @@ public final class KafkaService implements Runnable {
             ProducerRecord<String, byte[]> dltRecord;
             Header header = record.headers().lastHeader(KafkaHeaders.REPLY_DLT_PARTITION);
             if (header == null) {
-                dltRecord = new ProducerRecord<>(dltTopic, record.value().getRawData());
+                dltRecord = new ProducerRecord<>(dltTopic, record.key(), record.value().getRawData());
             } else {
                 Integer partition = Integer.parseInt(new String(header.value(), StandardCharsets.UTF_8));
-                dltRecord = new ProducerRecord<>(dltTopic, partition, null, record.value().getRawData());
+                dltRecord = new ProducerRecord<>(dltTopic, partition, record.key(), record.value().getRawData());
             }
             forwardHeadersToDlt(record, dltRecord);
             setDltHeaders(record, dltRecord);
