@@ -1019,7 +1019,7 @@ public final class DecisionTableHelper {
             }
 
             DeclaredDTHeader declaredAction = (DeclaredDTHeader) action;
-            String header = (DecisionTableColumnHeaders.ACTION.getHeaderKey() + (num + 1)).intern();
+            String header = (DecisionTableColumnHeaders.ACTION.getHeaderKey() + (num + 1));
             writeDeclaredDtHeader(decisionTable,
                 originalTable,
                 grid,
@@ -1350,11 +1350,11 @@ public final class DecisionTableHelper {
             Map<DTHeader, IOpenClass> hConditionTypes) {
         MetaInfoReader metaInfoReader = decisionTable.getSyntaxNode().getMetaInfoReader();
         int j = 0;
-        for (DTHeader condition : conditions) {
-            if (isVCondition(condition)) {
-                continue;
-            }
-            int column = condition.getColumn() - ((SimpleDTHeader) condition).getRow();
+        List<DTHeader> hDtHeaders = conditions.stream().filter(DTHeader::isHCondition).collect(toList());
+        int minColumn = hDtHeaders.stream().mapToInt(DTHeader::getColumn).min().orElse(0);
+        int numOfCondition = 1;
+        for (DTHeader condition : hDtHeaders) {
+            int column = minColumn;
             while (column < originalTable.getSource().getWidth()) {
                 ICell cell = originalTable.getSource().getCell(column, j);
                 cell = cell.getTopLeftCellFromRegion();
@@ -1366,7 +1366,7 @@ public final class DecisionTableHelper {
                     }
                     ((DecisionTableMetaInfoReader) metaInfoReader).addSimpleRulesCondition(cell.getAbsoluteRow(),
                         cell.getAbsoluteColumn(),
-                        (DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey() + (j + 1)).intern(),
+                        (DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey() + numOfCondition),
                         null,
                         decisionTable.getSignature().getParameterName(condition.getMethodParameterIndex()),
                         new IOpenClass[] { type },
@@ -1375,7 +1375,8 @@ public final class DecisionTableHelper {
                 }
                 column = column + cell.getWidth();
             }
-            j++;
+            j = originalTable.getSource().getCell(originalTable.getSource().getWidth() - 1, j).getHeight();
+            numOfCondition++;
         }
     }
 
