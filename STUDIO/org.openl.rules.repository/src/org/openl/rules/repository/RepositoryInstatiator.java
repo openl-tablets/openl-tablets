@@ -185,20 +185,18 @@ public class RepositoryInstatiator {
     }
 
     private static String getValue(PropertyResolver propertyResolver, String propertyName) throws RRepositoryException {
-        String result = "";
-        String property = propertyResolver.getProperty(propertyName);
+        String propertyValue = propertyResolver.getProperty(propertyName);
         if ("password".equals(propertyName)) {
             String privateKey = StringUtils.trimToEmpty(propertyResolver.getProperty("repository.encode.decode.key"));
             try {
-                result = PassCoder.decode(property, privateKey);
-                return String.valueOf(result);
+                return PassCoder.decode(propertyValue, privateKey);
             } catch (GeneralSecurityException e) {
                 throw new RRepositoryException("Cannot decode the password", e);
             } catch (UnsupportedEncodingException e) {
                 throw new RRepositoryException(e.getMessage(), e);
             }
         }
-        return property;
+        return propertyValue;
     }
 
     private static String buildPropertyName(String configName, String name) {
