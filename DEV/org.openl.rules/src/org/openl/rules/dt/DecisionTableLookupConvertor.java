@@ -4,7 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.exception.OpenLCompilationException;
-import org.openl.rules.table.*;
+import org.openl.rules.table.CoordinatesTransformer;
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridTable;
+import org.openl.rules.table.IGrid;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.TransformedGridTable;
 import org.openl.rules.utils.ParserUtils;
 
 /**
@@ -55,7 +62,7 @@ public class DecisionTableLookupConvertor {
 
         IGridTable lookupValuesTable = getLookupValuesTable(table, firstLookupGridColumn, grid);
 
-        Integer lookupValuesTableHeight = getLookupValuesTableHeight(table, grid);
+        Integer lookupValuesTableHeight = getLookupValuesTableHeight(table);
 
         isMultiplier(lookupValuesTable);
 
@@ -179,7 +186,7 @@ public class DecisionTableLookupConvertor {
         return new GridTable(lookupValuesRegion, grid);
     }
 
-    private Integer getLookupValuesTableHeight(ILogicalTable originalTable, IGrid grid) {
+    private Integer getLookupValuesTableHeight(ILogicalTable originalTable) {
         String stringValue = originalTable.getCell(0, 0).getStringValue();
         if (stringValue == null) {
             stringValue = "";
@@ -228,26 +235,17 @@ public class DecisionTableLookupConvertor {
         }
     }
 
-    private IGridRegion getDisplayRowRegion(ILogicalTable originaltable) {
-        ILogicalTable tableWithDisplay = originaltable.getRows(DISPLAY_ROW);
+    private IGridRegion getDisplayRowRegion(ILogicalTable originalTable) {
+        ILogicalTable tableWithDisplay = originalTable.getRows(DISPLAY_ROW);
         ILogicalTable displayRow = tableWithDisplay.getRow(0);
         return displayRow.getSource().getRegion();
     }
 
     private void validateHCHeaders(IGridTable hcHeaderTable) throws OpenLCompilationException {
-        String message = String.format(
-            "The height of the horizontal keys must be equal to the number of the %s headers.",
-            DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey());
-        assertEQ(hcHeaders.size(), hcHeaderTable.getHeight(), message);
-    }
-
-    private void assertEQ(int v1, int v2, String message) throws OpenLCompilationException {
-
-        if (v1 == v2) {
-            return;
+        if (hcHeaders.size() != hcHeaderTable.getHeight()) {
+            throw new OpenLCompilationException(
+                "The height of the horizontal keys must be equal to the number of the horizontal headers.");
         }
-
-        throw new OpenLCompilationException(message);
     }
 
     /**
