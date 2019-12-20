@@ -7,7 +7,6 @@ import java.util.Map;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.webstudio.web.admin.RepositorySettings;
 import org.openl.util.IOUtils;
 import org.springframework.core.env.PropertyResolver;
 
@@ -72,7 +71,8 @@ public class ProductionRepositoryFactoryProxy {
     }
 
     public boolean isIncludeVersionInDeploymentName(String configName) {
-        return Boolean.parseBoolean(propertyResolver.getProperty(RepositorySettings.VERSION_IN_DEPLOYMENT_NAME));
+        return Boolean
+            .parseBoolean(propertyResolver.getProperty("repository." + configName + ".version-in-deployment-name"));
     }
 
     public String getDeploymentsPath(String configName) {

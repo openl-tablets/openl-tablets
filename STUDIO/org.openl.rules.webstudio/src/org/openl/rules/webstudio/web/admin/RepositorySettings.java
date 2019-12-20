@@ -3,7 +3,7 @@ package org.openl.rules.webstudio.web.admin;
 import org.openl.config.PropertiesHolder;
 
 public abstract class RepositorySettings {
-    public static final String VERSION_IN_DEPLOYMENT_NAME = "version-in-deployment-name";
+    private final String VERSION_IN_DEPLOYMENT_NAME;
     private final String USE_CUSTOM_COMMENTS;
     private final String COMMENT_VALIDATION_PATTERN;
     private final String INVALID_COMMENT_MESSAGE;
@@ -31,6 +31,7 @@ public abstract class RepositorySettings {
     private boolean useCustomComments;
 
     RepositorySettings(PropertiesHolder propertyResolver, String configPrefix) {
+        VERSION_IN_DEPLOYMENT_NAME = configPrefix + ".version-in-deployment-name";
         USE_CUSTOM_COMMENTS = configPrefix + ".comment-template.use-custom-comments";
         COMMENT_VALIDATION_PATTERN = configPrefix + ".comment-validation-pattern";
         INVALID_COMMENT_MESSAGE = configPrefix + ".invalid-comment-message";
