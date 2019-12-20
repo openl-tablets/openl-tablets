@@ -374,7 +374,6 @@ public class InstallWizard {
             }
             properties.writeTo(new File(workingDir, getAppName() + ".properties"));
 
-            System.setProperty("user.mode", userMode);
             PreferencesManager.INSTANCE.webStudioConfigured(getAppName());
 
             destroyRepositoryObjects();

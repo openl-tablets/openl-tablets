@@ -16,7 +16,9 @@ import org.springframework.beans.factory.config.PlaceholderConfigurerSupport;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
@@ -152,6 +154,20 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     @Override
     public void initialize(ConfigurableApplicationContext appContext) {
         log.info("The initialization of properties from 'contextInitializerClasses' context-param in web.xml");
+        doInitialize(appContext);
+
+        // We need to reinitialize property sources when application context is refreshed because openl.home can be
+        // changed in Install Wizard. We must do it before any bean is created, so we can't use ContextRefreshedEvent,
+        // that's why we reinitialize settings when context is closed.
+        appContext.addApplicationListener((ApplicationListener<ContextClosedEvent>) event -> {
+            ApplicationContext applicationContext = event.getApplicationContext();
+            if (applicationContext instanceof ConfigurableApplicationContext) {
+                doInitialize((ConfigurableApplicationContext) applicationContext);
+            }
+        });
+    }
+
+    private void doInitialize(ConfigurableApplicationContext appContext) {
         setApplicationContext(appContext);
         ConfigurableEnvironment env = appContext.getEnvironment();
         MutablePropertySources propertySources = env.getPropertySources();
@@ -276,14 +292,12 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
                 propertySources = ((ConfigurableEnvironment) env).getPropertySources();
             } else {
                 propertySources = new MutablePropertySources();
-                if (env != null) {
-                    this.propertySources.addLast(new PropertySource<Environment>(ENVIRONMENT_PROPS, env) {
-                        @Override
-                        public String getProperty(String key) {
-                            return this.source.getProperty(key);
-                        }
-                    });
-                }
+                propertySources.addLast(new PropertySource<Environment>(ENVIRONMENT_PROPS, env) {
+                    @Override
+                    public String getProperty(String key) {
+                        return this.source.getProperty(key);
+                    }
+                });
             }
             load(propertySources, env);
         }

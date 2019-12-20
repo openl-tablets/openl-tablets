@@ -6,7 +6,13 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 import org.openl.rules.webstudio.web.servlet.SessionListener;
 import org.slf4j.Logger;
@@ -79,6 +85,7 @@ public class ReloadableDelegatingFilter implements Filter {
             XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils
                 .getWebApplicationContext(servletContext);
             if (context != null) {
+                context.close(); // Trigger ContextClosedEvent
                 context.refresh();
             } else {
                 LoggerFactory.getLogger(ReloadableDelegatingFilter.class).warn("WebApplicationContext is null");
