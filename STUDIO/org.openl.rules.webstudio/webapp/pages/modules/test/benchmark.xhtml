@@ -3,7 +3,21 @@
         xmlns:ui="http://java.sun.com/jsf/facelets"
         xmlns:h="http://java.sun.com/jsf/html"
         xmlns:f="http://java.sun.com/jsf/core"
-        xmlns:a4j="http://richfaces.org/a4j" xmlns:c="http://java.sun.com/jsp/jstl/core">
+        xmlns:a4j="http://richfaces.org/a4j">
+    <style>
+        .compared_1 {
+            color: red;
+            font-size: large;
+        }
+        .compared_2 {
+            color: green;
+            font-size: large;
+        }
+        .compared_3 {
+            color: blue;
+            font-size: large;
+        }
+    </style>
 
     <div class="page">
         <h1 class="page-header">Results of benchmarking</h1>
@@ -53,7 +67,7 @@
                 </h:column>
                 <h:column>
                     <f:facet name="header"><span title="Quantity of test cases in a test">Test Cases</span></f:facet>
-                    #{item.unit.nUnitRuns()}
+                    #{item.nUnitRuns()}
                 </h:column>
                 <h:column>
                     <f:facet name="header"><span title="The execution time of a test (in milliseconds)">Runs(ms)</span></f:facet>
@@ -89,14 +103,14 @@
                 disabled="#{!benchmarkBean.anyBencmarkSelected}" />
             <br />
             <br />
-        <h:dataTable id="comparedBMTable" value="#{benchmarkBean.comparedBenchmarks}" var="item" styleClass="table">
-            <h:column>#{benchmarkBean.getBenchmarkResultIndex(item) + 1}</h:column>
-            <h:column>#{item.name}</h:column>
-            <h:column>#{item.runsunitsec()}</h:column>
+        <h:dataTable id="comparedBMTable" value="#{benchmarkBean.comparedBenchmarks}" var="item2" styleClass="table">
+            <h:column>#{benchmarkBean.getI(item2)}</h:column>
+            <h:column>#{item2.testName}</h:column>
+            <h:column>#{item2.runsunitsec()}</h:column>
             <h:column>
-                <h:outputText style="#{benchmarkBean.getStyleForOrder(item)}" value="#{benchmarkBean.getComparedOrder(item)}" />
+                <h:outputText styleClass="compared_#{benchmarkBean.getComparedOrder(item2)}" value="#{benchmarkBean.getComparedOrder(item2)}" />
             </h:column>
-            <h:column>#{benchmarkBean.getComparedRatio(item)}</h:column>
+            <h:column>#{benchmarkBean.getComparedRatio(item2)}</h:column>
         </h:dataTable>
 
         </h:form>

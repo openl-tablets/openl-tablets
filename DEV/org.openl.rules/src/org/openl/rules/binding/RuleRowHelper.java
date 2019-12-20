@@ -397,12 +397,12 @@ public final class RuleRowHelper {
 
             try {
                 IBindingContext bindingContext = openlAdaptor.getBindingContext();
-                // Pasre as constant value
+                // Parse as constant value
                 ConstantOpenField constantOpenField = findConstantField(bindingContext, source);
                 ICell theValueCell = cell.getSource().getCell(0, 0);
                 if (constantOpenField != null) {
                     if (!bindingContext.isExecutionMode()) {
-                        addContantMetaInfo(openlAdaptor, constantOpenField, theValueCell);
+                        addConstantMetaInfo(openlAdaptor, constantOpenField, theValueCell);
                     }
                     if (constantOpenField.getValue() != null) {
                         result = castConstantToExpectedType(bindingContext, constantOpenField, paramType);
@@ -458,7 +458,7 @@ public final class RuleRowHelper {
         return null;
     }
 
-    private static void addContantMetaInfo(OpenlToolAdaptor openlAdapter,
+    private static void addConstantMetaInfo(OpenlToolAdaptor openlAdapter,
             ConstantOpenField constantOpenField,
             ICell theValueCell) {
         MetaInfoReader metaInfoReader = openlAdapter.getTableSyntaxNode().getMetaInfoReader();
@@ -647,7 +647,7 @@ public final class RuleRowHelper {
                             .getCast(constantOpenField.getType(), paramType);
                         if (openCast != null && openCast.isImplicit()) {
                             if (!openlAdaptor.getBindingContext().isExecutionMode()) {
-                                addContantMetaInfo(openlAdaptor,
+                                addConstantMetaInfo(openlAdaptor,
                                     constantOpenField,
                                     dataTable.getRow(0).getSource().getCell(0, 0));
                             }

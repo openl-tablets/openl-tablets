@@ -42,8 +42,9 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         return module != null ? Collections.singleton(module) : project.getModules();
     }
 
-    protected boolean isExecutionMode() {
-        return executionMode;
+    @Override
+    public boolean isCompiled() {
+        return compiledDependency != null;
     }
 
     @Override

@@ -86,7 +86,7 @@ public class CompiledOpenClass {
                 throw new CompositeOpenlException("Binding Error(s):", bindingErrors, errorMessages);
             }
 
-            if (errorMessages != null && !errorMessages.isEmpty()) {
+            if (!errorMessages.isEmpty()) {
                 throw new CompositeOpenlException("Module contains critical errors", null, errorMessages);
             }
         }
@@ -97,11 +97,7 @@ public class CompiledOpenClass {
     }
 
     public Collection<IOpenClass> getTypes() {
-        if (openClass == null) {
-            return null;
-        }
-
-        return openClass.getTypes();
+        return openClass != null ? openClass.getTypes() : null;
     }
 
     public ClassLoader getClassLoader() {

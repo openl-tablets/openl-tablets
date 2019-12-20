@@ -152,7 +152,7 @@ public class InputArgsBean {
     }
 
     private void validateFirstJsonSymbol(String inputJson) {
-        if (!inputJson.isEmpty() && (!inputJson.startsWith("{") || !inputJson.startsWith("["))) {
+        if (!inputJson.isEmpty() && (!inputJson.startsWith("{") && !inputJson.startsWith("["))) {
             // the only case for which jackson does not generate a clear error message
             throw new Message("Invalid JSON: should start with '{' or '[' symbol");
         }

@@ -125,7 +125,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private final WebStudioLinkBuilder linkBuilder = new WebStudioLinkBuilder(this);
 
     private String workspacePath;
-    private ArrayList<BenchmarkInfoView> benchmarks = new ArrayList<>();
     private String tableUri;
     private final ProjectModel model;
     private ProjectResolver projectResolver;
@@ -214,10 +213,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return treeViews;
     }
 
-    public void addBenchmark(BenchmarkInfoView bi) {
-        benchmarks.add(0, bi);
-    }
-
     public void saveProject(HttpSession session) {
         RulesProject project = null;
         try {
@@ -292,10 +287,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         } finally {
             releaseProject(project.getName());
         }
-    }
-
-    public BenchmarkInfoView[] getBenchmarks() {
-        return benchmarks.toArray(new BenchmarkInfoView[0]);
     }
 
     public RulesProject getCurrentProject() {
@@ -462,10 +453,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
         }
         return projects;
-    }
-
-    public void removeBenchmark(int i) {
-        benchmarks.remove(i);
     }
 
     public void compile() {

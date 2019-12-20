@@ -2,7 +2,15 @@ package org.openl.rules.ruleservice.core;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import org.openl.dependency.CompiledDependency;
 import org.openl.exception.OpenLCompilationException;
@@ -21,7 +29,6 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.conf.LastVersionProjectsServiceConfigurer;
-import org.openl.rules.ruleservice.core.MaxThreadsForCompileSemaphore.Callable;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.syntax.code.IDependency;
 import org.slf4j.Logger;
@@ -38,7 +45,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
     private final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
     private final boolean lazyCompilation;
     private final PathMatcher wildcardPatternMatcher = new AntPathMatcher();
-    private final ThreadLocal<Deque<CompilationInfo>> compliationInfoThreadLocal = ThreadLocal
+    private final ThreadLocal<Deque<CompilationInfo>> compilationInfoThreadLocal = ThreadLocal
         .withInitial(ArrayDeque::new);
 
     public boolean isLazyCompilation() {
@@ -49,7 +56,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
         return ruleServiceLoader;
     }
 
-    private class CompilationInfo {
+    private static class CompilationInfo {
         long time;
         long embeddedTime;
     }
@@ -57,7 +64,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
     public void compilationBegin(IDependencyLoader dependencyLoader) {
         CompilationInfo compilationInfo = new CompilationInfo();
         compilationInfo.time = System.currentTimeMillis();
-        Deque<CompilationInfo> compilationInfoStack = compliationInfoThreadLocal.get();
+        Deque<CompilationInfo> compilationInfoStack = compilationInfoThreadLocal.get();
         compilationInfoStack.push(compilationInfo);
     }
 
@@ -70,7 +77,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
     public void compilationCompleted(IDependencyLoader dependencyLoader,
             DependencyCompilationType compilationType,
             boolean writeToLog) {
-        Deque<CompilationInfo> compilationInfoStack = compliationInfoThreadLocal.get();
+        Deque<CompilationInfo> compilationInfoStack = compilationInfoThreadLocal.get();
         try {
             CompilationInfo compilationInfo = compilationInfoStack.pop();
             long t = System.currentTimeMillis() - compilationInfo.time;
@@ -92,7 +99,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
             log.error("Unexpected exception.", e);
         } finally {
             if (compilationInfoStack.isEmpty()) {
-                compliationInfoThreadLocal.remove(); // Clean up the thread
+                compilationInfoThreadLocal.remove(); // Clean up the thread
             }
         }
     }
@@ -100,12 +107,8 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
     @Override
     public CompiledDependency loadDependency(final IDependency dependency) throws OpenLCompilationException {
         try {
-            return MaxThreadsForCompileSemaphore.getInstance().run(new Callable<CompiledDependency>() {
-                @Override
-                public CompiledDependency call() throws Exception {
-                    return RuleServiceDeploymentRelatedDependencyManager.super.loadDependency(dependency);
-                }
-            });
+            return MaxThreadsForCompileSemaphore.getInstance()
+                .run(() -> RuleServiceDeploymentRelatedDependencyManager.super.loadDependency(dependency));
         } catch (OpenLCompilationException e) {
             throw e;
         } catch (Exception e) {
@@ -148,8 +151,8 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
     }
 
     @Override
-    protected Map<String, IDependencyLoader> initDependencyLoaders() {
-        Map<String, IDependencyLoader> dependencyLoaders = new HashMap<>();
+    protected Map<String, Collection<IDependencyLoader>> initDependencyLoaders() {
+        Map<String, Collection<IDependencyLoader>> dependencyLoaders = new HashMap<>();
         Collection<Deployment> deployments = ruleServiceLoader.getDeployments();
         for (Deployment rslDeployment : deployments) {
             String deploymentName = rslDeployment.getDeploymentName();
@@ -166,7 +169,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
                             project = modules.iterator().next().getProject();
 
                             InputStream content = null;
-                            RulesDeploy rulesDeploy = null;
+                            RulesDeploy rulesDeploy;
                             try {
                                 AProjectArtefact artifact = aProject
                                     .getArtefact(LastVersionProjectsServiceConfigurer.RULES_DEPLOY_XML);
@@ -202,7 +205,9 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
                                 } else {
                                     moduleLoader = new RuleServiceDependencyLoader(project, m, this);
                                 }
-                                dependencyLoaders.put(moduleLoader.getDependencyName(), moduleLoader);
+                                Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders
+                                    .computeIfAbsent(moduleLoader.getDependencyName(), e -> new ArrayList<>());
+                                dependencyLoadersByName.add(moduleLoader);
                             }
                         }
                         if (project != null) {
@@ -216,7 +221,9 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
                             } else {
                                 projectLoader = new RuleServiceDependencyLoader(project, null, this);
                             }
-                            dependencyLoaders.put(projectLoader.getDependencyName(), projectLoader);
+                            Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders
+                                .computeIfAbsent(projectLoader.getDependencyName(), e -> new ArrayList<>());
+                            dependencyLoadersByName.add(projectLoader);
                         }
                     } catch (Exception e) {
                         throw new DependencyLoaderInitializationException(String.format(

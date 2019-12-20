@@ -10,7 +10,12 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.plugin.MojoFailureException;
@@ -29,7 +34,16 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.testmethod.*;
+import org.openl.rules.testmethod.BaseTestUnit;
+import org.openl.rules.testmethod.ITestUnit;
+import org.openl.rules.testmethod.ProjectHelper;
+import org.openl.rules.testmethod.TestRunner;
+import org.openl.rules.testmethod.TestStatus;
+import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.testmethod.TestSuiteExecutor;
+import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.testmethod.TestUnit;
+import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.ThisField;
@@ -207,19 +221,16 @@ public final class TestMojo extends BaseOpenLMojo {
 
         List<Module> modules = new ArrayList<>(pd.getModules());
         // Set higher priority to modules containing "test" keyword.
-        Collections.sort(modules, new Comparator<Module>() {
-            @Override
-            public int compare(Module o1, Module o2) {
-                String name1 = o1.getName();
-                String name2 = o2.getName();
-                boolean isTest1 = name1.toLowerCase().contains("test");
-                boolean isTest2 = name2.toLowerCase().contains("test");
-                if (isTest1 == isTest2) {
-                    return name1.compareTo(name2);
-                }
-
-                return isTest1 ? -1 : 1;
+        modules.sort((o1, o2) -> {
+            String name1 = o1.getName();
+            String name2 = o2.getName();
+            boolean isTest1 = name1.toLowerCase().contains("test");
+            boolean isTest2 = name2.toLowerCase().contains("test");
+            if (isTest1 == isTest2) {
+                return name1.compareTo(name2);
             }
+
+            return isTest1 ? -1 : 1;
         });
 
         for (Module module : modules) {
@@ -298,9 +309,9 @@ public final class TestMojo extends BaseOpenLMojo {
                     try {
                         Thread.currentThread().setContextClassLoader(openLRules.getClassLoader());
                         if (testSuiteExecutor == null) {
-                            result = new TestSuite(test, testRunner).invokeSequentially(openClass, 1L);
+                            result = new TestSuite(test, testRunner).invokeSequentially(openClass, 1);
                         } else {
-                            result = new TestSuite(test, testRunner).invokeParallel(testSuiteExecutor, openClass, 1L);
+                            result = new TestSuite(test, testRunner).invokeParallel(testSuiteExecutor, openClass, 1);
                         }
                     } finally {
                         Thread.currentThread().setContextClassLoader(oldClassLoader);

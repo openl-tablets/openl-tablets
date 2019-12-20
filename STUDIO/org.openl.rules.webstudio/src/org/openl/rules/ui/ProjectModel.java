@@ -58,27 +58,19 @@ import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.testmethod.BaseTestUnit;
 import org.openl.rules.testmethod.ProjectHelper;
-import org.openl.rules.testmethod.TestDescription;
-import org.openl.rules.testmethod.TestRunner;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.rules.ui.benchmark.Benchmark;
-import org.openl.rules.ui.benchmark.BenchmarkInfo;
-import org.openl.rules.ui.benchmark.BenchmarkUnit;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
-import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
@@ -96,9 +88,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.util.FileUtils;
 import org.openl.util.ISelector;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.tree.ITreeElement;
-import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
@@ -138,7 +128,6 @@ public class ProjectModel {
 
     private RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
     private final TestSuiteExecutor testSuiteExecutor;
-    private final TestRunner testRunner = new TestRunner(BaseTestUnit.Builder.getInstance());
     private PropertyResolver propertyResolver;
 
     /**
@@ -166,86 +155,6 @@ public class ProjectModel {
 
     public RulesProject getProject() {
         return studio.getCurrentProject();
-    }
-
-    public BenchmarkInfo benchmarkTestsSuite(final TestSuite testSuite, int ms) throws Exception {
-        final IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
-
-        ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
-
-            // Object res = null;
-            BenchmarkUnit bu = null;
-
-            try {
-
-                bu = new BenchmarkUnit() {
-                    @Override
-                    public String getName() {
-                        return testSuite.getName();
-                    }
-
-                    @Override
-                    public int nUnitRuns() {
-                        return testSuite.getNumberOfTests();
-                    }
-
-                    @Override
-                    protected void run() throws Exception {
-                        throw new RuntimeException();
-                    }
-
-                    @Override
-                    public void runNtimes(long times) throws Exception {
-                        testSuite.invokeSequentially(openClass, times);
-                    }
-                };
-                return new Benchmark().runUnit(bu, ms);
-
-            } catch (Throwable t) {
-                log.error("Run error:", t);
-                return new BenchmarkInfo(t, bu, testSuite.getName());
-            }
-        } finally {
-            Thread.currentThread().setContextClassLoader(currentContextClassLoader);
-        }
-    }
-
-    public BenchmarkInfo benchmarkSingleTest(final TestSuite testSuite, final int testIndex, int ms) throws Exception {
-
-        BenchmarkUnit bu;
-
-        final IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        final Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
-
-        bu = new BenchmarkUnit() {
-
-            @Override
-            public String getName() {
-                return testSuite.getName() + ":" + testIndex;
-            }
-
-            @Override
-            public void run() throws Exception {
-                throw new RuntimeException();
-            }
-
-            @Override
-            public void runNtimes(long times) throws Exception {
-                try {
-                    TestDescription test = testSuite.getTest(testIndex);
-                    OpenLArgumentsCloner cloner = testSuite.getArgumentsCloner();
-                    testRunner.runTest(test, target, env, cloner, times);
-                } catch (Throwable t) {
-                    log.error("Error during Method run: ", t);
-                    throw RuntimeExceptionWrapper.wrap(t);
-                }
-            }
-        };
-
-        return new Benchmark().runUnit(bu, ms);
-
     }
 
     public TableSyntaxNode findNode(String url) {
@@ -1061,8 +970,17 @@ public class ProjectModel {
             final String moduleName = moduleInfo.getName();
 
             compiledOpenClass = instantiationStrategy.compile();
-            IDependencyLoader dependencyLoader = webStudioWorkspaceDependencyManager.getDependencyLoaders()
+            Collection<IDependencyLoader> dependencyLoaders = webStudioWorkspaceDependencyManager.getDependencyLoaders()
                 .get(moduleName);
+            IDependencyLoader dependencyLoader = null;
+            for (IDependencyLoader dl : dependencyLoaders) {
+                if (Objects.equals(dl.getProject().getName(), moduleInfo.getProject().getName())) {
+                    dependencyLoader = dl;
+                }
+            }
+            if (dependencyLoader == null) {
+                throw new IllegalStateException(String.format("Module '%s' is not found!", moduleName));
+            }
             XlsMetaInfo metaInfo = (XlsMetaInfo) dependencyLoader.getCompiledDependency()
                 .getCompiledOpenClass()
                 .getOpenClassWithErrors()

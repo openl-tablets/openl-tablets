@@ -53,5 +53,4 @@ public interface IDependencyManager {
      */
     Collection<String> getAllDependencies();
 
-    boolean isEmptyDependencyCompilationStack();
 }

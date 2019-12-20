@@ -1,5 +1,6 @@
 package org.openl.rules.project.instantiation;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,8 +25,8 @@ public class SimpleDependencyManager extends AbstractDependencyManager {
     }
 
     @Override
-    protected Map<String, IDependencyLoader> initDependencyLoaders() {
-        Map<String, IDependencyLoader> dependencyLoaders = new HashMap<>();
+    protected Map<String, Collection<IDependencyLoader>> initDependencyLoaders() {
+        Map<String, Collection<IDependencyLoader>> dependencyLoaders = new HashMap<>();
         for (ProjectDescriptor project : projects) {
             try {
                 for (final Module m : project.getModules()) {
@@ -34,7 +35,9 @@ public class SimpleDependencyManager extends AbstractDependencyManager {
                         singleModuleMode,
                         executionMode,
                         this);
-                    dependencyLoaders.put(moduleDependencyLoader.getDependencyName(), moduleDependencyLoader);
+                    Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders
+                        .computeIfAbsent(moduleDependencyLoader.getDependencyName(), e -> new ArrayList<>());
+                    dependencyLoadersByName.add(moduleDependencyLoader);
                 }
 
                 final SimpleDependencyLoader projectDependencyLoader = new SimpleDependencyLoader(project,
@@ -42,7 +45,10 @@ public class SimpleDependencyManager extends AbstractDependencyManager {
                     singleModuleMode,
                     executionMode,
                     this);
-                dependencyLoaders.put(projectDependencyLoader.getDependencyName(), projectDependencyLoader);
+                Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders
+                    .computeIfAbsent(projectDependencyLoader.getDependencyName(), e -> new ArrayList<>());
+                dependencyLoadersByName.add(projectDependencyLoader);
+
             } catch (Exception e) {
                 throw new DependencyLoaderInitializationException(
                     String.format("Failed to initialize dependency loaders for project '%s'.", project.getName()),
