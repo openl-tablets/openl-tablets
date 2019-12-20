@@ -117,6 +117,9 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
         //tomcat
         permission java.net.NetPermission "specifyStreamHandler";
 
+        //hibernate
+        permission java.lang.RuntimePermission "createSecurityManager";
+
 };
 
 // WEBSERVICE
