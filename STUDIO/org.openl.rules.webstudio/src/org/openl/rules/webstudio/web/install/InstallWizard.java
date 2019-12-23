@@ -31,7 +31,7 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigNames;
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.repository.RepositoryFactoryInstatiator;
+import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.security.Group;
@@ -247,7 +247,7 @@ public class InstallWizard {
             designRepositoryConfiguration.commit();
             PropertyResolver propertiesResolver = DelegatedPropertySource
                 .createPropertiesResolver(designRepositoryConfiguration.getProperties());
-            Repository repository = RepositoryFactoryInstatiator.newFactory(propertiesResolver, configName);
+            Repository repository = RepositoryInstatiator.newRepository(configName, propertiesResolver);
             if (repository instanceof Closeable) {
                 // Release resources after validation
                 IOUtils.closeQuietly((Closeable) repository);
