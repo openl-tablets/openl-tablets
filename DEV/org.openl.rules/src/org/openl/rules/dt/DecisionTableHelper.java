@@ -1375,7 +1375,7 @@ public final class DecisionTableHelper {
                 }
                 column = column + cell.getWidth();
             }
-            j = originalTable.getSource().getCell(originalTable.getSource().getWidth() - 1, j).getHeight();
+            j = j + originalTable.getSource().getCell(originalTable.getSource().getWidth() - 1, j).getHeight();
             numOfCondition++;
         }
     }
