@@ -9,7 +9,7 @@ import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
@@ -101,7 +101,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         this.rootClassLoader = rootClassLoader;
         this.executionMode = executionMode;
         this.externalParameters = new HashMap<>();
-        this.externalParameters.put(XlsModuleOpenClass.DISABLED_CLEAN_UP, Boolean.TRUE);
+        this.externalParameters.put(XlsBinder.DISABLED_CLEAN_UP, Boolean.TRUE);
         if (externalParameters != null) {
             this.externalParameters.putAll(externalParameters);
         }
@@ -185,15 +185,24 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         } finally {
             if (compilationStack.isEmpty()) {
                 compilationStackThreadLocal.remove(); // Clean thread
-                for (Collection<IDependencyLoader> depLoaders : getDependencyLoaders().values()) {
-                    for (IDependencyLoader depLoader : depLoaders) {
-                        if (depLoader.isCompiled()) {
+            }
+        }
+    }
+
+    @Override
+    public void clearOddDataForExecutionMode() {
+        if (isExecutionMode() && getCompilationStack().isEmpty()) {
+            for (Collection<IDependencyLoader> depLoaders : getDependencyLoaders().values()) {
+                for (IDependencyLoader depLoader : depLoaders) {
+                    if (depLoader.isCompiled()) {
+                        try {
                             IOpenClass openClass = depLoader.getCompiledDependency()
                                 .getCompiledOpenClass()
                                 .getOpenClassWithErrors();
                             if (openClass instanceof ComponentOpenClass) {
                                 ((ComponentOpenClass) openClass).clearOddDataForExecutionMode();
                             }
+                        } catch (OpenLCompilationException ignored) {
                         }
                     }
                 }

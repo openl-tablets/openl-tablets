@@ -90,6 +90,8 @@ import org.slf4j.LoggerFactory;
  */
 public class XlsBinder implements IOpenBinder {
 
+    public static final String DISABLED_CLEAN_UP = "XLS_OPEN_CLASS_DISABLED_CLEANUP";
+
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     private final Logger log = LoggerFactory.getLogger(XlsBinder.class);
@@ -248,7 +250,8 @@ public class XlsBinder implements IOpenBinder {
 
             return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), bindingContext.getMessages());
         } finally {
-            if (bindingContext.isExecutionMode()) {
+            if (bindingContext
+                .isExecutionMode() && !Boolean.TRUE.equals(bindingContext.getExternalParams().get(DISABLED_CLEAN_UP))) {
                 moduleOpenClass.clearOddDataForExecutionMode();
             }
         }

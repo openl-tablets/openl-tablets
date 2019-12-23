@@ -151,7 +151,7 @@ public final class OpenLTest {
 
                 try {
                     compiledOpenClass = engineFactory.getCompiledOpenClass();
-                } catch (ClassNotFoundException | ProjectResolvingException | RulesInstantiationException e) {
+                } catch (ProjectResolvingException | RulesInstantiationException e) {
                     error(errors++, startTime, sourceFile, "Compilation fails.", e);
                     hasErrors = true;
                     continue;

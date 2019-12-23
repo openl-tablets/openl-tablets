@@ -202,26 +202,27 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         ProjectDescriptor projectDescriptor = getProjectDescriptor();
         if (workspace != null) {
             File[] files = workspace.listFiles();
-            List<ProjectDescriptor> projects;
-            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-            try {
-                if (classLoader != null) {
-                    Thread.currentThread().setContextClassLoader(classLoader);
+            if (files != null) {
+                List<ProjectDescriptor> projects;
+                ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+                try {
+                    if (classLoader != null) {
+                        Thread.currentThread().setContextClassLoader(classLoader);
+                    }
+                    projects = projectResolver.resolve(files);
+                } finally {
+                    Thread.currentThread().setContextClassLoader(oldClassLoader);
                 }
-                projects = projectResolver.resolve(files);
-            } finally {
-                Thread.currentThread().setContextClassLoader(oldClassLoader);
+                List<ProjectDescriptor> dependentProjects = getDependentProjects(projectDescriptor, projects);
+                projectDescriptors.addAll(dependentProjects);
             }
-            List<ProjectDescriptor> dependentProjects = getDependentProjects(projectDescriptor, projects);
-            projectDescriptors.addAll(dependentProjects);
         }
         projectDescriptors.add(projectDescriptor);
-        SimpleDependencyManager dependencyManager = new SimpleDependencyManager(projectDescriptors,
+        return new SimpleDependencyManager(projectDescriptors,
             classLoader,
             isSingleModuleMode(),
             isExecutionMode(),
             getExternalParameters());
-        return dependencyManager;
     }
 
     private IDependencyManager dependencyManager = null;
@@ -273,7 +274,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public T newInstance() throws RulesInstantiationException, ProjectResolvingException, ClassNotFoundException {
+    public T newInstance() throws RulesInstantiationException, ProjectResolvingException {
         return (T) getRulesInstantiationStrategy().instantiate();
     }
 
@@ -298,8 +299,6 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         }
         return this.projectDescriptor;
     }
-
-    protected RulesInstantiationStrategy instantiationStrategy;
 
     protected final synchronized RulesInstantiationStrategy getRulesInstantiationStrategy() throws RulesInstantiationException,
                                                                                             ProjectResolvingException {
@@ -331,8 +330,9 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
             Map<String, Object> parameters = new HashMap<>(getExternalParameters());
             if (!isSingleModuleMode()) {
-                parameters = ProjectExternalDependenciesHelper
-                    .getExternalParamsWithProjectDependencies(getExternalParameters(), getProjectDescriptor().getModules());
+                parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(
+                    getExternalParameters(),
+                    getProjectDescriptor().getModules());
             }
             instantiationStrategy.setExternalParameters(parameters);
             try {
@@ -348,9 +348,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     }
 
     @Override
-    public CompiledOpenClass getCompiledOpenClass() throws RulesInstantiationException,
-                                                    ProjectResolvingException,
-                                                    ClassNotFoundException {
+    public CompiledOpenClass getCompiledOpenClass() throws RulesInstantiationException, ProjectResolvingException {
         return getRulesInstantiationStrategy().compile();
     }
 

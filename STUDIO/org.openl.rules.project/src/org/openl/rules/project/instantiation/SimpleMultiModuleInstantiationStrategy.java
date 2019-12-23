@@ -69,13 +69,7 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
     @Override
     @SuppressWarnings("unchecked")
     protected RulesEngineFactory<?> getEngineFactory() {
-        Class<?> serviceClass;
-        try {
-            serviceClass = getServiceClass();
-        } catch (ClassNotFoundException e) {
-            log.debug("Failed to get service class.", e);
-            serviceClass = null;
-        }
+        Class<?> serviceClass = getServiceClass();
         if (engineFactory == null || serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass)) {
             engineFactory = new RulesEngineFactory<>(createVirtualSourceCodeModule(), (Class<Object>) serviceClass);
             engineFactory.setExecutionMode(isExecutionMode());
