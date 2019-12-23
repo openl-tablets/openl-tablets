@@ -337,7 +337,7 @@ public class SystemSettingsBean {
     }
 
     private void refreshConfig() {
-        WebStudioUtils.getWebStudio().setNeedRestart(true);
+        WebStudioUtils.getWebStudio(true).setNeedRestart(true);
         ReloadableDelegatingFilter.reloadApplicationContext(FacesUtils.getServletContext());
     }
 

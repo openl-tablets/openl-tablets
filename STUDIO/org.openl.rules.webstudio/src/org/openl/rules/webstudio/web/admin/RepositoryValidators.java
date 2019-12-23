@@ -118,9 +118,8 @@ public final class RepositoryValidators {
             // Close connection to repository before checking connection
             dtr.destroy();
 
-            repoConfig.commit();
             PropertyResolver propertiesResolver = DelegatedPropertySource
-                .createPropertiesResolver(repoConfig.getProperties());
+                .createPropertiesResolver(repoConfig.getPropertiesToValidate());
             Repository repository = RepositoryFactoryInstatiator.newFactory(propertiesResolver,
                 repoConfig.getConfigName());
             if (repository instanceof Closeable) {
@@ -141,9 +140,8 @@ public final class RepositoryValidators {
         try {
             /* Close connection to repository before checking connection */
             productionRepositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
-            repoConfig.commit();
             PropertyResolver propertiesResolver = DelegatedPropertySource
-                .createPropertiesResolver(repoConfig.getProperties());
+                .createPropertiesResolver(repoConfig.getPropertiesToValidate());
             Repository repository = RepositoryInstatiator.newRepository(repoConfig.getConfigName(), propertiesResolver);
             if (repository instanceof Closeable) {
                 // Close repo connection after validation

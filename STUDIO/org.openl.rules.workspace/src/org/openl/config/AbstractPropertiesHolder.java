@@ -4,10 +4,21 @@ import org.openl.rules.repository.config.PassCoder;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
 
 public abstract class AbstractPropertiesHolder implements PropertiesHolder {
     private static final String REPO_PASS_KEY = "repository.encode.decode.key";
+    protected final PropertyResolver propertyResolver;
     private final Logger log = LoggerFactory.getLogger(InMemoryProperties.class);
+
+    AbstractPropertiesHolder(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
+    }
+
+    @Override
+    public PropertyResolver getPropertyResolver() {
+        return propertyResolver;
+    }
 
     @Override
     public String getPassword(String key) {

@@ -18,13 +18,11 @@ import org.springframework.core.env.PropertyResolver;
 
 public class InMemoryProperties extends AbstractPropertiesHolder {
 
-    private final PropertyResolver propertyResolver;
-
     private final Map<String, String> changes = new HashMap<>();
     private final Set<String> reverts = new HashSet<>();
 
     public InMemoryProperties(PropertyResolver propertyResolver) {
-        this.propertyResolver = propertyResolver;
+        super(propertyResolver);
     }
 
     @Override
@@ -69,12 +67,9 @@ public class InMemoryProperties extends AbstractPropertiesHolder {
             String key = entry.getKey();
             String value = entry.getValue();
             String defaultValue = propertyResolver.getProperty(key);
-            if (defaultValue != null) {
-                // We support only values which defaults are exist.
-                if (!defaultValue.equals(value)) {
-                    // Save only changed values
-                    properties.setProperty(key, value);
-                }
+            if (value != null && !value.equals(defaultValue)) {
+                // Save only changed values
+                properties.setProperty(key, value);
             }
         }
 

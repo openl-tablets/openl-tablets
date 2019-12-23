@@ -244,9 +244,8 @@ public class InstallWizard {
     private void validateConnectionToDesignRepo(RepositoryConfiguration designRepositoryConfiguration,
             String configName) throws RepositoryValidationException {
         try {
-            designRepositoryConfiguration.commit();
             PropertyResolver propertiesResolver = DelegatedPropertySource
-                .createPropertiesResolver(designRepositoryConfiguration.getProperties());
+                .createPropertiesResolver(designRepositoryConfiguration.getPropertiesToValidate());
             Repository repository = RepositoryFactoryInstatiator.newFactory(propertiesResolver, configName);
             if (repository instanceof Closeable) {
                 // Release resources after validation
@@ -367,7 +366,6 @@ public class InstallWizard {
 
             properties.setProperty("user.mode", userMode);
 
-            // TODO: This line also do systemConfig.save() implicitly
             designRepositoryConfiguration.commit();
             if (!isUseDesignRepo()) {
                 deployConfigRepositoryConfiguration.commit();

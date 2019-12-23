@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
 import org.openl.config.ReadOnlyPropertiesHolder;
 import org.openl.util.StringUtils;
@@ -52,12 +53,11 @@ public class RepositoryConfiguration {
         repositoryType = RepositoryType.findByFactory(factoryClassName);
         if (repositoryType == null) {
             // Fallback to default value and save error message
-            errorMessage = "Unsupported repository type. Repository factory: " + factoryClassName + ".";
+            repositoryType = RepositoryType.values()[0];
+            errorMessage = "Unsupported repository type. Repository factory: " + factoryClassName + ". Was replaced with " + repositoryType.getFactoryClassName() + ".";
         }
         name = properties.getProperty(REPOSITORY_NAME);
-        if (repositoryType != null) {
-            settings = createSettings(repositoryType, properties, configName);
-        }
+        settings = createSettings(repositoryType, properties, configName);
 
         fixState();
     }
@@ -98,8 +98,13 @@ public class RepositoryConfiguration {
         settings.revert(properties);
     }
 
+    public PropertiesHolder getPropertiesToValidate() {
+        InMemoryProperties tempProps = new InMemoryProperties(getProperties().getPropertyResolver());
+        store(tempProps);
+        return tempProps;
+    }
+
     public void commit() {
-        fixState();
         store(properties);
     }
 

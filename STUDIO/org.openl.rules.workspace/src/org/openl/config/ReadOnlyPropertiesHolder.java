@@ -6,15 +6,13 @@ import org.springframework.core.env.PropertyResolver;
 
 public class ReadOnlyPropertiesHolder extends AbstractPropertiesHolder {
 
-    private final PropertyResolver propertiesResolver;
-
-    public ReadOnlyPropertiesHolder(PropertyResolver propertiesResolver) {
-        this.propertiesResolver = propertiesResolver;
+    public ReadOnlyPropertiesHolder(PropertyResolver propertyResolver) {
+        super(propertyResolver);
     }
 
     @Override
     public String getProperty(String key) {
-        return propertiesResolver.getProperty(key);
+        return propertyResolver.getProperty(key);
     }
 
     @Override
