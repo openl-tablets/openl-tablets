@@ -56,8 +56,7 @@ public class GitRepositorySettings extends RepositorySettings {
     }
 
     private void load(PropertiesHolder properties) {
-        String type = CONFIG_PREFIX;
-
+        String type = RepositorySettings.getTypePrefix(CONFIG_PREFIX);
         String localPath = properties.getProperty(LOCAL_REPOSITORY_PATH);
         String defaultLocalPath = localPath != null ? localPath
                                                     : properties.getProperty(
