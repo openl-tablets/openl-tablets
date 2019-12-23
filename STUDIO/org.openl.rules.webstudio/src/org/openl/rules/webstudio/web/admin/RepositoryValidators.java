@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 import javax.security.auth.login.FailedLoginException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -120,8 +119,8 @@ public final class RepositoryValidators {
 
             PropertyResolver propertiesResolver = DelegatedPropertySource
                 .createPropertiesResolver(repoConfig.getPropertiesToValidate());
-            Repository repository = RepositoryFactoryInstatiator.newFactory(propertiesResolver,
-                repoConfig.getConfigName());
+            Repository repository = RepositoryInstatiator.newRepository(repoConfig.getConfigName(),
+                    propertiesResolver);
             if (repository instanceof Closeable) {
                 // Close repo connection after validation
                 IOUtils.closeQuietly((Closeable) repository);

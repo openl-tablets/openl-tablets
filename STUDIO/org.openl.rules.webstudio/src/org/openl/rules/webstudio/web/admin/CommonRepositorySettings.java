@@ -14,9 +14,7 @@ public class CommonRepositorySettings extends RepositorySettings {
     private final String REPOSITORY_PASS;
     private String CONFIG_PREFIX;
 
-    public CommonRepositorySettings(PropertiesHolder properties,
-            String configPrefix,
-            RepositoryType repositoryType) {
+    public CommonRepositorySettings(PropertiesHolder properties, String configPrefix, RepositoryType repositoryType) {
         super(properties, configPrefix);
         CONFIG_PREFIX = configPrefix;
         this.repositoryType = repositoryType;
@@ -73,8 +71,7 @@ public class CommonRepositorySettings extends RepositorySettings {
     }
 
     private String getDefaultPath(RepositoryType repositoryType) {
-        String type = CONFIG_PREFIX;
-
+        String type = RepositorySettings.getTypePrefix(CONFIG_PREFIX);
         switch (repositoryType) {
             case DB:
                 return "jdbc:mysql://localhost:3306/" + type + "-repository";

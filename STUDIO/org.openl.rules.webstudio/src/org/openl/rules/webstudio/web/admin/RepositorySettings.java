@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
+import org.openl.config.ConfigNames;
 import org.openl.config.PropertiesHolder;
 
 public abstract class RepositorySettings {
@@ -207,6 +208,21 @@ public abstract class RepositorySettings {
             DEFAULT_COMMENT_COPIED_FROM,
             DEFAULT_COMMENT_RESTORED_FROM);
         load(properties);
+    }
+
+    static String getTypePrefix(String configPrefix) {
+        String type;
+        try {
+            String clearPrefix = configPrefix.split("\\.")[1];
+            if (ConfigNames.DEFAULT_CONFIGS.contains(clearPrefix)) {
+                type = clearPrefix;
+            } else {
+                type = "deployment";
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new UnsupportedOperationException("Unsupported configuration prefix is using");
+        }
+        return type;
     }
 
     protected void onTypeChanged(RepositoryType newRepositoryType) {
