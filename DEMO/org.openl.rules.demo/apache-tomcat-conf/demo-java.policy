@@ -117,6 +117,11 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
         //tomcat
         permission java.net.NetPermission "specifyStreamHandler";
 
+        //docker
+        permission java.lang.RuntimePermission "accessUserInformation";
+        permission java.io.FilePermission "${catalina.base}/openl-demo/design-repository/.git/hooks/pre-commit", "execute";
+        permission java.io.FilePermission "${catalina.base}/openl-demo/design-repository/.git/hooks/commit-msg", "execute";
+        permission java.io.FilePermission "${catalina.base}/openl-demo/design-repository/.git/hooks/post-commit", "execute";
 };
 
 // WEBSERVICE
