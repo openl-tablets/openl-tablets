@@ -1701,8 +1701,19 @@ public final class DecisionTableHelper {
                 }
             }
             if (!onlyReturns) {
-                List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils
-                    .fuzzyExtract(tokenizedTitleString, fuzzyContext.getParameterTokens().getTokens(), true);
+                Token[] tokens;
+                if (numberOfColumnsUnderTitleCounter.get(sourceTableColumn) == 1) {
+                    final int maxDistance = Arrays.stream(fuzzyContext.getParameterTokens().getTokens())
+                        .mapToInt(Token::getDistance)
+                        .max()
+                        .orElseThrow(IllegalArgumentException::new);
+                    tokens = ArrayUtils.addAll(fuzzyContext.getParameterTokens().getTokens(),
+                        new Token("is true", maxDistance + 1),
+                        new Token("is false", maxDistance + 1));
+                } else {
+                    tokens = fuzzyContext.getParameterTokens().getTokens();
+                }
+                List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils.fuzzyExtract(tokenizedTitleString, tokens, true);
                 addFuzzyCondition(decisionTable,
                     gridTable,
                     fuzzyContext,
@@ -1748,46 +1759,61 @@ public final class DecisionTableHelper {
             List<DTHeader> dtHeaders,
             boolean minMaxCondition) {
         for (FuzzyResult fuzzyResult : fuzzyResults) {
-            int paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(fuzzyResult.getToken());
-            IOpenField[] fieldsChain = fuzzyContext.getParameterTokens().getFieldsChain(fuzzyResult.getToken());
-            StringBuilder conditionStatement = new StringBuilder(
-                decisionTable.getSignature().getParameterName(paramIndex));
-            IOpenClass type = decisionTable.getSignature().getParameterType(paramIndex);
-            if (fieldsChain != null) {
-                Pair<String, IOpenClass> c = buildStatementByFieldsChain(
-                    decisionTable.getSignature().getParameterType(paramIndex),
-                    fieldsChain);
-                String chainStatement = c.getLeft();
-                conditionStatement.append(".");
-                conditionStatement.append(chainStatement);
-                type = c.getRight();
-            }
-            if (minMaxCondition) {
-                if (type.getInstanceClass() != null && (type.getInstanceClass().isPrimitive() || ClassUtils
-                    .isAssignable(type.getInstanceClass(), Comparable.class))) {
-                    int totalW = gridTable.getCell(0, 0).getWidth();
-                    int firstW = gridTable.getCell(w, h).getWidth();
-                    String title = sb.toString() + " / " + gridTable.getCell(w + firstW, h).getStringValue();
+            Integer paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(fuzzyResult.getToken());
+            if (paramIndex != null) {
+                IOpenField[] fieldsChain = fuzzyContext.getParameterTokens().getFieldsChain(fuzzyResult.getToken());
+                StringBuilder conditionStatement = new StringBuilder(
+                    decisionTable.getSignature().getParameterName(paramIndex));
+                IOpenClass type = decisionTable.getSignature().getParameterType(paramIndex);
+                if (fieldsChain != null) {
+                    Pair<String, IOpenClass> c = buildStatementByFieldsChain(
+                        decisionTable.getSignature().getParameterType(paramIndex),
+                        fieldsChain);
+                    String chainStatement = c.getLeft();
+                    conditionStatement.append(".");
+                    conditionStatement.append(chainStatement);
+                    type = c.getRight();
+                }
+                if (minMaxCondition) {
+                    if (type.getInstanceClass() != null && (type.getInstanceClass().isPrimitive() || ClassUtils
+                        .isAssignable(type.getInstanceClass(), Comparable.class))) {
+                        int totalW = gridTable.getCell(0, 0).getWidth();
+                        int firstW = gridTable.getCell(w, h).getWidth();
+                        String title = sb.toString() + " / " + gridTable.getCell(w + firstW, h).getStringValue();
+                        dtHeaders.add(new FuzzyDTHeader(paramIndex,
+                            conditionStatement.toString(),
+                            title,
+                            fieldsChain,
+                            sourceTableColumn,
+                            sourceTableColumn,
+                            totalW,
+                            fuzzyResult,
+                            false));
+                    }
+                } else {
                     dtHeaders.add(new FuzzyDTHeader(paramIndex,
                         conditionStatement.toString(),
-                        title,
+                        sb.toString(),
                         fieldsChain,
                         sourceTableColumn,
-                        sourceTableColumn,
-                        totalW,
+                        sourceTableColumn + w,
+                        w0,
                         fuzzyResult,
                         false));
                 }
             } else {
-                dtHeaders.add(new FuzzyDTHeader(paramIndex,
-                    conditionStatement.toString(),
-                    sb.toString(),
-                    fieldsChain,
-                    sourceTableColumn,
-                    sourceTableColumn + w,
-                    w0,
-                    fuzzyResult,
-                    false));
+                if ("is true".equals(fuzzyResult.getToken().getValue()) || "is false"
+                    .equals(fuzzyResult.getToken().getValue())) {
+                    dtHeaders
+                        .add(new FuzzyDTHeader("is true".equals(fuzzyResult.getToken().getValue()) ? "true" : "false",
+                            sb.toString(),
+                            new IOpenField[] {},
+                            sourceTableColumn,
+                            sourceTableColumn,
+                            w0,
+                            fuzzyResult,
+                            false));
+                }
             }
         }
     }
@@ -1843,14 +1869,16 @@ public final class DecisionTableHelper {
         if (a instanceof FuzzyDTHeader && b instanceof FuzzyDTHeader) {
             FuzzyDTHeader a1 = (FuzzyDTHeader) a;
             FuzzyDTHeader b1 = (FuzzyDTHeader) b;
-            if (a1.isCondition() && b1
-                .isCondition() && a1.getMethodParameterIndex() == b1.getMethodParameterIndex() && Arrays
-                    .deepEquals(a1.getFieldsChain(), b1.getFieldsChain())) {
-                return false;
-            }
+            if (a1.isMethodParameterUsed() && b1.isMethodParameterUsed()) {
+                if (a1.isCondition() && b1
+                    .isCondition() && a1.getMethodParameterIndex() == b1.getMethodParameterIndex() && Arrays
+                        .deepEquals(a1.getFieldsChain(), b1.getFieldsChain())) {
+                    return false;
+                }
 
-            if (a1.isReturn() && b1.isReturn() && fieldsChainsIsCrossed(a1.getFieldsChain(), b1.getFieldsChain())) {
-                return false;
+                if (a1.isReturn() && b1.isReturn() && fieldsChainsIsCrossed(a1.getFieldsChain(), b1.getFieldsChain())) {
+                    return false;
+                }
             }
 
             if (!(a1.isHCondition() && b1.isHCondition() || a1.isCondition() && b1.isCondition() || a1.isAction() && b1
@@ -3165,14 +3193,32 @@ public final class DecisionTableHelper {
     }
 
     private static IOpenClass getTypeForCondition(DecisionTable decisionTable, DTHeader condition) {
-        IOpenClass type = decisionTable.getSignature().getParameterTypes()[condition.getMethodParameterIndex()];
-        if (condition instanceof FuzzyDTHeader) {
-            FuzzyDTHeader fuzzyCondition = (FuzzyDTHeader) condition;
-            if (fuzzyCondition.getFieldsChain() != null) {
-                type = fuzzyCondition.getFieldsChain()[fuzzyCondition.getFieldsChain().length - 1].getType();
+        if (condition.isMethodParameterUsed()) {
+            IOpenClass type = decisionTable.getSignature().getParameterTypes()[condition.getMethodParameterIndex()];
+            if (condition instanceof FuzzyDTHeader) {
+                FuzzyDTHeader fuzzyCondition = (FuzzyDTHeader) condition;
+                if (fuzzyCondition.isMethodParameterUsed()) {
+                    if (fuzzyCondition.getFieldsChain() != null) {
+                        type = fuzzyCondition.getFieldsChain()[fuzzyCondition.getFieldsChain().length - 1].getType();
+                    }
+                } else {
+                    if ("is true".equals(fuzzyCondition.getFuzzyResult().getToken().getValue()) || "is false"
+                        .equals(fuzzyCondition.getFuzzyResult().getToken().getValue())) {
+                        return JavaOpenClass.getOpenClass(Boolean.class);
+                    }
+                }
+            }
+            return type;
+        } else {
+            if (condition instanceof FuzzyDTHeader) {
+                FuzzyDTHeader fuzzyCondition = (FuzzyDTHeader) condition;
+                if ("is true".equals(fuzzyCondition.getFuzzyResult().getToken().getValue()) || "is false"
+                    .equals(fuzzyCondition.getFuzzyResult().getToken().getValue())) {
+                    return JavaOpenClass.getOpenClass(Boolean.class);
+                }
             }
         }
-        return type;
+        throw new IllegalStateException();
     }
 
     public static XlsSheetGridModel createVirtualGrid(String poiSheetName, int numberOfColumns) {
@@ -3291,7 +3337,7 @@ public final class DecisionTableHelper {
             return tokenToFieldsChain.get(value);
         }
 
-        int getParameterIndex(Token value) {
+        Integer getParameterIndex(Token value) {
             return tokensToParameterIndex.get(value);
         }
 
