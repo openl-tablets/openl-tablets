@@ -40,6 +40,7 @@ public class RepositoryInstatiator {
     /**
      * Create new repository instance.
      *
+     * @param configName the name of the configuration, e.g. design, deploy-config or production like.
      * @param propertyResolver the propertyResolver of the app.
      * @return the initialized repository.
      */
@@ -101,12 +102,12 @@ public class RepositoryInstatiator {
             String value = param.getValue();
             if (StringUtils.isNotBlank(value)) {
                 String name = param.getKey();
-                injectValues(instance, clazz, value, name);
+                injectValue(instance, clazz, value, name);
             }
         }
     }
 
-    private static void injectValues(Object instance, Class<?> clazz, String value, String fieldName) {
+    private static void injectValue(Object instance, Class<?> clazz, String value, String fieldName) {
         String setter = "set" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
         try {
             Method setMethod = clazz.getMethod(setter, String.class);
@@ -148,18 +149,20 @@ public class RepositoryInstatiator {
         for (Field field : clazz.getDeclaredFields()) {
             String fieldName = field.getName();
             String propertyName = buildPropertyName(configName, fieldName);
-            String propertyValue = getValue(propertyResolver, propertyName);
+            String propertyValue = getValue(propertyResolver, propertyName, fieldName);
             boolean propertyExists = StringUtils.isNotBlank(propertyValue);
             if (propertyExists) {
-                injectValues(instance, clazz, propertyValue, fieldName);
+                injectValue(instance, clazz, propertyValue, fieldName);
             }
         }
 
     }
 
-    private static String getValue(PropertyResolver propertyResolver, String propertyName) throws RRepositoryException {
+    private static String getValue(PropertyResolver propertyResolver,
+            String propertyName,
+            String fieldName) throws RRepositoryException {
         String propertyValue = propertyResolver.getProperty(propertyName);
-        if ("password".equals(propertyName)) {
+        if ("password".equals(fieldName)) {
             String privateKey = StringUtils.trimToEmpty(propertyResolver.getProperty("repository.encode.decode.key"));
             try {
                 return PassCoder.decode(propertyValue, privateKey);
