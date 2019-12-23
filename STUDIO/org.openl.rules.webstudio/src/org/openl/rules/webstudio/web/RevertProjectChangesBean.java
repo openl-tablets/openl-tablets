@@ -1,12 +1,5 @@
 package org.openl.rules.webstudio.web;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
@@ -15,6 +8,19 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.source.SourceHistoryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
 
 /**
  * @author Andrei Astrouski
@@ -26,8 +32,8 @@ public class RevertProjectChangesBean {
     private final Logger log = LoggerFactory.getLogger(RevertProjectChangesBean.class);
 
     public String dateModifiedPattern = WebStudioUtils.getWebStudio()
-        .getSystemConfigManager()
-        .getStringProperty("data.format.date") + " 'at' hh:mm:ss a";
+            .getSystemConfigManager()
+            .getStringProperty("data.format.date") + " 'at' hh:mm:ss a";
 
     public RevertProjectChangesBean() {
     }
@@ -60,7 +66,7 @@ public class RevertProjectChangesBean {
 
             history.add(historyItem);
         }
-
+        Collections.sort(history, Comparator.comparingLong(ProjectHistoryItem::getVersion).reversed());
         return history;
     }
 
@@ -107,7 +113,7 @@ public class RevertProjectChangesBean {
                 }
 
                 UploadExcelDiffController diffController = (UploadExcelDiffController) FacesUtils
-                    .getBackingBean("uploadExcelDiffController");
+                        .getBackingBean("uploadExcelDiffController");
                 diffController.compare(Arrays.asList(file1ToCompare, file2ToCompare));
             }
         } catch (Exception e) {
