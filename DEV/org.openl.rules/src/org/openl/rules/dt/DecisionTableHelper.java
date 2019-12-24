@@ -1122,8 +1122,8 @@ public final class DecisionTableHelper {
                 dtHeader.getColumn(),
                 firstColumnHeight - 1,
                 bindingContext);
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(String
-                .format("Smart table has unmatched title '%s'.", eGridCellSourceCodeModule.getCell().getStringValue()),
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
+                String.format("Smart table has unmatched title '%s'.", eGridCellSourceCodeModule.getCode()),
                 eGridCellSourceCodeModule);
             bindingContext.addError(error);
             tableSyntaxNode.addError(error);

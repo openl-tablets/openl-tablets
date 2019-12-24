@@ -382,7 +382,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             GridCellSourceCodeModule expressionCellSourceCodeModule,
             CompositeMethod compositeMethod,
             IBindingContext cxt) throws SyntaxNodeException {
-        if (StringUtils.isBlank(expressionCellSourceCodeModule.getCell().getStringValue())) {
+        if (StringUtils.isBlank(expressionCellSourceCodeModule.getCode())) {
             if (isConditions()) {
                 throw SyntaxNodeExceptionUtils
                     .createError("Expression is required for a condition.", null, null, expressionCellSourceCodeModule);
