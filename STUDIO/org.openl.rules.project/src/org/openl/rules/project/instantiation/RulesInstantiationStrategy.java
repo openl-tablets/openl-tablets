@@ -27,9 +27,8 @@ public interface RulesInstantiationStrategy {
      *
      * @return instance of {@link #getInstanceClass()} result.
      * @throws RulesInstantiationException
-     * @throws ClassNotFoundException
      */
-    Object instantiate() throws RulesInstantiationException, ClassNotFoundException;
+    Object instantiate() throws RulesInstantiationException;
 
     /**
      * Returns ClassLoader for the current module inside the project. If classLoader was set during the construction of
@@ -48,9 +47,9 @@ public interface RulesInstantiationStrategy {
      * strategies(e.g. for static wrapper case).
      *
      * @return service class that it is used for {@link InstantiationError} or <code>null</code>.
-     * @throws ClassNotFoundException
+     * @throws RulesInstantiationException
      */
-    Class<?> getServiceClass() throws ClassNotFoundException;
+    Class<?> getServiceClass() throws RulesInstantiationException;
 
     /**
      * Service that will be used for instantiation.
@@ -72,10 +71,9 @@ public interface RulesInstantiationStrategy {
      * first one is not defined.
      *
      * @return class of instance.
-     * @throws ClassNotFoundException
      * @throws RulesInstantiationException
      */
-    Class<?> getInstanceClass() throws ClassNotFoundException, RulesInstantiationException;
+    Class<?> getInstanceClass() throws RulesInstantiationException;
 
     /**
      * @return <code>true</code> if service class is defined.

@@ -42,17 +42,15 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
      * Gets enhanced service class.
      *
      * @return service class
-     * @throws ClassNotFoundException
-     * @throws InstantiationException
      */
     @Override
-    public final Class<?> getServiceClass() throws ClassNotFoundException {
+    public final Class<?> getServiceClass() {
         if (serviceClass == null) {
             try {
                 Class<?> originalServiceClass = getOriginalInstantiationStrategy().getInstanceClass();
                 serviceClass = decorateServiceClass(originalServiceClass, getClassLoader());
             } catch (Exception e) {
-                throw new OpenlNotCheckedException("Failed to enhance service class.", e);
+                throw new OpenlNotCheckedException("Failed to enhance a service class.", e);
             }
         }
         return serviceClass;
@@ -109,7 +107,7 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
     }
 
     @Override
-    public final Object instantiate() throws RulesInstantiationException, ClassNotFoundException {
+    public final Object instantiate() throws RulesInstantiationException {
         try {
             Object originalInstance = getOriginalInstantiationStrategy().instantiate();
             InvocationHandler invocationHandler = makeInvocationHandler(originalInstance);
@@ -132,15 +130,12 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
 
     @Override
     public ClassLoader getClassLoader() throws RulesInstantiationException {
-        try {
-            return getOriginalInstantiationStrategy().getInstanceClass().getClassLoader();
-        } catch (ClassNotFoundException e) {
-            throw new RulesInstantiationException(e);
-        }
+
+        return getOriginalInstantiationStrategy().getInstanceClass().getClassLoader();
     }
 
     @Override
-    public final Class<?> getInstanceClass() throws ClassNotFoundException, RulesInstantiationException {
+    public final Class<?> getInstanceClass() {
         return getServiceClass();
     }
 

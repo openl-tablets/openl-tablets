@@ -112,13 +112,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected LazyEngineFactory<?> getEngineFactory() {
-        Class<?> serviceClass = null;
-        try {
-            serviceClass = getServiceClass();
-        } catch (ClassNotFoundException e) {
-            log.debug("Failed to load service class.", e);
-            serviceClass = null;
-        }
+        Class<?> serviceClass = getServiceClass();
         if (engineFactory == null || serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass)) {
             engineFactory = new LazyEngineFactory(getDeployment(),
                 getModules(),

@@ -53,4 +53,6 @@ public interface IDependencyManager {
      */
     Collection<String> getAllDependencies();
 
+    void clearOddDataForExecutionMode();
+
 }

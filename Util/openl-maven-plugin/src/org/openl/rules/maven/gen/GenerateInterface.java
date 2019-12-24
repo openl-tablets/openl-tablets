@@ -72,9 +72,11 @@ public class GenerateInterface {
             IDependencyManager dependencyManager) {
         IOpenSourceCodeModule source = new URLSourceCodeModule(filename);
         OpenL openl = OpenL.getInstance(openlName, userContext);
-        CompiledOpenClass openClass = OpenLManager.compileModuleWithErrors(openl, source, false, dependencyManager);
-
-        return openClass;
+        try {
+            return OpenLManager.compileModuleWithErrors(openl, source, false, dependencyManager);
+        } finally {
+            dependencyManager.clearOddDataForExecutionMode();
+        }
     }
 
     public void setLog(Log log) {
