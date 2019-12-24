@@ -120,8 +120,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
             categoryDetailedView,
             categoryInversedView };
 
-    private static final String USER_SETTINGS_FILENAME = "user-settings.properties";
-
     private final WebStudioLinkBuilder linkBuilder = new WebStudioLinkBuilder(this);
 
     private String workspacePath;
@@ -937,11 +935,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public boolean isUpdateSystemProperties() {
         return updateSystemProperties;
-    }
-
-    public void setUpdateSystemProperties(boolean updateSystemProperties) {
-        this.updateSystemProperties = updateSystemProperties;
-        // systemConfigManager.setProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
     }
 
     public boolean isShowFormulas() {
