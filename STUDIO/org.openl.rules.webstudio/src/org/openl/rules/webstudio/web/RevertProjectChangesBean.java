@@ -20,7 +20,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
+import java.util.stream.Collectors;
 
 /**
  * @author Andrei Astrouski
@@ -39,33 +39,24 @@ public class RevertProjectChangesBean {
     }
 
     public List<ProjectHistoryItem> getHistory() {
-        List<ProjectHistoryItem> history = new ArrayList<>();
         ProjectModel model = WebStudioUtils.getProjectModel();
-
         String[] sourceNames = getSources();
-        Map<Long, File> historyMap = model.getHistoryManager().get(sourceNames);
+        List<File> historyListFiles = model.getHistoryManager().get(sourceNames);
 
-        List<String> used = new ArrayList<>();
+        Map<String, List<ProjectHistoryItem>> sourceNameHistoryMap = historyListFiles.stream().map(f -> {
+            String modifiedOnStr = new SimpleDateFormat(dateModifiedPattern).format(new Date(f.lastModified()));
+            return new ProjectHistoryItem(f.lastModified(), modifiedOnStr, f.getName());
+        }).collect(Collectors.groupingBy(ProjectHistoryItem::getSourceName));
 
-        for (long modifiedOn : historyMap.keySet()) {
-            String sourceName = historyMap.get(modifiedOn).getName();
-
-            ProjectHistoryItem historyItem = new ProjectHistoryItem();
-            String modifiedOnStr = new SimpleDateFormat(dateModifiedPattern).format(new Date(modifiedOn));
-            historyItem.setVersion(modifiedOn);
-            historyItem.setModifiedOn(modifiedOnStr);
-            historyItem.setSourceName(sourceName);
-
-            if (!used.contains(sourceName)) {
-                used.add(sourceName);
-                historyItem.setDisabled(true);
-                // Add initial file to top
-                history.add(0, historyItem);
-                continue;
-            }
-
-            history.add(historyItem);
+        List<ProjectHistoryItem> history = new ArrayList<>();
+        for (List<ProjectHistoryItem> files : sourceNameHistoryMap.values()) {
+            //mark as current
+            files.stream().max(Comparator.comparingLong(ProjectHistoryItem::getVersion)).ifPresent(f -> f.setCurrent(true));
+            //mark as initial
+            files.stream().min(Comparator.comparingLong(ProjectHistoryItem::getVersion)).ifPresent(f -> f.setDisabled(true));
+            history.addAll(files);
         }
+
         Collections.sort(history, Comparator.comparingLong(ProjectHistoryItem::getVersion).reversed());
         return history;
     }
@@ -92,23 +83,20 @@ public class RevertProjectChangesBean {
 
             ProjectModel model = WebStudioUtils.getProjectModel();
             SourceHistoryManager<File> historyManager = model.getHistoryManager();
-            SortedMap<Long, File> sources = historyManager.get(versionsToCompare);
-
+            List<File> sources = historyManager.get(versionsToCompare);
             if (sources.size() == 2) {
-                Long source1Version = sources.firstKey();
-                Long source2Version = sources.lastKey();
-                File file1ToCompare = sources.get(source1Version);
-                File file2ToCompare = sources.get(source2Version);
+                File file1ToCompare = sources.get(0);
+                File file2ToCompare = sources.get(1);
                 String file1Name = file1ToCompare.getName();
                 String file2Name = file2ToCompare.getName();
 
                 if (!file2Name.equals(file1Name)) {
                     // Try to get a previous version
-                    file1ToCompare = historyManager.getPrev(source2Version);
+                    file1ToCompare = historyManager.getPrev(file2ToCompare.lastModified());
                     if (file1ToCompare == null) {
                         // Get initial source
                         sources = historyManager.get(file2Name);
-                        file1ToCompare = sources.get(sources.firstKey());
+                        file1ToCompare = sources.get(0);
                     }
                 }
 

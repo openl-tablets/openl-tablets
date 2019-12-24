@@ -9,6 +9,13 @@ public class ProjectHistoryItem {
     private String modifiedOn;
     private String sourceName;
     private boolean disabled;
+    private boolean current;
+
+    public ProjectHistoryItem(long version, String modifiedOn, String sourceName) {
+        this.version = version;
+        this.modifiedOn = modifiedOn;
+        this.sourceName = sourceName;
+    }
 
     public long getVersion() {
         return version;
@@ -42,4 +49,11 @@ public class ProjectHistoryItem {
         this.disabled = disabled;
     }
 
+    public boolean isCurrent() {
+        return current;
+    }
+
+    public void setCurrent(boolean current) {
+        this.current = current;
+    }
 }

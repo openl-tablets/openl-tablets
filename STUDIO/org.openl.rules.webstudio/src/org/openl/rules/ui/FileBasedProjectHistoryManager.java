@@ -84,27 +84,23 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
     }
 
     @Override
-    public SortedMap<Long, File> get(long... dates) {
-        SortedMap<Long, File> sources = new TreeMap<>();
+    public List<File> get(long... dates) {
+        List<File> sources = new ArrayList<>();
         for (long date : dates) {
-            sources.put(date, get(date));
+            sources.add(get(date));
         }
         return sources;
     }
 
     @Override
-    public SortedMap<Long, File> get(String... names) {
+    public List<File> get(String... names) {
         Collection<File> files;
         if (names != null && names.length > 0) {
             files = storage.list(new NameFileFilter(names));
         } else {
             files = storage.list(TrueFileFilter.TRUE);
         }
-        SortedMap<Long, File> sources = new TreeMap<>();
-        for (File file : files) {
-            sources.put(file.lastModified(), file);
-        }
-        return sources;
+        return new ArrayList<>(files);
     }
 
     @Override

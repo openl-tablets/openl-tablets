@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 import org.openl.source.SourceHistoryManager;
@@ -26,7 +27,7 @@ public class XlsWorkbookSourceHistoryListener implements XlsWorkbookListener {
     }
 
     public void beforeSave(File sourceFile) {
-        Map<Long, File> sources = historyManager.get(sourceFile.getName());
+        List<File> sources = historyManager.get(sourceFile.getName());
         if (sources.isEmpty() && sourceFile.exists()) {
             historyManager.save(sourceFile);
         }
