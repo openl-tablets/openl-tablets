@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.admin;
 
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS;
 
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -19,9 +20,37 @@ public class ProductionRepositoryEditor {
     private PropertiesHolder properties;
 
     public ProductionRepositoryEditor(ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy,
-        PropertiesHolder properties) {
+            PropertiesHolder properties) {
         this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
-        this.properties = properties;
+        this.properties = createProductionPropertiesWrapper(properties);
+    }
+
+    static PropertiesHolder createProductionPropertiesWrapper(PropertiesHolder properties) {
+        return (PropertiesHolder) Proxy.newProxyInstance(properties.getClass().getClassLoader(),
+            new Class[] { PropertiesHolder.class },
+            (proxy, method, args) -> {
+                Object result = method.invoke(properties, args);
+
+                if (result == null) {
+                    Class<?>[] parameterTypes = method.getParameterTypes();
+                    if ("getProperty"
+                        .equals(method.getName()) && parameterTypes.length == 1 && parameterTypes[0] == String.class) {
+                        // Not found default value. Production repositories don't have default values. Let's get
+                        // default value from design repository.
+                        String key = (String) args[0];
+                        String prefix = "repository.";
+                        if (key.startsWith(prefix)) {
+                            // Replace repository key to design repository
+                            int from = prefix.length();
+                            int to = key.indexOf('.', from);
+                            String newKey = prefix + "design" + key.substring(to);
+                            result = method.invoke(properties, newKey);
+                        }
+                    }
+                }
+
+                return result;
+            });
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
@@ -131,8 +160,7 @@ public class ProductionRepositoryEditor {
         newConfig.commit();
 
         // Rename link to a file in system config
-        String[] configNames = split(
-            properties.getProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS));
+        String[] configNames = split(properties.getProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS));
         for (int i = 0; i < configNames.length; i++) {
             if (configNames[i].equals(prodConfig.getConfigName())) {
                 // Found necessary link - rename it

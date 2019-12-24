@@ -51,7 +51,7 @@ public abstract class AbstractProductionRepoController {
     }
 
     public void setProperties(PropertiesHolder properties) {
-        this.properties = properties;
+        this.properties = ProductionRepositoryEditor.createProductionPropertiesWrapper(properties);
     }
 
     public RepositoryConfiguration getRepositoryConfiguration() {
