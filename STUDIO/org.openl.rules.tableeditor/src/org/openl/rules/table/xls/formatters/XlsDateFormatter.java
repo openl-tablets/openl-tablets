@@ -1,12 +1,11 @@
 package org.openl.rules.table.xls.formatters;
 
-import java.util.regex.Pattern;
-
 import org.openl.util.formatters.DateFormatter;
+
+import java.util.regex.Pattern;
 
 /**
  * @author snshor
- *
  */
 public class XlsDateFormatter extends DateFormatter {
 
@@ -14,8 +13,8 @@ public class XlsDateFormatter extends DateFormatter {
 
     @Deprecated
     public static String convertToJavaFormat(String xlsFormat) {
-        // TODO this will require much more work than that
-        xlsFormat = xlsFormat.replace('m', 'M');
+        xlsFormat = xlsFormat.replaceAll("m", "M");
+        xlsFormat = xlsFormat.replaceAll("h.MM", xlsFormat.substring(xlsFormat.lastIndexOf("h"), xlsFormat.lastIndexOf("h") + 2) + "mm");
         xlsFormat = xlsFormat.replaceAll("\\\\-", "-");
         xlsFormat = xlsFormat.replaceAll(";@", "");
         xlsFormat = xlsFormat.replaceAll("\\\\ ", " ");
