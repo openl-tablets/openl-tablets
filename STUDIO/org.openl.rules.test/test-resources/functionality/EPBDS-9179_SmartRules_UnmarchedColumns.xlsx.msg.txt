@@ -1,1 +1,1 @@
-ERROR: Smart table has unmatched columns.
+ERROR: Smart table has unmatched title 'Description Column'.

@@ -60,6 +60,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
@@ -383,7 +384,12 @@ public final class DecisionTableHelper {
             firstColumnHeight,
             bindingContext);
 
-        writeUnmatchedColumns(decisionTable, originalTable, dtHeaders, firstColumnHeight, bindingContext);
+        writeUnmatchedColumns(tableSyntaxNode,
+            decisionTable,
+            originalTable,
+            dtHeaders,
+            firstColumnHeight,
+            bindingContext);
 
         writeActions(decisionTable, originalTable, grid, dtHeaders, firstColumnHeight, bindingContext);
 
@@ -1090,7 +1096,8 @@ public final class DecisionTableHelper {
     private static final String[] MIN_MAX_ORDER = new String[] { "min", "max" };
     private static final String[] MAX_MIN_ORDER = new String[] { "max", "min" };
 
-    private static void writeUnmatchedColumns(DecisionTable decisionTable,
+    private static void writeUnmatchedColumns(TableSyntaxNode tableSyntaxNode,
+            DecisionTable decisionTable,
             ILogicalTable originalTable,
             List<DTHeader> dtHeaders,
             int firstColumnHeight,
@@ -1111,6 +1118,15 @@ public final class DecisionTableHelper {
             if (!bindingContext.isExecutionMode()) {
                 writeMetaInfoForUnmatched(originalTable, decisionTable, column, firstColumnHeight - 1);
             }
+            GridCellSourceCodeModule eGridCellSourceCodeModule = new GridCellSourceCodeModule(originalTable.getSource(),
+                dtHeader.getColumn(),
+                firstColumnHeight - 1,
+                bindingContext);
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(String
+                .format("Smart table has unmatched title '%s'.", eGridCellSourceCodeModule.getCell().getStringValue()),
+                eGridCellSourceCodeModule);
+            bindingContext.addError(error);
+            tableSyntaxNode.addError(error);
         }
     }
 
@@ -1994,8 +2010,8 @@ public final class DecisionTableHelper {
                 used.add(new UnmatchedDtHeader(new int[] {}, StringUtils.EMPTY, column, cell.getWidth()));
                 lastColumnReached = bruteForceHeaders(originalTable,
                     column + cell.getWidth(),
-                    firstColumnHeight,
                     numberOfVConditionParameters,
+                    firstColumnHeight,
                     dtHeaders,
                     matrix,
                     columnToIndex,
@@ -2395,12 +2411,6 @@ public final class DecisionTableHelper {
                             e1 -> (long) ((FuzzyDTHeader) e1).getFuzzyResult().getAcceptableSimilarity() * 1000000L)
                         .sum() / e.stream().filter(e1 -> e1 instanceof FuzzyDTHeader).count(),
                     all);
-            }
-            if (fits.get(0).stream().anyMatch(e -> e instanceof UnmatchedDtHeader)) {
-                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Smart table has unmatched columns.",
-                    tableSyntaxNode);
-                bindingContext.addError(error);
-                tableSyntaxNode.addError(error);
             }
             return fits.get(0);
         }

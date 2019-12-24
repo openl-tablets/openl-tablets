@@ -1,0 +1,2 @@
+ERROR: Smart table has unmatched title 'Result'.
+ERROR: Smart table has unmatched title 'Klop'.
