@@ -82,13 +82,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
     @Override
     @SuppressWarnings("unchecked")
     protected RulesEngineFactory<?> getEngineFactory() {
-        Class<Object> serviceClass;
-        try {
-            serviceClass = (Class<Object>) getServiceClass();
-        } catch (ClassNotFoundException e) {
-            log.debug("Failed to get service class.", e);
-            serviceClass = null;
-        }
+        Class<Object> serviceClass = (Class<Object>) getServiceClass();
         if (engineFactory == null || serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass)) {
             if (getModule().getExtension() != null) {
                 IExtensionDescriptor extensionDescriptor = ExtensionDescriptorFactory

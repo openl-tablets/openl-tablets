@@ -29,6 +29,22 @@ class FuzzyDTHeader extends DTHeader {
         this.fuzzyResult = fuzzyResult;
     }
 
+    FuzzyDTHeader(String statement,
+            String title,
+            IOpenField[] fieldsChain,
+            int topColumn,
+            int column,
+            int width,
+            FuzzyResult fuzzyResult,
+            boolean returnDTHeader) {
+        super(new int[] {}, statement, column, width);
+        this.topColumn = topColumn;
+        this.fieldsChain = fieldsChain;
+        this.returnDTHeader = returnDTHeader;
+        this.title = title;
+        this.fuzzyResult = fuzzyResult;
+    }
+
     String getTitle() {
         return title;
     }
@@ -59,6 +75,13 @@ class FuzzyDTHeader extends DTHeader {
     @Override
     boolean isAction() {
         return false;
+    }
+
+    boolean isMethodParameterUsed() {
+        if (returnDTHeader) {
+            return false;
+        }
+        return super.isMethodParameterUsed();
     }
 
     @Override

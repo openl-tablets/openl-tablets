@@ -59,7 +59,7 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     }
 
     @Override
-    public Object instantiate() throws RulesInstantiationException, ClassNotFoundException {
+    public Object instantiate() throws RulesInstantiationException {
         return instantiate(getInstanceClass());
     }
 
@@ -68,23 +68,18 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
         if (classLoader == null) {
             classLoader = initClassLoader();
         }
-
         return classLoader;
     }
 
     protected abstract ClassLoader initClassLoader() throws RulesInstantiationException;
 
-    protected void setClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
-
     @Override
-    public Class<?> getServiceClass() throws ClassNotFoundException {
+    public Class<?> getServiceClass() {
         return serviceClass;
     }
 
     @Override
-    public Class<?> getInstanceClass() throws ClassNotFoundException, RulesInstantiationException {
+    public Class<?> getInstanceClass() throws RulesInstantiationException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(getClassLoader());
@@ -135,11 +130,9 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
      * Inner implementation. Creates instance of class handling all rules invocations. The class will be instance of
      * class got with {@link #getServiceClass()}.
      *
-     * @param rulesClass
-     * @param useExisting
-     * @return
-     * @throws InstantiationException
-     * @throws IllegalAccessException
+     * @param rulesClass rule Class
+     * @return instantiated object
+     * @throws RulesInstantiationException
      */
     protected abstract Object instantiate(Class<?> rulesClass) throws RulesInstantiationException;
 

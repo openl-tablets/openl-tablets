@@ -4,6 +4,8 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +69,7 @@ public class RevertProjectChangesBean {
 
             history.add(historyItem);
         }
-
+        Collections.sort(history, Comparator.comparingLong(ProjectHistoryItem::getVersion).reversed());
         return history;
     }
 

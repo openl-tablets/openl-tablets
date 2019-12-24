@@ -136,10 +136,6 @@ public class InstallWizard {
         workingDirChanged = true;
     }
 
-    public String getPreviousPage() {
-        return PAGE_PREFIX + (step - 1) + PAGE_POSTFIX;
-    }
-
     public String start() {
         step = 1;
         return PAGE_PREFIX + step + PAGE_POSTFIX;
@@ -955,11 +951,11 @@ public class InstallWizard {
     }
 
     public FolderStructureSettings getDesignFolderStructure() {
-        return new FolderStructureSettings(propertyResolver, ConfigNames.DESIGN_CONFIG);
+        return new FolderStructureSettings(propertyResolver, ConfigNames.DESIGN_CONFIG, properties);
     }
 
     public FolderStructureSettings getDeployConfigFolderStructure() {
-        return new FolderStructureSettings(propertyResolver, ConfigNames.DEPLOY_CONFIG);
+        return new FolderStructureSettings(propertyResolver, ConfigNames.DEPLOY_CONFIG, properties);
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {

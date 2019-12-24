@@ -73,8 +73,6 @@ import com.rits.cloning.Cloner;
  */
 public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableModuleOpenClass {
 
-    public static final String DISABLED_CLEAN_UP = "XLS_OPEN_CLASS_DISABLED_CLEANUP";
-
     private final Logger log = LoggerFactory.getLogger(XlsModuleOpenClass.class);
 
     private IDataBase dataBase;
@@ -545,12 +543,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     @Override
     public void clearOddDataForExecutionMode() {
-        if (rulesModuleBindingContext == null || !Boolean.TRUE
-            .equals(rulesModuleBindingContext.getExternalParams().get(DISABLED_CLEAN_UP))) {
-            super.clearOddDataForExecutionMode();
-            dataBase = null;
-            rulesModuleBindingContext = null;
-        }
+        super.clearOddDataForExecutionMode();
+        dataBase = null;
+        rulesModuleBindingContext = null;
     }
 
     public void completeOpenClassBuilding() {

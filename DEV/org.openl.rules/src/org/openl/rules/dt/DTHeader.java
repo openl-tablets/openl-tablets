@@ -31,6 +31,10 @@ abstract class DTHeader {
         return statement;
     }
 
+    boolean isMethodParameterUsed() {
+        return getMethodParameterIndexes().length != 0;
+    }
+
     int[] getMethodParameterIndexes() {
         return methodParameterIndexes;
     }

@@ -996,9 +996,9 @@
 
     <ui:include src="/pages/modules/tooLongDownload.xhtml"/>
 
-    <c:if test="#{jsffn:getSystemProp('webstudio.analytics') != 'false'}">
+    <c:if test="#{environment.getProperty('webstudio.analytics') != 'false'}">
         <ui:include src="/pages/common/analytics.xhtml">
-            <ui:param name="id" value="#{jsffn:getSystemProp('webstudio.analytics')}" />
+            <ui:param name="id" value="#{environment.getProperty('webstudio.analytics')}" />
         </ui:include>
     </c:if>
 

@@ -1,2 +1,2 @@
 Range $Step5:$Step6 contains only undefined type values.
-Cannot load cell value
+Cannot parse cell value '1'. Undefined cell type.
