@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.admin;
 
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -10,6 +11,7 @@ import java.util.List;
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.util.StringUtils;
+import org.springframework.core.env.PropertyResolver;
 
 public class ProductionRepositoryEditor {
     private final ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
@@ -26,31 +28,51 @@ public class ProductionRepositoryEditor {
     }
 
     static PropertiesHolder createProductionPropertiesWrapper(PropertiesHolder properties) {
-        return (PropertiesHolder) Proxy.newProxyInstance(properties.getClass().getClassLoader(),
-            new Class[] { PropertiesHolder.class },
-            (proxy, method, args) -> {
-                Object result = method.invoke(properties, args);
+        String repoConfigName = getFirstConfigName(properties.getProperty(PRODUCTION_REPOSITORY_CONFIGS));
 
-                if (result == null) {
-                    Class<?>[] parameterTypes = method.getParameterTypes();
-                    if ("getProperty"
-                        .equals(method.getName()) && parameterTypes.length == 1 && parameterTypes[0] == String.class) {
-                        // Not found default value. Production repositories don't have default values. Let's get
-                        // default value from design repository.
-                        String key = (String) args[0];
-                        String prefix = "repository.";
-                        if (key.startsWith(prefix)) {
-                            // Replace repository key to design repository
-                            int from = prefix.length();
-                            int to = key.indexOf('.', from);
-                            String newKey = prefix + "design" + key.substring(to);
-                            result = method.invoke(properties, newKey);
-                        }
+        return (PropertiesHolder) Proxy.newProxyInstance(properties.getClass().getClassLoader(),
+            new Class[] { PropertiesHolder.class }, createDefaultValueInvocationHandler(properties, repoConfigName));
+    }
+
+    public static PropertyResolver createProductionPropertiesWrapper(PropertyResolver properties) {
+        String repoConfigName = getFirstConfigName(properties.getProperty(PRODUCTION_REPOSITORY_CONFIGS));
+
+        return (PropertyResolver) Proxy.newProxyInstance(properties.getClass().getClassLoader(),
+            new Class[] { PropertyResolver.class }, createDefaultValueInvocationHandler(properties, repoConfigName));
+    }
+
+    private static String getFirstConfigName(String configNames) {
+        if (configNames == null || configNames.isEmpty()) {
+            throw new IllegalArgumentException("Config names for production repositories were not found");
+        }
+        return StringUtils.split(configNames, ',')[0];
+    }
+
+    private static InvocationHandler createDefaultValueInvocationHandler(Object properties,
+        String repoConfigName) {
+        return (proxy, method, args) -> {
+            Object result = method.invoke(properties, args);
+
+            if (result == null) {
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                if ("getProperty"
+                    .equals(method.getName()) && parameterTypes.length == 1 && parameterTypes[0] == String.class) {
+                    // Not found default value. Production repositories don't have default values. Let's get
+                    // default value from design repository.
+                    String key = (String) args[0];
+                    String prefix = "repository.";
+                    if (key.startsWith(prefix)) {
+                        // Replace repository key to design repository
+                        int from = prefix.length();
+                        int to = key.indexOf('.', from);
+                        String newKey = prefix + repoConfigName + key.substring(to);
+                        result = method.invoke(properties, newKey);
                     }
                 }
+            }
 
-                return result;
-            });
+            return result;
+        };
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
