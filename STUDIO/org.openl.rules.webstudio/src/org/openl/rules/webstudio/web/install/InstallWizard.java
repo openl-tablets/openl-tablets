@@ -374,7 +374,6 @@ public class InstallWizard {
             destroyDbContext();
             destroyPropertyContext();
 
-            System.setProperty("webstudio.mode", "webstudio");
             ReloadableDelegatingFilter.reloadApplicationContext(FacesUtils.getServletContext());
 
             FacesUtils.redirectToRoot();

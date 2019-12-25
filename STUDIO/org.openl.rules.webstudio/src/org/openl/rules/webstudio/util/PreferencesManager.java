@@ -15,8 +15,17 @@ public enum PreferencesManager {
     INSTANCE;
 
     public static final String WEBSTUDIO_WORKING_DIR_KEY = "openl.home";
+    private static final String WEBSTUDIO_MODE_KEY = "webstudio.mode";
+    public static final String WEBSTUDIO_MODE_MAIN = "webstudio";
+    public static final String WEBSTUDIO_MODE_INSTALLER = "installer";
     private static final String WEBSTUDIO_CONFIGURED_MARKER = "webStudioConfigured.txt";
+
     private final Logger log = LoggerFactory.getLogger(StartupListener.class);
+
+    public void initWebStudioMode(String appName) {
+        boolean configured = isAppConfigured(appName);
+        writeValue(appName, WEBSTUDIO_MODE_KEY, configured ? WEBSTUDIO_MODE_MAIN : WEBSTUDIO_MODE_INSTALLER);
+    }
 
     public boolean isAppConfigured(String appName) {
         String configured = System.getProperty("webstudio.configured");
@@ -30,14 +39,17 @@ public enum PreferencesManager {
 
     public void setWebStudioHomeDir(String appName, String workingDir) {
         writeValue(appName, WEBSTUDIO_WORKING_DIR_KEY, workingDir);
-        setWebStudioHomeNotConfigured(workingDir);
+        setWebStudioHomeNotConfigured(appName, workingDir);
     }
 
-    private void setWebStudioHomeNotConfigured(String homePath) {
+    private void setWebStudioHomeNotConfigured(String appName, String homePath) {
         File configuredMarker = new File(homePath + File.separator + WEBSTUDIO_CONFIGURED_MARKER);
         if (configuredMarker.exists()) {
-            configuredMarker.delete();
+            if (!configuredMarker.delete() && configuredMarker.exists()) {
+                log.warn("Can't delete the file {}", configuredMarker.getPath());
+            }
         }
+        writeValue(appName, WEBSTUDIO_MODE_KEY, WEBSTUDIO_MODE_INSTALLER);
     }
 
     public void webStudioConfigured(String appName) {
@@ -45,11 +57,14 @@ public enum PreferencesManager {
         File configuredMarker = new File(homePath + File.separator + WEBSTUDIO_CONFIGURED_MARKER);
         try {
             if (!configuredMarker.exists()) {
-                configuredMarker.createNewFile();
+                if (!configuredMarker.createNewFile()) {
+                    log.debug("File {} exists already.", configuredMarker.getPath());
+                }
             }
         } catch (IOException e) {
             log.error("cannot create configured file", e);
         }
+        writeValue(appName, WEBSTUDIO_MODE_KEY, WEBSTUDIO_MODE_MAIN);
     }
 
     private String readValue(String appName, String key) {

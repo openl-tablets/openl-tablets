@@ -24,18 +24,7 @@ public class StartupListener implements ServletContextListener {
         String name = context.getServletContextName();
         log.info("Starting {}...", name);
 
-        initSystemProperties(context);
-    }
-
-    private void initSystemProperties(ServletContext context) {
-        boolean configured = PreferencesManager.INSTANCE.isAppConfigured(WebStudioUtils.getApplicationName(context));
-
-        // If webstudio.mode is not defined, use either webstudio-beans.xml or installer-beans.xml.
-        // If webstudio.mode is defined (for example "custom"), use specified custom-beans.xml spring configuration.
-        String webStudioMode = System.getProperty("webstudio.mode");
-        if (webStudioMode == null) {
-            System.setProperty("webstudio.mode", configured ? "webstudio" : "installer");
-        }
+        PreferencesManager.INSTANCE.initWebStudioMode(WebStudioUtils.getApplicationName(context));
     }
 
     @Override
