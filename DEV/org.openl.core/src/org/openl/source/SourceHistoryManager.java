@@ -1,5 +1,6 @@
 package org.openl.source;
 
+import java.util.List;
 import java.util.SortedMap;
 
 /**
@@ -17,8 +18,8 @@ public interface SourceHistoryManager<T> {
 
     T getPrev(long version);
 
-    SortedMap<Long, T> get(long... versions);
+    List<T> get(long... versions);
 
-    SortedMap<Long, T> get(String... names);
+    List<T> get(String... names);
 
 }

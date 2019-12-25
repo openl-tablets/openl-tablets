@@ -72,7 +72,7 @@
                             <h:outputText value="#{msg['ws.changes.action']}" />
                         </f:facet>
 
-                        <a4j:commandLink rendered="#{row == 0 or history.size() > row + 1}" onclick="confirmRestore('#{historyItem.version}', '#{historyItem.modifiedOn}'); return false;">
+                        <a4j:commandLink rendered="#{!historyItem.current}" onclick="confirmRestore('#{historyItem.version}', '#{historyItem.modifiedOn}'); return false;">
                             #{msg['ws.changes.action.restore']}
                         </a4j:commandLink>
                         <h:outputText rendered="#{row != 0 and history.size() == row + 1}"/>
