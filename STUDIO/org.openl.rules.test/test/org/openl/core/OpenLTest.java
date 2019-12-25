@@ -105,16 +105,25 @@ public final class OpenLTest {
 
     @Test
     public void testAllFailuresExcelFiles() {
-        testAllExcelFilesInFolder(FAILURES_DIR, false);
+        testAllExcelFilesInFolder(FAILURES_DIR, false, false);
     }
 
     @Test
     public void testAllExcelFiles() {
-        testAllExcelFilesInFolder(DIR, true);
+        testAllExcelFilesInFolder(DIR, true, false);
     }
 
-    private void testAllExcelFilesInFolder(String testsDirPath, boolean pass) {
-        LOG.info(">>> Running tests from directory '{}'...", testsDirPath);
+    @Test
+    public void testAllExcelFilesInExecutionMode() {
+        testAllExcelFilesInFolder(DIR, true, true);
+    }
+
+    private void testAllExcelFilesInFolder(String testsDirPath, boolean pass, boolean executionMode) {
+        if (executionMode) {
+            LOG.info(">>> Compiling rules from directory '{}' in execution mode...", testsDirPath);
+        } else {
+            LOG.info(">>> Compiling and running tests from directory '{}'...", testsDirPath);
+        }
         boolean hasErrors = false;
         final File testsDir = new File(testsDirPath);
 
@@ -141,11 +150,11 @@ public final class OpenLTest {
                 }
 
                 RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(testsDirPath + sourceFile);
-                engineFactory.setExecutionMode(false);
+                engineFactory.setExecutionMode(executionMode);
                 compiledOpenClass = engineFactory.getCompiledOpenClass();
             } else if (file.isDirectory()) {
                 SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> engineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
-                engineFactoryBuilder.setExecutionMode(false);
+                engineFactoryBuilder.setExecutionMode(executionMode);
                 engineFactoryBuilder.setProject(file.getPath());
                 SimpleProjectEngineFactory<Object> engineFactory = engineFactoryBuilder.build();
 
@@ -164,63 +173,62 @@ public final class OpenLTest {
             boolean success = true;
 
             // Check messages
-            if (pass) {
-                File msgFile = new File(testsDir, sourceFile + ".msg.txt");
-                List<String> expectedMessages = new ArrayList<>();
+            File msgFile = new File(testsDir, sourceFile + ".msg.txt");
+            List<String> expectedMessages = new ArrayList<>();
+            if (msgFile.exists() && executionMode) {
+                continue;
+            }
+            if (msgFile.exists()) {
+                try {
+                    String content = IOUtils.toStringAndClose(new FileInputStream(msgFile));
+                    for (String message : content
+                        .split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
+                        if (!StringUtils.isBlank(message)) {
+                            expectedMessages.add(message.trim());
+                        }
+                    }
+                } catch (IOException exc) {
+                    error(errors++, startTime, sourceFile, "Failed to read messages file.", msgFile, exc);
+                }
 
-                if (msgFile.exists()) {
-                    try {
-                        String content = IOUtils.toStringAndClose(new FileInputStream(msgFile));
-                        for (String message : content
-                            .split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
-                            if (!StringUtils.isBlank(message)) {
-                                expectedMessages.add(message.trim());
-                            }
-                        }
-                    } catch (IOException exc) {
-                        error(errors++, startTime, sourceFile, "Failed to read messages file.", msgFile, exc);
-                    }
-
-                    Collection<OpenLMessage> unexpectedMessages = new LinkedHashSet<>();
-                    List<String> restMessages = new ArrayList<>(expectedMessages.size());
-                    restMessages.addAll(expectedMessages);
-                    for (OpenLMessage msg : compiledOpenClass.getMessages()) {
-                        String actual = msg.getSeverity() + ": " + msg.getSummary();
-                        if (msg.getSeverity().equals(Severity.ERROR) || msg.getSeverity().equals(Severity.FATAL)) {
-                            success = false;
-                        }
-                        Iterator<String> itr = restMessages.iterator();
-                        boolean found = false;
-                        while (itr.hasNext()) {
-                            if (actual.contains(itr.next())) {
-                                itr.remove();
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            unexpectedMessages.add(msg);
-                        }
-                    }
-                    if (!unexpectedMessages.isEmpty()) {
+                Collection<OpenLMessage> unexpectedMessages = new LinkedHashSet<>();
+                List<String> restMessages = new ArrayList<>(expectedMessages);
+                for (OpenLMessage msg : compiledOpenClass.getMessages()) {
+                    String actual = msg.getSeverity() + ": " + msg.getSummary();
+                    if (msg.getSeverity().equals(Severity.ERROR) || msg.getSeverity().equals(Severity.FATAL)) {
                         success = false;
-                        error(errors++, startTime, sourceFile, "  UNEXPECTED messages:");
-                        for (OpenLMessage msg : unexpectedMessages) {
-                            error(errors++,
-                                startTime,
-                                sourceFile,
-                                "   {}: {}    at {}",
-                                msg.getSeverity(),
-                                msg.getSummary(),
-                                msg.getSourceLocation());
+                    }
+                    Iterator<String> itr = restMessages.iterator();
+                    boolean found = false;
+                    while (itr.hasNext()) {
+                        if (actual.contains(itr.next())) {
+                            itr.remove();
+                            found = true;
+                            break;
                         }
                     }
-                    if (!restMessages.isEmpty()) {
-                        success = false;
-                        error(errors++, startTime, sourceFile, "  MISSED messages:");
-                        for (String msg : restMessages) {
-                            error(errors++, startTime, sourceFile, "   {}", msg);
-                        }
+                    if (!found) {
+                        unexpectedMessages.add(msg);
+                    }
+                }
+                if (!unexpectedMessages.isEmpty()) {
+                    success = false;
+                    error(errors++, startTime, sourceFile, "  UNEXPECTED messages:");
+                    for (OpenLMessage msg : unexpectedMessages) {
+                        error(errors++,
+                            startTime,
+                            sourceFile,
+                            "   {}: {}    at {}",
+                            msg.getSeverity(),
+                            msg.getSummary(),
+                            msg.getSourceLocation());
+                    }
+                }
+                if (!restMessages.isEmpty()) {
+                    success = false;
+                    error(errors++, startTime, sourceFile, "  MISSED messages:");
+                    for (String msg : restMessages) {
+                        error(errors++, startTime, sourceFile, "   {}", msg);
                     }
                 }
             }
@@ -240,7 +248,7 @@ public final class OpenLTest {
             }
 
             // Run tests
-            if (success) {
+            if (success && !executionMode) {
                 IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
                 IOpenClass openClass = compiledOpenClass.getOpenClass();
                 Object target = openClass.newInstance(env);
@@ -285,16 +293,16 @@ public final class OpenLTest {
             if (errors != 0) {
                 hasErrors = true;
             } else {
-                ok(startTime, sourceFile);
+                ok(startTime, executionMode, sourceFile);
             }
         }
 
         assertFalse("Some tests have been failed.", hasErrors);
     }
 
-    private void ok(long startTime, String sourceFile) {
+    private void ok(long startTime, boolean executionMode, String sourceFile) {
         final long ms = (System.nanoTime() - startTime) / 1000000;
-        LOG.info("SUCCESS - in [{}] ({} ms)", sourceFile, ms);
+        LOG.info("{} - in [{}] ({} ms)", executionMode ? "EXECUTION MODE COMPILED" : "SUCCESS", sourceFile, ms);
     }
 
     private void error(int count, long startTime, String sourceFile, String msg, Object... args) {
