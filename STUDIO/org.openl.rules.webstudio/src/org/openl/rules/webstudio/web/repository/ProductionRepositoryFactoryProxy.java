@@ -13,7 +13,7 @@ import org.springframework.core.env.PropertyResolver;
 /**
  * Repository Factory Proxy.
  * <p/>
- * Takes actual factory description from <i>rules-production.properties</i> file.
+ * Takes actual factory description from the environment in which the current application is running.
  */
 public class ProductionRepositoryFactoryProxy {
 

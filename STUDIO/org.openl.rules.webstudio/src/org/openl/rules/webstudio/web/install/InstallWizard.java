@@ -168,7 +168,7 @@ public class InstallWizard {
             // Go to next step
             ++step;
             if (step == 2) {
-                // Get defaults from 'system.properties'
+                // Get defaults
                 if (workingDirChanged) {
                     designRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DESIGN_CONFIG, properties);
                     if (designRepositoryConfiguration.getErrorMessage() != null) {
