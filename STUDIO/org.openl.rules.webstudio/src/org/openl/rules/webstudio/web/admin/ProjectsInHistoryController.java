@@ -5,18 +5,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.config.ConfigurationManager;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
 
 @ManagedBean(name = "projectsInHistory")
 @RequestScoped
 public class ProjectsInHistoryController {
+
+    @ManagedProperty(value = "#{environment}")
+    private PropertyResolver propertyResolver;
 
     public static class ProjectBean {
         private String projectName;
@@ -51,7 +54,6 @@ public class ProjectsInHistoryController {
 
     private static final String PROJECT_HISTORY_HOME = "project.history.home";
 
-    private ConfigurationManager configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
     private List<ProjectBean> projectBeans;
 
     public List<ProjectBean> getProjects() {
@@ -103,6 +105,10 @@ public class ProjectsInHistoryController {
     }
 
     public String getProjectHistoryHome() {
-        return configManager.getStringProperty(PROJECT_HISTORY_HOME);
+        return propertyResolver.getProperty(PROJECT_HISTORY_HOME);
+    }
+
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
     }
 }

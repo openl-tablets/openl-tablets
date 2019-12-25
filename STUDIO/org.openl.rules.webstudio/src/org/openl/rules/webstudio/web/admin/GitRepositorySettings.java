@@ -2,10 +2,7 @@ package org.openl.rules.webstudio.web.admin;
 
 import java.io.File;
 
-import org.eclipse.jgit.lib.Constants;
-import org.openl.config.ConfigurationManager;
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.util.PreferencesManager;
 import org.openl.util.StringUtils;
 
@@ -36,49 +33,47 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String TAG_PREFIX;
     private final String LISTENER_TIMER_PERIOD;
     private final String CONNECTION_TIMEOUT;
-    private final RepositoryMode repositoryMode;
     private final String SETTINGS_PATH;
+    private String CONFIG_PREFIX;
 
-    GitRepositorySettings(ConfigurationManager configManager, String configPrefix, RepositoryMode repositoryMode) {
-        super(configManager, configPrefix);
-        this.repositoryMode = repositoryMode;
+    GitRepositorySettings(PropertiesHolder properties, String configPrefix) {
+        super(properties, configPrefix);
+        CONFIG_PREFIX = configPrefix;
+        URI = configPrefix + ".uri";
+        LOGIN = configPrefix + ".login";
+        PASSWORD = configPrefix + ".password";
+        USER_DISPLAY_NAME = configPrefix + ".user-display-name";
+        USER_EMAIL = configPrefix + ".user-email";
+        LOCAL_REPOSITORY_PATH = configPrefix + ".local-repository-path";
+        BRANCH = configPrefix + ".branch";
+        NEW_BRANCH_TEMPLATE = configPrefix + ".new-branch-pattern";
+        TAG_PREFIX = configPrefix + ".tag-prefix";
+        LISTENER_TIMER_PERIOD = configPrefix + ".listener-timer-period";
+        CONNECTION_TIMEOUT = configPrefix + ".connection-timeout";
+        SETTINGS_PATH = ".git-settings-path";
 
-        URI = configPrefix + "uri";
-        LOGIN = configPrefix + "login";
-        PASSWORD = configPrefix + "password";
-        USER_DISPLAY_NAME = configPrefix + "user-display-name";
-        USER_EMAIL = configPrefix + "user-email";
-        LOCAL_REPOSITORY_PATH = configPrefix + "local-repository-path";
-        BRANCH = configPrefix + "branch";
-        NEW_BRANCH_TEMPLATE = configPrefix + "new-branch-pattern";
-        TAG_PREFIX = configPrefix + "tag-prefix";
-        LISTENER_TIMER_PERIOD = configPrefix + "listener-timer-period";
-        CONNECTION_TIMEOUT = configPrefix + "connection-timeout";
-        SETTINGS_PATH = "git-settings-path";
-
-        load(configManager);
+        load(properties);
     }
 
-    private void load(ConfigurationManager configManager) {
-        String type = getTypePrefix(repositoryMode);
-
-        String localPath = configManager.getStringProperty(LOCAL_REPOSITORY_PATH);
+    private void load(PropertiesHolder properties) {
+        String type = RepositorySettings.getTypePrefix(CONFIG_PREFIX);
+        String localPath = properties.getProperty(LOCAL_REPOSITORY_PATH);
         String defaultLocalPath = localPath != null ? localPath
-                                                    : PreferencesManager.INSTANCE
-                                                        .getWebStudioHomeDir() + File.separator + type + "-repository";
+                                                    : properties.getProperty(
+                                                        PreferencesManager.WEBSTUDIO_WORKING_DIR_KEY) + File.separator + type + "-repository";
 
-        uri = configManager.getStringProperty(URI);
-        login = configManager.getStringProperty(LOGIN);
-        password = configManager.getPassword(PASSWORD);
-        userDisplayName = configManager.getStringProperty(USER_DISPLAY_NAME);
-        userEmail = configManager.getStringProperty(USER_EMAIL);
+        uri = properties.getProperty(URI);
+        login = properties.getProperty(LOGIN);
+        password = properties.getPassword(PASSWORD);
+        userDisplayName = properties.getProperty(USER_DISPLAY_NAME);
+        userEmail = properties.getProperty(USER_EMAIL);
         localRepositoryPath = defaultLocalPath;
-        branch = configManager.getStringProperty(BRANCH, Constants.MASTER);
-        tagPrefix = configManager.getStringProperty(TAG_PREFIX);
-        listenerTimerPeriod = configManager.getLongProperty(LISTENER_TIMER_PERIOD, 10L).intValue();
-        connectionTimeout = configManager.getLongProperty(CONNECTION_TIMEOUT, 60L).intValue();
-        settingsPath = configManager.getStringProperty(SETTINGS_PATH);
-        newBranchTemplate = configManager.getStringProperty(NEW_BRANCH_TEMPLATE);
+        branch = properties.getProperty(BRANCH);
+        tagPrefix = properties.getProperty(TAG_PREFIX);
+        listenerTimerPeriod = Integer.parseInt(properties.getProperty(LISTENER_TIMER_PERIOD));
+        connectionTimeout = Integer.parseInt(properties.getProperty(CONNECTION_TIMEOUT));
+        settingsPath = properties.getProperty(SETTINGS_PATH);
+        newBranchTemplate = properties.getProperty(NEW_BRANCH_TEMPLATE);
 
         remoteRepository = StringUtils.isNotBlank(uri);
     }
@@ -220,10 +215,10 @@ public class GitRepositorySettings extends RepositorySettings {
     }
 
     @Override
-    protected void revert(ConfigurationManager configurationManager) {
-        super.revert(configurationManager);
+    protected void revert(PropertiesHolder properties) {
+        super.revert(properties);
 
-        configurationManager.revertProperties(URI,
+        properties.revertProperties(URI,
             LOGIN,
             PASSWORD,
             USER_DISPLAY_NAME,
@@ -234,7 +229,7 @@ public class GitRepositorySettings extends RepositorySettings {
             TAG_PREFIX,
             LISTENER_TIMER_PERIOD,
             SETTINGS_PATH);
-        load(configurationManager);
+        load(properties);
     }
 
     @Override

@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:authz="http://rules.openl.org/taglibs/acegi">
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:c="http://java.sun.com/jsp/jstl/core"
+        xmlns:authz="http://rules.openl.org/taglibs/acegi">
 
     <style>
         #rb {
             text-align: right;
             padding: 17px 10px;
         }
+
         #rb a {
             text-decoration: none;
         }
+
         #rb .dropdown {
             margin: 0 9px;
             font-weight: bold;
             text-align: left;
         }
+
         #rb .dropdown-toggle {
             color: #444;
             font-size: 12px;
         }
+
         #ll {
             position: absolute;
             top: 16px;
@@ -54,14 +58,17 @@
         #ll .active {
             cursor: default;
         }
+
         #ll .nav-editor:hover,
         #ll .nav-editor.active {
             border-bottom: 2px solid #4ae;
         }
+
         #ll .nav-repo:hover,
         #ll .nav-repo.active {
             border-bottom: 2px solid #77d100;
         }
+
         #ll .nav-admin:hover,
         #ll .nav-admin.active {
             border-bottom: 2px solid #f00;
@@ -71,47 +78,56 @@
     <div>
         <div style="position: absolute; left: 15px; top: 11px">
             <a href="#{contextPath}/" style="text-decoration: none" class="changes-listener">
-                <ui:include src="/pages/common/logo.xhtml" />
+                <ui:include src="/pages/common/logo.xhtml"/>
             </a>
         </div>
 
         <div id="rb">
-            <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single'}">
+            <h:panelGroup rendered="#{environment.getProperty('user.mode') != 'single'}">
             </h:panelGroup>
 
             <span class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <authz:authentication operation="username" /><b class="caret"></b>
+                    <authz:authentication operation="username"/><b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu pull-right" role="menu" style="margin-top: 15px">
-                    <li><a class="changes-listener" tabindex="-1" href="javascript:void(0)" onclick="editUserProfile();">#{msg['ws.header.user.details']}</a></li>
-                    <li><a class="changes-listener" tabindex="-1" href="javascript:void(0)" onclick="editUserProfile('settings');">#{msg['ws.header.user.settings']}</a></li>
+                    <li><a class="changes-listener" tabindex="-1" href="javascript:void(0)"
+                           onclick="editUserProfile();">#{msg['ws.header.user.details']}</a></li>
+                    <li><a class="changes-listener" tabindex="-1" href="javascript:void(0)"
+                           onclick="editUserProfile('settings');">#{msg['ws.header.user.settings']}</a></li>
                     <li class="divider"></li>
-                    <li><a tabindex="-1" href="javascript:void(0)" onclick="window.open('#{versionProperties.getUrl()}/files/openl-tablets/#{versionProperties.getVersion()}/OpenL Tablets - WebStudio User Guide.pdf','help','width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');">#{msg['ws.header.help']}</a></li>
-                    <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single'}">
+                    <li><a tabindex="-1" href="javascript:void(0)"
+                           onclick="window.open('#{versionProperties.getUrl()}/files/openl-tablets/#{versionProperties.getVersion()}/OpenL Tablets - WebStudio User Guide.pdf','help','width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');">#{msg['ws.header.help']}</a></li>
+                    <h:panelGroup rendered="#{environment.getProperty('user.mode') != 'single'}">
                     <li><a tabindex="-1" href="#{contextPath}#{logoutUrlProvider.url}"
-                            onclick="if (!confirm('#{msg['ws.header.signout.confirm']}')) return false; if (typeof(ws) != 'undefined') ws.changes.revertChanges();">#{msg['ws.header.signout']}</a></li>
+                           onclick="if (!confirm('#{msg['ws.header.signout.confirm']}')) return false; if (typeof(ws) != 'undefined') ws.changes.revertChanges();">#{msg['ws.header.signout']}</a></li>
                     </h:panelGroup>
                 </ul>
             </span>
         </div>
 
-        <c:set var="adminUrl" value="/faces/pages/modules/administration/settings/index.xhtml" />
+        <c:set var="adminUrl" value="/faces/pages/modules/administration/settings/index.xhtml"/>
         <div id="ll">
-            <a href="#{contextPath}/" class="nav-editor#{menu=='rules' ? ' active' : ''} #{menu=='rules' ? '' : 'changes-listener'}" onclick="#{menu=='rules' ? 'return false' : ''}"
-                data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.editor.title']}" title="">#{msg['ws.header.editor']}</a>
-            <a href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="nav-repo#{menu=='repository' ? ' active' : ''} changes-listener"
-                data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.repo.title']}" title=""
-                onclick="#{menu=='repository' ? 'return false' : repositoryTreeState.clearSelectPrj()}">#{msg['ws.header.repo']}</a>
+            <a href="#{contextPath}/"
+               class="nav-editor#{menu=='rules' ? ' active' : ''} #{menu=='rules' ? '' : 'changes-listener'}"
+               onclick="#{menu=='rules' ? 'return false' : ''}"
+               data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.editor.title']}"
+               title="">#{msg['ws.header.editor']}</a>
+            <a href="#{contextPath}/faces/pages/modules/repository/index.xhtml"
+               class="nav-repo#{menu=='repository' ? ' active' : ''} changes-listener"
+               data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.repo.title']}"
+               title=""
+               onclick="#{menu=='repository' ? 'return false' : repositoryTreeState.clearSelectPrj()}">#{msg['ws.header.repo']}</a>
             <h:panelGroup rendered="#{authz:hasAccessTo(adminUrl)}">
                 <a href="#{contextPath}#{adminUrl}" class="nav-admin#{menu=='admin' ? ' active' : ''} changes-listener"
-                   data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.admin.title']}" title=""
+                   data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.admin.title']}"
+                   title=""
                    onclick="#{menu=='admin' ? 'return false' : ''}">#{msg['ws.header.admin']}</a>
             </h:panelGroup>
 
             <span style="position: relative">
                 <ui:include src="/pages/modules/userAccount.xhtml">
-                    <ui:param name="module" value="#{menu}" />
+                    <ui:param name="module" value="#{menu}"/>
                 </ui:include>
             </span>
         </div>

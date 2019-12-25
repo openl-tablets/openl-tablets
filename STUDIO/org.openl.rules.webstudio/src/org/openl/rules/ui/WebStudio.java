@@ -10,9 +10,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
@@ -25,8 +28,6 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.config.ConfigurationManager;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -54,6 +55,7 @@ import org.openl.rules.ui.tree.view.CategoryView;
 import org.openl.rules.ui.tree.view.FileView;
 import org.openl.rules.ui.tree.view.RulesTreeView;
 import org.openl.rules.ui.tree.view.TypeView;
+import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
@@ -76,6 +78,8 @@ import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
+import org.openl.spring.env.ApplicationContextProvider;
+import org.openl.util.BooleanUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
@@ -84,6 +88,10 @@ import org.openl.util.StringUtils;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.AbstractEnvironment;
+import org.springframework.core.env.EnumerablePropertySource;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.thoughtworks.xstream.XStreamException;
@@ -112,8 +120,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
             categoryDetailedView,
             categoryInversedView };
 
-    private static final String USER_SETTINGS_FILENAME = "user-settings.properties";
-
     private final WebStudioLinkBuilder linkBuilder = new WebStudioLinkBuilder(this);
 
     private String workspacePath;
@@ -137,13 +143,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private boolean collapseProperties = true;
 
-    private ConfigurationManager systemConfigManager;
-    private ConfigurationManager userSettingsManager;
+    private final UserSettingManagementService userSettingsManager;
 
     private boolean needRestart = false;
     private boolean forcedCompile = true;
     private boolean needCompile = true;
     private boolean manualCompile = false;
+    private PropertyResolver propertyResolver = ApplicationContextProvider.getApplicationContext().getEnvironment();
+    private Map<String, Object> externalProperties;
 
     private List<ProjectFile> uploadedFiles = new ArrayList<>();
 
@@ -157,14 +164,15 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public WebStudio(HttpSession session) {
         model = new ProjectModel(this, WebStudioUtils.getBean(TestSuiteExecutor.class));
-        systemConfigManager = WebStudioUtils.getBean("configManager", ConfigurationManager.class);
+        userSettingsManager = WebStudioUtils.getBean(UserSettingManagementService.class);
         rulesUserSession = WebStudioUtils.getRulesUserSession(session, true);
 
         initWorkspace(session);
         initUserSettings();
-        updateSystemProperties = systemConfigManager
-            .getBooleanProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES);
+        updateSystemProperties = Boolean
+            .parseBoolean(propertyResolver.getProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES));
         projectResolver = ProjectResolver.instance();
+        externalProperties = initSystemProperties(propertyResolver);
     }
 
     private void initWorkspace(HttpSession session) {
@@ -179,21 +187,17 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     private void initUserSettings() {
-        String settingsLocation = systemConfigManager
-            .getStringProperty("user.settings.home") + File.separator + rulesUserSession
-                .getUserName() + File.separator + USER_SETTINGS_FILENAME;
+        String userName = rulesUserSession.getUserName();
 
-        userSettingsManager = new ConfigurationManager(settingsLocation, USER_SETTINGS_FILENAME, true);
+        treeView = getTreeView(userSettingsManager.getStringProperty(userName, "rules.tree.view"));
+        tableView = userSettingsManager.getStringProperty(userName, "table.view");
+        showFormulas = userSettingsManager.getBooleanProperty(userName, "table.formulas.show");
+        testsPerPage = userSettingsManager.getIntegerProperty(userName, "test.tests.perpage");
+        testsFailuresOnly = userSettingsManager.getBooleanProperty(userName, "test.failures.only");
+        testsFailuresPerTest = userSettingsManager.getIntegerProperty(userName, "test.failures.pertest");
+        showComplexResult = userSettingsManager.getBooleanProperty(userName, "test.result.complex.show");
 
-        treeView = getTreeView(userSettingsManager.getStringProperty("rules.tree.view"));
-        tableView = userSettingsManager.getStringProperty("table.view");
-        showFormulas = userSettingsManager.getBooleanProperty("table.formulas.show");
-        testsPerPage = userSettingsManager.getIntegerProperty("test.tests.perpage");
-        testsFailuresOnly = userSettingsManager.getBooleanProperty("test.failures.only");
-        testsFailuresPerTest = userSettingsManager.getIntegerProperty("test.failures.pertest");
-        showComplexResult = userSettingsManager.getBooleanProperty("test.result.complex.show");
-
-        String defaultModuleMode = userSettingsManager.getStringProperty("project.module.default.mode");
+        String defaultModuleMode = userSettingsManager.getStringProperty(userName, "project.module.default.mode");
         if (StringUtils.isNotEmpty(defaultModuleMode)) {
             try {
                 this.defaultModuleMode = ModuleMode.valueOf(defaultModuleMode.toUpperCase());
@@ -201,14 +205,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 log.warn(e.getMessage(), e);
             }
         }
-    }
-
-    public ConfigurationManager getSystemConfigManager() {
-        return systemConfigManager;
-    }
-
-    public ConfigurationManager getUserSettingsManager() {
-        return userSettingsManager;
     }
 
     public RulesTreeView[] getTreeViews() {
@@ -404,7 +400,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public void setTableView(String tableView) {
         this.tableView = tableView;
-        userSettingsManager.setProperty("table.view", tableView);
+        userSettingsManager.setProperty(rulesUserSession.getUserName(), "table.view", tableView);
     }
 
     public boolean isShowHeader() {
@@ -438,16 +434,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
             // Keep only projects existing in user workspace.
             if (files != null) {
-                files = Arrays.stream(files).filter(
-                    projectFolder -> {
-                        try {
-                            return getProject(projectFolder.getName()) != null;
-                        } catch (Exception e) {
-                            log.warn(e.getMessage(), e);
-                            return false;
-                        }
+                files = Arrays.stream(files).filter(projectFolder -> {
+                    try {
+                        return getProject(projectFolder.getName()) != null;
+                    } catch (Exception e) {
+                        log.warn(e.getMessage(), e);
+                        return false;
                     }
-                ).toArray(File[]::new);
+                }).toArray(File[]::new);
 
                 projects = projectResolver.resolve(files);
                 for (ProjectDescriptor pd : projects) {
@@ -484,7 +478,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     boolean isAutoCompile() {
-        return OpenLSystemProperties.isAutoCompile(getSystemConfigManager().getProperties());
+        return BooleanUtils.toBoolean(propertyResolver.getProperty("compile.auto"));
     }
 
     public boolean isManualCompileNeeded() {
@@ -914,7 +908,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private void setTreeView(RulesTreeView treeView) {
         this.treeView = treeView;
         model.redraw();
-        userSettingsManager.setProperty("rules.tree.view", treeView.getName());
+        userSettingsManager.setProperty(rulesUserSession.getUserName(), "rules.tree.view", treeView.getName());
     }
 
     public void setTreeView(String name) {
@@ -943,18 +937,13 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return updateSystemProperties;
     }
 
-    public void setUpdateSystemProperties(boolean updateSystemProperties) {
-        this.updateSystemProperties = updateSystemProperties;
-        systemConfigManager.setProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
-    }
-
     public boolean isShowFormulas() {
         return showFormulas;
     }
 
     public void setShowFormulas(boolean showFormulas) {
         this.showFormulas = showFormulas;
-        userSettingsManager.setProperty("table.formulas.show", showFormulas);
+        userSettingsManager.setProperty(rulesUserSession.getUserName(), "table.formulas.show", showFormulas);
     }
 
     public int getTestsPerPage() {
@@ -963,7 +952,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public void setTestsPerPage(int testsPerPage) {
         this.testsPerPage = testsPerPage;
-        userSettingsManager.setProperty("test.tests.perpage", testsPerPage);
+        userSettingsManager.setProperty(rulesUserSession.getUserName(), "test.tests.perpage", testsPerPage);
     }
 
     public boolean isTestsFailuresOnly() {
@@ -972,7 +961,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public void setTestsFailuresOnly(boolean testsFailuresOnly) {
         this.testsFailuresOnly = testsFailuresOnly;
-        userSettingsManager.setProperty("test.failures.only", testsFailuresOnly);
+        userSettingsManager.setProperty(rulesUserSession.getUserName(), "test.failures.only", testsFailuresOnly);
     }
 
     public int getTestsFailuresPerTest() {
@@ -981,7 +970,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public void setTestsFailuresPerTest(int testsFailuresPerTest) {
         this.testsFailuresPerTest = testsFailuresPerTest;
-        userSettingsManager.setProperty("test.failures.pertest", testsFailuresPerTest);
+        userSettingsManager.setProperty(rulesUserSession.getUserName(), "test.failures.pertest", testsFailuresPerTest);
     }
 
     public boolean isCollapseProperties() {
@@ -998,7 +987,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public void setShowComplexResult(boolean showComplexResult) {
         this.showComplexResult = showComplexResult;
-        userSettingsManager.setProperty("test.result.complex.show", showComplexResult);
+        userSettingsManager.setProperty(rulesUserSession.getUserName(), "test.result.complex.show", showComplexResult);
     }
 
     public boolean isSingleModuleModeByDefault() {
@@ -1011,7 +1000,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public void setSingleModuleModeByDefault(boolean singleMode) {
         this.defaultModuleMode = singleMode ? ModuleMode.SINGLE : ModuleMode.MULTI;
-        userSettingsManager.setProperty("project.module.default.mode", defaultModuleMode.name());
+        userSettingsManager
+            .setProperty(rulesUserSession.getUserName(), "project.module.default.mode", defaultModuleMode.name());
     }
 
     public void setNeedRestart(boolean needRestart) {
@@ -1148,6 +1138,23 @@ public class WebStudio implements DesignTimeRepositoryListener {
             log.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    @SuppressWarnings("rawtypes")
+    public HashMap<String, Object> initSystemProperties(PropertyResolver pr) {
+        HashMap<String, Object> result = new HashMap<>();
+        MutablePropertySources propSrcs = ((AbstractEnvironment) pr).getPropertySources();
+        StreamSupport.stream(propSrcs.spliterator(), false)
+            .filter(ps -> ps instanceof EnumerablePropertySource)
+            .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
+            .flatMap(Arrays::stream)
+            .filter(pr::containsProperty)
+            .forEach(propName -> result.put(propName, pr.getProperty(propName)));
+        return result;
+    }
+
+    public Map<String, Object> getExternalProperties() {
+        return externalProperties;
     }
 
     private void setProjectBranch(ProjectDescriptor descriptor, String branch) {

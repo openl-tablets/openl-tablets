@@ -19,7 +19,7 @@ class CompositePropertySource extends EnumerablePropertySource<Object> {
     private final LinkedList<PropertySource<?>> propertySources = new LinkedList<>();
 
     CompositePropertySource(String name) {
-        super(name, new Object());
+        super(name);
     }
 
     void addFirst(PropertySource<?> propertySource) {

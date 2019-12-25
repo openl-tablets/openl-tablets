@@ -29,17 +29,17 @@
                             <div>
                                 <h:panelGrid columns="3" columnClasses="titleColumn">
                                     <label>Username:</label>
-                                    <h:panelGroup rendered="#{systemConfig['user.mode'] == 'multi'}">
+                                    <h:panelGroup rendered="#{environment.getProperty('user.mode') == 'multi'}">
                                     <h:outputText id="username" style="font-weight: bold" value="#{userProfileBean.user.username}"/>
                                     <h:inputHidden id="usernameHidden" value="#{userProfileBean.user.username}" />
                                     </h:panelGroup>
-                                    <h:panelGroup rendered="#{systemConfig['user.mode'] != 'multi'}">
+                                    <h:panelGroup rendered="#{environment.getProperty('user.mode') != 'multi'}">
                                     <span style="font-weight: bold" class="username"><authz:authentication operation="username" /></span>
                                     </h:panelGroup>
                                 </h:panelGrid>
                             </div>
                         </section>
-                        <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single' and userProfileBean.internalUser}">
+                        <h:panelGroup rendered="#{environment.getProperty('user.mode') != 'single' and userProfileBean.internalUser}">
                         <section>
                             <h3>Name</h3>
                             <div>
@@ -59,7 +59,7 @@
                             </div>
                         </section>
                         </h:panelGroup>
-                        <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single' and not userProfileBean.internalUser}">
+                        <h:panelGroup rendered="#{environment.getProperty('user.mode') != 'single' and not userProfileBean.internalUser}">
                         <section>
                             <h3>Name</h3>
                             <div>
@@ -78,7 +78,7 @@
                             </div>
                         </section>
                         </h:panelGroup>
-                        <h:panelGroup rendered="#{systemConfig['user.mode'] == 'multi'}">
+                        <h:panelGroup rendered="#{environment.getProperty('user.mode') == 'multi'}">
                         <section>
                             <h3>Change Password</h3>
                             <div>
@@ -178,10 +178,10 @@
             </rich:tabPanel>
 
             <footer>
-                <a4j:commandButton rendered="#{systemConfig['user.mode'] != 'single' and userProfileBean.internalUser}" value="Save"
+                <a4j:commandButton rendered="#{environment.getProperty('user.mode') != 'single' and userProfileBean.internalUser}" value="Save"
                     action="#{userProfileBean.editUser}" data="#{facesContext.maximumSeverity}"
                     oncomplete="if(!event.data) hideAndReload()" styleClass="button-primary save-button" />
-                <a4j:commandButton rendered="#{systemConfig['user.mode'] == 'single' or not userProfileBean.internalUser}" value="Save"
+                <a4j:commandButton rendered="#{environment.getProperty('user.mode') == 'single' or not userProfileBean.internalUser}" value="Save"
                     oncomplete="hideAndReload()" styleClass="button-primary save-button" />
                 <input class="restore-changed-state" type="button" value="Cancel" onclick="hideUserProfile();" />
             </footer>

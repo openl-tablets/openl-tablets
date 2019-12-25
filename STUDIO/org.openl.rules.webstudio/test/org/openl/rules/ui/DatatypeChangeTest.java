@@ -1,6 +1,8 @@
 package org.openl.rules.ui;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -18,10 +20,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.openl.config.ConfigurationManager;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
+import org.springframework.mock.env.MockEnvironment;
 
 @RunWith(Parameterized.class)
 public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
@@ -49,12 +51,11 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
         List<Module> modules = getModules();
 
         WebStudio ws = mock(WebStudio.class);
-        when(ws.getSystemConfigManager()).thenReturn(new ConfigurationManager(null));
         when(ws.isChangeableModuleMode()).thenReturn(true);
 
         // EhCacheUtils.createCache();
 
-        pm = new ProjectModel(ws);
+        pm = new ProjectModel(ws,new MockEnvironment());
         for (Module module : modules) {
             if (module.getName().equals("ExpenseModule")) {
                 expenseModule = module;

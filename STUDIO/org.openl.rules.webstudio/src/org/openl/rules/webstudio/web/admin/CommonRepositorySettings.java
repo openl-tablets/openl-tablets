@@ -1,8 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
-import org.openl.config.ConfigurationManager;
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.util.StringUtils;
 
 public class CommonRepositorySettings extends RepositorySettings {
@@ -10,33 +8,28 @@ public class CommonRepositorySettings extends RepositorySettings {
     private String password;
     private String uri;
     private boolean secure = false;
-    private final RepositoryMode repositoryMode;
     private final RepositoryType repositoryType;
-    private final ConfigurationManager configManager;
-    final String REPOSITORY_URI;
-    final String REPOSITORY_LOGIN;
-    final String REPOSITORY_PASS;
+    private final String REPOSITORY_URI;
+    private final String REPOSITORY_LOGIN;
+    private final String REPOSITORY_PASS;
+    private String CONFIG_PREFIX;
 
-    public CommonRepositorySettings(ConfigurationManager configManager,
-            String configPrefix,
-            RepositoryMode repositoryMode,
-            RepositoryType repositoryType) {
-        super(configManager, configPrefix);
-        this.configManager = configManager;
-        this.repositoryMode = repositoryMode;
+    public CommonRepositorySettings(PropertiesHolder properties, String configPrefix, RepositoryType repositoryType) {
+        super(properties, configPrefix);
+        CONFIG_PREFIX = configPrefix;
         this.repositoryType = repositoryType;
-        REPOSITORY_URI = configPrefix + "uri";
-        REPOSITORY_LOGIN = configPrefix + "login";
-        REPOSITORY_PASS = configPrefix + "password";
-
-        load(configManager);
+        REPOSITORY_URI = configPrefix + ".uri";
+        REPOSITORY_LOGIN = configPrefix + ".login";
+        REPOSITORY_PASS = configPrefix + ".password";
+        load(properties);
     }
 
-    private void load(ConfigurationManager configManager) {
-        uri = configManager.getStringProperty(REPOSITORY_URI);
-        login = configManager.getStringProperty(REPOSITORY_LOGIN);
-        password = configManager.getPassword(REPOSITORY_PASS);
-        fixState();
+    private void load(PropertiesHolder properties) {
+        uri = properties.getProperty(REPOSITORY_URI);
+        login = properties.getProperty(REPOSITORY_LOGIN);
+        password = properties.getPassword(REPOSITORY_PASS);
+
+        secure = StringUtils.isNotEmpty(getLogin());
     }
 
     public String getPath() {
@@ -52,10 +45,6 @@ public class CommonRepositorySettings extends RepositorySettings {
 
     public void setPath(String path) {
         this.uri = StringUtils.trimToEmpty(path);
-    }
-
-    public boolean isRepositoryPathSystem() {
-        return configManager.isSystemProperty(REPOSITORY_URI);
     }
 
     public String getLogin() {
@@ -83,8 +72,7 @@ public class CommonRepositorySettings extends RepositorySettings {
     }
 
     private String getDefaultPath(RepositoryType repositoryType) {
-        String type = RepositorySettings.getTypePrefix(repositoryMode);
-
+        String type = RepositorySettings.getTypePrefix(CONFIG_PREFIX);
         switch (repositoryType) {
             case DB:
                 return "jdbc:mysql://localhost:3306/" + type + "-repository";
@@ -92,12 +80,6 @@ public class CommonRepositorySettings extends RepositorySettings {
                 return "java:comp/env/jdbc/" + type + "DB";
         }
         return null;
-    }
-
-    @Override
-    protected void fixState() {
-        super.fixState();
-        secure = StringUtils.isNotEmpty(getLogin());
     }
 
     @Override
@@ -117,11 +99,11 @@ public class CommonRepositorySettings extends RepositorySettings {
     }
 
     @Override
-    protected void revert(ConfigurationManager configurationManager) {
-        super.revert(configurationManager);
+    protected void revert(PropertiesHolder properties) {
+        super.revert(properties);
 
-        configurationManager.revertProperties(REPOSITORY_URI, REPOSITORY_LOGIN, REPOSITORY_PASS);
-        load(configManager);
+        properties.revertProperties(REPOSITORY_URI, REPOSITORY_LOGIN, REPOSITORY_PASS);
+        load(properties);
     }
 
     @Override
@@ -138,6 +120,7 @@ public class CommonRepositorySettings extends RepositorySettings {
             setPath(otherSettings.getPath());
             setLogin(otherSettings.getLogin());
             setPassword(otherSettings.getPassword());
+            setSecure(otherSettings.isSecure());
         }
     }
 

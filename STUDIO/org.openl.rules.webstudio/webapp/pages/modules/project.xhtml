@@ -116,7 +116,7 @@
                             <td>Created At:</td>
                             <td>
                                 <h:outputText value="#{projectData.firstVersion.versionInfo.createdAt}">
-                                    <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
+                                    <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.date')}"/>
                                 </h:outputText>
                             </td>
                         </tr>
@@ -130,7 +130,7 @@
                             <td>Modified At:</td>
                             <td>
                                 <h:outputText value="#{projectData.version.versionInfo.createdAt}">
-                                    <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
+                                    <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.date')}"/>
                                 </h:outputText>
                             </td>
                         </tr>

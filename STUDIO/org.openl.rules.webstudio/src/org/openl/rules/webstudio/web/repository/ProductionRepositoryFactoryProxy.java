@@ -4,48 +4,49 @@ import java.io.Closeable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.config.ConfigurationManager;
-import org.openl.config.ConfigurationManagerFactory;
-import org.openl.config.PropertiesHolder;
-import org.openl.rules.repository.RepositoryFactoryInstatiator;
-import org.openl.rules.repository.RepositoryMode;
+import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.webstudio.web.admin.RepositorySettings;
+import org.openl.rules.webstudio.web.admin.ProductionRepositoryEditor;
 import org.openl.util.IOUtils;
+import org.springframework.core.env.PropertyResolver;
 
 /**
  * Repository Factory Proxy.
  * <p/>
- * Takes actual factory description from <i>rules-production.properties</i> file.
+ * Takes actual factory description from the environment in which the current application is running.
  */
 public class ProductionRepositoryFactoryProxy {
 
-    private ConfigurationManagerFactory configManagerFactory;
-
     private Map<String, Repository> factories = new HashMap<>();
 
-    public Repository getRepositoryInstance(String propertiesFileName) throws RRepositoryException {
-        if (!factories.containsKey(propertiesFileName)) {
+    private final PropertyResolver propertyResolver;
+
+    public ProductionRepositoryFactoryProxy(PropertyResolver propertyResolver) {
+        this.propertyResolver = ProductionRepositoryEditor.createProductionPropertiesWrapper(propertyResolver);
+    }
+
+    public Repository getRepositoryInstance(String configName) throws RRepositoryException {
+        if (!factories.containsKey(configName)) {
             synchronized (this) {
-                if (!factories.containsKey(propertiesFileName)) {
-                    factories.put(propertiesFileName, createFactory(propertiesFileName));
+                if (!factories.containsKey(configName)) {
+                    factories.put(configName, createFactory(configName));
                 }
             }
         }
 
-        return factories.get(propertiesFileName);
+        return factories.get(configName);
     }
 
-    public void releaseRepository(String propertiesFileName) {
+    public void releaseRepository(String configName) {
         synchronized (this) {
-            Repository repository = factories.get(propertiesFileName);
+            Repository repository = factories.get(configName);
             if (repository != null) {
                 if (repository instanceof Closeable) {
                     // Close repo connection after validation
                     IOUtils.closeQuietly((Closeable) repository);
                 }
-                factories.remove(propertiesFileName);
+                factories.remove(configName);
             }
         }
     }
@@ -62,25 +63,21 @@ public class ProductionRepositoryFactoryProxy {
         }
     }
 
-    public void setConfigManagerFactory(ConfigurationManagerFactory configManagerFactory) {
-        this.configManagerFactory = configManagerFactory;
+    private Repository createFactory(String configName) throws RRepositoryException {
+        return RepositoryInstatiator.newRepository(configName, propertyResolver);
     }
 
-    private Repository createFactory(String propertiesFileName) throws RRepositoryException {
-        PropertiesHolder propertiesHolder = configManagerFactory.getConfigurationManager(propertiesFileName);
-        Map<String, Object> properties = propertiesHolder.getProperties();
-
-        return RepositoryFactoryInstatiator.newFactory(properties, RepositoryMode.PRODUCTION);
+    public boolean isIncludeVersionInDeploymentName(String configName) {
+        return Boolean
+            .parseBoolean(propertyResolver.getProperty("repository." + configName + ".version-in-deployment-name"));
     }
 
-    public boolean isIncludeVersionInDeploymentName(String propertiesFileName) {
-        ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
-        return Boolean.valueOf(configurationManager.getStringProperty(RepositorySettings.VERSION_IN_DEPLOYMENT_NAME));
-    }
-
-    public String getDeploymentsPath(String propertiesFileName) {
-        ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
-        String deployPath = configurationManager.getStringProperty("production-repository.base.path");
+    public String getDeploymentsPath(String configName) {
+        String key = "repository." + configName + ".base.path";
+        String deployPath = propertyResolver.getProperty(key);
+        if (deployPath == null) {
+            throw new IllegalArgumentException("Property " + key + " is absent");
+        }
         return deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
     }
 }

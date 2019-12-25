@@ -1,7 +1,11 @@
 package org.openl.rules.ruleservice.core;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.io.FilenameUtils;
 import org.openl.CompiledOpenClass;
@@ -11,12 +15,21 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
-import org.openl.rules.project.instantiation.*;
+import org.openl.rules.project.instantiation.AbstractDependencyManager;
+import org.openl.rules.project.instantiation.IDependencyLoader;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
+import org.openl.rules.project.instantiation.SimpleDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.core.RuleServiceDeploymentRelatedDependencyManager.DependencyCompilationType;
-import org.openl.rules.ruleservice.publish.lazy.*;
+import org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache;
+import org.openl.rules.ruleservice.publish.lazy.LazyBinderInvocationHandler;
+import org.openl.rules.ruleservice.publish.lazy.LazyCompiledOpenClass;
+import org.openl.rules.ruleservice.publish.lazy.LazyField;
+import org.openl.rules.ruleservice.publish.lazy.LazyInstantiationStrategy;
 import org.openl.rules.ruleservice.publish.lazy.LazyMember.EmptyInterface;
+import org.openl.rules.ruleservice.publish.lazy.LazyMethod;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.impl.IdentifierNode;

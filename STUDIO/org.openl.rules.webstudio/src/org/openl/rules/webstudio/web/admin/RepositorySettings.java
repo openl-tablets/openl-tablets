@@ -1,11 +1,10 @@
 package org.openl.rules.webstudio.web.admin;
 
-import org.openl.config.ConfigurationManager;
+import org.openl.config.ConfigNames;
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.repository.RepositoryMode;
 
 public abstract class RepositorySettings {
-    public static final String VERSION_IN_DEPLOYMENT_NAME = "version-in-deployment-name";
+    private final String VERSION_IN_DEPLOYMENT_NAME;
     private final String USE_CUSTOM_COMMENTS;
     private final String COMMENT_VALIDATION_PATTERN;
     private final String INVALID_COMMENT_MESSAGE;
@@ -32,20 +31,21 @@ public abstract class RepositorySettings {
 
     private boolean useCustomComments;
 
-    RepositorySettings(ConfigurationManager configManager, String configPrefix) {
-        USE_CUSTOM_COMMENTS = configPrefix + "comment-template.use-custom-comments";
-        COMMENT_VALIDATION_PATTERN = configPrefix + "comment-validation-pattern";
-        INVALID_COMMENT_MESSAGE = configPrefix + "invalid-comment-message";
-        COMMENT_TEMPLATE = configPrefix + "comment-template";
-        DEFAULT_COMMENT_SAVE = configPrefix + "comment-template.user-message.default.save";
-        DEFAULT_COMMENT_CREATE = configPrefix + "comment-template.user-message.default.create";
-        DEFAULT_COMMENT_ARCHIVE = configPrefix + "comment-template.user-message.default.archive";
-        DEFAULT_COMMENT_RESTORE = configPrefix + "comment-template.user-message.default.restore";
-        DEFAULT_COMMENT_ERASE = configPrefix + "comment-template.user-message.default.erase";
-        DEFAULT_COMMENT_COPIED_FROM = configPrefix + "comment-template.user-message.default.copied-from";
-        DEFAULT_COMMENT_RESTORED_FROM = configPrefix + "comment-template.user-message.default.restored-from";
+    RepositorySettings(PropertiesHolder propertyResolver, String configPrefix) {
+        VERSION_IN_DEPLOYMENT_NAME = configPrefix + ".version-in-deployment-name";
+        USE_CUSTOM_COMMENTS = configPrefix + ".comment-template.use-custom-comments";
+        COMMENT_VALIDATION_PATTERN = configPrefix + ".comment-validation-pattern";
+        INVALID_COMMENT_MESSAGE = configPrefix + ".invalid-comment-message";
+        COMMENT_TEMPLATE = configPrefix + ".comment-template";
+        DEFAULT_COMMENT_SAVE = configPrefix + ".comment-template.user-message.default.save";
+        DEFAULT_COMMENT_CREATE = configPrefix + ".comment-template.user-message.default.create";
+        DEFAULT_COMMENT_ARCHIVE = configPrefix + ".comment-template.user-message.default.archive";
+        DEFAULT_COMMENT_RESTORE = configPrefix + ".comment-template.user-message.default.restore";
+        DEFAULT_COMMENT_ERASE = configPrefix + ".comment-template.user-message.default.erase";
+        DEFAULT_COMMENT_COPIED_FROM = configPrefix + ".comment-template.user-message.default.copied-from";
+        DEFAULT_COMMENT_RESTORED_FROM = configPrefix + ".comment-template.user-message.default.restored-from";
 
-        load(configManager);
+        load(propertyResolver);
     }
 
     public boolean isIncludeVersionInDeploymentName() {
@@ -144,23 +144,20 @@ public abstract class RepositorySettings {
         this.defaultCommentRestoredFrom = defaultCommentRestoredFrom;
     }
 
-    private void load(ConfigurationManager configManager) {
-        includeVersionInDeploymentName = Boolean.parseBoolean(configManager.getStringProperty(VERSION_IN_DEPLOYMENT_NAME));
+    private void load(PropertiesHolder properties) {
+        includeVersionInDeploymentName = Boolean.parseBoolean(properties.getProperty(VERSION_IN_DEPLOYMENT_NAME));
 
-        useCustomComments = Boolean.parseBoolean(configManager.getStringProperty(USE_CUSTOM_COMMENTS));
-        commentValidationPattern = configManager.getStringProperty(COMMENT_VALIDATION_PATTERN);
-        invalidCommentMessage = configManager.getStringProperty(INVALID_COMMENT_MESSAGE);
-        commentTemplate = configManager.getStringProperty(COMMENT_TEMPLATE);
-        defaultCommentSave = configManager.getStringProperty(DEFAULT_COMMENT_SAVE);
-        defaultCommentCreate = configManager.getStringProperty(DEFAULT_COMMENT_CREATE);
-        defaultCommentArchive = configManager.getStringProperty(DEFAULT_COMMENT_ARCHIVE);
-        defaultCommentRestore = configManager.getStringProperty(DEFAULT_COMMENT_RESTORE);
-        defaultCommentErase = configManager.getStringProperty(DEFAULT_COMMENT_ERASE);
-        defaultCommentCopiedFrom = configManager.getStringProperty(DEFAULT_COMMENT_COPIED_FROM);
-        defaultCommentRestoredFrom = configManager.getStringProperty(DEFAULT_COMMENT_RESTORED_FROM);
-    }
-
-    protected void fixState() {
+        useCustomComments = Boolean.parseBoolean(properties.getProperty(USE_CUSTOM_COMMENTS));
+        commentValidationPattern = properties.getProperty(COMMENT_VALIDATION_PATTERN);
+        invalidCommentMessage = properties.getProperty(INVALID_COMMENT_MESSAGE);
+        commentTemplate = properties.getProperty(COMMENT_TEMPLATE);
+        defaultCommentSave = properties.getProperty(DEFAULT_COMMENT_SAVE);
+        defaultCommentCreate = properties.getProperty(DEFAULT_COMMENT_CREATE);
+        defaultCommentArchive = properties.getProperty(DEFAULT_COMMENT_ARCHIVE);
+        defaultCommentRestore = properties.getProperty(DEFAULT_COMMENT_RESTORE);
+        defaultCommentErase = properties.getProperty(DEFAULT_COMMENT_ERASE);
+        defaultCommentCopiedFrom = properties.getProperty(DEFAULT_COMMENT_COPIED_FROM);
+        defaultCommentRestoredFrom = properties.getProperty(DEFAULT_COMMENT_RESTORED_FROM);
     }
 
     protected void store(PropertiesHolder propertiesHolder) {
@@ -194,8 +191,8 @@ public abstract class RepositorySettings {
         }
     }
 
-    protected void revert(ConfigurationManager configurationManager) {
-        configurationManager.revertProperties(VERSION_IN_DEPLOYMENT_NAME,
+    protected void revert(PropertiesHolder properties) {
+        properties.revertProperties(VERSION_IN_DEPLOYMENT_NAME,
             USE_CUSTOM_COMMENTS,
             COMMENT_VALIDATION_PATTERN,
             INVALID_COMMENT_MESSAGE,
@@ -207,25 +204,21 @@ public abstract class RepositorySettings {
             DEFAULT_COMMENT_ERASE,
             DEFAULT_COMMENT_COPIED_FROM,
             DEFAULT_COMMENT_RESTORED_FROM);
-        load(configurationManager);
+        load(properties);
     }
 
-    static String getTypePrefix(RepositoryMode repositoryMode) {
+    static String getTypePrefix(String configPrefix) {
         String type;
-        switch (repositoryMode) {
-            case DESIGN:
-                type = "design";
-                break;
-            case DEPLOY_CONFIG:
-                type = "deploy-config";
-                break;
-            case PRODUCTION:
+        try {
+            String clearPrefix = configPrefix.split("\\.")[1];
+            if (ConfigNames.DEFAULT_CONFIGS.contains(clearPrefix)) {
+                type = clearPrefix;
+            } else {
                 type = "deployment";
-                break;
-            default:
-                throw new UnsupportedOperationException();
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new UnsupportedOperationException("Unsupported configuration prefix is using");
         }
-
         return type;
     }
 

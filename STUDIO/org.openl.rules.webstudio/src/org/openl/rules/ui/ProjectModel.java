@@ -6,13 +6,22 @@ import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
 import static org.openl.rules.security.Privileges.EDIT_TABLES;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.dependency.IDependencyManager;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
@@ -68,6 +77,7 @@ import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.source.SourceHistoryManager;
+import org.openl.spring.env.ApplicationContextProvider;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -81,6 +91,7 @@ import org.openl.util.ISelector;
 import org.openl.util.tree.ITreeElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
 
 public class ProjectModel {
 
@@ -117,12 +128,13 @@ public class ProjectModel {
 
     private RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
     private final TestSuiteExecutor testSuiteExecutor;
+    private PropertyResolver propertyResolver;
 
     /**
      * For tests only
      */
-    ProjectModel(WebStudio studio) {
-        this(studio, null);
+    ProjectModel(WebStudio studio, PropertyResolver propertyResolver) {
+        this(studio, null, propertyResolver);
     }
 
     public ProjectModel(WebStudio studio, TestSuiteExecutor testSuiteExecutor) {
@@ -130,6 +142,15 @@ public class ProjectModel {
         this.openedInSingleModuleMode = studio.isSingleModuleModeByDefault();
         this.webStudioWorkspaceDependencyManagerFactory = new WebStudioWorkspaceDependencyManagerFactory(studio);
         this.testSuiteExecutor = testSuiteExecutor;
+        this.propertyResolver = ApplicationContextProvider.getApplicationContext().getEnvironment();
+    }
+
+    public ProjectModel(WebStudio studio, TestSuiteExecutor testSuiteExecutor, PropertyResolver propertyResolver) {
+        this.studio = studio;
+        this.openedInSingleModuleMode = studio.isSingleModuleModeByDefault();
+        this.webStudioWorkspaceDependencyManagerFactory = new WebStudioWorkspaceDependencyManagerFactory(studio);
+        this.testSuiteExecutor = testSuiteExecutor;
+        this.propertyResolver = propertyResolver;
     }
 
     public RulesProject getProject() {
@@ -798,8 +819,7 @@ public class ProjectModel {
     }
 
     public TestUnitsResults runTest(TestSuite test) {
-        boolean isParallel = OpenLSystemProperties
-            .isRunTestsInParallel(studio.getSystemConfigManager().getProperties());
+        boolean isParallel = Boolean.parseBoolean(propertyResolver.getProperty("test.run.parallel"));
         return runTest(test, isParallel);
     }
 
@@ -924,7 +944,7 @@ public class ProjectModel {
         if (singleModuleMode) {
             instantiationStrategy = RulesInstantiationStrategyFactory
                 .getStrategy(this.moduleInfo, false, webStudioWorkspaceDependencyManager);
-            externalParameters = studio.getSystemConfigManager().getProperties();
+            externalParameters = studio.getExternalProperties();
         } else {
             List<Module> modules = this.moduleInfo.getProject().getModules();
             instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
@@ -932,7 +952,7 @@ public class ProjectModel {
                 false);
 
             externalParameters = ProjectExternalDependenciesHelper
-                .getExternalParamsWithProjectDependencies(studio.getSystemConfigManager().getProperties(), modules);
+                .getExternalParamsWithProjectDependencies(studio.getExternalProperties(), modules);
 
         }
         instantiationStrategy.setExternalParameters(externalParameters);
@@ -1110,10 +1130,11 @@ public class ProjectModel {
 
     public SourceHistoryManager<File> getHistoryManager() {
         if (historyManager == null) {
-            String projecthistoryHome = studio.getSystemConfigManager().getStringProperty("project.history.home");
-            Integer maxFilesInStorage = studio.getSystemConfigManager().getIntegerProperty("project.history.count");
-            boolean unlimitedStorage = studio.getSystemConfigManager().getBooleanProperty("project.history.unlimited");
-            String storagePath = projecthistoryHome + File.separator + getProject().getName();
+            String projectHistoryHome = propertyResolver.getProperty("project.history.home");
+            String projectHistoryCount = propertyResolver.getProperty("project.history.count");
+            Integer maxFilesInStorage = Integer.valueOf(Objects.requireNonNull(projectHistoryCount));
+            boolean unlimitedStorage = Boolean.parseBoolean(propertyResolver.getProperty("project.history.unlimited"));
+            String storagePath = projectHistoryHome + File.separator + getProject().getName();
             historyManager = new FileBasedProjectHistoryManager(this, storagePath, maxFilesInStorage, unlimitedStorage);
         }
         return historyManager;

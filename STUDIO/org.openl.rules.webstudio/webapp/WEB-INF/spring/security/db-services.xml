@@ -8,17 +8,6 @@
 
     <!-- ======================== DB Services ========================== -->
 
-    <bean id="dbConfigManagerFactory" class="org.openl.config.ConfigurationManagerFactory">
-        <constructor-arg name="defaultPropertiesLocation" value="db.properties" />
-        <constructor-arg name="propertiesFolder" value="#{systemProperties['webstudio.home']}/system-settings/" />
-    </bean>
-    <bean id="dbConfigManager" factory-bean="dbConfigManagerFactory" factory-method="getConfigurationManager" autowire-candidate="false">
-        <constructor-arg name="propertiesName" value="db.properties"/>
-    </bean>
-    <bean id="dbConfig" class="java.util.HashMap">
-        <constructor-arg value="#{dbConfigManager.properties}"/>
-    </bean>
-
     <bean id="userManagementService" class="org.openl.rules.webstudio.service.UserManagementService">
         <property name="userDao" ref="openlUserDao" />
         <property name="groupDao" ref="groupDao" />
@@ -27,6 +16,11 @@
     <bean id="groupManagementService" class="org.openl.rules.webstudio.service.GroupManagementServiceImpl">
         <property name="groupDao" ref="groupDao" />
         <property name="userDao" ref="openlUserDao" />
+    </bean>
+
+    <bean id="userSettingManagementService" class="org.openl.rules.webstudio.service.UserSettingManagementService">
+        <constructor-arg name="userSettingDao" ref="openlUserSettingDao"/>
+        <constructor-arg name="propertyResolver" ref="environment"/>
     </bean>
 
 </beans>

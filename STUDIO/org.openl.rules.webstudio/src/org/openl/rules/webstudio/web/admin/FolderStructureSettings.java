@@ -1,61 +1,48 @@
 package org.openl.rules.webstudio.web.admin;
 
-import org.openl.config.ConfigurationManager;
-import org.openl.rules.repository.RepositoryFactoryInstatiator;
-import org.openl.rules.repository.RepositoryMode;
+import org.openl.config.PropertiesHolder;
+import org.springframework.core.env.PropertyResolver;
 
 public class FolderStructureSettings {
-    private final ConfigurationManager configManager;
 
     private final String BASE_PATH;
     private final String FLAT_FOLDER_STRUCTURE;
     private final String FOLDER_CONFIG_FILE;
+    private final PropertyResolver propertyResolver;
+    private PropertiesHolder properties;
 
-    public FolderStructureSettings(ConfigurationManager configManager, RepositoryMode repositoryMode) {
-        String configPrefix;
-        switch (repositoryMode) {
-            case DESIGN:
-                configPrefix = RepositoryFactoryInstatiator.DESIGN_REPOSITORY;
-                break;
-            case DEPLOY_CONFIG:
-                configPrefix = RepositoryFactoryInstatiator.DEPLOY_CONFIG_REPOSITORY;
-                break;
-            case PRODUCTION:
-                configPrefix = RepositoryFactoryInstatiator.PRODUCTION_REPOSITORY;
-                break;
-            default:
-                throw new UnsupportedOperationException();
-        }
-
-        this.configManager = configManager;
-        BASE_PATH = configPrefix + "base.path";
-        FLAT_FOLDER_STRUCTURE = configPrefix + "folder-structure.flat";
-        FOLDER_CONFIG_FILE = configPrefix + "folder-structure.configuration";
+    public FolderStructureSettings(PropertyResolver propertyResolver, String configPrefix, PropertiesHolder properties) {
+        String withPrefix = "repository." + configPrefix.toLowerCase();
+        BASE_PATH = withPrefix + ".base.path";
+        FLAT_FOLDER_STRUCTURE = withPrefix + ".folder-structure.flat";
+        FOLDER_CONFIG_FILE = withPrefix + ".folder-structure.configuration";
+        this.propertyResolver = propertyResolver;
+        this.properties = properties;
     }
 
     public String getBasePath() {
-        return configManager.getStringProperty(BASE_PATH);
+        return propertyResolver.getProperty(BASE_PATH);
     }
 
     public void setBasePath(String basePath) {
         String value = basePath.isEmpty() || basePath.endsWith("/") ? basePath : basePath + "/";
-        configManager.setProperty(BASE_PATH, value);
+        properties.setProperty(BASE_PATH, value);
     }
 
     public boolean isFlatFolderStructure() {
-        return configManager.getBooleanProperty(FLAT_FOLDER_STRUCTURE, Boolean.TRUE);
+        return Boolean.parseBoolean(propertyResolver.getProperty(FLAT_FOLDER_STRUCTURE, String.valueOf(Boolean.TRUE)));
     }
 
     public void setFlatFolderStructure(boolean flatFolderStructure) {
-        configManager.setProperty(FLAT_FOLDER_STRUCTURE, flatFolderStructure);
+        properties.setProperty(FLAT_FOLDER_STRUCTURE, flatFolderStructure);
     }
 
     public String getFolderConfigFile() {
-        return configManager.getStringProperty(FOLDER_CONFIG_FILE, null);
+        return propertyResolver.getProperty(FOLDER_CONFIG_FILE);
     }
 
     public void setFolderConfigFile(String folderConfigFile) {
-        configManager.setProperty(FOLDER_CONFIG_FILE, folderConfigFile);
+        properties.setProperty(FOLDER_CONFIG_FILE, folderConfigFile);
     }
 
     public FolderStructureValidators getValidators() {

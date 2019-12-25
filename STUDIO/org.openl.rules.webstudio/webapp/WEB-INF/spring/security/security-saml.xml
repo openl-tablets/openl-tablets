@@ -51,7 +51,7 @@
     </bean>
 
     <bean id="localLogout" class="java.lang.Boolean">
-        <constructor-arg type="boolean" value="#{systemConfig['security.saml.local-logout']}"/>
+        <constructor-arg type="boolean" value="${security.saml.local-logout}"/>
     </bean>
 
     <bean id="logoutUrlParameters" class="java.lang.String">
@@ -96,14 +96,14 @@
 
     <!-- Central storage of cryptographic keys -->
     <bean id="keyManager" class="org.springframework.security.saml.key.JKSKeyManager">
-        <constructor-arg name="storeFile" value="#{systemConfig['security.saml.keystore-file-path']}"/>
-        <constructor-arg name="storePass" value="#{systemConfig['security.saml.keystore-password']}"/>
+        <constructor-arg name="storeFile" value="${security.saml.keystore-file-path}"/>
+        <constructor-arg name="storePass" value="${security.saml.keystore-password}"/>
         <constructor-arg name="passwords">
             <map>
-                <entry key="#{systemConfig['security.saml.keystore-sp-alias']}" value="#{systemConfig['security.saml.keystore-sp-password']}"/>
+                <entry key="${security.saml.keystore-sp-alias}" value="${security.saml.keystore-sp-password}"/>
             </map>
         </constructor-arg>
-        <constructor-arg name="defaultKey" value="#{systemConfig['security.saml.keystore-sp-alias']}"/>
+        <constructor-arg name="defaultKey" value="${security.saml.keystore-sp-alias}"/>
     </bean>
 
     <!-- Entry point to initialize authentication, default values taken from properties file. Both entry point and filter. -->
@@ -111,8 +111,8 @@
         <property name="defaultProfileOptions">
             <bean class="org.springframework.security.saml.websso.WebSSOProfileOptions">
                 <property name="includeScoping" value="false"/>
-                <property name="binding" value="#{systemConfig['security.saml.binding']}"/>
-                <property name="authnContexts" value="#{T(java.util.Arrays).asList(systemConfig['security.saml.authentication-contexts'])}" />
+                <property name="binding" value="${security.saml.binding}"/>
+                <property name="authnContexts" value="#{T(java.util.Arrays).asList('${security.saml.authentication-contexts}')}" />
             </bean>
         </property>
     </bean>
@@ -127,7 +127,7 @@
     <bean id="metadataGeneratorFilter" class="org.springframework.security.saml.metadata.MetadataGeneratorFilter">
         <constructor-arg>
             <bean class="org.springframework.security.saml.metadata.MetadataGenerator">
-                <property name="entityBaseURL" value="#{systemConfig['security.saml.app-url']}"/>
+                <property name="entityBaseURL" value="${security.saml.app-url}"/>
             </bean>
         </constructor-arg>
     </bean>
@@ -149,9 +149,9 @@
                 <!-- Example of HTTP metadata without Extended Metadata -->
                 <bean class="org.opensaml.saml2.metadata.provider.HTTPMetadataProvider">
                     <!-- URL containing the metadata -->
-                    <constructor-arg name="metadataURL" value="#{systemConfig['security.saml.saml-server-metadata-url']}"/>
+                    <constructor-arg name="metadataURL" value="${security.saml.saml-server-metadata-url}"/>
                     <!-- Timeout for metadata loading in ms -->
-                    <constructor-arg name="requestTimeout" value="#{systemConfig['security.saml.request-timeout']}"/>
+                    <constructor-arg name="requestTimeout" value="${security.saml.request-timeout}"/>
                     <property name="parserPool" ref="parserPool"/>
                 </bean>
             </list>
@@ -167,10 +167,10 @@
         <!-- OPTIONAL property: can be used to store/load user data after login -->
         <property name="userDetails">
             <bean class="org.openl.security.saml.SAMLAttributesToOpenLUserDetailsService">
-                <constructor-arg name="usernameAttribute" value="#{systemConfig['security.saml.attribute.username']}"/>
-                <constructor-arg name="firstNameAttribute" value="#{systemConfig['security.saml.attribute.first-name']}"/>
-                <constructor-arg name="lastNameAttribute" value="#{systemConfig['security.saml.attribute.last-name']}"/>
-                <constructor-arg name="groupsAttribute" value="#{systemConfig['security.saml.attribute.groups']}"/>
+                <constructor-arg name="usernameAttribute" value="${security.saml.attribute.username}"/>
+                <constructor-arg name="firstNameAttribute" value="${security.saml.attribute.first-name}"/>
+                <constructor-arg name="lastNameAttribute" value="${security.saml.attribute.last-name}"/>
+                <constructor-arg name="groupsAttribute" value="${security.saml.attribute.groups}"/>
                 <constructor-arg name="authoritiesMapper" ref="authoritiesMapper"/>
             </bean>
         </property>
@@ -178,7 +178,7 @@
     </bean>
 
     <bean id="groupsAreManagedInStudio" class="java.lang.Boolean">
-        <constructor-arg type="boolean" value="#{systemConfig['security.saml.attribute.groups'].isEmpty()}"/>
+        <constructor-arg type="boolean" value="${security.saml.attribute.groups'].isEmpty()}"/>
     </bean>
 
     <bean id="authenticationProviderWrapper" class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
@@ -187,7 +187,7 @@
             <bean class="org.openl.rules.webstudio.security.CreateIfNotExistAuthenticationUserDetailsService">
                 <constructor-arg name="userManagementService" ref="userManagementService"/>
                 <constructor-arg name="groupManagementService" ref="groupManagementService"/>
-                <property name="defaultGroup" value="#{systemConfig['security.saml.default-group']}"/>
+                <property name="defaultGroup" value="${security.saml.default-group}"/>
             </bean>
         </constructor-arg>
         <property name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>

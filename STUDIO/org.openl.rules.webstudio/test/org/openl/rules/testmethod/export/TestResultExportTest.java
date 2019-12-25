@@ -1,7 +1,16 @@
 package org.openl.rules.testmethod.export;
 
-import static org.junit.Assert.*;
-import static org.openl.rules.testmethod.export.Styles.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.openl.rules.testmethod.export.Styles.GREEN_FIELDS;
+import static org.openl.rules.testmethod.export.Styles.GREEN_MAIN;
+import static org.openl.rules.testmethod.export.Styles.HEADER;
+import static org.openl.rules.testmethod.export.Styles.RED_FIELDS;
+import static org.openl.rules.testmethod.export.Styles.RED_MAIN;
+import static org.openl.rules.testmethod.export.Styles.convertRGB;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,7 +21,12 @@ import java.util.Comparator;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.xssf.usermodel.IndexedColorMap;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFComment;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

@@ -16,8 +16,16 @@ import org.springframework.beans.factory.config.PlaceholderConfigurerSupport;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.*;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.PropertySources;
+import org.springframework.core.env.PropertySourcesPropertyResolver;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePropertySource;
@@ -61,6 +69,12 @@ import org.springframework.util.StringValueResolver;
  * <li>OpenL default properties.
  * <ol>
  * <li>classpath*:openl-default.properties</li>
+ * </ol>
+ * </li>
+ * <li>Properties stored in a hierarchical collection of preference data using Preferences API. See
+ * {@link java.util.prefs.Preferences Preferences} for details. Preferences will be stored in a node with a key:
+ * <ol>
+ * <li>openl/{appName}</li>
  * </ol>
  * </li>
  * <li>Application externalized configuration. <br>
@@ -124,6 +138,7 @@ import org.springframework.util.StringValueResolver;
  */
 public class PropertySourcesLoader extends PlaceholderConfigurerSupport implements ApplicationContextInitializer<ConfigurableApplicationContext>, ApplicationContextAware {
     public static final String OPENL_DEFAULT_PROPS = "OpenL default properties";
+    public static final String OPENL_PREFERENCE_PROPS = "OpenL preference properties";
     public static final String OPENL_APPLICATION_PROPS = "OpenL application properties";
     public static final String OPENL_ADDITIONAL_PROPS = "OpenL additional properties";
     public static final String ENVIRONMENT_PROPS = "environmentProps";
@@ -139,6 +154,20 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     @Override
     public void initialize(ConfigurableApplicationContext appContext) {
         log.info("The initialization of properties from 'contextInitializerClasses' context-param in web.xml");
+        doInitialize(appContext);
+
+        // We need to reinitialize property sources when application context is refreshed because openl.home can be
+        // changed in Install Wizard. We must do it before any bean is created, so we can't use ContextRefreshedEvent,
+        // that's why we reinitialize settings when context is closed.
+        appContext.addApplicationListener((ApplicationListener<ContextClosedEvent>) event -> {
+            ApplicationContext applicationContext = event.getApplicationContext();
+            if (applicationContext instanceof ConfigurableApplicationContext) {
+                doInitialize((ConfigurableApplicationContext) applicationContext);
+            }
+        });
+    }
+
+    private void doInitialize(ConfigurableApplicationContext appContext) {
         setApplicationContext(appContext);
         ConfigurableEnvironment env = appContext.getEnvironment();
         MutablePropertySources propertySources = env.getPropertySources();
@@ -149,9 +178,8 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     private void loadProperties(MutablePropertySources propertySources, Environment env) {
         PropertySourcesPropertyResolver propertyResolver = new PropertySourcesPropertyResolver(propertySources);
         String[] profiles = env == null ? null : env.getActiveProfiles();
-        PropertyResourceResolver resolver = new PropertyResourceResolver(propertyResolver,
-            getAppName(appContext),
-            profiles);
+        String appName = getAppName(appContext);
+        PropertyResourceResolver resolver = new PropertyResourceResolver(propertyResolver, appName, profiles);
 
         log.info("Loading default properties...");
         CompositePropertySource defaultProps = new CompositePropertySource(OPENL_DEFAULT_PROPS);
@@ -161,6 +189,10 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
             addResource(defaultProps, location);
         }
         propertySources.addLast(defaultProps);
+
+        log.info("Loading preference properties...");
+        PreferencePropertySource preferenceProps = new PreferencePropertySource(OPENL_PREFERENCE_PROPS, appName);
+        propertySources.addBefore(OPENL_DEFAULT_PROPS, preferenceProps);
 
         log.info("Loading application properties...");
         CompositePropertySource applicationProps = new CompositePropertySource(OPENL_APPLICATION_PROPS);
@@ -177,7 +209,7 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
                 addResource(applicationProps, location);
             }
         }
-        propertySources.addBefore(OPENL_DEFAULT_PROPS, applicationProps);
+        propertySources.addBefore(OPENL_PREFERENCE_PROPS, applicationProps);
     }
 
     @Override
@@ -185,9 +217,12 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
         this.appContext = appContext;
     }
 
-    private String getAppName(ApplicationContext appContext) {
-        String appName = appContext.getApplicationName();
-        if (appName == null || appName.isEmpty()) {
+    public static String getAppName(ApplicationContext appContext) {
+        return normalizeAppName(appContext.getApplicationName());
+    }
+
+    public static String normalizeAppName(String appName) {
+        if (appName.isEmpty()) {
             return "";
         }
         return appName.replace('/', ' ').replace('\\', ' ').trim().replace(' ', '-');
@@ -257,14 +292,12 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
                 propertySources = ((ConfigurableEnvironment) env).getPropertySources();
             } else {
                 propertySources = new MutablePropertySources();
-                if (env != null) {
-                    this.propertySources.addLast(new PropertySource<Environment>(ENVIRONMENT_PROPS, env) {
-                        @Override
-                        public String getProperty(String key) {
-                            return this.source.getProperty(key);
-                        }
-                    });
-                }
+                propertySources.addLast(new PropertySource<Environment>(ENVIRONMENT_PROPS, env) {
+                    @Override
+                    public String getProperty(String key) {
+                        return this.source.getProperty(key);
+                    }
+                });
             }
             load(propertySources, env);
         }

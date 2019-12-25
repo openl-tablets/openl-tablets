@@ -7,6 +7,7 @@
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd"
     default-autowire="no">
 
+    <import resource="webstudio-property-placeholder.xml"/>
     <import resource="system-config-beans.xml" />
     <import resource="repository-beans.xml" />
     <import resource="security-beans.xml" />
@@ -100,11 +101,11 @@
     </bean>
 
     <bean class="org.openl.rules.testmethod.TestSuiteExecutor" destroy-method="destroy">
-        <constructor-arg value="#{systemConfig['test.run.thread.count']}"/>
+        <constructor-arg value="${test.run.thread.count}"/>
     </bean>
 
     <bean name="zipCharsetDetector" class="org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector">
-        <constructor-arg name="charsetNames" value="#{systemConfig['zip.charsets.support']}" />
+        <constructor-arg name="charsetNames" value="${zip.charsets.support}" />
         <constructor-arg name="zipFilter" ref="zipFilter"/>
     </bean>
 </beans>
