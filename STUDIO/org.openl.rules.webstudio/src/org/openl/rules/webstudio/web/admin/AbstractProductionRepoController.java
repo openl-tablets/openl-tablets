@@ -73,8 +73,7 @@ public abstract class AbstractProductionRepoController {
     }
 
     private RepositoryConfiguration createDummyRepositoryConfiguration() {
-        RepositoryConfiguration previousConfig = productionRepositoryConfigurations
-            .get(productionRepositoryConfigurations.size() - 1);
+        RepositoryConfiguration previousConfig = productionRepositoryConfigurations.get(0);
         RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration(previousConfig.getConfigName(),
             properties);
         repositoryConfiguration.setType(RepositoryType.DB.name().toLowerCase());
