@@ -4,11 +4,7 @@ import static net.mguenther.kafka.junit.EmbeddedKafkaCluster.provisionWith;
 import static org.awaitility.Awaitility.given;
 import static org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner.newConfigs;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -82,6 +78,7 @@ public class RunStoreLogDataITest {
     private static final String SIMPLE2_SERVICE_NAME = "simple2";
     private static final String SIMPLE3_SERVICE_NAME = "simple3";
     private static final String SIMPLE4_SERVICE_NAME = "simple4";
+    private static final String SIMPLE5_SERVICE_NAME = "simple5";
 
     private static final String KAFKA_PUBLISHER_TYPE = PublisherType.KAFKA.name();
     private static final String RESTFUL_PUBLISHER_TYPE = PublisherType.RESTFUL.name();
@@ -127,12 +124,10 @@ public class RunStoreLogDataITest {
         esClient = elasticRunner.client();
     }
 
-    private boolean truncateTableIfExists(final String keyspace, final String table) {
+    private void truncateTableIfExists(final String keyspace, final String table) {
         try {
             EmbeddedCassandraServerHelper.getSession().execute("TRUNCATE " + keyspace + "." + table);
-            return true;
-        } catch (QueryExecutionException | InvalidQueryException e) {
-            return false;
+        } catch (QueryExecutionException | InvalidQueryException ignored) {
         }
     }
 
@@ -140,15 +135,7 @@ public class RunStoreLogDataITest {
             String keyspaceName,
             String replicationStrategy,
             int replicationFactor) {
-        StringBuilder sb = new StringBuilder("CREATE KEYSPACE IF NOT EXISTS ").append(keyspaceName)
-            .append(" WITH replication = {")
-            .append("'class':'")
-            .append(replicationStrategy)
-            .append("','replication_factor':")
-            .append(replicationFactor)
-            .append("};");
-
-        String query = sb.toString();
+        String query = "CREATE KEYSPACE IF NOT EXISTS " + keyspaceName + " WITH replication = {" + "'class':'" + replicationStrategy + "','replication_factor':" + replicationFactor + "};";
         session.execute(query);
     }
 
@@ -261,6 +248,39 @@ public class RunStoreLogDataITest {
             HELLO_METHOD_NAME,
             SIMPLE1_SERVICE_NAME,
             KAFKA_PUBLISHER_TYPE);
+        given().ignoreException(InvalidQueryException.class)
+            .await()
+            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+            .until(validateCassandra(values), equalTo(true));
+
+        given().ignoreExceptions()
+            .await()
+            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
+            .until(validateElastic(values), equalTo(true));
+    }
+
+    @Test
+    public void testKafkaServiceOkWithNoOutputTopic() throws Exception {
+        final String REQUEST = "{\"hour\": 5}";
+
+        truncateTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
+
+        given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
+            removeIndexIfExists(DEFAULT_ELASTIC_INDEX_NAME);
+            return !elasticRunner.indexExists(DEFAULT_ELASTIC_INDEX_NAME);
+        }, equalTo(true));
+
+        KeyValue<String, String> record = new KeyValue<>(null, REQUEST);
+        record.addHeader(KafkaHeaders.METHOD_NAME, HELLO_METHOD_NAME, StandardCharsets.UTF_8);
+        cluster.send(SendKeyValues.to("hello-in-topic-5", Collections.singletonList(record)).useDefaults());
+
+        ExpectedLogValues values = new ExpectedLogValues(REQUEST,
+            null,
+            HELLO_METHOD_NAME,
+            SIMPLE5_SERVICE_NAME,
+            KAFKA_PUBLISHER_TYPE);
+        values.setResponseProvided(true);
         given().ignoreException(InvalidQueryException.class)
             .await()
             .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)

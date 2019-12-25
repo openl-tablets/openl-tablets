@@ -1,22 +1,24 @@
 package org.openl.itest.common;
 
 public class ExpectedLogValues {
-    public String request;
-    public String response;
-    public String methodName;
-    public String serviceName;
-    public String publisherType;
+    private String request;
+    private String response;
+    private String methodName;
+    private String serviceName;
+    private String publisherType;
+    private boolean responseProvided;
 
     public ExpectedLogValues(String request,
-                             String response,
-                             String methodName,
-                             String serviceName,
-                             String publisherType) {
+            String response,
+            String methodName,
+            String serviceName,
+            String publisherType) {
         this.request = request;
         this.response = response;
         this.methodName = methodName;
         this.serviceName = serviceName;
         this.publisherType = publisherType;
+        this.responseProvided = response != null;
     }
 
     public String getRequest() {
@@ -60,6 +62,10 @@ public class ExpectedLogValues {
     }
 
     public boolean isResponseProvided() {
-        return response != null;
+        return responseProvided;
+    }
+
+    public void setResponseProvided(boolean responseProvided) {
+        this.responseProvided = responseProvided;
     }
 }

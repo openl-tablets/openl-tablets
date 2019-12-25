@@ -1,0 +1,5 @@
+service:
+  in.topic.name: hello-in-topic-5
+  consumer.configs:
+    metadata.max.age.ms: 1000
+    auto.offset.reset: earliest

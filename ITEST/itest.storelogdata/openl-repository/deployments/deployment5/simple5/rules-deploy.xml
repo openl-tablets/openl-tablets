@@ -1,7 +1,9 @@
 <rules-deploy>
     <isProvideRuntimeContext>true</isProvideRuntimeContext>
     <isProvideVariations>false</isProvideVariations>
-    <serviceName>simple1</serviceName>
+    <serviceName>simple5</serviceName>
+    <annotationTemplateClassName>org.openl.itest.serviceclass.Simple5ServiceAnnotationTemplate
+    </annotationTemplateClassName>
     <publishers>
         <publisher>kafka</publisher>
     </publishers>

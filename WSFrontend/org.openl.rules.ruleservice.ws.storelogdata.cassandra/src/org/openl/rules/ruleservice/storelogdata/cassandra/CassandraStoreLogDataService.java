@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.storelogdata.cassandra;
 
 import java.lang.reflect.Method;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
@@ -39,7 +40,7 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
 
     @Override
     public void save(StoreLogData storeLogData) {
-        Object[] entities = null;
+        Object[] entities;
 
         StoreLogDataToCassandra storeLogDataToCassandraAnnotation = storeLogData.getServiceClass()
             .getAnnotation(StoreLogDataToCassandra.class);
@@ -67,8 +68,9 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
                     } catch (InstantiationException | IllegalAccessException e) {
                         if (log.isErrorEnabled()) {
                             log.error(String.format(
-                                "Failed to instantiate cassandra entity for method '%s'. Please, check that class '%s' is not abstact and has a default constructor.",
-                                MethodUtil.printQualifiedMethodName(serviceMethod),
+                                "Failed to instantiate cassandra entity%s. Please, check that class '%s' is not abstract and has a default constructor.",
+                                serviceMethod != null ? " for method '" + MethodUtil
+                                    .printQualifiedMethodName(serviceMethod) + "'" : StringUtils.EMPTY,
                                 entityClass.getTypeName()), e);
                         }
                         return;
@@ -82,9 +84,15 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
                 storeLogDataMapper.map(storeLogData, entity);
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
-                    log.error(String.format("Failed to map '%s' cassandra entity for method '%s'.",
-                        entity.getClass().getTypeName(),
-                        MethodUtil.printQualifiedMethodName(serviceMethod)), e);
+                    if (serviceMethod != null) {
+                        log.error(String.format("Failed to map '%s' cassandra entity for method '%s'.",
+                            entity.getClass().getTypeName(),
+                            MethodUtil.printQualifiedMethodName(serviceMethod)), e);
+                    } else {
+                        log.error(
+                            String.format("Failed to map '%s' cassandra entity.", entity.getClass().getTypeName()),
+                            e);
+                    }
                 }
                 return;
             }

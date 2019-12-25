@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
@@ -48,7 +49,7 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
 
     @Override
     public void save(StoreLogData storeLogData) {
-        Object[] entities = null;
+        Object[] entities;
 
         StoreLogDataToElasticsearch storeLogDataToElasticsearchAnnotation = storeLogData.getServiceClass()
             .getAnnotation(StoreLogDataToElasticsearch.class);
@@ -75,8 +76,9 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
                     } catch (InstantiationException | IllegalAccessException e) {
                         if (log.isErrorEnabled()) {
                             log.error(String.format(
-                                "Failed to instantiate ElasticSearch index builder for method '%s'. Please, check that class '%s' is not abstact and has a default constructor.",
-                                MethodUtil.printQualifiedMethodName(serviceMethod),
+                                "Failed to instantiate ElasticSearch index builder%s. Please, check that class '%s' is not abstract and has a default constructor.",
+                                serviceMethod != null ? " for method '" + MethodUtil
+                                    .printQualifiedMethodName(serviceMethod) + "'" : StringUtils.EMPTY,
                                 entityClass.getTypeName()), e);
                         }
                         return;
@@ -94,9 +96,13 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
                 storeLogDataMapper.map(storeLogData, entity);
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
-                    log.error(String.format("Failed to map '%s' Elasticsearch index for method '%s'.",
-                        entity.getClass().getTypeName(),
-                        MethodUtil.printQualifiedMethodName(serviceMethod)), e);
+                    if (serviceMethod != null) {
+                        log.error(String.format("Failed to map '%s' Elasticsearch index for method '%s'.",
+                            entity.getClass().getTypeName(),
+                            MethodUtil.printQualifiedMethodName(serviceMethod)), e);
+                    } else {
+                        log.error(String.format("Failed to map '%s'.", entity.getClass().getTypeName()), e);
+                    }
                 }
                 return;
             }
