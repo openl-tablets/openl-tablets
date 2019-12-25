@@ -45,6 +45,7 @@ public class RevertProjectChangesBean {
         String[] sourceNames = getSources();
         List<File> historyListFiles = model.getHistoryManager().get(sourceNames);
 
+        String dateModifiedPattern = propertyResolver.getProperty("data.format.date") + " 'at' hh:mm:ss a";
         Map<String, List<ProjectHistoryItem>> sourceNameHistoryMap = historyListFiles.stream().map(f -> {
             String modifiedOnStr = new SimpleDateFormat(dateModifiedPattern).format(new Date(f.lastModified()));
             return new ProjectHistoryItem(f.lastModified(), modifiedOnStr, f.getName());
