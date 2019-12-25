@@ -60,9 +60,7 @@ public abstract class AbstractProductionRepoController {
 
     protected RepositoryConfiguration createRepositoryConfiguration() {
         String name = repositoryConfiguration.getName();
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(name, properties);
-
-        repoConfig.copyContent(repositoryConfiguration);
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(name, properties, repositoryConfiguration);
         repoConfig.commit();
         return repoConfig;
     }

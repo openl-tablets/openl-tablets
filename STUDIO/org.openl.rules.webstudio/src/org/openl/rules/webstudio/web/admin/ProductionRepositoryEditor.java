@@ -155,8 +155,7 @@ public class ProductionRepositoryEditor {
     private RepositoryConfiguration renameConfigName(RepositoryConfiguration prodConfig) {
         // Move config to a new file
         String newConfigName = prodConfig.getName();
-        RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, properties);
-        newConfig.copyContent(prodConfig);
+        RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, properties, prodConfig);
         newConfig.commit();
 
         // Rename link to a file in system config

@@ -28,7 +28,8 @@ public class CommonRepositorySettings extends RepositorySettings {
         uri = properties.getProperty(REPOSITORY_URI);
         login = properties.getProperty(REPOSITORY_LOGIN);
         password = properties.getPassword(REPOSITORY_PASS);
-        fixState();
+
+        secure = StringUtils.isNotEmpty(getLogin());
     }
 
     public String getPath() {
@@ -82,12 +83,6 @@ public class CommonRepositorySettings extends RepositorySettings {
     }
 
     @Override
-    protected void fixState() {
-        super.fixState();
-        secure = StringUtils.isNotEmpty(getLogin());
-    }
-
-    @Override
     protected void store(PropertiesHolder propertiesHolder) {
         super.store(propertiesHolder);
         propertiesHolder.setProperty(REPOSITORY_URI, uri);
@@ -125,6 +120,7 @@ public class CommonRepositorySettings extends RepositorySettings {
             setPath(otherSettings.getPath());
             setLogin(otherSettings.getLogin());
             setPassword(otherSettings.getPassword());
+            setSecure(otherSettings.isSecure());
         }
     }
 

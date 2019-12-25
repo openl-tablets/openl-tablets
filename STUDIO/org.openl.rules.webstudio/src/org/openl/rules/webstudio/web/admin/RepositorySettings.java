@@ -160,9 +160,6 @@ public abstract class RepositorySettings {
         defaultCommentRestoredFrom = properties.getProperty(DEFAULT_COMMENT_RESTORED_FROM);
     }
 
-    protected void fixState() {
-    }
-
     protected void store(PropertiesHolder propertiesHolder) {
         propertiesHolder.setProperty(VERSION_IN_DEPLOYMENT_NAME, includeVersionInDeploymentName);
 
