@@ -125,6 +125,8 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
 
         //hibernate
         permission java.lang.RuntimePermission "createSecurityManager";
+        //hibernate and java 9+
+        permission java.lang.RuntimePermission "getStackWalkerWithClassReference";
 
 };
 
