@@ -23,6 +23,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.validator.ValidatorException;
 import javax.naming.directory.InvalidSearchFilterException;
+import javax.servlet.ServletContext;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flywaydb.core.api.FlywayException;
@@ -63,6 +64,8 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.StandardServletEnvironment;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
@@ -122,7 +125,6 @@ public class InstallWizard {
     @ManagedProperty(value = "#{groupManagementService}")
     private GroupManagementService groupManagementService;
     private XmlWebApplicationContext dbContext;
-    private XmlWebApplicationContext propertiesContext;
     private Boolean allowAccessToNewUsers;
     private String externalAdmins;
 
@@ -372,7 +374,6 @@ public class InstallWizard {
 
             destroyRepositoryObjects();
             destroyDbContext();
-            destroyPropertyContext();
 
             ReloadableDelegatingFilter.reloadApplicationContext(FacesUtils.getServletContext());
 
@@ -788,20 +789,21 @@ public class InstallWizard {
     }
 
     public void setWorkingDir(String workingDir) {
-        destroyPropertyContext();
 
         workingDirChanged = workingDirChanged || !workingDir.equals(this.workingDir);
         this.workingDir = workingDir;
 
         // Other configurations depend on this property
         PreferencesManager.INSTANCE.setWebStudioHomeDir(getAppName(), this.workingDir);
+        StandardServletEnvironment environment = new StandardServletEnvironment();
+        ServletContext servletContext = FacesUtils.getServletContext();
+        environment.initPropertySources(servletContext, null);
 
-        propertiesContext = new XmlWebApplicationContext();
-        propertiesContext.setServletContext(FacesUtils.getServletContext());
-        propertiesContext.setConfigLocations("/WEB-INF/spring/webstudio-property-placeholder.xml");
-        propertiesContext.refresh();
-        propertyResolver = propertiesContext.getBean(PropertyResolver.class);
-        properties = new InMemoryProperties(propertyResolver);
+        WebApplicationContext appContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
+        new PropertySourcesLoader().loadEnvironment(environment, appContext);
+
+        propertyResolver = environment;
+        properties = new InMemoryProperties(environment);
 
         String newWorkingDir = propertyResolver.getProperty(PreferencesManager.WEBSTUDIO_WORKING_DIR_KEY);
         if (!workingDir.equals(newWorkingDir)) {
@@ -978,7 +980,6 @@ public class InstallWizard {
     public void destroy() {
         destroyRepositoryObjects();
         destroyDbContext();
-        destroyPropertyContext();
     }
 
     private void migrateDatabase() {
@@ -1024,13 +1025,6 @@ public class InstallWizard {
             }
             dbContext.close();
             dbContext = null;
-        }
-    }
-
-    private void destroyPropertyContext() {
-        if (propertiesContext != null) {
-            propertiesContext.close();
-            propertiesContext = null;
         }
     }
 

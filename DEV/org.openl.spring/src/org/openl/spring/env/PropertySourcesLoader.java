@@ -162,7 +162,7 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
         loadEnvironment(env, appContext);
     }
 
-    private void loadEnvironment(ConfigurableEnvironment env, ApplicationContext appContext) {
+    public void loadEnvironment(ConfigurableEnvironment env, ApplicationContext appContext) {
         MutablePropertySources propertySources = env.getPropertySources();
         loadProperties(propertySources, env, appContext);
     }
