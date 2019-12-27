@@ -1,26 +1,29 @@
 package org.openl.spring.env;
 
-import org.springframework.context.EnvironmentAware;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.PropertyResolver;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
-public class PropertyResolverProvider implements EnvironmentAware {
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.EnumerablePropertySource;
 
-    private static PropertyResolver environment;
+public class PropertyResolverProvider {
 
-    @Override
-    public void setEnvironment(Environment env) {
-        environment = env;
-    }
+    static ConfigurableEnvironment environment;
 
     public static String getProperty(String propertyName) {
-        if (environment != null) {
-            return environment.getProperty(propertyName);
-        }
-        return null;
+        return environment.getProperty(propertyName);
     }
 
-    public static PropertyResolver getEnvironment() {
-        return environment;
+    public static Map<String, Object> getProperties() {
+        HashMap<String, Object> result = new HashMap<>();
+        environment.getPropertySources()
+            .stream()
+            .filter(ps -> ps instanceof EnumerablePropertySource)
+            .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
+            .flatMap(Arrays::stream)
+            .filter(environment::containsProperty)
+            .forEach(propName -> result.put(propName, environment.getProperty(propName)));
+        return result;
     }
 }

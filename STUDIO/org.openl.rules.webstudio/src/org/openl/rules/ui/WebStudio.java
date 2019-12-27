@@ -10,12 +10,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.StreamSupport;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
@@ -88,10 +86,6 @@ import org.openl.util.StringUtils;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.AbstractEnvironment;
-import org.springframework.core.env.EnumerablePropertySource;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertyResolver;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.thoughtworks.xstream.XStreamException;
@@ -149,7 +143,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private boolean forcedCompile = true;
     private boolean needCompile = true;
     private boolean manualCompile = false;
-    private PropertyResolver propertyResolver = PropertyResolverProvider.getEnvironment();
     private Map<String, Object> externalProperties;
 
     private List<ProjectFile> uploadedFiles = new ArrayList<>();
@@ -170,9 +163,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
         initWorkspace(session);
         initUserSettings();
         updateSystemProperties = Boolean
-            .parseBoolean(propertyResolver.getProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES));
+            .parseBoolean(PropertyResolverProvider.getProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES));
         projectResolver = ProjectResolver.instance();
-        externalProperties = initSystemProperties(propertyResolver);
+        externalProperties = PropertyResolverProvider.getProperties();
     }
 
     private void initWorkspace(HttpSession session) {
@@ -478,7 +471,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     boolean isAutoCompile() {
-        return BooleanUtils.toBoolean(propertyResolver.getProperty("compile.auto"));
+        return BooleanUtils.toBoolean(PropertyResolverProvider.getProperty("compile.auto"));
     }
 
     public boolean isManualCompileNeeded() {
@@ -1138,19 +1131,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
             log.error(e.getMessage(), e);
             return null;
         }
-    }
-
-    @SuppressWarnings("rawtypes")
-    public Map<String, Object> initSystemProperties(PropertyResolver pr) {
-        HashMap<String, Object> result = new HashMap<>();
-        MutablePropertySources propSrcs = ((AbstractEnvironment) pr).getPropertySources();
-        StreamSupport.stream(propSrcs.spliterator(), false)
-            .filter(ps -> ps instanceof EnumerablePropertySource)
-            .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
-            .flatMap(Arrays::stream)
-            .filter(pr::containsProperty)
-            .forEach(propName -> result.put(propName, pr.getProperty(propName)));
-        return result;
     }
 
     public Map<String, Object> getExternalProperties() {
