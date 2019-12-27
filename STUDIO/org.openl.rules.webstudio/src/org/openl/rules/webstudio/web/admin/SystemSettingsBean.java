@@ -1,6 +1,11 @@
 package org.openl.rules.webstudio.web.admin;
 
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.*;
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.DATE_PATTERN;
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PROJECT_HISTORY_COUNT;
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PROJECT_HISTORY_HOME;
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PROJECT_HISTORY_UNLIMITED;
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.UPDATE_SYSTEM_PROPERTIES;
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.USER_WORKSPACE_HOME;
 
 import java.io.File;
 import java.io.IOException;
@@ -101,7 +106,7 @@ public class SystemSettingsBean {
     }
 
     public String getUserWorkspaceHome() {
-        return propertyResolver.getProperty(USER_WORKSPACE_HOME);
+        return properties.getProperty(USER_WORKSPACE_HOME);
     }
 
     public void setUserWorkspaceHome(String userWorkspaceHome) {
@@ -109,7 +114,7 @@ public class SystemSettingsBean {
     }
 
     public String getDatePattern() {
-        return propertyResolver.getProperty(DATE_PATTERN);
+        return properties.getProperty(DATE_PATTERN);
     }
 
     public void setDatePattern(String datePattern) {
@@ -117,7 +122,7 @@ public class SystemSettingsBean {
     }
 
     public boolean isUpdateSystemProperties() {
-        return Boolean.parseBoolean(propertyResolver.getProperty(UPDATE_SYSTEM_PROPERTIES));
+        return Boolean.parseBoolean(properties.getProperty(UPDATE_SYSTEM_PROPERTIES));
     }
 
     public void setUpdateSystemProperties(boolean updateSystemProperties) {
@@ -125,7 +130,7 @@ public class SystemSettingsBean {
     }
 
     public String getProjectHistoryHome() {
-        return propertyResolver.getProperty(PROJECT_HISTORY_HOME);
+        return properties.getProperty(PROJECT_HISTORY_HOME);
     }
 
     public void setProjectHistoryHome(String projectHistoryHome) {
@@ -136,7 +141,7 @@ public class SystemSettingsBean {
         if (isUnlimitHistory()) {
             return "0";
         } else {
-            return propertyResolver.getProperty(PROJECT_HISTORY_COUNT);
+            return properties.getProperty(PROJECT_HISTORY_COUNT);
         }
     }
 
@@ -145,7 +150,7 @@ public class SystemSettingsBean {
     }
 
     public boolean isUnlimitHistory() {
-        return Boolean.parseBoolean(propertyResolver.getProperty(PROJECT_HISTORY_UNLIMITED));
+        return Boolean.parseBoolean(properties.getProperty(PROJECT_HISTORY_UNLIMITED));
     }
 
     public void setUnlimitHistory(boolean unlimited) {
@@ -161,8 +166,7 @@ public class SystemSettingsBean {
     }
 
     public boolean isUseDesignRepo() {
-        return !Boolean
-            .parseBoolean(propertyResolver.getProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO));
+        return !Boolean.parseBoolean(properties.getProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO));
     }
 
     public void setUseDesignRepo(boolean useDesignRepo) {
@@ -170,11 +174,11 @@ public class SystemSettingsBean {
     }
 
     public FolderStructureSettings getDesignFolderStructure() {
-        return new FolderStructureSettings(propertyResolver, ConfigNames.DESIGN_CONFIG, properties);
+        return new FolderStructureSettings(ConfigNames.DESIGN_CONFIG, properties);
     }
 
     public FolderStructureSettings getDeployConfigFolderStructure() {
-        return new FolderStructureSettings(propertyResolver, ConfigNames.DEPLOY_CONFIG, properties);
+        return new FolderStructureSettings(ConfigNames.DEPLOY_CONFIG, properties);
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
@@ -190,11 +194,11 @@ public class SystemSettingsBean {
     }
 
     public boolean isDispatchingValidationEnabled() {
-        return Boolean.parseBoolean(propertyResolver.getProperty(OpenLSystemProperties.DISPATCHING_VALIDATION));
+        return Boolean.parseBoolean(properties.getProperty(OpenLSystemProperties.DISPATCHING_VALIDATION));
     }
 
     public boolean isRunTestsInParallel() {
-        return Boolean.parseBoolean(propertyResolver.getProperty(OpenLSystemProperties.RUN_TESTS_IN_PARALLEL));
+        return Boolean.parseBoolean(properties.getProperty(OpenLSystemProperties.RUN_TESTS_IN_PARALLEL));
     }
 
     public void setRunTestsInParallel(boolean runTestsInParallel) {
@@ -202,7 +206,7 @@ public class SystemSettingsBean {
     }
 
     public String getTestRunThreadCount() {
-        return propertyResolver.getProperty(OpenLSystemProperties.TEST_RUN_THREAD_COUNT_PROPERTY);
+        return properties.getProperty(OpenLSystemProperties.TEST_RUN_THREAD_COUNT_PROPERTY);
     }
 
     public void setTestRunThreadCount(String testRunThreadCount) {
@@ -211,7 +215,7 @@ public class SystemSettingsBean {
     }
 
     public boolean isAutoCompile() {
-        return Boolean.parseBoolean(propertyResolver.getProperty(OpenLSystemProperties.AUTO_COMPILE));
+        return Boolean.parseBoolean(properties.getProperty(OpenLSystemProperties.AUTO_COMPILE));
     }
 
     public void setAutoCompile(boolean autoCompile) {

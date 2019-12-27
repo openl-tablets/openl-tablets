@@ -950,11 +950,11 @@ public class InstallWizard {
     }
 
     public FolderStructureSettings getDesignFolderStructure() {
-        return new FolderStructureSettings(propertyResolver, ConfigNames.DESIGN_CONFIG, properties);
+        return new FolderStructureSettings(ConfigNames.DESIGN_CONFIG, properties);
     }
 
     public FolderStructureSettings getDeployConfigFolderStructure() {
-        return new FolderStructureSettings(propertyResolver, ConfigNames.DEPLOY_CONFIG, properties);
+        return new FolderStructureSettings(ConfigNames.DEPLOY_CONFIG, properties);
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {

@@ -10,6 +10,8 @@ public interface PropertiesHolder {
 
     String getProperty(String key);
 
+    String getProperty(String key, String defaultValue);
+
     void revertProperty(String key);
 
     void revertProperties(String... keys);
