@@ -77,7 +77,7 @@ import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.source.SourceHistoryManager;
-import org.openl.spring.env.ApplicationContextProvider;
+import org.openl.spring.env.PropertyResolverProvider;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -91,7 +91,6 @@ import org.openl.util.ISelector;
 import org.openl.util.tree.ITreeElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.PropertyResolver;
 
 public class ProjectModel {
 
@@ -128,13 +127,12 @@ public class ProjectModel {
 
     private RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
     private final TestSuiteExecutor testSuiteExecutor;
-    private PropertyResolver propertyResolver;
 
     /**
      * For tests only
      */
-    ProjectModel(WebStudio studio, PropertyResolver propertyResolver) {
-        this(studio, null, propertyResolver);
+    ProjectModel(WebStudio studio) {
+        this(studio, null);
     }
 
     public ProjectModel(WebStudio studio, TestSuiteExecutor testSuiteExecutor) {
@@ -142,15 +140,6 @@ public class ProjectModel {
         this.openedInSingleModuleMode = studio.isSingleModuleModeByDefault();
         this.webStudioWorkspaceDependencyManagerFactory = new WebStudioWorkspaceDependencyManagerFactory(studio);
         this.testSuiteExecutor = testSuiteExecutor;
-        this.propertyResolver = ApplicationContextProvider.getApplicationContext().getEnvironment();
-    }
-
-    public ProjectModel(WebStudio studio, TestSuiteExecutor testSuiteExecutor, PropertyResolver propertyResolver) {
-        this.studio = studio;
-        this.openedInSingleModuleMode = studio.isSingleModuleModeByDefault();
-        this.webStudioWorkspaceDependencyManagerFactory = new WebStudioWorkspaceDependencyManagerFactory(studio);
-        this.testSuiteExecutor = testSuiteExecutor;
-        this.propertyResolver = propertyResolver;
     }
 
     public RulesProject getProject() {
@@ -819,7 +808,7 @@ public class ProjectModel {
     }
 
     public TestUnitsResults runTest(TestSuite test) {
-        boolean isParallel = Boolean.parseBoolean(propertyResolver.getProperty("test.run.parallel"));
+        boolean isParallel = Boolean.parseBoolean(PropertyResolverProvider.getProperty("test.run.parallel"));
         return runTest(test, isParallel);
     }
 
@@ -1130,10 +1119,11 @@ public class ProjectModel {
 
     public SourceHistoryManager<File> getHistoryManager() {
         if (historyManager == null) {
-            String projectHistoryHome = propertyResolver.getProperty("project.history.home");
-            String projectHistoryCount = propertyResolver.getProperty("project.history.count");
+            String projectHistoryHome = PropertyResolverProvider.getProperty("project.history.home");
+            String projectHistoryCount = PropertyResolverProvider.getProperty("project.history.count");
             Integer maxFilesInStorage = Integer.valueOf(Objects.requireNonNull(projectHistoryCount));
-            boolean unlimitedStorage = Boolean.parseBoolean(propertyResolver.getProperty("project.history.unlimited"));
+            boolean unlimitedStorage = Boolean
+                .parseBoolean(PropertyResolverProvider.getProperty("project.history.unlimited"));
             String storagePath = projectHistoryHome + File.separator + getProject().getName();
             historyManager = new FileBasedProjectHistoryManager(this, storagePath, maxFilesInStorage, unlimitedStorage);
         }

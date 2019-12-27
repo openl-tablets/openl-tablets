@@ -78,7 +78,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
-import org.openl.spring.env.ApplicationContextProvider;
+import org.openl.spring.env.PropertyResolverProvider;
 import org.openl.util.BooleanUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
@@ -149,7 +149,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private boolean forcedCompile = true;
     private boolean needCompile = true;
     private boolean manualCompile = false;
-    private PropertyResolver propertyResolver = ApplicationContextProvider.getApplicationContext().getEnvironment();
+    private PropertyResolver propertyResolver = PropertyResolverProvider.getEnvironment();
     private Map<String, Object> externalProperties;
 
     private List<ProjectFile> uploadedFiles = new ArrayList<>();
@@ -1141,7 +1141,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     @SuppressWarnings("rawtypes")
-    public HashMap<String, Object> initSystemProperties(PropertyResolver pr) {
+    public Map<String, Object> initSystemProperties(PropertyResolver pr) {
         HashMap<String, Object> result = new HashMap<>();
         MutablePropertySources propSrcs = ((AbstractEnvironment) pr).getPropertySources();
         StreamSupport.stream(propSrcs.spliterator(), false)

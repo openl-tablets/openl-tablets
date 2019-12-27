@@ -17,7 +17,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.resolving.ProjectResolver;
-import org.springframework.mock.env.MockEnvironment;
 
 @RunWith(Parameterized.class)
 public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
@@ -41,7 +40,7 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
         when(ws.getProjectResolver()).thenReturn(ProjectResolver.instance());
         when(ws.isChangeableModuleMode()).thenReturn(true);
 
-        pm = new ProjectModel(ws, new MockEnvironment());
+        pm = new ProjectModel(ws);
         pm.setModuleInfo(getModules().get(0));
         if (singleModuleMode) {
             pm.useSingleModuleMode();

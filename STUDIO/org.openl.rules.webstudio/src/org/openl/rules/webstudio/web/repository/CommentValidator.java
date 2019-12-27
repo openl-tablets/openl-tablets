@@ -3,9 +3,8 @@ package org.openl.rules.webstudio.web.repository;
 import java.util.regex.Pattern;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.spring.env.ApplicationContextProvider;
+import org.openl.spring.env.PropertyResolverProvider;
 import org.openl.util.StringUtils;
-import org.springframework.core.env.PropertyResolver;
 
 public class CommentValidator {
     private static final int MAX_COMMENT_LENGTH = 255;
@@ -29,14 +28,14 @@ public class CommentValidator {
     }
 
     public static CommentValidator forDesignRepo() {
-        PropertyResolver propertyResolver = ApplicationContextProvider.getApplicationContext().getEnvironment();
-        return new CommentValidator(propertyResolver.getProperty("repository.design.comment-validation-pattern"),
-            propertyResolver.getProperty("repository.design.invalid-comment-message"));
+        return new CommentValidator(
+            PropertyResolverProvider.getProperty("repository.design.comment-validation-pattern"),
+            PropertyResolverProvider.getProperty("repository.design.invalid-comment-message"));
     }
 
     static CommentValidator forDeployConfigRepo() {
-        PropertyResolver propertyResolver = ApplicationContextProvider.getApplicationContext().getEnvironment();
-        return new CommentValidator(propertyResolver.getProperty("repository.deploy-config.comment-validation-pattern"),
-            propertyResolver.getProperty("repository.deploy-config.invalid-comment-message"));
+        return new CommentValidator(
+            PropertyResolverProvider.getProperty("repository.deploy-config.comment-validation-pattern"),
+            PropertyResolverProvider.getProperty("repository.deploy-config.invalid-comment-message"));
     }
 }

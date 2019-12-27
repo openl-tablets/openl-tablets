@@ -17,7 +17,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.util.FileUtils;
-import org.springframework.mock.env.MockEnvironment;
 
 public class ProjectDeleteTest {
     @Rule
@@ -38,8 +37,7 @@ public class ProjectDeleteTest {
 
         WebStudio ws = mock(WebStudio.class);
         when(ws.isChangeableModuleMode()).thenReturn(true);
-        MockEnvironment me = new MockEnvironment();
-        pm = new ProjectModel(ws, me);
+        pm = new ProjectModel(ws);
     }
 
     @Test

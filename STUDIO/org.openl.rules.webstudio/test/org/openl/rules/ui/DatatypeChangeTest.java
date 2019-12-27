@@ -23,7 +23,6 @@ import org.junit.runners.Parameterized;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
-import org.springframework.mock.env.MockEnvironment;
 
 @RunWith(Parameterized.class)
 public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
@@ -55,7 +54,7 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
 
         // EhCacheUtils.createCache();
 
-        pm = new ProjectModel(ws,new MockEnvironment());
+        pm = new ProjectModel(ws);
         for (Module module : modules) {
             if (module.getName().equals("ExpenseModule")) {
                 expenseModule = module;
