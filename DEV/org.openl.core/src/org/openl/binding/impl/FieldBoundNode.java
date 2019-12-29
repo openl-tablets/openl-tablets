@@ -80,7 +80,7 @@ public class FieldBoundNode extends ATargetBoundNode {
         } else if (target == null) {
             return null;
         } else {
-            int paramsLenght = Array.getLength(target);
+            int paramsLength = Array.getLength(target);
 
             // create an array of results
             if (targetType == null) {
@@ -88,10 +88,10 @@ public class FieldBoundNode extends ATargetBoundNode {
             }
             Class<?> componentType = targetType.getComponentType();
             int nextDim = --dims;
-            Object results = Array.newInstance(componentType, paramsLenght);
+            Object results = Array.newInstance(componentType, paramsLength);
 
             // populate the results array by invoking method for single parameter
-            for (int i = 0; i < paramsLenght; i++) {
+            for (int i = 0; i < paramsLength; i++) {
                 Object element = Array.get(target, i);
                 Object value = evaluateDim(element, env, nextDim, componentType);
                 // Do not try to set null value in primitive type.

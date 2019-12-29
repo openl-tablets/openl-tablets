@@ -2506,7 +2506,6 @@ public final class DecisionTableHelper {
                     false);
                 if (numberOfHCondition == 0) {
                     String titleForColumn = getTitleForColumn(originalTable, firstColumnHeight, column);
-                    boolean f = false;
                     int width = originalTable.getSource().getCell(column, 0).getWidth();
                     lastSimpleReturnDTHeader = new SimpleReturnDTHeader(null, titleForColumn, column, width);
                     if (fuzzyContext.isFuzzySupportsForReturnType()) {
@@ -2573,6 +2572,7 @@ public final class DecisionTableHelper {
             bindingContext);
 
         if (numberOfHCondition > 0) {
+            List<DTHeader> fitWithHConditions = new ArrayList<>(fit);
             boolean[] parameterIsUsed = new boolean[numberOfParameters];
             Arrays.fill(parameterIsUsed, false);
             for (DTHeader dtHeader : fit) {
@@ -2607,12 +2607,13 @@ public final class DecisionTableHelper {
                 column--;
             }
 
-            List<DTHeader> fitWithHConditions = new ArrayList<>(fit);
-            for (int x = maxColumnMatched; x < column; x++) {
-                int n = numberOfColumnsUnderTitleCounter.get(x);
-                for (int u = 0; u < n; u++) {
-                    int w = numberOfColumnsUnderTitleCounter.getWidth(x, u);
-                    fitWithHConditions.add(new UnmatchedDtHeader(new int[] {}, "", x, 1));
+            for (int c = maxColumnMatched; c < column; c++) {
+                int num = numberOfColumnsUnderTitleCounter.get(c);
+                int col = c;
+                for (int j = 0; j < num; j++) {
+                    int width = numberOfColumnsUnderTitleCounter.getWidth(col, j);
+                    fitWithHConditions.add(new UnmatchedDtHeader(new int[] {}, StringUtils.EMPTY, col, width));
+                    col = col + width;
                 }
             }
 
