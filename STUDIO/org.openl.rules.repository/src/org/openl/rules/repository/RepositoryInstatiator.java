@@ -1,12 +1,20 @@
 package org.openl.rules.repository;
 
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.GeneralSecurityException;
 import java.util.Map;
 
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.config.PassCoder;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
 
 /**
  * A factory to create repositories using Java reflection. This instantiator uses the following workflow:
@@ -22,6 +30,34 @@ import org.openl.util.StringUtils;
  * @author Yury Molchan
  */
 public class RepositoryInstatiator {
+
+    public static final String REPOSITORY_PREFIX = "repository.";
+
+    private static Logger log() {
+        return LoggerFactory.getLogger(RepositoryInstatiator.class);
+    }
+
+    /**
+     * Create new repository instance.
+     *
+     * @param configName the name of the configuration, e.g. design, deploy-config or production like.
+     * @param propertyResolver the propertyResolver of the app.
+     * @return the initialized repository.
+     */
+    public static Repository newRepository(String configName,
+            PropertyResolver propertyResolver) throws RRepositoryException {
+        String factoryClass = propertyResolver.getProperty("repository." + configName + ".factory");
+        try {
+            Repository repository = newInstance(factoryClass);
+            setParams(repository, propertyResolver, configName);
+            initialize(repository);
+            return repository;
+        } catch (Exception e) {
+            String message = "Failed to initialize repository: " + configName;
+            log().error(message, e);
+            throw new RRepositoryException(message, e);
+        }
+    }
 
     /**
      * Create new repository instance.
@@ -66,40 +102,102 @@ public class RepositoryInstatiator {
             String value = param.getValue();
             if (StringUtils.isNotBlank(value)) {
                 String name = param.getKey();
-                String setter = "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
-                try {
-                    Method setMethod = clazz.getMethod(setter, String.class);
-                    setMethod.invoke(instance, value);
-                } catch (NoSuchMethodException e) {
-                    Method[] methods = clazz.getMethods();
-                    for (Method method : methods) {
-                        if (method.getName().equals(setter)) {
-                            Class<?>[] parameterTypes = method.getParameterTypes();
-                            if (parameterTypes.length == 1) {
-                                try {
-                                    method.invoke(instance, convert(parameterTypes[0], value));
-                                    // Found needed setter
-                                    break;
-                                } catch (NoSuchMethodException | IllegalAccessException ignore) {
-                                    // Cannot convert using this method. Skip.
-                                } catch (InvocationTargetException e1) {
-                                    // The underlying method throws an exception
-                                    throw new IllegalStateException(
-                                        "Failed to invoke " + setter + "(" + parameterTypes[0]
-                                            .getSimpleName() + ") method in: " + clazz,
-                                        e1);
-                                }
-                            }
-                        }
-                    }
-                    // Didn't find setter, skip this param. For example not always exists setUri(String).
-                } catch (Exception e) {
-                    throw new IllegalStateException(
-                        String.format("Failed to invoke method '%s.%s(String)'.", clazz.getTypeName(), name),
-                        e);
-                }
+                injectValue(instance, clazz, value, name);
             }
         }
+    }
+
+    private static void injectValue(Object instance, Class<?> clazz, String value, String fieldName) {
+        String setter = "set" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+        try {
+            Method setMethod = clazz.getMethod(setter, String.class);
+            setMethod.invoke(instance, value);
+        } catch (NoSuchMethodException e) {
+            Method[] methods = clazz.getMethods();
+            for (Method method : methods) {
+                if (method.getName().equals(setter)) {
+                    Class<?>[] parameterTypes = method.getParameterTypes();
+                    if (parameterTypes.length == 1) {
+                        try {
+                            method.invoke(instance, convert(parameterTypes[0], value));
+                            // Found needed setter
+                            break;
+                        } catch (NoSuchMethodException | IllegalAccessException ignore) {
+                            // Cannot convert using this method. Skip.
+                        } catch (InvocationTargetException e1) {
+                            // The underlying method throws an exception
+                            throw new IllegalStateException(
+                                "Failed to invoke " + setter + "(" + parameterTypes[0]
+                                    .getSimpleName() + ") method in: " + clazz,
+                                e1);
+                        }
+                    }
+                }
+            }
+            // Didn't find setter, skip this param. For example not always exists setUri(String).
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                String.format("Failed to invoke method '%s.%s(String)'.", clazz.getTypeName(), fieldName),
+                e);
+        }
+    }
+
+    private static void setParams(Object instance,
+            PropertyResolver propertyResolver,
+            String configName) throws RRepositoryException {
+        Class<?> clazz = instance.getClass();
+        for (Field field : clazz.getDeclaredFields()) {
+            String fieldName = field.getName();
+            String propertyName = buildPropertyName(configName, fieldName);
+            String propertyValue = getValue(propertyResolver, propertyName, fieldName);
+            boolean propertyExists = StringUtils.isNotBlank(propertyValue);
+            if (propertyExists) {
+                injectValue(instance, clazz, propertyValue, fieldName);
+            }
+        }
+
+    }
+
+    private static String getValue(PropertyResolver propertyResolver,
+            String propertyName,
+            String fieldName) throws RRepositoryException {
+        String propertyValue = propertyResolver.getProperty(propertyName);
+        if ("password".equals(fieldName)) {
+            String privateKey = StringUtils.trimToEmpty(propertyResolver.getProperty("repository.encode.decode.key"));
+            try {
+                return PassCoder.decode(propertyValue, privateKey);
+            } catch (GeneralSecurityException e) {
+                throw new RRepositoryException("Cannot decode the password", e);
+            } catch (UnsupportedEncodingException e) {
+                throw new RRepositoryException(e.getMessage(), e);
+            }
+        }
+        return propertyValue;
+    }
+
+    private static String buildPropertyName(String configName, String name) {
+        return REPOSITORY_PREFIX + configName + "." + toPropertiesCase(name);
+    }
+
+    /**
+     * Convert field names from camelCase("paramName") style to "param-name" style
+     *
+     * @param key camelCased parameter name
+     * @return hyphen-cased parameter name
+     */
+    private static String toPropertiesCase(String key) {
+        StringBuilder sb = new StringBuilder();
+        char[] chars = key.toCharArray();
+        for (char aChar : chars) {
+            char c = aChar;
+            if (Character.isUpperCase(c)) {
+                c = Character.toLowerCase(c);
+                sb.append("-").append(c);
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 
     private static Object convert(Class<?> parameterType,

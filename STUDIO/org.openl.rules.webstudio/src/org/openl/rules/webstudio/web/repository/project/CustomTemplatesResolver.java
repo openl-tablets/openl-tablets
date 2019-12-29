@@ -20,10 +20,13 @@ public class CustomTemplatesResolver extends TemplatesResolver {
     public static final String PROJECT_TEMPLATES_FOLDER = "project-templates";
 
     private final Logger log = LoggerFactory.getLogger(CustomTemplatesResolver.class);
-    private final String templatesPath = new File(System.getProperty("webstudio.home"), PROJECT_TEMPLATES_FOLDER)
-        .getPath();
+    private final String templatesPath;
     private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver(
         new TemplateResourceLoader());
+
+    public CustomTemplatesResolver(String webStudioHome) {
+        templatesPath = new File(webStudioHome, PROJECT_TEMPLATES_FOLDER).getPath();
+    }
 
     @Override
     protected List<String> resolveCategories() {
@@ -41,7 +44,7 @@ public class CustomTemplatesResolver extends TemplatesResolver {
 
         List<ProjectFile> templateFiles = getProjectFilesRecursively(url, "");
 
-        return templateFiles.toArray(new ProjectFile[templateFiles.size()]);
+        return templateFiles.toArray(new ProjectFile[0]);
     }
 
     private List<ProjectFile> getProjectFilesRecursively(String baseUrl, final String folder) {

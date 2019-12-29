@@ -1,8 +1,19 @@
 package org.openl.rules.workspace.deploy;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
@@ -12,9 +23,13 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.openl.rules.project.resolving.ProjectResolver;
-import org.openl.rules.repository.RepositoryFactoryInstatiator;
-import org.openl.rules.repository.RepositoryMode;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.RepositoryInstatiator;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderItem;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.FileUtils;
@@ -23,6 +38,7 @@ import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
 import org.xml.sax.InputSource;
 import org.yaml.snakeyaml.Yaml;
 
@@ -34,60 +50,53 @@ import org.yaml.snakeyaml.Yaml;
  */
 public class ProductionRepositoryDeployer {
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoryDeployer.class);
-    public static final String VERSION_IN_DEPLOYMENT_NAME = "version-in-deployment-name";
-    public static final String DEPLOY_PATH_PROPERTY = "production-repository.base.path";
+    public static final String VERSION_IN_DEPLOYMENT_NAME = ".version-in-deployment-name";
     private static final String DEPLOYMENT_DESCRIPTOR_FILE_NAME = "deployment";
+    private PropertyResolver environment;
+    private String prefix;
+
+    /**
+     *
+     * @param environment - environment in which the current application is running
+     * @param prefix - name of the production repository configuration which needed
+     */
+    public ProductionRepositoryDeployer(PropertyResolver environment, String prefix) {
+        this.environment = environment;
+        this.prefix = prefix;
+    }
 
     /**
      * Deploys a new project to the production repository. If the project exists then it will be skipped to deploy.
      *
-     * @param zipFile the project to deploy
-     * @param config the configuration file name
+     * @param zipFile the project to deploy.
      */
-    public void deploy(File zipFile, String config) throws Exception {
-        Map<String, Object> properties = getConfiguration(config);
-        deployInternal(zipFile, properties, true);
-    }
-
-    private Map<String, Object> getConfiguration(String config) throws IOException {
-        if (config == null || config.isEmpty()) {
-            config = "deployer.properties";
-        }
-        Properties pr = new Properties();
-        pr.load(getClass().getClassLoader().getResourceAsStream(config));
-        pr.putAll(System.getProperties());
-
-        return pr.entrySet()
-            .stream()
-            .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
+    public void deploy(File zipFile) throws Exception {
+        deployInternal(zipFile, true);
     }
 
     /**
      * Deploys a new or redeploys an existing project to the production repository.
      *
-     * @param zipFile the project to deploy
-     * @param config the configuration file name
+     * @param zipFile the project to deploy.
      */
-    public void redeploy(File zipFile, String config) throws Exception {
-
-        Map<String, Object> properties = getConfiguration(config);
-        deployInternal(zipFile, properties, false);
+    public void redeploy(File zipFile) throws Exception {
+        deployInternal(zipFile, false);
     }
 
-    public void deployInternal(File zipFile, Map<String, Object> properties, boolean skipExist) throws Exception {
+    public void deployInternal(File zipFile, boolean skipExist) throws Exception {
         Repository deployRepo = null;
         try {
             // Initialize repo
-            deployRepo = RepositoryFactoryInstatiator.newFactory(properties, RepositoryMode.PRODUCTION);
-            String includeVersion = (String) properties.get(VERSION_IN_DEPLOYMENT_NAME);
-            String deployPath = (String) properties.get(DEPLOY_PATH_PROPERTY);
+            deployRepo = RepositoryInstatiator.newRepository(prefix, environment);
+            String includeVersion = environment.getProperty("repository." + prefix + VERSION_IN_DEPLOYMENT_NAME);
+            String deployPath = environment.getProperty("repository." + prefix + ".base.path");
             if (deployPath == null) {
                 deployPath = "deploy/"; // Workaround for backward compatibility.
             } else if (!deployPath.isEmpty() && !deployPath.endsWith("/")) {
                 deployPath += "/";
             }
 
-            deployInternal(zipFile, deployRepo, skipExist, Boolean.valueOf(includeVersion), deployPath);
+            deployInternal(zipFile, deployRepo, skipExist, Boolean.parseBoolean(includeVersion), deployPath);
         } finally {
             // Close repo
             if (deployRepo != null) {

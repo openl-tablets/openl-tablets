@@ -4,7 +4,12 @@ import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.CREATE_DEPLOYMENT;
 import static org.openl.rules.security.Privileges.EDIT_DEPLOYMENT;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -12,8 +17,6 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.AjaxBehaviorEvent;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.config.ConfigurationManager;
-import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.CommonVersionImpl;
@@ -23,7 +26,6 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.workspace.deploy.DeployID;
@@ -31,6 +33,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
 
 import com.thoughtworks.xstream.XStreamException;
 
@@ -55,14 +58,14 @@ public class SmartRedeployController {
     @ManagedProperty(value = "#{deploymentManager}")
     private DeploymentManager deploymentManager;
 
-    @ManagedProperty(value = "#{productionRepositoryConfigManagerFactory}")
-    private ConfigurationManagerFactory productionConfigManagerFactory;
-
     @ManagedProperty("#{projectDescriptorArtefactResolver}")
     private volatile ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
     @ManagedProperty(value = "#{deployConfigRepositoryComments}")
     private Comments deployConfigRepoComments;
+
+    @ManagedProperty(value = "#{environment}")
+    private PropertyResolver propertyResolver;
 
     private List<DeploymentProjectItem> items;
 
@@ -254,6 +257,10 @@ public class SmartRedeployController {
         return null;
     }
 
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
+    }
+
     public String redeploy() {
         AProject project = getSelectedProject();
         if (project == null) {
@@ -301,11 +308,7 @@ public class SmartRedeployController {
     }
 
     protected String getRepositoryName(String repositoryConfigName) {
-        ConfigurationManager productionConfig = productionConfigManagerFactory
-            .getConfigurationManager(repositoryConfigName);
-        RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName,
-            productionConfig,
-            RepositoryMode.PRODUCTION);
+        RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, propertyResolver);
         return repo.getName();
     }
 
@@ -317,9 +320,6 @@ public class SmartRedeployController {
         this.repositoryTreeState = repositoryTreeState;
     }
 
-    public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
-        this.productionConfigManagerFactory = productionConfigManagerFactory;
-    }
 
     public void setProjectDescriptorResolver(ProjectDescriptorArtefactResolver projectDescriptorResolver) {
         this.projectDescriptorResolver = projectDescriptorResolver;
@@ -415,10 +415,7 @@ public class SmartRedeployController {
         List<RepositoryConfiguration> repos = new ArrayList<>();
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
         for (String configName : repositoryConfigNames) {
-            ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(configName);
-            RepositoryConfiguration config = new RepositoryConfiguration(configName,
-                productionConfig,
-                RepositoryMode.PRODUCTION);
+            RepositoryConfiguration config = new RepositoryConfiguration(configName, propertyResolver);
             repos.add(config);
         }
 

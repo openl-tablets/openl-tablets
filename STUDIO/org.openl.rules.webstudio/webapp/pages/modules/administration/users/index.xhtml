@@ -9,7 +9,7 @@
         <rich:tabPanel switchType="client" activeItem="umTab">
             <rich:tab header="System Settings"
                 onheaderclick="location.href='#{contextPath}/faces/pages/modules/administration/settings/index.xhtml'" />
-            <rich:tab id="umTab" header="User Management" rendered="#{systemConfig['user.mode'] != 'single'}">
+            <rich:tab id="umTab" header="User Management" rendered="#{environment.getProperty('user.mode') != 'single'}">
                 <ui:include src="/pages/modules/administration/users/userManagement.xhtml" />
             </rich:tab>
         </rich:tabPanel>

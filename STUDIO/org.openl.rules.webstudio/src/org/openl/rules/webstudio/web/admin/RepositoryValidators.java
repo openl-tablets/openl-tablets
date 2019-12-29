@@ -9,15 +9,16 @@ import java.util.regex.Pattern;
 import javax.security.auth.login.FailedLoginException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.openl.rules.repository.RepositoryFactoryInstatiator;
-import org.openl.rules.repository.RepositoryMode;
+import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.webstudio.web.install.DelegatedPropertySource;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
+import org.springframework.core.env.PropertyResolver;
 
 public final class RepositoryValidators {
     private static final Pattern PROHIBITED_CHARACTERS = Pattern.compile("[\\p{Punct}]+");
@@ -110,13 +111,16 @@ public final class RepositoryValidators {
     }
 
     static void validateConnectionForDesignRepository(RepositoryConfiguration repoConfig,
-            DesignTimeRepository designTimeRepository,
-            RepositoryMode repositoryMode) throws RepositoryValidationException {
+            DesignTimeRepository designTimeRepository) throws RepositoryValidationException {
         try {
             DesignTimeRepositoryImpl dtr = (DesignTimeRepositoryImpl) designTimeRepository;
             // Close connection to repository before checking connection
             dtr.destroy();
-            Repository repository = RepositoryFactoryInstatiator.newFactory(repoConfig.getProperties(), repositoryMode);
+
+            PropertyResolver propertiesResolver = DelegatedPropertySource
+                .createPropertiesResolver(repoConfig.getPropertiesToValidate());
+            Repository repository = RepositoryInstatiator.newRepository(repoConfig.getConfigName(),
+                    propertiesResolver);
             if (repository instanceof Closeable) {
                 // Close repo connection after validation
                 IOUtils.closeQuietly((Closeable) repository);
@@ -135,8 +139,9 @@ public final class RepositoryValidators {
         try {
             /* Close connection to repository before checking connection */
             productionRepositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
-            Repository repository = RepositoryFactoryInstatiator.newFactory(repoConfig.getProperties(),
-                RepositoryMode.PRODUCTION);
+            PropertyResolver propertiesResolver = DelegatedPropertySource
+                .createPropertiesResolver(repoConfig.getPropertiesToValidate());
+            Repository repository = RepositoryInstatiator.newRepository(repoConfig.getConfigName(), propertiesResolver);
             if (repository instanceof Closeable) {
                 // Close repo connection after validation
                 IOUtils.closeQuietly((Closeable) repository);

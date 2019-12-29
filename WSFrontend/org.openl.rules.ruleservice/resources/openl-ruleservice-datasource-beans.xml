@@ -12,7 +12,7 @@
                 <entry key="uri" value="${production-repository.uri}"/>
                 <entry key="login" value="${production-repository.login}"/>
                 <entry key="password">
-                    <bean class="org.openl.config.PassCoder" factory-method="decode">
+                    <bean class="org.openl.rules.repository.config.PassCoder" factory-method="decode">
                         <constructor-arg name="strToDecrypt" value="${production-repository.password}"/>
                         <constructor-arg name="privateKey" value="${repository.encode.decode.key}"/>
                     </bean>

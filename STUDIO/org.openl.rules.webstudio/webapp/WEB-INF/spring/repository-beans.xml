@@ -4,40 +4,68 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd"
        default-autowire="no">
 
-  <bean id="localWorkspaceManager" class="org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl" init-method="init">
-    <property name="workspaceHome" value="#{systemConfig['user.workspace.home']}" />
-    <property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter" />
-    <property name="enableLocks" value="#{systemConfig['user.mode'] != 'single'}" />
-  </bean>
+    <bean id="localWorkspaceManager" class="org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl"
+          init-method="init">
+        <property name="workspaceHome" value="${user.workspace.home}"/>
+        <property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter"/>
+        <property name="enableLocks" value="#{'${user.mode}' != 'single'}"/>
+    </bean>
 
-  <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl" init-method="init" destroy-method="destroy">
-    <property name="config" value="#{systemConfig}" />
-  </bean>
+    <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl"
+          init-method="init" destroy-method="destroy">
+        <property name="propertyResolver" value="#{environment}"/>
+    </bean>
 
-  <bean id="workspaceManager" class="org.openl.rules.workspace.MultiUserWorkspaceManager">
-    <property name="localWorkspaceManager" ref="localWorkspaceManager" />
-    <property name="designTimeRepository" ref="designTimeRepository" />
-  </bean>
+    <bean id="workspaceManager" class="org.openl.rules.workspace.MultiUserWorkspaceManager">
+        <property name="localWorkspaceManager" ref="localWorkspaceManager"/>
+        <property name="designTimeRepository" ref="designTimeRepository"/>
+    </bean>
 
-  <bean id="productionRepositoryFactoryProxy" class="org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy" destroy-method="destroy">
-    <property name="configManagerFactory" ref="productionRepositoryConfigManagerFactory"/>
-  </bean>
+    <bean id="productionRepositoryFactoryProxy"
+          class="org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy" destroy-method="destroy">
+        <constructor-arg ref="environment"/>
+    </bean>
 
-  <bean id="deploymentManager" class="org.openl.rules.webstudio.web.repository.DeploymentManager">
-    <property name="initialProductionRepositoryConfigNames" value="#{systemConfig['production-repository-configs']}"/>
-    <property name="repositoryFactoryProxy" ref="productionRepositoryFactoryProxy" />
-    <property name="designRepository" ref="designTimeRepository" />
-  </bean>
+    <bean id="deploymentManager" class="org.openl.rules.webstudio.web.repository.DeploymentManager">
+        <property name="initialProductionRepositoryConfigNames" value="${production-repository-configs}"/>
+        <property name="repositoryFactoryProxy" ref="productionRepositoryFactoryProxy"/>
+        <property name="designRepository" ref="designTimeRepository"/>
+    </bean>
 
-  <bean id="projectDescriptorArtefactResolver" class="org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver"/>
+    <bean id="projectDescriptorArtefactResolver"
+          class="org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver"/>
 
-  <bean id="designRepositoryComments" class="org.openl.rules.project.abstraction.Comments">
-    <constructor-arg name="properties" value="#{systemConfig}"/>
-    <constructor-arg name="prefix" value="design-repository."/>
-  </bean>
+    <bean id="designRepositoryComments" class="org.openl.rules.project.abstraction.Comments">
+        <constructor-arg name="saveProjectTemplate"
+                         value="${repository.design.comment-template.user-message.default.save}"/>
+        <constructor-arg name="createProjectTemplate"
+                         value="${repository.design.comment-template.user-message.default.create}"/>
+        <constructor-arg name="archiveProjectTemplate"
+                         value="${repository.design.comment-template.user-message.default.archive}"/>
+        <constructor-arg name="restoreProjectTemplate"
+                         value="${repository.design.comment-template.user-message.default.restore}"/>
+        <constructor-arg name="eraseProjectTemplate"
+                         value="${repository.design.comment-template.user-message.default.erase}"/>
+        <constructor-arg name="copiedFromTemplate"
+                         value="${repository.design.comment-template.user-message.default.copied-from}"/>
+        <constructor-arg name="restoredFromTemplate"
+                         value="${repository.design.comment-template.user-message.default.restored-from}"/>
+    </bean>
 
-  <bean id="deployConfigRepositoryComments" class="org.openl.rules.project.abstraction.Comments">
-    <constructor-arg name="properties" value="#{systemConfig}"/>
-    <constructor-arg name="prefix" value="deploy-config-repository."/>
-  </bean>
+    <bean id="deployConfigRepositoryComments" class="org.openl.rules.project.abstraction.Comments">
+        <constructor-arg name="saveProjectTemplate"
+                         value="${repository.deploy-config.comment-template.user-message.default.save}"/>
+        <constructor-arg name="createProjectTemplate"
+                         value="${repository.deploy-config.comment-template.user-message.default.create}"/>
+        <constructor-arg name="archiveProjectTemplate"
+                         value="${repository.deploy-config.comment-template.user-message.default.archive}"/>
+        <constructor-arg name="restoreProjectTemplate"
+                         value="${repository.deploy-config.comment-template.user-message.default.restore}"/>
+        <constructor-arg name="eraseProjectTemplate"
+                         value="${repository.deploy-config.comment-template.user-message.default.erase}"/>
+        <constructor-arg name="copiedFromTemplate"
+                         value="${repository.deploy-config.comment-template.user-message.default.copied-from}"/>
+        <constructor-arg name="restoredFromTemplate"
+                         value="${repository.deploy-config.comment-template.user-message.default.restored-from}"/>
+    </bean>
 </beans>

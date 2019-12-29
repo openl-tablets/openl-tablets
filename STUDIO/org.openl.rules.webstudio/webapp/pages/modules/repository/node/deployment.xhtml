@@ -1,33 +1,34 @@
 <ui:composition
-  xmlns:f="http://java.sun.com/jsf/core"
-  xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:ui="http://java.sun.com/jsf/facelets">
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-    <h:outputText value="Name:" />
-    <h:outputText value="#{node.name}" style="font-weight: bold" />
+    <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+        <h:outputText value="Name:"/>
+        <h:outputText value="#{node.name}" style="font-weight: bold"/>
 
-    <h:outputText value="Revision:" />
-    <h:outputText value="#{artefact.version.versionName}" />
+        <h:outputText value="Revision:"/>
+        <h:outputText value="#{artefact.version.versionName}"/>
 
-    <h:outputText value="Status:" />
-    <h:outputText value="#{node.status}" />
+        <h:outputText value="Status:"/>
+        <h:outputText value="#{node.status}"/>
 
-    <h:outputText value="Created By:" />
-    <h:outputText value="#{node.createdBy}" />
+        <h:outputText value="Created By:"/>
+        <h:outputText value="#{node.createdBy}"/>
 
-    <h:outputText value="Created At:" />
-    <h:outputText value="#{node.createdAt}">
-    	<f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}" />
-    </h:outputText>
-    
-    <h:outputText value="Modified By:" rendered="#{node.hasModifications}" />
-    <h:outputText value="#{node.modifiedBy}" rendered="#{node.hasModifications}" />
+        <h:outputText value="Created At:"/>
+        <h:outputText value="#{node.createdAt}">
+            <f:convertDateTime type="date"
+                               pattern="#{environment.getProperty('data.format.date')}"/>
+        </h:outputText>
 
-    <h:outputText value="Modified At:" rendered="#{node.hasModifications}"/>
-    <h:outputText value="#{node.modifiedAt}" rendered="#{node.hasModifications}">
-        <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}" />
-    </h:outputText>
-  </h:panelGrid>
+        <h:outputText value="Modified By:" rendered="#{node.hasModifications}"/>
+        <h:outputText value="#{node.modifiedBy}" rendered="#{node.hasModifications}"/>
+
+        <h:outputText value="Modified At:" rendered="#{node.hasModifications}"/>
+        <h:outputText value="#{node.modifiedAt}" rendered="#{node.hasModifications}">
+            <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.date')}"/>
+        </h:outputText>
+    </h:panelGrid>
 
 </ui:composition>
