@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedProperty;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -35,11 +34,11 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.spring.env.PropertyResolverProvider;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.PropertyResolver;
 
 /**
  * @author Aliaksandr Antonik.
@@ -61,9 +60,6 @@ public abstract class TableCreationWizard extends BaseWizard {
 
     @NotBlank(message = "Cannot be empty")
     private String newWorksheetName;
-
-    @ManagedProperty(value = "#{environment}")
-    private PropertyResolver propertyResolver;
 
     /**
      * New table identifier
@@ -263,12 +259,8 @@ public abstract class TableCreationWizard extends BaseWizard {
         return true;
     }
 
-    public void setPropertyResolver(PropertyResolver propertyResolver) {
-        this.propertyResolver = propertyResolver;
-    }
-
     protected Map<String, Object> buildSystemProperties() {
-        String userMode = propertyResolver.getProperty("user.mode");
+        String userMode = PropertyResolverProvider.getProperty("user.mode");
         Map<String, Object> result = new LinkedHashMap<>();
 
         List<TablePropertyDefinition> systemPropDefinitions = TablePropertyDefinitionUtils.getSystemProperties();
