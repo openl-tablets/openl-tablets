@@ -1741,7 +1741,7 @@ public final class DecisionTableHelper {
                     final int maxDistance = Arrays.stream(fuzzyContext.getParameterTokens().getTokens())
                         .mapToInt(Token::getDistance)
                         .max()
-                        .orElseThrow(IllegalArgumentException::new);
+                        .orElse(0);
                     tokens = ArrayUtils.addAll(fuzzyContext.getParameterTokens().getTokens(),
                         new Token("is true", maxDistance + 1),
                         new Token("is false", maxDistance + 1));
