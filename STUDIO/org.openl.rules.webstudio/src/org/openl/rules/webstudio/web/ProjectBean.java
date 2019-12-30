@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -383,6 +384,7 @@ public class ProjectBean {
     }
 
     private void refreshProject(String name) {
+        studio.getModel().clearModuleInfo();
         studio.resolveProject(studio.getCurrentProjectDescriptor());
         TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(name);
         if (projectNode != null) {
@@ -435,7 +437,9 @@ public class ProjectBean {
                 clean(newProjectDescriptor);
                 save(newProjectDescriptor);
             } else {
-                refreshProject(studio.getCurrentProject().getName());
+                RulesProject currentProject = studio.getCurrentProject();
+                currentProject.setModified();
+                refreshProject(currentProject.getName());
             }
         } else {
             clean(newProjectDescriptor);
@@ -454,11 +458,7 @@ public class ProjectBean {
 
         List<ProjectDependencyDescriptor> resultDependencies = newProjectDescriptor.getDependencies();
 
-        for (ProjectDependencyDescriptor dependency : new ArrayList<>(resultDependencies)) {
-            if (dependency.getName().equals(name)) {
-                resultDependencies.remove(dependency);
-            }
-        }
+        resultDependencies.removeIf(dependency -> dependency.getName().equals(name));
 
         newProjectDescriptor.setDependencies(!resultDependencies.isEmpty() ? resultDependencies : null);
 
@@ -551,7 +551,7 @@ public class ProjectBean {
                 RulesDeploy rulesDeploy = rulesDeploySerializerFactory.getSerializer(SupportedVersion.getLastVersion())
                     .deserialize(rulesDeployContent);
                 artefact.setContent(
-                    new ByteArrayInputStream(rulesDeploySerializer.serialize(rulesDeploy).getBytes("UTF-8")));
+                    new ByteArrayInputStream(rulesDeploySerializer.serialize(rulesDeploy).getBytes(StandardCharsets.UTF_8)));
             }
 
             refreshProject(project.getName());
