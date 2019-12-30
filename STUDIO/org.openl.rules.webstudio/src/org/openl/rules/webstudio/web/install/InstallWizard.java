@@ -950,7 +950,7 @@ public class InstallWizard {
 
     public boolean isUseDesignRepo() {
         return !Boolean
-                .parseBoolean(propertyResolver.getProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO));
+                .parseBoolean(properties.getProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO));
     }
 
     public void setUseDesignRepo(boolean useDesignRepo) {
