@@ -1941,7 +1941,9 @@ public final class DecisionTableHelper {
             while (fit.size() > 0 && fit.get(fit.size() - 1) instanceof UnmatchedDtHeader) {
                 fit.remove(fit.size() - 1);
             }
-            fits.add(Collections.unmodifiableList(fit));
+            if (!fit.isEmpty()) {
+                fits.add(Collections.unmodifiableList(fit));
+            }
         }
         boolean lastColumnReached = column >= lastColumn;
         if (indexes != null) {
@@ -1970,33 +1972,31 @@ public final class DecisionTableHelper {
                     for (int i : dtHeader.getMethodParameterIndexes()) {
                         usedParameterIndexesTo.add(i);
                     }
-                    if (usedParameterIndexesTo.size() <= numberOfVConditionParameters) {
-                        int numberOfReturns1 = dtHeader.isReturn() && !isFuzzyReturn ? numberOfReturns + 1
-                                                                                     : numberOfReturns;
-                        int fuzzyReturnsFlag1 = isFuzzyReturn && fuzzyReturnsFlag != 1 ? fuzzyReturnsFlag + 1
-                                                                                       : fuzzyReturnsFlag;
-                        if (numberOfReturns1 + (fuzzyReturnsFlag1 > 1 ? 1 : 0) <= MAX_NUMBER_OF_RETURNS) {
-                            last = false;
-                            usedIndexes.add(index);
-                            used.add(dtHeaders.get(index));
-                            lastColumnReached = lastColumnReached | bruteForceHeaders(originalTable,
-                                column + dtHeader.getWidth(),
-                                numberOfVConditionParameters,
-                                firstColumnHeight,
-                                dtHeaders,
-                                matrix,
-                                columnToIndex,
-                                lastColumn,
-                                usedIndexes,
-                                used,
-                                usedParameterIndexesTo,
-                                fits,
-                                failedToFit,
-                                numberOfReturns1,
-                                fuzzyReturnsFlag1);
-                            usedIndexes.remove(usedIndexes.size() - 1);
-                            used.remove(used.size() - 1);
-                        }
+                    int numberOfReturns1 = dtHeader.isReturn() && !isFuzzyReturn ? numberOfReturns + 1
+                                                                                 : numberOfReturns;
+                    int fuzzyReturnsFlag1 = isFuzzyReturn && fuzzyReturnsFlag != 1 ? fuzzyReturnsFlag + 1
+                                                                                   : fuzzyReturnsFlag;
+                    if (numberOfReturns1 + (fuzzyReturnsFlag1 > 1 ? 1 : 0) <= MAX_NUMBER_OF_RETURNS) {
+                        last = false;
+                        usedIndexes.add(index);
+                        used.add(dtHeaders.get(index));
+                        lastColumnReached = lastColumnReached | bruteForceHeaders(originalTable,
+                            column + dtHeader.getWidth(),
+                            numberOfVConditionParameters,
+                            firstColumnHeight,
+                            dtHeaders,
+                            matrix,
+                            columnToIndex,
+                            lastColumn,
+                            usedIndexes,
+                            used,
+                            usedParameterIndexesTo,
+                            fits,
+                            failedToFit,
+                            numberOfReturns1,
+                            fuzzyReturnsFlag1);
+                        usedIndexes.remove(usedIndexes.size() - 1);
+                        used.remove(used.size() - 1);
                     }
                 }
             }
@@ -2270,6 +2270,36 @@ public final class DecisionTableHelper {
         return fits;
     }
 
+    private static boolean isTheSameFit(List<DTHeader> a, List<DTHeader> b) {
+        if (a.size() == b.size()) {
+            for (int i = 0; i < a.size(); i++) {
+                if (!Objects.equals(a.get(i), b.get(i))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private static List<List<DTHeader>> removeDuplicates(List<List<DTHeader>> fits) {
+        List<List<DTHeader>> ret = new ArrayList<>();
+        for (List<DTHeader> fit : fits) {
+            boolean f = false;
+            for (List<DTHeader> e : ret) {
+                if (isTheSameFit(fit, e)) {
+                    f = true;
+                    break;
+                }
+            }
+            if (!f) {
+                ret.add(fit);
+            }
+        }
+
+        return ret;
+    }
+
     private static List<DTHeader> fitDtHeaders(TableSyntaxNode tableSyntaxNode,
             ILogicalTable originalTable,
             List<DTHeader> dtHeaders,
@@ -2322,6 +2352,17 @@ public final class DecisionTableHelper {
 
         final Predicate<List<DTHeader>> all = e -> true;
 
+        fits = removeDuplicates(fits);
+
+        fits = filterHeadersByMax(fits,
+            e -> e.stream()
+                .map(DTHeader::getMethodParameterIndexes)
+                .filter(Objects::nonNull)
+                .flatMapToInt(Arrays::stream)
+                .distinct()
+                .count() <= numberOfParametersForVCondition ? 1 : 0,
+            all);
+
         fits = filterWithWrongStructure(originalTable, fits, twoColumnsForReturn);
 
         // Declared covered columns filter
@@ -2363,7 +2404,7 @@ public final class DecisionTableHelper {
             final List<DTHeader> dths = dtHeaders;
             OptionalInt c = failedToFit.stream().mapToInt(e -> dths.get(e).getColumn()).max();
             StringBuilder message = new StringBuilder();
-            message.append("Failed to compile decision table.");
+            message.append("Failed to compile a decision table.");
             if (c.isPresent()) {
                 int c0 = c.getAsInt();
                 StringBuilder sb = new StringBuilder();
@@ -2587,10 +2628,6 @@ public final class DecisionTableHelper {
                 }
             }
 
-            if (k < numberOfHCondition) {
-                throw new OpenLCompilationException("No input parameter found for horizontal condition.");
-            }
-
             int maxColumnMatched = fit.stream()
                 .filter(e -> e.isCondition() || e.isAction())
                 .mapToInt(e -> e.getColumn() + e.getWidth())
@@ -2615,6 +2652,14 @@ public final class DecisionTableHelper {
                     fitWithHConditions.add(new UnmatchedDtHeader(new int[] {}, StringUtils.EMPTY, col, width));
                     col = col + width;
                 }
+            }
+
+            if (k < numberOfHCondition) {
+                SyntaxNodeException error = SyntaxNodeExceptionUtils
+                    .createError("No input parameter found for horizontal condition.", tableSyntaxNode);
+                bindingContext.addError(error);
+                tableSyntaxNode.addError(error);
+                return fitWithHConditions;
             }
 
             int j = 0;
