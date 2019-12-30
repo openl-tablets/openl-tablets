@@ -3,23 +3,36 @@ package org.openl.rules.workspace.dtr.impl;
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.openl.config.ConfigNames;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.repository.RepositoryFactoryInstatiator;
+import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.Features;
+import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
 
 /**
  * @author Aleh Bykhavets
@@ -27,13 +40,13 @@ import org.slf4j.LoggerFactory;
 public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private final Logger log = LoggerFactory.getLogger(DesignTimeRepositoryImpl.class);
 
-    public static final String USE_SEPARATE_DEPLOY_CONFIG_REPO = "deploy-config-repository.separate-repository";
-    private static final String RULES_LOCATION_CONFIG_NAME = "design-repository.base.path";
-    private static final String DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME = "deploy-config-repository.base.path";
-    private static final String PROJECTS_FLAT_FOLDER_STRUCTURE = "design-repository.folder-structure.flat";
-    private static final String PROJECTS_NESTED_FOLDER_CONFIG = "design-repository.folder-structure.configuration";
-    private static final String DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE = "deploy-config-repository.folder-structure.flat";
-    private static final String DEPLOY_CONFIG_NESTED_FOLDER_CONFIG = "deploy-config-repository.folder-structure.configuration";
+    public static final String USE_SEPARATE_DEPLOY_CONFIG_REPO = "repository.deploy-config.separate-repository";
+    private static final String RULES_LOCATION_CONFIG_NAME = "repository.design.base.path";
+    private static final String DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME = "repository.deploy-config.base.path";
+    private static final String PROJECTS_FLAT_FOLDER_STRUCTURE = "repository.design.folder-structure.flat";
+    private static final String PROJECTS_NESTED_FOLDER_CONFIG = "repository.design.folder-structure.configuration";
+    private static final String DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE = "repository.deploy-config.folder-structure.flat";
+    private static final String DEPLOY_CONFIG_NESTED_FOLDER_CONFIG = "repository.deploy-config.folder-structure.configuration";
 
     private volatile Repository repository;
     private volatile Repository deployConfigRepository;
@@ -49,10 +62,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     private final List<DesignTimeRepositoryListener> listeners = new ArrayList<>();
 
-    private Map<String, Object> config;
+    private PropertyResolver propertyResolver;
 
-    public void setConfig(Map<String, Object> config) {
-        this.config = config;
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
     }
 
     public void init() {
@@ -61,20 +74,25 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 return;
             }
 
-            rulesLocation = config.get(RULES_LOCATION_CONFIG_NAME).toString();
+            rulesLocation = propertyResolver.getProperty(RULES_LOCATION_CONFIG_NAME);
             if (!rulesLocation.isEmpty() && !rulesLocation.endsWith("/")) {
                 rulesLocation += "/";
             }
-            deploymentConfigurationLocation = config.get(DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME).toString();
+            deploymentConfigurationLocation = propertyResolver
+                .getProperty(DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME);
             if (!deploymentConfigurationLocation.isEmpty() && !deploymentConfigurationLocation.endsWith("/")) {
                 deploymentConfigurationLocation += "/";
             }
             boolean separateDeployConfigRepo = Boolean
-                .parseBoolean(config.get(USE_SEPARATE_DEPLOY_CONFIG_REPO).toString());
-            boolean flatProjects = Boolean.parseBoolean(config.get(PROJECTS_FLAT_FOLDER_STRUCTURE).toString());
-            boolean flatDeployConfig = Boolean.parseBoolean(config.get(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE).toString());
+                .parseBoolean(propertyResolver.getProperty(USE_SEPARATE_DEPLOY_CONFIG_REPO));
+            boolean flatProjects = Boolean.parseBoolean(propertyResolver.getProperty(PROJECTS_FLAT_FOLDER_STRUCTURE));
+            boolean flatDeployConfig = Boolean
+                .parseBoolean(propertyResolver.getProperty(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE));
 
-            repository = createRepo(RepositoryMode.DESIGN, flatProjects, PROJECTS_NESTED_FOLDER_CONFIG, rulesLocation);
+            repository = createRepo(ConfigNames.DESIGN_CONFIG,
+                flatProjects,
+                PROJECTS_NESTED_FOLDER_CONFIG,
+                rulesLocation);
 
             if (!separateDeployConfigRepo) {
                 if (flatProjects || !(repository instanceof MappedRepository)) {
@@ -84,7 +102,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     deployConfigRepository = ((MappedRepository) repository).getDelegate();
                 }
             } else {
-                deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG,
+                deployConfigRepository = createRepo(ConfigNames.DEPLOY_CONFIG,
                     flatDeployConfig,
                     DEPLOY_CONFIG_NESTED_FOLDER_CONFIG,
                     deploymentConfigurationLocation);
@@ -104,19 +122,25 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
     }
 
-    private Repository createRepo(RepositoryMode repositoryMode,
-            boolean flatStructure,
-            String folderConfig,
-            String baseFolder) {
+    private Repository createRepo(String configName, boolean flatStructure, String folderConfig, String baseFolder) {
         try {
-            Repository repo = RepositoryFactoryInstatiator.newFactory(config, repositoryMode);
+            Repository repo = RepositoryInstatiator.newRepository(configName, propertyResolver);
             if (!flatStructure && repo.supports().folders()) {
                 // Nested folder structure is supported for FolderRepository only
                 FolderRepository delegate = (FolderRepository) repo;
-                String configFile = config.get(folderConfig).toString();
+                String configFile = propertyResolver.getProperty(folderConfig);
 
                 MappedRepository mappedRepository = new MappedRepository();
                 mappedRepository.setDelegate(delegate);
+                RepositoryMode repositoryMode = RepositoryMode.PRODUCTION;
+                switch (configName) {
+                    case ConfigNames.DEPLOY_CONFIG:
+                        repositoryMode = RepositoryMode.DEPLOY_CONFIG;
+                        break;
+                    case ConfigNames.DESIGN_CONFIG:
+                        repositoryMode = RepositoryMode.DESIGN;
+                        break;
+                }
                 mappedRepository.setRepositoryMode(repositoryMode);
                 mappedRepository.setConfigFile(configFile);
                 mappedRepository.setBaseFolder(baseFolder);

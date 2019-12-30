@@ -47,7 +47,7 @@
               </rich:column>
               <rich:column rendered="#{node.type == 'proddeployment'}" style="text-align:center">
                 <h:outputText value="#{prj.modifiedAt}">
-                    <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}" />
+                    <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.date')}" />
                 </h:outputText>
               </rich:column>
             </rich:dataTable>

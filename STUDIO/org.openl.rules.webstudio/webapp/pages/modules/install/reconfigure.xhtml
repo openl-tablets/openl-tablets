@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        template="/pages/layout/simpleLayout.xhtml">
+
+    <ui:define name="content">
+        <div class="wizard-page">
+            <div class="wizard-page-container">
+                <h:form>
+                    <div class="wizard-block">
+                        <h2>Attention!</h2>
+                        <div class="field-description">
+                            <p>Please pay attention that after clicking the next button Webstudio will no longer be accessible for all users.</p>
+                            <p>To restore access will be necessary to complete all steps of the installation wizard.</p>
+                        </div>
+                    </div>
+                    <div class="wizard-buttons">
+                        <h:commandButton value="Next" action="#{installWizard.reconfigure}" class="button-primary" onclick="showLoader()" />
+                    </div>
+                </h:form>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

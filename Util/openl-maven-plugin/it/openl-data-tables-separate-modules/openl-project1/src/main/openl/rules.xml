@@ -1,18 +1,18 @@
 <project>
-  <name>MyProject</name>
-  <comment>tst</comment>
-  <modules>
-    <module>
-      <name>Module1</name>
-      <rules-root path="Module1.xlsx"/>
-    </module>
-    <module>
-      <name>Module2</name>
-      <rules-root path="Module2.xlsx"/>
-    </module>
-    <module>
-      <name>Module3</name>
-      <rules-root path="Module3.xlsx"/>
-    </module>
-  </modules>
+    <name>MyProject</name>
+    <comment>tst</comment>
+    <modules>
+        <module>
+            <name>Module1</name>
+            <rules-root path="Module1.xlsx"/>
+        </module>
+        <module>
+            <name>Module2</name>
+            <rules-root path="Module2.xlsx"/>
+        </module>
+        <module>
+            <name>Module3</name>
+            <rules-root path="Module3.xlsx"/>
+        </module>
+    </modules>
 </project>

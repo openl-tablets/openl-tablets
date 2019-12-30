@@ -33,7 +33,7 @@
             <h:selectBooleanCheckbox value="#{repositoryTreeController.openDependencies}" title="Open dependencies" rendered="#{repositoryTreeController.hasDependenciesForVersion}"/>
           </h:panelGrid>
     
-          <h:panelGroup rendered="#{node.type == 'project' and artefact.opened and systemConfig['user.mode'] == 'single'}">
+          <h:panelGroup rendered="#{node.type == 'project' and artefact.opened and environment.getProperty('user.mode') == 'single'}">
             <br />
             <h:outputText value="NOTE: Project data in the workspace will be replaced by the data of specified revision that will be opened from repository." />
             <br />

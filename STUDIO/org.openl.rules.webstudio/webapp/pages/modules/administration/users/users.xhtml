@@ -19,7 +19,7 @@
         <h:column>
             <f:facet name="header">
                 First Name
-            </f:facet> 
+            </f:facet>
             #{user.firstName}
         </h:column>
 
@@ -39,12 +39,12 @@
             </ui:repeat>
         </h:column>
 
-        <h:column rendered="#{systemConfig['user.mode'] == 'ad'}">
-            <f:facet name="header">
-                Local user
-            </f:facet>
-            #{user.internalUser ? 'Yes' : 'No'}
-        </h:column>
+            <h:column rendered="#{environment.getProperty('user.mode') == 'ad'}">
+                <f:facet name="header">
+                    Local user
+                </f:facet>
+                #{user.internalUser ? 'Yes' : 'No'}
+            </h:column>
 
         <h:column>
             <a href="javascript:void(0)"

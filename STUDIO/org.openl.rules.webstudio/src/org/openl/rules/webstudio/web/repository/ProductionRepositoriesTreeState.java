@@ -9,11 +9,8 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 
-import org.openl.config.ConfigurationManager;
-import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.filter.AllFilter;
@@ -27,6 +24,7 @@ import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
 
 @ManagedBean
 @SessionScoped
@@ -37,11 +35,11 @@ public class ProductionRepositoriesTreeState {
     @ManagedProperty(value = "#{deploymentManager}")
     private DeploymentManager deploymentManager;
 
-    @ManagedProperty(value = "#{productionRepositoryConfigManagerFactory}")
-    private ConfigurationManagerFactory productionConfigManagerFactory;
-
     @ManagedProperty(value = "#{productionRepositoryFactoryProxy}")
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
+
+    @ManagedProperty(value = "#{environment}")
+    private PropertyResolver propertyResolver;
 
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoriesTreeState.class);
     /**
@@ -50,6 +48,10 @@ public class ProductionRepositoriesTreeState {
     private TreeRepository root;
 
     private IFilter<AProjectArtefact> filter = new AllFilter<>();
+
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
+    }
 
     private void buildTree() {
         if (root != null) {
@@ -110,14 +112,11 @@ public class ProductionRepositoriesTreeState {
         List<RepositoryConfiguration> repos = new ArrayList<>();
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
         for (String configName : repositoryConfigNames) {
-            ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(configName);
-            RepositoryConfiguration config = new RepositoryConfiguration(configName,
-                productionConfig,
-                RepositoryMode.PRODUCTION);
+            RepositoryConfiguration config = new RepositoryConfiguration(configName, propertyResolver);
             repos.add(config);
         }
 
-        Collections.sort(repos, RepositoryConfiguration.COMPARATOR);
+        repos.sort(RepositoryConfiguration.COMPARATOR);
 
         return repos;
     }
@@ -172,13 +171,6 @@ public class ProductionRepositoriesTreeState {
         this.deploymentManager = deploymentManager;
     }
 
-    public ConfigurationManagerFactory getProductionConfigManagerFactory() {
-        return productionConfigManagerFactory;
-    }
-
-    public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
-        this.productionConfigManagerFactory = productionConfigManagerFactory;
-    }
 
     public ProductionRepositoryFactoryProxy getProductionRepositoryFactoryProxy() {
         return productionRepositoryFactoryProxy;

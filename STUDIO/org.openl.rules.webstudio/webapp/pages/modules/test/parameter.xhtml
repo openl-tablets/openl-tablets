@@ -14,7 +14,7 @@
                           rendered="#{!parameterTreeBuilder.isDateParameter(parameter.value) and !trace}" />
             <h:outputText value="#{parameter.value}"
                 rendered="#{parameterTreeBuilder.isDateParameter(parameter.value)}">
-                <f:convertDateTime pattern="#{systemConfig['data.format.date']}" />
+                <f:convertDateTime pattern="#{environment.getProperty('data.format.date')}" />
             </h:outputText>
         </h:panelGroup>
         <h:panelGroup rendered="#{parameterTreeBuilder.isSpreadsheetResult(parameter.value)}">

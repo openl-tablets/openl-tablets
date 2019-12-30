@@ -1,14 +1,16 @@
 package org.openl.rules.project.abstraction;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.junit.Before;
+import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class CommentsTest {
 
@@ -17,22 +19,16 @@ public class CommentsTest {
     @Before
     public void setUp() {
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("a.comment-template.user-message.default.save",
-            "Project {username} {{project-name}} is saved. {foo}");
-        parameters.put("a.comment-template.user-message.default.create",
-            "Project {username} {project-name} is created. {foo}");
-        parameters.put("a.comment-template.user-message.default.archive",
-            "Project {username} {{project-name} is archived. {foo}");
-        parameters.put("a.comment-template.user-message.default.restore",
-            "Project {username} '{'{project-name} is restored. {foo}");
-        parameters.put("a.comment-template.user-message.default.erase",
-            "Project {username} {project-name} is erased. {foo}");
-        parameters.put("a.comment-template.user-message.default.copied-from",
-            "Project {username} {{project-name}} is copied-from. {foo}");
-        parameters.put("a.comment-template.user-message.default.restored-from",
-            "Project {username} {revision} is restored-from. {foo}");
-
-        comments = new Comments(parameters, "a.");
+        String saveProjectTemplate = "Project {username} {{project-name}} is saved. {foo}";
+        String createProjectTemplate = "Project {username} {project-name} is created. {foo}";
+        String archiveProjectTemplate = "Project {username} {{project-name} is archived. {foo}";
+        String restoreProjectTemplate = "Project {username} '{'{project-name} is restored. {foo}";
+        String eraseProjectTemplate = "Project {username} {project-name} is erased. {foo}";
+        String copiedFromTemplate = "Project {username} {{project-name}} is copied-from. {foo}";
+        String restoredFromTemplate = "Project {username} {revision} is restored-from. {foo}";
+        comments = new Comments(saveProjectTemplate, createProjectTemplate,
+                archiveProjectTemplate, restoreProjectTemplate, eraseProjectTemplate,
+                copiedFromTemplate, restoredFromTemplate);
     }
 
     @Test

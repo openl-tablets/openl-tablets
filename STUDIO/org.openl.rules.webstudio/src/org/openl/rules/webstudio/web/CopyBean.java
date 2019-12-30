@@ -8,8 +8,8 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
@@ -19,7 +19,11 @@ import javax.faces.context.FacesContext;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.project.abstraction.*;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.Comments;
+import org.openl.rules.project.abstraction.ProjectStatus;
+import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
@@ -38,6 +42,8 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.jsf.FacesContextUtils;
 
 /**
  * FIXME: Replace SessionScoped with RequestScoped when validation issues in inputNumberSpinner in Repository and Editor
@@ -48,14 +54,14 @@ import org.slf4j.LoggerFactory;
 public class CopyBean {
     private final Logger log = LoggerFactory.getLogger(CopyBean.class);
 
-    @ManagedProperty(value = "#{systemConfig}")
-    private Map<String, Object> config;
-
     @ManagedProperty(value = "#{designRepositoryComments}")
     private Comments designRepoComments;
 
     @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
+
+    private ApplicationContext applicationContext = FacesContextUtils
+        .getWebApplicationContext(FacesContext.getCurrentInstance());
 
     private String currentProjectName;
     private String newProjectName;
@@ -153,6 +159,11 @@ public class CopyBean {
 
     public String getErrorMessage() {
         return errorMessage;
+    }
+
+    @PostConstruct
+    public void init() {
+        this.commentValidator = CommentValidator.forDesignRepo();
     }
 
     public void copy() {
@@ -326,7 +337,8 @@ public class CopyBean {
                 String simplifiedProjectName = currentProjectName.replaceAll("[^\\w\\-]", "");
                 String userName = getUserWorkspace().getUser().getUserName();
                 String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
-                String pattern = config.get("design-repository.new-branch-pattern").toString();
+                String pattern = applicationContext.getEnvironment()
+                    .getProperty("repository.design.new-branch-pattern");
                 newBranchName = MessageFormat.format(pattern, simplifiedProjectName, userName, date);
             }
         } catch (Exception e) {
@@ -374,11 +386,6 @@ public class CopyBean {
     private UserWorkspace getUserWorkspace() throws WorkspaceException {
         RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
         return rulesUserSession.getUserWorkspace();
-    }
-
-    public void setConfig(Map<String, Object> config) {
-        this.config = config;
-        this.commentValidator = CommentValidator.forDesignRepo(config);
     }
 
     public void setDesignRepoComments(Comments designRepoComments) {

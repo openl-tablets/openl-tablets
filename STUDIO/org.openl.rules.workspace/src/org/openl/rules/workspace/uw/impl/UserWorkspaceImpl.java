@@ -1,11 +1,22 @@
 package org.openl.rules.workspace.uw.impl;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.*;
+import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.LockEngine;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
@@ -37,6 +48,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     private boolean projectsRefreshNeeded = true;
     private boolean deploymentsRefreshNeeded = true;
+    private boolean cleanUpOnActivation = false;
 
     private final List<UserWorkspaceListener> listeners = new ArrayList<>();
     private final LockEngine projectsLockEngine;
@@ -60,6 +72,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public void activate() {
+        cleanUpOnActivation = true;
         refresh();
     }
 
@@ -240,6 +253,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
         }
         scheduleProjectsRefresh();
         scheduleDeploymentsRefresh();
+
+        cleanUpOnActivation = false;
     }
 
     @Override
@@ -392,6 +407,21 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     desRepo,
                     designFileData,
                     projectsLockEngine);
+
+                if (cleanUpOnActivation) {
+                    // Clean ups after session activation (should be done only once).
+                    if (!isVersionExistInHistory(project)) {
+                        log.warn("The Project '{}' has a version {}, but absents in the history.",
+                            project.getName(),
+                            project.getHistoryVersion());
+                        if (!project.isModified()) {
+                            log.warn("The project '{}' isn't modified and will be closed because it absents in the history.",
+                                project.getName());
+                            closeProject = true;
+                        }
+                    }
+                }
+
                 if (closeProject) {
                     try {
                         project.close();
@@ -415,7 +445,28 @@ public class UserWorkspaceImpl implements UserWorkspace {
             }
 
             projectsRefreshNeeded = false;
+            cleanUpOnActivation = false;
         }
+    }
+
+    /**
+     * Checks if a project's version is exist in history. Version can be absent in history if repository configuration
+     * was switched to another path but projects in workspace point to revision in the previous repository.
+     */
+    private boolean isVersionExistInHistory(RulesProject project) {
+        if (project.isLastVersion()) {
+            return true;
+        }
+
+        ProjectVersion version = project.getVersion();
+        boolean found = false;
+        for (ProjectVersion v : project.getVersions()) {
+            if (version.equals(v)) {
+                found = true;
+                break;
+            }
+        }
+        return found;
     }
 
     @Override
@@ -458,7 +509,15 @@ public class UserWorkspaceImpl implements UserWorkspace {
             }
             createdProject.getFileData().setComment(comment);
             createdProject.update(project, user);
-            localWorkspace.getRepository().getProjectState(name).clearModifyStatus();
+
+            RulesProject rulesProject = new RulesProject(this,
+                localWorkspace.getRepository(),
+                project.getFileData(),
+                designTimeRepository.getRepository(),
+                designData,
+                projectsLockEngine);
+            rulesProject.open();
+
             refreshRulesProjects();
         } catch (ProjectException e) {
             try {

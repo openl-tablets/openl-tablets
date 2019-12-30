@@ -1,4 +1,4 @@
-package org.openl.config;
+package org.openl.rules.repository.config;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;

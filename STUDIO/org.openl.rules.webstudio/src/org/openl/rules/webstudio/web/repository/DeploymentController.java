@@ -1,6 +1,11 @@
 package org.openl.rules.webstudio.web.repository;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -8,8 +13,6 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.config.ConfigurationManager;
-import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -20,12 +23,12 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
 
 /**
  * Deployment controller.
@@ -52,11 +55,11 @@ public class DeploymentController {
     @ManagedProperty(value = "#{deploymentManager}")
     private DeploymentManager deploymentManager;
 
-    @ManagedProperty(value = "#{productionRepositoryConfigManagerFactory}")
-    private ConfigurationManagerFactory productionConfigManagerFactory;
-
     @ManagedProperty("#{projectDescriptorArtefactResolver}")
     private volatile ProjectDescriptorArtefactResolver projectDescriptorResolver;
+
+    @ManagedProperty("#{environment}")
+    private PropertyResolver propertyResolver;
 
     public void onPageLoad() {
         if (repositoryTreeState == null || getSelectedProject() == null) {
@@ -72,6 +75,10 @@ public class DeploymentController {
             checker.addProjects(project);
             canDeploy = checker.check();
         }
+    }
+
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
     }
 
     public synchronized String addItem() {
@@ -174,11 +181,7 @@ public class DeploymentController {
     public String deploy() {
         ADeploymentProject project = getSelectedProject();
         if (project != null) {
-            ConfigurationManager productionConfig = productionConfigManagerFactory
-                .getConfigurationManager(repositoryConfigName);
-            RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName,
-                productionConfig,
-                RepositoryMode.PRODUCTION);
+            RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, propertyResolver);
 
             try {
                 DeployID id = deploymentManager.deploy(project, repositoryConfigName);
@@ -345,10 +348,6 @@ public class DeploymentController {
         this.deploymentManager = deploymentManager;
     }
 
-    public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
-        this.productionConfigManagerFactory = productionConfigManagerFactory;
-    }
-
     public void setProjectDescriptorResolver(ProjectDescriptorArtefactResolver projectDescriptorResolver) {
         this.projectDescriptorResolver = projectDescriptorResolver;
     }
@@ -381,14 +380,11 @@ public class DeploymentController {
         List<RepositoryConfiguration> repos = new ArrayList<>();
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
         for (String configName : repositoryConfigNames) {
-            ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(configName);
-            RepositoryConfiguration config = new RepositoryConfiguration(configName,
-                productionConfig,
-                RepositoryMode.PRODUCTION);
+            RepositoryConfiguration config = new RepositoryConfiguration(configName, propertyResolver);
             repos.add(config);
         }
 
-        Collections.sort(repos, RepositoryConfiguration.COMPARATOR);
+        repos.sort(RepositoryConfiguration.COMPARATOR);
         return repos;
     }
 

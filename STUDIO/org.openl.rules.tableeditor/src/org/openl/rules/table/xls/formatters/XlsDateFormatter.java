@@ -14,7 +14,10 @@ public class XlsDateFormatter extends DateFormatter {
     @Deprecated
     public static String convertToJavaFormat(String xlsFormat) {
         xlsFormat = xlsFormat.replaceAll("m", "M");
-        xlsFormat = xlsFormat.replaceAll("h.MM", xlsFormat.substring(xlsFormat.lastIndexOf("h"), xlsFormat.lastIndexOf("h") + 2) + "mm");
+        if (Pattern.compile("h.MM").matcher(xlsFormat).find()) {
+            xlsFormat = xlsFormat.replaceAll("h.MM", xlsFormat.substring(xlsFormat.lastIndexOf("h"), xlsFormat.lastIndexOf("h") + 2) + "mm");
+        }
+        xlsFormat = xlsFormat.replaceAll("Y", "y");
         xlsFormat = xlsFormat.replaceAll("\\\\-", "-");
         xlsFormat = xlsFormat.replaceAll(";@", "");
         xlsFormat = xlsFormat.replaceAll("\\\\ ", " ");

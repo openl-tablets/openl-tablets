@@ -1,9 +1,9 @@
 package org.openl.rules.webstudio.web.repository;
 
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.spring.env.PropertyResolverProvider;
 import org.openl.util.StringUtils;
 
 public class CommentValidator {
@@ -27,13 +27,15 @@ public class CommentValidator {
             "Length is greater than allowable maximum of '" + MAX_COMMENT_LENGTH + "'");
     }
 
-    public static CommentValidator forDesignRepo(Map<String, Object> config) {
-        return new CommentValidator((String) config.get("design-repository.comment-validation-pattern"),
-            (String) config.get("design-repository.invalid-comment-message"));
+    public static CommentValidator forDesignRepo() {
+        return new CommentValidator(
+            PropertyResolverProvider.getProperty("repository.design.comment-validation-pattern"),
+            PropertyResolverProvider.getProperty("repository.design.invalid-comment-message"));
     }
 
-    static CommentValidator forDeployConfigRepo(Map<String, Object> config) {
-        return new CommentValidator((String) config.get("deploy-config-repository.comment-validation-pattern"),
-            (String) config.get("deploy-config-repository.invalid-comment-message"));
+    static CommentValidator forDeployConfigRepo() {
+        return new CommentValidator(
+            PropertyResolverProvider.getProperty("repository.deploy-config.comment-validation-pattern"),
+            PropertyResolverProvider.getProperty("repository.deploy-config.invalid-comment-message"));
     }
 }

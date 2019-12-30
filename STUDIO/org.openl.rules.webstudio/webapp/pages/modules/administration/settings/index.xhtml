@@ -10,7 +10,7 @@
             <rich:tab header="System Settings">
                 <ui:include src="/pages/modules/administration/settings/systemSettings.xhtml" />
             </rich:tab>
-            <rich:tab header="User Management" rendered="#{systemConfig['user.mode'] != 'single'}"
+            <rich:tab header="User Management" rendered="#{environment.getProperty('user.mode') != 'single'}"
                 onheaderclick="location.href='#{contextPath}/faces/pages/modules/administration/users/index.xhtml'" />
         </rich:tabPanel>
     </ui:define>

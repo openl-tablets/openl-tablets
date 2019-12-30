@@ -1,12 +1,10 @@
 package org.openl.rules.project.abstraction;
 
+import org.openl.util.StringUtils;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import org.openl.util.StringUtils;
 
 public final class Comments {
 
@@ -21,17 +19,15 @@ public final class Comments {
     private final String copiedFromTemplate;
     private final String restoredFromTemplate;
 
-    public Comments(Map<String, Object> properties, String prefix) {
-        Objects.requireNonNull(prefix, "prefix cannot be null");
-
-        saveProjectTemplate = properties.get(prefix + "comment-template.user-message.default.save").toString();
-        createProjectTemplate = properties.get(prefix + "comment-template.user-message.default.create").toString();
-        archiveProjectTemplate = properties.get(prefix + "comment-template.user-message.default.archive").toString();
-        restoreProjectTemplate = properties.get(prefix + "comment-template.user-message.default.restore").toString();
-        eraseProjectTemplate = properties.get(prefix + "comment-template.user-message.default.erase").toString();
-        copiedFromTemplate = properties.get(prefix + "comment-template.user-message.default.copied-from").toString();
-        restoredFromTemplate = properties.get(prefix + "comment-template.user-message.default.restored-from")
-            .toString();
+    public Comments(String saveProjectTemplate, String createProjectTemplate, String archiveProjectTemplate, String restoreProjectTemplate,
+                    String eraseProjectTemplate, String copiedFromTemplate, String restoredFromTemplate) {
+        this.saveProjectTemplate = saveProjectTemplate;
+        this.createProjectTemplate = createProjectTemplate;
+        this.archiveProjectTemplate = archiveProjectTemplate;
+        this.restoreProjectTemplate = restoreProjectTemplate;
+        this.eraseProjectTemplate = eraseProjectTemplate;
+        this.copiedFromTemplate = copiedFromTemplate;
+        this.restoredFromTemplate = restoredFromTemplate;
     }
 
     public String saveProject(String projectName) {
@@ -64,7 +60,7 @@ public final class Comments {
 
     public String copiedFrom(String sourceProjectName) {
         return copiedFromTemplate.replaceAll(PROJECT_NAME,
-            sourceProjectName == null ? StringUtils.EMPTY : sourceProjectName);
+                sourceProjectName == null ? StringUtils.EMPTY : sourceProjectName);
     }
 
     public List<String> getCommentParts(String comment) {

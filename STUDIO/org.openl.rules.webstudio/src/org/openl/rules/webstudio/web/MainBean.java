@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web;
 
-import java.util.Map;
 import java.util.UUID;
 
 import javax.faces.bean.ManagedBean;
@@ -36,9 +35,6 @@ public class MainBean {
     @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{systemConfig}")
-    private Map<String, Object> config;
-
     @ManagedProperty(value = "#{designRepositoryComments}")
     private Comments designRepoComments;
 
@@ -53,16 +49,12 @@ public class MainBean {
             WebContext.setContextPath(FacesUtils.getContextPath());
         }
         requestId = UUID.randomUUID().toString();
+
+        commentValidator = CommentValidator.forDesignRepo();
     }
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
-    }
-
-    public void setConfig(Map<String, Object> config) {
-        this.config = config;
-
-        commentValidator = CommentValidator.forDesignRepo(config);
     }
 
     public void setDesignRepoComments(Comments designRepoComments) {
