@@ -150,7 +150,7 @@
     <filter-class>org.openl.rules.webstudio.filter.RedirectFilter</filter-class>
     <init-param>
       <param-name>redirectPage</param-name>
-      <param-value>/faces/pages/modules/install/step1.xhtml</param-value>
+      <param-value>/faces/pages/modules/install/reconfigure.xhtml</param-value>
     </init-param>
   </filter>
 

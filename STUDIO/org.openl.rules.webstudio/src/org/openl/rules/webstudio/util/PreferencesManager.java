@@ -1,14 +1,14 @@
 package org.openl.rules.webstudio.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
-
 import org.openl.rules.webstudio.web.servlet.StartupListener;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 public enum PreferencesManager {
 
@@ -25,6 +25,10 @@ public enum PreferencesManager {
     public void initWebStudioMode(String appName) {
         boolean configured = isAppConfigured(appName);
         writeValue(appName, WEBSTUDIO_MODE_KEY, configured ? WEBSTUDIO_MODE_MAIN : WEBSTUDIO_MODE_INSTALLER);
+    }
+
+    public void setInstallerMode(String appName){
+        writeValue(appName, WEBSTUDIO_MODE_KEY, WEBSTUDIO_MODE_INSTALLER);
     }
 
     public boolean isAppConfigured(String appName) {
