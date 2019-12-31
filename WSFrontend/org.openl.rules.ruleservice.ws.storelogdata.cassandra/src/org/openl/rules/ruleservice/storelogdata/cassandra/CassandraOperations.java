@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.storelogdata.cassandra;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,12 +10,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.commons.io.IOUtils;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.DaoCreationException;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntityOperations;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntitySupport;
+import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -191,7 +190,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
         if (inputStream == null) {
             throw new FileNotFoundException("/" + entityClass.getName().replaceAll("\\.", "/") + ".cql");
         }
-        return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+        return IOUtils.toStringAndClose(inputStream);
     }
 
     public boolean isCreateSchemaEnabled() {

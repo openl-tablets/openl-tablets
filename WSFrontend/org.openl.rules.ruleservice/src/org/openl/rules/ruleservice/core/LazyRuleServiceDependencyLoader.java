@@ -1,17 +1,14 @@
 package org.openl.rules.ruleservice.core;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.commons.io.FilenameUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
@@ -30,6 +27,7 @@ import org.openl.rules.ruleservice.publish.lazy.LazyField;
 import org.openl.rules.ruleservice.publish.lazy.LazyInstantiationStrategy;
 import org.openl.rules.ruleservice.publish.lazy.LazyMember.EmptyInterface;
 import org.openl.rules.ruleservice.publish.lazy.LazyMethod;
+import org.openl.rules.ruleservice.publish.lazy.ModuleUtils;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.impl.IdentifierNode;
@@ -134,37 +132,11 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();
         try {
             LazyBinderInvocationHandler.setPrebindHandler(new IPrebindHandler() {
-                Module getModuleForMember(IOpenMember member) {
-                    String sourceUrl = member.getDeclaringClass().getMetaInfo().getSourceUrl();
-                    Module m = getModuleForSourceUrl(sourceUrl, modules);
-                    if (m != null) {
-                        return m;
-                    }
-                    throw new OpenlNotCheckedException("Module is not found. This shoud not happen.");
-                }
 
-                private Module getModuleForSourceUrl(String sourceUrl, Collection<Module> modules) {
-                    if (modules.size() == 1) {
-                        return modules.iterator().next();
-                    }
-                    for (Module m : modules) {
-                        String modulePath = m.getRulesRootPath().getPath();
-                        try {
-                            if (FilenameUtils.normalize(sourceUrl)
-                                .equals(FilenameUtils.normalize(
-                                    new File(modulePath).getCanonicalFile().toURI().toURL().toExternalForm()))) {
-                                return m;
-                            }
-                        } catch (Exception e) {
-                            log.warn("Failed to build url for module '{}' with path {}.", m.getName(), modulePath, e);
-                        }
-                    }
-                    return null;
-                }
 
                 @Override
                 public IOpenMethod processMethodAdded(IOpenMethod method, XlsLazyModuleOpenClass moduleOpenClass) {
-                    final Module declaringModule = getModuleForMember(method);
+                    final Module declaringModule = ModuleUtils.getModuleForMember(method, modules);
                     Class<?>[] argTypes = new Class<?>[method.getSignature().getNumberOfParameters()];
                     for (int i = 0; i < argTypes.length; i++) {
                         argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
@@ -183,7 +155,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
 
                 @Override
                 public IOpenField processFieldAdded(IOpenField field, XlsLazyModuleOpenClass moduleOpenClass) {
-                    Module declaringModule = getModuleForMember(field);
+                    Module declaringModule = ModuleUtils.getModuleForMember(field, modules);
                     return LazyField.getLazyField(moduleOpenClass,
                         deployment,
                         declaringModule,

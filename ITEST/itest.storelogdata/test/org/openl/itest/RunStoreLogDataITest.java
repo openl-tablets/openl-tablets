@@ -14,7 +14,6 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.IOUtils;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner;
 import org.elasticsearch.action.ActionFuture;
@@ -43,6 +42,7 @@ import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.storelogdata.annotation.PublisherType;
 import org.openl.rules.ruleservice.storelogdata.cassandra.DefaultCassandraEntity;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.DefaultElasticEntity;
+import org.openl.util.IOUtils;
 import org.springframework.data.elasticsearch.annotations.Document;
 
 import com.datastax.driver.core.ResultSet;
@@ -411,14 +411,8 @@ public class RunStoreLogDataITest {
 
     @Test
     public void testRestServiceOk() throws Exception {
-        final String REQUEST = IOUtils.toString(
-            Objects.requireNonNull(
-                Thread.currentThread().getContextClassLoader().getResourceAsStream("simple3_Hello.req.json")),
-            StandardCharsets.UTF_8);
-        final String RESPONSE = IOUtils.toString(
-            Objects.requireNonNull(
-                Thread.currentThread().getContextClassLoader().getResourceAsStream("simple3_Hello.resp.txt")),
-            StandardCharsets.UTF_8);
+        final String REQUEST = getText("simple3_Hello.req.json");
+        final String RESPONSE = getText("simple3_Hello.resp.txt");
 
         truncateTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
@@ -446,12 +440,13 @@ public class RunStoreLogDataITest {
             .until(validateElastic(parameters), equalTo(true));
     }
 
+    private String getText(String file) throws Exception {
+        return IOUtils.toStringAndClose(Objects.requireNonNull(getClass().getResourceAsStream(file)));
+    }
+
     @Test
     public void testRestServiceFail() throws Exception {
-        final String REQUEST = IOUtils.toString(
-            Objects.requireNonNull(
-                Thread.currentThread().getContextClassLoader().getResourceAsStream("simple3_Hello_fail.req.json")),
-            StandardCharsets.UTF_8);
+        final String REQUEST = getText("simple3_Hello_fail.req.json");
 
         truncateTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
@@ -480,10 +475,7 @@ public class RunStoreLogDataITest {
 
     @Test
     public void testSoapServiceOk() throws Exception {
-        final String REQUEST = IOUtils.toString(
-            Objects.requireNonNull(
-                Thread.currentThread().getContextClassLoader().getResourceAsStream("simple3_Hello.req.xml")),
-            StandardCharsets.UTF_8);
+        final String REQUEST = getText("simple3_Hello.req.xml");
 
         truncateTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
@@ -512,10 +504,7 @@ public class RunStoreLogDataITest {
 
     @Test
     public void testSoapServiceFail() throws Exception {
-        final String REQUEST = IOUtils.toString(
-            Objects.requireNonNull(
-                Thread.currentThread().getContextClassLoader().getResourceAsStream("simple3_Hello_fail.req.xml")),
-            StandardCharsets.UTF_8);
+        final String REQUEST = getText("simple3_Hello_fail.req.xml");
 
         truncateTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
@@ -544,14 +533,8 @@ public class RunStoreLogDataITest {
 
     @Test
     public void testStoreLogDataAnnotations() throws Exception {
-        final String REQUEST = IOUtils.toString(
-            Objects.requireNonNull(
-                Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello.req.json")),
-            StandardCharsets.UTF_8);
-        final String RESPONSE = IOUtils.toString(
-            Objects.requireNonNull(
-                Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello.resp.txt")),
-            StandardCharsets.UTF_8);
+        final String REQUEST = getText("simple4_Hello.req.json");
+        final String RESPONSE = getText("simple4_Hello.resp.txt");
 
         final String helloEntity1TableName = getTableName(HelloEntity1.class);
         final String helloEntity2TableName = getTableName(HelloEntity2.class);
@@ -708,14 +691,8 @@ public class RunStoreLogDataITest {
 
     @Test
     public void testStoreLogDataAnnotationsAdvanced() throws Exception {
-        final String REQUEST = IOUtils.toString(
-            Objects.requireNonNull(
-                Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello2.req.json")),
-            StandardCharsets.UTF_8);
-        final String RESPONSE = IOUtils.toString(
-            Objects.requireNonNull(
-                Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello2.resp.txt")),
-            StandardCharsets.UTF_8);
+        final String REQUEST = getText("simple4_Hello2.req.json");
+        final String RESPONSE = getText("simple4_Hello2.resp.txt");
 
         final String helloEntity1TableName = getTableName(HelloEntity1.class);
         final String customElasticIndexName1 = CustomElasticEntity1.class.getAnnotation(Document.class).indexName();
@@ -792,14 +769,8 @@ public class RunStoreLogDataITest {
 
     @Test
     public void testKafkaHeaderAnnotations() throws Exception {
-        final String REQUEST = IOUtils.toString(
-            Objects.requireNonNull(
-                Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello.req.json")),
-            StandardCharsets.UTF_8);
-        final String RESPONSE = IOUtils.toString(
-            Objects.requireNonNull(
-                Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello.resp.txt")),
-            StandardCharsets.UTF_8);
+        final String REQUEST = getText("simple4_Hello.req.json");
+        final String RESPONSE = getText("simple4_Hello.resp.txt");
 
         final String helloEntity1TableName = getTableName(HelloEntity1.class);
         final String helloEntity2TableName = getTableName(HelloEntity2.class);

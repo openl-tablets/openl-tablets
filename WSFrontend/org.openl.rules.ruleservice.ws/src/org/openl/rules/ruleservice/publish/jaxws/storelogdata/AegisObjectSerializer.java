@@ -1,12 +1,11 @@
 package org.openl.rules.ruleservice.publish.jaxws.storelogdata;
 
-import java.nio.charset.Charset;
+import java.io.ByteArrayOutputStream;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.cxf.aegis.AegisContext;
 import org.apache.cxf.aegis.AegisWriter;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
@@ -37,7 +36,7 @@ public class AegisObjectSerializer implements ObjectSerializer {
         AegisType aegisType = context.getTypeMapping().getType(obj.getClass());
 
         @SuppressWarnings("squid:S2095") // no need to close ByteArrayOutputStream because of it does nothing
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         XMLStreamWriter xmlWriter = null;
         try {
@@ -49,7 +48,7 @@ public class AegisObjectSerializer implements ObjectSerializer {
                 xmlWriter,
                 aegisType);
 
-            return outputStream.toString(Charset.defaultCharset());
+            return outputStream.toString();
         } finally {
             if (xmlWriter != null) {
                 xmlWriter.close();
