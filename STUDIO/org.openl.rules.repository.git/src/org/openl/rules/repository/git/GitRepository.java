@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
@@ -18,6 +19,8 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.hooks.CommitMsgHook;
+import org.eclipse.jgit.hooks.PreCommitHook;
 import org.eclipse.jgit.internal.JGitText;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.lib.Repository;
@@ -68,6 +71,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private String commentTemplate;
     private String escapedCommentTemplate;
     private String gitSettingsPath;
+    private boolean noVerify;
 
     private ChangesMonitor monitor;
     private Git git;
@@ -204,6 +208,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             .setCommitter(userDisplayName != null ? userDisplayName : data.getAuthor(),
                 userEmail != null ? userEmail : "")
             .setOnly(fileInRepository)
+            .setNoVerify(noVerify)
             .call();
     }
 
@@ -243,6 +248,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     .setCommitter(userDisplayName != null ? userDisplayName : data.getAuthor(),
                         userEmail != null ? userEmail : "")
                     .setOnly(markerFile)
+                    .setNoVerify(noVerify)
                     .call();
                 commitId = commit.getId().getName();
 
@@ -254,6 +260,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     .setMessage(formatComment(CommitType.ERASE, data))
                     .setCommitter(userDisplayName != null ? userDisplayName : data.getAuthor(),
                         userEmail != null ? userEmail : "")
+                    .setNoVerify(noVerify)
                     .call();
                 commitId = commit.getId().getName();
 
@@ -302,6 +309,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 .setMessage(formatComment(CommitType.SAVE, destData))
                 .setCommitter(userDisplayName != null ? userDisplayName : destData.getAuthor(),
                     userEmail != null ? userEmail : "")
+                .setNoVerify(noVerify)
                 .call();
             commitId = commit.getId().getName();
 
@@ -377,6 +385,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         userEmail != null ? userEmail : "")
                     .setMessage(commitMessage)
                     .setOnly(name)
+                    .setNoVerify(noVerify)
                     .call();
             } else {
                 FileData fileData = checkHistory(name, version);
@@ -397,6 +406,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         userEmail != null ? userEmail : "")
                     .setMessage(commitMessage)
                     .setOnly(markerFile)
+                    .setNoVerify(noVerify)
                     .call();
             }
 
@@ -594,6 +604,26 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 String branchName = remoteBranch.getName().substring(remotePrefix.length());
                 if (!localBranches.contains(branchName)) {
                     createRemoteTrackingBranch(branchName);
+                }
+            }
+
+            // Check if we should skip hooks.
+            noVerify = false;
+            File hookDir = new File(git.getRepository().getDirectory(), Constants.HOOKS);
+            File preCommitHook = new File(hookDir, PreCommitHook.NAME);
+            File commitMsgHook = new File(hookDir, CommitMsgHook.NAME);
+            if (!preCommitHook.isFile() && !commitMsgHook.isFile()) {
+                log.debug("Hooks are absent");
+                noVerify = true;
+            } else {
+                try {
+                    if (!Files.isExecutable(preCommitHook.toPath()) || !Files.isExecutable(commitMsgHook.toPath())) {
+                        log.debug("Hook exists but not executable");
+                        noVerify = true;
+                    }
+                } catch (SecurityException  e) {
+                    log.warn("Hook exists but there is no access to invoke the file.", e);
+                    noVerify = true;
                 }
             }
 
@@ -1457,6 +1487,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
 
         CommitCommand commitCommand = git.commit()
+            .setNoVerify(noVerify)
             .setMessage(formatComment(CommitType.SAVE, folderData))
             .setCommitter(userDisplayName != null ? userDisplayName : folderData.getAuthor(),
                 userEmail != null ? userEmail : "");
@@ -1544,6 +1575,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             mergeMessage = "Merge";
         }
         CommitCommand conflictResolveCommit = git.commit()
+            .setNoVerify(noVerify)
             .setMessage(mergeMessage)
             .setCommitter(userDisplayName != null ? userDisplayName : author, userEmail != null ? userEmail : "");
 
