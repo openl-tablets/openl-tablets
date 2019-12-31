@@ -5,14 +5,23 @@
  */
 package org.openl.rules.helpers;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
-import org.apache.commons.io.input.ClassLoaderObjectInputStream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.cast.AutoCastReturnType;
 import org.openl.binding.impl.cast.DefaultAutoCastFactory.ReturnType;
@@ -3627,7 +3636,7 @@ public final class RulesUtils {
             return null;
         }
 
-        Class<?> clazz = origin.getClass();
+        final Class<?> clazz = origin.getClass();
         if (clazz.isArray() && Serializable.class
             .isAssignableFrom(clazz.getComponentType()) || !clazz.isArray() && origin instanceof Serializable) {
             ObjectOutputStream oos = null;
@@ -3638,7 +3647,17 @@ public final class RulesUtils {
                 oos.writeObject(origin);
 
                 ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-                ois = new ClassLoaderObjectInputStream(Thread.currentThread().getContextClassLoader(), bais);
+                ois = new ObjectInputStream(bais) {
+                    @Override
+                    protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+                        try {
+                            return Class.forName(desc.getName(), false, clazz.getClassLoader());
+                        } catch (ClassNotFoundException cnfe) {
+                            // delegate to super class loader which can resolve primitives
+                            return super.resolveClass(desc);
+                        }
+                    }
+                };
                 return (T) ois.readObject();
             } catch (Exception unused) {
                 // OK lets use cloner
