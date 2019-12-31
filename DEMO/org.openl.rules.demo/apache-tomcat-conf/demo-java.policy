@@ -110,6 +110,8 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
 
         // jgit
         permission java.io.FilePermission "${user.home}/.gitconfig", "read";
+        permission java.io.FilePermission "${user.home}/.config", "read,write";
+        permission java.io.FilePermission "${user.home}/.config/-", "read,write";
         permission java.net.NetPermission "getProxySelector";
         permission java.security.SecurityPermission "insertProvider.BC";
         permission java.security.SecurityPermission "putProviderProperty.BC";
@@ -119,7 +121,6 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
 
         //docker
         permission java.lang.RuntimePermission "accessUserInformation";
-        permission java.io.FilePermission "${catalina.base}/openl-demo/design-repository/.git/hooks/post-commit", "execute";
 
         //hibernate
         permission java.lang.RuntimePermission "createSecurityManager";
