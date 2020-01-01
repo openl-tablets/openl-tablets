@@ -441,7 +441,7 @@ public class RunStoreLogDataITest {
     }
 
     private String getText(String file) throws Exception {
-        return IOUtils.toStringAndClose(Objects.requireNonNull(getClass().getResourceAsStream(file)));
+        return IOUtils.toStringAndClose(getClass().getResourceAsStream("/" + file));
     }
 
     @Test
