@@ -11,31 +11,6 @@ import org.junit.Test;
  * Created by tsaltsevich on 5/3/2016.
  */
 public class StringUtilsTest {
-    @Test
-    public void testToBytes() throws Exception {
-        assertArrayEquals("Returned array is not empty", new byte[] {}, StringUtils.toBytes(""));
-        assertArrayEquals("Returned array is not valid", new byte[] { 0x20 }, StringUtils.toBytes(" "));
-        assertArrayEquals("Returned array is not valid", new byte[] { 0x30 }, StringUtils.toBytes("0"));
-        assertArrayEquals("Returned array is not valid",
-            new byte[] { 0x2D, 0x3F, 0x21, 0x22, 0x28, 0x29 },
-            StringUtils.toBytes("-?!\"()"));
-        assertArrayEquals("Returned array is not valid",
-            new byte[] { 0x41, 0x61, 0x2C, 0x20, 0x5A, 0x7A, 0x2E },
-            StringUtils.toBytes("Aa, Zz."));
-        assertArrayEquals("Returned array is not valid",
-            new byte[] { (byte) 0xD0,
-                    (byte) 0x90,
-                    (byte) 0xD0,
-                    (byte) 0xB0,
-                    0x2C,
-                    0x20,
-                    (byte) 0xD0,
-                    (byte) 0xAF,
-                    (byte) 0xD1,
-                    (byte) 0x8F,
-                    0x2E },
-            StringUtils.toBytes("Аа, Яя."));
-    }
 
     @Test
     public void testSplit() throws Exception {
@@ -229,34 +204,6 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testRemoveStart() throws Exception {
-        assertEquals("Returned string is not valid", null, StringUtils.removeStart(null, "$"));
-        assertEquals("Returned string is not valid", "", StringUtils.removeStart("", "*"));
-        assertEquals("Returned string is not valid", "%", StringUtils.removeStart("%", null));
-        assertEquals("Returned string is not valid", "boo", StringUtils.removeStart("boo", ""));
-        assertEquals("Returned string is not valid", " буу    ", StringUtils.removeStart("    буу    ", "   "));
-        assertEquals("Returned string is not valid", "example.com", StringUtils.removeStart("www.example.com", "www."));
-        assertEquals("Returned string is not valid", "example.com", StringUtils.removeStart("example.com", "www."));
-        assertEquals("Returned string is not valid",
-            "www.example.com",
-            StringUtils.removeStart("www.example.com", "example"));
-    }
-
-    @Test
-    public void testRemoveEnd() throws Exception {
-        assertEquals("Returned string is not valid", null, StringUtils.removeEnd(null, "$"));
-        assertEquals("Returned string is not valid", "", StringUtils.removeEnd("", "*"));
-        assertEquals("Returned string is not valid", "%", StringUtils.removeEnd("%", null));
-        assertEquals("Returned string is not valid", "boo", StringUtils.removeEnd("boo", ""));
-        assertEquals("Returned string is not valid", "    буу ", StringUtils.removeEnd("    буу    ", "   "));
-        assertEquals("Returned string is not valid", "www.example", StringUtils.removeEnd("www.example.com", ".com"));
-        assertEquals("Returned string is not valid", "www.example", StringUtils.removeEnd("www.example", ".com"));
-        assertEquals("Returned string is not valid",
-            "www.example.com",
-            StringUtils.removeEnd("www.example.com", "example"));
-    }
-
-    @Test
     public void testCapitalize() throws Exception {
         assertEquals("Returned string is not valid", null, StringUtils.capitalize(null));
         assertEquals("Returned string is not valid", "", StringUtils.capitalize(""));
@@ -272,19 +219,5 @@ public class StringUtilsTest {
         assertEquals("Returned string is not valid", "foo", StringUtils.uncapitalize("Foo"));
         assertEquals("Returned string is not valid", "fOO", StringUtils.uncapitalize("FOO"));
         assertEquals("Returned string is not valid", "муУ", StringUtils.uncapitalize("МуУ"));
-    }
-
-    @Test
-    public void testPrint() {
-        assertEquals("", StringUtils.print(null, new StringBuilder(10)).toString());
-        assertEquals("", StringUtils.print("", new StringBuilder(10)).toString());
-        assertEquals("1", StringUtils.print(1, new StringBuilder(10)).toString());
-        assertEquals("2.2", StringUtils.print(2.2, new StringBuilder(10)).toString());
-        assertEquals("NaN", StringUtils.print(Float.NaN, new StringBuilder(10)).toString());
-        assertEquals("[]", StringUtils.print(new int[0], new StringBuilder(10)).toString());
-        assertEquals("[c]", StringUtils.print(new char[] { 'c' }, new StringBuilder(10)).toString());
-        assertEquals("[3.0, 5.5]", StringUtils.print(new double[] { 3, 5.5 }, new StringBuilder(10)).toString());
-        assertEquals("[3, null]", StringUtils.print(new Integer[] { 3, null }, new StringBuilder(10)).toString());
-        assertEquals("[null]", StringUtils.print(new Object[1], new StringBuilder(10)).toString());
     }
 }

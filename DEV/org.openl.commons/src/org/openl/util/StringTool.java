@@ -73,7 +73,7 @@ public class StringTool {
                 if (tokens[i].endsWith(escapeSymbol)) {
                     String noEscapeToken = tokens[i].substring(0, tokens[i].length() - 1);
                     if (buf.length() == 0) {
-                        buf.append(StringUtils.trimStart(noEscapeToken));
+                        buf.append(trimStart(noEscapeToken));
                     } else {
                         buf.append(noEscapeToken);
                     }
@@ -83,7 +83,7 @@ public class StringTool {
                         tokens[i] = tokens[i].trim();
                         resultList.add(tokens[i]);
                     } else {
-                        buf.append(StringUtils.trimEnd(tokens[i]));
+                        buf.append(trimEnd(tokens[i]));
                         resultList.add(buf.toString());
                         buf.delete(0, buf.length());
                     }
@@ -101,4 +101,26 @@ public class StringTool {
     }
 
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
-}
+
+    private static String trimStart(final String str) {
+        int strLen;
+        if (str == null || (strLen = str.length()) == 0) {
+            return str;
+        }
+        int start = 0;
+        while (start != strLen && Character.isWhitespace(str.charAt(start))) {
+            start++;
+        }
+        return str.substring(start);
+    }
+
+    private static String trimEnd(final String str) {
+        int end;
+        if (str == null || (end = str.length()) == 0) {
+            return str;
+        }
+        while (end != 0 && Character.isWhitespace(str.charAt(end - 1))) {
+            end--;
+        }
+        return str.substring(0, end);
+    }}

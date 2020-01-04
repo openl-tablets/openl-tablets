@@ -23,7 +23,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.java.CustomJavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
-import org.openl.util.StringUtils;
 
 /**
  * Serializable bean that handles result of spreadsheet calculation.
@@ -340,10 +339,13 @@ public class SpreadsheetResult implements Serializable {
         }
 
         Object value = getValue(row - 1, col - 1);
-        StringBuilder builder = new StringBuilder(10);
 
-        StringUtils.print(value, builder);
-        return builder.toString();
+        if (value == null) {
+            return "";
+        } else {
+            String s = Arrays.deepToString(new Object[] { value });
+            return s.substring(1, s.length() - 1);
+        }
     }
 
     @XmlTransient
