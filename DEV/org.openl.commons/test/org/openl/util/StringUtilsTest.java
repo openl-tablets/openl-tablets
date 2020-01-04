@@ -179,24 +179,6 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testEquals() throws Exception {
-        assertTrue("Returned value is false", StringUtils.equals(null, null));
-        assertTrue("Returned value is false", StringUtils.equals("boo", "boo"));
-        assertFalse("Returned value is true", StringUtils.equals(null, "boo"));
-        assertFalse("Returned value is true", StringUtils.equals("boo", null));
-        assertFalse("Returned value is true", StringUtils.equals("boo", "BOO"));
-    }
-
-    @Test
-    public void testNotEquals() throws Exception {
-        assertFalse("Returned value is true", StringUtils.notEquals(null, null));
-        assertFalse("Returned value is true", StringUtils.notEquals("boo", "boo"));
-        assertTrue("Returned value is false", StringUtils.notEquals(null, "boo"));
-        assertTrue("Returned value is false", StringUtils.notEquals("boo", null));
-        assertTrue("Returned value is false", StringUtils.notEquals("boo", "BOO"));
-    }
-
-    @Test
     public void testContainsIgnoreCase() throws Exception {
         assertFalse("Returned value is true", StringUtils.containsIgnoreCase(null, ""));
         assertFalse("Returned value is true", StringUtils.containsIgnoreCase("", null));

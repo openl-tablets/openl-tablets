@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
@@ -156,7 +157,7 @@ public class MergedRegionsTest {
                 Cell expectedXLSCell = PoiExcelHelper.getOrCreateCell(expectedRegion.getLeft() + column,
                     expectedRegion.getTop() + row,
                     grid.getSheetSource().getSheet());
-                if (resultCell != expectedCell && StringUtils.notEquals(resultCell.getStringValue(),
+                if (resultCell != expectedCell && !Objects.equals(resultCell.getStringValue(),
                     expectedCell.getStringValue())) {
                     // non top left cells of merged regions will be skipped in
                     // comparing by POI due to the second check

@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.repository;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -62,8 +63,8 @@ public class RepositoryProjectRulesDeployConfig {
             return null;
         }
 
-        if (lastProject != project || StringUtils.notEquals(lastBranch, project.getBranch()) || StringUtils
-            .notEquals(version, project.getHistoryVersion())) {
+        if (lastProject != project || !Objects.equals(lastBranch, project.getBranch()) || !Objects
+            .equals(version, project.getHistoryVersion())) {
             rulesDeploy = null;
             lastProject = project;
             lastBranch = project.getBranch();

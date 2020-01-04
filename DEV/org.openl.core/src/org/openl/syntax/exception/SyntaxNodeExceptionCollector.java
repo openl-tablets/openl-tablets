@@ -2,6 +2,7 @@ package org.openl.syntax.exception;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.openl.util.StringUtils;
 
@@ -24,7 +25,7 @@ public class SyntaxNodeExceptionCollector {
 
     public void addSyntaxNodeException(SyntaxNodeException e) {
         for (SyntaxNodeException sne : syntaxNodeExceptions) {
-            if (StringUtils.equals(sne.getMessage(), e.getMessage()) && sne.getSourceUri() != null && StringUtils
+            if (Objects.equals(sne.getMessage(), e.getMessage()) && sne.getSourceUri() != null && Objects
                 .equals(sne.getSourceUri(), e.getSourceUri())) {
                 return;
             }

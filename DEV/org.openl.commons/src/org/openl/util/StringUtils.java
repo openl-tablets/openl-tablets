@@ -303,58 +303,6 @@ public class StringUtils {
 
     /**
      * <p>
-     * Compares two Strings, returning {@code true} if they represent equal sequences of characters.
-     * </p>
-     * <p>
-     * <p>
-     * {@code null}s are handled without exceptions. Two {@code null} references are considered to be equal. The
-     * comparison is case sensitive.
-     * </p>
-     * <p>
-     *
-     * <pre>
-     * StringUtils.equals(null, null)   = true
-     * StringUtils.equals(null, "boo")  = false
-     * StringUtils.equals("boo", null)  = false
-     * StringUtils.equals("boo", "boo") = true
-     * StringUtils.equals("boo", "BOO") = false
-     * </pre>
-     *
-     * @param str1 the first String, may be {@code null}
-     * @param str2 the second String, may be {@code null}
-     * @return {@code true} if the Strings are equal (case-sensitive), or both {@code null}
-     * @see String#equals(Object)
-     */
-    public static boolean equals(final String str1, final String str2) {
-        return Objects.equals(str1, str2);
-    }
-
-    /**
-     * <p>
-     * Compares two Strings, returning {@code false} if they represent equal sequences of characters.
-     * </p>
-     * This method is inverse to {@link #equals(String, String)}.
-     * <p>
-     *
-     * <pre>
-     * StringUtils.notEquals(null, null)   = false
-     * StringUtils.notEquals(null, "boo")  = true
-     * StringUtils.notEquals("boo", null)  = true
-     * StringUtils.notEquals("boo", "boo") = false
-     * StringUtils.notEquals("boo", "BOO") = true
-     * </pre>
-     *
-     * @param str1 the first String, may be {@code null}
-     * @param str2 the second String, may be {@code null}
-     * @return {@code false} if the Strings are equal (case-sensitive), or both {@code null}
-     * @see #equals(String, String)
-     */
-    public static boolean notEquals(final String str1, final String str2) {
-        return !equals(str1, str2);
-    }
-
-    /**
-     * <p>
      * Checks if String contains a search String irrespective of case, handling {@code null}. Case-insensitivity is
      * defined as by {@link String#equalsIgnoreCase(String)}.
      * <p>
