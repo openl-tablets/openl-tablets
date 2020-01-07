@@ -382,9 +382,10 @@ public final class OpenLFuzzyUtils {
             tokensList[i] = tokens[i].getValue().split(" ");
         }
 
-        BuildBySimilarity buildBySimilarity1 = new BuildBySimilarity(1.0d, sourceTokens, tokensList).invoke();
+        BuildBySimilarity buildBySimilarity1 = new BuildBySimilarity(1.0d, sourceTokens, tokens, tokensList).invoke();
         BuildBySimilarity buildBySimilarity = new BuildBySimilarity(ACCEPTABLE_SIMILARITY_VALUE,
             sourceTokens,
+            tokens,
             tokensList).invoke();
         int maxMatchedTokens = buildBySimilarity.getMaxMatchedTokens();
         if (buildBySimilarity1.getMaxMatchedTokens() == buildBySimilarity.getMaxMatchedTokens()) {
@@ -394,7 +395,7 @@ public final class OpenLFuzzyUtils {
             double b = 1.0d;
             while (b - a > 1e-4) {
                 double p = (a + b) / 2;
-                BuildBySimilarity pSimilarity = new BuildBySimilarity(p, sourceTokens, tokensList).invoke();
+                BuildBySimilarity pSimilarity = new BuildBySimilarity(p, sourceTokens, tokens, tokensList).invoke();
                 if (pSimilarity.maxMatchedTokens == maxMatchedTokens) {
                     a = p;
                     buildBySimilarity = pSimilarity;
@@ -524,9 +525,14 @@ public final class OpenLFuzzyUtils {
         private int maxMatchedTokens;
         private int[] f;
         private double acceptableSimilarity;
+        private Token[] tokens;
 
-        public BuildBySimilarity(double acceptableSimilarity, String[] sourceTokens, String[]... tokensList) {
+        public BuildBySimilarity(double acceptableSimilarity,
+                String[] sourceTokens,
+                Token[] tokens,
+                String[]... tokensList) {
             this.sourceTokens = sourceTokens;
+            this.tokens = tokens;
             this.tokensList = tokensList;
             this.acceptableSimilarity = acceptableSimilarity;
         }
@@ -570,13 +576,19 @@ public final class OpenLFuzzyUtils {
                     target1.add(tokensList[i][pair.getRight()]);
                     c++;
                 }
+                if (c >= tokens[i].getMinMatchedTokens()) {
+                    if (maxMatchedTokens < c) {
+                        maxMatchedTokens = c;
+                    }
+                    f[i] = c;
 
-                if (maxMatchedTokens < c) {
-                    maxMatchedTokens = c;
+                    source1.sort(String::compareTo);
+                    target1.sort(String::compareTo);
+                } else {
+                    f[i] = 0;
+                    source1.clear();
+                    target1.clear();
                 }
-                f[i] = c;
-                source1.sort(String::compareTo);
-                target1.sort(String::compareTo);
                 similarity
                     .add(Pair.of(String.join(StringUtils.SPACE, source1), String.join(StringUtils.SPACE, target1)));
             }

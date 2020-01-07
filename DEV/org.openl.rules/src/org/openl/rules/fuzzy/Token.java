@@ -4,10 +4,16 @@ public final class Token {
 
     private final String value;
     private final int distance;
+    private final int minMatchedTokens;
 
     public Token(String value, int distance) {
+        this(value, distance, 0);
+    }
+
+    public Token(String value, int distance, int minMatchedTokens) {
         this.value = value;
         this.distance = distance;
+        this.minMatchedTokens = minMatchedTokens;
     }
 
     public String getValue() {
@@ -16,6 +22,10 @@ public final class Token {
 
     public int getDistance() {
         return distance;
+    }
+
+    public int getMinMatchedTokens() {
+        return minMatchedTokens;
     }
 
     @Override
