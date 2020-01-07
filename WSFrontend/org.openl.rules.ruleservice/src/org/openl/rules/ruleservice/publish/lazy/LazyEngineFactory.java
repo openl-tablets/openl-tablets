@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.commons.io.FilenameUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.dependency.IDependencyManager;
@@ -55,7 +53,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         OpenL.setConfig(new LazyOpenLConfigurator());
     }
 
-    private final Logger log = LoggerFactory.getLogger(LazyEngineFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LazyEngineFactory.class);
 
     private CompiledOpenClass compiledOpenClass;
     private Class<T> interfaceClass;
@@ -74,7 +72,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         this.interfaceClassGenerator = Objects.requireNonNull(interfaceClassGenerator,
             "interfaceClassGenerator cannot be null");
         if (interfaceClass != null) {
-            log.warn("Rules engine factory already has interface class. Interface class generator has been ignored.");
+            LOG.warn("Rules engine factory already has interface class. Interface class generator has been ignored.");
         }
     }
 
@@ -158,7 +156,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
                     .generateInterface(className, openClass, getCompiledOpenClass().getClassLoader());
             } catch (Exception e) {
                 String errorMessage = String.format("Failed to create interface: %s", className);
-                log.error(errorMessage, e);
+                LOG.error(errorMessage, e);
                 throw new OpenlNotCheckedException(errorMessage, e);
             }
         }
@@ -188,36 +186,8 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         }
     }
 
-    Module getModuleForMember(IOpenMember member) {
-        String sourceUrl = member.getDeclaringClass().getMetaInfo().getSourceUrl();
-        Module module = getModuleForSourceUrl(sourceUrl, modules);
-        if (module != null) {
-            return module;
-        }
-        throw new OpenlNotCheckedException("Module is not found.");
-    }
-
-    private Module getModuleForSourceUrl(String sourceUrl, Collection<Module> modules) {
-        if (modules.size() == 1) {
-            return modules.iterator().next();
-        }
-        for (Module module : modules) {
-            String modulePath = module.getRulesRootPath().getPath();
-            try {
-                if (FilenameUtils.normalize(sourceUrl)
-                    .equals(FilenameUtils
-                        .normalize(new File(modulePath).getCanonicalFile().toURI().toURL().toExternalForm()))) {
-                    return module;
-                }
-            } catch (Exception e) {
-                log.warn("Failed to build url for module '{}' with path: {}", module.getName(), modulePath, e);
-            }
-        }
-        return null;
-    }
-
     private LazyMethod makeLazyMethod(XlsLazyModuleOpenClass xlsLazyModuleOpenClass, IOpenMethod method) {
-        final Module declaringModule = getModuleForMember(method);
+        final Module declaringModule = ModuleUtils.getModuleForMember(method, modules);
         Class<?>[] argTypes = new Class<?>[method.getSignature().getNumberOfParameters()];
         for (int i = 0; i < argTypes.length; i++) {
             argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
@@ -235,7 +205,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
     }
 
     private LazyField makeLazyField(XlsLazyModuleOpenClass xlsLazyModuleOpenClass, IOpenField field) {
-        Module declaringModule = getModuleForMember(field);
+        Module declaringModule = ModuleUtils.getModuleForMember(field, modules);
         return LazyField.getLazyField(xlsLazyModuleOpenClass,
             deployment,
             declaringModule,

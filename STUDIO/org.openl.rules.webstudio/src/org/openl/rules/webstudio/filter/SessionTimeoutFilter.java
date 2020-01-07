@@ -1,12 +1,12 @@
 package org.openl.rules.webstudio.filter;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,8 +45,8 @@ public class SessionTimeoutFilter implements Filter {
             log.info("Session Expired: redirect to {} page", redirectPage);
 
             // Handle Ajax requests
-            if (StringUtils.equals(request.getHeader("x-requested-with"), "XMLHttpRequest") // jQuery / Prototype
-                    || StringUtils.equals(request.getHeader("faces-request"), "partial/ajax")) { // JSF 2 / RichFaces
+            if (Objects.equals(request.getHeader("x-requested-with"), "XMLHttpRequest") // jQuery / Prototype
+                    || Objects.equals(request.getHeader("faces-request"), "partial/ajax")) { // JSF 2 / RichFaces
                 response.setHeader("Location", redirectUrl);
                 response.sendError(REDIRECT_ERROR_CODE);
             } else {

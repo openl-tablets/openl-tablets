@@ -54,6 +54,8 @@
                 <h:form>
                     <!-- This is a workaround. See https://stackoverflow.com/questions/15738259/disabling-chrome-autofill for details. -->
                     <input style="display:none" type="password" name="fake-password-field" autocomplete="new-password"/>
+                    <input style="display:none" type="text" name="fake-name-field" autocomplete="name"/>
+                    <input style="display:none" type="text" name="fake-email-field" autocomplete="email"/>
 
                     <h:panelGroup styleClass="messages" layout="block"
                                   rendered="#{!empty facesContext.maximumSeverity}">

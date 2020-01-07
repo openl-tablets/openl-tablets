@@ -88,14 +88,14 @@ public class OpenLErrorMessage extends OpenLMessage {
             return false;
         }
 
-        if (!StringUtils.equals(error.getMessage(), other.error.getMessage())) {
+        if (!Objects.equals(error.getMessage(), other.error.getMessage())) {
             return false;
         }
 
         if (error instanceof OpenLCompilationException && other.error instanceof OpenLCompilationException) {
             String location = error.getSourceLocation();
             String otherLocation = other.error.getSourceLocation();
-            return StringUtils.equals(location, otherLocation);
+            return Objects.equals(location, otherLocation);
         }
 
         return !(error instanceof OpenLCompilationException || other.error instanceof OpenLCompilationException);

@@ -21,16 +21,6 @@ public class StringUtils {
     public static final String EMPTY = "";
 
     /**
-     * Convert the specified CharSequence to an array of bytes, encoded using UTF-8 character encoding.
-     *
-     * @param input the CharSequence to convert
-     * @return an array of encoded chars
-     */
-    public static byte[] toBytes(CharSequence input) {
-        return input.toString().getBytes(StandardCharsets.UTF_8);
-    }
-
-    /**
      * <p>
      * Splits the provided string into an array of trimmed strings, separator specified. The separator is not included
      * in the returned String array. Adjacent separators are treated as one separator.
@@ -303,58 +293,6 @@ public class StringUtils {
 
     /**
      * <p>
-     * Compares two Strings, returning {@code true} if they represent equal sequences of characters.
-     * </p>
-     * <p>
-     * <p>
-     * {@code null}s are handled without exceptions. Two {@code null} references are considered to be equal. The
-     * comparison is case sensitive.
-     * </p>
-     * <p>
-     *
-     * <pre>
-     * StringUtils.equals(null, null)   = true
-     * StringUtils.equals(null, "boo")  = false
-     * StringUtils.equals("boo", null)  = false
-     * StringUtils.equals("boo", "boo") = true
-     * StringUtils.equals("boo", "BOO") = false
-     * </pre>
-     *
-     * @param str1 the first String, may be {@code null}
-     * @param str2 the second String, may be {@code null}
-     * @return {@code true} if the Strings are equal (case-sensitive), or both {@code null}
-     * @see String#equals(Object)
-     */
-    public static boolean equals(final String str1, final String str2) {
-        return Objects.equals(str1, str2);
-    }
-
-    /**
-     * <p>
-     * Compares two Strings, returning {@code false} if they represent equal sequences of characters.
-     * </p>
-     * This method is inverse to {@link #equals(String, String)}.
-     * <p>
-     *
-     * <pre>
-     * StringUtils.notEquals(null, null)   = false
-     * StringUtils.notEquals(null, "boo")  = true
-     * StringUtils.notEquals("boo", null)  = true
-     * StringUtils.notEquals("boo", "boo") = false
-     * StringUtils.notEquals("boo", "BOO") = true
-     * </pre>
-     *
-     * @param str1 the first String, may be {@code null}
-     * @param str2 the second String, may be {@code null}
-     * @return {@code false} if the Strings are equal (case-sensitive), or both {@code null}
-     * @see #equals(String, String)
-     */
-    public static boolean notEquals(final String str1, final String str2) {
-        return !equals(str1, str2);
-    }
-
-    /**
-     * <p>
      * Checks if String contains a search String irrespective of case, handling {@code null}. Case-insensitivity is
      * defined as by {@link String#equalsIgnoreCase(String)}.
      * <p>
@@ -427,28 +365,6 @@ public class StringUtils {
         return str == null ? null : str.trim();
     }
 
-    public static String trimStart(final String str) {
-        int strLen;
-        if (str == null || (strLen = str.length()) == 0) {
-            return str;
-        }
-        int start = 0;
-        while (start != strLen && Character.isWhitespace(str.charAt(start))) {
-            start++;
-        }
-        return str.substring(start);
-    }
-
-    public static String trimEnd(final String str) {
-        int end;
-        if (str == null || (end = str.length()) == 0) {
-            return str;
-        }
-        while (end != 0 && Character.isWhitespace(str.charAt(end - 1))) {
-            end--;
-        }
-        return str.substring(0, end);
-    }
 
     /**
      * <p>
@@ -491,76 +407,6 @@ public class StringUtils {
      */
     public static String trimToEmpty(final String str) {
         return str == null ? EMPTY : str.trim();
-    }
-
-    /**
-     * <p>
-     * Removes a substring only if it is at the beginning of a source string, otherwise returns the source string.
-     * </p>
-     * <p>
-     * <p>
-     * A {@code null} source string will return {@code null}. An empty ("") source string will return the empty string.
-     * A {@code null} search string will return the source string.
-     * </p>
-     * <p>
-     *
-     * <pre>
-     * StringUtils.removeStart(null, *)                      = null
-     * StringUtils.removeStart("", *)                        = ""
-     * StringUtils.removeStart(*, null)                      = *
-     * StringUtils.removeStart("boo", "")                    = "boo"
-     * StringUtils.removeStart("www.example.com", "www.")    = "example.com"
-     * StringUtils.removeStart("example.com", "www.")        = "example.com"
-     * StringUtils.removeStart("www.example.com", "example") = "www.example.com"
-     * </pre>
-     *
-     * @param str the source String to search, may be null
-     * @param remove the String to search for and remove, may be null
-     * @return the substring with the string removed if found, {@code null} if null String input
-     */
-    public static String removeStart(final String str, final String remove) {
-        if (isEmpty(str) || isEmpty(remove)) {
-            return str;
-        }
-        if (str.startsWith(remove)) {
-            return str.substring(remove.length());
-        }
-        return str;
-    }
-
-    /**
-     * <p>
-     * Removes a substring only if it is at the end of a source string, otherwise returns the source string.
-     * </p>
-     * <p>
-     * <p>
-     * A {@code null} source string will return {@code null}. An empty ("") source string will return the empty string.
-     * A {@code null} search string will return the source string.
-     * </p>
-     * <p>
-     *
-     * <pre>
-     * StringUtils.removeEnd(null, *)                      = null
-     * StringUtils.removeEnd("", *)                        = ""
-     * StringUtils.removeEnd(*, null)                      = *
-     * StringUtils.removeEnd("boo", "")                    = "boo"
-     * StringUtils.removeEnd("www.example.com", ".com")    = "www.example"
-     * StringUtils.removeEnd("www.example", ".com")        = "www.example"
-     * StringUtils.removeEnd("www.example.com", "example") = "www.example.com"
-     * </pre>
-     *
-     * @param str the source String to search, may be null
-     * @param remove the String to search for and remove, may be null
-     * @return the substring with the string removed if found, {@code null} if null String input
-     */
-    public static String removeEnd(final String str, final String remove) {
-        if (isEmpty(str) || isEmpty(remove)) {
-            return str;
-        }
-        if (str.endsWith(remove)) {
-            return str.substring(0, str.length() - remove.length());
-        }
-        return str;
     }
 
     /**
@@ -636,39 +482,6 @@ public class StringUtils {
         }
 
         return new StringBuilder(strLen).append(Character.toLowerCase(firstChar)).append(str.substring(1)).toString();
-    }
-
-    /**
-     * Print an Object to a printer.
-     *
-     * @param ary array or Object
-     * @param printer an appendable implementation
-     * @return the same printer instance
-     */
-    public static Appendable print(Object ary, Appendable printer) {
-        if (ary == null) {
-            return printer;
-        }
-        try {
-            if (ary.getClass().isArray()) {
-                int len = Array.getLength(ary);
-
-                printer.append('[');
-
-                for (int i = 0; i < len; i++) {
-                    printer.append(String.valueOf(Array.get(ary, i)));
-                    if (i < len - 1) {
-                        printer.append(", ");
-                    }
-                }
-                printer.append(']');
-            } else {
-                printer.append(String.valueOf(ary));
-            }
-        } catch (IOException ex) {
-            // Ignore
-        }
-        return printer;
     }
 
     /**

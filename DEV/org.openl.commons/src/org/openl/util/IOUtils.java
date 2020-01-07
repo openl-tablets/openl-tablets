@@ -135,6 +135,6 @@ public class IOUtils {
      * @return an input stream
      */
     public static InputStream toInputStream(CharSequence input) {
-        return new ByteArrayInputStream(StringUtils.toBytes(input));
+        return new ByteArrayInputStream(input.toString().getBytes(StandardCharsets.UTF_8));
     }
 }

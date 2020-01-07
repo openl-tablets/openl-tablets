@@ -413,27 +413,28 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     //
 
                     List<Object> values = CollectionUtils.findAll(cellValues, Objects::nonNull);
+                    if (!values.isEmpty()) {
+                        int size = values.size();
+                        IOpenClass componentType = getComponentType(fieldType);
 
-                    int size = values.size();
-                    IOpenClass componentType = getComponentType(fieldType);
+                        Object v = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, size);
 
-                    Object v = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, size);
-
-                    // Populate result array with values.
-                    //
-                    boolean isList = ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class);
-                    boolean isSet = ClassUtils.isAssignable(fieldType.getInstanceClass(), Set.class);
-                    for (int i = 0; i < size; i++) {
-                        Object value = values.get(i);
-                        if (isList) {
-                            ((List<Object>) v).set(i, value);
-                        } else if (isSet) {
-                            ((Set<Object>) v).add(value);
-                        } else {
-                            Array.set(v, i, value);
+                        // Populate result array with values.
+                        //
+                        boolean isList = ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class);
+                        boolean isSet = ClassUtils.isAssignable(fieldType.getInstanceClass(), Set.class);
+                        for (int i = 0; i < size; i++) {
+                            Object value = values.get(i);
+                            if (isList) {
+                                ((List<Object>) v).set(i, value);
+                            } else if (isSet) {
+                                ((Set<Object>) v).add(value);
+                            } else {
+                                Array.set(v, i, value);
+                            }
                         }
+                        getField().set(target, v, env);
                     }
-                    getField().set(target, v, env);
                 }
             }
         }

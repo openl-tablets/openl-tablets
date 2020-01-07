@@ -29,7 +29,7 @@ final class SysInfoLogger extends OpenLLogger {
         }
         try {
             Runtime runtime = Runtime.getRuntime();
-            log("     ENV : {} CPU / JVM Max Memory={}M / Allocated={} MiB / Free={} MiB ",
+            log("     ENV : {} CPU / Max={} MiB / Allocated={} MiB / Free={} MiB ",
                 Integer.toString(runtime.availableProcessors()),
                 toMiB(runtime.maxMemory()),
                 toMiB(runtime.totalMemory()),

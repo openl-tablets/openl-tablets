@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 import javax.annotation.PreDestroy;
@@ -146,7 +147,7 @@ public class MergeConflictBean {
     }
 
     public void setMergeMessage(String mergeMessage) {
-        if (StringUtils.notEquals(this.mergeMessage, mergeMessage)) {
+        if (!Objects.equals(this.mergeMessage, mergeMessage)) {
             mergeMessageModified = true;
         }
         this.mergeMessage = mergeMessage;
