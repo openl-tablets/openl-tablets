@@ -1,13 +1,17 @@
 package org.openl.excel.grid;
 
-import java.util.Date;
-
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.openl.excel.parser.TableStyles;
-import org.openl.rules.table.*;
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.ICellComment;
+import org.openl.rules.table.IGrid;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsUtil;
+
+import java.util.Date;
 
 public class ParsedCell implements ICell {
     private static final Object NOT_DEFINED = new Object();
@@ -167,6 +171,9 @@ public class ParsedCell implements ICell {
         }
         if (value instanceof Number) {
             return DateUtil.getJavaDate(((Number) value).doubleValue(), grid.isUse1904Windowing());
+        }
+        if (value instanceof String) {
+            return DateUtil.getJavaDate(Double.valueOf((String) value), grid.isUse1904Windowing());
         }
         return null;
     }

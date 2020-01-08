@@ -149,53 +149,53 @@ public class ObjectToDataConvertorFactory {
         }
     }
 
-    private static Map<ClassCastPair, IObjectToDataConvertor> convertors = new ConcurrentHashMap<>();
+    private static Map<ClassCastPair, IObjectToDataConvertor> converters = new ConcurrentHashMap<>();
 
     static {
         try {
-            convertors.put(new ClassCastPair(Integer.class, IntRange.class), e -> new IntRange((Integer) e));
+            converters.put(new ClassCastPair(Integer.class, IntRange.class), e -> new IntRange((Integer) e));
 
-            convertors.put(new ClassCastPair(int.class, IntRange.class), e -> new IntRange((Integer) e));
+            converters.put(new ClassCastPair(int.class, IntRange.class), e -> new IntRange((Integer) e));
 
-            convertors.put(new ClassCastPair(Double.class, DoubleValue.class), e -> new DoubleValue((Double) e));
-            convertors.put(new ClassCastPair(Double.class, double.class), CopyConvertor.the);
-            convertors.put(new ClassCastPair(double.class, Double.class), CopyConvertor.the);
-            convertors.put(new ClassCastPair(int.class, Integer.class), CopyConvertor.the);
-            convertors.put(new ClassCastPair(Integer.class, int.class), CopyConvertor.the);
+            converters.put(new ClassCastPair(Double.class, DoubleValue.class), e -> new DoubleValue((Double) e));
+            converters.put(new ClassCastPair(Double.class, double.class), CopyConvertor.the);
+            converters.put(new ClassCastPair(double.class, Double.class), CopyConvertor.the);
+            converters.put(new ClassCastPair(int.class, Integer.class), CopyConvertor.the);
+            converters.put(new ClassCastPair(Integer.class, int.class), CopyConvertor.the);
 
-            convertors.put(new ClassCastPair(double.class, DoubleValue.class), e -> new DoubleValue((Double) e));
-            convertors.put(new ClassCastPair(Date.class, Calendar.class), e -> {
+            converters.put(new ClassCastPair(double.class, DoubleValue.class), e -> new DoubleValue((Double) e));
+            converters.put(new ClassCastPair(Date.class, Calendar.class), e -> {
                 Calendar cal = Calendar.getInstance(LocaleDependConvertor.getLocale());
                 cal.setTime((Date) e);
                 return cal;
             });
 
-            convertors.put(new ClassCastPair(Date.class, LocalDate.class), e -> {
+            converters.put(new ClassCastPair(Date.class, LocalDate.class), e -> {
                 LocalDate localDate = Instant.ofEpochMilli(((Date) e).getTime())
                         .atZone(ZoneId.systemDefault())
                         .toLocalDate();
                 return localDate;
             });
 
-            convertors.put(new ClassCastPair(Date.class, ZonedDateTime.class), e -> {
+            converters.put(new ClassCastPair(Date.class, ZonedDateTime.class), e -> {
                 ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(((Date) e).getTime()),
                         ZoneId.systemDefault());
                 return zonedDateTime;
             });
 
-            convertors.put(new ClassCastPair(Date.class, Instant.class), e -> {
+            converters.put(new ClassCastPair(Date.class, Instant.class), e -> {
                 Instant instant = ((Date) e).toInstant();
                 return instant;
             });
 
-            convertors.put(new ClassCastPair(Date.class, LocalTime.class), e -> {
+            converters.put(new ClassCastPair(Date.class, LocalTime.class), e -> {
                 LocalTime localTime = Instant.ofEpochMilli(((Date) e).getTime())
                         .atZone(ZoneId.systemDefault())
                         .toLocalTime();
                 return localTime;
             });
 
-            convertors.put(new ClassCastPair(Date.class, LocalDateTime.class), e -> {
+            converters.put(new ClassCastPair(Date.class, LocalDateTime.class), e -> {
                 LocalDateTime localDateTime = Instant.ofEpochMilli(((Date) e).getTime())
                         .atZone(ZoneId.systemDefault())
                         .toLocalDateTime();
@@ -205,15 +205,15 @@ public class ObjectToDataConvertorFactory {
             /*
              * convertors from Openl types with meta info to common java types
              */
-            convertors.put(new ClassCastPair(ByteValue.class, Byte.class), new GetValueConvertor());
-            convertors.put(new ClassCastPair(ShortValue.class, Short.class), new GetValueConvertor());
-            convertors.put(new ClassCastPair(IntValue.class, Integer.class), new GetValueConvertor());
-            convertors.put(new ClassCastPair(LongValue.class, Long.class), new GetValueConvertor());
-            convertors.put(new ClassCastPair(FloatValue.class, Float.class), new GetValueConvertor());
-            convertors.put(new ClassCastPair(DoubleValue.class, Double.class), new GetValueConvertor());
-            convertors.put(new ClassCastPair(BigIntegerValue.class, BigInteger.class), new GetValueConvertor());
-            convertors.put(new ClassCastPair(BigDecimalValue.class, BigDecimal.class), new GetValueConvertor());
-            convertors.put(new ClassCastPair(StringValue.class, String.class), new GetValueConvertor());
+            converters.put(new ClassCastPair(ByteValue.class, Byte.class), new GetValueConvertor());
+            converters.put(new ClassCastPair(ShortValue.class, Short.class), new GetValueConvertor());
+            converters.put(new ClassCastPair(IntValue.class, Integer.class), new GetValueConvertor());
+            converters.put(new ClassCastPair(LongValue.class, Long.class), new GetValueConvertor());
+            converters.put(new ClassCastPair(FloatValue.class, Float.class), new GetValueConvertor());
+            converters.put(new ClassCastPair(DoubleValue.class, Double.class), new GetValueConvertor());
+            converters.put(new ClassCastPair(BigIntegerValue.class, BigInteger.class), new GetValueConvertor());
+            converters.put(new ClassCastPair(BigDecimalValue.class, BigDecimal.class), new GetValueConvertor());
+            converters.put(new ClassCastPair(StringValue.class, String.class), new GetValueConvertor());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -231,7 +231,7 @@ public class ObjectToDataConvertorFactory {
         }
         ClassCastPair pair = new ClassCastPair(fromClass, toClass);
 
-        IObjectToDataConvertor convertor = convertors.get(pair);
+        IObjectToDataConvertor convertor = converters.get(pair);
         if (convertor != null) {
             return convertor;
         }
@@ -250,7 +250,7 @@ public class ObjectToDataConvertorFactory {
                 convertor = NO_Convertor;
             }
         }
-        convertors.put(pair, convertor);
+        converters.put(pair, convertor);
         return convertor;
     }
 
@@ -266,7 +266,7 @@ public class ObjectToDataConvertorFactory {
                                                            Class<?> fromClass,
                                                            IObjectToDataConvertor convertor) {
         ClassCastPair pair = new ClassCastPair(fromClass, toClass);
-        return convertors.put(pair, convertor);
+        return converters.put(pair, convertor);
     }
 
 }
