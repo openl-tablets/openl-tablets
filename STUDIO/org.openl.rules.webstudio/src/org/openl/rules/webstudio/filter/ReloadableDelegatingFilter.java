@@ -85,7 +85,6 @@ public class ReloadableDelegatingFilter implements Filter {
             XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils
                 .getWebApplicationContext(servletContext);
             if (context != null) {
-                context.close(); // Trigger ContextClosedEvent
                 context.refresh();
             } else {
                 LoggerFactory.getLogger(ReloadableDelegatingFilter.class).warn("WebApplicationContext is null");

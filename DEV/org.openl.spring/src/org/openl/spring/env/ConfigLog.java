@@ -4,7 +4,7 @@ import org.openl.info.OpenLVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConfigLog {
+class ConfigLog {
     static final Logger LOG = LoggerFactory.getLogger("OpenL.config");
     private static final String VERSION = OpenLVersion.getVersion(); // Just for init OpenLVersion class.
 }
