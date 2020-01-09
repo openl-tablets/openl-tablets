@@ -1,0 +1,4 @@
+ERROR: Type definition cannot be used as expression for array index operator.
+ERROR: Type definition cannot be used as expression for array index operator.
+ERROR: Type definition cannot be used as expression for array index operator.
+ERROR: Type definition cannot be used as expression for array index operator.
