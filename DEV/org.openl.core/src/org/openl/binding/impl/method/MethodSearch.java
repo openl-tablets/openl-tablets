@@ -200,29 +200,7 @@ public final class MethodSearch {
         return true;
     }
 
-    private static boolean lq(int[] m1, int[] m2) {
-        if (m1 == NO_MATCH) {
-            return false;
-        }
-        if (m2 == NO_MATCH) {
-            return true;
-        }
-        int[] d1 = m1.clone();
-        int[] d2 = m2.clone();
-        Arrays.sort(d1);
-        Arrays.sort(d2);
-        for (int i = d1.length - 1; i >= 0; i--) {
-            if (d1[i] < d2[i]) {
-                return true;
-            }
-            if (d1[i] > d2[i]) {
-                return false;
-            }
-        }
-        return false;
-    }
-
-    private static boolean lqBySignature(IOpenMethod method, List<IOpenMethod> matchingMethods) {
+    private static boolean lq(IOpenMethod method, List<IOpenMethod> matchingMethods, int[] m1, int[] m2) {
         if (matchingMethods == null || matchingMethods.isEmpty()) {
             return true;
         }
@@ -252,6 +230,25 @@ public final class MethodSearch {
                 return dims1[i] > dims2[i];
             }
         }
+
+        if (m1 == NO_MATCH) {
+            return false;
+        }
+        if (m2 == NO_MATCH) {
+            return true;
+        }
+        int[] d1 = m1.clone();
+        int[] d2 = m2.clone();
+        Arrays.sort(d1);
+        Arrays.sort(d2);
+        for (int i = d1.length - 1; i >= 0; i--) {
+            if (d1[i] < d2[i]) {
+                return true;
+            }
+            if (d1[i] > d2[i]) {
+                return false;
+            }
+        }
         return false;
     }
 
@@ -278,7 +275,6 @@ public final class MethodSearch {
             IOpenClass[] params,
             ICastFactory castFactory,
             Iterable<IOpenMethod> methods) throws AmbiguousMethodException {
-
         final int nParams = params.length;
         Iterable<IOpenMethod> filtered = methods == null ? Collections.emptyList()
                                                          : CollectionUtils.findAll(methods,
@@ -317,7 +313,7 @@ public final class MethodSearch {
             if (match == NO_MATCH) {
                 continue;
             }
-            if (lqBySignature(method, matchingMethods) || lq(match, bestMatch)) {
+            if (lq(method, matchingMethods, match, bestMatch)) {
                 bestMatch = match;
                 matchingMethods.clear();
                 matchingMethodsCastHolder.clear();
