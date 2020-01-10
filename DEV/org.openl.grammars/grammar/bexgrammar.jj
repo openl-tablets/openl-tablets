@@ -45,7 +45,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar
   protected org.openl.util.text.TextInterval pos(
   String lexError, 
   Token t, 
-  StringBuffer resMessage)
+  StringBuilder resMessage)
   {
     String prefix = "Lexical error at line ";
     if (!lexError.startsWith(prefix))
@@ -99,7 +99,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar
     }
     catch (TokenMgrError err)
     {
-      StringBuffer buf = new StringBuffer();
+      StringBuilder buf = new StringBuilder();
       org.openl.util.text.TextInterval loc = 
       pos(err.getMessage(), token, buf);
       syntaxBuilder.addError(
