@@ -63,7 +63,7 @@ public final class CastToWiderType {
 
             if (cast1To2 == null && cast2To1 == null) {
                 // Find parent class for cast both nodes
-                IOpenClass parentClass = OpenClassUtils.findParentClassWithBoxing(type1, type2);
+                IOpenClass parentClass = OpenClassUtils.findParentClass(type1, type2);
                 if (parentClass != null) {
                     IOpenCast castToParent1 = castFactory.getCast(type1, parentClass);
                     IOpenCast castToParent2 = castFactory.getCast(type2, parentClass);

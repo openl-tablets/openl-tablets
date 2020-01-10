@@ -100,7 +100,7 @@ public abstract class AbstractMethodSearchTest {
         assertNull("Method " + methodDescriptor(methodName, openClasses) + " has been matched.", method);
     }
 
-    final void assertAmbigiouse(Class<?> target, String methodName, Class<?>... classes) {
+    final void assertAmbiguous(Class<?> target, String methodName, Class<?>... classes) {
         try {
             JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
             IOpenClass[] openClasses = toOpenClasses(classes);
@@ -141,7 +141,7 @@ public abstract class AbstractMethodSearchTest {
         if (NF.equals(expected)) {
             assertNotFound(target, methodName, classes);
         } else if (AMB.equals(expected)) {
-            assertAmbigiouse(target, methodName, classes);
+            assertAmbiguous(target, methodName, classes);
         } else if (expected instanceof Not) {
             try {
                 Object notExpected = ((Not) expected).notExpected;

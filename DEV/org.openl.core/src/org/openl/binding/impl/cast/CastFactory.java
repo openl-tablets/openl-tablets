@@ -1,7 +1,11 @@
 package org.openl.binding.impl.cast;
 
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.binding.ICastFactory;
@@ -18,6 +22,7 @@ import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
+import org.openl.util.OpenClassUtils;
 
 /**
  * Base implementation of {@link ICastFactory} abstraction that used by engine for type conversion operations.
@@ -112,28 +117,8 @@ public class CastFactory implements ICastFactory {
         while (itr.hasNext()) {
             IOpenMethod method = itr.next();
             if (method.getSignature().getNumberOfParameters() == 2) {
-                if (method.getSignature().getParameterType(0).equals(openClass1)) {
-                    addClassToCandidates(method.getSignature().getParameterType(1), openClass1Candidates);
-                } else {
-                    if (method.getSignature().getParameterType(0).getInstanceClass().isPrimitive()) {
-                        IOpenClass t = JavaOpenClass.getOpenClass(ClassUtils
-                            .primitiveToWrapper(method.getSignature().getParameterType(0).getInstanceClass()));
-                        if (t.equals(openClass1)) {
-                            addClassToCandidates(method.getSignature().getParameterType(1), openClass1Candidates);
-                        }
-                    }
-                }
-                if (method.getSignature().getParameterType(0).equals(openClass2)) {
-                    addClassToCandidates(method.getSignature().getParameterType(1), openClass2Candidates);
-                } else {
-                    if (method.getSignature().getParameterType(0).getInstanceClass().isPrimitive()) {
-                        IOpenClass t = JavaOpenClass.getOpenClass(ClassUtils
-                            .primitiveToWrapper(method.getSignature().getParameterType(0).getInstanceClass()));
-                        if (t.equals(openClass2)) {
-                            addClassToCandidates(method.getSignature().getParameterType(1), openClass2Candidates);
-                        }
-                    }
-                }
+                checkAndAddToCandidates(method, openClass1, openClass1Candidates);
+                checkAndAddToCandidates(method, openClass2, openClass2Candidates);
             }
         }
         openClass1Candidates.retainAll(openClass2Candidates);
@@ -158,8 +143,12 @@ public class CastFactory implements ICastFactory {
 
         IOpenClass ret = chooseClosest(casts, openClass1Candidates);
 
+        if (ret == null) {
+            return OpenClassUtils.findParentClass(openClass1, openClass2);
+        }
+
         // If one class is not primitive we use wrapper for prevent NPE
-        if (ret != null && openClass1.getInstanceClass() != null && openClass2.getInstanceClass() != null) {
+        if (openClass1.getInstanceClass() != null && openClass2.getInstanceClass() != null) {
             if (!openClass1.getInstanceClass().isPrimitive() || !openClass2.getInstanceClass().isPrimitive()) {
                 if (ret.getInstanceClass().isPrimitive()) {
                     return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(ret.getInstanceClass()));
@@ -170,16 +159,30 @@ public class CastFactory implements ICastFactory {
         return ret;
     }
 
-    private static IOpenClass chooseClosest(ICastFactory casts, Collection<IOpenClass> openClass1Candidates) {
+    private static void checkAndAddToCandidates(IOpenMethod method, IOpenClass openClass, Set<IOpenClass> openClassCandidates) {
+        if (method.getSignature().getParameterType(0).equals(openClass)) {
+            addClassToCandidates(method.getSignature().getParameterType(1), openClassCandidates);
+        } else {
+            if (method.getSignature().getParameterType(0).getInstanceClass().isPrimitive()) {
+                IOpenClass t = JavaOpenClass.getOpenClass(ClassUtils
+                    .primitiveToWrapper(method.getSignature().getParameterType(0).getInstanceClass()));
+                if (t.equals(openClass)) {
+                    addClassToCandidates(method.getSignature().getParameterType(1), openClassCandidates);
+                }
+            }
+        }
+    }
+
+    private static IOpenClass chooseClosest(ICastFactory castFactory, Collection<IOpenClass> openClassCandidates) {
         IOpenClass ret = null;
         Collection<IOpenClass> notConvertible = new LinkedHashSet<>();
-        for (IOpenClass openClass : openClass1Candidates) {
+        for (IOpenClass openClass : openClassCandidates) {
             if (ret == null) {
                 ret = openClass;
             } else {
-                IOpenCast cast = casts.getCast(ret, openClass);
+                IOpenCast cast = castFactory.getCast(ret, openClass);
                 if (cast == null || !cast.isImplicit()) {
-                    cast = casts.getCast(openClass, ret);
+                    cast = castFactory.getCast(openClass, ret);
                     if (cast != null && cast.isImplicit()) {
                         // Found narrower candidate. For example Integer is narrower than Double (when convert from
                         // int).
@@ -191,7 +194,7 @@ public class CastFactory implements ICastFactory {
                         notConvertible.add(openClass);
                     }
                 } else {
-                    IOpenCast backCast = casts.getCast(openClass, ret);
+                    IOpenCast backCast = castFactory.getCast(openClass, ret);
                     if (backCast != null && backCast.isImplicit()) {
                         int distance = cast.getDistance();
                         int backDistance = backCast.getDistance();
@@ -215,18 +218,17 @@ public class CastFactory implements ICastFactory {
         }
 
         if (!notConvertible.isEmpty()) {
-            Collection<IOpenClass> newCandidates = new LinkedHashSet<>();
+            Collection<IOpenClass> newCandidates = new LinkedHashSet<>(notConvertible);
             newCandidates.add(ret);
-            newCandidates.addAll(notConvertible);
 
-            if (newCandidates.size() == openClass1Candidates.size()) {
+            if (newCandidates.size() == openClassCandidates.size()) {
                 // Cannot filter out classes to choose a closest. Prevent infinite recursion.
                 String message = "Cannot find closest cast: have several candidate classes not convertible between each over: " + Arrays
                     .toString(newCandidates.toArray());
                 throw new IllegalStateException(message);
             }
 
-            return chooseClosest(casts, newCandidates);
+            return chooseClosest(castFactory, newCandidates);
         }
 
         return ret;
