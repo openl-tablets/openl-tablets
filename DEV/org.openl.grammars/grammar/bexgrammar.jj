@@ -44,13 +44,11 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar
 
   protected org.openl.util.text.TextInterval pos(
   String lexError, 
-  Token t, 
-  StringBuilder resMessage)
+  Token t)
   {
     String prefix = "Lexical error at line ";
     if (!lexError.startsWith(prefix))
     {
-      resMessage.append(lexError);
       return pos(t);
     }
     lexError = lexError.substring(prefix.length());
@@ -69,7 +67,6 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar
       col = col * 10 + lexError.charAt(i) - '0';
       ++i;
     }
-    resMessage.append(lexError.substring(i + 2));
     return new org.openl.util.text.TextInterval(
     pos(line, col), 
     pos(line, col));
@@ -79,14 +76,20 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar
   {
     try
     {
-      if (type.equals("method.body")) 
-      parseTopNodeInternal();
-      else if (type.equals("method.header")) 
-      parseMethodHeader();
-      else if (type.equals("module")) 
-      parseModuleInternal();
-      else if (type.equals("type")) 
-      parseType();
+      switch (type) {
+          case "method.body":
+              parseTopNodeInternal();
+              break;
+          case "method.header":
+              parseMethodHeader();
+              break;
+          case "module":
+              parseModuleInternal();
+              break;
+          case "type":
+              parseType();
+              break;
+      }
     }
     catch (ParseException pe)
     {
@@ -99,11 +102,9 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar
     }
     catch (TokenMgrError err)
     {
-      StringBuilder buf = new StringBuilder();
-      org.openl.util.text.TextInterval loc = 
-      pos(err.getMessage(), token, buf);
+      org.openl.util.text.TextInterval loc = pos(err.getMessage(), token);
       syntaxBuilder.addError(
-      new org.openl.syntax.exception.SyntaxNodeException(buf.toString(), null, loc, syntaxBuilder.getModule()));
+      new org.openl.syntax.exception.SyntaxNodeException(err.getMessage(), null, loc, syntaxBuilder.getModule()));
     }
     catch (Exception e)
     {
