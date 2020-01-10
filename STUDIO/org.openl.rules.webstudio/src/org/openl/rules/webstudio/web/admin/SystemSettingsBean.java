@@ -22,7 +22,6 @@ import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
-import org.openl.rules.webstudio.util.PreferencesManager;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
@@ -30,6 +29,7 @@ import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
+import org.openl.spring.env.DynamicPropertySource;
 import org.openl.spring.env.PropertySourcesLoader;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -264,7 +264,7 @@ public class SystemSettingsBean {
             deployConfigRepositoryConfiguration.commit();
         }
 
-        String workingDir = propertyResolver.getProperty(PreferencesManager.WEBSTUDIO_WORKING_DIR_KEY);
+        String workingDir = propertyResolver.getProperty(DynamicPropertySource.OPENL_HOME);
         properties.writeTo(new File(workingDir, getAppName() + ".properties"));
 
         refreshConfig();

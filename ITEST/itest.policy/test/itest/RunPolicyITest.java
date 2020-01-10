@@ -25,7 +25,7 @@ public class RunPolicyITest {
         System.setProperty(SECURITY_MANAGER_KEY, "");
         System.setProperty(SECURITY_POLICY_KEY, System.getProperty("user.dir") + "/test-resources/iTest.policy");
         System.setSecurityManager(new SecurityManager());
-        server = new JettyServer();
+        server = JettyServer.start();
         server.start();
         client = server.client();
     }

@@ -1,16 +1,14 @@
 package org.openl.rules.project.abstraction;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.junit.Before;
+import org.junit.Test;
 
 public class CommentsTest {
 
@@ -26,9 +24,13 @@ public class CommentsTest {
         String eraseProjectTemplate = "Project {username} {project-name} is erased. {foo}";
         String copiedFromTemplate = "Project {username} {{project-name}} is copied-from. {foo}";
         String restoredFromTemplate = "Project {username} {revision} is restored-from. {foo}";
-        comments = new Comments(saveProjectTemplate, createProjectTemplate,
-                archiveProjectTemplate, restoreProjectTemplate, eraseProjectTemplate,
-                copiedFromTemplate, restoredFromTemplate);
+        comments = new Comments(saveProjectTemplate,
+            createProjectTemplate,
+            archiveProjectTemplate,
+            restoreProjectTemplate,
+            eraseProjectTemplate,
+            copiedFromTemplate,
+            restoredFromTemplate);
     }
 
     @Test

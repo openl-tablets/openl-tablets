@@ -97,6 +97,10 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
             ILocalVar localVar = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE, varName, varType);
             TypeBindingContext varBindingContext = TypeBindingContext.create(bindingContext, localVar);
             IBoundNode boundExpressionNode = bindChildNode(expressionNode, varBindingContext);
+            if (boundExpressionNode instanceof TypeBoundNode) {
+                String message = "Type definition cannot be used as expression for array index operator.";
+                return makeErrorNode(message, boundExpressionNode.getSyntaxNode(), bindingContext);
+            }
 
             return createBoundNode(node, targetNode, boundExpressionNode, localVar, bindingContext);
         } finally {

@@ -16,6 +16,7 @@ import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
 
 /**
  * LocalWorkspaceManager implementation.
@@ -34,6 +35,14 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
 
     // Project type (rules/deployment) -> Lock Engine
     private final Map<String, LockEngine> lockEngines = new HashMap<>();
+
+    // for tests
+    public LocalWorkspaceManagerImpl() {
+    }
+
+    public LocalWorkspaceManagerImpl(PropertyResolver propertyResolver) {
+        workspaceHome = propertyResolver.getProperty("user.workspace.home");
+    }
 
     /**
      * init-method
@@ -59,9 +68,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
                 userWorkspace.getAbsolutePath());
         }
         log.debug("Creating workspace for user ''{}'' at ''{}''", user.getUserId(), userWorkspace.getAbsolutePath());
-        LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(user,
-            userWorkspace,
-            localWorkspaceFolderFilter);
+        LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(user, userWorkspace, localWorkspaceFolderFilter);
         workspace.addWorkspaceListener(this);
         return workspace;
     }

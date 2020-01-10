@@ -7,6 +7,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.method.AutoCastableResultOpenMethod;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ComponentTypeArrayOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -45,6 +46,9 @@ public class DefaultAutoCastFactory implements AutoCastFactory {
             JavaOpenMethod method,
             IOpenClass type,
             Integer arrayDim) {
+        if (NullOpenClass.the.equals(type)) {
+            return methodCaller;
+        }
         IOpenClass simpleType = type;
         int d = 0;
         while (simpleType.isArray()) {

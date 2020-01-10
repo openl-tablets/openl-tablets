@@ -8,17 +8,18 @@
 
     <import resource="common-authentication.xml"/>
     <import resource="authorization.xml"/>
-    <import resource="db-services.xml" />
+    <import resource="db-services.xml"/>
 
     <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
         <security:filter-chain-map request-matcher="ant">
-            <security:filter-chain pattern="/favicon.ico" filters="none" />
-            <security:filter-chain pattern="/css/**" filters="none" />
-            <security:filter-chain pattern="/images/**" filters="none" />
-            <security:filter-chain pattern="/javascript/**" filters="none" />
-            <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none" />
-            <security:filter-chain pattern="/faces/rfRes/**" filters="none" />
-            <security:filter-chain pattern="/**" filters="securityContextPersistenceFilter,logoutFilter,singleLogoutFilter,casFilter,exceptionTranslationFilter,filterSecurityInterceptor" />
+            <security:filter-chain pattern="/favicon.ico" filters="none"/>
+            <security:filter-chain pattern="/css/**" filters="none"/>
+            <security:filter-chain pattern="/images/**" filters="none"/>
+            <security:filter-chain pattern="/javascript/**" filters="none"/>
+            <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none"/>
+            <security:filter-chain pattern="/faces/rfRes/**" filters="none"/>
+            <security:filter-chain pattern="/**"
+                                   filters="securityContextPersistenceFilter,logoutFilter,singleLogoutFilter,casFilter,exceptionTranslationFilter,filterSecurityInterceptor"/>
         </security:filter-chain-map>
     </bean>
 
@@ -26,7 +27,7 @@
     <bean id="rememberMeServices" class="org.springframework.security.web.authentication.NullRememberMeServices"/>
 
     <util:list id="authenticationProviders">
-        <ref bean="authenticationProviderWrapper" />
+        <ref bean="authenticationProviderWrapper"/>
     </util:list>
 
     <alias name="groupsAreManagedInStudio" alias="canCreateExternalUsers"/>
@@ -38,15 +39,15 @@
     <!-- ======================== Logout ========================== -->
 
     <bean id="logoutUrl" class="java.lang.String">
-        <constructor-arg value="/security_logout" />
+        <constructor-arg value="/security_logout"/>
     </bean>
     <!-- Redirect to the CAS Server to signal Single Logout should be performed -->
     <bean id="logoutSuccessUrl" class="java.lang.String">
-        <constructor-arg value="${security.cas.cas-server-url-prefix}/logout" />
+        <constructor-arg value="#{environment.getProperty('security.cas.cas-server-url-prefix')}/logout"/>
     </bean>
 
     <util:list id="logoutHandlers">
-        <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler" />
+        <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
     </util:list>
 
     <!-- This filter handles a Single Logout Request from the CAS Server -->
@@ -54,11 +55,11 @@
 
     <!-- ========================= CAS ============================= -->
     <bean id="casServiceUrl" class="java.lang.String">
-        <constructor-arg value="/login/cas" />
+        <constructor-arg value="/login/cas"/>
     </bean>
 
     <bean id="serviceProperties" class="org.springframework.security.cas.ServiceProperties">
-        <property name="service" value="${security.cas.app-url}#{casServiceUrl}"/>
+        <property name="service" value="#{environment.getProperty('security.cas.app-url')}#{casServiceUrl}"/>
         <property name="authenticateAllArtifacts" value="true"/>
     </bean>
 
@@ -68,23 +69,23 @@
     </bean>
 
     <bean id="authenticationEntryPoint" class="org.springframework.security.cas.web.CasAuthenticationEntryPoint">
-        <property name="loginUrl" value="${security.cas.cas-server-url-prefix}/login"/>
+        <property name="loginUrl" value="#{environment.getProperty('security.cas.cas-server-url-prefix')}/login"/>
         <property name="serviceProperties" ref="serviceProperties"/>
     </bean>
 
-    <bean id="casAuthenticationProvider" class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
-        <property name="serviceProperties" ref="serviceProperties" />
+    <bean id="casAuthenticationProvider"
+          class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
+        <property name="serviceProperties" ref="serviceProperties"/>
         <property name="ticketValidator">
             <bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
-                <constructor-arg name="casServerUrlPrefix" value="${security.cas.cas-server-ticket-validator-prefix}"/>
+                <constructor-arg name="casServerUrlPrefix"
+                                 value="#{environment.getProperty('security.cas.cas-server-ticket-validator-prefix')}"/>
                 <property name="encoding" value="UTF-8"/>
             </bean>
         </property>
         <property name="authenticationUserDetailsService">
             <bean class="org.openl.security.cas.CASAttributesToOpenLUserDetailsService">
-                <constructor-arg name="firstNameAttribute" value="${security.cas.attribute.first-name}"/>
-                <constructor-arg name="lastNameAttribute" value="${security.cas.attribute.last-name}"/>
-                <constructor-arg name="groupsAttribute" value="${security.cas.attribute.groups}"/>
+                <constructor-arg ref="environment"/>
             </bean>
         </property>
         <property name="authoritiesMapper" ref="authoritiesMapper"/>
@@ -92,16 +93,18 @@
     </bean>
 
     <bean id="groupsAreManagedInStudio" class="java.lang.Boolean">
-        <constructor-arg type="boolean" value="${security.cas.attribute.groups'].isEmpty()}"/>
+        <constructor-arg type="boolean" value="#{environment.getProperty('security.cas.attribute.groups').isEmpty()}"/>
     </bean>
 
-    <bean id="authenticationProviderWrapper" class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
+    <bean id="authenticationProviderWrapper"
+          class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
         <constructor-arg name="delegate" ref="casAuthenticationProvider"/>
         <constructor-arg name="authenticationUserDetailsService">
             <bean class="org.openl.rules.webstudio.security.CreateIfNotExistAuthenticationUserDetailsService">
                 <constructor-arg name="userManagementService" ref="userManagementService"/>
                 <constructor-arg name="groupManagementService" ref="groupManagementService"/>
-                <property name="defaultGroup" value="${security.cas.default-group}"/>
+                <constructor-arg name="propertyResolver" ref="environment"/>
+                <constructor-arg name="prefix" value="cas."/>
             </bean>
         </constructor-arg>
         <property name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>

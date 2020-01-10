@@ -1,15 +1,18 @@
 package org.openl.rules.project.abstraction;
 
-import org.openl.util.StringUtils;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+
+import org.openl.util.StringUtils;
+import org.springframework.core.env.PropertyResolver;
 
 public final class Comments {
 
     private static final String PROJECT_NAME = "\\{project-name}";
     private static final String REVISION = "\\{revision}";
+    private static final String REPOSITORY_PREFIX = "repository.";
 
     private final String saveProjectTemplate;
     private final String createProjectTemplate;
@@ -19,8 +22,32 @@ public final class Comments {
     private final String copiedFromTemplate;
     private final String restoredFromTemplate;
 
-    public Comments(String saveProjectTemplate, String createProjectTemplate, String archiveProjectTemplate, String restoreProjectTemplate,
-                    String eraseProjectTemplate, String copiedFromTemplate, String restoredFromTemplate) {
+    public Comments(PropertyResolver environment, String prefix) {
+        Objects.requireNonNull(prefix, "prefix cannot be null");
+        saveProjectTemplate = environment
+            .getProperty(REPOSITORY_PREFIX + prefix + "comment-template.user-message.default.save");
+        createProjectTemplate = environment
+            .getProperty(REPOSITORY_PREFIX + prefix + "comment-template.user-message.default.create");
+        archiveProjectTemplate = environment
+            .getProperty(REPOSITORY_PREFIX + prefix + "comment-template.user-message.default.archive");
+        restoreProjectTemplate = environment
+            .getProperty(REPOSITORY_PREFIX + prefix + "comment-template.user-message.default.restore");
+        eraseProjectTemplate = environment
+            .getProperty(REPOSITORY_PREFIX + prefix + "comment-template.user-message.default.erase");
+        copiedFromTemplate = environment
+            .getProperty(REPOSITORY_PREFIX + prefix + "comment-template.user-message.default.copied-from");
+        restoredFromTemplate = environment
+            .getProperty(REPOSITORY_PREFIX + prefix + "comment-template.user-message.default.restored-from");
+    }
+
+    // protected for tests
+    protected Comments(String saveProjectTemplate,
+            String createProjectTemplate,
+            String archiveProjectTemplate,
+            String restoreProjectTemplate,
+            String eraseProjectTemplate,
+            String copiedFromTemplate,
+            String restoredFromTemplate) {
         this.saveProjectTemplate = saveProjectTemplate;
         this.createProjectTemplate = createProjectTemplate;
         this.archiveProjectTemplate = archiveProjectTemplate;
@@ -60,7 +87,7 @@ public final class Comments {
 
     public String copiedFrom(String sourceProjectName) {
         return copiedFromTemplate.replaceAll(PROJECT_NAME,
-                sourceProjectName == null ? StringUtils.EMPTY : sourceProjectName);
+            sourceProjectName == null ? StringUtils.EMPTY : sourceProjectName);
     }
 
     public List<String> getCommentParts(String comment) {
