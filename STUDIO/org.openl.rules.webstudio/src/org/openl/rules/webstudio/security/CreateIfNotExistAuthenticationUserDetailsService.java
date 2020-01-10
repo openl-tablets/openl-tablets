@@ -12,6 +12,7 @@ import org.openl.rules.security.User;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.util.StringUtils;
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
@@ -21,12 +22,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 public class CreateIfNotExistAuthenticationUserDetailsService implements AuthenticationUserDetailsService {
     private final UserManagementService userManagementService;
     private final GroupManagementService groupManagementService;
-    private String defaultGroup = null;
+    private String defaultGroup;
 
     public CreateIfNotExistAuthenticationUserDetailsService(UserManagementService userManagementService,
-            GroupManagementService groupManagementService) {
+            GroupManagementService groupManagementService,
+            PropertyResolver propertyResolver,
+            String prefix) {
         this.userManagementService = userManagementService;
         this.groupManagementService = groupManagementService;
+        this.defaultGroup = propertyResolver.getProperty("security." + prefix + ".default-group");
     }
 
     @Override
@@ -88,9 +92,5 @@ public class CreateIfNotExistAuthenticationUserDetailsService implements Authent
             userDetails = user;
         }
         return userDetails;
-    }
-
-    public void setDefaultGroup(String defaultGroup) {
-        this.defaultGroup = defaultGroup;
     }
 }
