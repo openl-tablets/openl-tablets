@@ -238,26 +238,28 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertTrue(CellMetaInfo.isCellContainsNodeUsages(returnCellMeta));
 
         usedNodes = returnCellMeta.getUsedNodes();
-        assertEquals(4, usedNodes.size());
+        assertEquals(5, usedNodes.size());
 
-        // FIXME: Field navigation from a constructor is not working now
-        // previusly it works because of mixes constructors and method
-        // now a constructor is a absolutely separate from a method
-        // assertEquals(typeB.getUri(), usedNodes.get(0).getUri());
-        assertEquals(24, usedNodes.get(0).getStart());
-        assertEquals(26, usedNodes.get(0).getEnd());
+        //the first node it's constructor
+        assertEquals(typeB.getUri(), usedNodes.get(0).getUri());
+        assertEquals(11, usedNodes.get(0).getStart());
+        assertEquals(15, usedNodes.get(0).getEnd());
 
-        assertEquals(convert.getUri(), usedNodes.get(1).getUri());
-        assertEquals(30, usedNodes.get(1).getStart());
-        assertEquals(36, usedNodes.get(1).getEnd());
+        assertEquals(typeB.getUri(), usedNodes.get(1).getUri());
+        assertEquals(24, usedNodes.get(1).getStart());
+        assertEquals(26, usedNodes.get(1).getEnd());
 
-        assertEquals(typeC.getUri(), usedNodes.get(2).getUri());
-        assertEquals(38, usedNodes.get(2).getStart());
-        assertEquals(42, usedNodes.get(2).getEnd());
+        assertEquals(convert.getUri(), usedNodes.get(2).getUri());
+        assertEquals(30, usedNodes.get(2).getStart());
+        assertEquals(36, usedNodes.get(2).getEnd());
 
-        assertEquals(typeB.getUri(), usedNodes.get(3).getUri());
-        assertEquals(51, usedNodes.get(3).getStart());
-        assertEquals(53, usedNodes.get(3).getEnd());
+        assertEquals(typeC.getUri(), usedNodes.get(3).getUri());
+        assertEquals(38, usedNodes.get(3).getStart());
+        assertEquals(42, usedNodes.get(3).getEnd());
+
+        assertEquals(typeB.getUri(), usedNodes.get(4).getUri());
+        assertEquals(51, usedNodes.get(4).getStart());
+        assertEquals(53, usedNodes.get(4).getEnd());
     }
 
     /**
