@@ -1,0 +1,1 @@
+ERROR: Lexical error at line 1, column 25.  Encountered: "]" (93), after : ""

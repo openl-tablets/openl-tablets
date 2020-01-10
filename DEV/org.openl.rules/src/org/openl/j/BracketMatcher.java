@@ -44,35 +44,31 @@ class BracketMatcher {
             return id;
         }
 
-        public String getErrorCode() {
+        ErrorType getErrorCode() {
             return errorCode;
         }
 
         Brackets bracket;
         Object id;
-        String errorCode;
+        ErrorType errorCode;
 
-        public BracketsStackObject(Brackets bracket, Object id, String errorCode) {
+        BracketsStackObject(Brackets bracket, Object id, ErrorType errorCode) {
             super();
             this.bracket = bracket;
             this.id = id;
             this.errorCode = errorCode;
         }
 
-        public BracketsStackObject(Brackets bracket, Object id) {
+        BracketsStackObject(Brackets bracket, Object id) {
             super();
             this.bracket = bracket;
             this.id = id;
         }
     }
 
-    public static final String UNEXPECTED = "Unexpected";
-    public static final String MISMATCHED = "Mismatched";
-    public static final String UNMATCHED = "Unmatched";
+    private Stack<BracketsStackObject> stack = new Stack<>();
 
-    Stack<BracketsStackObject> stack = new Stack<>();
-
-    public BracketsStackObject addToken(String image, Object id) {
+    BracketsStackObject addToken(String image, Object id) {
 
         char c = image.charAt(0);
         Brackets b = Brackets.isBracket(c);
@@ -88,29 +84,32 @@ class BracketMatcher {
 
         if (b.isClosed(c)) {
             if (stack.isEmpty()) {
-                return new BracketsStackObject(b, id, UNEXPECTED);
+                return new BracketsStackObject(b, id, ErrorType.UNEXPECTED);
             }
 
             BracketsStackObject bso = stack.pop();
             if (bso.bracket.isClosed(c)) {
                 return null;
             }
-            bso.errorCode = MISMATCHED;
+            bso.errorCode = ErrorType.MISMATCHED;
             return bso;
         }
 
-        throw new RuntimeException("Wrong bracket - cannot happen.");
+        throw new IllegalStateException("Wrong bracket - cannot happen.");
 
     }
 
-    public BracketsStackObject checkAtTheEnd() {
+    BracketsStackObject checkAtTheEnd() {
         if (stack.isEmpty()) {
             return null;
         }
 
         BracketsStackObject bso = stack.pop();
-        bso.errorCode = UNMATCHED;
+        bso.errorCode = ErrorType.UNMATCHED;
         return bso;
     }
 
+    public enum ErrorType {
+        UNEXPECTED, MISMATCHED, UNMATCHED
+    }
 }
