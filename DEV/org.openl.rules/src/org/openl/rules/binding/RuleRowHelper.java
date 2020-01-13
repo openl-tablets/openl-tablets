@@ -204,13 +204,39 @@ public final class RuleRowHelper {
         return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src);
     }
 
+    private static boolean isCellNumericStringDate(ICell theValueCell, IOpenClass paramType) {
+        Class<?> instanceClass = paramType.getInstanceClass();
+        int nativeType = theValueCell.getNativeType();
+        return ClassUtils.isAssignable(instanceClass, Date.class) && nativeType == IGrid.CELL_TYPE_STRING && isNumeric(theValueCell.getStringValue());
+    }
+
+    public static boolean isNumeric(final CharSequence cs) {
+        if (cs == null || cs.length() == 0) {
+            return false;
+        }
+        final int sz = cs.length();
+        int dots = 0;
+        for (int i = 0; i < sz; i++) {
+            if (!Character.isDigit(cs.charAt(i))) {
+                return false;
+            }
+            if (cs.charAt(i) == '.') {
+                if (++dots > 1) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     private static Object loadNativeValue(IOpenClass paramType,
                                           String paramName,
                                           String ruleName,
                                           ILogicalTable table,
                                           OpenlToolAdaptor openlAdapter,
                                           ICell theValueCell) throws SyntaxNodeException {
-        if (theValueCell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
+        if (theValueCell.getNativeType() == IGrid.CELL_TYPE_NUMERIC ||
+                isCellNumericStringDate(theValueCell, paramType)) {
             try {
                 Object res = loadNativeValue(theValueCell, paramType);
 
@@ -263,8 +289,9 @@ public final class RuleRowHelper {
 
     public static Object loadNativeValue(ICell cell, IOpenClass paramType) {
         Object res = null;
-        if (cell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
-            Class<?> expectedType = paramType.getInstanceClass();
+        Class<?> expectedType = paramType.getInstanceClass();
+        if (cell.getNativeType() == IGrid.CELL_TYPE_NUMERIC ||
+                isCellNumericStringDate(cell, paramType)) {
             if (expectedType == null) {
                 return null;
             }

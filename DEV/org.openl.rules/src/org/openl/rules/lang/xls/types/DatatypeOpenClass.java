@@ -17,6 +17,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.*;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.JavaOpenConstructor;
 import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
@@ -246,6 +247,28 @@ public class DatatypeOpenClass extends ADynamicClass {
         methodMap.put(hashCodeKey, hashCode);
 
         return methodMap;
+    }
+
+    @Override
+    protected Map<MethodKey, IOpenMethod> initConstructorMap() {
+        Map<MethodKey, IOpenMethod> constructors = super.initConstructorMap();
+        Map<MethodKey, IOpenMethod> constructorMap = new HashMap<>(1);
+        for (Entry<MethodKey, IOpenMethod> constructor : constructors.entrySet()) {
+            IOpenMethod wrapped = wrapDatatypeOpenConstructor(constructor.getValue());
+            if (wrapped == constructor.getValue()) {
+                constructorMap.put(constructor.getKey(), constructor.getValue());
+            } else {
+                constructorMap.put(new MethodKey(wrapped), wrapped);
+            }
+        }
+        return constructorMap;
+    }
+
+    private IOpenMethod wrapDatatypeOpenConstructor(IOpenMethod method) {
+        if (method instanceof JavaOpenConstructor && javaName.equals(method.getDeclaringClass().getJavaName())) {
+            return new DatatypeOpenConstructor((JavaOpenConstructor) method, this);
+        }
+        return method;
     }
 
     public byte[] getBytecode() {

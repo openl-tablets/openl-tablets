@@ -8,6 +8,7 @@ import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.util.StringUtils;
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.cas.userdetails.AbstractCasAssertionUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -16,10 +17,10 @@ public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertion
     private final String lastNameAttribute;
     private final String groupsAttribute;
 
-    public CASAttributesToOpenLUserDetailsService(String firstNameAttribute, String lastNameAttribute, String groupsAttribute) {
-        this.firstNameAttribute = firstNameAttribute;
-        this.lastNameAttribute = lastNameAttribute;
-        this.groupsAttribute = groupsAttribute;
+    public CASAttributesToOpenLUserDetailsService(PropertyResolver propertyResolver) {
+        this.firstNameAttribute = propertyResolver.getProperty("security.cas.attribute.first-name");
+        this.lastNameAttribute = propertyResolver.getProperty("security.cas.attribute.last-name");
+        this.groupsAttribute = propertyResolver.getProperty("security.cas.attribute.groups");
     }
 
     @Override

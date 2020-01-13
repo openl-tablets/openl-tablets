@@ -10,19 +10,19 @@
     <import resource="common-authentication.xml"/>
     <import resource="form-based-authentication.xml"/>
     <import resource="authorization.xml"/>
-    <import resource="db-services.xml" />
+    <import resource="db-services.xml"/>
 
     <!-- ============================ Define needed beans for dependencies ====================================== -->
     <bean id="rememberMeServices" class="org.springframework.security.web.authentication.NullRememberMeServices"/>
 
     <util:list id="authenticationProviders">
         <!-- First try to authenticate using internal users DB, then using AD-->
-        <ref bean="daoAuthenticationProvider" />
-        <ref bean="authenticationProviderWrapper" />
+        <ref bean="daoAuthenticationProvider"/>
+        <ref bean="authenticationProviderWrapper"/>
     </util:list>
 
     <util:list id="logoutHandlers">
-        <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler" />
+        <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
     </util:list>
 
     <alias name="groupsAreManagedInStudio" alias="canCreateExternalUsers"/>
@@ -32,10 +32,11 @@
     </bean>
 
     <!-- ================================= Authentication ======================================= -->
-    <bean id="adAuthenticationProvider" class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
-        <constructor-arg name="domain" value="${security.ad.domain}"/>
-        <constructor-arg name="url" value="${security.ad.server-url}"/>
-        <property name="searchFilter" value="${security.ad.search-filter}"/>
+    <bean id="adAuthenticationProvider"
+          class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
+        <constructor-arg name="domain" value="#{environment.getProperty('security.ad.domain')}"/>
+        <constructor-arg name="url" value="#{environment.getProperty('security.ad.server-url')}"/>
+        <property name="searchFilter" value="#{environment.getProperty('security.ad.search-filter')}"/>
         <property name="authoritiesMapper" ref="authoritiesMapper"/>
         <property name="userDetailsContextMapper" ref="userDetailsContextMapper"/>
     </bean>
@@ -44,24 +45,22 @@
         <constructor-arg name="delegate">
             <bean class="org.springframework.security.ldap.userdetails.LdapUserDetailsMapper"/>
         </constructor-arg>
-        <constructor-arg name="domain" value="${security.ad.domain}"/>
-        <constructor-arg name="url" value="${security.ad.server-url}"/>
-        <constructor-arg name="searchFilter" value="${security.ad.search-filter}"/>
-        <constructor-arg name="primaryGroupFilter" value="${security.ad.primary-group-filter}"/>
-        <constructor-arg name="groupFilter" value="${security.ad.group-filter}"/>
+        <constructor-arg name="propertyResolver" ref="environment"/>
     </bean>
 
     <bean id="groupsAreManagedInStudio" class="java.lang.Boolean">
         <constructor-arg type="boolean" value="${security.ad.groups-are-managed-in-studio}"/>
     </bean>
 
-    <bean id="authenticationProviderWrapper" class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
+    <bean id="authenticationProviderWrapper"
+          class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
         <constructor-arg name="delegate" ref="adAuthenticationProvider"/>
         <constructor-arg name="authenticationUserDetailsService">
             <bean class="org.openl.rules.webstudio.security.CreateIfNotExistAuthenticationUserDetailsService">
                 <constructor-arg name="userManagementService" ref="userManagementService"/>
                 <constructor-arg name="groupManagementService" ref="groupManagementService"/>
-                <property name="defaultGroup" value="${security.ad.default-group}"/>
+                <constructor-arg name="propertyResolver" ref="environment"/>
+                <constructor-arg name="prefix" value="ad"/>
             </bean>
         </constructor-arg>
         <property name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>

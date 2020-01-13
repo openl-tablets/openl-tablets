@@ -5,7 +5,12 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -19,6 +24,7 @@ import org.openl.rules.webstudio.web.repository.upload.RootFolderExtractor;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
 
 /**
  * This class tries to detect charset for zips compressed with non-UTF-8 encoding. First of all it iterates all entries
@@ -27,6 +33,7 @@ import org.slf4j.LoggerFactory;
  * (when updating existing project with zip).
  */
 public class ZipCharsetDetector {
+    public static final String ZIP_CHARSETS_SUPPORT = "zip.charsets.support";
     private final Logger log = LoggerFactory.getLogger(ZipCharsetDetector.class);
     private final Charset[] charsets;
     private final PathFilter zipFilter;
@@ -35,12 +42,13 @@ public class ZipCharsetDetector {
     /**
      * Create zip charset detector.
      *
-     * @param charsetNames additional charsets to check.
      * @param zipFilter path filter to filter out technical folders. If null, all files in the zip will be accepted.
+     * @param propertyResolver environment, which contains additional charsets to check.
      */
-    public ZipCharsetDetector(String[] charsetNames, PathFilter zipFilter) {
-        this.charsets = getAvailableCharsets(charsetNames);
+    public ZipCharsetDetector(PathFilter zipFilter, PropertyResolver propertyResolver) {
+        this.charsets = getAvailableCharsets(propertyResolver.getProperty(ZIP_CHARSETS_SUPPORT, String[].class));
         this.zipFilter = zipFilter;
+
     }
 
     /**

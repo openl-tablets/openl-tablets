@@ -564,11 +564,11 @@ public class CastFactory implements ICastFactory {
     private IOpenCast findAliasCast(IOpenClass from, IOpenClass to) {
         if (!from.isArray() && (from instanceof DomainOpenClass || to instanceof DomainOpenClass)) {
 
-            if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass) && to.isAssignableFrom(from)) {
+            if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass) && to.equals(((DomainOpenClass) from).getBaseClass())) {
                 return AliasToTypeCast.getInstance();
             }
 
-            if (to instanceof DomainOpenClass && !(from instanceof DomainOpenClass) && from.isAssignableFrom(to)) {
+            if (!(from instanceof DomainOpenClass) && to instanceof DomainOpenClass && from.equals(((DomainOpenClass) to).getBaseClass())) {
                 return new TypeToAliasCast(to);
             }
 

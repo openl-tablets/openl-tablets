@@ -1,6 +1,15 @@
 package org.openl.rules.testmethod;
 
+import static org.openl.rules.testmethod.TestStatus.TR_EXCEPTION;
+import static org.openl.rules.testmethod.TestStatus.TR_NEQ;
+import static org.openl.rules.testmethod.TestStatus.TR_OK;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.testmethod.result.ComparedResult;
@@ -9,14 +18,6 @@ import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import static org.openl.rules.testmethod.TestStatus.TR_EXCEPTION;
-import static org.openl.rules.testmethod.TestStatus.TR_NEQ;
-import static org.openl.rules.testmethod.TestStatus.TR_OK;
 
 public class BaseTestUnit implements ITestUnit {
 
@@ -96,7 +97,7 @@ public class BaseTestUnit implements ITestUnit {
     private TestStatus compareResult(String expectedError, Object expectedResult, Object actualResult) {
         if (actualError != null) {
             Throwable rootCause = ExceptionUtils.getRootCause(actualError);
-            if (rootCause instanceof OpenLUserRuntimeException) {
+            if (rootCause instanceof OpenLUserRuntimeException || rootCause instanceof OutsideOfValidDomainException) {
                 return compareMessageAndGetResult(expectedError, rootCause.getMessage(), expectedResult);
             } else {
                 ComparedResult results = new ComparedResult(null,

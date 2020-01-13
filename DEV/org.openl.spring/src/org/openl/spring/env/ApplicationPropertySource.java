@@ -9,18 +9,61 @@ import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 
 /**
- * A helper which resolves ${...} placeholders with values from property resources (system & environment properties,
- * init-params, predefined properties files...), then converts a comma delimited string to a list of values and replaces
- * and {appName} and {profile} tags with values from the application context.
+ * Application properties can be get as combinations of locations and names. If a location is a folder then it is
+ * concatenated with each name. For example:
  * <p>
- * For example. If value is <i>file:${user.home}/{appName}-{profile}.properties</i>, where {appName} is "webstudio", and
- * Spring active propfile is "prod, test", then result will be the list of values:
- * <i>["file:/home/openl/webstudio-prod.properties", "file:/home/openl/webstudio-test.properties"]</i>
- * </p>
+ * application name (from the Spring application context): WebStudio<br>
+ * Spring active profiles: prod, qa<br>
+ * locations: file:, file:openl.properties, file:openl/<br>
+ * names: application.properties, {appName}.properties, {profile}.properties<br>
+ * <br>
+ * Then the list of resources to search is (next resource overides previous):
+ * <ol>
+ * <li>file:application.properties</li>
+ * <li>file:WebStudio.properties</li>
+ * <li>file:prod.properties</li>
+ * <li>file:qa.properties</li>
+ * <li>file:openl.properties</li>
+ * <li>file:openl/application.properties</li>
+ * <li>file:openl/WebStudio.properties</li>
+ * <li>file:openl/prod.properties</li>
+ * <li>file:openl/qa.properties</li>
+ * </ol>
+ * 
+ * Default Application externalized configuration: <br>
+ * Can be overridden using {@code openl.config.name} or {@code spring.config.name} properties for names. <br>
+ * And {@code openl.config.location} or {@code spring.config.location} properties for folders and locations.
+ * <ol>
+ * <li>classpath:application*-default.properties</li>
+ * <li>classpath:application.properties</li>
+ * <li>classpath:application-{profile}.properties</li>
+ * <li>classpath:{appName}.properties</li>
+ * <li>classpath:{appName}-{profile}.properties</li>
+ * <li>classpath:config/application.properties</li>
+ * <li>classpath:config/application-{profile}.properties</li>
+ * <li>classpath:config/{appName}.properties</li>
+ * <li>classpath:config/{appName}-{profile}.properties</li>
+ * <li>file:application.properties</li>
+ * <li>file:application-{profile}.properties</li>
+ * <li>file:{appName}.properties</li>
+ * <li>file:{appName}-{profile}.properties</li>
+ * <li>file:conf/application.properties</li>
+ * <li>file:conf/application-{profile}.properties</li>
+ * <li>file:conf/{appName}.properties</li>
+ * <li>file:conf/{appName}-{profile}.properties</li>
+ * <li>file:config/application.properties</li>
+ * <li>file:config/application-{profile}.properties</li>
+ * <li>file:config/{appName}.properties</li>
+ * <li>file:config/{appName}-{profile}.properties</li>
+ * <li>file:${user.home}/application.properties</li>
+ * <li>file:${user.home}/application-{profile}.properties</li>
+ * <li>file:${user.home}/{appName}.properties</li>
+ * <li>file:${user.home}/{appName}-{profile}.properties</li>
+ * </ol>
  *
  * @author Yury Molchan
  */
-public class ApplicationPropertySources extends CompositePropertySource {
+public class ApplicationPropertySource extends CompositePropertySource {
     public static final String PROPS_NAME = "OpenL application properties";
     private static final String APP_NAME_TAG = "{appName}";
     private static final String PROFILE_TAG = "{profile}";
@@ -28,7 +71,7 @@ public class ApplicationPropertySources extends CompositePropertySource {
     private final String[] profiles;
     private final PropertyResolver resolver;
 
-    ApplicationPropertySources(PropertyResolver resolver, String appName, String... profiles) {
+    ApplicationPropertySource(PropertyResolver resolver, String appName, String... profiles) {
         super(PROPS_NAME);
         this.resolver = resolver;
         this.appName = appName;

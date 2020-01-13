@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.util;
 
 import org.openl.rules.webstudio.web.servlet.StartupListener;
+import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,7 @@ public enum PreferencesManager {
 
     INSTANCE;
 
-    public static final String WEBSTUDIO_WORKING_DIR_KEY = "openl.home";
+    public static final String WEBSTUDIO_WORKING_DIR_KEY = DynamicPropertySource.OPENL_HOME;
     private static final String WEBSTUDIO_MODE_KEY = "webstudio.mode";
     public static final String WEBSTUDIO_MODE_MAIN = "webstudio";
     public static final String WEBSTUDIO_MODE_INSTALLER = "installer";

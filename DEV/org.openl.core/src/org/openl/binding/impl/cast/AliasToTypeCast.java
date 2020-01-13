@@ -5,6 +5,7 @@ final class AliasToTypeCast implements IOpenCast {
 
     private IOpenCast typeCast;
     private int distance = CastFactory.ALIAS_TO_TYPE_CAST_DISTANCE;
+    private boolean implicit = true;
 
     static AliasToTypeCast getInstance() {
         return INSTANCE;
@@ -15,7 +16,8 @@ final class AliasToTypeCast implements IOpenCast {
 
     AliasToTypeCast(IOpenCast typeCast) {
         this.typeCast = typeCast;
-        distance = typeCast.getDistance() - 1;// This cast has higher priority
+        this.distance = typeCast.getDistance() - 1;// This cast has higher priority
+        this.implicit = typeCast.isImplicit();
     }
 
     @Override
@@ -34,6 +36,6 @@ final class AliasToTypeCast implements IOpenCast {
 
     @Override
     public boolean isImplicit() {
-        return true;
+        return implicit;
     }
 }

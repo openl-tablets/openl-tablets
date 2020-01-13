@@ -1,21 +1,8 @@
 package org.openl.rules.webstudio.security;
 
-import org.openl.rules.security.Privilege;
-import org.openl.rules.security.SimplePrivilege;
-import org.openl.rules.security.SimpleUser;
-import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.DistinguishedName;
-import org.springframework.ldap.core.support.DefaultDirObjectFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.ldap.LdapUtils;
-import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Hashtable;
 
 import javax.naming.CompositeName;
 import javax.naming.ConfigurationException;
@@ -29,9 +16,24 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Hashtable;
+
+import org.openl.rules.security.Privilege;
+import org.openl.rules.security.SimplePrivilege;
+import org.openl.rules.security.SimpleUser;
+import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.core.support.DefaultDirObjectFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.ldap.LdapUtils;
+import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 
 public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     private final Logger log = LoggerFactory.getLogger(LdapToOpenLUserDetailsMapper.class);
@@ -46,29 +48,30 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     private final String rootDn;
     private final String searchFilter;
 
-    public LdapToOpenLUserDetailsMapper(UserDetailsContextMapper delegate, String domain, String url, String searchFilter, String primaryGroupFilter, String groupFilter) {
+    public LdapToOpenLUserDetailsMapper(UserDetailsContextMapper delegate, PropertyResolver propertyResolver) {
         this.delegate = delegate;
-        this.domain = StringUtils.isNotBlank(domain) ? domain.toLowerCase() : null;
-        this.url = url;
-        this.searchFilter = searchFilter;
-        this.primaryGroupFilter = primaryGroupFilter;
-        this.groupFilter = groupFilter;
+        String domainProperty = propertyResolver.getProperty("security.ad.domain");
+        this.domain = StringUtils.isNotBlank(domainProperty) ? domainProperty.toLowerCase() : null;
+        this.url = propertyResolver.getProperty("security.ad.server-url");
+        this.searchFilter = propertyResolver.getProperty("security.ad.search-filter");
+        this.primaryGroupFilter = propertyResolver.getProperty("security.ad.primary-group-filter");
+        this.groupFilter = propertyResolver.getProperty("security.ad.group-filter");
 
         rootDn = this.domain == null ? null : rootDnFromDomain(this.domain);
     }
 
     @Override
     public UserDetails mapUserFromContext(DirContextOperations ctx,
-                                          String username,
-                                          Collection<? extends GrantedAuthority> authorities) {
+            String username,
+            Collection<? extends GrantedAuthority> authorities) {
         UserDetails userDetails = delegate.mapUserFromContext(ctx, username, authorities);
 
         String firstName = ctx.getStringAttribute("givenName");
         String lastName = ctx.getStringAttribute("sn");
 
         Collection<? extends GrantedAuthority> userAuthorities = getAuthorities(ctx,
-                username,
-                userDetails.getAuthorities());
+            username,
+            userDetails.getAuthorities());
 
         Collection<Privilege> privileges = new ArrayList<>(userAuthorities.size());
         for (GrantedAuthority authority : userAuthorities) {
@@ -87,8 +90,8 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(DirContextOperations ctx,
-                                                                  String username,
-                                                                  Collection<? extends GrantedAuthority> fallbackAuthorities) {
+            String username,
+            Collection<? extends GrantedAuthority> fallbackAuthorities) {
         Collection<? extends GrantedAuthority> userAuthorities = null;
 
         Authentication authentication = AuthenticationHolder.getAuthentication();
@@ -110,8 +113,8 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
      * @return Not null list if successful and null if cannot load user authorities because of an error.
      */
     private Collection<? extends GrantedAuthority> loadUserAuthorities(DirContextOperations userData,
-                                                                       String username,
-                                                                       String password) {
+            String username,
+            String password) {
         try {
             String bindPrincipal = createBindPrincipal(username);
             String searchRoot = rootDn != null ? rootDn : searchRootFromPrincipal(bindPrincipal);
@@ -126,10 +129,8 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
             // "objectSid" because in current implementation of ActiveDirectoryLdapAuthenticationProvider the object
             // "userData"
             // contains objectSid attribute with String type and is broken.
-            NamingEnumeration<SearchResult> userSearch = context.search(searchBaseDn,
-                    searchFilter,
-                    new Object[]{bindPrincipal},
-                    searchControls);
+            NamingEnumeration<SearchResult> userSearch = context
+                .search(searchBaseDn, searchFilter, new Object[] { bindPrincipal }, searchControls);
             if (!userSearch.hasMoreElements()) {
                 log.warn("Cannot find account '" + username + "'. Skip nested groups and primary group search.");
                 return null;
@@ -142,15 +143,13 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
             if (primaryGroupSid != null) {
                 // Find nested groups + primary group
                 groupsSearch = context.search(searchBaseDn,
-                        primaryGroupFilter,
-                        new Object[]{userData.getDn(), primaryGroupSid},
-                        searchControls);
+                    primaryGroupFilter,
+                    new Object[] { userData.getDn(), primaryGroupSid },
+                    searchControls);
             } else {
                 // Find nested groups without primary group
-                groupsSearch = context.search(searchBaseDn,
-                        groupFilter,
-                        new Object[]{userData.getDn()},
-                        searchControls);
+                groupsSearch = context
+                    .search(searchBaseDn, groupFilter, new Object[] { userData.getDn() }, searchControls);
             }
 
             // Fill authorities using search result
@@ -232,8 +231,8 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
      * Get SID of a primary group based on primaryGroupId and objectSid of current user.
      *
      * @see <a href=
-     * "https://support.microsoft.com/en-us/help/297951/how-to-use-the-primarygroupid-attribute-to-find-the-primary-group-for">How
-     * to use the PrimaryGroupID attribute to find the primary group for a user</a>
+     *      "https://support.microsoft.com/en-us/help/297951/how-to-use-the-primarygroupid-attribute-to-find-the-primary-group-for">How
+     *      to use the PrimaryGroupID attribute to find the primary group for a user</a>
      */
     private String getPrimaryGroupSid(Attributes attributes) throws NamingException {
         Attribute attrPrimaryGroupId = attributes.get("primaryGroupId");
@@ -258,7 +257,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
      *
      * @see <a href="https://technet.microsoft.com/en-us/library/cc962011.aspx">Security Identifier Structure</a>
      * @see <a href="https://blogs.msdn.microsoft.com/oldnewthing/20040315-00/?p=40253">How do I convert a SID between
-     * binary and string forms?</a>
+     *      binary and string forms?</a>
      */
     private static String decodeSid(byte[] sid) {
         final StringBuilder strSid = new StringBuilder("S-");

@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.install;
 
-import javax.servlet.ServletContext;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flywaydb.core.api.FlywayException;
 import org.hibernate.validator.constraints.NotBlank;
@@ -30,6 +29,7 @@ import org.openl.rules.webstudio.web.admin.RepositoryValidationException;
 import org.openl.rules.webstudio.web.admin.RepositoryValidators;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
+import org.openl.spring.env.DynamicPropertySource;
 import org.openl.spring.env.PropertySourcesLoader;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -40,8 +40,6 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.StandardServletEnvironment;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
@@ -133,7 +131,7 @@ public class InstallWizard {
 
     @PostConstruct
     public void init() {
-        workingDir = propertyResolver.getProperty(PreferencesManager.WEBSTUDIO_WORKING_DIR_KEY);
+        workingDir = propertyResolver.getProperty(DynamicPropertySource.OPENL_HOME);
         workingDirChanged = true;
     }
 
@@ -801,17 +799,8 @@ public class InstallWizard {
 
         // Other configurations depend on this property
         PreferencesManager.INSTANCE.setWebStudioHomeDir(getAppName(), this.workingDir);
-        StandardServletEnvironment environment = new StandardServletEnvironment();
-        ServletContext servletContext = FacesUtils.getServletContext();
-        environment.initPropertySources(servletContext, null);
 
-        WebApplicationContext appContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
-        new PropertySourcesLoader().loadEnvironment(environment, appContext);
-
-        propertyResolver = environment;
-        properties = new InMemoryProperties(environment);
-
-        String newWorkingDir = propertyResolver.getProperty(PreferencesManager.WEBSTUDIO_WORKING_DIR_KEY);
+        String newWorkingDir = propertyResolver.getProperty(DynamicPropertySource.OPENL_HOME);
         if (!workingDir.equals(newWorkingDir)) {
             log.warn("Expected working dir {} but WebStudio sees it as {}", workingDir, newWorkingDir);
             throw new IllegalStateException("WebStudio sees working dir as " + newWorkingDir);

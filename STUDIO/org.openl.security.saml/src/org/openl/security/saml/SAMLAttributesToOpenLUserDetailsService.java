@@ -7,6 +7,7 @@ import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.util.StringUtils;
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.saml.SAMLCredential;
@@ -22,21 +23,18 @@ public class SAMLAttributesToOpenLUserDetailsService implements SAMLUserDetailsS
      */
     private final GrantedAuthoritiesMapper authoritiesMapper;
 
-    public SAMLAttributesToOpenLUserDetailsService(String usernameAttribute,
-            String firstNameAttribute,
-            String lastNameAttribute,
-            String groupsAttribute,
+    public SAMLAttributesToOpenLUserDetailsService(PropertyResolver propertyResolver,
             GrantedAuthoritiesMapper authoritiesMapper) {
-        this.usernameAttribute = usernameAttribute;
-        this.firstNameAttribute = firstNameAttribute;
-        this.lastNameAttribute = lastNameAttribute;
-        this.groupsAttribute = groupsAttribute;
+        this.usernameAttribute = propertyResolver.getProperty("security.saml.attribute.username");
+        this.firstNameAttribute = propertyResolver.getProperty("security.saml.attribute.first-name");
+        this.lastNameAttribute = propertyResolver.getProperty("security.saml.attribute.last-name");
+        this.groupsAttribute = propertyResolver.getProperty("security.saml.attribute.groups");
         this.authoritiesMapper = authoritiesMapper;
     }
 
     @Override
     public Object loadUserBySAML(SAMLCredential credential) throws UsernameNotFoundException {
-        final List<Privilege> grantedAuthorities = new ArrayList<Privilege>();
+        final List<Privilege> grantedAuthorities = new ArrayList<>();
         String username = credential.getNameID().getValue();
         String firstName = null;
         String lastName = null;

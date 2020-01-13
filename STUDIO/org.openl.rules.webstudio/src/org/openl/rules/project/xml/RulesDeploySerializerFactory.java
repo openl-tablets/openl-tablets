@@ -10,12 +10,14 @@ import org.openl.rules.project.xml.v5_15.XmlRulesDescriptorSerializer_v5_15;
 import org.openl.rules.project.xml.v5_16.XmlRulesDescriptorSerializer_v5_16;
 import org.openl.rules.project.xml.v5_17.XmlRulesDescriptorSerializer_v5_17;
 import org.openl.rules.project.xml.v5_23.XmlRulesDescriptorSerializer_v5_23;
+import org.springframework.core.env.PropertyResolver;
 
 public class RulesDeploySerializerFactory {
     private final SupportedVersionSerializer supportedVersionSerializer;
 
-    public RulesDeploySerializerFactory(String defaultVersion) {
-        this.supportedVersionSerializer = new SupportedVersionSerializer(defaultVersion);
+    public RulesDeploySerializerFactory(PropertyResolver propertyResolver) {
+        String defaultCompatibility = propertyResolver.getProperty("default.openl.compatibility.version");
+        this.supportedVersionSerializer = new SupportedVersionSerializer(defaultCompatibility);
     }
 
     public SupportedVersion getSupportedVersion(File projectFolder) {
