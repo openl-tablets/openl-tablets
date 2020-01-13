@@ -46,7 +46,7 @@ public class RepositoryInstatiator {
      */
     public static Repository newRepository(String configName,
             PropertyResolver propertyResolver) throws RRepositoryException {
-        String factoryClass = propertyResolver.getProperty("repository." + configName + ".factory");
+        String factoryClass = propertyResolver.getProperty(REPOSITORY_PREFIX + configName + ".factory");
         try {
             Repository repository = newInstance(factoryClass);
             setParams(repository, propertyResolver, configName);

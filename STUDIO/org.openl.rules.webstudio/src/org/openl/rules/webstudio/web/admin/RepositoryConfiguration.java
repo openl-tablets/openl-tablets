@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
 import org.openl.config.ReadOnlyPropertiesHolder;
+import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 
@@ -37,7 +38,7 @@ public class RepositoryConfiguration {
     public RepositoryConfiguration(String configName, PropertiesHolder properties) {
         this.configName = configName.toLowerCase();
         this.properties = properties;
-        nameWithPrefix = "repository." + configName.toLowerCase();
+        nameWithPrefix = RepositoryInstatiator.REPOSITORY_PREFIX + configName.toLowerCase();
         REPOSITORY_FACTORY = nameWithPrefix + ".factory";
         REPOSITORY_NAME = nameWithPrefix + ".name";
 

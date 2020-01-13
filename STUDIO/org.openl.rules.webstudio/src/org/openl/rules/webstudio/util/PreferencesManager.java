@@ -1,15 +1,15 @@
 package org.openl.rules.webstudio.util;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
+
 import org.openl.rules.webstudio.web.servlet.StartupListener;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 
 public enum PreferencesManager {
 
@@ -17,9 +17,8 @@ public enum PreferencesManager {
 
     public static final String WEBSTUDIO_WORKING_DIR_KEY = DynamicPropertySource.OPENL_HOME;
     private static final String WEBSTUDIO_MODE_KEY = "webstudio.mode";
-    public static final String WEBSTUDIO_MODE_MAIN = "webstudio";
-    public static final String WEBSTUDIO_MODE_INSTALLER = "installer";
-    private static final String WEBSTUDIO_CONFIGURED_MARKER = "webStudioConfigured.txt";
+    private static final String WEBSTUDIO_MODE_MAIN = "webstudio";
+    private static final String WEBSTUDIO_MODE_INSTALLER = "installer";
 
     private final Logger log = LoggerFactory.getLogger(StartupListener.class);
 
@@ -28,7 +27,7 @@ public enum PreferencesManager {
         writeValue(appName, WEBSTUDIO_MODE_KEY, configured ? WEBSTUDIO_MODE_MAIN : WEBSTUDIO_MODE_INSTALLER);
     }
 
-    public void setInstallerMode(String appName){
+    public void setInstallerMode(String appName) {
         writeValue(appName, WEBSTUDIO_MODE_KEY, WEBSTUDIO_MODE_INSTALLER);
     }
 
@@ -38,8 +37,7 @@ public enum PreferencesManager {
             return Boolean.parseBoolean(configured);
         }
         String homePath = readValue(appName, WEBSTUDIO_WORKING_DIR_KEY);
-        File configuredMarker = new File(homePath + File.separator + WEBSTUDIO_CONFIGURED_MARKER);
-        return configuredMarker.exists();
+        return getMarkerFile(homePath).exists();
     }
 
     public void setWebStudioHomeDir(String appName, String workingDir) {
@@ -48,7 +46,7 @@ public enum PreferencesManager {
     }
 
     private void setWebStudioHomeNotConfigured(String appName, String homePath) {
-        File configuredMarker = new File(homePath + File.separator + WEBSTUDIO_CONFIGURED_MARKER);
+        File configuredMarker = getMarkerFile(homePath);
         if (configuredMarker.exists()) {
             if (!configuredMarker.delete() && configuredMarker.exists()) {
                 log.warn("Can't delete the file {}", configuredMarker.getPath());
@@ -59,7 +57,7 @@ public enum PreferencesManager {
 
     public void webStudioConfigured(String appName) {
         String homePath = readValue(appName, WEBSTUDIO_WORKING_DIR_KEY);
-        File configuredMarker = new File(homePath + File.separator + WEBSTUDIO_CONFIGURED_MARKER);
+        File configuredMarker = getMarkerFile(homePath);
         try {
             if (!configuredMarker.exists()) {
                 if (!configuredMarker.createNewFile()) {
@@ -93,5 +91,9 @@ public enum PreferencesManager {
 
     private String getApplicationNode(String appName) {
         return StringUtils.isEmpty(appName) ? "openl" : "openl/" + appName;
+    }
+
+    private static File getMarkerFile(String homePath) {
+        return new File(homePath, "webStudioConfigured.txt");
     }
 }
