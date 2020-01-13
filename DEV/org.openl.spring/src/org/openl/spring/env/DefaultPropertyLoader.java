@@ -75,7 +75,10 @@ public class DefaultPropertyLoader extends PropertySourcesPlaceholderConfigurer 
             } catch (IOException ex) {
                 throw new BeanInitializationException("Could not load properties", ex);
             }
-            propertySources.addLast(new DefaultPropertySource());
+            if (!new PropertySourcesPropertyResolver(this.propertySources)
+                .containsProperty(DefaultPropertySource.OPENL_CONFIG_LOADED)) {
+                propertySources.addLast(new DefaultPropertySource());
+            }
         }
 
         processProperties(beanFactory, new PropertySourcesPropertyResolver(this.propertySources));
