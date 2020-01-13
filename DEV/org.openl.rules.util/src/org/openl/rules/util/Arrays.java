@@ -100,6 +100,24 @@ public final class Arrays {
         return (T[]) res;
     }
 
+    public static <T> T[] add(T[] array, T element) {
+        Object res;
+        if (array != null) {
+            res = Array.newInstance(
+                element != null && element.getClass() == array.getClass().getComponentType()
+                                                                                             ? array.getClass()
+                                                                                                 .getComponentType()
+                                                                                             : Object.class,
+                array.length + 1);
+            System.arraycopy(array, 0, res, 0, array.length);
+            Array.set(res, array.length, element);
+        } else {
+            res = Array.newInstance(element != null ? element.getClass() : Object.class, 1);
+            Array.set(res, 0, element);
+        }
+        return (T[]) res;
+    }
+
     /**
      * <p>
      * Adds all the elements of the given arrays into a new array.
