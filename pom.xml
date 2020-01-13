@@ -1266,7 +1266,7 @@
             <dependency>
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
-                <version>3.3.1</version>
+                <version>3.4.2</version>
             </dependency>
             <!-- Microsoft JDBC Driver for SQL Server -->
             <dependency>
@@ -1279,6 +1279,7 @@
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
                 <version>1.4.199</version>
+                <!--<version>1.4.200</version> does not work with policy file due to FilePermission, will be fixed in the next version-->
             </dependency>
             <!-- Flyway: The agile database migration framework for Java. -->
             <dependency>
