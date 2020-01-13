@@ -19,7 +19,7 @@ import org.openl.util.RangeWithBounds.BoundType;
  */
 @XmlRootElement
 public class IntRange implements INumberRange {
-    private static final int TO_INT_RANGE_CAST_DISTANCE = CastFactory.AFTER_FITST_WAVE_CASTS_DISTANCE + 8;
+    private static final int TO_INT_RANGE_CAST_DISTANCE = CastFactory.AFTER_FIRST_WAVE_CASTS_DISTANCE + 8;
 
     protected long min;
     protected long max;

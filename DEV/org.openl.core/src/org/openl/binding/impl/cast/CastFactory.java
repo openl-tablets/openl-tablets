@@ -61,7 +61,7 @@ public class CastFactory implements ICastFactory {
 
     public static final int NONPRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 28;
 
-    public static final int AFTER_FITST_WAVE_CASTS_DISTANCE = 30;
+    public static final int AFTER_FIRST_WAVE_CASTS_DISTANCE = 30;
 
     public static final int JAVA_DOWN_CAST_DISTANCE = 60;
     public static final int PRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE = 62;

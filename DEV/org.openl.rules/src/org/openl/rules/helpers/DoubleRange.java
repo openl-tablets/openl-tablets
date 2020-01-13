@@ -17,7 +17,7 @@ import org.openl.util.RangeWithBounds.BoundType;
  */
 @XmlRootElement
 public class DoubleRange implements INumberRange {
-    private static final int TO_DOUBLE_RANGE_CAST_DISTANCE = CastFactory.AFTER_FITST_WAVE_CASTS_DISTANCE + 8;
+    private static final int TO_DOUBLE_RANGE_CAST_DISTANCE = CastFactory.AFTER_FIRST_WAVE_CASTS_DISTANCE + 8;
     private double lowerBound;
     private double upperBound;
 

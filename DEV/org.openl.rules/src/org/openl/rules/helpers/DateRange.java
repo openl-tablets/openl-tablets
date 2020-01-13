@@ -14,7 +14,7 @@ import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 
 public class DateRange {
 
-    private static final int TO_DATE_RANGE_CAST_DISTANCE = CastFactory.AFTER_FITST_WAVE_CASTS_DISTANCE + 8;
+    private static final int TO_DATE_RANGE_CAST_DISTANCE = CastFactory.AFTER_FIRST_WAVE_CASTS_DISTANCE + 8;
 
     private final long lowerBound;
     private final long upperBound;

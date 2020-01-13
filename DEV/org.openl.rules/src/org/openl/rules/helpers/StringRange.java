@@ -13,7 +13,7 @@ import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 @XmlRootElement
 public class StringRange {
 
-    private static final int TO_STRING_RANGE_CAST_DISTANCE = CastFactory.AFTER_FITST_WAVE_CASTS_DISTANCE + 8;
+    private static final int TO_STRING_RANGE_CAST_DISTANCE = CastFactory.AFTER_FIRST_WAVE_CASTS_DISTANCE + 8;
 
     private final NumericComparableString lowerBound;
     private final NumericComparableString upperBound;

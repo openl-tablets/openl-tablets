@@ -8,7 +8,7 @@ import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 
 public class CharRange extends IntRange {
 
-    private static final int TO_CHAR_RANGE_CAST_DISTANCE = CastFactory.AFTER_FITST_WAVE_CASTS_DISTANCE + 8;
+    private static final int TO_CHAR_RANGE_CAST_DISTANCE = CastFactory.AFTER_FIRST_WAVE_CASTS_DISTANCE + 8;
 
     public CharRange(char min, char max) {
         super(min, max);
