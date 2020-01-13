@@ -60,7 +60,7 @@
                 <constructor-arg name="userManagementService" ref="userManagementService"/>
                 <constructor-arg name="groupManagementService" ref="groupManagementService"/>
                 <constructor-arg name="propertyResolver" ref="environment"/>
-                <constructor-arg name="prefix" value="ad."/>
+                <constructor-arg name="prefix" value="ad"/>
             </bean>
         </constructor-arg>
         <property name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>
