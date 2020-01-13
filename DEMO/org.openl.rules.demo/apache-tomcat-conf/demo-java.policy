@@ -28,6 +28,18 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/WEB-INF/-" {
 
 grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
 
+        //Permission errors that occur but are not displayed in the logs and do not affect functionality
+        //permission java.lang.RuntimePermission "defineClassInPackage.java.lang";
+        //permission java.lang.RuntimePermission "defineClassInPackage.java.util";
+        //permission java.lang.RuntimePermission "defineClassInPackage.org.apache.catalina.util";
+        //permission java.lang.RuntimePermission "defineClassInPackage.org.apache.catalina.webresources";
+        //permission java.lang.RuntimePermission "getFileStoreAttributes";
+        //permission java.io.SerializablePermission "enableSubclassImplementation";
+        //permission javax.security.auth.AuthPermission "getPolicy";
+        //permission java.lang.RuntimePermission "defineClassInPackage.java.sql";
+        //permission java.lang.RuntimePermission "defineClassInPackage.java.math";
+        //permission java.lang.RuntimePermission "defineClassInPackage.java.io";
+
         //Registration and cancellation of virtual-machine shutdown hooks
         //ex: jgit: CloneCommand.call()
         permission java.lang.RuntimePermission "shutdownHooks";
