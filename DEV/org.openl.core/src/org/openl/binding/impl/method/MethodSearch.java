@@ -200,7 +200,11 @@ public final class MethodSearch {
         return true;
     }
 
-    private static boolean lq(IOpenMethod method, List<IOpenMethod> matchingMethods, int[] m1, int[] m2) {
+    private static boolean lq(IOpenMethod method,
+            List<IOpenMethod> matchingMethods,
+            IOpenClass[] params,
+            int[] m1,
+            int[] m2) {
         if (matchingMethods == null || matchingMethods.isEmpty()) {
             return true;
         }
@@ -208,20 +212,22 @@ public final class MethodSearch {
         int[] dims1 = new int[method.getSignature().getNumberOfParameters()];
         int[] dims2 = new int[method.getSignature().getNumberOfParameters()];
         for (int i = 0; i < method.getSignature().getNumberOfParameters(); i++) {
-            IOpenClass openClass = method.getSignature().getParameterType(i);
-            int dim = 0;
-            while (openClass.isArray()) {
-                openClass = openClass.getComponentClass();
-                dim++;
+            if (!NullOpenClass.isAnyNull(params[i])) {
+                IOpenClass openClass = method.getSignature().getParameterType(i);
+                int dim = 0;
+                while (openClass.isArray()) {
+                    openClass = openClass.getComponentClass();
+                    dim++;
+                }
+                dims1[i] = dim;
+                dim = 0;
+                openClass = m.getSignature().getParameterType(i);
+                while (openClass.isArray()) {
+                    openClass = openClass.getComponentClass();
+                    dim++;
+                }
+                dims2[i] = dim;
             }
-            dims1[i] = dim;
-            dim = 0;
-            openClass = m.getSignature().getParameterType(i);
-            while (openClass.isArray()) {
-                openClass = openClass.getComponentClass();
-                dim++;
-            }
-            dims2[i] = dim;
         }
         Arrays.sort(dims1);
         Arrays.sort(dims2);
@@ -313,7 +319,7 @@ public final class MethodSearch {
             if (match == NO_MATCH) {
                 continue;
             }
-            if (lq(method, matchingMethods, match, bestMatch)) {
+            if (lq(method, matchingMethods, params, match, bestMatch)) {
                 bestMatch = match;
                 matchingMethods.clear();
                 matchingMethodsCastHolder.clear();

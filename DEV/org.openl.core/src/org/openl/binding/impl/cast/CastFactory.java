@@ -19,6 +19,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ADynamicClass;
+import org.openl.types.impl.ComponentTypeArrayOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
@@ -159,13 +160,15 @@ public class CastFactory implements ICastFactory {
         return ret;
     }
 
-    private static void checkAndAddToCandidates(IOpenMethod method, IOpenClass openClass, Set<IOpenClass> openClassCandidates) {
+    private static void checkAndAddToCandidates(IOpenMethod method,
+            IOpenClass openClass,
+            Set<IOpenClass> openClassCandidates) {
         if (method.getSignature().getParameterType(0).equals(openClass)) {
             addClassToCandidates(method.getSignature().getParameterType(1), openClassCandidates);
         } else {
             if (method.getSignature().getParameterType(0).getInstanceClass().isPrimitive()) {
-                IOpenClass t = JavaOpenClass.getOpenClass(ClassUtils
-                    .primitiveToWrapper(method.getSignature().getParameterType(0).getInstanceClass()));
+                IOpenClass t = JavaOpenClass.getOpenClass(
+                    ClassUtils.primitiveToWrapper(method.getSignature().getParameterType(0).getInstanceClass()));
                 if (t.equals(openClass)) {
                     addClassToCandidates(method.getSignature().getParameterType(1), openClassCandidates);
                 }
@@ -271,6 +274,14 @@ public class CastFactory implements ICastFactory {
      */
     @Override
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
+        // Workaround for ComponentTypeOpenClass
+        if (from instanceof ComponentTypeArrayOpenClass) {
+            from = JavaOpenClass.getOpenClass(from.getInstanceClass());
+        }
+        if (to instanceof ComponentTypeArrayOpenClass) {
+            to = JavaOpenClass.getOpenClass(to.getInstanceClass());
+        }
+
         /* BEGIN: This is very cheap operations, so no needs to chache it */
         if (from == to || from.equals(to)) {
             return JavaNoCast.getInstance();
