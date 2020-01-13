@@ -227,6 +227,11 @@ TOKEN :
 | < TDOT_UNICODE : "\u2026" > //"…"
 }
 
+TOKEN :
+{
+  < WHERE : "where" >
+}
+
 /* OPERATORS */
 
 TOKEN :
@@ -1580,7 +1585,7 @@ void ExtendedWhereStatement() :
   int args = 1;	
 }
 {
-  < COMMA > "where" WhereVarExpalnation()
+  < COMMA > < WHERE > WhereVarExpalnation()
   (
     LOOKAHEAD(2)
     < COMMA > WhereVarExpalnation()
