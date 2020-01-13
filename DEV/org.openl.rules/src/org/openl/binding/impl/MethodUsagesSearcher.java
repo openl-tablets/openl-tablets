@@ -6,11 +6,14 @@ import java.util.Objects;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
+import org.openl.meta.IMetaInfo;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.types.IUriMember;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.DatatypeOpenConstructor;
 import org.openl.types.impl.ExecutableMethod;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.util.CollectionUtils;
@@ -71,6 +74,9 @@ public final class MethodUsagesSearcher {
                     } else {
                         return matchingOpenMethodDispatcher.getDispatcherTable().getUri();
                     }
+                } else if (method instanceof DatatypeOpenConstructor && method.getDeclaringClass() instanceof DatatypeOpenClass) {
+                    IMetaInfo metaInfo = method.getDeclaringClass().getMetaInfo();
+                    return metaInfo == null ? null : metaInfo.getSourceUrl();
                 } else if (method.getInfo() != null) {
                     return method.getInfo().getSourceUrl();
                 } else {
@@ -148,7 +154,7 @@ public final class MethodUsagesSearcher {
             MethodBoundNode methodBoundNode = (MethodBoundNode) boundNode;
             ILocation location = methodBoundNode.getSyntaxNode().getSourceLocation();
             IMethodCaller methodCaller = methodBoundNode.getMethodCaller();
-            if (methodCaller != null) {
+            if (methodCaller != null && location != null && location.isTextLocation()) {
                 IOpenMethod method;
                 if (methodCaller instanceof IOpenMethod) {
                     method = (IOpenMethod) methodCaller;
@@ -157,11 +163,18 @@ public final class MethodUsagesSearcher {
                 }
                 int pstart;
                 int pend;
-                if ((method instanceof ExecutableMethod || method instanceof MatchingOpenMethodDispatcher || method instanceof MethodDelegator) && location != null && location
-                    .isTextLocation()) {
+                boolean isConstructor = method instanceof DatatypeOpenConstructor;
+                boolean isMethod = method instanceof ExecutableMethod || method instanceof MatchingOpenMethodDispatcher || method instanceof MethodDelegator;
+                if (isMethod || isConstructor) {
                     TextInfo info = new TextInfo(sourceString);
                     pstart = location.getStart().getAbsolutePosition(info) + startIndex;
-                    pend = pstart + method.getName().length() - 1;
+                    if (isConstructor) {
+                        //shift start up to 4 symbols cause constructors always start with "new " keyword
+                        pstart += 4;
+                        pend = pstart + method.getDeclaringClass().getName().length() - 1;
+                    } else {
+                        pend = pstart + method.getName().length() - 1;
+                    }
                     methods.add(new MethodUsage(pstart, pend, method));
                 }
             }
