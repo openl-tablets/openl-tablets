@@ -391,7 +391,7 @@ public final class DecisionTableHelper {
             firstColumnHeight,
             bindingContext);
 
-        writeActions(decisionTable, originalTable, grid, dtHeaders, firstColumnHeight, bindingContext);
+        writeActions(decisionTable, originalTable, grid, dtHeaders, bindingContext);
 
         writeReturns(tableSyntaxNode, decisionTable, originalTable, grid, fuzzyContext, dtHeaders, bindingContext);
     }
@@ -941,7 +941,6 @@ public final class DecisionTableHelper {
             IWritableGrid grid,
             DeclaredDTHeader declaredDtHeader,
             String header,
-            int firstColumnHeight,
             IBindingContext bindingContext) {
         int column = declaredDtHeader.getColumn();
         grid.setCellValue(column, 0, header);
@@ -1011,7 +1010,6 @@ public final class DecisionTableHelper {
             ILogicalTable originalTable,
             IWritableGrid grid,
             List<DTHeader> dtHeaders,
-            int firstColumnHeight,
             IBindingContext bindingContext) throws OpenLCompilationException {
         List<DTHeader> actions = dtHeaders.stream()
             .filter(DTHeader::isAction)
@@ -1026,13 +1024,7 @@ public final class DecisionTableHelper {
 
             DeclaredDTHeader declaredAction = (DeclaredDTHeader) action;
             String header = (DecisionTableColumnHeaders.ACTION.getHeaderKey() + (num + 1));
-            writeDeclaredDtHeader(decisionTable,
-                originalTable,
-                grid,
-                declaredAction,
-                header,
-                firstColumnHeight,
-                bindingContext);
+            writeDeclaredDtHeader(decisionTable, originalTable, grid, declaredAction, header, bindingContext);
             num++;
         }
     }
@@ -1188,7 +1180,6 @@ public final class DecisionTableHelper {
                     grid,
                     (DeclaredDTHeader) condition,
                     header,
-                    firstColumnHeight,
                     bindingContext);
             } else {
                 grid.setCellValue(column, 0, header);
@@ -1659,6 +1650,7 @@ public final class DecisionTableHelper {
             IGridTable gridTable,
             FuzzyContext fuzzyContext,
             NumberOfColumnsUnderTitleCounter numberOfColumnsUnderTitleCounter,
+            int numberOfHCondition,
             List<DTHeader> dtHeaders,
             int firstColumnHeight,
             int w,
@@ -1685,6 +1677,7 @@ public final class DecisionTableHelper {
                     gridTable,
                     fuzzyContext,
                     numberOfColumnsUnderTitleCounter,
+                    numberOfHCondition,
                     dtHeaders,
                     firstColumnHeight,
                     w2,
@@ -1724,8 +1717,8 @@ public final class DecisionTableHelper {
                         .max()
                         .orElse(0);
                     tokens = ArrayUtils.addAll(fuzzyContext.getParameterTokens().getTokens(),
-                        new Token("is true", maxDistance + 1, 2),
-                        new Token("is false", maxDistance + 1, 2));
+                        new Token("is true", maxDistance + 1, numberOfHCondition > 0 ? 2 : 1),
+                        new Token("is false", maxDistance + 1, numberOfHCondition > 0 ? 2 : 1));
                 } else {
                     tokens = fuzzyContext.getParameterTokens().getTokens();
                 }
@@ -1838,6 +1831,7 @@ public final class DecisionTableHelper {
             ILogicalTable originalTable,
             FuzzyContext fuzzyContext,
             NumberOfColumnsUnderTitleCounter numberOfColumnsUnderTitleCounter,
+            int numberOfHCondition,
             int column,
             List<DTHeader> dtHeaders,
             int firstColumnHeight,
@@ -1852,6 +1846,7 @@ public final class DecisionTableHelper {
             gt,
             fuzzyContext,
             numberOfColumnsUnderTitleCounter,
+            numberOfHCondition,
             newDtHeaders,
             firstColumnHeight,
             0,
@@ -2541,6 +2536,7 @@ public final class DecisionTableHelper {
                     originalTable,
                     fuzzyContext,
                     numberOfColumnsUnderTitleCounter,
+                    numberOfHCondition,
                     column,
                     dtHeaders,
                     firstColumnHeight,
@@ -2577,6 +2573,7 @@ public final class DecisionTableHelper {
                         originalTable,
                         fuzzyContext,
                         numberOfColumnsUnderTitleCounter,
+                        numberOfHCondition,
                         column,
                         dtHeaders,
                         firstColumnHeight,
