@@ -2,7 +2,6 @@ package org.openl.rules.rest;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,7 +15,7 @@ public class RestBasicAuthenticationEntryPoint extends BasicAuthenticationEntryP
     @Override
     public void commence(HttpServletRequest request,
             HttpServletResponse response,
-            AuthenticationException authException) throws IOException, ServletException {
+            AuthenticationException authException) throws IOException {
         response.addHeader("WWW-Authenticate", "Basic realm=\"" + getRealmName() + "\"");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.getWriter().println("Unauthorized: " + authException.getMessage());

@@ -80,8 +80,8 @@
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
         <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl-pub</staging.hg.repo.url>
-        <org.springframework.version>5.1.4.RELEASE</org.springframework.version>
-        <org.springsecurity.version>5.1.6.RELEASE</org.springsecurity.version>
+        <org.springframework.version>5.2.2.RELEASE</org.springframework.version>
+        <org.springsecurity.version>5.2.1.RELEASE</org.springsecurity.version>
         <org.hibernate.version>5.2.18.Final</org.hibernate.version>
         <org.mojarra.version>2.1.19</org.mojarra.version>
         <asm.version>7.2</asm.version>
@@ -92,7 +92,7 @@
         <cassandra.unit.version>3.11.2.0</cassandra.unit.version>
         <cassandra.unit.driver.version>3.8.0</cassandra.unit.driver.version>
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
-        <org.apache.cxf.version>3.3.4</org.apache.cxf.version>
+        <org.apache.cxf.version>3.3.5</org.apache.cxf.version>
         <org.slf4j.version>1.7.29</org.slf4j.version>
         <org.apache.poi.version>4.1.1</org.apache.poi.version>
         <org.bouncycastle.version>1.62</org.bouncycastle.version>

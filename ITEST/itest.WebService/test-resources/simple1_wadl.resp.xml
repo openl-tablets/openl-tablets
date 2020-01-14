@@ -5,7 +5,8 @@
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
                    xmlns:tns="http://convertor2.result.calculation.rules.openl.org" attributeFormDefault="unqualified"
                    elementFormDefault="qualified"
-                   targetNamespace="http://convertor2.result.calculation.rules.openl.org">
+                   targetNamespace="http://convertor2.result.calculation.rules.openl.org"
+                   version="1.0">
             <xs:element name="calculationStep" type="tns:calculationStep"/>
             <xs:element name="codeStep" type="tns:codeStep"/>
             <xs:element name="compoundStep" type="tns:compoundStep"/>
@@ -49,7 +50,8 @@
         </xs:schema>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://csr.generated.openl.org"
                    attributeFormDefault="unqualified" elementFormDefault="unqualified"
-                   targetNamespace="http://csr.generated.openl.org">
+                   targetNamespace="http://csr.generated.openl.org"
+                   version="1.0">
             <xs:element name="Test" type="tns:Test"/>
             <xs:complexType name="Test">
                 <xs:sequence>
@@ -70,7 +72,8 @@
         </xs:schema>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://variation.rules.openl.org"
                    attributeFormDefault="unqualified" elementFormDefault="qualified"
-                   targetNamespace="http://variation.rules.openl.org">
+                   targetNamespace="http://variation.rules.openl.org"
+                   version="1.0">
             <xs:element name="argumentReplacementVariation" type="tns:argumentReplacementVariation"/>
             <xs:element name="complexVariation" type="tns:complexVariation"/>
             <xs:element name="deepCloningVariation" type="tns:deepCloningVariation"/>
@@ -173,7 +176,8 @@
         </xs:schema>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://variation.rules.openl.org"
                    attributeFormDefault="unqualified" elementFormDefault="unqualified"
-                   targetNamespace="http://variation.rules.openl.org">
+                   targetNamespace="http://variation.rules.openl.org"
+                   version="1.0">
             <xs:complexType name="error">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="message" type="xs:string"/>
@@ -182,7 +186,8 @@
         </xs:schema>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://variation.rules.openl.org"
                    xmlns:tns="http://jaxrs.openl.org" attributeFormDefault="unqualified"
-                   elementFormDefault="unqualified" targetNamespace="http://jaxrs.openl.org">
+                   elementFormDefault="unqualified" targetNamespace="http://jaxrs.openl.org"
+                   version="1.0">
             <xs:import namespace="http://variation.rules.openl.org"/>
             <xs:element name="HelloRequest" type="tns:HelloRequest"/>
             <xs:element name="HelloRequest1" type="tns:HelloRequest1"/>

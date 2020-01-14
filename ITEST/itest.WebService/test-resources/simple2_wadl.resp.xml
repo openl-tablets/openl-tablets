@@ -3,7 +3,8 @@
     <grammars>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://jaxb.dev.java.net/array"
                    xmlns:tns="http://csr.generated.openl.org" attributeFormDefault="unqualified"
-                   elementFormDefault="unqualified" targetNamespace="http://csr.generated.openl.org">
+                   elementFormDefault="unqualified" targetNamespace="http://csr.generated.openl.org"
+                   version="1.0">
             <xs:import namespace="http://jaxb.dev.java.net/array"/>
             <xs:element name="Calc" type="tns:Calc"/>
             <xs:element name="HiddenCalc" type="tns:HiddenCalc"/>
@@ -98,7 +99,7 @@
         </xs:schema>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://jaxrs.openl.org"
                    attributeFormDefault="unqualified" elementFormDefault="unqualified"
-                   targetNamespace="http://jaxrs.openl.org">
+                   targetNamespace="http://jaxrs.openl.org" version="1.0">
             <xs:element name="CalcRequest" type="tns:CalcRequest"/>
             <xs:element name="DtRetSpr2Request" type="tns:DtRetSpr2Request"/>
             <xs:element name="DtRetSpr3Request" type="tns:DtRetSpr3Request"/>
@@ -130,7 +131,7 @@
         </xs:schema>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jaxrs.openl.org"
                    attributeFormDefault="unqualified" elementFormDefault="unqualified"
-                   targetNamespace="http://jaxrs.openl.org">
+                   targetNamespace="http://jaxrs.openl.org" version="1.0">
             <xs:complexType name="error">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="message" type="xs:string"/>
@@ -139,7 +140,7 @@
         </xs:schema>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jaxb.dev.java.net/array"
                    attributeFormDefault="unqualified" elementFormDefault="unqualified"
-                   targetNamespace="http://jaxb.dev.java.net/array">
+                   targetNamespace="http://jaxb.dev.java.net/array" version="1.0">
             <xs:complexType final="#all" name="stringArray">
                 <xs:sequence>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="xs:string"/>

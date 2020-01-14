@@ -3,7 +3,7 @@
     <grammars>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://csr.generated.openl.org"
                    attributeFormDefault="unqualified" elementFormDefault="unqualified"
-                   targetNamespace="http://csr.generated.openl.org">
+                   targetNamespace="http://csr.generated.openl.org" version="1.0">
             <xs:element name="Tiktak" type="tns:Tiktak"/>
             <xs:complexType name="Tiktak">
                 <xs:sequence>
@@ -14,7 +14,7 @@
         </xs:schema>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://jaxb.dev.java.net/array"
                    xmlns:tns="http://calc.rules.openl.org" attributeFormDefault="unqualified"
-                   elementFormDefault="qualified" targetNamespace="http://calc.rules.openl.org">
+                   elementFormDefault="qualified" targetNamespace="http://calc.rules.openl.org" version="1.0">
             <xs:import namespace="http://jaxb.dev.java.net/array"/>
             <xs:element name="spreadsheetResult" type="tns:spreadsheetResult"/>
             <xs:complexType name="spreadsheetResult">
@@ -29,7 +29,7 @@
         </xs:schema>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://jaxrs.openl.org"
                    attributeFormDefault="unqualified" elementFormDefault="unqualified"
-                   targetNamespace="http://jaxrs.openl.org">
+                   targetNamespace="http://jaxrs.openl.org" version="1.0">
             <xs:element name="TiktakRequest" type="tns:TiktakRequest"/>
             <xs:complexType name="TiktakRequest">
                 <xs:sequence>
@@ -40,7 +40,7 @@
         </xs:schema>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jaxb.dev.java.net/array"
                    attributeFormDefault="unqualified" elementFormDefault="unqualified"
-                   targetNamespace="http://jaxb.dev.java.net/array">
+                   targetNamespace="http://jaxb.dev.java.net/array" version="1.0">
             <xs:complexType final="#all" name="anyTypeArray">
                 <xs:sequence>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="xs:anyType"/>

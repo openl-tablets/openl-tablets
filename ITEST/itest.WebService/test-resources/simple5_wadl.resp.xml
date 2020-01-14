@@ -1,11 +1,11 @@
-<application xmlns="http://wadl.dev.java.net/2009/02" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:prefix2="http://csr.generated.openl.org" xmlns:prefix1="http://jaxrs.openl.org"><grammars><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jaxrs.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://jaxrs.openl.org">
+<application xmlns="http://wadl.dev.java.net/2009/02" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:prefix2="http://csr.generated.openl.org" xmlns:prefix1="http://jaxrs.openl.org"><grammars><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jaxrs.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://jaxrs.openl.org" version="1.0">
     <xs:complexType name="error">
         <xs:sequence>
             <xs:element minOccurs="0" name="message" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
 </xs:schema>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://jaxb.dev.java.net/array" xmlns:tns="http://csr.generated.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://csr.generated.openl.org">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://jaxb.dev.java.net/array" xmlns:tns="http://csr.generated.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://csr.generated.openl.org" version="1.0">
     <xs:import namespace="http://jaxb.dev.java.net/array"/>
     <xs:element name="Calc" type="tns:Calc"/>
     <xs:complexType name="Calc">
@@ -17,7 +17,7 @@
         </xs:sequence>
     </xs:complexType>
 </xs:schema>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://beans.generated.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://beans.generated.openl.org">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://beans.generated.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://beans.generated.openl.org" version="1.0">
     <xs:element name="MyDatatype" type="tns:MyDatatype"/>
     <xs:complexType name="MyDatatype">
         <xs:sequence>
@@ -57,7 +57,7 @@
         </xs:sequence>
     </xs:complexType>
 </xs:schema>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://beans.generated.openl.org" xmlns:tns="http://jaxrs.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://jaxrs.openl.org">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://beans.generated.openl.org" xmlns:tns="http://jaxrs.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://jaxrs.openl.org" version="1.0">
     <xs:import namespace="http://beans.generated.openl.org"/>
     <xs:element name="CalcRequest" type="tns:CalcRequest"/>
     <xs:complexType name="CalcRequest">
@@ -67,7 +67,7 @@
         </xs:sequence>
     </xs:complexType>
 </xs:schema>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jaxb.dev.java.net/array" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://jaxb.dev.java.net/array">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jaxb.dev.java.net/array" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://jaxb.dev.java.net/array" version="1.0">
     <xs:complexType final="#all" name="stringArray">
         <xs:sequence>
             <xs:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="xs:string"/>

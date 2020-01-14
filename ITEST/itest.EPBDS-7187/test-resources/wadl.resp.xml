@@ -2,7 +2,7 @@
              xmlns:prefix2="xxx.yyy" xmlns:prefix1="http://jaxrs.openl.org">
     <grammars>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="xxx.yyy" attributeFormDefault="unqualified"
-                   elementFormDefault="unqualified" targetNamespace="xxx.yyy">
+                   elementFormDefault="unqualified" targetNamespace="xxx.yyy" version="1.0">
             <xs:element name="bean" type="tns:Bean"/>
             <xs:element name="beanB" type="tns:BeanB"/>
             <xs:complexType name="Bean">
@@ -20,7 +20,7 @@
         </xs:schema>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://jaxrs.openl.org"
                    attributeFormDefault="unqualified" elementFormDefault="unqualified"
-                   targetNamespace="http://jaxrs.openl.org">
+                   targetNamespace="http://jaxrs.openl.org" version="1.0">
             <xs:element name="EDGECaseRequest" type="tns:EDGECaseRequest"/>
             <xs:element name="LowCaseRequest" type="tns:LowCaseRequest"/>
             <xs:element name="MixedCaseRequest" type="tns:MixedCaseRequest"/>
