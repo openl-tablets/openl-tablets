@@ -4,7 +4,7 @@ import java.net.URL;
 import java.util.Enumeration;
 
 import org.springframework.core.env.CompositePropertySource;
-import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.ResourcePropertySource;
 import org.springframework.util.ClassUtils;
@@ -37,10 +37,15 @@ public class DefaultPropertySource extends CompositePropertySource {
         } catch (Exception e) {
             ConfigLog.LOG.error("!     Error:", e);
         }
-        addPropertySource(new PropertySource<Object>(OPENL_CONFIG_LOADED) {
+        addPropertySource(new EnumerablePropertySource<Object>(OPENL_CONFIG_LOADED) {
             @Override
             public Object getProperty(String name) {
                 return OPENL_CONFIG_LOADED.equals(name) ? true : null;
+            }
+
+            @Override
+            public String[] getPropertyNames() {
+                return new String[] { OPENL_CONFIG_LOADED };
             }
         });
     }

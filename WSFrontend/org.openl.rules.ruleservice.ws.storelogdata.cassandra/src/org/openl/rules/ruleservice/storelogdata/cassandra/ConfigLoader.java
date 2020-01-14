@@ -46,7 +46,7 @@ final class ConfigLoader {
         StreamSupport.stream(propSrcs.spliterator(), false)
             .filter(ps -> ps instanceof EnumerablePropertySource)
             .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
-            .flatMap(Arrays::<String> stream)
+            .flatMap(Arrays::stream)
             .filter(propName -> validateProperty(env, propName))
             .forEach(propName -> props.setProperty(propName, env.getProperty(propName)));
         return props;
