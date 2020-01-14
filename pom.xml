@@ -93,7 +93,7 @@
         <cassandra.unit.driver.version>3.8.0</cassandra.unit.driver.version>
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
         <org.apache.cxf.version>3.3.5</org.apache.cxf.version>
-        <org.slf4j.version>1.7.29</org.slf4j.version>
+        <org.slf4j.version>1.7.30</org.slf4j.version>
         <org.apache.poi.version>4.1.1</org.apache.poi.version>
         <org.bouncycastle.version>1.62</org.bouncycastle.version>
         <com.fasterxml.jackson.version>2.10.1</com.fasterxml.jackson.version>
@@ -877,26 +877,15 @@
             </dependency>
             <!-- Apache log4j, a logging library for Java -->
             <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>1.2.17</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${org.slf4j.version}</version>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>2.13.0</version>
             </dependency>
             <!-- The slf4j API -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${org.slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>1.2.3</version>
-                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
