@@ -3,10 +3,10 @@ package org.openl.rules.project.instantiation;
 import static org.junit.Assert.*;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.commons.beanutils.MethodUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -24,7 +24,21 @@ public class RulesServiceEnhancerHelperTest {
         assertEquals(enhanced.getMethods().length, simple.getMethods().length);
         // check methods
         for (Method method : simple.getMethods()) {
-            assertNotNull(getEnhancedMethod(method, simple, enhanced));
+            try {
+                Method m = enhanced
+                    .getMethod(method.getName(), ArrayUtils.insert(0,method.getParameterTypes(), IRulesRuntimeContext.class));
+                assertTrue(Modifier.isPublic(m.getModifiers()));
+                if (checkAnnotations) {
+                    // check annotations: all annotations should remain after
+                    // undecoration.
+                    // note: annotation passing to enhanced class currently is not
+                    // supported.
+                    assertArrayEquals(m.getAnnotations(), method.getAnnotations());
+                }
+            }
+            catch (NoSuchMethodException e) {
+                fail(e.getMessage());
+            }
         }
         if (checkAnnotations) {
             // check annotations: all annotations should remain after
@@ -32,17 +46,7 @@ public class RulesServiceEnhancerHelperTest {
             // note: annotation passing to enhanced class currently is not
             // supported.
             assertArrayEquals(enhanced.getAnnotations(), simple.getAnnotations());
-            for (Method method : simple.getMethods()) {
-                assertArrayEquals(getEnhancedMethod(method, simple, enhanced).getAnnotations(),
-                    method.getAnnotations());
-            }
         }
-    }
-
-    private Method getEnhancedMethod(Method methodFromSimple, Class<?> simple, Class<?> enhanced) {
-        return MethodUtils.getMatchingAccessibleMethod(enhanced,
-            methodFromSimple.getName(),
-            ArrayUtils.add(methodFromSimple.getParameterTypes(), 0, IRulesRuntimeContext.class));
     }
 
     @Test

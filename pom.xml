@@ -80,7 +80,7 @@
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
         <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl-pub</staging.hg.repo.url>
-        <org.springframework.version>5.2.2.RELEASE</org.springframework.version>
+        <org.springframework.version>5.2.3.RELEASE</org.springframework.version>
         <org.springsecurity.version>5.2.1.RELEASE</org.springsecurity.version>
         <org.hibernate.version>5.2.18.Final</org.hibernate.version>
         <org.mojarra.version>2.1.19</org.mojarra.version>
@@ -584,13 +584,6 @@
                                 </goals>
                             </execution>
                         </executions>
-                        <dependencies>
-                            <dependency>
-                                <groupId>org.slf4j</groupId>
-                                <artifactId>jcl-over-slf4j</artifactId>
-                                <version>${org.slf4j.version}</version>
-                            </dependency>
-                        </dependencies>
                     </plugin>
                 </plugins>
             </build>
@@ -685,12 +678,6 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>${org.springframework.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-jcl</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <!-- Expression Language (depends on spring-core) Define this if you use
                 Spring Expression APIs (org.springframework.expression.*) -->
@@ -916,12 +903,6 @@
                 <artifactId>slf4j-simple</artifactId>
                 <version>${org.slf4j.version}</version>
                 <scope>test</scope>
-            </dependency>
-            <!-- JCL 1.1.1 implemented over SLF4J -->
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>jcl-over-slf4j</artifactId>
-                <version>${org.slf4j.version}</version>
             </dependency>
             <!-- Byte code generation library -->
             <dependency>
@@ -1677,11 +1658,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
