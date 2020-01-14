@@ -12,7 +12,7 @@ public final class OpenClassUtils {
     private OpenClassUtils() {
     }
 
-    public static IOpenClass findParentClassWithBoxing(IOpenClass openClass1, IOpenClass openClass2) {
+    public static IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2) {
         IOpenClass t1 = openClass1;
         IOpenClass t2 = openClass2;
         if (t1.getInstanceClass() != null && t2.getInstanceClass() != null) {
@@ -26,10 +26,10 @@ public final class OpenClassUtils {
                 }
             }
         }
-        return findParentClass(t1, t2);
+        return findParentClassNoPrimitives(t1, t2);
     }
 
-    private static IOpenClass findParentClass(IOpenClass class1, IOpenClass class2) {
+    private static IOpenClass findParentClassNoPrimitives(IOpenClass class1, IOpenClass class2) {
         if (NullOpenClass.isAnyNull(class1)) {
             if (NullOpenClass.isAnyNull(class2)) {
                 return class2;
@@ -50,7 +50,7 @@ public final class OpenClassUtils {
                 class1 = class1.getComponentClass();
                 class2 = class2.getComponentClass();
             }
-            IOpenClass parentClass = findParentClass(class1, class2);
+            IOpenClass parentClass = findParentClassNoPrimitives(class1, class2);
             if (parentClass == null) {
                 return null;
             }

@@ -486,7 +486,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
             "Double",
             "GenericBigInteger",
             "BigDecimal");
-        assertMethod(target, "m2", byte.class, nonNumbers, NF, "long", NF, "Double");
+        assertMethod(target, "m2", byte.class, nonNumbers, "GenericByte", "long", "GenericByte", "Double");
         assertMethod(target,
             "m2",
             byte.class,
@@ -513,7 +513,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
             "Double",
             "GenericBigInteger",
             "BigDecimal");
-        assertMethod(target, "m2", short.class, nonNumbers, NF, "long", NF, "Double");
+        assertMethod(target, "m2", short.class, nonNumbers, "GenericShort", "long", "GenericShort", "Double");
         assertMethod(target,
             "m2",
             short.class,
@@ -540,7 +540,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
             "Double",
             "GenericBigInteger",
             "BigDecimal");
-        assertMethod(target, "m2", int.class, nonNumbers, NF, "long", NF, "GenericInteger");
+        assertMethod(target, "m2", int.class, nonNumbers, "GenericInteger", "long", "GenericInteger", "GenericInteger");
         assertMethod(target,
             "m2",
             int.class,
@@ -567,7 +567,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
             "Double",
             "GenericBigInteger",
             "BigDecimal");
-        assertMethod(target, "m2", long.class, nonNumbers, NF, "long", NF, "GenericLong");
+        assertMethod(target, "m2", long.class, nonNumbers, "GenericLong", "long", "GenericLong", "GenericLong");
         assertMethod(target,
             "m2",
             long.class,
@@ -594,7 +594,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
             "Double",
             "BigDecimal",
             "BigDecimal");
-        assertMethod(target, "m2", float.class, nonNumbers, NF, "double", NF, "GenericFloat");
+        assertMethod(target, "m2", float.class, nonNumbers, "GenericFloat", "double", "GenericFloat", "GenericFloat");
         assertMethod(target,
             "m2",
             float.class,
@@ -630,7 +630,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
             "Double",
             "BigDecimal",
             "BigDecimal");
-        assertMethod(target, "m2", double.class, nonNumbers, NF, "double", NF, "Double");
+        assertMethod(target, "m2", double.class, nonNumbers, "GenericDouble", "double", "GenericDouble", "Double");
         assertMethod(target,
             "m2",
             double.class,
@@ -725,7 +725,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
         assertMethod("GenericHashMap", target, "gen", HashMap.class);
         assertMethod("Collection", target, "gen", ConcurrentLinkedQueue.class);
         assertMethod("DequeArrayDeque", target, "gen", ArrayDeque.class);
-        assertAmbigiouse(target, "gen", LinkedList.class);
+        assertAmbiguous(target, "gen", LinkedList.class);
     }
 
     @Test

@@ -3,6 +3,7 @@ package org.openl.rules.util;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Objects;
 
 /**
  * A set of util methods to work with arrays.
@@ -79,16 +80,42 @@ public final class Arrays {
      * @return A new array containing the existing elements plus the new elements. The returned array type will be that
      *         of the input array (unless null), in which case it will have the same type as the element.
      */
+    @SuppressWarnings("unchecked")
     public static <T> T[] add(T[] array, T... elements) {
         if (array == null) {
             return clone(elements);
         } else if (elements == null) {
             return clone(array);
         }
-        ArrayList<T> arr = new ArrayList<>(array.length + elements.length);
-        Collections.addAll(arr, array);
-        Collections.addAll(arr, elements);
-        return arr.toArray((T[]) Array.newInstance(array.getClass().getComponentType(), 0));
+        Object res = Array.newInstance(
+            elements.getClass().getComponentType() == array.getClass().getComponentType()
+                                                                                          ? array.getClass()
+                                                                                              .getComponentType()
+                                                                                          : Object.class,
+            array.length + elements.length);
+        System.arraycopy(array, 0, res, 0, array.length);
+        for (int i = 0; i < elements.length; i++) {
+            Array.set(res, array.length + i, elements[i]);
+        }
+        return (T[]) res;
+    }
+
+    public static <T> T[] add(T[] array, T element) {
+        Object res;
+        if (array != null) {
+            res = Array.newInstance(
+                element != null && element.getClass() == array.getClass().getComponentType()
+                                                                                             ? array.getClass()
+                                                                                                 .getComponentType()
+                                                                                             : Object.class,
+                array.length + 1);
+            System.arraycopy(array, 0, res, 0, array.length);
+            Array.set(res, array.length, element);
+        } else {
+            res = Array.newInstance(element != null ? element.getClass() : Object.class, 1);
+            Array.set(res, 0, element);
+        }
+        return (T[]) res;
     }
 
     /**
@@ -114,19 +141,16 @@ public final class Arrays {
      * @return The new array, <code>null</code> if both arrays are <code>null</code>. The type of the new array is the
      *         same type of the arrays.
      */
+    @SuppressWarnings("unchecked")
     public static <T> T[] add(T[]... arrays) {
         if (arrays == null) {
             return null;
         }
-        Class<?> type = null;
-        ArrayList<T> arr = new ArrayList<>();
-        for (T[] el : arrays) {
-            if (el != null) {
-                Collections.addAll(arr, el);
-                type = el.getClass().getComponentType();
-            }
-        }
-        return type == null ? null : arr.toArray((T[]) Array.newInstance(type, 0));
+        return (T[]) java.util.Arrays.stream(arrays)
+            .filter(Objects::nonNull)
+            .flatMap(java.util.Arrays::stream)
+            .map(e -> arrays.getClass().getComponentType().getComponentType().cast(e))
+            .toArray();
     }
 
     @Deprecated

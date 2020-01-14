@@ -8,7 +8,6 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.OpenClassUtils;
 
 /**
  * Contains information needed to cast two types to wider type
@@ -63,7 +62,7 @@ public final class CastToWiderType {
 
             if (cast1To2 == null && cast2To1 == null) {
                 // Find parent class for cast both nodes
-                IOpenClass parentClass = OpenClassUtils.findParentClassWithBoxing(type1, type2);
+                IOpenClass parentClass = castFactory.findClosestClass(type1, type2);
                 if (parentClass != null) {
                     IOpenCast castToParent1 = castFactory.getCast(type1, parentClass);
                     IOpenCast castToParent2 = castFactory.getCast(type2, parentClass);

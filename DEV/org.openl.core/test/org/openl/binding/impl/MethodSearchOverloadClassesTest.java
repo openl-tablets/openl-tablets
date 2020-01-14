@@ -37,25 +37,25 @@ public class MethodSearchOverloadClassesTest extends AbstractMethodSearchTest {
         assertNotFound(target, "m2", A1.class, A1.class);
         assertNotFound(target, "m2", A2.class, A1.class);
         assertInvoke("A3", target, "m2", A3.class, A1.class);
-        assertAmbigiouse(target, "m2", A4.class, A1.class);
+        assertAmbiguous(target, "m2", A4.class, A1.class);
 
         assertNotFound(target, "m2", A0.class, A2.class);
         assertNotFound(target, "m2", A1.class, A2.class);
         assertInvoke("A2", target, "m2", A2.class, A2.class);
-        assertAmbigiouse(target, "m2", A3.class, A2.class);
-        assertAmbigiouse(target, "m2", A4.class, A2.class);
+        assertAmbiguous(target, "m2", A3.class, A2.class);
+        assertAmbiguous(target, "m2", A4.class, A2.class);
 
         assertNotFound(target, "m2", A0.class, A3.class);
         assertInvoke("A1", target, "m2", A1.class, A3.class);
-        assertAmbigiouse(target, "m2", A2.class, A3.class);
-        assertAmbigiouse(target, "m2", A3.class, A3.class);
-        assertAmbigiouse(target, "m2", A4.class, A3.class);
+        assertAmbiguous(target, "m2", A2.class, A3.class);
+        assertAmbiguous(target, "m2", A3.class, A3.class);
+        assertAmbiguous(target, "m2", A4.class, A3.class);
 
         assertInvoke("A0", target, "m2", A0.class, A4.class);
-        assertAmbigiouse(target, "m2", A1.class, A4.class);
-        assertAmbigiouse(target, "m2", A2.class, A4.class);
-        assertAmbigiouse(target, "m2", A3.class, A4.class);
-        assertAmbigiouse(target, "m2", A4.class, A4.class);
+        assertAmbiguous(target, "m2", A1.class, A4.class);
+        assertAmbiguous(target, "m2", A2.class, A4.class);
+        assertAmbiguous(target, "m2", A3.class, A4.class);
+        assertAmbiguous(target, "m2", A4.class, A4.class);
     }
 
     static class A0 {

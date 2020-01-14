@@ -34,7 +34,7 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
         assertInvoke("M6", ClassWithGenerics.class, "method1", int.class, short.class);
         assertInvoke("M6", ClassWithGenerics.class, "method1", Byte.class, Long.class);
         assertInvoke("M6", ClassWithGenerics.class, "method1", Double.class, short.class);
-        assertNotFound(ClassWithGenerics.class, "method1", Integer.class, String.class);
+        assertInvoke("M6", ClassWithGenerics.class, "method1", Integer.class, String.class);
 
         assertInvoke("String", ClassWithGenerics.class, "method2", String.class, String.class);
         assertInvoke("Integer", ClassWithGenerics.class, "method2", short.class, int.class);
@@ -60,10 +60,10 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
 
     @Test
     public void testMethodChoosingWithNulls() throws AmbiguousMethodException {
-        assertAmbigiouse(ForthClassWithMethods.class, "method1", null, null);
+        assertAmbiguous(ForthClassWithMethods.class, "method1", null, null);
         assertInvoke("M8", ForthClassWithMethods.class, "method1", int.class, null);
         assertInvoke("M9", ForthClassWithMethods.class, "method1", String.class, null);
-        assertAmbigiouse(ForthClassWithMethods.class, "method2", null, null);
+        assertAmbiguous(ForthClassWithMethods.class, "method2", null, null);
         assertInvoke("M12", ForthClassWithMethods.class, "method3", null, null, null);
     }
 
