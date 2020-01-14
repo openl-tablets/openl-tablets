@@ -153,7 +153,6 @@ public final class Arrays {
             .toArray();
     }
 
-    @Deprecated
     public static <T> T[] addAll(T[] a1, T[] a2) {
         return add(a1, a2);
     }
