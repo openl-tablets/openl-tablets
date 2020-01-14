@@ -245,6 +245,7 @@ public class DatatypeOpenClass extends ADynamicClass {
         methodMap.put(toStringKey, toString);
         methodMap.put(equalsKey, equals);
         methodMap.put(hashCodeKey, hashCode);
+        methodMap.put(getClassKey, getClass);
 
         return methodMap;
     }
@@ -282,17 +283,21 @@ public class DatatypeOpenClass extends ADynamicClass {
     private static final IOpenMethod toString;
     private static final IOpenMethod equals;
     private static final IOpenMethod hashCode;
+    private static final IOpenMethod getClass;
     private static final MethodKey toStringKey;
     private static final MethodKey equalsKey;
     private static final MethodKey hashCodeKey;
+    private static final MethodKey getClassKey;
     static {
         try {
             toString = new JavaOpenMethod(Object.class.getMethod("toString"));
             equals = new JavaOpenMethod(Object.class.getMethod("equals", Object.class));
             hashCode = new JavaOpenMethod(Object.class.getMethod("hashCode"));
+            getClass = new JavaOpenMethod(Object.class.getMethod("getClass"));
             toStringKey = new MethodKey(toString);
             equalsKey = new MethodKey(equals);
             hashCodeKey = new MethodKey(hashCode);
+            getClassKey = new MethodKey(getClass);
         } catch (NoSuchMethodException nsme) {
             throw RuntimeExceptionWrapper.wrap(nsme);
         }
