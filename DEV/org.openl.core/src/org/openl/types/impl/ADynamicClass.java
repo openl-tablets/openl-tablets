@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.types.IAggregateInfo;
+import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -81,14 +82,24 @@ public abstract class ADynamicClass extends AOpenClass {
 
     public IOpenMethod getMethod(String name, IOpenClass[] classes, boolean strict) {
         IOpenMethod method = super.getMethod(name, classes);
+        return verifyMethodParameters(method, classes, strict);
+    }
+
+    private IOpenMethod verifyMethodParameters(IOpenMethod method, IOpenClass[] params, boolean strict) {
         if (method != null && strict) {
-            for (int i = 0; i < method.getSignature().getNumberOfParameters(); i++) {
-                if (!classes[i].equals(method.getSignature().getParameterType(i))) {
+            IMethodSignature signature = method.getSignature();
+            for (int i = 0; i < signature.getNumberOfParameters(); i++) {
+                if (!params[i].equals(signature.getParameterType(i))) {
                     return null;
                 }
             }
         }
         return method;
+    }
+
+    public IOpenMethod getConstructor(IOpenClass[] params,  boolean strict) {
+        IOpenMethod openConstructor = super.getConstructor(params);
+        return verifyMethodParameters(openConstructor, params, strict);
     }
 
     @Override
