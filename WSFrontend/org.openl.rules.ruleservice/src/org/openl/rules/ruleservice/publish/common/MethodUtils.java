@@ -2,7 +2,13 @@ package org.openl.rules.ruleservice.publish.common;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -17,27 +23,20 @@ public final class MethodUtils {
     private MethodUtils() {
     }
 
-    private static final Comparator<Method> METHOD_COMPARATOR = (o1, o2) -> {
-        if (o1.getName().equals(o2.getName())) {
-            if (o1.getParameterTypes().length == o2.getParameterTypes().length) {
-                int i = 0;
-                while (i < o1.getParameterTypes().length && o1.getParameterTypes()[i]
-                    .equals(o2.getParameterTypes()[i])) {
-                    i++;
-                }
-                return o1.getParameterTypes()[i].getName().compareTo(o2.getParameterTypes()[i].getName());
-            } else {
-                return o1.getParameterTypes().length - o2.getParameterTypes().length;
-            }
-        } else {
-            return o1.getName().compareTo(o2.getName());
-        }
-    };
+    private static final Comparator<Method> METHOD_COMPARATOR = Comparator.comparing(Method::getName)
+        .thenComparingInt(Method::getParameterCount)
+        .thenComparing(Method::getParameterTypes, MethodUtils::compareNames);
 
-    public static Method[] sort(Method[] m) {
-        Method[] methods = m.clone();
-        Arrays.sort(methods, METHOD_COMPARATOR);
-        return methods;
+    private static int compareNames(Class<?>[] p1, Class<?>[] p2) {
+        for (int i = 0; i < p1.length; i++) {
+            String name1 = p1[i].getName();
+            String name2 = p2[i].getName();
+            int cmp = name1.compareTo(name2);
+            if (cmp != 0) {
+                return cmp;
+            }
+        }
+        return 0;
     }
 
     public static List<Method> sort(Collection<Method> m) {
