@@ -94,27 +94,12 @@ public final class MethodSearch {
             for (i = 0; i < callParam.length; i++) {
                 if (typeNames[i] != null) {
                     IOpenClass type = genericTypes.get(typeNames[i]);
-
-                    /*int p = -1;
-                    if (NullOpenClass.isAnyNull(callParam[i])) {
-                        p = 0;
-                        IOpenClass cType = callParam[i];
-                        while (cType.isArray() && !cType.equals(type)) {
-                            cType = cType.getComponentClass();
-                            p++;
-                        }
-                    }*/
-
                     type = arrayDims[i] > 0 ? type.getArrayType(arrayDims[i]) : type;
 
                     IOpenCast tCast = castFactory.getCast(callParam[i], type);
                     if (tCast == null || !tCast.isImplicit()) {
                         return NO_MATCH;
                     }
-
-                    //if (p > 0 && arrayDims[i] != p) {
-                    //    return NO_MATCH;
-                    //}
 
                     if (callParam[i] != type) {
                         IOpenCast gCast = castFactory.getCast(callParam[i], type);
