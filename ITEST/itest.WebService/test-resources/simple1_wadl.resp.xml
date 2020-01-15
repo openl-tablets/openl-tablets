@@ -70,6 +70,318 @@
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://enumeration.rules.openl.org"
+                   attributeFormDefault="unqualified" elementFormDefault="unqualified"
+                   targetNamespace="http://enumeration.rules.openl.org" version="1.0">
+            <xs:simpleType name="caProvincesEnum">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="AB"/>
+                    <xs:enumeration value="BC"/>
+                    <xs:enumeration value="PE"/>
+                    <xs:enumeration value="MB"/>
+                    <xs:enumeration value="NB"/>
+                    <xs:enumeration value="NS"/>
+                    <xs:enumeration value="NU"/>
+                    <xs:enumeration value="ON"/>
+                    <xs:enumeration value="QC"/>
+                    <xs:enumeration value="SK"/>
+                    <xs:enumeration value="NL"/>
+                    <xs:enumeration value="YT"/>
+                    <xs:enumeration value="NT"/>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:simpleType name="caRegionsEnum">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="QC"/>
+                    <xs:enumeration value="HQ"/>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:simpleType name="countriesEnum">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="AL"/>
+                    <xs:enumeration value="DZ"/>
+                    <xs:enumeration value="AR"/>
+                    <xs:enumeration value="AU"/>
+                    <xs:enumeration value="AT"/>
+                    <xs:enumeration value="BH"/>
+                    <xs:enumeration value="BY"/>
+                    <xs:enumeration value="BE"/>
+                    <xs:enumeration value="BO"/>
+                    <xs:enumeration value="BA"/>
+                    <xs:enumeration value="BR"/>
+                    <xs:enumeration value="BG"/>
+                    <xs:enumeration value="CA"/>
+                    <xs:enumeration value="CL"/>
+                    <xs:enumeration value="CN"/>
+                    <xs:enumeration value="CO"/>
+                    <xs:enumeration value="CR"/>
+                    <xs:enumeration value="HR"/>
+                    <xs:enumeration value="CY"/>
+                    <xs:enumeration value="CZ"/>
+                    <xs:enumeration value="DK"/>
+                    <xs:enumeration value="DO"/>
+                    <xs:enumeration value="EC"/>
+                    <xs:enumeration value="EG"/>
+                    <xs:enumeration value="SV"/>
+                    <xs:enumeration value="EE"/>
+                    <xs:enumeration value="FI"/>
+                    <xs:enumeration value="FR"/>
+                    <xs:enumeration value="DE"/>
+                    <xs:enumeration value="GR"/>
+                    <xs:enumeration value="GT"/>
+                    <xs:enumeration value="HN"/>
+                    <xs:enumeration value="HK"/>
+                    <xs:enumeration value="HU"/>
+                    <xs:enumeration value="IS"/>
+                    <xs:enumeration value="IN"/>
+                    <xs:enumeration value="ID"/>
+                    <xs:enumeration value="IQ"/>
+                    <xs:enumeration value="IE"/>
+                    <xs:enumeration value="IL"/>
+                    <xs:enumeration value="IT"/>
+                    <xs:enumeration value="JP"/>
+                    <xs:enumeration value="JO"/>
+                    <xs:enumeration value="KW"/>
+                    <xs:enumeration value="LV"/>
+                    <xs:enumeration value="LB"/>
+                    <xs:enumeration value="LT"/>
+                    <xs:enumeration value="LU"/>
+                    <xs:enumeration value="MK"/>
+                    <xs:enumeration value="MY"/>
+                    <xs:enumeration value="MT"/>
+                    <xs:enumeration value="MX"/>
+                    <xs:enumeration value="MA"/>
+                    <xs:enumeration value="NL"/>
+                    <xs:enumeration value="NZ"/>
+                    <xs:enumeration value="NI"/>
+                    <xs:enumeration value="NO"/>
+                    <xs:enumeration value="OM"/>
+                    <xs:enumeration value="PA"/>
+                    <xs:enumeration value="PY"/>
+                    <xs:enumeration value="PE"/>
+                    <xs:enumeration value="PH"/>
+                    <xs:enumeration value="PL"/>
+                    <xs:enumeration value="PT"/>
+                    <xs:enumeration value="PR"/>
+                    <xs:enumeration value="QA"/>
+                    <xs:enumeration value="RO"/>
+                    <xs:enumeration value="RU"/>
+                    <xs:enumeration value="SA"/>
+                    <xs:enumeration value="CS"/>
+                    <xs:enumeration value="SG"/>
+                    <xs:enumeration value="SK"/>
+                    <xs:enumeration value="SI"/>
+                    <xs:enumeration value="ZA"/>
+                    <xs:enumeration value="ES"/>
+                    <xs:enumeration value="SD"/>
+                    <xs:enumeration value="SE"/>
+                    <xs:enumeration value="CH"/>
+                    <xs:enumeration value="SY"/>
+                    <xs:enumeration value="TW"/>
+                    <xs:enumeration value="TH"/>
+                    <xs:enumeration value="TN"/>
+                    <xs:enumeration value="TR"/>
+                    <xs:enumeration value="UA"/>
+                    <xs:enumeration value="AE"/>
+                    <xs:enumeration value="GB"/>
+                    <xs:enumeration value="US"/>
+                    <xs:enumeration value="UY"/>
+                    <xs:enumeration value="VE"/>
+                    <xs:enumeration value="VN"/>
+                    <xs:enumeration value="YE"/>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:simpleType name="currenciesEnum">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="ALL"/>
+                    <xs:enumeration value="DZD"/>
+                    <xs:enumeration value="ARS"/>
+                    <xs:enumeration value="AUD"/>
+                    <xs:enumeration value="BHD"/>
+                    <xs:enumeration value="BYR"/>
+                    <xs:enumeration value="BOB"/>
+                    <xs:enumeration value="BAM"/>
+                    <xs:enumeration value="BRL"/>
+                    <xs:enumeration value="CAD"/>
+                    <xs:enumeration value="CLP"/>
+                    <xs:enumeration value="CNY"/>
+                    <xs:enumeration value="COP"/>
+                    <xs:enumeration value="CRC"/>
+                    <xs:enumeration value="HRK"/>
+                    <xs:enumeration value="CZK"/>
+                    <xs:enumeration value="DKK"/>
+                    <xs:enumeration value="DOP"/>
+                    <xs:enumeration value="EGP"/>
+                    <xs:enumeration value="EUR"/>
+                    <xs:enumeration value="GTQ"/>
+                    <xs:enumeration value="HNL"/>
+                    <xs:enumeration value="HKD"/>
+                    <xs:enumeration value="HUF"/>
+                    <xs:enumeration value="ISK"/>
+                    <xs:enumeration value="INR"/>
+                    <xs:enumeration value="IDR"/>
+                    <xs:enumeration value="IQD"/>
+                    <xs:enumeration value="ILS"/>
+                    <xs:enumeration value="JPY"/>
+                    <xs:enumeration value="JOD"/>
+                    <xs:enumeration value="KWD"/>
+                    <xs:enumeration value="LVL"/>
+                    <xs:enumeration value="LBP"/>
+                    <xs:enumeration value="LTL"/>
+                    <xs:enumeration value="MKD"/>
+                    <xs:enumeration value="MYR"/>
+                    <xs:enumeration value="MXN"/>
+                    <xs:enumeration value="MAD"/>
+                    <xs:enumeration value="NZD"/>
+                    <xs:enumeration value="NIO"/>
+                    <xs:enumeration value="NOK"/>
+                    <xs:enumeration value="OMR"/>
+                    <xs:enumeration value="PAB"/>
+                    <xs:enumeration value="PYG"/>
+                    <xs:enumeration value="PEN"/>
+                    <xs:enumeration value="PHP"/>
+                    <xs:enumeration value="PLN"/>
+                    <xs:enumeration value="QAR"/>
+                    <xs:enumeration value="RON"/>
+                    <xs:enumeration value="RUB"/>
+                    <xs:enumeration value="SAR"/>
+                    <xs:enumeration value="RSD"/>
+                    <xs:enumeration value="SGD"/>
+                    <xs:enumeration value="ZAR"/>
+                    <xs:enumeration value="SDG"/>
+                    <xs:enumeration value="SEK"/>
+                    <xs:enumeration value="CHF"/>
+                    <xs:enumeration value="SYP"/>
+                    <xs:enumeration value="TWD"/>
+                    <xs:enumeration value="TND"/>
+                    <xs:enumeration value="TRY"/>
+                    <xs:enumeration value="UAH"/>
+                    <xs:enumeration value="AED"/>
+                    <xs:enumeration value="GBP"/>
+                    <xs:enumeration value="USD"/>
+                    <xs:enumeration value="UYU"/>
+                    <xs:enumeration value="VEF"/>
+                    <xs:enumeration value="VND"/>
+                    <xs:enumeration value="YER"/>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:simpleType name="languagesEnum">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="ALB"/>
+                    <xs:enumeration value="ARA"/>
+                    <xs:enumeration value="BEL"/>
+                    <xs:enumeration value="BUL"/>
+                    <xs:enumeration value="CAT"/>
+                    <xs:enumeration value="CHI"/>
+                    <xs:enumeration value="SCR"/>
+                    <xs:enumeration value="CZE"/>
+                    <xs:enumeration value="DAN"/>
+                    <xs:enumeration value="DUT"/>
+                    <xs:enumeration value="ENG"/>
+                    <xs:enumeration value="FIN"/>
+                    <xs:enumeration value="FRE"/>
+                    <xs:enumeration value="GER"/>
+                    <xs:enumeration value="GRE"/>
+                    <xs:enumeration value="HEB"/>
+                    <xs:enumeration value="HIN"/>
+                    <xs:enumeration value="HUN"/>
+                    <xs:enumeration value="IND"/>
+                    <xs:enumeration value="GLE"/>
+                    <xs:enumeration value="ITA"/>
+                    <xs:enumeration value="JPN"/>
+                    <xs:enumeration value="LAV"/>
+                    <xs:enumeration value="LIT"/>
+                    <xs:enumeration value="MAC"/>
+                    <xs:enumeration value="MAY"/>
+                    <xs:enumeration value="MLT"/>
+                    <xs:enumeration value="NOR"/>
+                    <xs:enumeration value="POL"/>
+                    <xs:enumeration value="POR"/>
+                    <xs:enumeration value="RUM"/>
+                    <xs:enumeration value="RUS"/>
+                    <xs:enumeration value="SCC"/>
+                    <xs:enumeration value="SLO"/>
+                    <xs:enumeration value="SPA"/>
+                    <xs:enumeration value="THA"/>
+                    <xs:enumeration value="TUR"/>
+                    <xs:enumeration value="UKR"/>
+                    <xs:enumeration value="VIE"/>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:simpleType name="regionsEnum">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="NCSA"/>
+                    <xs:enumeration value="EU"/>
+                    <xs:enumeration value="EMEA"/>
+                    <xs:enumeration value="APJ"/>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:simpleType name="usRegionsEnum">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="MW"/>
+                    <xs:enumeration value="NE"/>
+                    <xs:enumeration value="SE"/>
+                    <xs:enumeration value="SW"/>
+                    <xs:enumeration value="W"/>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:simpleType name="usStatesEnum">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="AL"/>
+                    <xs:enumeration value="AK"/>
+                    <xs:enumeration value="AZ"/>
+                    <xs:enumeration value="AR"/>
+                    <xs:enumeration value="CA"/>
+                    <xs:enumeration value="CO"/>
+                    <xs:enumeration value="CT"/>
+                    <xs:enumeration value="DC"/>
+                    <xs:enumeration value="DE"/>
+                    <xs:enumeration value="FL"/>
+                    <xs:enumeration value="GA"/>
+                    <xs:enumeration value="HI"/>
+                    <xs:enumeration value="ID"/>
+                    <xs:enumeration value="IL"/>
+                    <xs:enumeration value="IN"/>
+                    <xs:enumeration value="IA"/>
+                    <xs:enumeration value="KS"/>
+                    <xs:enumeration value="KY"/>
+                    <xs:enumeration value="LA"/>
+                    <xs:enumeration value="ME"/>
+                    <xs:enumeration value="MD"/>
+                    <xs:enumeration value="MA"/>
+                    <xs:enumeration value="MI"/>
+                    <xs:enumeration value="MN"/>
+                    <xs:enumeration value="MS"/>
+                    <xs:enumeration value="MO"/>
+                    <xs:enumeration value="MT"/>
+                    <xs:enumeration value="NE"/>
+                    <xs:enumeration value="NV"/>
+                    <xs:enumeration value="NH"/>
+                    <xs:enumeration value="NJ"/>
+                    <xs:enumeration value="NM"/>
+                    <xs:enumeration value="NY"/>
+                    <xs:enumeration value="NC"/>
+                    <xs:enumeration value="ND"/>
+                    <xs:enumeration value="OH"/>
+                    <xs:enumeration value="OK"/>
+                    <xs:enumeration value="OR"/>
+                    <xs:enumeration value="PA"/>
+                    <xs:enumeration value="PR"/>
+                    <xs:enumeration value="RI"/>
+                    <xs:enumeration value="SC"/>
+                    <xs:enumeration value="SD"/>
+                    <xs:enumeration value="TN"/>
+                    <xs:enumeration value="TX"/>
+                    <xs:enumeration value="UT"/>
+                    <xs:enumeration value="VT"/>
+                    <xs:enumeration value="VA"/>
+                    <xs:enumeration value="WA"/>
+                    <xs:enumeration value="WV"/>
+                    <xs:enumeration value="WI"/>
+                    <xs:enumeration value="WY"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:schema>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://variation.rules.openl.org"
                    attributeFormDefault="unqualified" elementFormDefault="qualified"
                    targetNamespace="http://variation.rules.openl.org"
@@ -174,6 +486,27 @@
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://context.rules.openl.org"
+                   xmlns:ns1="http://enumeration.rules.openl.org" attributeFormDefault="unqualified"
+                   elementFormDefault="qualified" targetNamespace="http://context.rules.openl.org" version="1.0">
+            <xs:import namespace="http://enumeration.rules.openl.org"/>
+            <xs:complexType name="defaultRulesRuntimeContext">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="caProvince" type="ns1:caProvincesEnum"/>
+                    <xs:element minOccurs="0" name="caRegion" type="ns1:caRegionsEnum"/>
+                    <xs:element minOccurs="0" name="country" type="ns1:countriesEnum"/>
+                    <xs:element minOccurs="0" name="currency" type="ns1:currenciesEnum"/>
+                    <xs:element minOccurs="0" name="currentDate" type="xs:dateTime"/>
+                    <xs:element minOccurs="0" name="lang" type="ns1:languagesEnum"/>
+                    <xs:element minOccurs="0" name="lob" type="xs:string"/>
+                    <xs:element minOccurs="0" name="nature" type="xs:string"/>
+                    <xs:element minOccurs="0" name="region" type="ns1:regionsEnum"/>
+                    <xs:element minOccurs="0" name="requestDate" type="xs:dateTime"/>
+                    <xs:element minOccurs="0" name="usRegion" type="ns1:usRegionsEnum"/>
+                    <xs:element minOccurs="0" name="usState" type="ns1:usStatesEnum"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://variation.rules.openl.org"
                    attributeFormDefault="unqualified" elementFormDefault="unqualified"
                    targetNamespace="http://variation.rules.openl.org"
@@ -184,10 +517,13 @@
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
-        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://variation.rules.openl.org"
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://enumeration.rules.openl.org"
+                   xmlns:ns2="http://context.rules.openl.org" xmlns:ns3="http://variation.rules.openl.org"
                    xmlns:tns="http://jaxrs.openl.org" attributeFormDefault="unqualified"
                    elementFormDefault="unqualified" targetNamespace="http://jaxrs.openl.org"
                    version="1.0">
+            <xs:import namespace="http://enumeration.rules.openl.org"/>
+            <xs:import namespace="http://context.rules.openl.org"/>
             <xs:import namespace="http://variation.rules.openl.org"/>
             <xs:element name="HelloRequest" type="tns:HelloRequest"/>
             <xs:element name="HelloRequest1" type="tns:HelloRequest1"/>
@@ -195,27 +531,27 @@
             <xs:element name="TestRequest1" type="tns:TestRequest1"/>
             <xs:complexType name="HelloRequest1">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="runtimeContext" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
                     <xs:element minOccurs="0" name="hour" type="xs:int"/>
-                    <xs:element minOccurs="0" name="variationPack" type="ns1:variationsPack"/>
+                    <xs:element minOccurs="0" name="variationPack" type="ns3:variationsPack"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="TestRequest1">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="runtimeContext" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
                     <xs:element minOccurs="0" name="hour" type="xs:int"/>
-                    <xs:element minOccurs="0" name="variationPack" type="ns1:variationsPack"/>
+                    <xs:element minOccurs="0" name="variationPack" type="ns3:variationsPack"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="TestRequest">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="runtimeContext" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
                     <xs:element minOccurs="0" name="hour" type="xs:int"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="HelloRequest">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="runtimeContext" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
                     <xs:element minOccurs="0" name="hour" type="xs:int"/>
                 </xs:sequence>
             </xs:complexType>

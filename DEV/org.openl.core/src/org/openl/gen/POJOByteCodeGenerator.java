@@ -34,6 +34,7 @@ public class POJOByteCodeGenerator {
     private Map<String, FieldDescription> beanFields;
     private Map<String, FieldDescription> parentFields;
     private List<BeanByteCodeWriter> writers;
+    private boolean fieldsArePublic;
 
     /**
      *
@@ -46,12 +47,14 @@ public class POJOByteCodeGenerator {
             Map<String, FieldDescription> beanFields,
             Class<?> parentClass,
             Map<String, FieldDescription> parentFields,
-            boolean additionalConstructor) {
+            boolean additionalConstructor,
+            boolean fieldsArePublic) {
 
         this.beanFields = new LinkedHashMap<>(beanFields);
         this.parentClass = parentClass;
         this.parentFields = new LinkedHashMap<>(parentFields);
         this.beanNameWithPackage = beanName.replace('.', '/');
+        this.fieldsArePublic = fieldsArePublic;
         Map<String, FieldDescription> allFields = new LinkedHashMap<>();
         allFields.putAll(parentFields);
         allFields.putAll(beanFields);
@@ -69,8 +72,10 @@ public class POJOByteCodeGenerator {
                 this.parentFields,
                 allFields));
         }
-        writers.add(new GettersWriter(beanNameWithPackage, this.beanFields));
-        writers.add(new SettersWriter(beanNameWithPackage, this.beanFields));
+        if (!fieldsArePublic) {
+            writers.add(new GettersWriter(beanNameWithPackage, this.beanFields));
+            writers.add(new SettersWriter(beanNameWithPackage, this.beanFields));
+        }
         writers.add(new ToStringWriter(beanNameWithPackage, allFields));
         writers.add(new EqualsWriter(beanNameWithPackage, allFields));
         writers.add(new HashCodeWriter(beanNameWithPackage, allFields));
@@ -105,21 +110,21 @@ public class POJOByteCodeGenerator {
         AnnotationVisitor av1 = av.visitArray("propOrder");
         for (Entry<String, FieldDescription> e : parentFields.entrySet()) {
             // Jackson compares fields by uncapitalized name
-            av1.visit(null, ClassUtils.decapitalize(e.getKey()));
+            av1.visit(null, fieldsArePublic ? e.getKey() : ClassUtils.decapitalize(e.getKey()));
         }
         for (Entry<String, FieldDescription> e : beanFields.entrySet()) {
             // Jackson compares fields by uncapitalized name
-            av1.visit(null, ClassUtils.decapitalize(e.getKey()));
+            av1.visit(null, fieldsArePublic ? e.getKey() : ClassUtils.decapitalize(e.getKey()));
         }
         av1.visitEnd();
         av.visitEnd();
     }
 
     private void visitFields(ClassWriter classWriter) {
+        int code = fieldsArePublic ? Opcodes.ACC_PUBLIC : Opcodes.ACC_PROTECTED;
         for (Map.Entry<String, FieldDescription> field : beanFields.entrySet()) {
             String fieldTypeName = field.getValue().getTypeDescriptor();
-            FieldVisitor fieldVisitor = classWriter
-                .visitField(Opcodes.ACC_PROTECTED, field.getKey(), fieldTypeName, null, null);
+            FieldVisitor fieldVisitor = classWriter.visitField(code, field.getKey(), fieldTypeName, null, null);
             if (field.getValue().isContextProperty()) {
                 visitOpenLContextAnnotation(field.getValue().getContextPropertyName(), fieldVisitor);
             }

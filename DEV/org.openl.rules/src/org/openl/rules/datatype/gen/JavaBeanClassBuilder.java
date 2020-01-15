@@ -68,6 +68,6 @@ public class JavaBeanClassBuilder {
      * Creates JavaBean byte code for given fields.
      */
     public byte[] byteCode() {
-        return new POJOByteCodeGenerator(beanName, fields, parentClass, parentFields, true).byteCode();
+        return new POJOByteCodeGenerator(beanName, fields, parentClass, parentFields, true, false).byteCode();
     }
 }
