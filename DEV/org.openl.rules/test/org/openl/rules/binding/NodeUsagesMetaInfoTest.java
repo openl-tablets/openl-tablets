@@ -212,6 +212,24 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals(typeC.getUri(), usedNodes.get(0).getUri());
         assertEquals(0, usedNodes.get(0).getStart());
         assertEquals(7, usedNodes.get(0).getEnd());
+
+        //test return cell
+        ICell ret = rule2.getGridTable().getCell(2, 2);
+        CellMetaInfo retMeta = getMetaInfo(rule2MetaReader, ret);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(retMeta));
+
+        usedNodes = retMeta.getUsedNodes();
+        assertEquals(2, usedNodes.size());
+
+        assertEquals(typeB.getUri(), usedNodes.get(0).getUri());
+        assertEquals("TypeB <init>(String aaa)", usedNodes.get(0).getDescription());
+        assertEquals(4, usedNodes.get(0).getStart());
+        assertEquals(8, usedNodes.get(0).getEnd());
+
+        assertNull(usedNodes.get(1).getUri());
+        assertEquals("String res", usedNodes.get(1).getDescription());
+        assertEquals(10, usedNodes.get(1).getStart());
+        assertEquals(12, usedNodes.get(1).getEnd());
     }
 
     @Test
@@ -242,10 +260,12 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
         //the first node it's constructor
         assertEquals(typeB.getUri(), usedNodes.get(0).getUri());
+        assertEquals("TypeB <init>(String aaa)", usedNodes.get(0).getDescription());
         assertEquals(11, usedNodes.get(0).getStart());
         assertEquals(15, usedNodes.get(0).getEnd());
 
         assertEquals(typeB.getUri(), usedNodes.get(1).getUri());
+        assertEquals("Datatype TypeB\nString aaa", usedNodes.get(1).getDescription());
         assertEquals(24, usedNodes.get(1).getStart());
         assertEquals(26, usedNodes.get(1).getEnd());
 

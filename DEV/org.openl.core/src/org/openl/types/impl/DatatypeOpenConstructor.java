@@ -1,23 +1,33 @@
 package org.openl.types.impl;
 
 import java.lang.reflect.Constructor;
+import java.util.Objects;
 
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaOpenConstructor;
 import org.openl.vm.IRuntimeEnv;
 
 public class DatatypeOpenConstructor extends JavaOpenConstructor {
 
+    private static final IParameterDeclaration[] EMPTY = new IParameterDeclaration[0];
+
     private final JavaOpenConstructor delegator;
     private final IOpenClass declaringClass;
+    private final IParameterDeclaration[] parameters;
 
     public DatatypeOpenConstructor(JavaOpenConstructor delegator, IOpenClass declaringClass) {
+        this(delegator, declaringClass, EMPTY);
+    }
+
+    public DatatypeOpenConstructor(JavaOpenConstructor delegator, IOpenClass declaringClass, IParameterDeclaration[] parameters) {
         super(delegator.getJavaConstructor());
         this.delegator = delegator;
         this.declaringClass = declaringClass;
+        this.parameters = Objects.requireNonNull(parameters);
     }
 
     @Override
@@ -47,22 +57,29 @@ public class DatatypeOpenConstructor extends JavaOpenConstructor {
 
     @Override
     public int getNumberOfParameters() {
-        return delegator.getNumberOfParameters();
+        return parameters.length;
     }
 
     @Override
     public String getParameterName(int i) {
-        return delegator.getParameterName(i);
+        return parameters[i].getName();
     }
 
     @Override
     public IOpenClass getParameterType(int i) {
-        return delegator.getParameterType(i);
+        return parameters[i].getType();
     }
 
     @Override
     public IOpenClass[] getParameterTypes() {
-        return delegator.getParameterTypes();
+        if (parameters.length == 0) {
+            return IOpenClass.EMPTY;
+        }
+        IOpenClass[] parameterTypes = new IOpenClass[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            parameterTypes[i] = parameters[i].getType();
+        }
+        return parameterTypes;
     }
 
     @Override
