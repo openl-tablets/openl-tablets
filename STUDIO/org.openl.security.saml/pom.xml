@@ -28,10 +28,5 @@
             <groupId>org.opensaml</groupId>
             <artifactId>xmltooling</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <scope>provided</scope>           
-        </dependency>
     </dependencies>
 </project>

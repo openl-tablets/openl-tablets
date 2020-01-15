@@ -27,11 +27,5 @@
             <version>1.7.21</version>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.7.21</version>
-            <scope>runtime</scope>
-        </dependency>
     </dependencies>
 </project>

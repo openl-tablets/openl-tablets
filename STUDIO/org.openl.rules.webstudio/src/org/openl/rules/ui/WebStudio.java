@@ -1155,8 +1155,12 @@ public class WebStudio implements DesignTimeRepositoryListener {
                             "Current project does not exists in '{}' branch! Project branch was switched to the previous one",
                             branch);
                     }
-                    // Update files
-                    project.open();
+                    if (project.isDeleted()) {
+                        project.close();
+                    } else {
+                        // Update files
+                        project.open();
+                    }
 
                     resetProjects();
                 }

@@ -61,18 +61,6 @@
                 <artifactId>server-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.openl.itest</groupId>
-                <artifactId>itest.shaded.embedded.cassandra</artifactId>
-                <version>${project.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.itest</groupId>
-                <artifactId>itest.shaded.embedded.kafka</artifactId>
-                <version>${project.version}</version>
-                <scope>test</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 

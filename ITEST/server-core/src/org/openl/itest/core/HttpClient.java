@@ -6,9 +6,9 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import org.springframework.core.io.ClassPathResource;
@@ -30,7 +30,6 @@ import org.xmlunit.diff.DifferenceEvaluator;
 import org.xmlunit.diff.DifferenceEvaluators;
 import org.xmlunit.diff.ElementSelectors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -263,58 +262,49 @@ public class HttpClient {
     private void compareJson(String responseFile, Resource body) {
         try (InputStream actual = body.getInputStream();
                 InputStream file = getClass().getResourceAsStream(responseFile)) {
-            Map<String, Object> actualMap = OBJECT_MAPPER.readValue(actual, Map.class);
-            Map<String, Object> expectedMap = OBJECT_MAPPER.readValue(file, Map.class);
-            assertEquals(actualMap.keySet(), expectedMap.keySet());
-            for (String expectedKey : expectedMap.keySet()) {
-                compareJsonObjects(toJSON(expectedMap.get(expectedKey)),
-                    toJSON(actualMap.get(expectedKey)));
-            }
+            JsonNode actualNode = OBJECT_MAPPER.readTree(actual);
+            JsonNode expectedNode = OBJECT_MAPPER.readTree(file);
+            compareJsonObjects(expectedNode, actualNode, "");
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
     }
 
-    private void compareJsonObjects(String expectedJson, String actualJson) {
-        try {
-            Map<String, String> expectedJsonMap = splitJSON(expectedJson);
-            Map<String, String> actualJsonMap = splitJSON(actualJson);
-            assertEquals(expectedJsonMap.keySet(), actualJsonMap.keySet());
-            if (expectedJsonMap.keySet().size() == 0) {
-                String regExp = expectedJson.replaceAll("\\[", "\\\\[")
-                    .replaceAll("]", "\\\\]")
-                    .replaceAll("#+", "\"?\\\\d+\"?")
-                    .replaceAll("\"?@+\"?", "\"?[@\\\\w]+\"?")
-                    .replaceAll("\"?\\*+\"?", "[^\uFFFF]*");
-                String noSpacesActual = actualJson.replaceAll("\\s+", " ");
-                String noSpacesExpected = expectedJson.replaceAll("\\s+", " ");
-                boolean matches = noSpacesActual
-                    .equals(noSpacesExpected) || Pattern.compile(regExp).matcher(noSpacesActual).matches();
-                if (!matches) {
-                    fail("File: [" + expectedJson + "]\n" + noSpacesActual);
-                }
+    private void compareJsonObjects(JsonNode expectedJson, JsonNode actualJson, String path) {
+        if (Objects.equals(expectedJson, actualJson)) {
+            return;
+        } else if (expectedJson == null || actualJson == null) {
+            failDiff(expectedJson, actualJson, path);
+        } else if (expectedJson.isTextual()) {
+            // try to compare by a pattern
+            String regExp = expectedJson.asText()
+                .replaceAll("\\[", "\\\\[")
+                .replaceAll("]", "\\\\]")
+                .replaceAll("#+", "[#\\\\d]+")
+                .replaceAll("@+", "[@\\\\w]+")
+                .replaceAll("\\*+", "[^\uFFFF]*");
+            String actualText = actualJson.isTextual() ? actualJson.asText() : actualJson.toString();
+            if (!Pattern.compile(regExp).matcher(actualText).matches()) {
+                failDiff(expectedJson, actualJson, path);
             }
-            for (String expectedKey : expectedJsonMap.keySet()) {
-                compareJsonObjects(toJSON(expectedJsonMap.get(expectedKey)),
-                    toJSON(actualJsonMap.get(expectedKey)));
+        } else if (expectedJson.isArray() && actualJson.isArray()) {
+            for (int i = 0; i < expectedJson.size() || i < actualJson.size(); i++) {
+                compareJsonObjects(expectedJson.get(i), actualJson.get(i), path + "[" + i + "]");
             }
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
+        } else if (expectedJson.isObject() && actualJson.isObject()) {
+            LinkedHashSet<String> names = new LinkedHashSet<>();
+            expectedJson.fieldNames().forEachRemaining(names::add);
+            actualJson.fieldNames().forEachRemaining(names::add);
+
+            for (String name : names) {
+                compareJsonObjects(expectedJson.get(name), actualJson.get(name), path + " > " + name);
+            }
+        } else {
+            failDiff(expectedJson, actualJson, path);
         }
     }
 
-    private static String toJSON(Object obj) throws JsonProcessingException {
-        return OBJECT_MAPPER.writeValueAsString(obj);
-    }
-
-    private static Map<String, String> splitJSON(String jsonString) throws IOException {
-        JsonNode rootNode = OBJECT_MAPPER.readTree(jsonString);
-        Map<String, String> splitMap = new HashMap<>();
-        Iterator<Map.Entry<String, JsonNode>> fieldsIterator = rootNode.fields();
-        while (fieldsIterator.hasNext()) {
-            Map.Entry<String, JsonNode> field = fieldsIterator.next();
-            splitMap.put(field.getKey(), OBJECT_MAPPER.writeValueAsString(field.getValue()));
-        }
-        return splitMap;
+    private static void failDiff(JsonNode expectedJson, JsonNode actualJson, String path) {
+        assertEquals("Path: \\" + path ,actualJson, expectedJson);
     }
 }

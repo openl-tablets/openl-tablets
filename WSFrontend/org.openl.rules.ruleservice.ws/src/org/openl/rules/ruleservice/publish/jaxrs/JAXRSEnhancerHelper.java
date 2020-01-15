@@ -162,9 +162,9 @@ public final class JAXRSEnhancerHelper {
                 paths = new HashMap<>();
                 List<Method> methods = new ArrayList<>();
                 for (Method m : originalClass.getMethods()) {
-                    Annotation pathAnnotation = m.getAnnotation(Path.class);
+                    Path pathAnnotation = m.getAnnotation(Path.class);
                     if (pathAnnotation != null) {
-                        String value = ((Path) pathAnnotation).value();
+                        String value = pathAnnotation.value();
 
                         while (value.charAt(0) == '/') {
                             value = value.substring(1);

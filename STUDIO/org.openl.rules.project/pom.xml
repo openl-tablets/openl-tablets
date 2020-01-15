@@ -58,16 +58,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <scope>provided</scope>           
-        </dependency>
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-            <scope>test</scope>
-        </dependency>
         <!-- Required for Java11. -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
