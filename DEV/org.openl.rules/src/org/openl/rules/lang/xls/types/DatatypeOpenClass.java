@@ -7,19 +7,27 @@
 package org.openl.rules.lang.xls.types;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.*;
+import org.openl.types.impl.ADynamicClass;
+import org.openl.types.impl.DatatypeOpenConstructor;
+import org.openl.types.impl.DatatypeOpenField;
+import org.openl.types.impl.DatatypeOpenMethod;
+import org.openl.types.impl.DynamicArrayAggregateInfo;
+import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenConstructor;
 import org.openl.types.java.JavaOpenMethod;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
@@ -148,12 +156,7 @@ public class DatatypeOpenClass extends ADynamicClass {
         Object instance = null;
         try {
             instance = getInstanceClass().newInstance();
-        } catch (InstantiationException e) {
-            log.error("{}", this, e);
-        } catch (IllegalAccessException e) {
-            log.error("{}", this, e);
-        } catch (Throwable e) {
-            // catch e.g. NoClassDefFoundError
+        } catch (Exception e) {
             log.error("{}", this, e);
         }
         return instance;
@@ -231,7 +234,7 @@ public class DatatypeOpenClass extends ADynamicClass {
     @Override
     protected Map<MethodKey, IOpenMethod> initMethodMap() {
         Map<MethodKey, IOpenMethod> methods = super.initMethodMap();
-        Map<MethodKey, IOpenMethod> methodMap = new HashMap<>();
+        Map<MethodKey, IOpenMethod> methodMap = new HashMap<>(OBJECT_CLASS_METHODS);
 
         for (Entry<MethodKey, IOpenMethod> m : methods.entrySet()) {
             IOpenMethod m1 = wrapDatatypeOpenMethod(m.getValue());
@@ -241,11 +244,6 @@ public class DatatypeOpenClass extends ADynamicClass {
                 methodMap.put(m.getKey(), m.getValue());
             }
         }
-
-        methodMap.put(toStringKey, toString);
-        methodMap.put(equalsKey, equals);
-        methodMap.put(hashCodeKey, hashCode);
-        methodMap.put(getClassKey, getClass);
 
         return methodMap;
     }
@@ -280,27 +278,14 @@ public class DatatypeOpenClass extends ADynamicClass {
         this.bytecode = bytecode;
     }
 
-    private static final IOpenMethod toString;
-    private static final IOpenMethod equals;
-    private static final IOpenMethod hashCode;
-    private static final IOpenMethod getClass;
-    private static final MethodKey toStringKey;
-    private static final MethodKey equalsKey;
-    private static final MethodKey hashCodeKey;
-    private static final MethodKey getClassKey;
+    private static final Map<MethodKey, IOpenMethod> OBJECT_CLASS_METHODS;
+
     static {
-        try {
-            toString = new JavaOpenMethod(Object.class.getMethod("toString"));
-            equals = new JavaOpenMethod(Object.class.getMethod("equals", Object.class));
-            hashCode = new JavaOpenMethod(Object.class.getMethod("hashCode"));
-            getClass = new JavaOpenMethod(Object.class.getMethod("getClass"));
-            toStringKey = new MethodKey(toString);
-            equalsKey = new MethodKey(equals);
-            hashCodeKey = new MethodKey(hashCode);
-            getClassKey = new MethodKey(getClass);
-        } catch (NoSuchMethodException nsme) {
-            throw RuntimeExceptionWrapper.wrap(nsme);
+        Map<MethodKey, IOpenMethod> objectClassMethods = new HashMap<>();
+        for (IOpenMethod m : JavaOpenClass.OBJECT.getMethods()) {
+            objectClassMethods.put(new MethodKey(m), m);
         }
+        OBJECT_CLASS_METHODS = Collections.unmodifiableMap(objectClassMethods);
     }
 
 }
