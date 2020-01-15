@@ -59,6 +59,11 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
 
         assertInvoke("M10", ClassWithGenerics.class, "ne", byte[].class, byte.class);
         assertInvoke("M10", ClassWithGenerics.class, "ne", byte.class, byte[].class);
+
+        assertInvoke("M11", ClassWithGenerics.class, "method6", byte[].class, byte[].class);
+
+        assertInvoke("M14", ClassWithGenerics.class, "method7", String.class, String.class);
+
     }
 
     @Test
@@ -128,7 +133,24 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
 
         public <T> String ne(T a, T b) {
             return "M10";
-        };
+        }
+
+        public <T> String method6(T[] arg1, T[] arg2) {
+            return "M11";
+        }
+
+        public <T> String method6(T arg1, T arg2) {
+            return "M12";
+        }
+
+        public <T extends String> T method7(T[] arg1, T arg2) {
+            return (T) "M13";
+        }
+
+        public <T extends String> T method7(T arg1, T arg2) {
+            return (T) "M14";
+        }
+
     }
 
     public static class ThirdClassWithMethods extends SecondClassWithMethods {
