@@ -78,12 +78,6 @@ public final class MethodSearch {
                     t = unwrapPrimitiveClassIfNeeded(t);
                     if (genericTypes.containsKey(typeNames[i])) {
                         IOpenClass existedType = genericTypes.get(typeNames[i]);
-                        if (t.isArray()) {
-                            IOpenCast cast = castFactory.getCast(t, existedType);
-                            if (cast == null || !cast.isImplicit()) {
-                                return NO_MATCH;
-                            }
-                        }
                         IOpenClass clazz = castFactory.findClosestClass(t, existedType);
                         if (clazz != null) {
                             genericTypes.put(typeNames[i], unwrapPrimitiveClassIfNeeded(clazz));
@@ -97,28 +91,31 @@ public final class MethodSearch {
                 i++;
             }
 
-            String returnType = JavaGenericsUtils.getGenericTypeName(method.getJavaMethod().getGenericReturnType());
-
-            if (returnType != null && genericTypes.containsKey(returnType)) {
-                int dim = JavaGenericsUtils.getGenericTypeDim(method.getJavaMethod().getGenericReturnType());
-                IOpenClass type = genericTypes.get(returnType);
-                if (dim > 0) {
-                    type = type.getArrayType(dim);
-                }
-                IOpenCast returnCast = castFactory.getCast(method.getType(), type);
-                if (returnCast == null) {
-                    return NO_MATCH;
-                }
-                returnCastHolder[0] = returnCast;
-                returnTypeHolder[0] = type;
-            }
-
             for (i = 0; i < callParam.length; i++) {
                 if (typeNames[i] != null) {
                     IOpenClass type = genericTypes.get(typeNames[i]);
-                    if (arrayDims[i] > 0) {
-                        type = type.getArrayType(arrayDims[i]);
+
+                    /*int p = -1;
+                    if (NullOpenClass.isAnyNull(callParam[i])) {
+                        p = 0;
+                        IOpenClass cType = callParam[i];
+                        while (cType.isArray() && !cType.equals(type)) {
+                            cType = cType.getComponentClass();
+                            p++;
+                        }
+                    }*/
+
+                    type = arrayDims[i] > 0 ? type.getArrayType(arrayDims[i]) : type;
+
+                    IOpenCast tCast = castFactory.getCast(callParam[i], type);
+                    if (tCast == null || !tCast.isImplicit()) {
+                        return NO_MATCH;
                     }
+
+                    //if (p > 0 && arrayDims[i] != p) {
+                    //    return NO_MATCH;
+                    //}
+
                     if (callParam[i] != type) {
                         IOpenCast gCast = castFactory.getCast(callParam[i], type);
                         if (gCast == null || !gCast.isImplicit()) {
@@ -150,6 +147,22 @@ public final class MethodSearch {
                         }
                     }
                 }
+            }
+
+            String returnType = JavaGenericsUtils.getGenericTypeName(method.getJavaMethod().getGenericReturnType());
+
+            if (returnType != null && genericTypes.containsKey(returnType)) {
+                int dim = JavaGenericsUtils.getGenericTypeDim(method.getJavaMethod().getGenericReturnType());
+                IOpenClass type = genericTypes.get(returnType);
+                if (dim > 0) {
+                    type = type.getArrayType(dim);
+                }
+                IOpenCast returnCast = castFactory.getCast(method.getType(), type);
+                if (returnCast == null) {
+                    return NO_MATCH;
+                }
+                returnCastHolder[0] = returnCast;
+                returnTypeHolder[0] = type;
             }
         } else {
             for (int i = 0; i < callParam.length; i++) {

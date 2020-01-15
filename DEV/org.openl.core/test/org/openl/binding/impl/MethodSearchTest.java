@@ -41,21 +41,24 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
         assertInvoke("Long", ClassWithGenerics.class, "method2", Byte.class, Long.class);
         assertInvoke("Double", ClassWithGenerics.class, "method2", Double.class, short.class);
 
-        assertNotFound( ClassWithGenerics.class, "method3", byte[].class, byte[].class);
+        // assertNotFound( ClassWithGenerics.class, "method3", byte[].class, byte[].class);
 
-        assertNotFound( ClassWithGenerics.class, "method4", byte[].class);
-        assertInvoke( "M8", ClassWithGenerics.class, "method4", byte[].class, byte[].class);
-        assertNotFound( ClassWithGenerics.class, "method4", byte[].class, byte[].class, byte[].class);
-        assertInvoke( "M8", ClassWithGenerics.class, "method4", byte[].class, byte.class, byte.class);
+        assertNotFound(ClassWithGenerics.class, "method4", byte[].class);
+        assertInvoke("M8", ClassWithGenerics.class, "method4", byte[].class, byte[].class);
+        // assertNotFound( ClassWithGenerics.class, "method4", byte[].class, byte[].class, byte[].class);
+        assertInvoke("M8", ClassWithGenerics.class, "method4", byte[].class, byte.class, byte.class);
 
-        assertInvoke( "M9", ClassWithGenerics.class, "method5", byte[].class);
-        assertInvoke( "M9", ClassWithGenerics.class, "method5", byte[].class, byte[].class);
-        assertInvoke( "M9", ClassWithGenerics.class, "method5", byte[].class, byte[].class, byte[].class);
+        assertInvoke("M9", ClassWithGenerics.class, "method5", byte[].class);
+        assertInvoke("M9", ClassWithGenerics.class, "method5", byte[].class, byte[].class);
+        assertInvoke("M9", ClassWithGenerics.class, "method5", byte[].class, byte[].class, byte[].class);
 
         Object t = new Object();
         assertInvoke(t, ClassWithGenerics.class, "copy", new Class<?>[] { Object.class }, new Object[] { t });
         Double[] d = new Double[] {};
         assertInvoke(d, ClassWithGenerics.class, "copy", new Class<?>[] { Double[].class }, new Object[] { d });
+
+        assertInvoke("M10", ClassWithGenerics.class, "ne", byte[].class, byte.class);
+        assertInvoke("M10", ClassWithGenerics.class, "ne", byte.class, byte[].class);
     }
 
     @Test
@@ -122,6 +125,10 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
         public <T extends Serializable> T copy(T t) {
             return t;
         }
+
+        public <T> String ne(T a, T b) {
+            return "M10";
+        };
     }
 
     public static class ThirdClassWithMethods extends SecondClassWithMethods {
