@@ -590,7 +590,12 @@ public final class MethodSearch {
     public static IMethodCaller findConstructor(IOpenClass[] params,
             ICastFactory casts,
             IMethodFactory factory) throws AmbiguousMethodException {
-        IMethodCaller caller = factory.getConstructor(params);
+        IMethodCaller caller;
+        if (factory instanceof ADynamicClass) {
+            caller = ((ADynamicClass) factory).getConstructor(params, true);
+        } else {
+            caller = factory.getConstructor(params);
+        }
         if (caller != null) {
             return caller;
         }

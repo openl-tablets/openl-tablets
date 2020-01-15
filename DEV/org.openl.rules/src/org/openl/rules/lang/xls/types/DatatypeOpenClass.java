@@ -18,6 +18,7 @@ import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.DatatypeOpenConstructor;
@@ -25,6 +26,7 @@ import org.openl.types.impl.DatatypeOpenField;
 import org.openl.types.impl.DatatypeOpenMethod;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.impl.MethodKey;
+import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenConstructor;
 import org.openl.types.java.JavaOpenMethod;
@@ -253,7 +255,7 @@ public class DatatypeOpenClass extends ADynamicClass {
         Map<MethodKey, IOpenMethod> constructors = super.initConstructorMap();
         Map<MethodKey, IOpenMethod> constructorMap = new HashMap<>(1);
         for (Entry<MethodKey, IOpenMethod> constructor : constructors.entrySet()) {
-            IOpenMethod wrapped = wrapDatatypeOpenConstructor(constructor.getValue());
+            IOpenMethod wrapped = wrapDatatypeOpenConstructor(constructor.getKey(), constructor.getValue());
             if (wrapped == constructor.getValue()) {
                 constructorMap.put(constructor.getKey(), constructor.getValue());
             } else {
@@ -263,9 +265,22 @@ public class DatatypeOpenClass extends ADynamicClass {
         return constructorMap;
     }
 
-    private IOpenMethod wrapDatatypeOpenConstructor(IOpenMethod method) {
+    private IOpenMethod wrapDatatypeOpenConstructor(MethodKey mk, IOpenMethod method) {
         if (method instanceof JavaOpenConstructor && javaName.equals(method.getDeclaringClass().getJavaName())) {
-            return new DatatypeOpenConstructor((JavaOpenConstructor) method, this);
+            JavaOpenConstructor javaOpenConstructor = (JavaOpenConstructor) method;
+            if (javaOpenConstructor.getNumberOfParameters() == 0) {
+                return new DatatypeOpenConstructor(javaOpenConstructor, this);
+            } else {
+                MethodKey candidate = new MethodKey(getFields().values().stream()
+                    .map(IOpenMember::getType)
+                    .toArray(IOpenClass[]::new));
+                if (mk.equals(candidate)) {
+                    ParameterDeclaration[] parameters = getFields().values().stream()
+                        .map(f -> new ParameterDeclaration(f.getType(), f.getName()))
+                        .toArray(ParameterDeclaration[]::new);
+                    return new DatatypeOpenConstructor(javaOpenConstructor, this, parameters);
+                }
+            }
         }
         return method;
     }

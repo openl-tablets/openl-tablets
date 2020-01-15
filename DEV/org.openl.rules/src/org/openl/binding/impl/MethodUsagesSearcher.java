@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.openl.base.INamedThing;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
 import org.openl.meta.IMetaInfo;
@@ -16,6 +17,8 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DatatypeOpenConstructor;
 import org.openl.types.impl.ExecutableMethod;
 import org.openl.types.impl.MethodDelegator;
+import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.JavaOpenConstructor;
 import org.openl.util.CollectionUtils;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
@@ -108,6 +111,9 @@ public final class MethodUsagesSearcher {
         @Override
         public String getDescription() {
             StringBuilder buff = new StringBuilder();
+            if (method instanceof JavaOpenConstructor && method.getDeclaringClass() instanceof JavaOpenClass) {
+                buff.append(method.getDeclaringClass().getPackageName()).append('\n');
+            }
             MethodUtil.printMethod(method, buff);
             return buff.toString();
         }
@@ -161,21 +167,24 @@ public final class MethodUsagesSearcher {
                 } else {
                     method = methodCaller.getMethod();
                 }
-                int pstart;
-                int pend;
-                boolean isConstructor = method instanceof DatatypeOpenConstructor;
-                boolean isMethod = method instanceof ExecutableMethod || method instanceof MatchingOpenMethodDispatcher || method instanceof MethodDelegator;
-                if (isMethod || isConstructor) {
+                if (method instanceof ExecutableMethod || method instanceof MatchingOpenMethodDispatcher || method instanceof MethodDelegator) {
                     TextInfo info = new TextInfo(sourceString);
-                    pstart = location.getStart().getAbsolutePosition(info) + startIndex;
-                    if (isConstructor) {
-                        //shift start up to 4 symbols cause constructors always start with "new " keyword
-                        pstart += 4;
-                        pend = pstart + method.getDeclaringClass().getName().length() - 1;
-                    } else {
-                        pend = pstart + method.getName().length() - 1;
-                    }
+                    int pstart = location.getStart().getAbsolutePosition(info) + startIndex;
+                    int pend = pstart + method.getName().length() - 1;
                     methods.add(new MethodUsage(pstart, pend, method));
+                } else if (method instanceof JavaOpenConstructor && methodBoundNode.getSyntaxNode().getNumberOfChildren() > 0) {
+                    TextInfo info = new TextInfo(sourceString);
+                    //get constructor syntax node location
+                    location = methodBoundNode.getSyntaxNode().getChild(0).getSourceLocation();
+                    if (location != null && location.isTextLocation()) {
+                        int pstart = location.getStart().getAbsolutePosition(info) + startIndex;
+                        if (sourceString.indexOf(method.getDeclaringClass().getPackageName()) == pstart - 1) {
+                            //shift start index if constructor calling start with packageName
+                            pstart += method.getDeclaringClass().getPackageName().length() + 1;
+                        }
+                        int pend = pstart + method.getDeclaringClass().getDisplayName(INamedThing.SHORT).length() - 1;
+                        methods.add(new MethodUsage(pstart, pend, method));
+                    }
                 }
             }
         }
