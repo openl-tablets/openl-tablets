@@ -1929,8 +1929,12 @@ public class RepositoryTreeController {
             }
 
             if (opened) {
-                // Update files
-                selectedProject.open();
+                if (selectedProject.isDeleted()) {
+                    selectedProject.close();
+                } else {
+                    // Update files
+                    selectedProject.open();
+                }
             }
 
             repositoryTreeState.refreshSelectedNode();
