@@ -1,7 +1,5 @@
 package org.openl.itest;
 
-import javax.xml.xpath.XPathExpressionException;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -42,8 +40,23 @@ public class RunITest {
     }
 
     @Test
-    public void testWadlSchemaForBean() throws XPathExpressionException {
+    public void testMixes1() {
+        client.post("/upcs/mixes", "/empty.req.json", "/mixes1-default.resp.json");
+        client.post("/upcs/mixes", "/mixes1-filled-nulls.json", "/mixes1-filled-nulls.json");
+        client.post("/upcs/mixes", "/mixes1-filled.json", "/mixes1-filled.json");
+    }
+
+    @Test
+    public void testMixes2() {
+        client.post("/upcs/mixes2", "/empty.req.json", "/mixes2-empty.resp.json");
+        client.post("/upcs/mixes2", "/mixes2-default.req.json", "/mixes2-default.resp.json");
+        client.post("/upcs/mixes2", "/mixes2-filled.req.json", "/mixes2-filled.resp.json");
+    }
+
+    @Test
+    public void testSchemas() {
         client.get("/upcs?_wadl", "/wadl.resp.xml");
+        client.get("/upcs/swagger.json", "/swagger.resp.json");
     }
 
 }

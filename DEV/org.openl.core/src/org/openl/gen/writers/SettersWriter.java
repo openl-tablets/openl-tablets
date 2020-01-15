@@ -46,7 +46,7 @@ public class SettersWriter extends MethodWriter {
         // this.fieldName = arg0
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
         methodVisitor.visitVarInsn(getConstantForVarInsn(field), 1);
-        methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), fieldName, field.getTypeDescriptor());
+        methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), fieldName, fieldType);
         methodVisitor.visitInsn(Opcodes.RETURN);
 
         // Add variable name to DEBUG
