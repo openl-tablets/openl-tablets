@@ -198,9 +198,18 @@ public final class MethodSearch {
         return true;
     }
 
+    private static int getTypeDim(IOpenClass openClass) {
+        int dim = 0;
+        while (openClass.isArray()) {
+            openClass = openClass.getComponentClass();
+            dim++;
+        }
+        return dim;
+    }
+
     private static boolean lq(IOpenMethod method,
             List<IOpenMethod> matchingMethods,
-            IOpenClass[] params,
+            IOpenClass[] callParams,
             int[] m1,
             int[] m2) {
         if (matchingMethods == null || matchingMethods.isEmpty()) {
@@ -210,28 +219,29 @@ public final class MethodSearch {
         int[] dims1 = new int[method.getSignature().getNumberOfParameters()];
         int[] dims2 = new int[method.getSignature().getNumberOfParameters()];
         for (int i = 0; i < method.getSignature().getNumberOfParameters(); i++) {
-            if (!NullOpenClass.isAnyNull(params[i])) {
+            int cpDim = getTypeDim(callParams[i]);
+            if (!NullOpenClass.isAnyNull(callParams[i])) {
                 IOpenClass openClass = method.getSignature().getParameterType(i);
                 int dim = 0;
                 while (openClass.isArray()) {
                     openClass = openClass.getComponentClass();
                     dim++;
                 }
-                dims1[i] = dim;
+                dims1[i] = Math.abs(dim - cpDim);
                 dim = 0;
                 openClass = m.getSignature().getParameterType(i);
                 while (openClass.isArray()) {
                     openClass = openClass.getComponentClass();
                     dim++;
                 }
-                dims2[i] = dim;
+                dims2[i] = Math.abs(dim - cpDim);
             }
         }
         Arrays.sort(dims1);
         Arrays.sort(dims2);
         for (int i = dims1.length - 1; i >= 0; i--) {
             if (dims1[i] != dims2[i]) {
-                return dims1[i] > dims2[i];
+                return dims1[i] < dims2[i];
             }
         }
 
