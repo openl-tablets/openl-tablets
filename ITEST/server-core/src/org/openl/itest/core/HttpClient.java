@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import org.springframework.core.io.ClassPathResource;
@@ -270,10 +271,11 @@ public class HttpClient {
     }
 
     private void compareJsonObjects(JsonNode expectedJson, JsonNode actualJson, String path) {
-        if (expectedJson.equals(actualJson)) {
+        if (Objects.equals(expectedJson, actualJson)) {
             return;
-        }
-        if (expectedJson.isTextual()) {
+        } else if (expectedJson == null || actualJson == null) {
+            failDiff(expectedJson, actualJson, path);
+        } else if (expectedJson.isTextual()) {
             // try to compare by a pattern
             String regExp = expectedJson.asText()
                 .replaceAll("\\[", "\\\\[")
@@ -283,7 +285,7 @@ public class HttpClient {
                 .replaceAll("\\*+", "[^\uFFFF]*");
             String actualText = actualJson.isTextual() ? actualJson.asText() : actualJson.toString();
             if (!Pattern.compile(regExp).matcher(actualText).matches()) {
-                fail("Path: \\" + path + "\nExpected:\n" + expectedJson + "\nActual:\n" + actualJson);
+                failDiff(expectedJson, actualJson, path);
             }
         } else if (expectedJson.isArray() && actualJson.isArray()) {
             for (int i = 0; i < expectedJson.size() || i < actualJson.size(); i++) {
@@ -298,7 +300,11 @@ public class HttpClient {
                 compareJsonObjects(expectedJson.get(name), actualJson.get(name), path + " > " + name);
             }
         } else {
-            fail("Path: \\" + path + "\nExpected:\n" + expectedJson + "\nActual:\n" + actualJson);
+            failDiff(expectedJson, actualJson, path);
         }
+    }
+
+    private static void failDiff(JsonNode expectedJson, JsonNode actualJson, String path) {
+        assertEquals("Path: \\" + path ,actualJson, expectedJson);
     }
 }
