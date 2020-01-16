@@ -97,15 +97,22 @@ public class CastFactory implements ICastFactory {
         return findClosestClass(openClass1, openClass2, this, autocastMethods);
     }
 
+    private static IOpenClass getWrapperIfPrimitive(IOpenClass openClass) {
+        if (openClass.getInstanceClass() != null && openClass.getInstanceClass().isPrimitive()) {
+            return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(openClass.getInstanceClass()));
+        }
+        return openClass;
+    }
+
     public static IOpenClass findClosestClass(IOpenClass openClass1,
             IOpenClass openClass2,
             ICastFactory casts,
             Iterable<IOpenMethod> methods) {
         if (NullOpenClass.the.equals(openClass1)) {
-            return openClass2;
+            return getWrapperIfPrimitive(openClass2);
         }
         if (NullOpenClass.the.equals(openClass2)) {
-            return openClass1;
+            return getWrapperIfPrimitive(openClass1);
         }
         openClass1 = JavaOpenClass.getOpenClass(openClass1.getInstanceClass()); // AliasDatatypes support
         openClass2 = JavaOpenClass.getOpenClass(openClass2.getInstanceClass());
@@ -564,11 +571,13 @@ public class CastFactory implements ICastFactory {
     private IOpenCast findAliasCast(IOpenClass from, IOpenClass to) {
         if (!from.isArray() && (from instanceof DomainOpenClass || to instanceof DomainOpenClass)) {
 
-            if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass) && to.equals(((DomainOpenClass) from).getBaseClass())) {
+            if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass) && to
+                .equals(((DomainOpenClass) from).getBaseClass())) {
                 return AliasToTypeCast.getInstance();
             }
 
-            if (!(from instanceof DomainOpenClass) && to instanceof DomainOpenClass && from.equals(((DomainOpenClass) to).getBaseClass())) {
+            if (!(from instanceof DomainOpenClass) && to instanceof DomainOpenClass && from
+                .equals(((DomainOpenClass) to).getBaseClass())) {
                 return new TypeToAliasCast(to);
             }
 
