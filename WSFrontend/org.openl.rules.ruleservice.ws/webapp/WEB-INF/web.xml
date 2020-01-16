@@ -63,10 +63,6 @@
 
     <!-- Other stuff -->
     <context-param>
-        <param-name>log4jRefreshInterval</param-name>
-        <param-value>5000</param-value> <!-- every 5 seconds -->
-    </context-param>
-    <context-param>
         <description>Load default and application properties to the Spring application environment.</description>
         <param-name>contextInitializerClasses</param-name>
         <param-value>org.openl.spring.env.PropertySourcesLoader</param-value>

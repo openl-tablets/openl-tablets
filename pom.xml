@@ -399,7 +399,7 @@
             </activation>
             <properties>
                 <!-- Empty for building without JaCoCo agent -->
-                <jacoco.argLine />
+                <jacoco.argLine/>
                 <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
             </properties>
         </profile>
@@ -411,7 +411,7 @@
                 </property>
             </activation>
             <properties>
-                <sonar />
+                <sonar/>
                 <invoker.timeoutInSeconds>40</invoker.timeoutInSeconds>
             </properties>
             <build>
@@ -536,7 +536,33 @@
                         <configuration>
                             <classpathScope>runtime</classpathScope>
                             <source>
+                                ConfigurationFactory.setConfigurationFactory(new ConfigurationFactory() {
+                                    // Disable logging using log4j2.properties which are located somewhere in the classpath
+                                    // Use the default logging
+                                    @Override
+                                    protected String[] getSupportedTypes() {
+                                        return null;
+                                    }
+
+                                    @Override
+                                    Configuration getConfiguration(LoggerContext loggerContext, ConfigurationSource source) {
+                                        return new DefaultConfiguration();
+                                    }
+
+                                    @Override
+                                    Configuration getConfiguration(LoggerContext loggerContext, String name, URI configLocation, ClassLoader loader) {
+                                        return new DefaultConfiguration();
+                                    }
+                                })
+                                System.setProperty("log4j2.disable.jmx", "true");
                                 log.info("Generating application.properties from:")
+
+
+                                import org.apache.logging.log4j.core.LoggerContext
+                                import org.apache.logging.log4j.core.config.Configuration
+                                import org.apache.logging.log4j.core.config.ConfigurationFactory
+                                import org.apache.logging.log4j.core.config.ConfigurationSource
+                                import org.apache.logging.log4j.core.config.DefaultConfiguration
                                 import org.openl.util.StringUtils
                                 import org.springframework.core.io.Resource;
                                 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
