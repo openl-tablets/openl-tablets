@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 public class SpreadsheetColumnExtractor<S extends CalculationStep> {
 
-    private final Logger log = LoggerFactory.getLogger(SpreadsheetColumnExtractor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SpreadsheetColumnExtractor.class);
 
     private NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> conf;
 
@@ -97,11 +97,11 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
                 setterMethod.invoke(step, value);
                 return true;
             } catch (Exception e) {
-                log.warn(e.getMessage(), e);
+                LOG.warn(e.getMessage(), e);
             }
         } else {
-            if (log.isWarnEnabled()) {
-                log.warn("Cannot find setter in class '{}' for [{}] column",
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Cannot find setter in class '{}' for [{}] column",
                     step.getClass().getName(),
                     column.getColumnName());
             }
@@ -127,7 +127,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
                 setterName = getSetterName(propertyName);
                 setterMethod = step.getClass().getMethod(setterName, expectedType);
             } catch (Exception e1) {
-                log.warn(e1.getMessage(), e1);
+                LOG.warn(e1.getMessage(), e1);
             }
         }
         return setterMethod;
