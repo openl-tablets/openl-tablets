@@ -1,6 +1,5 @@
 package org.openl.rules.repository;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -168,8 +167,6 @@ public class RepositoryInstatiator {
                 return PassCoder.decode(propertyValue, privateKey);
             } catch (GeneralSecurityException e) {
                 throw new RRepositoryException("Cannot decode the password", e);
-            } catch (UnsupportedEncodingException e) {
-                throw new RRepositoryException(e.getMessage(), e);
             }
         }
         return propertyValue;
