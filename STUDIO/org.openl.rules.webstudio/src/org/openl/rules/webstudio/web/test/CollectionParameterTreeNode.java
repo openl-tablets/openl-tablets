@@ -1,15 +1,18 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
 import org.richfaces.model.TreeNode;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Set;
 
 public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     private static final String COLLECTION_TYPE = "collection";
@@ -48,11 +51,11 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
                 }
 
                 ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(type, element)
-                    .keyField(config.getKeyField())
-                    .parent(this)
-                    .hasExplainLinks(config.isHasExplainLinks())
-                    .requestId(config.getRequestId())
-                    .build();
+                        .keyField(config.getKeyField())
+                        .parent(this)
+                        .hasExplainLinks(config.isHasExplainLinks())
+                        .requestId(config.getRequestId())
+                        .build();
 
                 elements.put(index, ParameterTreeBuilder.createNode(childConfig));
                 index++;
@@ -72,9 +75,14 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
 
         for (int i = 0; i < elementsCount; i++) {
             ParameterDeclarationTreeNode node = getChildrenMap().get(i);
-            node.getValueForced();
+            Object value;
+            if (node instanceof CollectionParameterTreeNode) {
+                value = node.getValueForced();
+            } else {
+                node.getValueForced();
+                value = getNodeValue(node);
+            }
             Object key = getKeyFromElementNum(i);
-            Object value = getNodeValue(node);
             if (value == null) {
                 value = getNullableValue();
             }
@@ -155,11 +163,11 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
 
     protected ParameterDeclarationTreeNode createNode(Object key, Object value) {
         ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(getType().getComponentClass(), value)
-            .keyField(config.getKeyField())
-            .parent(this)
-            .hasExplainLinks(config.isHasExplainLinks())
-            .requestId(config.getRequestId())
-            .build();
+                .keyField(config.getKeyField())
+                .parent(this)
+                .hasExplainLinks(config.isHasExplainLinks())
+                .requestId(config.getRequestId())
+                .build();
 
         return ParameterTreeBuilder.createNode(childConfig);
     }
