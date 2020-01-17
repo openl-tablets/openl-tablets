@@ -174,7 +174,7 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
         return topClassOpenMethodWrapperCache.getTopOpenClassMethod(openClass);
     }
-    
+
     @Override
     public ContextPropertiesInjector getContextPropertiesInjector() {
         return contextPropertiesInjector;

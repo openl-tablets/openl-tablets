@@ -43,12 +43,12 @@ public class TextPlainDateMessageBodyWriter implements MessageBodyWriter {
     @SuppressWarnings("unchecked")
     @Override
     public void writeTo(Object o,
-                        Class aClass,
-                        Type type,
-                        Annotation[] annotations,
-                        MediaType mediaType,
-                        MultivaluedMap multivaluedMap,
-                        OutputStream outputStream) throws IOException {
+            Class aClass,
+            Type type,
+            Annotation[] annotations,
+            MediaType mediaType,
+            MultivaluedMap multivaluedMap,
+            OutputStream outputStream) throws IOException {
         String text = null;
         if (aClass.isAssignableFrom(Date.class)) {
             text = dateToString((Date) o);

@@ -123,4 +123,5 @@ public class StringTool {
             end--;
         }
         return str.substring(0, end);
-    }}
+    }
+}

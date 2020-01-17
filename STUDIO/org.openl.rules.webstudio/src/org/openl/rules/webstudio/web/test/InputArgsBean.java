@@ -93,7 +93,7 @@ public class InputArgsBean {
 
     public void fillBean() {
         if (StringUtils.isNotBlank(inputTextBean) && InputTestCaseType.BEAN
-                .equals(inputTestCaseType) && argumentTreeNodes != null) {
+            .equals(inputTestCaseType) && argumentTreeNodes != null) {
             try {
                 Map<String, String> stringStringMap = JsonUtils.splitJSON(inputTextBean);
                 if (stringStringMap.isEmpty()) {
@@ -104,7 +104,8 @@ public class InputArgsBean {
                     if (field != null) {
                         arg.setValueForced(JsonUtils.fromJSON(field, arg.getType().getInstanceClass()));
                     } else if (argumentTreeNodes.length == 1) {
-                        argumentTreeNodes[0].setValueForced(JsonUtils.fromJSON(inputTextBean, argumentTreeNodes[0].getType().getInstanceClass()));
+                        argumentTreeNodes[0].setValueForced(
+                            JsonUtils.fromJSON(inputTextBean, argumentTreeNodes[0].getType().getInstanceClass()));
                     }
                 }
             } catch (IOException e) {
@@ -134,9 +135,11 @@ public class InputArgsBean {
                 if (InputTestCaseType.TEXT.equals(inputTestCaseType) && stringStringMap != null) {
                     String field = stringStringMap.get(argumentTreeNodes[i].getName());
                     if (field != null) {
-                        parsedArguments[i] = JsonUtils.fromJSON(field, argumentTreeNodes[i].getType().getInstanceClass());
+                        parsedArguments[i] = JsonUtils.fromJSON(field,
+                            argumentTreeNodes[i].getType().getInstanceClass());
                     } else if (argumentTreeNodes.length == 1) {
-                        parsedArguments[i] = JsonUtils.fromJSON(inputTextBean, argumentTreeNodes[i].getType().getInstanceClass());
+                        parsedArguments[i] = JsonUtils.fromJSON(inputTextBean,
+                            argumentTreeNodes[i].getType().getInstanceClass());
                     }
                 } else {
                     parsedArguments[i] = argumentTreeNodes[i].getValueForced();
@@ -164,9 +167,9 @@ public class InputArgsBean {
     private String constructJsonExceptionMessage(IOException e) {
         if (e instanceof JsonParseException) {
             return String.format("%s</br>[line: %s, column: %s]",
-                    ((JsonParseException) e).getOriginalMessage(),
-                    ((JsonParseException) e).getLocation().getLineNr(),
-                    ((JsonParseException) e).getLocation().getColumnNr());
+                ((JsonParseException) e).getOriginalMessage(),
+                ((JsonParseException) e).getLocation().getLineNr(),
+                ((JsonParseException) e).getLocation().getColumnNr());
         }
         return "Input parameters are wrong.";
     }
@@ -180,13 +183,13 @@ public class InputArgsBean {
 
         ParameterDeclarationTreeNode parent = currentNode.getParent();
         Object value = ParameterTreeBuilder.canConstruct(fieldType)
-                ? fieldType
-                .newInstance(new SimpleVM().getRuntimeEnv())
-                : null;
+                                                                    ? fieldType
+                                                                        .newInstance(new SimpleVM().getRuntimeEnv())
+                                                                    : null;
         ParameterRenderConfig config = new ParameterRenderConfig.Builder(fieldType, value)
-                .fieldNameInParent(currentNode.getName())
-                .parent(parent)
-                .build();
+            .fieldNameInParent(currentNode.getName())
+            .parent(parent)
+            .build();
         ParameterDeclarationTreeNode newNode = ParameterTreeBuilder.createNode(config);
         currentNode.setValueForced(newNode.getValueForced());
 
@@ -224,7 +227,7 @@ public class InputArgsBean {
     private ParameterWithValueDeclaration[] initArguments() {
         IOpenMethod method = getTestedMethod();
         ParameterWithValueDeclaration[] args = new ParameterWithValueDeclaration[method.getSignature()
-                .getNumberOfParameters()];
+            .getNumberOfParameters()];
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         for (int i = 0; i < args.length; i++) {
             String parameterName = method.getSignature().getParameterName(i);
@@ -259,8 +262,8 @@ public class InputArgsBean {
         ParameterDeclarationTreeNode[] argTreeNodes = new ParameterDeclarationTreeNode[args.length];
         for (int i = 0; i < args.length; i++) {
             ParameterRenderConfig config = new ParameterRenderConfig.Builder(args[i].getType(), args[i].getValue())
-                    .fieldNameInParent(args[i].getName())
-                    .build();
+                .fieldNameInParent(args[i].getName())
+                .build();
             argTreeNodes[i] = ParameterTreeBuilder.createNode(config);
         }
         return argTreeNodes;

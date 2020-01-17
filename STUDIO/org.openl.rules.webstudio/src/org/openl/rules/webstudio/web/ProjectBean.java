@@ -550,8 +550,8 @@ public class ProjectBean {
                 rulesDeployContent = artefact.getContent();
                 RulesDeploy rulesDeploy = rulesDeploySerializerFactory.getSerializer(SupportedVersion.getLastVersion())
                     .deserialize(rulesDeployContent);
-                artefact.setContent(
-                    new ByteArrayInputStream(rulesDeploySerializer.serialize(rulesDeploy).getBytes(StandardCharsets.UTF_8)));
+                artefact.setContent(new ByteArrayInputStream(
+                    rulesDeploySerializer.serialize(rulesDeploy).getBytes(StandardCharsets.UTF_8)));
             }
 
             refreshProject(project.getName());

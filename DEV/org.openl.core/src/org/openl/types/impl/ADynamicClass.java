@@ -97,7 +97,7 @@ public abstract class ADynamicClass extends AOpenClass {
         return method;
     }
 
-    public IOpenMethod getConstructor(IOpenClass[] params,  boolean strict) {
+    public IOpenMethod getConstructor(IOpenClass[] params, boolean strict) {
         IOpenMethod openConstructor = super.getConstructor(params);
         return verifyMethodParameters(openConstructor, params, strict);
     }

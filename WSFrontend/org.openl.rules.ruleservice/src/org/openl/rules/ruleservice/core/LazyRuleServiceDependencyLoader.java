@@ -133,7 +133,6 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         try {
             LazyBinderInvocationHandler.setPrebindHandler(new IPrebindHandler() {
 
-
                 @Override
                 public IOpenMethod processMethodAdded(IOpenMethod method, XlsLazyModuleOpenClass moduleOpenClass) {
                     final Module declaringModule = ModuleUtils.getModuleForMember(method, modules);

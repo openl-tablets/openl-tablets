@@ -28,7 +28,7 @@ public class TypeCastBinder extends ANodeBinder {
 
         IOpenClass to = children[0].getType();
         IOpenClass from = children[1].getType();
-        
+
         if (to.equals(from)) {
             return children[1];
         }

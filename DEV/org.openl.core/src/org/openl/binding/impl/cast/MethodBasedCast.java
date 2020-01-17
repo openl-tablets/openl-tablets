@@ -22,10 +22,10 @@ final class MethodBasedCast implements IOpenCast {
     @Override
     public Object convert(Object from) {
         if (from == null) {
-            //WARNING:
-            //do not use this.nullObject as a result
-            //it's just temp result for CastOperators.autocast() methods
-            //to avoid ambiguous method call and choose a right methods
+            // WARNING:
+            // do not use this.nullObject as a result
+            // it's just temp result for CastOperators.autocast() methods
+            // to avoid ambiguous method call and choose a right methods
             return destType.nullObject();
         }
         Object[] params = new Object[] { from, nullObject };

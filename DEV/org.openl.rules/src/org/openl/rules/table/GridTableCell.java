@@ -68,7 +68,7 @@ class GridTableCell implements ICell {
 
     @Override
     public int getHeight() {
-                return table.isNormalOrientation() ? cell.getHeight() : cell.getWidth();
+        return table.isNormalOrientation() ? cell.getHeight() : cell.getWidth();
     }
 
     @Override

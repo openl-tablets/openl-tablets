@@ -45,7 +45,9 @@ public class RepositoryConfiguration {
         load(nameWithPrefix);
     }
 
-    public RepositoryConfiguration(String configName, PropertiesHolder properties, RepositoryConfiguration configToClone) {
+    public RepositoryConfiguration(String configName,
+            PropertiesHolder properties,
+            RepositoryConfiguration configToClone) {
         this(configName, properties);
         // do not copy configName, only content
         setName(configToClone.getName());
@@ -65,7 +67,8 @@ public class RepositoryConfiguration {
         if (repositoryType == null) {
             // Fallback to default value and save error message
             repositoryType = RepositoryType.values()[0];
-            errorMessage = "Unsupported repository type. Repository factory: " + factoryClassName + ". Was replaced with " + repositoryType.getFactoryClassName() + ".";
+            errorMessage = "Unsupported repository type. Repository factory: " + factoryClassName + ". Was replaced with " + repositoryType
+                .getFactoryClassName() + ".";
         }
         name = properties.getProperty(REPOSITORY_NAME);
         oldName = name;

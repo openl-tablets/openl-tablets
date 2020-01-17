@@ -53,8 +53,7 @@ public class TypeBindingContext extends BindingContextDelegator {
                 type.getTypeName()), e);
         } catch (InstantiationException e) {
             throw new IllegalStateException(
-                String.format("Error while creating a custom VariableInContextFinder of type '%s'",
-                    type.getTypeName()),
+                String.format("Error while creating a custom VariableInContextFinder of type '%s'", type.getTypeName()),
                 e);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(

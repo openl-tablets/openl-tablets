@@ -55,7 +55,8 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper
             assertEquals("AllProperties size is 10, ignore property 'scope' and including default properties",
                 9,
                 allProperties.size());
-            assertTrue("There is no property 'scope' applied for this table, as it cannot be defined in such table type",
+            assertTrue(
+                "There is no property 'scope' applied for this table, as it cannot be defined in such table type",
                 !allProperties.containsKey("scope"));
 
         } else {

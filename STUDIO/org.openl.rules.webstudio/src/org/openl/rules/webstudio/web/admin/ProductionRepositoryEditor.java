@@ -31,14 +31,16 @@ public class ProductionRepositoryEditor {
         String repoConfigName = getFirstConfigName(properties.getProperty(PRODUCTION_REPOSITORY_CONFIGS));
 
         return (PropertiesHolder) Proxy.newProxyInstance(properties.getClass().getClassLoader(),
-            new Class[] { PropertiesHolder.class }, createDefaultValueInvocationHandler(properties, repoConfigName));
+            new Class[] { PropertiesHolder.class },
+            createDefaultValueInvocationHandler(properties, repoConfigName));
     }
 
     public static PropertyResolver createProductionPropertiesWrapper(PropertyResolver properties) {
         String repoConfigName = getFirstConfigName(properties.getProperty(PRODUCTION_REPOSITORY_CONFIGS));
 
         return (PropertyResolver) Proxy.newProxyInstance(properties.getClass().getClassLoader(),
-            new Class[] { PropertyResolver.class }, createDefaultValueInvocationHandler(properties, repoConfigName));
+            new Class[] { PropertyResolver.class },
+            createDefaultValueInvocationHandler(properties, repoConfigName));
     }
 
     private static String getFirstConfigName(String configNames) {
@@ -48,8 +50,7 @@ public class ProductionRepositoryEditor {
         return StringUtils.split(configNames, ',')[0];
     }
 
-    private static InvocationHandler createDefaultValueInvocationHandler(Object properties,
-        String repoConfigName) {
+    private static InvocationHandler createDefaultValueInvocationHandler(Object properties, String repoConfigName) {
         return (proxy, method, args) -> {
             Object result = method.invoke(properties, args);
 

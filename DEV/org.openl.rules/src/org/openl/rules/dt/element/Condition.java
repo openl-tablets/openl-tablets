@@ -93,8 +93,8 @@ public class Condition extends FunctionalRow implements ICondition {
             return makeDecision(ruleN, target, dtParams, env);
         } else {
             /*
-              IMPORTANT NOTE: Performance optimization when condition parameter is not used in the expression.
-              No need to execute expression per each ruleNumber cause the result will be always the same.
+             * IMPORTANT NOTE: Performance optimization when condition parameter is not used in the expression. No need
+             * to execute expression per each ruleNumber cause the result will be always the same.
              */
             DecisionTableRuntimePool runtimePool = (DecisionTableRuntimePool) env.getLocalFrame()[0];
             DecisionValue decisionValue = (DecisionValue) runtimePool.getConditionExecutionResult(getName());
@@ -156,24 +156,25 @@ public class Condition extends FunctionalRow implements ICondition {
 
     @Override
     protected IOpenSourceCodeModule getExpressionSource(TableSyntaxNode tableSyntaxNode,
-                                                        IMethodSignature signature,
-                                                        IOpenClass methodParamType,
-                                                        IOpenClass declaringClass,
-                                                        OpenL openl,
-                                                        IBindingContext bindingContext) throws Exception {
+            IMethodSignature signature,
+            IOpenClass methodParamType,
+            IOpenClass declaringClass,
+            OpenL openl,
+            IBindingContext bindingContext) throws Exception {
 
         if (!GridTableUtils.isSingleCellTable(getCodeTable())) {
-            ILogicalTable redundantRow = getCodeTable().getRow(1); //Bind error to the redundant expression definition
+            ILogicalTable redundantRow = getCodeTable().getRow(1); // Bind error to the redundant expression definition
             IOpenSourceCodeModule errorSrc = new GridCellSourceCodeModule(redundantRow.getSource(), bindingContext);
-            throw SyntaxNodeExceptionUtils.createError(MessageUtils.getConditionMultipleExpressionErrorMessage(getName()), errorSrc);
+            throw SyntaxNodeExceptionUtils
+                .createError(MessageUtils.getConditionMultipleExpressionErrorMessage(getName()), errorSrc);
         }
 
         IOpenSourceCodeModule source = super.getExpressionSource(tableSyntaxNode,
-                signature,
-                methodParamType,
-                declaringClass,
-                openl,
-                bindingContext);
+            signature,
+            methodParamType,
+            declaringClass,
+            openl,
+            bindingContext);
 
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             if (signature.getParameterName(i).equals(source.getCode())) {

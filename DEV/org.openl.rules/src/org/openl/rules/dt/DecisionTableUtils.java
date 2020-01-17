@@ -58,9 +58,9 @@ public class DecisionTableUtils {
 
     public static String getConditionSourceCode(ICondition dtCondition) {
         return ((CompositeMethod) dtCondition.getMethod()).getMethodBodyBoundNode()
-                .getSyntaxNode()
-                .getModule()
-                .getCode();
+            .getSyntaxNode()
+            .getModule()
+            .getCode();
     }
 
 }

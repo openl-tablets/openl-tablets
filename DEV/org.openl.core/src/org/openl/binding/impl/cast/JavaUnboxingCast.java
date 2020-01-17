@@ -11,7 +11,7 @@ final class JavaUnboxingCast implements IOpenCast {
     private static final Map<Class<?>, JavaUnboxingCast> UNBOXING_FACTORY;
 
     static {
-        UNBOXING_FACTORY =  new HashMap<>();
+        UNBOXING_FACTORY = new HashMap<>();
         UNBOXING_FACTORY.put(Void.class, new JavaUnboxingCast(JavaOpenClass.getOpenClass(void.class)));
         UNBOXING_FACTORY.put(Boolean.class, new JavaUnboxingCast(JavaOpenClass.getOpenClass(boolean.class)));
         UNBOXING_FACTORY.put(Byte.class, new JavaUnboxingCast(JavaOpenClass.getOpenClass(byte.class)));

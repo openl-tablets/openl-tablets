@@ -149,7 +149,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
         }
     }
 
-
     private ObjectSerializer getObjectSerializer(JAXRSServerFactoryBean svrFactory) {
         for (Object provider : svrFactory.getProviders()) {
             if (provider instanceof JacksonJsonProvider) {

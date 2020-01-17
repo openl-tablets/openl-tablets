@@ -45,7 +45,7 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
     private Collection<XlsWorkbookListener> listeners = new ArrayList<>();
 
     private ModificationChecker modificationChecker = DEFAULT_MODIDFICATION_CHECKER;
-    
+
     private Map<String, Object> params;
 
     public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src) {

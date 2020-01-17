@@ -107,7 +107,7 @@ public class String2DataConvertorFactory {
         return convertor.parse(data, null);
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static synchronized <T> IString2DataConvertor<T> getConvertor(Class<T> clazz) {
 
         Lock readLock = convertorsLock.readLock();

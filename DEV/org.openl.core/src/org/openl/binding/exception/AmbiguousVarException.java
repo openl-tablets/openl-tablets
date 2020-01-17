@@ -21,7 +21,7 @@ public class AmbiguousVarException extends OpenlNotCheckedException {
     private static final long serialVersionUID = -8752617383143899614L;
 
     private List<IOpenField> matchingFields;
-    
+
     private String varName;
 
     public AmbiguousVarException(String varName, List<IOpenField> matchingFields) {

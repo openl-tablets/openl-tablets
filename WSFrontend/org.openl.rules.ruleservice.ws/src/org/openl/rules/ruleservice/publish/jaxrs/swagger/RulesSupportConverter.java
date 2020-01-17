@@ -52,9 +52,9 @@ public class RulesSupportConverter implements ModelConverter {
 
     @Override
     public Property resolveProperty(Type type,
-                                    ModelConverterContext context,
-                                    Annotation[] annotations,
-                                    Iterator<ModelConverter> chain) {
+            ModelConverterContext context,
+            Annotation[] annotations,
+            Iterator<ModelConverter> chain) {
         if (annotations != null) {
             for (Annotation annotation : annotations) {
                 if (annotation instanceof XmlTransient) {

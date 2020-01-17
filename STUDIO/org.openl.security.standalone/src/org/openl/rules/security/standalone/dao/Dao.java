@@ -1,8 +1,8 @@
 package org.openl.rules.security.standalone.dao;
 
 /**
- * Base interface to be implemented by DAO interfaces. All Dao interfaces (like
- * UserDao, etc) should extend this interface.
+ * Base interface to be implemented by DAO interfaces. All Dao interfaces (like UserDao, etc) should extend this
+ * interface.
  *
  * @author Andrey Naumenko
  */

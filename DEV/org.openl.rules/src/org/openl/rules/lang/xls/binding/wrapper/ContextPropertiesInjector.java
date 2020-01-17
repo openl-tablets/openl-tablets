@@ -40,8 +40,8 @@ class ContextPropertiesInjector {
     }
 
     private ContextPropertyInjection createContextInjection(int paramIndex,
-                                                            IOpenField field,
-                                                            ICastFactory castFactory) {
+            IOpenField field,
+            ICastFactory castFactory) {
         Class<?> contextType = DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(field.getContextProperty());
         if (contextType == null) {
             throw new IllegalStateException(

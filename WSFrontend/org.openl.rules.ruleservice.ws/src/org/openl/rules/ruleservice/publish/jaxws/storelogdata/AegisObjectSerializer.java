@@ -36,7 +36,7 @@ public class AegisObjectSerializer implements ObjectSerializer {
         AegisType aegisType = context.getTypeMapping().getType(obj.getClass());
 
         @SuppressWarnings("squid:S2095") // no need to close ByteArrayOutputStream because of it does nothing
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         XMLStreamWriter xmlWriter = null;
         try {

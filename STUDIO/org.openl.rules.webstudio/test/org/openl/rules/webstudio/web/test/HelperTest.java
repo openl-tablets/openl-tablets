@@ -45,7 +45,7 @@ public class HelperTest {
     }
 
     @Test
-    public void testFormatText(){
+    public void testFormatText() {
         Helper helper = new Helper();
         assertEquals("1.759999999999998", helper.formatText(1.759999999999998));
         assertEquals("null", helper.format(null));

@@ -1306,7 +1306,7 @@ public final class RulesUtils {
     public static boolean contains(IntRange range, LongValue x) {
         return range != null && range.contains(x);
     }
-    
+
     public static boolean contains(IntRange range, BigIntegerValue x) {
         return range != null && range.contains(x);
     }
@@ -1318,7 +1318,7 @@ public final class RulesUtils {
     public static boolean contains(DoubleRange range, DoubleValue x) {
         return range != null && range.contains(x);
     }
-    
+
     public static boolean contains(DoubleRange range, BigDecimalValue x) {
         return range != null && range.contains(x);
     }

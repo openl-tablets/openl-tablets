@@ -7,7 +7,7 @@ import org.openl.types.impl.OpenMethodHeader;
 public interface RecursiveOpenMethodPreBinder extends IOpenMethod {
 
     OpenMethodHeader getHeader();
-    
+
     TableSyntaxNode getTableSyntaxNode();
 
     boolean isReturnsCustomSpreadsheetResult();

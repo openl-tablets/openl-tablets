@@ -21,7 +21,7 @@ import java.util.*;
 public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
 
     private static final Method STR_CONSTR = Method.getMethod("void <init> (java.lang.String)");
-    private static final Class<?>[] STR_CONSTR_PARAMS = {String.class};
+    private static final Class<?>[] STR_CONSTR_PARAMS = { String.class };
     private static final Method DEF_CONSTR = Method.getMethod("void <init> ()");
     private static final Class<?>[] DEF_CONSTR_PARAMS = {};
 
@@ -29,13 +29,12 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
     private static final Map<String, Class<?>> boxed = new HashMap<>(8);
     private static final Method ZONE_ID_OF = Method.getMethod("java.time.ZoneId of(java.lang.String)");
     private static final Method ZONED_DATETIME_OF = Method
-            .getMethod("java.time.ZonedDateTime of(int, int, int, int, int, int, int, java.time.ZoneId)");
-    private static final Method INSTANT_OF = Method
-            .getMethod("java.time.Instant ofEpochMilli(long)");
+        .getMethod("java.time.ZonedDateTime of(int, int, int, int, int, int, int, java.time.ZoneId)");
+    private static final Method INSTANT_OF = Method.getMethod("java.time.Instant ofEpochMilli(long)");
     private static final Method LOCAL_DATE_OF = Method.getMethod("java.time.LocalDate of(int, int, int)");
     private static final Method LOCAL_TIME_OF = Method.getMethod("java.time.LocalTime of(int, int, int)");
     private static final Method LOCAL_DATETIME_OF = Method
-            .getMethod("java.time.LocalDateTime of(int, int, int, int, int, int)");
+        .getMethod("java.time.LocalDateTime of(int, int, int, int, int, int)");
 
     static {
         boxed.put(Byte.class.getName(), byte.class);
@@ -60,13 +59,13 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
 
     /**
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
-     *                            (e.g. <code>my/test/TestClass</code>)
-     * @param parentClass         class descriptor for super class.
-     * @param beanFields          fields of generating class.
+     *            (e.g. <code>my/test/TestClass</code>)
+     * @param parentClass class descriptor for super class.
+     * @param beanFields fields of generating class.
      */
     public DefaultConstructorWriter(String beanNameWithPackage,
-                                    Class<?> parentClass,
-                                    Map<String, FieldDescription> beanFields) {
+            Class<?> parentClass,
+            Map<String, FieldDescription> beanFields) {
         super(beanNameWithPackage, parentClass, beanFields);
     }
 
@@ -273,12 +272,12 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
         } catch (NoSuchMethodException e) {
             if (parameterTypes.length == 0) {
                 throw new ByteCodeGenerationException(
-                        String.format("There is no default constructor for type '%s'.", className));
+                    String.format("There is no default constructor for type '%s'.", className));
             } else {
                 throw new ByteCodeGenerationException(
-                        String.format("'%s' does not have a constructor with parameters '%s'.",
-                                className,
-                                Arrays.toString(parameterTypes)));
+                    String.format("'%s' does not have a constructor with parameters '%s'.",
+                        className,
+                        Arrays.toString(parameterTypes)));
             }
         }
     }

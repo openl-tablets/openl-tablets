@@ -231,9 +231,9 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         if (condition.isDependentOnAnyParams() || condition.isRuleIdOrRuleNameUsed()) {
             if (!JavaOpenClass.BOOLEAN.equals(methodType) && !JavaOpenClass.getOpenClass(Boolean.class)
                 .equals(methodType)) {
-                throw SyntaxNodeExceptionUtils
-                    .createError("Condition expression must return a boolean type if it uses condition parameters.",
-                        source);
+                throw SyntaxNodeExceptionUtils.createError(
+                    "Condition expression must return a boolean type if it uses condition parameters.",
+                    source);
             }
 
             IConditionEvaluator conditionEvaluator = DependentParametersOptimizedAlgorithm

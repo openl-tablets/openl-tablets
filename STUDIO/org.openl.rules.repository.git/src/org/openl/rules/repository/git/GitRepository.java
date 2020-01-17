@@ -621,7 +621,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         log.debug("Hook exists but not executable");
                         noVerify = true;
                     }
-                } catch (SecurityException  e) {
+                } catch (SecurityException e) {
                     log.warn("Hook exists but there is no access to invoke the file.", e);
                     noVerify = true;
                 }

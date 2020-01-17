@@ -271,11 +271,11 @@ public class DatatypeOpenClass extends ADynamicClass {
             if (javaOpenConstructor.getNumberOfParameters() == 0) {
                 return new DatatypeOpenConstructor(javaOpenConstructor, this);
             } else {
-                MethodKey candidate = new MethodKey(getFields().values().stream()
-                    .map(IOpenMember::getType)
-                    .toArray(IOpenClass[]::new));
+                MethodKey candidate = new MethodKey(
+                    getFields().values().stream().map(IOpenMember::getType).toArray(IOpenClass[]::new));
                 if (mk.equals(candidate)) {
-                    ParameterDeclaration[] parameters = getFields().values().stream()
+                    ParameterDeclaration[] parameters = getFields().values()
+                        .stream()
                         .map(f -> new ParameterDeclaration(f.getType(), f.getName()))
                         .toArray(ParameterDeclaration[]::new);
                     return new DatatypeOpenConstructor(javaOpenConstructor, this, parameters);

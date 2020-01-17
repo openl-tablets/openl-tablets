@@ -197,7 +197,8 @@ public class Table implements ITable {
             String key = gridTable.getCell(0, 0).getStringValue();
 
             if (key == null) {
-                throw SyntaxNodeExceptionUtils.createError(MessageUtils.EMPTY_UNQ_IDX_KEY, new GridCellSourceCodeModule(gridTable));
+                throw SyntaxNodeExceptionUtils.createError(MessageUtils.EMPTY_UNQ_IDX_KEY,
+                    new GridCellSourceCodeModule(gridTable));
             }
 
             key = key.trim();
@@ -233,7 +234,8 @@ public class Table implements ITable {
             }
 
             if (values.contains(value)) {
-                throw SyntaxNodeExceptionUtils.createError(MessageUtils.getDuplicatedKeyIndexErrorMessage(String.valueOf(value)),
+                throw SyntaxNodeExceptionUtils.createError(
+                    MessageUtils.getDuplicatedKeyIndexErrorMessage(String.valueOf(value)),
                     new GridCellSourceCodeModule(gridTable));
             }
 

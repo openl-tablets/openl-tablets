@@ -25,7 +25,7 @@ public class BaseTestUnit implements ITestUnit {
     private final Throwable actualError;
     private final TestStatus resultStatus;
     private final long executionTime;
-    //must be increased only through addComparisonResult method
+    // must be increased only through addComparisonResult method
     private final List<ComparedResult> comparisonResults = new ArrayList<>();
     private int numberOfFailedTests = 0;
 
@@ -37,7 +37,7 @@ public class BaseTestUnit implements ITestUnit {
         if (expectedError != null && expectedResult != null) {
             // Force testcase failure
             this.actualError = new IllegalArgumentException(
-                    "Ambiguous expectation in the test case. Two expected result has been declared.");
+                "Ambiguous expectation in the test case. Two expected result has been declared.");
         } else {
             this.actualError = error;
         }
@@ -68,7 +68,7 @@ public class BaseTestUnit implements ITestUnit {
      * Gets the description field value.
      *
      * @return if the description field value presents, return it`s value. In other case return
-     * {@link ITestUnit#DEFAULT_DESCRIPTION}
+     *         {@link ITestUnit#DEFAULT_DESCRIPTION}
      */
     @Override
     public String getDescription() {
@@ -101,9 +101,9 @@ public class BaseTestUnit implements ITestUnit {
                 return compareMessageAndGetResult(expectedError, rootCause.getMessage(), expectedResult);
             } else {
                 ComparedResult results = new ComparedResult(null,
-                        expectedError == null ? expectedResult : expectedError,
-                        rootCause == null ? actualResult : rootCause.getMessage(),
-                        TR_EXCEPTION);
+                    expectedError == null ? expectedResult : expectedError,
+                    rootCause == null ? actualResult : rootCause.getMessage(),
+                    TR_EXCEPTION);
 
                 addComparisonResult(results);
                 return TR_EXCEPTION;
@@ -173,9 +173,9 @@ public class BaseTestUnit implements ITestUnit {
 
         TestStatus status = equal ? TR_OK : TR_NEQ;
         ComparedResult fieldComparisonResults = new ComparedResult(field.getName(),
-                expectedFieldValue,
-                actualFieldValue,
-                status);
+            expectedFieldValue,
+            actualFieldValue,
+            status);
         addComparisonResult(fieldComparisonResults);
 
         return equal;

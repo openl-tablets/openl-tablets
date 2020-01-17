@@ -23,7 +23,9 @@ public class DatatypeOpenConstructor extends JavaOpenConstructor {
         this(delegator, declaringClass, EMPTY);
     }
 
-    public DatatypeOpenConstructor(JavaOpenConstructor delegator, IOpenClass declaringClass, IParameterDeclaration[] parameters) {
+    public DatatypeOpenConstructor(JavaOpenConstructor delegator,
+            IOpenClass declaringClass,
+            IParameterDeclaration[] parameters) {
         super(delegator.getJavaConstructor());
         this.delegator = delegator;
         this.declaringClass = declaringClass;

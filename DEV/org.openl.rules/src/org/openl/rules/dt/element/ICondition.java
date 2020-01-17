@@ -28,6 +28,7 @@ public interface ICondition extends IBaseCondition, IDecisionRow {
 
     /**
      * Identifier to detect whatever condition parameter is used in expression
+     * 
      * @param conditionParametersUsed {@code true} when it's used, otherwise false
      */
     void setConditionParametersUsed(boolean conditionParametersUsed);

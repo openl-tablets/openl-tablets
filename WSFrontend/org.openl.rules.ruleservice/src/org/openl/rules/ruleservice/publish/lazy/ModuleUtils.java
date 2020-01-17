@@ -30,8 +30,10 @@ public class ModuleUtils {
         for (Module module : modules) {
             String modulePath = module.getRulesRootPath().getPath();
             try {
-                if (Paths.get(sourceUrl).normalize()
-                    .equals(Paths.get(new File(modulePath).getCanonicalFile().toURI().toURL().toExternalForm()).normalize())) {
+                if (Paths.get(sourceUrl)
+                    .normalize()
+                    .equals(Paths.get(new File(modulePath).getCanonicalFile().toURI().toURL().toExternalForm())
+                        .normalize())) {
                     return module;
                 }
             } catch (Exception e) {

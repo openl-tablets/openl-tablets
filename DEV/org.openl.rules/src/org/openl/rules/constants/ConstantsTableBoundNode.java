@@ -92,7 +92,8 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
         IOpenClass fieldType = OpenLManager.makeType(openl, tableSrc, bindingContext);
 
         if (fieldType == null || fieldType instanceof NullOpenClass) {
-            throw SyntaxNodeExceptionUtils.createError(MessageUtils.getTypeNotFoundMessage(tableSrc.getCode()), null, null, tableSrc);
+            throw SyntaxNodeExceptionUtils
+                .createError(MessageUtils.getTypeNotFoundMessage(tableSrc.getCode()), null, null, tableSrc);
         }
 
         if (row.getWidth() < 2) {

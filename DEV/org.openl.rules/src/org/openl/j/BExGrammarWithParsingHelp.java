@@ -77,8 +77,7 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
                 loc,
                 syntaxBuilder.getModule()));
         } catch (Throwable e) {
-            syntaxBuilder.addError(
-                new SyntaxNodeException("", e, pos(token), syntaxBuilder.getModule()));
+            syntaxBuilder.addError(new SyntaxNodeException("", e, pos(token), syntaxBuilder.getModule()));
         }
     }
 
@@ -99,10 +98,7 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
             } catch (TokenMgrError err) {
                 org.openl.util.text.TextInterval loc = pos(err.getMessage(), token);
 
-                return new SyntaxNodeException(err.getMessage(),
-                    null,
-                    loc,
-                    syntaxBuilder.getModule());
+                return new SyntaxNodeException(err.getMessage(), null, loc, syntaxBuilder.getModule());
             }
             if (t.kind == EOF) {
                 break;

@@ -51,11 +51,11 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
                 }
 
                 ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(type, element)
-                        .keyField(config.getKeyField())
-                        .parent(this)
-                        .hasExplainLinks(config.isHasExplainLinks())
-                        .requestId(config.getRequestId())
-                        .build();
+                    .keyField(config.getKeyField())
+                    .parent(this)
+                    .hasExplainLinks(config.isHasExplainLinks())
+                    .requestId(config.getRequestId())
+                    .build();
 
                 elements.put(index, ParameterTreeBuilder.createNode(childConfig));
                 index++;
@@ -163,11 +163,11 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
 
     protected ParameterDeclarationTreeNode createNode(Object key, Object value) {
         ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(getType().getComponentClass(), value)
-                .keyField(config.getKeyField())
-                .parent(this)
-                .hasExplainLinks(config.isHasExplainLinks())
-                .requestId(config.getRequestId())
-                .build();
+            .keyField(config.getKeyField())
+            .parent(this)
+            .hasExplainLinks(config.isHasExplainLinks())
+            .requestId(config.getRequestId())
+            .build();
 
         return ParameterTreeBuilder.createNode(childConfig);
     }

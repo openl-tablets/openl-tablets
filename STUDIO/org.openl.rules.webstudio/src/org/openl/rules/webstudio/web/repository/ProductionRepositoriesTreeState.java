@@ -171,7 +171,6 @@ public class ProductionRepositoriesTreeState {
         this.deploymentManager = deploymentManager;
     }
 
-
     public ProductionRepositoryFactoryProxy getProductionRepositoryFactoryProxy() {
         return productionRepositoryFactoryProxy;
     }

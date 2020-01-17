@@ -25,8 +25,8 @@ public class RulesServiceEnhancerHelperTest {
         // check methods
         for (Method method : simple.getMethods()) {
             try {
-                Method m = enhanced
-                    .getMethod(method.getName(), ArrayUtils.insert(0,method.getParameterTypes(), IRulesRuntimeContext.class));
+                Method m = enhanced.getMethod(method.getName(),
+                    ArrayUtils.insert(0, method.getParameterTypes(), IRulesRuntimeContext.class));
                 assertTrue(Modifier.isPublic(m.getModifiers()));
                 if (checkAnnotations) {
                     // check annotations: all annotations should remain after
@@ -35,8 +35,7 @@ public class RulesServiceEnhancerHelperTest {
                     // supported.
                     assertArrayEquals(m.getAnnotations(), method.getAnnotations());
                 }
-            }
-            catch (NoSuchMethodException e) {
+            } catch (NoSuchMethodException e) {
                 fail(e.getMessage());
             }
         }

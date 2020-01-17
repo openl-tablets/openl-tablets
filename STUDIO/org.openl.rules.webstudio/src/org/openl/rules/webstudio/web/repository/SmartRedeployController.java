@@ -320,7 +320,6 @@ public class SmartRedeployController {
         this.repositoryTreeState = repositoryTreeState;
     }
 
-
     public void setProjectDescriptorResolver(ProjectDescriptorArtefactResolver projectDescriptorResolver) {
         this.projectDescriptorResolver = projectDescriptorResolver;
     }

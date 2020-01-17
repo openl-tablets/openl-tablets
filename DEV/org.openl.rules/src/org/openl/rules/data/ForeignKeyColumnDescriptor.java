@@ -208,8 +208,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             IBindingContext bindingContext) {
 
         String message = MessageUtils.getUnknownForeignKeyIndexErrorMessage(src, foreignTable.getName());
-        return SyntaxNodeExceptionUtils.createError(message, ex, null,
-                new GridCellSourceCodeModule(valuesTable.getSource(), bindingContext));
+        return SyntaxNodeExceptionUtils
+            .createError(message, ex, null, new GridCellSourceCodeModule(valuesTable.getSource(), bindingContext));
     }
 
     /**
@@ -393,7 +393,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                             s);
                         IOpenCast cast = cxt.getCast(resType, fieldType);
                         if (cast == null || !cast.isImplicit()) {
-                            String message = MessageUtils.getIncompatibleTypesErrorMessage(getField(), fieldType, resType);
+                            String message = MessageUtils
+                                .getIncompatibleTypesErrorMessage(getField(), fieldType, resType);
                             throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
                         }
                         getField().set(target, cast.convert(res), env);

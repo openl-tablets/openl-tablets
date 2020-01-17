@@ -24,7 +24,7 @@ public class DBMigrationBean {
     public void init() throws Exception {
 
         String databaseCode;
-        try(Connection connection = dataSource.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             DatabaseMetaData metaData = connection.getMetaData();
             databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
         }

@@ -60,9 +60,9 @@ public abstract class ServiceConfigurationFactoryBean<T> extends AbstractFactory
             return ((String) value).trim();
         }
         throw new ServiceConfigurationException(
-                String.format("Expected string value for '%s' in the configuration for service '%s'.",
-                        property,
-                        getServiceDescription().getName()));
+            String.format("Expected string value for '%s' in the configuration for service '%s'.",
+                property,
+                getServiceDescription().getName()));
     }
 
 }

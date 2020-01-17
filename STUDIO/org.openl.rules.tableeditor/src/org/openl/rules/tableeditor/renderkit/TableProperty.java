@@ -42,7 +42,9 @@ public class TableProperty {
     public TableProperty(TablePropertyDefinition propDefinition) {
         this.name = propDefinition.getName();
         this.displayName = propDefinition.getDisplayName();
-        this.type = Objects.requireNonNull(propDefinition.getType() == null ? String.class : propDefinition.getType().getInstanceClass(), "type cannot be null");
+        this.type = Objects.requireNonNull(
+            propDefinition.getType() == null ? String.class : propDefinition.getType().getInstanceClass(),
+            "type cannot be null");
         this.group = propDefinition.getGroup();
         this.format = propDefinition.getFormat();
         this.deprecation = propDefinition.getDeprecation();

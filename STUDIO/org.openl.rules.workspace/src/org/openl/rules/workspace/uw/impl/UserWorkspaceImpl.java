@@ -371,7 +371,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         if (local != null) {
                             branch = local.getBranch();
                             if (branch == null) {
-                                log.warn("Unknown branch in repository supporting branches for project {}.", local.getName());
+                                log.warn("Unknown branch in repository supporting branches for project {}.",
+                                    local.getName());
                             }
                         } else {
                             branch = closedProjectBranches.get(name);
@@ -415,7 +416,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
                             project.getName(),
                             project.getHistoryVersion());
                         if (!project.isModified()) {
-                            log.warn("The project '{}' isn't modified and will be closed because it absents in the history.",
+                            log.warn(
+                                "The project '{}' isn't modified and will be closed because it absents in the history.",
                                 project.getName());
                             closeProject = true;
                         }

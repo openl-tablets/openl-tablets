@@ -16,8 +16,8 @@ public final class ConditionHelper {
     }
 
     public static ConditionCasts findConditionCasts(IOpenClass conditionParameterType,
-                                                    IOpenClass inputType,
-                                                    IBindingContext bindingContext) {
+            IOpenClass inputType,
+            IBindingContext bindingContext) {
         IOpenCast castToConditionType = toNullIfNotImplicitCast(
             bindingContext.getCast(inputType, conditionParameterType));
         IOpenCast castToInputType = castToConditionType == null ? toNullIfNotImplicitCast(

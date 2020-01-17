@@ -34,7 +34,7 @@ public class Group implements Serializable {
     }
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO, generator = "OpenL_Groups_ID_SEQ")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "OpenL_Groups_ID_SEQ")
     @SequenceGenerator(sequenceName = "OpenL_Groups_ID_SEQ", name = "OpenL_Groups_ID_SEQ")
     @Column(name = "id")
     @Type(type = "java.lang.Long")
@@ -52,7 +52,8 @@ public class Group implements Serializable {
      * @return
      */
     @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER, cascade = javax.persistence.CascadeType.MERGE)
-    @JoinTable(name = "OpenL_Group2Group", joinColumns = { @JoinColumn(name = "groupID") }, inverseJoinColumns = { @JoinColumn(name = "includedGroupID") })
+    @JoinTable(name = "OpenL_Group2Group", joinColumns = { @JoinColumn(name = "groupID") }, inverseJoinColumns = {
+            @JoinColumn(name = "includedGroupID") })
     public Set<Group> getIncludedGroups() {
         return includedGroups;
     }
@@ -73,7 +74,7 @@ public class Group implements Serializable {
      * @return
      */
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "OpenL_Group_Authorities", joinColumns = @JoinColumn(name="groupID"))
+    @CollectionTable(name = "OpenL_Group_Authorities", joinColumns = @JoinColumn(name = "groupID"))
     @Column(length = 40, name = "authority", unique = true, nullable = false)
     public Set<String> getPrivileges() {
         return privileges;
@@ -101,8 +102,10 @@ public class Group implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         Group group = (Group) o;
 

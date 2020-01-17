@@ -53,10 +53,14 @@ public class RevertProjectChangesBean {
 
         List<ProjectHistoryItem> history = new ArrayList<>();
         for (List<ProjectHistoryItem> files : sourceNameHistoryMap.values()) {
-            //mark as current
-            files.stream().max(Comparator.comparingLong(ProjectHistoryItem::getVersion)).ifPresent(f -> f.setCurrent(true));
-            //mark as initial
-            files.stream().min(Comparator.comparingLong(ProjectHistoryItem::getVersion)).ifPresent(f -> f.setDisabled(true));
+            // mark as current
+            files.stream()
+                .max(Comparator.comparingLong(ProjectHistoryItem::getVersion))
+                .ifPresent(f -> f.setCurrent(true));
+            // mark as initial
+            files.stream()
+                .min(Comparator.comparingLong(ProjectHistoryItem::getVersion))
+                .ifPresent(f -> f.setDisabled(true));
             history.addAll(files);
         }
 

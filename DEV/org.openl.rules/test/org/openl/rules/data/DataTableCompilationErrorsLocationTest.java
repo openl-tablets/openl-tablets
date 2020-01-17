@@ -38,9 +38,11 @@ public class DataTableCompilationErrorsLocationTest {
 
         assertCompilationErrors(dataBase.getTable("EmptyKeyData"), "Empty key in an unique index.");
         assertCompilationErrors(dataBase.getTable("DuplicateKeyData"), "Duplicated key in an unique index: P0001");
-        assertCompilationErrors(dataBase.getTable("DuplicateKeyDataTest"), "Foreign table 'DuplicateKeyData' has errors.");
+        assertCompilationErrors(dataBase.getTable("DuplicateKeyDataTest"),
+            "Foreign table 'DuplicateKeyData' has errors.");
         assertCompilationErrors(dataBase.getTable("EmptyKeyDataTest"), "Foreign table 'EmptyKeyData' has errors.");
-        assertCompilationErrors(dataBase.getTable("UnknownKeyTest"), "Index Key 'P0005' is not found in the foreign table 'PolicyData'.");
+        assertCompilationErrors(dataBase.getTable("UnknownKeyTest"),
+            "Index Key 'P0005' is not found in the foreign table 'PolicyData'.");
         assertCompilationErrors(dataBase.getTable("PolicyData"));
     }
 
@@ -51,7 +53,9 @@ public class DataTableCompilationErrorsLocationTest {
         for (String expectedMessage : expectedErrorMsgs) {
             boolean matched = Stream.of(errors).map(Throwable::getMessage).anyMatch(expectedMessage::equals);
             if (!matched) {
-                fail(String.format("Unable to find error message '%s' inside '%s' table syntax node!", expectedMessage, table.getName()));
+                fail(String.format("Unable to find error message '%s' inside '%s' table syntax node!",
+                    expectedMessage,
+                    table.getName()));
             }
         }
     }

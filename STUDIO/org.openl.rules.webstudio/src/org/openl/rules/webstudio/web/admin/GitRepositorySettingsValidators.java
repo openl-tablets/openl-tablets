@@ -40,7 +40,9 @@ public class GitRepositorySettingsValidators extends RepositorySettingsValidator
         String clientId = toValidate.getClientId();
         if (clientId.endsWith(suffix)) {
             String prefix = clientId.substring(0, clientId.length() - suffix.length());
-            String remoteRepository = context.getExternalContext().getRequestParameterMap().get(prefix + "gitRemoteRepository");
+            String remoteRepository = context.getExternalContext()
+                .getRequestParameterMap()
+                .get(prefix + "gitRemoteRepository");
             if ("on".equals(remoteRepository)) {
                 super.url(context, toValidate, value);
             }

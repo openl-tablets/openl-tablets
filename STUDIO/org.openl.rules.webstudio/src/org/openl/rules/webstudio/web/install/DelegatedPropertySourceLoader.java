@@ -16,8 +16,7 @@ import org.springframework.core.env.PropertySources;
 import org.springframework.core.env.PropertySourcesPropertyResolver;
 import org.springframework.util.StringValueResolver;
 
-public class DelegatedPropertySourceLoader extends PlaceholderConfigurerSupport
-    implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+public class DelegatedPropertySourceLoader extends PlaceholderConfigurerSupport implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     private final PropertiesHolder propertiesHolder;
 
@@ -50,7 +49,7 @@ public class DelegatedPropertySourceLoader extends PlaceholderConfigurerSupport
     }
 
     protected void processProperties(ConfigurableListableBeanFactory beanFactory,
-        PropertySources propertySources) throws BeansException {
+            PropertySources propertySources) throws BeansException {
         final PropertySourcesPropertyResolver propertyResolver = new PropertySourcesPropertyResolver(propertySources);
         propertyResolver.setPlaceholderPrefix(this.placeholderPrefix);
         propertyResolver.setPlaceholderSuffix(this.placeholderSuffix);
@@ -67,8 +66,8 @@ public class DelegatedPropertySourceLoader extends PlaceholderConfigurerSupport
 
     @Deprecated
     @Override
-    protected void processProperties(ConfigurableListableBeanFactory beanFactory, Properties props) throws
-                                                                                                    BeansException {
+    protected void processProperties(ConfigurableListableBeanFactory beanFactory,
+            Properties props) throws BeansException {
         throw new UnsupportedOperationException(
             "Call processProperties(ConfigurableListableBeanFactory, ConfigurablePropertyResolver) instead");
 

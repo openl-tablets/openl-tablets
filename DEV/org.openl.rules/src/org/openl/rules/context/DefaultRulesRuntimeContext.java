@@ -365,25 +365,24 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
         cache = null;
     }
 
-
     public static final Map<String, Class<?>> CONTEXT_PROPERTIES;
-    
+
     static {
         Map<String, Class<?>> contextFields = new TreeMap<>();
-        contextFields.put("currentDate", java.util.Date .class);
-        contextFields.put("requestDate", java.util.Date .class);
-        contextFields.put("lob", java.lang.String .class);
-        contextFields.put("nature", java.lang.String .class);
-        contextFields.put("usState", org.openl.rules.enumeration.UsStatesEnum .class);
-        contextFields.put("country", org.openl.rules.enumeration.CountriesEnum .class);
-        contextFields.put("usRegion", org.openl.rules.enumeration.UsRegionsEnum .class);
-        contextFields.put("currency", org.openl.rules.enumeration.CurrenciesEnum .class);
-        contextFields.put("lang", org.openl.rules.enumeration.LanguagesEnum .class);
-        contextFields.put("region", org.openl.rules.enumeration.RegionsEnum .class);
-        contextFields.put("caProvince", org.openl.rules.enumeration.CaProvincesEnum .class);
-        contextFields.put("caRegion", org.openl.rules.enumeration.CaRegionsEnum .class);
-        CONTEXT_PROPERTIES = Collections.unmodifiableMap(contextFields); 
+        contextFields.put("currentDate", java.util.Date.class);
+        contextFields.put("requestDate", java.util.Date.class);
+        contextFields.put("lob", java.lang.String.class);
+        contextFields.put("nature", java.lang.String.class);
+        contextFields.put("usState", org.openl.rules.enumeration.UsStatesEnum.class);
+        contextFields.put("country", org.openl.rules.enumeration.CountriesEnum.class);
+        contextFields.put("usRegion", org.openl.rules.enumeration.UsRegionsEnum.class);
+        contextFields.put("currency", org.openl.rules.enumeration.CurrenciesEnum.class);
+        contextFields.put("lang", org.openl.rules.enumeration.LanguagesEnum.class);
+        contextFields.put("region", org.openl.rules.enumeration.RegionsEnum.class);
+        contextFields.put("caProvince", org.openl.rules.enumeration.CaProvincesEnum.class);
+        contextFields.put("caRegion", org.openl.rules.enumeration.CaRegionsEnum.class);
+        CONTEXT_PROPERTIES = Collections.unmodifiableMap(contextFields);
     }
-// <<< END INSERT >>>
+    // <<< END INSERT >>>
 
 }

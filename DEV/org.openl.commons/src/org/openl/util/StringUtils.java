@@ -365,7 +365,6 @@ public class StringUtils {
         return str == null ? null : str.trim();
     }
 
-
     /**
      * <p>
      * Removes control characters (char &lt;= 32) from both ends of this String returning {@code null} if the String is

@@ -36,7 +36,7 @@ public class OpenLMessage {
     /**
      * Constructs new instance of message.
      *
-     * @param summary  brief information
+     * @param summary brief information
      * @param severity message severity
      */
     public OpenLMessage(String summary, Severity severity) {

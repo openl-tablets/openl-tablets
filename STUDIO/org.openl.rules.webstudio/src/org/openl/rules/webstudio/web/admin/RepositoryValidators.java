@@ -119,8 +119,7 @@ public final class RepositoryValidators {
 
             PropertyResolver propertiesResolver = DelegatedPropertySource
                 .createPropertiesResolver(repoConfig.getPropertiesToValidate());
-            Repository repository = RepositoryInstatiator.newRepository(repoConfig.getConfigName(),
-                    propertiesResolver);
+            Repository repository = RepositoryInstatiator.newRepository(repoConfig.getConfigName(), propertiesResolver);
             if (repository instanceof Closeable) {
                 // Close repo connection after validation
                 IOUtils.closeQuietly((Closeable) repository);

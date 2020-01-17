@@ -96,7 +96,8 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
 
         // Try interpret array argument as multicall
         arrayArgArguments.addLast(arrayArgumentIndex);
-        unwrappedArgumentsTypes[arrayArgumentIndex] = new NoVarArgOpenClass(argumentsTypes[arrayArgumentIndex].getComponentClass());
+        unwrappedArgumentsTypes[arrayArgumentIndex] = new NoVarArgOpenClass(
+            argumentsTypes[arrayArgumentIndex].getComponentClass());
         multiCallMethodNode = last ? getMultiCallMethodNode(node,
             bindingContext,
             unwrappedArgumentsTypes,

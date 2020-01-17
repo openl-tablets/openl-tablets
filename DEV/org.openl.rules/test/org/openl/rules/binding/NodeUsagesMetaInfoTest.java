@@ -213,7 +213,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals(0, usedNodes.get(0).getStart());
         assertEquals(7, usedNodes.get(0).getEnd());
 
-        //test return cell
+        // test return cell
         ICell ret = rule2.getGridTable().getCell(2, 2);
         CellMetaInfo retMeta = getMetaInfo(rule2MetaReader, ret);
         assertTrue(CellMetaInfo.isCellContainsNodeUsages(retMeta));
@@ -258,7 +258,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         usedNodes = returnCellMeta.getUsedNodes();
         assertEquals(5, usedNodes.size());
 
-        //the first node it's constructor
+        // the first node it's constructor
         assertEquals(typeB.getUri(), usedNodes.get(0).getUri());
         assertEquals("TypeB <init>(String aaa)", usedNodes.get(0).getDescription());
         assertEquals(11, usedNodes.get(0).getStart());

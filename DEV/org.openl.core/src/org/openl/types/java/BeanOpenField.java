@@ -99,7 +99,7 @@ public class BeanOpenField implements IOpenField {
             }
         } catch (Exception | LinkageError t) {
             throw RuntimeExceptionWrapper.wrap(t);
-        } 
+        }
     }
 
     private BeanOpenField(PropertyDescriptor descriptor) {

@@ -110,6 +110,8 @@ class BracketMatcher {
     }
 
     public enum ErrorType {
-        UNEXPECTED, MISMATCHED, UNMATCHED
+        UNEXPECTED,
+        MISMATCHED,
+        UNMATCHED
     }
 }
