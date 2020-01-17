@@ -9,7 +9,6 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 
 public class MessageHandler {
@@ -18,7 +17,7 @@ public class MessageHandler {
      * Gets the url to the source of message.
      *
      * @param message {@link OpenLMessage} instance
-     * @param model project model for current module.
+     * @param model   project model for current module.
      * @return url to error source.
      */
     public String getSourceUrl(OpenLMessage message, ProjectModel model) {
@@ -35,8 +34,7 @@ public class MessageHandler {
      */
     public String getUrlForEmptySource(OpenLMessage message) {
         return WebStudioUtils.getWebStudio()
-            .url("message" + "?type" + "=" + message.getSeverity().name() + "&summary" + "=" + StringTool
-                .encodeURL(message.getSummary()));
+                .url("message" + "?type" + "=" + message.getSeverity().name() + "&summary" + "=" + message.getId());
     }
 
     protected String getUri(OpenLMessage message) {
@@ -68,7 +66,7 @@ public class MessageHandler {
         XlsWorkbookSourceCodeModule currentModuleWorkbook = model.getCurrentModuleWorkbook();
 
         return referencedModule != null && currentModuleWorkbook != null && currentModuleWorkbook.getSource()
-            .equals(referencedModule.getModule());
+                .equals(referencedModule.getModule());
     }
 
     private ISyntaxNode getModuleNode(TableSyntaxNode node) {
@@ -97,15 +95,14 @@ public class MessageHandler {
         String url = "table?id=" + tableId;
         if (StringUtils.isNotBlank(uriParser.getCell())) {
             url += "&" + org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_ERROR_CELL + "=" + uriParser
-                .getCell();
+                    .getCell();
         }
         return WebStudioUtils.getWebStudio().url(url);
     }
 
     private String getErrorUrlForDependency(OpenLMessage message) {
         return WebStudioUtils.getWebStudio()
-            .url("message" + "?type" + "=" + message.getSeverity().name() + "&summary" + "=" + StringTool
-                .encodeURL(String.format("Dependency error: %s", message.getSummary())));
+                .url("message" + "?type" + "=" + message.getSeverity().name() + "&summary" + "=" + message.getId());
     }
 
 }
