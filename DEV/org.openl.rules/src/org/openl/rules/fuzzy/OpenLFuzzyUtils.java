@@ -18,7 +18,7 @@ import org.openl.types.IOpenField;
 
 public final class OpenLFuzzyUtils {
 
-    private static final double ACCEPTABLE_SIMILARITY_VALUE = 0.85d;
+    private static final double ACCEPTABLE_SIMILARITY_VALUE = 0.86d;
     private static final int DEEP_LEVEL = 5;
 
     private static final ThreadLocal<Map<IOpenClass, Map<String, Map<Token, IOpenField[][]>>>> openClassRecursivelyCacheForWritableFields = ThreadLocal
