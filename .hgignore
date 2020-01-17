@@ -9,8 +9,5 @@ syntax: glob
 .settings
 .project
 .classpath
-.springBeans
 target
-overlays
-*.log
 .toDelete

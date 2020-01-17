@@ -1,11 +1,12 @@
 package org.openl.rules.repository.config;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -14,7 +15,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.codec.binary.Base64;
 import org.openl.util.StringUtils;
 
 /**
@@ -24,7 +24,6 @@ import org.openl.util.StringUtils;
 public final class PassCoder {
     private static byte[] bytes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     private static IvParameterSpec algorithmParameterSpec = new IvParameterSpec(bytes);
-    private static String encoding = "UTF-8";
 
     private PassCoder() {
     }
@@ -34,7 +33,6 @@ public final class PassCoder {
                                                                         InvalidKeyException,
                                                                         IllegalBlockSizeException,
                                                                         BadPaddingException,
-                                                                        UnsupportedEncodingException,
                                                                         InvalidAlgorithmParameterException {
         if (StringUtils.isBlank(strToEncrypt)) {
             return "";
@@ -46,7 +44,9 @@ public final class PassCoder {
 
         SecretKeySpec secretKey = getKey(privateKey);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, algorithmParameterSpec);
-        return new String(Base64.encodeBase64(cipher.doFinal(strToEncrypt.getBytes(encoding))));
+        byte[] toEncrypt = strToEncrypt.getBytes(StandardCharsets.UTF_8);
+        byte[] encrypted = cipher.doFinal(toEncrypt);
+        return Base64.getEncoder().encodeToString(encrypted);
     }
 
     public static String decode(String strToDecrypt, String privateKey) throws NoSuchAlgorithmException,
@@ -54,7 +54,6 @@ public final class PassCoder {
                                                                         InvalidKeyException,
                                                                         IllegalBlockSizeException,
                                                                         BadPaddingException,
-                                                                        UnsupportedEncodingException,
                                                                         InvalidAlgorithmParameterException {
         if (StringUtils.isBlank(strToDecrypt)) {
             return "";
@@ -66,12 +65,13 @@ public final class PassCoder {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         SecretKeySpec secretKey = getKey(privateKey);
         cipher.init(Cipher.DECRYPT_MODE, secretKey, algorithmParameterSpec);
-        return new String(cipher.doFinal(Base64.decodeBase64(strToDecrypt.getBytes(encoding))));
+        byte[] toDecrypt = Base64.getDecoder().decode(strToDecrypt);
+        byte[] decripted = cipher.doFinal(toDecrypt);
+        return new String(decripted, StandardCharsets.UTF_8);
     }
 
-    private static SecretKeySpec getKey(String privateKey) throws UnsupportedEncodingException,
-                                                           NoSuchAlgorithmException {
-        byte[] key = privateKey.getBytes(encoding);
+    private static SecretKeySpec getKey(String privateKey) throws NoSuchAlgorithmException {
+        byte[] key = privateKey.getBytes(StandardCharsets.UTF_8);
         MessageDigest sha = MessageDigest.getInstance("SHA-1");
         key = sha.digest(key);
         key = Arrays.copyOf(key, 16); // use only first 128 bit

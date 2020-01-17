@@ -77,6 +77,8 @@
             if (#{emptyHistoryDir}) {
                 $j("#cleanHistoryHref").hide();
             }
+
+            $j('.no-autocomplete').attr('autocomplete', 'new-input-field');
         });
 
         function showMaxCountInHistory() {
@@ -471,7 +473,7 @@
                                                             <h:panelGrid id="repoInfoPanel" columns="2"
                                                                          columnClasses="titleColumn">
                                                                 <h:outputText value="Name:"/>
-                                                                <h:inputText value="#{repository.name}"/>
+                                                                <h:inputText value="#{repository.name}" styleClass="no-autocomplete"/>
                                                                 <h:outputText value="Type:"/>
                                                                 <h:selectOneMenu value="#{repository.type}">
                                                                     <f:ajax event="change"

@@ -150,12 +150,6 @@
             <artifactId>org.openl.rules.ruleservice.ws</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
     <profiles>

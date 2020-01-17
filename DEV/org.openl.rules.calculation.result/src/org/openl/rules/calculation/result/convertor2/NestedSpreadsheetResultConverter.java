@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q extends CompoundStep> {
 
-    private final Logger log = LoggerFactory.getLogger(NestedSpreadsheetResultConverter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NestedSpreadsheetResultConverter.class);
 
     private NestedSpreadsheetConfiguration<T, Q> conf;
 
@@ -82,8 +82,8 @@ public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q exten
             }
             return steps;
         }
-        if (log.isWarnEnabled()) {
-            log.warn("Spreadsheet result is null.");
+        if (LOG.isWarnEnabled()) {
+            LOG.warn("Spreadsheet result is null.");
         }
         return steps;
     }
@@ -102,8 +102,8 @@ public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q exten
             if (columnIndex >= 0) {
                 compoundColumns.add(column);
             } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Column {} has been skipped.", column.getColumnName());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Column {} has been skipped.", column.getColumnName());
                 }
             }
         }
