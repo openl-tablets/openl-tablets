@@ -21,6 +21,7 @@ import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
@@ -60,6 +61,9 @@ public class DeploymentController {
 
     @ManagedProperty("#{environment}")
     private PropertyResolver propertyResolver;
+
+    @ManagedProperty(value = "#{deployConfigRepositoryComments}")
+    private Comments deployConfigRepoComments;
 
     public void onPageLoad() {
         if (repositoryTreeState == null || getSelectedProject() == null) {
@@ -131,7 +135,15 @@ public class DeploymentController {
 
     public String save() {
         try {
-            getSelectedProject().save();
+            ADeploymentProject selectedProject = getSelectedProject();
+            if (selectedProject == null) {
+                FacesUtils.addErrorMessage("Deployment configuration isn't selected");
+                return null;
+            }
+
+            String comment = deployConfigRepoComments.saveProject(selectedProject.getName());
+            selectedProject.getFileData().setComment(comment);
+            selectedProject.save();
             items = null;
         } catch (ProjectException e) {
             log.error("Failed to save changes", e);
@@ -395,5 +407,9 @@ public class DeploymentController {
     public void setProductionRepositoriesTreeController(
             ProductionRepositoriesTreeController productionRepositoriesTreeController) {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
+    }
+
+    public void setDeployConfigRepoComments(Comments deployConfigRepoComments) {
+        this.deployConfigRepoComments = deployConfigRepoComments;
     }
 }

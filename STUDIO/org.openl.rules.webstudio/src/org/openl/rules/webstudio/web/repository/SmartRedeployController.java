@@ -372,10 +372,13 @@ public class SmartRedeployController {
                 // rewrite project->version
                 deployConfiguration.addProjectDescriptor(project.getName(), project.getVersion());
 
+                String comment;
                 if (create) {
-                    deployConfiguration.getFileData()
-                        .setComment(deployConfigRepoComments.createProject(deploymentName));
+                    comment = deployConfigRepoComments.createProject(deploymentName);
+                } else {
+                    comment = deployConfigRepoComments.saveProject(deploymentName);
                 }
+                deployConfiguration.getFileData().setComment(comment);
 
                 deployConfiguration.save();
 
