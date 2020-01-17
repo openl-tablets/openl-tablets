@@ -217,7 +217,7 @@
                                                 <td>
                                                     <h:panelGrid id="repoInfoPanel" columns="2" columnClasses="titleColumn">
                                                         <h:outputText value="Name:" styleClass="required" />
-                                                        <h:inputText value="#{repository.name}" styleClass="repoFieldWidth"/>
+                                                        <h:inputText value="#{repository.name}" styleClass="repoFieldWidth no-autocomplete"/>
                                                         <h:outputText value="Type:" styleClass="required" />
                                                         <h:selectOneMenu value="#{repository.type}" styleClass="required">
                                                             <f:ajax event="change" render="productionParameters" />
@@ -289,6 +289,16 @@
                 <ui:include src="/pages/modules/showInfo.xhtml" />
             </div>
         </div>
+
+        <script>
+            //<![CDATA[
+
+            $j(document).ready(function () {
+                $j('.no-autocomplete').attr('autocomplete', 'new-input-field');
+            });
+
+            //]]>
+        </script>
 
     </ui:define>
 </ui:composition>
