@@ -14,6 +14,7 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
+import org.openl.rules.repository.api.FileData;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,11 @@ public class ProjectDescriptorArtefactResolver {
     private final Map<String, ProjectDescriptor> cache = new WeakHashMap<>();
 
     private ProjectDescriptor getProjectDescriptor(AProject project) throws ProjectException {
-        String version = project.getFileData().getVersion();
+        FileData fileData = project.getFileData();
+        if (fileData == null) {
+            return null;
+        }
+        String version = fileData.getVersion();
         String versionName = version == null ? "" : version;
         String key = String.format("%s:%s:%b", project.getName(), versionName, project.isModified());
 
