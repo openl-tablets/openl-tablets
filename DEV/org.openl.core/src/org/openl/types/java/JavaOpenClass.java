@@ -59,7 +59,7 @@ public class JavaOpenClass extends AOpenClass {
     public static final JavaOpenClass CLASS = new JavaOpenClass(Class.class, true);
     public static final JavaOpenClass CLS_VOID = new JavaOpenClass(Void.class, true);
 
-    protected Class<?> instanceClass;
+    protected final Class<?> instanceClass;
 
     private final boolean simple;
 
@@ -174,9 +174,9 @@ public class JavaOpenClass extends AOpenClass {
         Field[] ff = getInstanceClass().getDeclaredFields();
 
         if (isPublic(getInstanceClass())) {
-            for (int i = 0; i < ff.length; i++) {
-                if (isPublic(ff[i])) {
-                    fields.put(ff[i].getName(), new JavaOpenField(ff[i]));
+            for (Field field : ff) {
+                if (isPublic(field)) {
+                    fields.put(field.getName(), new JavaOpenField(field));
                 }
             }
         }
@@ -311,9 +311,9 @@ public class JavaOpenClass extends AOpenClass {
         Map<MethodKey, IOpenMethod> methods = new HashMap<>();
         Method[] mm = getInstanceClass().getDeclaredMethods();
         if (isPublic(getInstanceClass())) {
-            for (int i = 0; i < mm.length; i++) {
-                if (isPublic(mm[i])) {
-                    JavaOpenMethod om = new JavaOpenMethod(mm[i]);
+            for (Method method : mm) {
+                if (isPublic(method)) {
+                    JavaOpenMethod om = new JavaOpenMethod(method);
                     methods.put(new MethodKey(om), om);
                 }
             }
@@ -520,7 +520,7 @@ public class JavaOpenClass extends AOpenClass {
         private Map<Method, BeanOpenField> setters = new HashMap<>();
 
         @SuppressWarnings("unused")
-        private Class<?> proxyClass;
+        private final Class<?> proxyClass;
 
         private volatile Class<?> generatedImplClass;
 
