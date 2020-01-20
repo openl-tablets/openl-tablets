@@ -26,7 +26,7 @@ import org.openl.vm.IRuntimeEnv;
 public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
     Method method;
 
-    IOpenClass[] parameterTypes;
+    volatile IOpenClass[] parameterTypes;
 
     public JavaOpenMethod(Method method) {
         this.method = method;
@@ -111,7 +111,9 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
     public IOpenClass[] getParameterTypes() {
         if (parameterTypes == null) {
             synchronized (this) {
-                parameterTypes = JavaOpenClass.getOpenClasses(method.getParameterTypes());
+                if (parameterTypes == null) {
+                    parameterTypes = JavaOpenClass.getOpenClasses(method.getParameterTypes());
+                }
             }
 
         }
