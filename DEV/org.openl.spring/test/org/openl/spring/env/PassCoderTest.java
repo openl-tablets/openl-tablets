@@ -10,6 +10,9 @@ import org.junit.Test;
  */
 
 public class PassCoderTest {
+
+    private static final String CIPHER = "AES/CBC/PKCS5Padding";
+
     private String pass = "testPass";
     private String key = "ksadbflkjsbadflk sdlfknlksajndflkjsnadf jsakidjbfl kjbsdlkfjb saljnd fs";
     private String wrongKey = "fngnsgdlkjfngsdlk lsfng ljsdfk jndfgsljn gs";
@@ -19,7 +22,7 @@ public class PassCoderTest {
         String codedPass = null;
 
         try {
-            codedPass = PassCoder.encode(pass, key);
+            codedPass = PassCoder.encode(pass, key, CIPHER);
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -29,7 +32,7 @@ public class PassCoderTest {
         String decodedPass = null;
 
         try {
-            decodedPass = PassCoder.decode(codedPass, wrongKey);
+            decodedPass = PassCoder.decode(codedPass, wrongKey, CIPHER);
         } catch (Exception e) {
             // skip exception which wrong key
         }
@@ -37,7 +40,7 @@ public class PassCoderTest {
         assertNull(decodedPass);
 
         try {
-            decodedPass = PassCoder.decode(codedPass, key);
+            decodedPass = PassCoder.decode(codedPass, key, CIPHER);
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -47,20 +50,20 @@ public class PassCoderTest {
 
     @Test
     public void testEmpty() throws Exception {
-        assertEquals("password", PassCoder.encode("password", ""));
-        assertEquals("password", PassCoder.encode("password", " "));
-        assertEquals("password", PassCoder.encode("password", null));
-        assertEquals("", PassCoder.encode("", "key"));
-        assertEquals(" ", PassCoder.encode(" ", "key"));
-        assertNull(PassCoder.encode(null, "key"));
-        assertEquals("", PassCoder.encode("", ""));
+        assertEquals("password", PassCoder.encode("password", "", CIPHER));
+        assertEquals("password", PassCoder.encode("password", " ", CIPHER));
+        assertEquals("password", PassCoder.encode("password", null, CIPHER));
+        assertEquals("", PassCoder.encode("", "key", CIPHER));
+        assertEquals(" ", PassCoder.encode(" ", "key", CIPHER));
+        assertNull(PassCoder.encode(null, "key", CIPHER));
+        assertEquals("", PassCoder.encode("", "", CIPHER));
 
-        assertEquals("password", PassCoder.decode("password", ""));
-        assertEquals("password", PassCoder.decode("password", " "));
-        assertEquals("password", PassCoder.decode("password", null));
-        assertEquals("", PassCoder.decode("", "key"));
-        assertEquals(" ", PassCoder.decode(" ", "key"));
-        assertNull(PassCoder.decode(null, "key"));
-        assertEquals("", PassCoder.decode("", ""));
+        assertEquals("password", PassCoder.decode("password", "", CIPHER));
+        assertEquals("password", PassCoder.decode("password", " ", CIPHER));
+        assertEquals("password", PassCoder.decode("password", null, CIPHER));
+        assertEquals("", PassCoder.decode("", "key", CIPHER));
+        assertEquals(" ", PassCoder.decode(" ", "key", CIPHER));
+        assertNull(PassCoder.decode(null, "key", CIPHER));
+        assertEquals("", PassCoder.decode("", "", CIPHER));
     }
 }

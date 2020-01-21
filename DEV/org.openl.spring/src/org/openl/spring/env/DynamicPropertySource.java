@@ -66,16 +66,16 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
             return null;
         }
 
-        String value = getProperties().getProperty(name);
-            return decode(name, value);
+        String value = StringUtils.trimToNull(getProperties().getProperty(name));
+        return decode(value);
     }
-
 
     static DynamicPropertySource THE;
 
     public static DynamicPropertySource get() {
         return THE;
     }
+
     public void save(Map<String, String> config) throws IOException {
         Properties properties = getProperties();
         for (Map.Entry<String, String> pair : config.entrySet()) {
@@ -86,7 +86,12 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
             } else {
                 if (propertyName.endsWith("password")) {
                     try {
-                        value = PassCoder.encode(value, getSecretKey());
+                        String secretKey = getSecretKey();
+                        String cipher = getCipher();
+                        if (StringUtils.isNotBlank(value) && StringUtils.isNotBlank(secretKey) && StringUtils
+                            .isNotBlank(cipher)) {
+                            value = "ENC(" + PassCoder.encode(value, secretKey, cipher) + ")";
+                        }
                     } catch (Exception e) {
                         ConfigLog.LOG.error("Error when setting password property: {}", propertyName, e);
                         continue;
@@ -105,13 +110,13 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         }
     }
 
-    static String decode(String name, String value) {
-        if (name.endsWith("password")) {
+    static String decode(String value) {
+        if (value != null && value.startsWith("ENC(") && value.endsWith(")")) {
             try {
-                return PassCoder.decode(value, DynamicPropertySource.get().getSecretKey());
-            }
-            catch (Exception e) {
-                ConfigLog.LOG.error("Error when getting password property: {}", name, e);
+                return PassCoder.decode(value.substring(4, value.length() - 1),
+                    DynamicPropertySource.get().getSecretKey(),
+                    DynamicPropertySource.get().getCipher());
+            } catch (Exception e) {
                 return "";
             }
         } else {
@@ -120,7 +125,10 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     }
 
     private String getSecretKey() {
-        String passKey = resolver.getProperty("repository.encode.decode.key");
-        return passKey != null ? StringUtils.trimToEmpty(passKey) : "";
+        return StringUtils.trimToNull(resolver.getProperty("secret.key"));
+    }
+
+    private String getCipher() {
+        return StringUtils.trimToNull(resolver.getProperty("secret.cipher"));
     }
 }
