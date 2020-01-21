@@ -1,9 +1,8 @@
-package org.openl.config;
+package org.openl.spring.env;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.openl.rules.repository.config.PassCoder;
 
 /**
  * @author Pavel Tarasevich

@@ -1,7 +1,6 @@
 package org.openl.config;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.Map;
 
 import org.springframework.core.env.PropertyResolver;
 
@@ -12,7 +11,7 @@ public interface PropertiesHolder {
 
     void revertProperties(String... keys);
 
-    void writeTo(File file) throws IOException;
+    Map<String, String> getConfig();
 
     PropertyResolver getPropertyResolver();
 }

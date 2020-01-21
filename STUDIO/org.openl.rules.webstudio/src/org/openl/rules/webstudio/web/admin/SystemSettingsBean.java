@@ -7,7 +7,6 @@ import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PROJECT
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.UPDATE_SYSTEM_PROPERTIES;
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.USER_WORKSPACE_HOME;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -264,8 +263,7 @@ public class SystemSettingsBean {
             deployConfigRepositoryConfiguration.commit();
         }
 
-        String workingDir = propertyResolver.getProperty(DynamicPropertySource.OPENL_HOME);
-        properties.writeTo(new File(workingDir, getAppName() + ".properties"));
+        DynamicPropertySource.get().save(properties.getConfig());
 
         refreshConfig();
     }

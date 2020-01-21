@@ -2,17 +2,12 @@ package org.openl.config;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
-import org.openl.rules.repository.config.PassCoder;
-import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 
 public class ReadOnlyPropertiesHolder implements PropertiesHolder {
-    private static final String REPO_PASS_KEY = "repository.encode.decode.key";
     protected final PropertyResolver propertyResolver;
-    private static final Logger LOG = LoggerFactory.getLogger(ReadOnlyPropertiesHolder.class);
 
     public ReadOnlyPropertiesHolder(PropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;
@@ -23,36 +18,14 @@ public class ReadOnlyPropertiesHolder implements PropertiesHolder {
         return propertyResolver;
     }
 
-    private String getRepoPassKey() {
-        String passKey = getProperty(REPO_PASS_KEY);
-        return passKey != null ? StringUtils.trimToEmpty(passKey) : "";
-    }
-
     @Override
     public final String getProperty(String key) {
-        String value = doGetProperty(key);
-        if (key.endsWith("password")) {
-            try {
-                return PassCoder.decode(value, getRepoPassKey());
-            } catch (Exception e) {
-                LOG.error("Error when getting password property: {}", key, e);
-                return "";
-            }
-        }
-        return value;
+        return doGetProperty(key);
     }
 
     @Override
     public final void setProperty(String key, Object value) {
         String propValue = value != null ? value.toString() : null;
-        if (key.endsWith("password")) {
-            try {
-                propValue = PassCoder.encode(propValue, getRepoPassKey());
-            } catch (Exception e) {
-                LOG.error("Error when setting password property: {}", key, e);
-                return;
-            }
-        }
         doSetProperty(key, propValue);
     }
 
@@ -70,7 +43,7 @@ public class ReadOnlyPropertiesHolder implements PropertiesHolder {
     }
 
     @Override
-    public void writeTo(File file) throws IOException {
+    public Map<String, String> getConfig() {
         throw new UnsupportedOperationException("Editing isn't supported");
     }
 }

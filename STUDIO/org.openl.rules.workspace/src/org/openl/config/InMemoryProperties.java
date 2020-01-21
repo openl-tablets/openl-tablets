@@ -1,17 +1,8 @@
 package org.openl.config;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import org.springframework.core.env.PropertyResolver;
@@ -53,34 +44,11 @@ public class InMemoryProperties extends ReadOnlyPropertiesHolder {
     }
 
     @Override
-    public void writeTo(File file) throws IOException {
-        Properties properties = new Properties();
-        if (file.exists()) {
-            try (InputStreamReader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
-                properties.load(reader);
-            }
-        }
-
+    public Map<String, String> getConfig() {
+        HashMap<String, String> config = new HashMap<>(changes);
         for (String revert : reverts) {
-            properties.remove(revert);
+            config.put(revert, null);
         }
-
-        for (Map.Entry<String, String> entry : changes.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            String defaultValue = propertyResolver.getProperty(key);
-            if (value != null && !value.equals(defaultValue)) {
-                // Save only changed values
-                properties.setProperty(key, value);
-            }
-        }
-
-        File parent = file.getParentFile();
-        if (!parent.mkdirs() && !parent.exists()) {
-            throw new FileNotFoundException("Can't create the folder " + parent.getAbsolutePath());
-        }
-        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
-            properties.store(writer, null);
-        }
+        return config;
     }
 }

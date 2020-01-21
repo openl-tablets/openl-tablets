@@ -11,12 +11,7 @@
             <map>
                 <entry key="uri" value="${production-repository.uri}"/>
                 <entry key="login" value="${production-repository.login}"/>
-                <entry key="password">
-                    <bean class="org.openl.rules.repository.config.PassCoder" factory-method="decode">
-                        <constructor-arg name="strToDecrypt" value="${production-repository.password}"/>
-                        <constructor-arg name="privateKey" value="${repository.encode.decode.key}"/>
-                    </bean>
-                </entry>
+                <entry key="password" value="${production-repository.password}"/>
                 <!-- AWS S3 specific -->
                 <entry key="bucketName" value="${production-repository.bucket-name}"/>
                 <entry key="regionName" value="${production-repository.region-name}"/>

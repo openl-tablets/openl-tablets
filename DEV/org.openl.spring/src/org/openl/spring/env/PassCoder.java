@@ -1,4 +1,4 @@
-package org.openl.rules.repository.config;
+package org.openl.spring.env;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
