@@ -16,7 +16,7 @@ import java.util.Set;
 
 import org.springframework.core.env.PropertyResolver;
 
-public class InMemoryProperties extends AbstractPropertiesHolder {
+public class InMemoryProperties extends ReadOnlyPropertiesHolder {
 
     private final Map<String, String> changes = new HashMap<>();
     private final Set<String> reverts = new HashSet<>();
