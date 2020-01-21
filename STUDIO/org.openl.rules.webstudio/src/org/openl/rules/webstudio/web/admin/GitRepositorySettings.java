@@ -64,7 +64,7 @@ public class GitRepositorySettings extends RepositorySettings {
 
         uri = properties.getProperty(URI);
         login = properties.getProperty(LOGIN);
-        password = properties.getPassword(PASSWORD);
+        password = properties.getProperty(PASSWORD);
         userDisplayName = properties.getProperty(USER_DISPLAY_NAME);
         userEmail = properties.getProperty(USER_EMAIL);
         localRepositoryPath = defaultLocalPath;
@@ -197,10 +197,10 @@ public class GitRepositorySettings extends RepositorySettings {
 
         if (clearLogin) {
             propertiesHolder.setProperty(LOGIN, "");
-            propertiesHolder.setPassword(PASSWORD, "");
+            propertiesHolder.setProperty(PASSWORD, "");
         } else {
             propertiesHolder.setProperty(LOGIN, getLogin());
-            propertiesHolder.setPassword(PASSWORD, getPassword());
+            propertiesHolder.setProperty(PASSWORD, getPassword());
         }
 
         propertiesHolder.setProperty(USER_DISPLAY_NAME, userDisplayName);

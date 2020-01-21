@@ -12,10 +12,6 @@ public interface PropertiesHolder {
 
     void revertProperties(String... keys);
 
-    String getPassword(String key);
-
-    void setPassword(String key, String pass);
-
     void writeTo(File file) throws IOException;
 
     PropertyResolver getPropertyResolver();

@@ -26,7 +26,7 @@ public class InMemoryProperties extends ReadOnlyPropertiesHolder {
     }
 
     @Override
-    public void setProperty(String key, Object value) {
+    protected void doSetProperty(String key, String value) {
         if (key == null) {
             return;
         }
@@ -36,12 +36,12 @@ public class InMemoryProperties extends ReadOnlyPropertiesHolder {
             return;
         }
 
-        changes.put(key, value.toString());
+        changes.put(key, value);
     }
 
     @Override
-    public String getProperty(String key) {
-        return changes.containsKey(key) ? changes.get(key) : propertyResolver.getProperty(key);
+    protected String doGetProperty(String key) {
+        return changes.containsKey(key) ? changes.get(key) : super.doGetProperty(key);
     }
 
     @Override
