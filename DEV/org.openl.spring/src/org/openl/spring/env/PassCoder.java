@@ -35,7 +35,7 @@ public final class PassCoder {
                                                                         BadPaddingException,
                                                                         InvalidAlgorithmParameterException {
         if (StringUtils.isBlank(strToEncrypt)) {
-            return "";
+            return strToEncrypt;
         }
         if (StringUtils.isBlank(privateKey)) {
             return strToEncrypt;
@@ -56,7 +56,7 @@ public final class PassCoder {
                                                                         BadPaddingException,
                                                                         InvalidAlgorithmParameterException {
         if (StringUtils.isBlank(strToDecrypt)) {
-            return "";
+            return strToDecrypt;
         }
         if (StringUtils.isBlank(privateKey)) {
             return strToDecrypt;

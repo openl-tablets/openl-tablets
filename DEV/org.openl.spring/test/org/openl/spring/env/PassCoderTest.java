@@ -51,16 +51,16 @@ public class PassCoderTest {
         assertEquals("password", PassCoder.encode("password", " "));
         assertEquals("password", PassCoder.encode("password", null));
         assertEquals("", PassCoder.encode("", "key"));
-        assertEquals("", PassCoder.encode(" ", "key"));
-        assertEquals("", PassCoder.encode(null, "key"));
+        assertEquals(" ", PassCoder.encode(" ", "key"));
+        assertNull(PassCoder.encode(null, "key"));
         assertEquals("", PassCoder.encode("", ""));
 
         assertEquals("password", PassCoder.decode("password", ""));
         assertEquals("password", PassCoder.decode("password", " "));
         assertEquals("password", PassCoder.decode("password", null));
         assertEquals("", PassCoder.decode("", "key"));
-        assertEquals("", PassCoder.decode(" ", "key"));
-        assertEquals("", PassCoder.decode(null, "key"));
+        assertEquals(" ", PassCoder.decode(" ", "key"));
+        assertNull(PassCoder.decode(null, "key"));
         assertEquals("", PassCoder.decode("", ""));
     }
 }
