@@ -68,7 +68,7 @@ public class TreeProject extends TreeFolder {
         ProjectStatus status = userProject.getStatus();
 
         if (status != ProjectStatus.EDITING && userProject.isLocked()) {
-            return status.getDisplayValue() + " - Locked";
+            return status.getDisplayValue() + ". Locked by " + userProject.getLockInfo().getLockedBy().getUserName() + ".";
         }
 
         return status.getDisplayValue();
