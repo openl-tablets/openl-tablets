@@ -202,7 +202,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
     }
 
     public void setProjectDescriptors(Collection<ProjectDescriptor> projectDescriptors) throws ProjectException {
-        lock();
+        tryLockOrThrow();
 
         getDescriptors().clear();
         getDescriptors().addAll(projectDescriptors);
@@ -219,10 +219,12 @@ public class ADeploymentProject extends UserWorkspaceProject {
     }
 
     @Override
-    public void lock() throws ProjectException {
+    public boolean tryLock() throws ProjectException {
         if (lockEngine != null) {
-            lockEngine.tryLock(getBranch(), getName(), getUser().getUserName());
+            return lockEngine.tryLock(getBranch(), getName(), getUser().getUserName());
         }
+
+        return super.tryLock();
     }
 
     @Override

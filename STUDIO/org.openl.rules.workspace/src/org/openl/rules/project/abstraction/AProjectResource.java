@@ -30,7 +30,7 @@ public class AProjectResource extends AProjectArtefact {
 
     public void setContent(InputStream inputStream) throws ProjectException {
         try {
-            getProject().lock();
+            getProject().tryLockOrThrow();
 
             setFileData(getRepository().save(getFileData(), inputStream));
         } catch (IOException ex) {

@@ -6,10 +6,19 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.openl.rules.common.*;
+import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.LockInfo;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.AdditionalData;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.ConflictResolveData;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -213,14 +222,6 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     @Override
-    public void lock() throws ProjectException {
-        // No need to lock local only projects. Other users don't see it.
-        if (!isLocalOnly()) {
-            lockEngine.tryLock(getBranch(), getName(), getUser().getUserName());
-        }
-    }
-
-    @Override
     public void unlock() {
         lockEngine.unlock(getBranch(), getName());
     }
@@ -229,8 +230,9 @@ public class RulesProject extends UserWorkspaceProject {
      * Try to lock the project if it's not locked already. Does not overwrite lock info if the user was locked already.
      *
      * @return false if the project was locked by other user. true if project wasn't locked before or was locked by me.
-     * @throws ProjectException if cannot lock the project
+     * @throws ProjectException if cannot lock the project.
      */
+    @Override
     public boolean tryLock() throws ProjectException {
         if (isLocalOnly()) {
             // No need to lock local only projects. Other users don't see it.

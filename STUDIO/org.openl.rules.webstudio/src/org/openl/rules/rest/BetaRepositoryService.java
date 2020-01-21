@@ -414,11 +414,10 @@ public class BetaRepositoryService {
                     return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
                 }
                 RulesProject project = userWorkspace.getProject(name);
-                if (project.isLocked() && !project.isLockedByUser(getUser())) {
+                if (!project.tryLock()) {
                     String lockedBy = project.getLockInfo().getLockedBy().getUserName();
                     return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
                 }
-                project.lock();
             } else {
                 if (!isGranted(Privileges.CREATE_PROJECTS)) {
                     return Response.status(Status.FORBIDDEN).entity("Does not have CREATE PROJECTS privilege").build();

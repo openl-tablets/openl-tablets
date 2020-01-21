@@ -2,7 +2,13 @@ package org.openl.rules.rest;
 
 import static org.openl.rules.security.AccessManager.isGranted;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -11,9 +17,19 @@ import java.util.Collection;
 import java.util.List;
 import java.util.zip.ZipInputStream;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriInfo;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
@@ -29,7 +45,11 @@ import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
@@ -38,7 +58,11 @@ import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.util.*;
+import org.openl.util.FileUtils;
+import org.openl.util.IOUtils;
+import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
+import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -291,11 +315,10 @@ public class RepositoryService {
                     return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
                 }
                 RulesProject project = userWorkspace.getProject(name);
-                if (project.isLocked() && !project.isLockedByUser(getUser())) {
+                if (!project.tryLock()) {
                     String lockedBy = project.getLockInfo().getLockedBy().getUserName();
                     return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
                 }
-                project.lock();
             } else {
                 if (!isGranted(Privileges.CREATE_PROJECTS)) {
                     return Response.status(Status.FORBIDDEN).entity("Does not have CREATE PROJECTS privilege").build();
@@ -375,11 +398,10 @@ public class RepositoryService {
             return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
         }
         RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(name);
-        if (project.isLocked()) {
+        if (!project.tryLock()) {
             String lockedBy = project.getLockInfo().getLockedBy().getUserName();
             return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
         }
-        project.lock();
         return Response.ok().build();
     }
 

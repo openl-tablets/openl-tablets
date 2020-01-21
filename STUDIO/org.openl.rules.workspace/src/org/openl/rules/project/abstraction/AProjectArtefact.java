@@ -1,9 +1,17 @@
 package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
-import org.openl.rules.common.*;
+import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.LockInfo;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
@@ -161,8 +169,25 @@ public class AProjectArtefact {
     public void refresh() {
     }
 
-    public void lock() throws ProjectException {
-        // Do nothing
+    /**
+     * Try to lock the project if it's not locked already. Does not overwrite lock info if the user was locked already.
+     *
+     * @return false if the project was locked by other user. true if project wasn't locked before or was locked by me.
+     * @throws ProjectException if cannot lock the project.
+     */
+    public boolean tryLock() throws ProjectException {
+        // Default implementation does nothing and returns true to indicate that invocation was successful.
+        return true;
+    }
+
+    /**
+     * Try to lock the project if it's not locked already. If the project was locked by other user, throws ProjectException.
+     * @throws ProjectException if cannot lock the project, or the project was locked by other user.
+     */
+    public final void tryLockOrThrow() throws ProjectException {
+        if (!tryLock()) {
+            throw new ProjectException("The project is locked by other user");
+        }
     }
 
     public void unlock() throws ProjectException {

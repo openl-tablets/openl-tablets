@@ -2,13 +2,22 @@ package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +67,7 @@ public class AProjectFolder extends AProjectArtefact {
     }
 
     public void deleteArtefact(String name) throws ProjectException {
-        getProject().lock();
+        getProject().tryLockOrThrow();
 
         getArtefact(name).delete();
         getArtefactsInternal().remove(name);
@@ -69,7 +78,7 @@ public class AProjectFolder extends AProjectArtefact {
     }
 
     public AProjectFolder addFolder(String name) throws ProjectException {
-        getProject().lock();
+        getProject().tryLockOrThrow();
 
         AProjectFolder createdFolder = new AProjectFolder(getProject(), getRepository(), folderPath + "/" + name, null);
         getArtefactsInternal().put(name, createdFolder);
@@ -86,7 +95,7 @@ public class AProjectFolder extends AProjectArtefact {
 
     public AProjectResource addResource(String name, InputStream content) throws ProjectException {
         try {
-            getProject().lock();
+            getProject().tryLockOrThrow();
 
             FileData fileData = new FileData();
             String fullName = folderPath + "/" + name;
