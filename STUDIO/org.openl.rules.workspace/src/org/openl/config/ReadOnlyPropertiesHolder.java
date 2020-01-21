@@ -68,11 +68,6 @@ public class ReadOnlyPropertiesHolder implements PropertiesHolder {
     }
 
     @Override
-    public void revertProperty(String key) {
-        throw new UnsupportedOperationException("Editing isn't supported");
-    }
-
-    @Override
     public void writeTo(File file) throws IOException {
         throw new UnsupportedOperationException("Editing isn't supported");
     }

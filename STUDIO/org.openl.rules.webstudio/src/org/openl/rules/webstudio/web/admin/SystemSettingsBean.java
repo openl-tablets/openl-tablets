@@ -279,7 +279,7 @@ public class SystemSettingsBean {
         try {
             designRepositoryConfiguration.revert();
 
-            properties.revertProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO);
+            properties.revertProperties(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO);
             deployConfigRepositoryConfiguration.revert();
 
             productionRepositoryEditor.revertChanges();
@@ -287,9 +287,7 @@ public class SystemSettingsBean {
             // We cannot invoke configManager.restoreDefaults(): in this case some
             // settings (such as user.mode etc) not edited in this page
             // will be reverted too. We should revert only settings edited in Administration page
-            for (String setting : AdministrationSettings.getAllSettings()) {
-                properties.revertProperty(setting);
-            }
+            properties.revertProperties(AdministrationSettings.getAllSettings().toArray(StringUtils.EMPTY_STRING_ARRAY));
             saveSystemConfig();
 
             productionRepositoryEditor.reload();

@@ -158,7 +158,7 @@ public class ProductionRepositoryEditor {
         }
         productionRepositoryConfigurations.clear();
 
-        properties.revertProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS);
+        properties.revertProperties(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS);
     }
 
     private RepositoryConfiguration saveProductionRepository(RepositoryConfiguration prodConfig, Callback callback) {

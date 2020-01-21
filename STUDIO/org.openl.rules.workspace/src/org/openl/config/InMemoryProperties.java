@@ -32,7 +32,7 @@ public class InMemoryProperties extends ReadOnlyPropertiesHolder {
         }
 
         if (value == null) {
-            revertProperty(key);
+            revertProperties(key);
             return;
         }
 
@@ -45,9 +45,11 @@ public class InMemoryProperties extends ReadOnlyPropertiesHolder {
     }
 
     @Override
-    public void revertProperty(String key) {
-        changes.remove(key);
-        reverts.add(key);
+    public void revertProperties(String... keys) {
+        for (String key : keys) {
+            changes.remove(key);
+            reverts.add(key);
+        }
     }
 
     @Override

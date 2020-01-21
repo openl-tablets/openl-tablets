@@ -177,17 +177,16 @@ public abstract class RepositorySettings {
             propertiesHolder.setProperty(DEFAULT_COMMENT_COPIED_FROM, defaultCommentCopiedFrom);
             propertiesHolder.setProperty(DEFAULT_COMMENT_RESTORED_FROM, defaultCommentRestoredFrom);
         } else {
-            propertiesHolder.revertProperty(COMMENT_VALIDATION_PATTERN);
-            propertiesHolder.revertProperty(INVALID_COMMENT_MESSAGE);
-
-            propertiesHolder.revertProperty(COMMENT_TEMPLATE);
-            propertiesHolder.revertProperty(DEFAULT_COMMENT_SAVE);
-            propertiesHolder.revertProperty(DEFAULT_COMMENT_CREATE);
-            propertiesHolder.revertProperty(DEFAULT_COMMENT_ARCHIVE);
-            propertiesHolder.revertProperty(DEFAULT_COMMENT_RESTORE);
-            propertiesHolder.revertProperty(DEFAULT_COMMENT_ERASE);
-            propertiesHolder.revertProperty(DEFAULT_COMMENT_COPIED_FROM);
-            propertiesHolder.revertProperty(DEFAULT_COMMENT_RESTORED_FROM);
+            propertiesHolder.revertProperties(COMMENT_VALIDATION_PATTERN,
+                INVALID_COMMENT_MESSAGE,
+                COMMENT_TEMPLATE,
+                DEFAULT_COMMENT_SAVE,
+                DEFAULT_COMMENT_CREATE,
+                DEFAULT_COMMENT_ARCHIVE,
+                DEFAULT_COMMENT_RESTORE,
+                DEFAULT_COMMENT_ERASE,
+                DEFAULT_COMMENT_COPIED_FROM,
+                DEFAULT_COMMENT_RESTORED_FROM);
         }
     }
 
