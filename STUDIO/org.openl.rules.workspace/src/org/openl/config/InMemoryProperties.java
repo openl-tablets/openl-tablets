@@ -45,14 +45,6 @@ public class InMemoryProperties extends AbstractPropertiesHolder {
     }
 
     @Override
-    public String getProperty(String key, String defaultValue) {
-        if (changes.containsKey(key)) {
-            return changes.get(key);
-        }
-        return propertyResolver.getProperty(key, defaultValue);
-    }
-
-    @Override
     public void revertProperty(String key) {
         changes.remove(key);
         reverts.add(key);

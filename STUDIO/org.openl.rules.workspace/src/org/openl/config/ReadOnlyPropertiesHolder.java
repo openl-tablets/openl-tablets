@@ -16,11 +16,6 @@ public class ReadOnlyPropertiesHolder extends AbstractPropertiesHolder {
     }
 
     @Override
-    public String getProperty(String key, String defaultValue) {
-        return propertyResolver.getProperty(key, defaultValue);
-    }
-
-    @Override
     public void setProperty(String key, Object value) {
         throw new UnsupportedOperationException("Editing isn't supported");
     }
