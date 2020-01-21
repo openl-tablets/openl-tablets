@@ -14,7 +14,12 @@
         </h1>
 
         <div>
-            <ui:insert name="data" />
+            <h:panelGroup rendered="#{not tableCreatorWizardManager.lockedByOtherUser}">
+                <ui:insert name="data" />
+            </h:panelGroup>
+            <h:panelGroup rendered="#{tableCreatorWizardManager.lockedByOtherUser}">
+                Project is locked by other user and can't be edited.
+            </h:panelGroup>
         </div>
     </div>
 
