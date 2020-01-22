@@ -20,6 +20,8 @@ import org.openl.config.ConfigNames;
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.rules.security.AccessManager;
+import org.openl.rules.security.Privileges;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
@@ -215,6 +217,10 @@ public class SystemSettingsBean {
 
     public boolean isAutoCompile() {
         return Boolean.parseBoolean(properties.getProperty(OpenLSystemProperties.AUTO_COMPILE));
+    }
+
+    public boolean isAdmin() {
+        return AccessManager.isGranted(Privileges.ADMIN);
     }
 
     public void setAutoCompile(boolean autoCompile) {

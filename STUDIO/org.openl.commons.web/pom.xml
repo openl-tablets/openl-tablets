@@ -36,10 +36,6 @@
             <artifactId>el-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.sdicons.jsontools</groupId>
             <artifactId>jsontools-core</artifactId>
         </dependency>

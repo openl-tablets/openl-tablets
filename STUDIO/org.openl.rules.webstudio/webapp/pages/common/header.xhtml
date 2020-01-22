@@ -2,8 +2,7 @@
 <ui:composition
         xmlns:h="http://java.sun.com/jsf/html"
         xmlns:ui="http://java.sun.com/jsf/facelets"
-        xmlns:c="http://java.sun.com/jsp/jstl/core"
-        xmlns:authz="http://rules.openl.org/taglibs/acegi">
+        xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <style>
         #rb {
@@ -88,7 +87,7 @@
 
             <span class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <authz:authentication operation="username"/><b class="caret"></b>
+                    #{userProfileBean.user.username}<b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu pull-right" role="menu" style="margin-top: 15px">
                     <li><a class="changes-listener" tabindex="-1" href="javascript:void(0)"
@@ -118,7 +117,7 @@
                data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.repo.title']}"
                title=""
                onclick="#{menu=='repository' ? 'return false' : repositoryTreeState.clearSelectPrj()}">#{msg['ws.header.repo']}</a>
-            <h:panelGroup rendered="#{authz:hasAccessTo(adminUrl)}">
+            <h:panelGroup rendered="#{systemSettingsBean.admin}">
                 <a href="#{contextPath}#{adminUrl}" class="nav-admin#{menu=='admin' ? ' active' : ''} changes-listener"
                    data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.admin.title']}"
                    title=""
