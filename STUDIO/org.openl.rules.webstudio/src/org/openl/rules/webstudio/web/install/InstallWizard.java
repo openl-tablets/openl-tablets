@@ -372,7 +372,7 @@ public class InstallWizard {
             if (!isUseDesignRepo()) {
                 deployConfigRepositoryConfiguration.commit();
             }
-            properties.writeTo(new File(workingDir, getAppName() + ".properties"));
+            DynamicPropertySource.get().save(properties.getConfig());
 
             PreferencesManager.INSTANCE.webStudioConfigured(getAppName());
 

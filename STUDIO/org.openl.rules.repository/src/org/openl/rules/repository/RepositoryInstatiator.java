@@ -3,11 +3,9 @@ package org.openl.rules.repository;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.security.GeneralSecurityException;
 import java.util.Map;
 
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.config.PassCoder;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
@@ -143,33 +141,18 @@ public class RepositoryInstatiator {
 
     private static void setParams(Object instance,
             PropertyResolver propertyResolver,
-            String configName) throws RRepositoryException {
+            String configName) {
         Class<?> clazz = instance.getClass();
         for (Field field : clazz.getDeclaredFields()) {
             String fieldName = field.getName();
             String propertyName = buildPropertyName(configName, fieldName);
-            String propertyValue = getValue(propertyResolver, propertyName, fieldName);
+            String propertyValue = propertyResolver.getProperty(propertyName);
             boolean propertyExists = StringUtils.isNotBlank(propertyValue);
             if (propertyExists) {
                 injectValue(instance, clazz, propertyValue, fieldName);
             }
         }
 
-    }
-
-    private static String getValue(PropertyResolver propertyResolver,
-            String propertyName,
-            String fieldName) throws RRepositoryException {
-        String propertyValue = propertyResolver.getProperty(propertyName);
-        if ("password".equals(fieldName)) {
-            String privateKey = StringUtils.trimToEmpty(propertyResolver.getProperty("repository.encode.decode.key"));
-            try {
-                return PassCoder.decode(propertyValue, privateKey);
-            } catch (GeneralSecurityException e) {
-                throw new RRepositoryException("Cannot decode the password", e);
-            }
-        }
-        return propertyValue;
     }
 
     private static String buildPropertyName(String configName, String name) {

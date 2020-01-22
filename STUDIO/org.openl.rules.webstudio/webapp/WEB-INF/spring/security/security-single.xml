@@ -72,6 +72,4 @@
     <property name="filterProcessesUrl" ref="logoutUrl" />
   </bean>
 
-  <context:property-placeholder />
-
 </beans>

@@ -27,7 +27,7 @@ public class CommonRepositorySettings extends RepositorySettings {
     private void load(PropertiesHolder properties) {
         uri = properties.getProperty(REPOSITORY_URI);
         login = properties.getProperty(REPOSITORY_LOGIN);
-        password = properties.getPassword(REPOSITORY_PASS);
+        password = properties.getProperty(REPOSITORY_PASS);
 
         secure = StringUtils.isNotEmpty(getLogin());
     }
@@ -89,11 +89,11 @@ public class CommonRepositorySettings extends RepositorySettings {
 
         if (!isSecure()) {
             propertiesHolder.setProperty(REPOSITORY_LOGIN, "");
-            propertiesHolder.setPassword(REPOSITORY_PASS, "");
+            propertiesHolder.setProperty(REPOSITORY_PASS, "");
         } else {
             if (StringUtils.isNotEmpty(password)) {
                 propertiesHolder.setProperty(REPOSITORY_LOGIN, getLogin());
-                propertiesHolder.setPassword(REPOSITORY_PASS, getPassword());
+                propertiesHolder.setProperty(REPOSITORY_PASS, getPassword());
             }
         }
     }

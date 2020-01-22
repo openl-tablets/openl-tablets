@@ -1,4 +1,4 @@
-package org.openl.rules.repository.config;
+package org.openl.spring.env;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
@@ -21,26 +21,26 @@ import org.openl.util.StringUtils;
  * @author Pavel Tarasevich
  *
  */
-public final class PassCoder {
+final class PassCoder {
     private static byte[] bytes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     private static IvParameterSpec algorithmParameterSpec = new IvParameterSpec(bytes);
 
     private PassCoder() {
     }
 
-    public static String encode(String strToEncrypt, String privateKey) throws NoSuchAlgorithmException,
+    static String encode(String strToEncrypt, String privateKey, String c) throws NoSuchAlgorithmException,
                                                                         NoSuchPaddingException,
                                                                         InvalidKeyException,
                                                                         IllegalBlockSizeException,
                                                                         BadPaddingException,
                                                                         InvalidAlgorithmParameterException {
         if (StringUtils.isBlank(strToEncrypt)) {
-            return "";
+            return strToEncrypt;
         }
         if (StringUtils.isBlank(privateKey)) {
             return strToEncrypt;
         }
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        Cipher cipher = Cipher.getInstance(c);
 
         SecretKeySpec secretKey = getKey(privateKey);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, algorithmParameterSpec);
@@ -49,20 +49,20 @@ public final class PassCoder {
         return Base64.getEncoder().encodeToString(encrypted);
     }
 
-    public static String decode(String strToDecrypt, String privateKey) throws NoSuchAlgorithmException,
+    static String decode(String strToDecrypt, String privateKey, String c) throws NoSuchAlgorithmException,
                                                                         NoSuchPaddingException,
                                                                         InvalidKeyException,
                                                                         IllegalBlockSizeException,
                                                                         BadPaddingException,
                                                                         InvalidAlgorithmParameterException {
         if (StringUtils.isBlank(strToDecrypt)) {
-            return "";
+            return strToDecrypt;
         }
         if (StringUtils.isBlank(privateKey)) {
             return strToDecrypt;
         }
 
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        Cipher cipher = Cipher.getInstance(c);
         SecretKeySpec secretKey = getKey(privateKey);
         cipher.init(Cipher.DECRYPT_MODE, secretKey, algorithmParameterSpec);
         byte[] toDecrypt = Base64.getDecoder().decode(strToDecrypt);

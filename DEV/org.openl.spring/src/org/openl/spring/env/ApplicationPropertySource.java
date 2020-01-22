@@ -1,14 +1,11 @@
 package org.openl.spring.env;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 import org.openl.util.CollectionUtils;
@@ -129,26 +126,6 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
         return StringUtils.split(resolved, ',');
     }
 
-    private List<String> resolveProfile(String value) {
-        if (StringUtils.isBlank(value)) {
-            return Collections.emptyList();
-        }
-        if (value.contains(PROFILE_TAG)) {
-            if (CollectionUtils.isEmpty(profiles)) {
-                ConfigLog.LOG.debug("- No profiles: '{}'", value);
-                return Collections.emptyList();
-            } else {
-                ArrayList<String> result = new ArrayList<>(profiles.length);
-                for (String profile : profiles) {
-                    result.add(value.replace(PROFILE_TAG, profile));
-                }
-                return result;
-            }
-        } else {
-            return Collections.singletonList(value);
-        }
-    }
-
     /**
      * The next source should override the previous.
      */
@@ -228,6 +205,17 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
 
     @Override
     public Object getProperty(String name) {
+
+        Object propertyInternal = getPropertyInternal(name);
+        if (propertyInternal != null) {
+            String value = propertyInternal.toString();
+            value = StringUtils.trimToEmpty(value);
+            return DynamicPropertySource.decode(value);
+        }
+        return propertyInternal;
+    }
+
+    private Object getPropertyInternal(String name) {
         for (PropertySource<?> propertySource : profiledSource) {
             Object candidate = propertySource.getProperty(name);
             if (candidate != null) {

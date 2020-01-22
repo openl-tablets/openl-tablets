@@ -7,7 +7,6 @@ import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PROJECT
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.UPDATE_SYSTEM_PROPERTIES;
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.USER_WORKSPACE_HOME;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -264,8 +263,7 @@ public class SystemSettingsBean {
             deployConfigRepositoryConfiguration.commit();
         }
 
-        String workingDir = propertyResolver.getProperty(DynamicPropertySource.OPENL_HOME);
-        properties.writeTo(new File(workingDir, getAppName() + ".properties"));
+        DynamicPropertySource.get().save(properties.getConfig());
 
         refreshConfig();
     }
@@ -279,7 +277,7 @@ public class SystemSettingsBean {
         try {
             designRepositoryConfiguration.revert();
 
-            properties.revertProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO);
+            properties.revertProperties(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO);
             deployConfigRepositoryConfiguration.revert();
 
             productionRepositoryEditor.revertChanges();
@@ -287,9 +285,7 @@ public class SystemSettingsBean {
             // We cannot invoke configManager.restoreDefaults(): in this case some
             // settings (such as user.mode etc) not edited in this page
             // will be reverted too. We should revert only settings edited in Administration page
-            for (String setting : AdministrationSettings.getAllSettings()) {
-                properties.revertProperty(setting);
-            }
+            properties.revertProperties(AdministrationSettings.getAllSettings().toArray(StringUtils.EMPTY_STRING_ARRAY));
             saveSystemConfig();
 
             productionRepositoryEditor.reload();

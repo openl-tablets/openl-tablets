@@ -27,7 +27,8 @@ public class FolderStructureSettings {
     }
 
     public boolean isFlatFolderStructure() {
-        return Boolean.parseBoolean(properties.getProperty(FLAT_FOLDER_STRUCTURE, String.valueOf(Boolean.TRUE)));
+        String property = properties.getProperty(FLAT_FOLDER_STRUCTURE);
+        return property == null || Boolean.valueOf(property);
     }
 
     public void setFlatFolderStructure(boolean flatFolderStructure) {
