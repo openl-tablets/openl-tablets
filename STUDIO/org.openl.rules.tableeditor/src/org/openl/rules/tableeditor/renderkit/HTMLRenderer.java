@@ -188,45 +188,6 @@ public class HTMLRenderer {
         return "";
     }
 
-    public String getSingleSelectComponentCode(String componentId,
-            String[] values,
-            String[] displayValues,
-            String value) {
-
-        String choisesString = "\"" + String.join("\", \"", values) + "\"";
-        String displayValuesString = "\"" + String.join("\", \"", displayValues) + "\"";
-
-        String params = String.format("{choices : [%s], displayValues : [%s]}", choisesString, displayValuesString);
-
-        String id = componentId == null ? StringUtils.EMPTY : componentId;
-
-        return String.format("new DropdownEditor('', '%s', %s, '%s', '');",
-            id,
-            params,
-            StringEscapeUtils.escapeEcmaScript(value));
-    }
-
-    public String getMultiSelectComponentCode(String componentId,
-            String[] values,
-            String[] displayValues,
-            String value) {
-
-        String choisesString = "\"" + String.join("\", \"", values) + "\"";
-        String displayValuesString = "\"" + String.join("\", \"", displayValues) + "\"";
-
-        String params = String.format(
-            "{choices : [%s], displayValues : [%s], separator : \",\", separatorEscaper : \"&#92;&#92;&#92;&#92;\"}",
-            choisesString,
-            displayValuesString);
-
-        String id = componentId == null ? StringUtils.EMPTY : componentId;
-
-        return String.format("new MultiselectEditor('', '%s', %s, '%s', '');",
-            id,
-            params,
-            StringEscapeUtils.escapeEcmaScript(value));
-    }
-
     protected String getEditorJSAction(String action) {
         return StringUtils.isBlank(action) ? "''" : "function(data) {" + action + "}";
     }
