@@ -67,7 +67,7 @@ public class ArrayFormatter implements IFormatter {
             for (int i = 0; i < array.length; i++) {
                 Object element = array[i];
                 elementResults[i] = elementFormat.format(element);
-                result = StringUtils.join(elementResults, ",");
+                result = String.join(",", elementResults);
             }
         }
         return result;

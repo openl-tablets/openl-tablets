@@ -1,14 +1,11 @@
 package org.openl.util;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Utils to manipulate with strings.
@@ -134,11 +131,10 @@ public class StringUtils {
      * <pre>
      * StringUtils.join(null, *)                = null
      * StringUtils.join([], *)                  = ""
-     * StringUtils.join([null], *)              = ""
+     * StringUtils.join([null], *)              = "null"
      * StringUtils.join(["a", "b", "c"], "--")  = "a--b--c"
-     * StringUtils.join(["a", "b", "c"], null)  = "abc"
      * StringUtils.join(["a", "b", "c"], "")    = "abc"
-     * StringUtils.join([null, "", "a"], ',')   = ",,a"
+     * StringUtils.join([null, "", "a"], ',')   = "null,,a"
      * </pre>
      *
      * @param values the array of values to join together, may be null
@@ -149,53 +145,7 @@ public class StringUtils {
         if (values == null) {
             return null;
         }
-        return join(Arrays.asList(values), separator);
-    }
-
-    /**
-     * <p>
-     * Joins the elements of the provided collection into a single String containing the provided list of elements.
-     * </p>
-     * <p>
-     * <p>
-     * No delimiter is added before or after the list. A {@code null} separator is the same as an empty String ("").
-     * Null objects or empty strings within the array are represented by empty strings.
-     * </p>
-     * <p>
-     *
-     * <pre>
-     * StringUtils.join(null, *)                = null
-     * StringUtils.join([], *)                  = ""
-     * StringUtils.join([null], *)              = ""
-     * StringUtils.join(["a", "b", "c"], "--")  = "a--b--c"
-     * StringUtils.join(["a", "b", "c"], null)  = "abc"
-     * StringUtils.join(["a", "b", "c"], "")    = "abc"
-     * StringUtils.join([null, "", "a"], ',')   = ",,a"
-     * </pre>
-     *
-     * @param values the collection of values to join together, may be null
-     * @param separator the separator character to use, null treated as ""
-     * @return the joined String, {@code null} if null array input
-     */
-    public static String join(Iterable<?> values, String separator) {
-        if (values == null) {
-            return null;
-        }
-        if (separator == null) {
-            separator = EMPTY;
-        }
-        StringBuilder builder = new StringBuilder();
-        boolean prependComma = false;
-        for (Object value : values) {
-            if (prependComma) {
-                builder.append(separator);
-            }
-            if (value != null) {
-                builder.append(value);
-            }
-            prependComma = true;
-        }
-        return builder.toString();
+        return Arrays.asList(values).stream().map(String::valueOf).collect(Collectors.joining(separator));
     }
 
     /**

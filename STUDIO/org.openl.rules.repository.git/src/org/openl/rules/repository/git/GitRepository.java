@@ -1937,7 +1937,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             int i = 1;
             for (Map.Entry<String, List<String>> entry : branches.entrySet()) {
                 properties.setProperty("project." + i + ".name", entry.getKey());
-                properties.setProperty("project." + i + ".branches", StringUtils.join(entry.getValue(), ","));
+                properties.setProperty("project." + i + ".branches", String.join(",", entry.getValue()));
 
                 i++;
             }

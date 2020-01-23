@@ -1,1 +1,1 @@
-{"message":"Failure in the method: public static java.lang.Integer java.lang.Integer.decode(java.lang.String) throws java.lang.NumberFormatException on the target: java.lang.Integer with values: []. Cause: null","details":"***","type":"RULES@@@"}
+{"message":"Failure in the method: `java.lang.Integer`.decode(null). Cause: java.lang.NullPointerException","details":"***","type":"RULES@@@"}

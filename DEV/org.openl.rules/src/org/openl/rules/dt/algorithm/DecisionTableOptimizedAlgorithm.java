@@ -49,7 +49,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
-import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
@@ -364,7 +363,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         String message = String.format(
             "Cannot build an evaluator for condition '%s' with parameters '%s' and method parameter '%s'.",
             condition.getName(),
-            StringUtils.join(names, ", "),
+            String.join(", ", names),
             inputParamType.getName());
 
         throw SyntaxNodeExceptionUtils.createError(message, null, null, condition.getUserDefinedExpressionSource());

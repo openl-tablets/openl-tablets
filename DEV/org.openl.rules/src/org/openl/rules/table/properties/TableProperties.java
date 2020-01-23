@@ -1,8 +1,13 @@
 package org.openl.rules.table.properties;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
@@ -523,7 +528,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
                 if (!ArrayTool.isEmpty(enums)) {
 
                     String[] names = EnumUtils.getNames(enums);
-                    result = StringUtils.join(names, ",");
+                    result = String.join(",", names);
                 } else {
                     result = "";
                 }

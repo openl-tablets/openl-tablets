@@ -151,14 +151,24 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
         try {
             return method.invoke(target, params);
         } catch (InvocationTargetException t) {
-            String msg = "Failure in the method: " + method + " on the target: " + target + " with values: [" + StringUtils
-                .join(params, "], [") + "]. Cause: " + t.getTargetException().getMessage();
-            throw new OpenLRuntimeException(msg, t);
+            Throwable targetException = t.getTargetException();
+            String msg = getMessage(target, method, params, targetException);
+            throw new OpenLRuntimeException(msg, targetException);
         } catch (Exception t) {
-            String msg = "Failure in the method: " + method + " on the target: " + target + " with values: [" + StringUtils
-                .join(params, "], [") + "]. Cause: " + t.getMessage();
+            String msg = getMessage(target, method, params, t);
             throw new OpenLRuntimeException(msg, t);
         }
+    }
+
+    private String getMessage(Object target, Method m, Object[] params, Throwable exception) {
+        String paramsValue = StringUtils.join(params, ", ");
+        String targetValue = target == null ? "" : "`" + target + "`.";
+        String callingValue = targetValue + m.getName() + "(" + paramsValue + ")";
+        String message = exception.getMessage();
+        if (message == null) {
+            message = exception.toString();
+        }
+        return "Failure in the method: " + callingValue + ". Cause: " + message;
     }
 
     /*

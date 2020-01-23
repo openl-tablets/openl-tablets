@@ -193,8 +193,8 @@ public class HTMLRenderer {
             String[] displayValues,
             String value) {
 
-        String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
-        String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
+        String choisesString = "\"" + String.join("\", \"", values) + "\"";
+        String displayValuesString = "\"" + String.join("\", \"", displayValues) + "\"";
 
         String params = String.format("{choices : [%s], displayValues : [%s]}", choisesString, displayValuesString);
 
@@ -211,8 +211,8 @@ public class HTMLRenderer {
             String[] displayValues,
             String value) {
 
-        String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
-        String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
+        String choisesString = "\"" + String.join("\", \"", values) + "\"";
+        String displayValuesString = "\"" + String.join("\", \"", displayValues) + "\"";
 
         String params = String.format(
             "{choices : [%s], displayValues : [%s], separator : \",\", separatorEscaper : \"&#92;&#92;&#92;&#92;\"}",
