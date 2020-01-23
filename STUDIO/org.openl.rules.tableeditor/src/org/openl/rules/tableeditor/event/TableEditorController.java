@@ -134,7 +134,7 @@ public class TableEditorController extends BaseTableEditorController {
             value = cell.getStringValue();
         } else if (editorType.equals(ICellEditor.CE_DATE)) {
             // Format must be same as in DateEditor.js
-            value = FormattersManager.format(cell.getObjectValue());
+            value = FormattersManager.format(cell.getNativeDate());
         }
         return value;
     }

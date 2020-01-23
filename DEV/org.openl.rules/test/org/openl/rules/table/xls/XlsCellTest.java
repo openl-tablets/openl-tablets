@@ -1,7 +1,11 @@
 package org.openl.rules.table.xls;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import org.junit.Before;
@@ -26,6 +30,21 @@ public class XlsCellTest {
         XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(0, wbSrc);
 
         xsGrid = new XlsSheetGridModel(sheetSrc);
+    }
+
+    @Test
+    public void testStringDateMergedCell() {
+        ICell cell = xsGrid.getCell(2, 15);
+        Date nativeDate = cell.getNativeDate();
+        Calendar instance = Calendar.getInstance();
+        instance.set(Calendar.YEAR, 2010);
+        instance.set(Calendar.MONTH, 0);
+        instance.set(Calendar.DAY_OF_MONTH, 1);
+        instance.set(Calendar.HOUR_OF_DAY, 0);
+        instance.set(Calendar.MINUTE, 0);
+        instance.set(Calendar.SECOND, 0);
+        instance.set(Calendar.MILLISECOND, 0);
+        assertEquals(instance.getTime(), nativeDate);
     }
 
     @Test

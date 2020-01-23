@@ -2,9 +2,21 @@ package org.openl.rules.table.xls;
 
 import java.util.Date;
 
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Comment;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.rules.lang.xls.load.CellLoader;
-import org.openl.rules.table.*;
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.ICellComment;
+import org.openl.rules.table.IGrid;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.util.NumberUtils;
@@ -258,7 +270,6 @@ public class XlsCell implements ICell {
     /**
      * @return date value if cell is of type {@link IGrid#CELL_TYPE_NUMERIC} and is formatted in excel as date.<br>
      *         null is cell is of type {@link IGrid#CELL_TYPE_NUMERIC} and is not formatted in excel as date.<br>
-     * @throws IllegalStateException is the cell is of type {@link IGrid#CELL_TYPE_STRING}
      */
     @Override
     public Date getNativeDate() {
@@ -266,10 +277,27 @@ public class XlsCell implements ICell {
         if (cell == null) {
             return null;
         }
-        try {
-            return cell.getDateCellValue();
-        } catch (NullPointerException npe) {
-            throw new IllegalStateException("Cannot parse the value as a date : " + cell.getNumericCellValue());
+        if (CellType.STRING.equals(cell.getCellType())) {
+            double doubleValue;
+            try {
+                doubleValue = Double.parseDouble(cell.getStringCellValue());
+            } catch (NumberFormatException npe) {
+                throw new IllegalStateException("Cannot parse the value as a date : " + cell.getNumericCellValue());
+            }
+            Workbook workbook = cell.getSheet().getWorkbook();
+            boolean date1904 = false;
+            if (workbook instanceof XSSFWorkbook) {
+                date1904 = ((XSSFWorkbook) workbook).isDate1904();
+            } else if (workbook instanceof HSSFWorkbook) {
+                date1904 = ((HSSFWorkbook) workbook).getInternalWorkbook().isUsing1904DateWindowing();
+            }
+            return DateUtil.getJavaDate(doubleValue, date1904);
+        } else {
+            try {
+                return cell.getDateCellValue();
+            } catch (NullPointerException npe) {
+                throw new IllegalStateException("Cannot parse the value as a date : " + cell.getNumericCellValue());
+            }
         }
     }
 

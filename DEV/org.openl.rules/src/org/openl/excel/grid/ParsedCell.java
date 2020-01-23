@@ -1,5 +1,7 @@
 package org.openl.excel.grid;
 
+import java.util.Date;
+
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.openl.excel.parser.TableStyles;
 import org.openl.rules.table.GridRegion;
@@ -10,8 +12,6 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsUtil;
-
-import java.util.Date;
 
 public class ParsedCell implements ICell {
     private static final Object NOT_DEFINED = new Object();
@@ -161,19 +161,19 @@ public class ParsedCell implements ICell {
 
     @Override
     public Date getNativeDate() {
-        Object value = getObjectValue();
+        Object cellValue = getObjectValue();
 
-        if (value == null) {
+        if (cellValue == null) {
             return null;
         }
-        if (value instanceof Date) {
-            return (Date) value;
+        if (cellValue instanceof Date) {
+            return (Date) cellValue;
         }
-        if (value instanceof Number) {
-            return DateUtil.getJavaDate(((Number) value).doubleValue(), grid.isUse1904Windowing());
+        if (cellValue instanceof Number) {
+            return DateUtil.getJavaDate(((Number) cellValue).doubleValue(), grid.isUse1904Windowing());
         }
-        if (value instanceof String) {
-            return DateUtil.getJavaDate(Double.valueOf((String) value), grid.isUse1904Windowing());
+        if (cellValue instanceof String) {
+            return DateUtil.getJavaDate(Double.parseDouble((String) cellValue), grid.isUse1904Windowing());
         }
         return null;
     }
