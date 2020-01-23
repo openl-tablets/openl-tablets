@@ -32,7 +32,7 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
     @Override
     public CellMetaInfo getBodyMetaInfo(int row, int col) {
         SpreadsheetCell[][] cells = getBoundNode().getCells();
-        if (cells == null) {
+        if (cells == null || cells.length == 0 || cells[0].length == 0) {
             return null;
         }
         ICell firstCell = cells[0][0].getSourceCell();
