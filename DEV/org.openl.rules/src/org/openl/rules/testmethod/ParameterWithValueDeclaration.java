@@ -8,6 +8,7 @@ import org.openl.types.java.JavaOpenClass;
 
 public class ParameterWithValueDeclaration extends ParameterDeclaration implements IParameterWithValueDeclaration {
     private Object value;
+    private String error;
 
     /**
      * The key field for the value. For example firstName for a Driver. Can be first field for an object. For now the
@@ -51,6 +52,15 @@ public class ParameterWithValueDeclaration extends ParameterDeclaration implemen
 
     public void setValue(Object value) {
         this.value = value;
+    }
+
+    public void setError(String error) {
+        this.error = error;
+    }
+
+
+    public String getError() {
+        return error;
     }
 
     public IOpenField getKeyField() {

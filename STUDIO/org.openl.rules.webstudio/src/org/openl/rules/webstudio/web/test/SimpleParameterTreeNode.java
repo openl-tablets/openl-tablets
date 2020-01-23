@@ -87,12 +87,11 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
             setValueForced(null);
         } else {
             try {
-                IString2DataConvertor convertor = String2DataConvertorFactory
+                IString2DataConvertor converter = String2DataConvertorFactory
                     .getConvertor(getType().getInstanceClass());
-                setValueForced(convertor.parse(value, null));
+                setValueForced(converter.parse(value, null));
             } catch (Exception e) {
-                // TODO message on UI
-                log.warn("Failed to set '{}' value to field [{}]", value, getName(), e);
+                setError("Failed to set value '" + value + "' to field '" + getName() + "' " + getType());
             }
         }
     }
