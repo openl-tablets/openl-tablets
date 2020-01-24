@@ -64,7 +64,7 @@
             right: 0;
         }
 
-        #footer a {
+        #footer a:not(.link) {
             color: #666;
             text-decoration: none;
         }
@@ -149,6 +149,7 @@
     xmlhttp.onload = function () {
         var servicesResponse = JSON.parse(this.response);
         renderServices(servicesResponse);
+        renderVersion(servicesResponse);
     };
 
     xmlhttp.open("GET", url, true);
@@ -164,13 +165,13 @@
                 // Expand the node
                 var childArray = button.parentElement.childNodes
                 var target = childArray[2];
-                var xmlhttpMethods = new XMLHttpRequest();
-                xmlhttpMethods.onload = function () {
+                var xmlHttpMethods = new XMLHttpRequest();
+                xmlHttpMethods.onload = function () {
                     var methods = JSON.parse(this.response);
                     renderMethods(target, methods);
                 };
-                xmlhttpMethods.open("GET", "admin/services" + "/" + serviceName + "/methods", true);
-                xmlhttpMethods.send();
+                xmlHttpMethods.open("GET", "admin/services" + "/" + serviceName + "/methods", true);
+                xmlHttpMethods.send();
                 button.className = "collapse-button";
             } else if (button.className === "collapse-button") {
                 // Collapse the node
@@ -207,6 +208,23 @@
             el.innerHTML = html;
             mainBlock.appendChild(el);
         }
+    }
+
+    function renderVersion(servicesResponse) {
+        var version = servicesResponse.version;
+        var commitHash = servicesResponse.buildNumber;
+        var commitHashId = commitHash.endsWith('+') ? commitHash.substr(0, commitHash.length - 1) : commitHash;
+        var footerBlock = document.getElementById("footer");
+        var el = document.createElement("i");
+        var html = "<i style=\"position:absolute;right:13px;\">";
+        html += "<span title=\"Built on #{buildDate}\">v" + servicesResponse.version + "</span>";
+        if (version.endsWith('SNAPSHOT')) {
+            html += " Revision hash: ";
+            html += "<a class='link' href=https://sourceforge.net/p/openl-tablets/openl/ci/" + commitHashId + ">" + commitHash + "</a>";
+        }
+        html += "</i>";
+        el.innerHTML = html;
+        footerBlock.append(el);
     }
 
     function deleteProject(serviceName) {
@@ -311,6 +329,7 @@
         html += "<button type=\"button\" onclick=\"uploadProject()\" class='deploy-button'>Deploy</button>";
         return html;
     }
+
 </script>
 </body>
 </html>
