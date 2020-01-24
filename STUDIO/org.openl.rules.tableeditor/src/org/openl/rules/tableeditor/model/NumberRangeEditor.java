@@ -35,7 +35,7 @@ public class NumberRangeEditor implements ICellEditor {
             try {
                 DetailedIntRangeParser parser = new DetailedIntRangeParser();
                 range = parser.parse(input);
-                if (range.getMax().equals(Integer.MAX_VALUE)) {
+                if (isLimitValue(range.getMax())) {
                     StringBuilder builder = new StringBuilder(">");
                     if (range.getLeftBoundType() == RangeWithBounds.BoundType.INCLUDING) {
                         builder.append("=");
@@ -43,9 +43,9 @@ public class NumberRangeEditor implements ICellEditor {
                     builder.append(" ").append(parser.getMin());
                     return builder.toString();
                 }
-                if (range.getMin().equals(Integer.MIN_VALUE)) {
+                if (isLimitValue(range.getMin())) {
                     StringBuilder builder = new StringBuilder("<");
-                    if (range.getLeftBoundType() == RangeWithBounds.BoundType.INCLUDING) {
+                    if (range.getRightBoundType() == RangeWithBounds.BoundType.INCLUDING) {
                         builder.append("=");
                     }
                     builder.append(" ").append(parser.getMax());
@@ -94,6 +94,13 @@ public class NumberRangeEditor implements ICellEditor {
             builder.append(')');
         }
         return builder.toString();
+    }
+
+    private boolean isLimitValue(Number number) {
+        boolean isDoubleLimit = number.equals(Double.NEGATIVE_INFINITY) || number.equals(Double.POSITIVE_INFINITY);
+        boolean isIntegerLimit = number.equals(Integer.MIN_VALUE) || number.equals(Integer.MAX_VALUE);
+        boolean isLongLimit = number.equals(Long.MIN_VALUE) || number.equals(Long.MAX_VALUE);
+        return isDoubleLimit || isIntegerLimit || isLongLimit;
     }
 
     public static class NumberRangeParams {
