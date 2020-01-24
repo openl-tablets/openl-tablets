@@ -671,18 +671,6 @@
                 <artifactId>commons-collections</artifactId>
                 <version>3.2.2</version>
             </dependency>
-            <!-- Apache Commons BeanUtils provides an easy-to-use but flexible wrapper around reflection and introspection. -->
-            <dependency>
-                <groupId>commons-beanutils</groupId>
-                <artifactId>commons-beanutils</artifactId>
-                <version>1.9.4</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
             <!-- contains simple encoder and decoders for various formats such as Base64 and Hexadecimal. -->
             <dependency>
                 <groupId>commons-codec</groupId>

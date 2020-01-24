@@ -8,7 +8,6 @@ import java.util.*;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.beanutils.MethodUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.binding.MethodUtil;
@@ -286,19 +285,18 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
     public Object invoke(MethodInvocation invocation) throws Throwable {
         Method calledMethod = invocation.getMethod();
         Object[] args = invocation.getArguments();
-        Method interfaceMethod = MethodUtils
-            .getMatchingAccessibleMethod(serviceClass, calledMethod.getName(), calledMethod.getParameterTypes());
+        String methodName = calledMethod.getName();
+        Class<?>[] parameterTypes = calledMethod.getParameterTypes();
+        Method interfaceMethod = MethodUtil.getMatchingAccessibleMethod(serviceClass, methodName, parameterTypes);
         Object result = null;
         try {
             Method beanMethod = null;
             if (!calledMethod.isAnnotationPresent(ServiceExtraMethod.class)) {
-                beanMethod = MethodUtils.getMatchingAccessibleMethod(serviceTarget.getClass(),
-                    calledMethod.getName(),
-                    calledMethod.getParameterTypes());
+                beanMethod = MethodUtil.getMatchingAccessibleMethod(serviceTarget.getClass(), methodName, parameterTypes);
                 if (beanMethod == null) {
                     throw new OpenLRuntimeException(String.format(
                         "Called method is not found in the service bean. Please, check that excel file contains method '%s'.",
-                        MethodUtil.printMethod(calledMethod.getName(), calledMethod.getParameterTypes())));
+                        MethodUtil.printMethod(methodName, parameterTypes)));
                 }
             }
             try {

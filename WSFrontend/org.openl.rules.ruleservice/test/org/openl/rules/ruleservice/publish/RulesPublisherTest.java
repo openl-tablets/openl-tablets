@@ -54,7 +54,7 @@ public class RulesPublisherTest implements ApplicationContextAware {
         assertNotNull(serviceManager);
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
 
-        assertEquals("World, Good Morning!", frontend.execute(MULTI_MODULE, "worldHello", new Object[] { 10 }));
+        assertEquals("World, Good Morning!", frontend.execute(MULTI_MODULE, "worldHello", 10));
         assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE, DATA1)));
         assertEquals(3, Array.getLength(frontend.getValue(MULTI_MODULE, DATA2)));
     }
