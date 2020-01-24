@@ -13,7 +13,7 @@
     <br/>
     <h:form id="compareForm" style="margin-left: 6px;">
       <a4j:outputPanel ajaxRendered="true">
-        <h:panelGroup styleClass="messages" layout="block" rendered="#{!empty facesContext.maximumSeverity and jsffn:hasGlobalMessages()}">
+        <h:panelGroup styleClass="messages" layout="block" rendered="#{!empty facesContext.maximumSeverity and facesContext.getMessages(null).hasNext}">
           <h:messages infoClass="success" errorClass="error" showDetail="true" showSummary="false" tooltip="true" globalOnly="true"/>
         </h:panelGroup>
       </a4j:outputPanel>

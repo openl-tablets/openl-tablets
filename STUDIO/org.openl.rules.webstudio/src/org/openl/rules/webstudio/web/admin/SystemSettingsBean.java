@@ -149,6 +149,9 @@ public class SystemSettingsBean {
     public void setProjectHistoryCount(String count) {
         properties.setProperty(PROJECT_HISTORY_COUNT, Integer.parseInt(count));
     }
+    public boolean isSystemProp(String name) {
+        return System.getProperty(name) != null;
+    }
 
     public boolean isUnlimitHistory() {
         return Boolean.parseBoolean(properties.getProperty(PROJECT_HISTORY_UNLIMITED));
