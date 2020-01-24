@@ -4,7 +4,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.commons.web.util.WebTool;
+import org.openl.rules.webstudio.util.WebTool;
 import org.openl.util.StringUtils;
 
 /**

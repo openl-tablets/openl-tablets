@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.commons.web.util.WebTool;
 import org.openl.util.StringTool;
 
 import com.sdicons.json.mapper.JSONMapper;
@@ -71,10 +70,6 @@ public final class JSFFunctions {
         SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
 
         return dateFormat.format(new Date());
-    }
-
-    public static boolean isLocalRequest() {
-        return WebTool.isLocalRequest(FacesUtils.getRequest());
     }
 
     /**

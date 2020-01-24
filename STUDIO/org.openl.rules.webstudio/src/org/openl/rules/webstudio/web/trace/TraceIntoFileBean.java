@@ -9,7 +9,7 @@ import javax.faces.bean.SessionScoped;
 import javax.servlet.http.HttpServletResponse;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.commons.web.util.WebTool;
+import org.openl.rules.webstudio.util.WebTool;
 import org.openl.main.SourceCodeURLConstants;
 import org.openl.rules.webstudio.web.test.RunTestHelper;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
@@ -49,7 +49,7 @@ public class TraceIntoFileBean {
         HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
 
         String outputFileName = "trace.txt";
-        WebTool.setContentDisposition(response, outputFileName);
+        response.setHeader("Content-Disposition", WebTool.getContentDispositionValue(outputFileName));
 
         response.setContentType("text/plain");
 
