@@ -91,7 +91,7 @@ public class UsersBean {
         return userManagementService.getAllUsers();
     }
 
-    public String[] getGroups(Object objUser) {
+    public String getGroups(Object objUser) {
         List<String> groups = new ArrayList<>();
         @SuppressWarnings("unchecked")
         Collection<Privilege> authorities = (Collection<Privilege>) ((User) objUser).getAuthorities();
@@ -100,12 +100,12 @@ public class UsersBean {
                 groups.add(authority.getName());
             }
         }
-        return groups.toArray(new String[groups.size()]);
+        return "[" + String.join("\", \"", groups) + "]";
     }
 
-    public String[] getOnlyAdminGroups(Object objUser) {
+    public String getOnlyAdminGroups(Object objUser) {
         if (!isOnlyAdmin(objUser)) {
-            return new String[0];
+            return "[]";
         }
 
         String adminPrivilege = Privileges.ADMIN.name();
@@ -122,7 +122,7 @@ public class UsersBean {
             }
         }
 
-        return groups.toArray(new String[groups.size()]);
+        return "[" + String.join("\", \"", groups) + "]";
     }
 
     private List<Privilege> getSelectedGroups() {

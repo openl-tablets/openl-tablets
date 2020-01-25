@@ -24,20 +24,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.faces</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.el</groupId>
             <artifactId>el-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sdicons.jsontools</groupId>
-            <artifactId>jsontools-core</artifactId>
         </dependency>
     </dependencies>
 </project>

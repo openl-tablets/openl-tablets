@@ -2,8 +2,7 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
+    xmlns:a4j="http://richfaces.org/a4j">
 
     <c:set var="node" value="#{repositorySelectNodeStateHolder.selectedNode}" />
     <c:set var="prj" value="#{repositoryTreeController.rulesProjects}" />
@@ -18,10 +17,10 @@
             <span>#{module.name}</span>
             <h:panelGroup rendered="#{editable}">
                 <a href="javascript:void(0)" title="Edit" class="editable-link"
-                   onclick="editModule({includedInWildcard:#{includedInWildcard},name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{jsffn:escapeJS(module.methodFilter.includes)}',excludes:'#{jsffn:escapeJS(module.methodFilter.excludes)}'}, function(){ws.nav.go('##{jsffn:encodeURL(module.project.name)}/' + encodeURIComponent($j('#moduleName').val()), true)})"><img
+                   onclick="editModule({includedInWildcard:#{includedInWildcard},name:'#{module.name}',path:'#{studio.toJSText(projectBean.getModulePath(module))}',includes:'#{studio.toJSText(module.methodFilter.includes)}',excludes:'#{studio.toJSText(module.methodFilter.excludes)}'}, function(){ws.nav.go('#{studio.toUrl(module.project.name)}/' + encodeURIComponent($j('#moduleName').val()), true)})"><img
                         src="#{request.contextPath}/webresource/images/edit.png" style="opacity:0.4" /></a>
                 <a href="javascript:void(0)" title="Copy" class="editable-link"
-                   onclick="copyModule({includedInWildcard:#{includedInWildcard},name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{jsffn:escapeJS(module.methodFilter.includes)}',excludes:'#{jsffn:escapeJS(module.methodFilter.excludes)}'}, function(){ws.nav.go('##{jsffn:encodeURL(module.project.name)}/' + encodeURIComponent($j('#moduleName').val()), true)})"><img
+                   onclick="copyModule({includedInWildcard:#{includedInWildcard},name:'#{module.name}',path:'#{studio.toJSText(projectBean.getModulePath(module))}',includes:'#{studio.toJSText(module.methodFilter.includes)}',excludes:'#{studio.toJSText(module.methodFilter.excludes)}'}, function(){ws.nav.go('#{studio.toUrl(module.project.name)}/' + encodeURIComponent($j('#moduleName').val()), true)})"><img
                         src="#{request.contextPath}/webresource/images/copy.png" style="opacity:0.4" /></a>
             </h:panelGroup>
         </h1>
@@ -33,7 +32,7 @@
                     <table class="properties">
                         <tr>
                             <td>Project</td>
-                            <td><a href="##{jsffn:encodeURL(studio.currentProjectDescriptor.name)}">#{studio.currentProjectDescriptor.name}</a></td>
+                            <td><a href="#{studio.toUrl(studio.currentProjectDescriptor.name)}">#{studio.currentProjectDescriptor.name}</a></td>
                         </tr>
                         <tr>
                             <td>Path</td>
@@ -58,7 +57,7 @@
                         <div class="list">
                             <a4j:repeat value="#{modulePageBean.includes}" var="key">
                             <div class="list-item">
-                                <a href="##{jsffn:encodeURL(studio.currentProjectDescriptor.name)}/#{jsffn:encodeURL(key)}">#{key}</a>
+                                <a href="#{studio.toUrl(studio.currentProjectDescriptor.name, key)}">#{key}</a>
                             </div>
                             </a4j:repeat>
                         </div>

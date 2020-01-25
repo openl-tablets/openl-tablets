@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
@@ -1114,6 +1116,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return moduleUrl + "/" + pageUrl;
     }
 
+    public String toUrl(String... path) {
+        return "#" + Stream.of(path).filter(StringUtils::isNotBlank).map(StringTool::encodeURL).collect(Collectors.joining("/"));
+    }
+
     public WebStudioLinkBuilder getLinkBuilder() {
         return linkBuilder;
     }
@@ -1207,5 +1213,13 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 model.clearModuleInfo();
             }
         }
+    }
+
+    public String toJSText(String str) {
+        return str == null ? null : str
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\'", "\\\'")
+            .replace("/", "\\/");
     }
 }
