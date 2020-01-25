@@ -233,9 +233,12 @@
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
         </dependency>
+        <!-- Provides the API for the Unified Expression Language shared by the JSP 2.1 and JSF 1.2 technologies. -->
         <dependency>
             <groupId>javax.el</groupId>
             <artifactId>el-api</artifactId>
+            <version>1.0</version>
+            <scope>provided</scope>
         </dependency>
         <!-- Other -->
         <dependency>

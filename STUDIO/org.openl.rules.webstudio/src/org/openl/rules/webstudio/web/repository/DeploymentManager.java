@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -61,7 +60,7 @@ public class DeploymentManager implements InitializingBean {
             throw new IllegalArgumentException(String.format("No such repository '%s'", repositoryConfigName));
         }
 
-        String userName = WebStudioUtils.getRulesUserSession(FacesUtils.getSession()).getUserName();
+        String userName = WebStudioUtils.getRulesUserSession(WebStudioUtils.getSession()).getUserName();
 
         @SuppressWarnings("rawtypes")
         Collection<ProjectDescriptor> projectDescriptors = project.getProjectDescriptors();

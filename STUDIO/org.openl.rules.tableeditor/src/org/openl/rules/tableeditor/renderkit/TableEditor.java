@@ -3,10 +3,10 @@ package org.openl.rules.tableeditor.renderkit;
 import java.util.Collection;
 import java.util.Map;
 
+import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.tableeditor.model.ui.LinkBuilder;
@@ -53,9 +53,9 @@ public class TableEditor {
         showFormulas = BooleanUtils.toBoolean(attributes.get(Constants.ATTRIBUTE_SHOW_FORMULAS));
         collapseProps = BooleanUtils.toBoolean(attributes.get(Constants.ATTRIBUTE_COLLAPSE_PROPS));
         castToFilters(component.getAttributes().get(Constants.ATTRIBUTE_FILTERS));
-        beforeEditAction = FacesUtils.getValueExpressionString(component, Constants.ATTRIBUTE_BEFORE_EDIT_ACTION);
-        beforeSaveAction = FacesUtils.getValueExpressionString(component, Constants.ATTRIBUTE_BEFORE_SAVE_ACTION);
-        afterSaveAction = FacesUtils.getValueExpressionString(component, Constants.ATTRIBUTE_AFTER_SAVE_ACTION);
+        beforeEditAction = getValueExpressionString(component, Constants.ATTRIBUTE_BEFORE_EDIT_ACTION);
+        beforeSaveAction = getValueExpressionString(component, Constants.ATTRIBUTE_BEFORE_SAVE_ACTION);
+        afterSaveAction = getValueExpressionString(component, Constants.ATTRIBUTE_AFTER_SAVE_ACTION);
         onBeforeEdit = (String) attributes.get(Constants.ATTRIBUTE_ON_BEFORE_EDIT);
         onBeforeSave = (String) attributes.get(Constants.ATTRIBUTE_ON_BEFORE_SAVE);
         onError = (String) attributes.get(Constants.ATTRIBUTE_ON_ERROR);
@@ -64,6 +64,14 @@ public class TableEditor {
         onRequestEnd = (String) attributes.get(Constants.ATTRIBUTE_ON_REQUEST_END);
         excludeScripts = (String) attributes.get(Constants.ATTRIBUTE_EXCLUDE_SCRIPTS);
         rowIndex = (Integer) attributes.get(Constants.ATTRIBUTE_ROW_INDEX);
+    }
+
+    private static String getValueExpressionString(UIComponent component, String componentParam) {
+        ValueExpression valueExpression = component.getValueExpression(componentParam);
+        if (valueExpression != null) {
+            return valueExpression.getExpressionString();
+        }
+        return null;
     }
 
     private void castToFilters(Object filtersParam) {

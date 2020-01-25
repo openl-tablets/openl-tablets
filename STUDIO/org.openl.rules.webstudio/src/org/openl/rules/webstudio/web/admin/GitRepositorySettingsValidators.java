@@ -3,7 +3,7 @@ package org.openl.rules.webstudio.web.admin;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
-import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 
 public class GitRepositorySettingsValidators extends RepositorySettingsValidators {
@@ -16,7 +16,7 @@ public class GitRepositorySettingsValidators extends RepositorySettingsValidator
         if (clientId.endsWith(suffix)) {
             String prefix = clientId.substring(0, clientId.length() - suffix.length());
             String uri = context.getExternalContext().getRequestParameterMap().get(prefix + "gitUri");
-            FacesUtils.validate(!localPath.equals(uri), "Local path and URL should not be the same");
+            WebStudioUtils.validate(!localPath.equals(uri), "Local path and URL should not be the same");
         }
     }
 
@@ -31,7 +31,7 @@ public class GitRepositorySettingsValidators extends RepositorySettingsValidator
         }
 
         // Only simple validation
-        FacesUtils.validate(email.contains("@"), "Incorrect email");
+        WebStudioUtils.validate(email.contains("@"), "Incorrect email");
     }
 
     @Override

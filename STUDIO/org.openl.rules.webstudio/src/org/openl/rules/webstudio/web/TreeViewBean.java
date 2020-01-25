@@ -2,9 +2,10 @@ package org.openl.rules.webstudio.web;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
+import javax.servlet.ServletRequest;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.webstudio.util.WebTool;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -25,7 +26,7 @@ public class TreeViewBean {
     }
 
     public String getPagesWidth() {
-        String mainPageWidth = FacesUtils.getRequestParameter("relWidth");
+        String mainPageWidth = WebStudioUtils.getRequestParameter("relWidth");
         if (StringUtils.isBlank(mainPageWidth)) {
             mainPageWidth = "65";
         }
@@ -33,9 +34,9 @@ public class TreeViewBean {
     }
 
     public String getPageUrl(String pageName) {
-        String treePage = FacesUtils.getRequestParameter(pageName);
+        String treePage = WebStudioUtils.getRequestParameter(pageName);
         treePage += "?";
-        treePage += WebTool.listRequestParams(FacesUtils.getRequest(), usedParams);
+        treePage += WebTool.listRequestParams((ServletRequest) WebStudioUtils.getExternalContext().getRequest(), usedParams);
         return treePage;
     }
 

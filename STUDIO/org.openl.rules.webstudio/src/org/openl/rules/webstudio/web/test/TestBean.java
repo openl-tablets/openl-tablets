@@ -6,7 +6,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
@@ -80,7 +79,7 @@ public class TestBean {
 
     public TestBean() {
         studio = WebStudioUtils.getWebStudio();
-        String id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
+        String id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
         IOpenLTable table = studio.getModel().getTableById(id);
         if (table != null) {
             uri = table.getUri();
@@ -93,9 +92,18 @@ public class TestBean {
         initComplexResult();
     }
 
+    private static int getRequestIntParameter(String name, int defaultValue) {
+        String value = WebStudioUtils.getRequestParameter(name);
+        try {
+            return Integer.valueOf(value);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
     private void initPagination() {
         testsPerPage = studio.getTestsPerPage();
-        int perPage = FacesUtils.getRequestIntParameter(Constants.REQUEST_PARAM_PERPAGE, testsPerPage);
+        int perPage = getRequestIntParameter(Constants.REQUEST_PARAM_PERPAGE, testsPerPage);
         if ((perPage == ALL || perPage > 0) && perPage != testsPerPage) {
             testsPerPage = perPage;
         }
@@ -104,7 +112,7 @@ public class TestBean {
             lastPage = testsPerPage == ALL ? DEFAULT_PAGE : (int) Math.ceil((double) ranResults.length / testsPerPage);
         }
 
-        int initPage = FacesUtils.getRequestIntParameter(Constants.REQUEST_PARAM_PAGE, DEFAULT_PAGE);
+        int initPage = getRequestIntParameter(Constants.REQUEST_PARAM_PAGE, DEFAULT_PAGE);
         if (initPage > DEFAULT_PAGE && initPage <= lastPage) {
             page = initPage;
         }
@@ -112,13 +120,13 @@ public class TestBean {
 
     private void initFailures() {
         testsFailuresOnly = studio.isTestsFailuresOnly();
-        String failuresOnlyParameter = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_FAILURES_ONLY);
+        String failuresOnlyParameter = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_FAILURES_ONLY);
         if (failuresOnlyParameter != null) {
             testsFailuresOnly = Boolean.parseBoolean(failuresOnlyParameter);
         }
 
         testsFailuresPerTest = studio.getTestsFailuresPerTest();
-        int failuresPerTest = FacesUtils.getRequestIntParameter(Constants.REQUEST_PARAM_FAILURES_NUMBER,
+        int failuresPerTest = getRequestIntParameter(Constants.REQUEST_PARAM_FAILURES_NUMBER,
             testsFailuresPerTest);
         if (failuresPerTest == ALL || failuresPerTest > 0) {
             testsFailuresPerTest = failuresPerTest;
@@ -127,7 +135,7 @@ public class TestBean {
 
     private void initComplexResult() {
         showComplexResult = studio.isShowComplexResult();
-        String isShowComplexResultParameter = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_COMPLEX_RESULT);
+        String isShowComplexResultParameter = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_COMPLEX_RESULT);
         if (isShowComplexResultParameter != null) {
             showComplexResult = Boolean.parseBoolean(isShowComplexResultParameter);
         }
@@ -142,10 +150,10 @@ public class TestBean {
     }
 
     private void testAll() {
-        String id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
-        String testRanges = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_RANGES);
+        String id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
+        String testRanges = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_RANGES);
 
-        this.ranResults = Utils.runTests(id, testRanges, FacesUtils.getSession());
+        this.ranResults = Utils.runTests(id, testRanges, WebStudioUtils.getSession());
     }
 
     public TestUnitsResults[] getRanTests() {

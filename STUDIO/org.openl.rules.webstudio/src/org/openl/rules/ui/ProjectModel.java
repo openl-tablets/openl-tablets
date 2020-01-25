@@ -20,7 +20,6 @@ import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
@@ -682,7 +681,7 @@ public class ProjectModel {
     }
 
     private LocalRepository getLocalRepository() {
-        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(FacesUtils.getSession());
+        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
         return userWorkspace.getLocalWorkspace().getRepository();
     }
 

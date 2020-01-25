@@ -30,9 +30,9 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -61,6 +61,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.tablewizard.WizardUtils;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
@@ -185,11 +186,11 @@ public class RepositoryTreeController {
      */
     public String addFile() {
         if (getLastUploadedFile() == null) {
-            FacesUtils.addErrorMessage("Please select file to be uploaded.");
+            WebStudioUtils.addErrorMessage("Please select file to be uploaded.");
             return null;
         }
         if (StringUtils.isEmpty(fileName)) {
-            FacesUtils.addErrorMessage("File name must not be empty.");
+            WebStudioUtils.addErrorMessage("File name must not be empty.");
             return null;
         }
 
@@ -197,9 +198,9 @@ public class RepositoryTreeController {
 
         if (errorMessage == null) {
             resetStudioModel();
-            FacesUtils.addInfoMessage("File was uploaded successfully.");
+            WebStudioUtils.addInfoMessage("File was uploaded successfully.");
         } else {
-            FacesUtils.addErrorMessage(errorMessage);
+            WebStudioUtils.addErrorMessage(errorMessage);
         }
 
         /* Clear the load form */
@@ -240,7 +241,7 @@ public class RepositoryTreeController {
         }
 
         if (errorMessage != null) {
-            FacesUtils.addErrorMessage("Failed to create a folder.", errorMessage);
+            WebStudioUtils.addErrorMessage("Failed to create a folder.", errorMessage);
         }
         return null;
     }
@@ -274,7 +275,7 @@ public class RepositoryTreeController {
             } else {
                 String msg = e.getMessage();
                 log.error(msg, e);
-                FacesUtils.addErrorMessage(msg);
+                WebStudioUtils.addErrorMessage(msg);
             }
         }
         return null;
@@ -289,7 +290,7 @@ public class RepositoryTreeController {
         } catch (Exception e) {
             String msg = "Failed to close project.";
             log.error(msg, e);
-            FacesUtils.addErrorMessage(msg, e.getMessage());
+            WebStudioUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
     }
@@ -436,7 +437,7 @@ public class RepositoryTreeController {
             project = userWorkspace.getDDProject(projectName);
         } catch (Exception e) {
             log.error("Cannot obtain deployment project '{}'.", projectName, e);
-            FacesUtils.addErrorMessage(e.getMessage());
+            WebStudioUtils.addErrorMessage(e.getMessage());
             return null;
         }
 
@@ -451,7 +452,7 @@ public class RepositoryTreeController {
         }
 
         if (errorMessage != null) {
-            FacesUtils.addErrorMessage("Cannot copy deployment project.", errorMessage);
+            WebStudioUtils.addErrorMessage("Cannot copy deployment project.", errorMessage);
             return null;
         }
 
@@ -463,7 +464,7 @@ public class RepositoryTreeController {
         } catch (Exception e) {
             String msg = "Failed to copy deployment project.";
             log.error(msg, e);
-            FacesUtils.addErrorMessage(msg, e.getMessage());
+            WebStudioUtils.addErrorMessage(msg, e.getMessage());
         }
 
         return null;
@@ -472,17 +473,17 @@ public class RepositoryTreeController {
     public String createDeploymentConfiguration() {
         try {
             if (StringUtils.isBlank(projectName)) {
-                FacesUtils.addErrorMessage("Deploy Configuration name must not be empty.");
+                WebStudioUtils.addErrorMessage("Deploy Configuration name must not be empty.");
                 return null;
             }
             if (!NameChecker.checkName(projectName)) {
-                FacesUtils.addErrorMessage(
+                WebStudioUtils.addErrorMessage(
                     "Specified name is not a valid Deploy Configuration name. " + NameChecker.BAD_NAME_MSG);
                 return null;
             }
             if (userWorkspace.hasDDProject(projectName)) {
-                String msg = "Cannot create configuration because configuration with such name already exists.";
-                FacesUtils.addErrorMessage(msg, null);
+                WebStudioUtils.addErrorMessage(
+                    "Cannot create configuration because configuration with such name already exists.");
 
                 return null;
             }
@@ -497,11 +498,12 @@ public class RepositoryTreeController {
             createdProject.save();
             createdProject.open();
             repositoryTreeState.addDeploymentProjectToTree(createdProject);
-            FacesUtils.addInfoMessage(String.format("Deploy Configuration '%s' is successfully created.", projectName));
+            WebStudioUtils
+                .addInfoMessage(String.format("Deploy Configuration '%s' is successfully created.", projectName));
         } catch (Exception e) {
             String msg = String.format("Failed to create Deploy Configuration '%s'.", projectName);
             log.error(msg, e);
-            FacesUtils.addErrorMessage(msg, e.getMessage());
+            WebStudioUtils.addErrorMessage(msg, e.getMessage());
         }
 
         /* Clear the load form */
@@ -521,7 +523,7 @@ public class RepositoryTreeController {
 
         if (msg != null) {
             this.clearForm();
-            FacesUtils.addErrorMessage(msg);
+            WebStudioUtils.addErrorMessage(msg);
             return null;
         }
 
@@ -532,7 +534,7 @@ public class RepositoryTreeController {
         if (templateFiles.length <= 0) {
             this.clearForm();
             String errorMessage = String.format("Cannot load template files: %s", newProjectTemplate);
-            FacesUtils.addErrorMessage(errorMessage);
+            WebStudioUtils.addErrorMessage(errorMessage);
             return null;
         }
 
@@ -555,7 +557,7 @@ public class RepositoryTreeController {
 
                 resetStudioModel();
 
-                FacesUtils.addInfoMessage("Project was created successfully.");
+                WebStudioUtils.addInfoMessage("Project was created successfully.");
                 /* Clear the load form */
                 this.clearForm();
                 this.openProject();
@@ -563,7 +565,7 @@ public class RepositoryTreeController {
                 creationMessage = e.getMessage();
             }
         } else {
-            FacesUtils.addErrorMessage(creationMessage);
+            WebStudioUtils.addErrorMessage(creationMessage);
         }
 
         return creationMessage;
@@ -629,7 +631,7 @@ public class RepositoryTreeController {
      * Because of renaming 'Deployment project' to 'Deploy Configuration' the method was renamed too.
      */
     public String deleteDeploymentConfiguration() {
-        String projectName = FacesUtils.getRequestParameter("deploymentProjectName");
+        String projectName = WebStudioUtils.getRequestParameter("deploymentProjectName");
 
         try {
             ADeploymentProject project = userWorkspace.getDDProject(projectName);
@@ -642,10 +644,10 @@ public class RepositoryTreeController {
                 repositoryTreeState.deleteNode(projectInTree);
             }
 
-            FacesUtils.addInfoMessage("Deploy configuration was deleted successfully.");
+            WebStudioUtils.addInfoMessage("Deploy configuration was deleted successfully.");
         } catch (Exception e) {
             log.error("Cannot delete deploy configuration '" + projectName + "'.", e);
-            FacesUtils.addErrorMessage("Failed to delete deploy configuration.", e.getMessage());
+            WebStudioUtils.addErrorMessage("Failed to delete deploy configuration.", e.getMessage());
         }
         return null;
     }
@@ -722,7 +724,7 @@ public class RepositoryTreeController {
 
     public String deleteElement() {
         repositoryTreeState.getSelectedNode().getData();
-        String childName = FacesUtils.getRequestParameter("element");
+        String childName = WebStudioUtils.getRequestParameter("element");
         AProjectArtefact childArtefact = ((TreeNode) repositoryTreeState.getSelectedNode()
             .getChild(RepositoryUtils.getTreeNodeId(childName))).getData();
 
@@ -733,10 +735,10 @@ public class RepositoryTreeController {
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
 
-            FacesUtils.addInfoMessage("Element was deleted successfully.");
+            WebStudioUtils.addInfoMessage("Element was deleted successfully.");
         } catch (Exception e) {
             log.error("Error deleting element.", e);
-            FacesUtils.addErrorMessage("Error deleting.", e.getMessage());
+            WebStudioUtils.addErrorMessage("Error deleting.", e.getMessage());
         }
         return null;
     }
@@ -746,14 +748,14 @@ public class RepositoryTreeController {
         AProjectArtefact projectArtefact = selectedNode.getData();
         if (projectArtefact == null) {
             activeProjectNode = null;
-            FacesUtils.addErrorMessage("Project is already deleted.");
+            WebStudioUtils.addErrorMessage("Project is already deleted.");
             return null;
         }
         AProject p = projectArtefact.getProject();
         boolean localOnly = p instanceof UserWorkspaceProject && ((UserWorkspaceProject) p).isLocalOnly();
         if (isSupportsBranches() && projectArtefact.getVersion() == null && !localOnly) {
             activeProjectNode = null;
-            FacesUtils.addErrorMessage("Failed to delete the node. Project does not exist in the branch.");
+            WebStudioUtils.addErrorMessage("Failed to delete the node. Project does not exist in the branch.");
             return null;
         }
         try {
@@ -762,7 +764,7 @@ public class RepositoryTreeController {
             unregisterSelectedNodeInProjectDescriptor();
             if (projectArtefact instanceof RulesProject) {
                 if (projectArtefact.isLocked() && !((RulesProject) projectArtefact).isLockedByMe()) {
-                    FacesUtils.addErrorMessage("Project is locked by other user. Cannot archive it.");
+                    WebStudioUtils.addErrorMessage("Project is locked by other user. Cannot archive it.");
                     return null;
                 }
                 File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
@@ -822,10 +824,10 @@ public class RepositoryTreeController {
             } else {
                 nodeTypeName = "File";
             }
-            FacesUtils.addInfoMessage(nodeTypeName + " was deleted successfully.");
+            WebStudioUtils.addInfoMessage(nodeTypeName + " was deleted successfully.");
         } catch (Exception e) {
             log.error("Failed to delete node.", e);
-            FacesUtils.addErrorMessage("Failed to delete node.", e.getMessage());
+            WebStudioUtils.addErrorMessage("Failed to delete node.", e.getMessage());
         }
 
         return null;
@@ -838,7 +840,7 @@ public class RepositoryTreeController {
         try {
             commentValidator.validate(comment);
         } catch (Exception e) {
-            FacesUtils.addErrorMessage(e.getMessage());
+            WebStudioUtils.addErrorMessage(e.getMessage());
             return false;
         }
         return true;
@@ -856,7 +858,7 @@ public class RepositoryTreeController {
         TreeNode selectedNode = repositoryTreeState.getSelectedNode();
         AProjectArtefact projectArtefact = selectedNode.getData();
         if (projectArtefact == null) {
-            FacesUtils.addInfoMessage(nodeTypeName + " was deleted already.");
+            WebStudioUtils.addInfoMessage(nodeTypeName + " was deleted already.");
             return null;
         }
         try {
@@ -869,17 +871,17 @@ public class RepositoryTreeController {
             }
             resetStudioModel();
 
-            FacesUtils.addInfoMessage(nodeTypeName + " was unlocked successfully.");
+            WebStudioUtils.addInfoMessage(nodeTypeName + " was unlocked successfully.");
         } catch (Exception e) {
             log.error("Failed to unlock node.", e);
-            FacesUtils.addErrorMessage("Failed to unlock node.", e.getMessage());
+            WebStudioUtils.addErrorMessage("Failed to unlock node.", e.getMessage());
         }
 
         return null;
     }
 
     public String unlockProject() {
-        String projectName = FacesUtils.getRequestParameter("projectName");
+        String projectName = WebStudioUtils.getRequestParameter("projectName");
 
         try {
             RulesProject project = userWorkspace.getProject(projectName);
@@ -893,7 +895,7 @@ public class RepositoryTreeController {
             resetStudioModel();
         } catch (Exception e) {
             log.error("Cannot unlock rules project '{}'.", projectName, e);
-            FacesUtils.addErrorMessage("Failed to unlock rules project.", e.getMessage());
+            WebStudioUtils.addErrorMessage("Failed to unlock rules project.", e.getMessage());
         }
         return null;
     }
@@ -943,7 +945,7 @@ public class RepositoryTreeController {
     }
 
     public String unlockDeploymentConfiguration() {
-        String deploymentProjectName = FacesUtils.getRequestParameter("deploymentProjectName");
+        String deploymentProjectName = WebStudioUtils.getRequestParameter("deploymentProjectName");
 
         try {
             ADeploymentProject deploymentProject = userWorkspace.getDDProject(deploymentProjectName);
@@ -955,7 +957,7 @@ public class RepositoryTreeController {
             resetStudioModel();
         } catch (Exception e) {
             log.error("Cannot unlock deployment project '{}'.", deploymentProjectName, e);
-            FacesUtils.addErrorMessage("Failed to unlock deployment project.", e.getMessage());
+            WebStudioUtils.addErrorMessage("Failed to unlock deployment project.", e.getMessage());
         }
         return null;
     }
@@ -970,7 +972,7 @@ public class RepositoryTreeController {
         if (!project.isDeleted()) {
             repositoryTreeState.invalidateTree();
             repositoryTreeState.invalidateSelection();
-            FacesUtils.addErrorMessage(
+            WebStudioUtils.addErrorMessage(
                 "Cannot erase project '" + project.getName() + "'. It must be marked for deletion first.");
             return null;
         }
@@ -1016,12 +1018,12 @@ public class RepositoryTreeController {
             repositoryTreeState.invalidateSelection();
 
             resetStudioModel();
-            FacesUtils.addInfoMessage("Project was erased successfully.");
+            WebStudioUtils.addInfoMessage("Project was erased successfully.");
         } catch (Exception e) {
             repositoryTreeState.invalidateTree();
             String msg = "Cannot erase project '" + project.getName() + "'.";
             log.error(msg, e);
-            FacesUtils.addErrorMessage(msg);
+            WebStudioUtils.addErrorMessage(msg);
         }
         return null;
     }
@@ -1047,7 +1049,7 @@ public class RepositoryTreeController {
         } catch (Exception e) {
             String msg = "Failed to clean history of project '" + projectName + "'.";
             log.error(msg, e);
-            FacesUtils.addErrorMessage(msg, e.getMessage());
+            WebStudioUtils.addErrorMessage(msg, e.getMessage());
         }
     }
 
@@ -1063,12 +1065,13 @@ public class RepositoryTreeController {
         } catch (Exception e) {
             String msg = "Failed to export project version.";
             log.error(msg, e);
-            FacesUtils.addErrorMessage(msg, e.getMessage());
+            WebStudioUtils.addErrorMessage(msg, e.getMessage());
         }
 
         if (zipFile != null) {
-            final FacesContext facesContext = FacesUtils.getFacesContext();
-            HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
+            final FacesContext facesContext = FacesContext.getCurrentInstance();
+            HttpServletResponse response = (HttpServletResponse) (ServletResponse) WebStudioUtils.getExternalContext()
+                .getResponse();
             ExportFile.writeOutContent(response, zipFile, zipFileName);
             facesContext.responseComplete();
 
@@ -1097,14 +1100,15 @@ public class RepositoryTreeController {
             os = new FileOutputStream(file);
             IOUtils.copy(is, os);
 
-            final FacesContext facesContext = FacesUtils.getFacesContext();
-            HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
+            final FacesContext facesContext = FacesContext.getCurrentInstance();
+            HttpServletResponse response = (HttpServletResponse) (ServletResponse) WebStudioUtils.getExternalContext()
+                .getResponse();
             ExportFile.writeOutContent(response, file, fileName);
             facesContext.responseComplete();
         } catch (Exception e) {
             String msg = "Failed to export file version.";
             log.error(msg, e);
-            FacesUtils.addErrorMessage(msg, e.getMessage());
+            WebStudioUtils.addErrorMessage(msg, e.getMessage());
         } finally {
             IOUtils.closeQuietly(os);
             IOUtils.closeQuietly(is);
@@ -1121,18 +1125,18 @@ public class RepositoryTreeController {
     }
 
     public String copyFileVersion() {
-        String path = FacesUtils.getRequestParameter("copyFileForm:filePath");
-        String currentRevision = FacesUtils.getRequestParameter("copyFileForm:currentRevision");
+        String path = WebStudioUtils.getRequestParameter("copyFileForm:filePath");
+        String currentRevision = WebStudioUtils.getRequestParameter("copyFileForm:currentRevision");
         boolean hasVersions = !repositoryTreeState.isLocalOnly() && getSelectedNode().hasVersions();
         if (StringUtils.isBlank(path)) {
-            FacesUtils.addErrorMessage("Path should not be empty");
+            WebStudioUtils.addErrorMessage("Path should not be empty");
             return null;
         }
         AProject selectedProject = repositoryTreeState.getSelectedProject();
         ArtefactPath artefactPath = new ArtefactPathImpl(path);
         try {
             selectedProject.getArtefactByPath(artefactPath);
-            FacesUtils.addErrorMessage(String.format("File '%s' exists already", path));
+            WebStudioUtils.addErrorMessage(String.format("File '%s' exists already", path));
             return null;
         } catch (Exception ignored) {
             // Artefact by this path shouldn't exist
@@ -1148,7 +1152,7 @@ public class RepositoryTreeController {
                 }
                 AProjectArtefact artefact = folder.getArtefact(segment);
                 if (!artefact.isFolder()) {
-                    FacesUtils.addErrorMessage(
+                    WebStudioUtils.addErrorMessage(
                         String.format("Artefact %s is not a folder", artefact.getArtefactPath().getStringValue()));
                     return null;
                 }
@@ -1180,7 +1184,7 @@ public class RepositoryTreeController {
         } catch (Exception e) {
             String msg = "Failed to export file version.";
             log.error(msg, e);
-            FacesUtils.addErrorMessage(msg, e.getMessage());
+            WebStudioUtils.addErrorMessage(msg, e.getMessage());
         } finally {
             IOUtils.closeQuietly(is);
         }
@@ -1318,7 +1322,7 @@ public class RepositoryTreeController {
         } catch (Exception e) {
             String msg = "Failed to open project.";
             log.error(msg, e);
-            FacesUtils.addErrorMessage(msg, e.getMessage());
+            WebStudioUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
     }
@@ -1353,7 +1357,7 @@ public class RepositoryTreeController {
         } catch (Exception e) {
             String msg = "Failed to open project version.";
             log.error(msg, e);
-            FacesUtils.addErrorMessage(msg, e.getMessage());
+            WebStudioUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
     }
@@ -1383,7 +1387,7 @@ public class RepositoryTreeController {
     }
 
     public String selectDeploymentProject() {
-        String projectName = FacesUtils.getRequestParameter("projectName");
+        String projectName = WebStudioUtils.getRequestParameter("projectName");
         selectProject(projectName, repositoryTreeState.getDeploymentRepository());
         return null;
     }
@@ -1398,7 +1402,7 @@ public class RepositoryTreeController {
     }
 
     public String selectRulesProject() {
-        String projectName = FacesUtils.getRequestParameter("projectName");
+        String projectName = WebStudioUtils.getRequestParameter("projectName");
         selectProject(projectName, repositoryTreeState.getRulesRepository());
         return null;
     }
@@ -1501,7 +1505,7 @@ public class RepositoryTreeController {
     public String undeleteProject() {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
         if (!project.isDeleted()) {
-            FacesUtils.addErrorMessage("Cannot undelete project '" + project.getName() + "'.",
+            WebStudioUtils.addErrorMessage("Cannot undelete project '" + project.getName() + "'.",
                 "Project is not marked for deletion.");
             return null;
         }
@@ -1523,7 +1527,7 @@ public class RepositoryTreeController {
         } catch (Exception e) {
             String msg = "Cannot undelete project '" + project.getName() + "'.";
             log.error(msg, e);
-            FacesUtils.addErrorMessage(msg, e.getMessage());
+            WebStudioUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
     }
@@ -1535,9 +1539,9 @@ public class RepositoryTreeController {
         String errorMessage = uploadAndUpdateFile();
         if (errorMessage == null) {
             resetStudioModel();
-            FacesUtils.addInfoMessage("File was successfully updated.");
+            WebStudioUtils.addInfoMessage("File was successfully updated.");
         } else {
-            FacesUtils.addErrorMessage(errorMessage, "Error occured during uploading file. " + errorMessage);
+            WebStudioUtils.addErrorMessage(errorMessage, "Error occured during uploading file. " + errorMessage);
         }
 
         /* Clear the load form */
@@ -1553,9 +1557,9 @@ public class RepositoryTreeController {
                 AProject createdProject = userWorkspace.getProject(projectName);
                 repositoryTreeState.addRulesProjectToTree(createdProject);
                 resetStudioModel();
-                FacesUtils.addInfoMessage("Project was created successfully.");
+                WebStudioUtils.addInfoMessage("Project was created successfully.");
             } catch (Exception e) {
-                FacesUtils.addErrorMessage(e.getMessage());
+                WebStudioUtils.addErrorMessage(e.getMessage());
             }
         }
 
@@ -1574,9 +1578,9 @@ public class RepositoryTreeController {
         }
         String errorMessage = validateCreateProjectParams(comment);
         if (errorMessage != null) {
-            FacesUtils.addErrorMessage(errorMessage);
+            WebStudioUtils.addErrorMessage(errorMessage);
         } else if (uploadedFiles == null || uploadedFiles.isEmpty()) {
-            FacesUtils.addErrorMessage("There are no uploaded files.");
+            WebStudioUtils.addErrorMessage("There are no uploaded files.");
         } else {
             errorMessage = new ProjectUploader(uploadedFiles,
                 projectName,
@@ -1586,15 +1590,15 @@ public class RepositoryTreeController {
                 zipFilter,
                 zipCharsetDetector).uploadProject();
             if (errorMessage != null) {
-                FacesUtils.addErrorMessage(errorMessage);
+                WebStudioUtils.addErrorMessage(errorMessage);
             } else {
                 try {
                     AProject createdProject = userWorkspace.getProject(projectName);
                     repositoryTreeState.addRulesProjectToTree(createdProject);
                     resetStudioModel();
-                    FacesUtils.addInfoMessage("Project was created successfully.");
+                    WebStudioUtils.addInfoMessage("Project was created successfully.");
                 } catch (Exception e) {
-                    FacesUtils.addErrorMessage(e.getMessage());
+                    WebStudioUtils.addErrorMessage(e.getMessage());
                 }
             }
         }
@@ -1758,14 +1762,14 @@ public class RepositoryTreeController {
 
         } catch (XStreamException e) {
             // Add warning that uploaded project contains incorrect rules.xml
-            FacesUtils.addWarnMessage("Warning: " + ProjectDescriptorUtils.getErrorMessage(e));
+            WebStudioUtils.addWarnMessage("Warning: " + ProjectDescriptorUtils.getErrorMessage(e));
         } catch (Exception ignored) {
         }
 
         if (errorMessage == null) {
             clearUploadedFiles();
         } else {
-            FacesUtils.addErrorMessage(errorMessage);
+            WebStudioUtils.addErrorMessage(errorMessage);
         }
 
         return errorMessage;
@@ -1864,14 +1868,14 @@ public class RepositoryTreeController {
     }
 
     public void deleteRulesProjectListener(AjaxBehaviorEvent event) {
-        final String projectName = FacesUtils.getRequestParameter("projectName");
+        final String projectName = WebStudioUtils.getRequestParameter("projectName");
 
         try {
             activeProjectNode = repositoryTreeState.getRulesRepository()
                 .getChild(RepositoryUtils.getTreeNodeId(projectName));
         } catch (Exception e) {
             log.error("Cannot delete rules project '{}'.", projectName, e);
-            FacesUtils.addErrorMessage("Failed to delete rules project.", e.getMessage());
+            WebStudioUtils.addErrorMessage("Failed to delete rules project.", e.getMessage());
         }
     }
 
@@ -1956,7 +1960,7 @@ public class RepositoryTreeController {
             boolean exists = !repository.forBranch(branch)
                 .list(((RulesProject) selectedProject).getDesignFolderName())
                 .isEmpty();
-            FacesUtils.validate(exists, "Current project does not exist in this branch.");
+            WebStudioUtils.validate(exists, "Current project does not exist in this branch.");
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
@@ -1975,7 +1979,7 @@ public class RepositoryTreeController {
                 branches.sort(String.CASE_INSENSITIVE_ORDER);
             }
 
-            return Arrays.asList(FacesUtils.createSelectItems(branches));
+            return Arrays.asList(WizardUtils.createSelectItems(branches));
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             return Collections.emptyList();

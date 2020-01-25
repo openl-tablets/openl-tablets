@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.install;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flywaydb.core.api.FlywayException;
 import org.hibernate.validator.constraints.NotBlank;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigNames;
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
@@ -28,6 +27,7 @@ import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.admin.RepositoryValidationException;
 import org.openl.rules.webstudio.web.admin.RepositoryValidators;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.spring.env.PropertySourcesLoader;
@@ -45,6 +45,7 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
@@ -55,6 +56,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.validator.ValidatorException;
 import javax.naming.directory.InvalidSearchFilterException;
+import javax.servlet.ServletContext;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -129,6 +131,10 @@ public class InstallWizard {
     private PropertyResolver propertyResolver;
     private PropertiesHolder properties;
 
+    private static FacesMessage createErrorMessage(String summary) {
+        return new FacesMessage(FacesMessage.SEVERITY_ERROR, summary, null);
+    }
+
     @PostConstruct
     public void init() {
         workingDir = propertyResolver.getProperty(DynamicPropertySource.OPENL_HOME);
@@ -142,7 +148,8 @@ public class InstallWizard {
 
     public String reconfigure() {
         PreferencesManager.INSTANCE.setInstallerMode(getAppName());
-        ReloadableDelegatingFilter.reloadApplicationContext(FacesUtils.getServletContext());
+        ReloadableDelegatingFilter.reloadApplicationContext(
+            (ServletContext) WebStudioUtils.getExternalContext().getContext());
         return next();
     }
 
@@ -165,7 +172,7 @@ public class InstallWizard {
 
                     productionRepositoryEditor.validate();
                 } catch (RepositoryValidationException e) {
-                    FacesUtils.addErrorMessage(e.getMessage());
+                    WebStudioUtils.addErrorMessage(e.getMessage());
                     return null;
                 }
             }
@@ -234,9 +241,9 @@ public class InstallWizard {
         } catch (Exception e) {
             log.error("Failed while saving the configuration", e);
             if (e.getCause() instanceof FlywayException) {
-                FacesUtils.addErrorMessage("Cannot migrate the database. Check the logs for details.");
+                WebStudioUtils.addErrorMessage("Cannot migrate the database. Check the logs for details.");
             } else {
-                FacesUtils.addErrorMessage("Cannot save the configuration. Check the logs for details.");
+                WebStudioUtils.addErrorMessage("Cannot save the configuration. Check the logs for details.");
             }
             step--;
             return null;
@@ -270,7 +277,7 @@ public class InstallWizard {
 
         // Load groupDao and initialize groupManagementService
         dbContext = new XmlWebApplicationContext();
-        dbContext.setServletContext(FacesUtils.getServletContext());
+        dbContext.setServletContext((ServletContext) WebStudioUtils.getExternalContext().getContext());
         dbContext.setConfigLocations("/WEB-INF/spring/security/db-services.xml");
         dbContext.addBeanFactoryPostProcessor(beanFactory -> beanFactory.registerSingleton("propertyLoader",
             new DelegatedPropertySourceLoader(properties)));
@@ -379,17 +386,19 @@ public class InstallWizard {
             destroyRepositoryObjects();
             destroyDbContext();
 
-            ReloadableDelegatingFilter.reloadApplicationContext(FacesUtils.getServletContext());
+            ReloadableDelegatingFilter.reloadApplicationContext(
+                (ServletContext) WebStudioUtils.getExternalContext().getContext());
 
-            FacesUtils.redirectToRoot();
+            FacesContext.getCurrentInstance().getExternalContext().redirect(
+                WebStudioUtils.getExternalContext().getRequestContextPath() + "/");
 
             return "/";
         } catch (Exception e) {
             log.error("Failed while saving the configuration", e);
             if (e.getCause() instanceof FlywayException) {
-                FacesUtils.addErrorMessage("Cannot migrate the database. Check the logs for details.");
+                WebStudioUtils.addErrorMessage("Cannot migrate the database. Check the logs for details.");
             } else {
-                FacesUtils.addErrorMessage("Cannot save the configuration. Check the logs for details.");
+                WebStudioUtils.addErrorMessage("Cannot save the configuration. Check the logs for details.");
             }
             return null;
         }
@@ -479,7 +488,7 @@ public class InstallWizard {
                 errorMessage = "Incorrect database URL, login or password.";
             }
 
-            throw new ValidatorException(FacesUtils.createErrorMessage(errorMessage));
+            throw new ValidatorException(createErrorMessage(errorMessage));
         }
 
         try {
@@ -494,11 +503,11 @@ public class InstallWizard {
 
         if (!USER_MODE_DEMO.equals(userMode)) {
             if (StringUtils.isEmpty(dbUrl)) {
-                throw new ValidatorException(FacesUtils.createErrorMessage("Database URL cannot be blank."));
+                throw new ValidatorException(createErrorMessage("Database URL cannot be blank."));
             } else {
                 if (StringUtils.isNotEmpty(dbUsername) && dbUsername.length() > 100) {
                     throw new ValidatorException(
-                        FacesUtils.createErrorMessage("Username length must be less than 100."));
+                        createErrorMessage("Username length must be less than 100."));
                 }
                 testDBConnection(dbUrl, dbUsername, dbPasswordString);
             }
@@ -516,10 +525,10 @@ public class InstallWizard {
         String password = (String) ((UIInput) toValidate).getSubmittedValue();
 
         if (StringUtils.isBlank(domain)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("Active Directory domain cannot be blank."));
+            throw new ValidatorException(createErrorMessage("Active Directory domain cannot be blank."));
         }
         if (StringUtils.isBlank(url)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("Active Directory URL cannot be blank."));
+            throw new ValidatorException(createErrorMessage("Active Directory URL cannot be blank."));
         }
 
         if (!StringUtils.isEmpty(username) && !StringUtils.isEmpty(password)) {
@@ -535,11 +544,11 @@ public class InstallWizard {
             } catch (AuthenticationException e) {
                 if (e.getCause() instanceof InvalidSearchFilterException) {
                     String message = "Invalid search filter: " + e.getCause().getMessage();
-                    throw new ValidatorException(FacesUtils.createErrorMessage(message));
+                    throw new ValidatorException(createErrorMessage(message));
                 }
-                throw new ValidatorException(FacesUtils.createErrorMessage(e.getMessage()));
+                throw new ValidatorException(createErrorMessage(e.getMessage()));
             } catch (RuntimeException e) {
-                throw new ValidatorException(FacesUtils.createErrorMessage(getCauseExceptionMessage(e)));
+                throw new ValidatorException(createErrorMessage(getCauseExceptionMessage(e)));
             }
         }
     }
@@ -554,15 +563,15 @@ public class InstallWizard {
             .getSubmittedValue();
 
         if (StringUtils.isBlank(webStudioUrl)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio server URL cannot be blank."));
+            throw new ValidatorException(createErrorMessage("WebStudio server URL cannot be blank."));
         }
 
         if (StringUtils.isBlank(serverUrl)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("CAS server url cannot be blank."));
+            throw new ValidatorException(createErrorMessage("CAS server url cannot be blank."));
         }
 
         if (!groupsAreManagedInStudio && StringUtils.isBlank(groupsAttribute)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage(
+            throw new ValidatorException(createErrorMessage(
                 "Attribute for Groups cannot be blank or Internal User Management must be selected."));
         }
     }
@@ -587,35 +596,35 @@ public class InstallWizard {
             .getSubmittedValue();
 
         if (StringUtils.isBlank(webStudioUrl)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio server URL cannot be blank."));
+            throw new ValidatorException(createErrorMessage("WebStudio server URL cannot be blank."));
         }
 
         if (StringUtils.isBlank(serverUrl)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("SAML server metadata url cannot be blank."));
+            throw new ValidatorException(createErrorMessage("SAML server metadata url cannot be blank."));
         }
 
         if (StringUtils.isBlank(requestTimeout)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("Request timeout cannot be blank."));
+            throw new ValidatorException(createErrorMessage("Request timeout cannot be blank."));
         }
 
         if (StringUtils.isBlank(keystoreFilePath)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("Keystore path cannot be blank."));
+            throw new ValidatorException(createErrorMessage("Keystore path cannot be blank."));
         }
 
         if (StringUtils.isBlank(keystorePassword)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("Keystore password cannot be blank."));
+            throw new ValidatorException(createErrorMessage("Keystore password cannot be blank."));
         }
 
         if (StringUtils.isBlank(keystoreSpAlias)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("Keystore SP alias cannot be blank."));
+            throw new ValidatorException(createErrorMessage("Keystore SP alias cannot be blank."));
         }
 
         if (StringUtils.isBlank(keystoreSpPassword)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("Keystore SP password cannot be blank."));
+            throw new ValidatorException(createErrorMessage("Keystore SP password cannot be blank."));
         }
 
         if (!groupsAreManagedInStudio && StringUtils.isBlank(groupsAttribute)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage(
+            throw new ValidatorException(createErrorMessage(
                 "Attribute for Groups cannot be blank or Internal User Management must be selected."));
         }
     }
@@ -623,14 +632,14 @@ public class InstallWizard {
     public void externalAdminsValidator(FacesContext context, UIComponent toValidate, Object value) {
         String admins = (String) value;
         if (StringUtils.isBlank(admins) || admins.trim().equals(",")) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("Administrators field must not be empty."));
+            throw new ValidatorException(createErrorMessage("Administrators field must not be empty."));
         }
 
         String[] allAdmins = StringUtils.split(admins, ',');
         for (String admin : allAdmins) {
             if (admin.length() > 50) {
                 throw new ValidatorException(
-                    FacesUtils.createErrorMessage("Administrator username length must be less than 50."));
+                    createErrorMessage("Administrator username length must be less than 50."));
             }
         }
     }
@@ -675,13 +684,13 @@ public class InstallWizard {
                          */
                         validateIsWritable(studioDir);
                     } else {
-                        throw new ValidatorException(FacesUtils.createErrorMessage(String.format(
+                        throw new ValidatorException(createErrorMessage(String.format(
                             "There is not enough access rights for installing WebStudio into the folder: '%s'.",
                             studioPath)));
                     }
                 } else {
                     throw new ValidatorException(
-                        FacesUtils.createErrorMessage(String.format("'%s' is not a folder.", studioPath)));
+                        createErrorMessage(String.format("'%s' is not a folder.", studioPath)));
                 }
             } else {
                 File parentFolder = studioDir.getAbsoluteFile().getParentFile();
@@ -707,7 +716,7 @@ public class InstallWizard {
             }
 
         } else {
-            throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio working directory cannot be blank."));
+            throw new ValidatorException(createErrorMessage("WebStudio working directory cannot be blank."));
         }
     }
 
@@ -726,7 +735,7 @@ public class InstallWizard {
 
         } catch (IOException ioe) {
             throw new ValidatorException(
-                FacesUtils.createErrorMessage(String.format("%s for '%s'", ioe.getMessage(), file.getAbsolutePath())));
+                createErrorMessage(String.format("%s for '%s'", ioe.getMessage(), file.getAbsolutePath())));
         }
     }
 
@@ -809,7 +818,8 @@ public class InstallWizard {
 
     private String getAppName() {
         return PropertySourcesLoader
-            .getAppName(WebApplicationContextUtils.getRequiredWebApplicationContext(FacesUtils.getServletContext()));
+            .getAppName(WebApplicationContextUtils.getRequiredWebApplicationContext(
+                (ServletContext) WebStudioUtils.getExternalContext().getContext()));
     }
 
     public String getGroupsAreManagedInStudio() {
@@ -962,7 +972,7 @@ public class InstallWizard {
             productionRepositoryEditor.deleteProductionRepository(configName);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            FacesUtils.addErrorMessage(e.getMessage());
+            WebStudioUtils.addErrorMessage(e.getMessage());
         }
     }
 
@@ -978,7 +988,7 @@ public class InstallWizard {
 
     private void migrateDatabase() {
         try (XmlWebApplicationContext ctx = new XmlWebApplicationContext()) {
-            ctx.setServletContext(FacesUtils.getServletContext());
+            ctx.setServletContext((ServletContext) WebStudioUtils.getExternalContext().getContext());
             ctx.setConfigLocations("classpath:META-INF/standalone/spring/security-hibernate-beans.xml");
             ctx.addBeanFactoryPostProcessor(beanFactory -> beanFactory.registerSingleton("propertyLoader",
                 new DelegatedPropertySourceLoader(properties)));

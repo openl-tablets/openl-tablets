@@ -10,9 +10,9 @@ import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
@@ -318,7 +318,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             // Clear all ViewScoped beans that could cache some temporary values (for example DeploymentController).
             // Because selection is invalidated too we can assume that view is changed so we can safely clear all
             // views scoped beans.
-            FacesUtils.getFacesContext().getViewRoot().getViewMap().clear();
+            FacesContext.getCurrentInstance().getViewRoot().getViewMap().clear();
         }
     }
 
@@ -375,7 +375,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     @PostConstruct
     public void initUserWorkspace() {
-        this.userWorkspace = WebStudioUtils.getUserWorkspace(FacesUtils.getSession());
+        this.userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
         userWorkspace.getDesignTimeRepository().addListener(this);
     }
 

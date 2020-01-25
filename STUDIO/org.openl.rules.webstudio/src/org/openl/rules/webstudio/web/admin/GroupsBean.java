@@ -9,15 +9,16 @@ import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
+import javax.servlet.ServletRequest;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.webstudio.service.GroupManagementService;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 // TODO Needs performance optimization
 /**
@@ -153,14 +154,14 @@ public class GroupsBean {
     private Collection<Privilege> getSelectedAuthorities() {
         Collection<Privilege> authorities = new ArrayList<>();
 
-        String[] privilegesParam = FacesUtils.getRequest().getParameterValues("privilege");
+        String[] privilegesParam = ((ServletRequest) WebStudioUtils.getExternalContext().getRequest()).getParameterValues("privilege");
         List<String> privileges = new ArrayList<>(
             Arrays.asList(privilegesParam == null ? new String[0] : privilegesParam));
         privileges.add(0, Privileges.VIEW_PROJECTS.name());
 
         // Admin
         Map<String, Group> groups = new java.util.HashMap<>();
-        String[] groupNames = FacesUtils.getRequest().getParameterValues("group");
+        String[] groupNames = ((ServletRequest) WebStudioUtils.getExternalContext().getRequest()).getParameterValues("group");
         if (groupNames != null) {
             for (String groupName : groupNames) {
                 if (groupName.equals(oldName)) {

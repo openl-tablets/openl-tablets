@@ -17,7 +17,6 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
@@ -267,16 +266,16 @@ public class CopyBean {
             return;
         }
         String newProjectName = StringUtils.trim((String) value);
-        FacesUtils.validate(StringUtils.isNotBlank(newProjectName), "Cannot be empty");
-        FacesUtils.validate(NameChecker.checkName(newProjectName), NameChecker.BAD_PROJECT_NAME_MSG);
+        WebStudioUtils.validate(StringUtils.isNotBlank(newProjectName), "Cannot be empty");
+        WebStudioUtils.validate(NameChecker.checkName(newProjectName), NameChecker.BAD_PROJECT_NAME_MSG);
 
-        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
+        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(WebStudioUtils.getSession());
         try {
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
-            FacesUtils.validate(!userWorkspace.hasProject(newProjectName), "Project with such name already exists.");
+            WebStudioUtils.validate(!userWorkspace.hasProject(newProjectName), "Project with such name already exists.");
         } catch (WorkspaceException e) {
             log.error(e.getMessage(), e);
-            FacesUtils.throwValidationError("Error during validation.");
+            WebStudioUtils.throwValidationError("Error during validation.");
         }
     }
 
@@ -286,8 +285,8 @@ public class CopyBean {
         }
 
         String newBranchName = StringUtils.trim((String) value);
-        FacesUtils.validate(StringUtils.isNotBlank(newBranchName), "Cannot be empty.");
-        FacesUtils.validate(newBranchName.matches("[\\w\\-/]+"),
+        WebStudioUtils.validate(StringUtils.isNotBlank(newBranchName), "Cannot be empty.");
+        WebStudioUtils.validate(newBranchName.matches("[\\w\\-/]+"),
             "Invalid branch name. Only latin letters, numbers, '_', '-' and '/' are allowed.");
 
         try {
@@ -295,9 +294,9 @@ public class CopyBean {
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
             BranchRepository designRepository = (BranchRepository) designTimeRepository.getRepository();
-            FacesUtils.validate(designRepository.isValidBranchName(newBranchName),
+            WebStudioUtils.validate(designRepository.isValidBranchName(newBranchName),
                 "Invalid branch name. It should not contain reserved words or symbols.");
-            FacesUtils.validate(!designRepository.branchExists(newBranchName),
+            WebStudioUtils.validate(!designRepository.branchExists(newBranchName),
                 "Branch " + newBranchName + " already exists.");
         } catch (WorkspaceException | IOException ignored) {
         }
@@ -384,7 +383,7 @@ public class CopyBean {
     }
 
     private UserWorkspace getUserWorkspace() throws WorkspaceException {
-        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
+        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(WebStudioUtils.getSession());
         return rulesUserSession.getUserWorkspace();
     }
 

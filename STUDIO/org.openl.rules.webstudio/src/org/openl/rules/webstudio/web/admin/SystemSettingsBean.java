@@ -14,8 +14,9 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
+import javax.servlet.ServletContext;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigNames;
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
@@ -84,13 +85,13 @@ public class SystemSettingsBean {
             designRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DESIGN_CONFIG, properties);
             if (designRepositoryConfiguration.getErrorMessage() != null) {
                 log.error(designRepositoryConfiguration.getErrorMessage());
-                FacesUtils.addErrorMessage("Incorrect design repository configuration, please fix it.");
+                WebStudioUtils.addErrorMessage("Incorrect design repository configuration, please fix it.");
             }
 
             deployConfigRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DEPLOY_CONFIG, properties);
             if (!isUseDesignRepo() && deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                 log.error(deployConfigRepositoryConfiguration.getErrorMessage());
-                FacesUtils.addErrorMessage("Incorrect deploy config repository configuration, please fix it.");
+                WebStudioUtils.addErrorMessage("Incorrect deploy config repository configuration, please fix it.");
             }
 
             productionRepositoryEditor = new ProductionRepositoryEditor(productionRepositoryFactoryProxy, properties);
@@ -98,12 +99,12 @@ public class SystemSettingsBean {
             validator = new SystemSettingsValidator(this);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            FacesUtils.addErrorMessage(e.getMessage());
+            WebStudioUtils.addErrorMessage(e.getMessage());
         }
     }
 
     public boolean isHasMessages() {
-        return FacesUtils.getFacesContext().getMaximumSeverity() != null;
+        return FacesContext.getCurrentInstance().getMaximumSeverity() != null;
     }
 
     public String getUserWorkspaceHome() {
@@ -262,7 +263,7 @@ public class SystemSettingsBean {
             saveSystemConfig();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            FacesUtils.addErrorMessage(e.getMessage());
+            WebStudioUtils.addErrorMessage(e.getMessage());
         }
     }
 
@@ -279,7 +280,8 @@ public class SystemSettingsBean {
 
     private String getAppName() {
         return PropertySourcesLoader
-            .getAppName(WebApplicationContextUtils.getRequiredWebApplicationContext(FacesUtils.getServletContext()));
+            .getAppName(WebApplicationContextUtils.getRequiredWebApplicationContext(
+                (ServletContext) WebStudioUtils.getExternalContext().getContext()));
     }
 
     public void restoreDefaults() {
@@ -300,7 +302,7 @@ public class SystemSettingsBean {
             productionRepositoryEditor.reload();
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            FacesUtils.addErrorMessage(e.getMessage());
+            WebStudioUtils.addErrorMessage(e.getMessage());
         }
     }
 
@@ -328,7 +330,7 @@ public class SystemSettingsBean {
                 });
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            FacesUtils.addErrorMessage(e.getMessage());
+            WebStudioUtils.addErrorMessage(e.getMessage());
         }
     }
 
@@ -347,7 +349,8 @@ public class SystemSettingsBean {
 
     private void refreshConfig() {
         WebStudioUtils.getWebStudio(true).setNeedRestart(true);
-        ReloadableDelegatingFilter.reloadApplicationContext(FacesUtils.getServletContext());
+        ReloadableDelegatingFilter.reloadApplicationContext(
+            (ServletContext) WebStudioUtils.getExternalContext().getContext());
     }
 
 }

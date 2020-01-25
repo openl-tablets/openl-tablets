@@ -10,7 +10,6 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.model.SelectItem;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
@@ -19,6 +18,7 @@ import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls2.XlsDiff2;
 import org.openl.rules.project.abstraction.*;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
@@ -266,11 +266,11 @@ public class RepositoryDiffController extends AbstractDiffController {
 
         try {
             if (excelFile1 == null) {
-                FacesUtils.addErrorMessage("Cannot open the file " + selectedExcelFileUW);
+                WebStudioUtils.addErrorMessage("Cannot open the file " + selectedExcelFileUW);
                 return null;
             }
             if (excelFile2 == null) {
-                FacesUtils.addErrorMessage("Cannot open the file " + selectedExcelFileRepo);
+                WebStudioUtils.addErrorMessage("Cannot open the file " + selectedExcelFileRepo);
                 return null;
             }
             // The Diff Tree can be huge. As far as we don't need the
@@ -289,7 +289,7 @@ public class RepositoryDiffController extends AbstractDiffController {
                 .getName(selectedExcelFileUW) + "' and '" + FileUtils
                     .getName(selectedExcelFileRepo) + "'. Cause: " + cause.getMessage();
             log.error(message, e);
-            FacesUtils.addErrorMessage(message);
+            WebStudioUtils.addErrorMessage(message);
         }
 
         return null;

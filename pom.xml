@@ -881,13 +881,6 @@
                 <artifactId>jstl</artifactId>
                 <version>1.2</version>
             </dependency>
-            <!-- Provides the API for the Unified Expression Language shared by the JSP 2.1 and JSF 1.2 technologies. -->
-            <dependency>
-                <groupId>javax.el</groupId>
-                <artifactId>el-api</artifactId>
-                <version>1.0</version>
-                <scope>provided</scope>
-            </dependency>
             <!-- Apache log4j, a logging library for Java -->
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
@@ -1465,11 +1458,6 @@
                 <version>${project.version}</version>
             </dependency>
             <!-- STUDIO -->
-            <dependency>
-                <groupId>org.openl</groupId>
-                <artifactId>org.openl.commons.web</artifactId>
-                <version>${project.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.activiti</artifactId>

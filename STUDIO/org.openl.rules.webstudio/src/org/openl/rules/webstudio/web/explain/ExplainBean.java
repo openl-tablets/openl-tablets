@@ -4,10 +4,11 @@ import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
+import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.Explanator;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
  * Request scope managed bean for Explain page.
@@ -17,12 +18,12 @@ import org.openl.rules.ui.Explanator;
 public class ExplainBean {
 
     public List<String[]> getExpandedValues() {
-        String requestId = FacesUtils.getRequestParameter("requestId");
-        String rootID = FacesUtils.getRequestParameter("rootID");
+        String requestId = WebStudioUtils.getRequestParameter("requestId");
+        String rootID = WebStudioUtils.getRequestParameter("rootID");
         List<String[]> explainList = Explanator.getExplainList(requestId, rootID);
         if (explainList == null) {
-            FacesUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
-            FacesUtils.getFacesContext().responseComplete();
+            WebStudioUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
+            FacesContext.getCurrentInstance().responseComplete();
         }
         return explainList;
     }

@@ -19,7 +19,6 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.IRulesDeploySerializer;
@@ -155,7 +154,7 @@ public class ProjectBean {
         String className = (String) value;
 
         if (!StringUtils.isBlank(className)) {
-            FacesUtils.validate(className.matches("([\\w$]+\\.)*[\\w$]+"), "Invalid class name");
+            WebStudioUtils.validate(className.matches("([\\w$]+\\.)*[\\w$]+"), "Invalid class name");
 
             ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
             projectDescriptor.setPropertiesFileNameProcessor(className);
@@ -163,9 +162,9 @@ public class ProjectBean {
             PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
             try {
                 processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
-                FacesUtils.validate(processor != null, "Cannot find class " + className);
+                WebStudioUtils.validate(processor != null, "Cannot find class " + className);
             } catch (InvalidFileNameProcessorException e) {
-                FacesUtils.throwValidationError(e.getMessage());
+                WebStudioUtils.throwValidationError(e.getMessage());
             } finally {
                 propertiesFileNameProcessorBuilder.destroy();
             }
@@ -188,7 +187,7 @@ public class ProjectBean {
                     ((FileNamePatternValidator) processor).validate(pattern);
                 }
             } catch (InvalidFileNamePatternException e) {
-                FacesUtils.throwValidationError(e.getMessage());
+                WebStudioUtils.throwValidationError(e.getMessage());
             } catch (InvalidFileNameProcessorException ignored) {
                 // Processed in other validator
             } finally {
@@ -200,46 +199,46 @@ public class ProjectBean {
     // TODO Move messages to ValidationMessages.properties
     public void validateModuleName(FacesContext context, UIComponent toValidate, Object value) {
         String newName = (String) value;
-        String oldName = FacesUtils.getRequestParameter("moduleNameOld");
-        String modulePath = FacesUtils.getRequestParameter("modulePath");
+        String oldName = WebStudioUtils.getRequestParameter("moduleNameOld");
+        String modulePath = WebStudioUtils.getRequestParameter("modulePath");
 
         Module toCheck = new Module();
         toCheck.setRulesRootPath(new PathEntry(modulePath));
         boolean withWildcard = isModuleWithWildcard(toCheck);
         if (!withWildcard) {
-            FacesUtils.validate(StringUtils.isNotBlank(newName), "Cannot be empty");
+            WebStudioUtils.validate(StringUtils.isNotBlank(newName), "Cannot be empty");
         }
 
         if (StringUtils.isBlank(oldName) // Add new Module
                 || !oldName.equals(newName)) { // Edit current Module
             if (!withWildcard || StringUtils.isNotBlank(newName)) {
-                FacesUtils.validate(NameChecker.checkName(newName), NameChecker.BAD_NAME_MSG);
+                WebStudioUtils.validate(NameChecker.checkName(newName), NameChecker.BAD_NAME_MSG);
 
                 Module module = studio.getModule(studio.getCurrentProjectDescriptor(), newName);
-                FacesUtils.validate(module == null, "Module with such name already exists");
+                WebStudioUtils.validate(module == null, "Module with such name already exists");
             }
         }
     }
 
     public void validateModuleNameForCopy(FacesContext context, UIComponent toValidate, Object value) {
         String newName = (String) value;
-        String oldName = FacesUtils.getRequestParameter("copyModuleForm:moduleNameOld");
-        String modulePath = FacesUtils.getRequestParameter("copyModuleForm:modulePath");
+        String oldName = WebStudioUtils.getRequestParameter("copyModuleForm:moduleNameOld");
+        String modulePath = WebStudioUtils.getRequestParameter("copyModuleForm:modulePath");
 
         Module toCheck = new Module();
         toCheck.setRulesRootPath(new PathEntry(modulePath));
         boolean withWildcard = isModuleWithWildcard(toCheck);
         if (!withWildcard) {
-            FacesUtils.validate(StringUtils.isNotBlank(newName), "Cannot be empty");
+            WebStudioUtils.validate(StringUtils.isNotBlank(newName), "Cannot be empty");
         }
 
         if (StringUtils.isBlank(oldName) // Add new Module
                 || !oldName.equals(newName)) { // Edit current Module
             if (!withWildcard || StringUtils.isNotBlank(newName)) {
-                FacesUtils.validate(NameChecker.checkName(newName), NameChecker.BAD_NAME_MSG);
+                WebStudioUtils.validate(NameChecker.checkName(newName), NameChecker.BAD_NAME_MSG);
 
                 Module module = studio.getModule(studio.getCurrentProjectDescriptor(), newName);
-                FacesUtils.validate(module == null, "Module with such name already exists");
+                WebStudioUtils.validate(module == null, "Module with such name already exists");
             }
         }
     }
@@ -247,21 +246,21 @@ public class ProjectBean {
     // TODO Move messages to ValidationMessages.properties
     public void validateModulePath(FacesContext context, UIComponent toValidate, Object value) {
         String path = (String) value;
-        FacesUtils.validate(StringUtils.isNotBlank(path), "Cannot be empty");
+        WebStudioUtils.validate(StringUtils.isNotBlank(path), "Cannot be empty");
 
         if (!(path.contains("*") || path.contains("?"))) {
             File moduleFile = new File(studio.getCurrentProjectDescriptor().getProjectFolder(), path);
-            FacesUtils.validate(moduleFile.exists(), "File with such path does not exist");
+            WebStudioUtils.validate(moduleFile.exists(), "File with such path does not exist");
         }
     }
 
     public void validateModulePathForCopy(FacesContext context, UIComponent toValidate, Object value) {
-        String path = FacesUtils.getRequestParameter("copyModuleForm:modulePath");
-        FacesUtils.validate(StringUtils.isNotBlank(path), "Cannot be empty");
+        String path = WebStudioUtils.getRequestParameter("copyModuleForm:modulePath");
+        WebStudioUtils.validate(StringUtils.isNotBlank(path), "Cannot be empty");
 
-        FacesUtils.validate(!(path.contains("*") || path.contains("?")), "Path cannot contain wildcard symbols");
+        WebStudioUtils.validate(!(path.contains("*") || path.contains("?")), "Path cannot contain wildcard symbols");
         File moduleFile = new File(studio.getCurrentProjectDescriptor().getProjectFolder(), path);
-        FacesUtils.validate(!moduleFile.exists(), "File with such name already exists");
+        WebStudioUtils.validate(!moduleFile.exists(), "File with such name already exists");
     }
 
     public void editName() {
@@ -286,12 +285,12 @@ public class ProjectBean {
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
-        String index = FacesUtils.getRequestParameter("moduleIndex");
-        String oldName = FacesUtils.getRequestParameter("moduleNameOld");
-        String name = FacesUtils.getRequestParameter("moduleName");
-        String path = FacesUtils.getRequestParameter("modulePath");
-        String includes = FacesUtils.getRequestParameter("moduleIncludes");
-        String excludes = FacesUtils.getRequestParameter("moduleExcludes");
+        String index = WebStudioUtils.getRequestParameter("moduleIndex");
+        String oldName = WebStudioUtils.getRequestParameter("moduleNameOld");
+        String name = WebStudioUtils.getRequestParameter("moduleName");
+        String path = WebStudioUtils.getRequestParameter("modulePath");
+        String includes = WebStudioUtils.getRequestParameter("moduleIncludes");
+        String excludes = WebStudioUtils.getRequestParameter("moduleExcludes");
 
         Module module;
 
@@ -345,9 +344,9 @@ public class ProjectBean {
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
-        String name = FacesUtils.getRequestParameter("copyModuleForm:moduleName");
-        String oldPath = FacesUtils.getRequestParameter("copyModuleForm:modulePathOld");
-        String path = FacesUtils.getRequestParameter("copyModuleForm:modulePath");
+        String name = WebStudioUtils.getRequestParameter("copyModuleForm:moduleName");
+        String oldPath = WebStudioUtils.getRequestParameter("copyModuleForm:modulePathOld");
+        String path = WebStudioUtils.getRequestParameter("copyModuleForm:modulePath");
 
         File projectFolder = studio.getCurrentProjectDescriptor().getProjectFolder();
         File inputFile = new File(projectFolder, oldPath);
@@ -399,8 +398,8 @@ public class ProjectBean {
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
-        String toRemove = FacesUtils.getRequestParameter("moduleToRemove");
-        String leaveExcelFile = FacesUtils.getRequestParameter("leaveExcelFile");
+        String toRemove = WebStudioUtils.getRequestParameter("moduleToRemove");
+        String leaveExcelFile = WebStudioUtils.getRequestParameter("leaveExcelFile");
 
         List<Module> modules = newProjectDescriptor.getModules();
         Module removed = modules.remove(Integer.parseInt(toRemove));

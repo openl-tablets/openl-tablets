@@ -12,7 +12,6 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -25,6 +24,7 @@ import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
@@ -95,7 +95,7 @@ public class DeploymentController {
             project.setProjectDescriptors(newDescriptors);
         } catch (ProjectException e) {
             log.error("Failed to add project descriptor.", e);
-            FacesUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
+            WebStudioUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
         }
 
         return null;
@@ -112,7 +112,7 @@ public class DeploymentController {
             project.setProjectDescriptors(newDescriptors);
         } catch (ProjectException e) {
             log.error("Failed to add project descriptor.", e);
-            FacesUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
+            WebStudioUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
         }
 
         return null;
@@ -137,7 +137,7 @@ public class DeploymentController {
         try {
             ADeploymentProject selectedProject = getSelectedProject();
             if (selectedProject == null) {
-                FacesUtils.addErrorMessage("Deployment configuration isn't selected");
+                WebStudioUtils.addErrorMessage("Deployment configuration isn't selected");
                 return null;
             }
 
@@ -147,7 +147,7 @@ public class DeploymentController {
             items = null;
         } catch (ProjectException e) {
             log.error("Failed to save changes", e);
-            FacesUtils.addErrorMessage("Failed to save changes", e.getMessage());
+            WebStudioUtils.addErrorMessage("Failed to save changes", e.getMessage());
         }
 
         return null;
@@ -159,7 +159,7 @@ public class DeploymentController {
             items = null;
         } catch (ProjectException e) {
             log.error("Failed to open", e);
-            FacesUtils.addErrorMessage("Failed to open", e.getMessage());
+            WebStudioUtils.addErrorMessage("Failed to open", e.getMessage());
         }
 
         return null;
@@ -171,21 +171,21 @@ public class DeploymentController {
             items = null;
         } catch (ProjectException e) {
             log.error("Failed to close.", e);
-            FacesUtils.addErrorMessage("failed to close deployment project", e.getMessage());
+            WebStudioUtils.addErrorMessage("failed to close deployment project", e.getMessage());
         }
 
         return null;
     }
 
     public String deleteItem() {
-        String projectName = FacesUtils.getRequestParameter("key");
+        String projectName = WebStudioUtils.getRequestParameter("key");
         ADeploymentProject project = getSelectedProject();
 
         try {
             project.setProjectDescriptors(replaceDescriptor(project, projectName, null));
         } catch (ProjectException e) {
             log.error("Failed to delete project descriptor.", e);
-            FacesUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
+            WebStudioUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
         }
         return null;
     }
@@ -202,14 +202,14 @@ public class DeploymentController {
                     project.getName(),
                     id.getName(),
                     repo.getName());
-                FacesUtils.addInfoMessage(message);
+                WebStudioUtils.addInfoMessage(message);
 
                 productionRepositoriesTreeController.refreshTree();
             } catch (Exception e) {
                 String msg = String
                     .format("Failed to deploy '%s' to repository '%s'", project.getName(), repo.getName());
                 log.error(msg, e);
-                FacesUtils.addErrorMessage(msg, e.getMessage());
+                WebStudioUtils.addErrorMessage(msg, e.getMessage());
             }
         }
         return null;
@@ -326,7 +326,7 @@ public class DeploymentController {
                         repositoryTreeState.getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(projectName)));
                 } catch (Exception e) {
                     log.error("Failed to open project '{}'.", projectName, e);
-                    FacesUtils.addErrorMessage("Failed to open project '" + projectName + "': " + e.getMessage());
+                    WebStudioUtils.addErrorMessage("Failed to open project '" + projectName + "': " + e.getMessage());
                 }
             }
             item.setSelected(false);

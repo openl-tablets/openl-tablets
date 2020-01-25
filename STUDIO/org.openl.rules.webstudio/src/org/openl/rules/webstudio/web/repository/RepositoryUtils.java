@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
@@ -16,6 +15,7 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -47,7 +47,7 @@ public final class RepositoryUtils {
      */
     @Deprecated
     public static RulesUserSession getRulesUserSession() {
-        return (RulesUserSession) FacesUtils.getSessionParam(Constants.RULES_USER_SESSION);
+        return (RulesUserSession) WebStudioUtils.getExternalContext().getSessionMap().get(Constants.RULES_USER_SESSION);
     }
 
     /**

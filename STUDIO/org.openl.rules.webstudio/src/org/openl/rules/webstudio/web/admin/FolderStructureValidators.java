@@ -7,8 +7,8 @@ import javax.faces.context.FacesContext;
 
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.util.SystemReader;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 
 public class FolderStructureValidators {
@@ -20,7 +20,7 @@ public class FolderStructureValidators {
 
     public void folderConfigFile(FacesContext context, UIComponent toValidate, Object value) {
         String filePath = (String) value;
-        FacesUtils.validate(StringUtils.isNotBlank(filePath), "Folder config file cannot be empty");
+        WebStudioUtils.validate(StringUtils.isNotBlank(filePath), "Folder config file cannot be empty");
         validateGitPath(filePath);
     }
 
@@ -29,7 +29,7 @@ public class FolderStructureValidators {
             return;
         }
 
-        FacesUtils.validate(!path.startsWith("/"), "Path in repository cannot start with '/'");
+        WebStudioUtils.validate(!path.startsWith("/"), "Path in repository cannot start with '/'");
 
         validateGitPath(path);
     }
@@ -39,7 +39,7 @@ public class FolderStructureValidators {
             // Cross-platform path check
             NameChecker.validatePath(path);
         } catch (IOException e) {
-            FacesUtils.throwValidationError(e.getMessage());
+            WebStudioUtils.throwValidationError(e.getMessage());
         }
 
         try {
@@ -49,7 +49,7 @@ public class FolderStructureValidators {
             // Git specifics and non-cross-platform check if we missed something before
             SystemReader.getInstance().checkPath(path);
         } catch (CorruptObjectException e) {
-            FacesUtils.throwValidationError(StringUtils.capitalize(e.getMessage()));
+            WebStudioUtils.throwValidationError(StringUtils.capitalize(e.getMessage()));
         }
     }
 }

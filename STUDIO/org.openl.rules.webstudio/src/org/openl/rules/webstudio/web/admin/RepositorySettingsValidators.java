@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
-import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 
 public class RepositorySettingsValidators {
@@ -22,7 +22,7 @@ public class RepositorySettingsValidators {
         try {
             Pattern.compile(regex);
         } catch (Exception e) {
-            FacesUtils.throwValidationError("Incorrect regular expression for pattern");
+            WebStudioUtils.throwValidationError("Incorrect regular expression for pattern");
         }
     }
 
@@ -32,14 +32,14 @@ public class RepositorySettingsValidators {
 
     public void commentTemplate(FacesContext context, UIComponent toValidate, Object value) {
         String template = (String) value;
-        FacesUtils.validate(StringUtils.isNotBlank(template), "Comment message template cannot be empty");
-        FacesUtils.validate(template.contains("{commit-type}"),
+        WebStudioUtils.validate(StringUtils.isNotBlank(template), "Comment message template cannot be empty");
+        WebStudioUtils.validate(template.contains("{commit-type}"),
             "Comment message template must contain '{commit-type}'");
-        FacesUtils.validate(template.contains("{user-message}"),
+        WebStudioUtils.validate(template.contains("{user-message}"),
             "Comment message template must contain '{user-message}'");
     }
 
     protected void validateNotBlank(String value, String field) {
-        FacesUtils.validate(StringUtils.isNotBlank(value), field + " cannot be empty");
+        WebStudioUtils.validate(StringUtils.isNotBlank(value), field + " cannot be empty");
     }
 }

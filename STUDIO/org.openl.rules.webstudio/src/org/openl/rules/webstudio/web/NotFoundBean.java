@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
@@ -11,11 +10,11 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 @RequestScoped
 public class NotFoundBean {
     public String getProject() {
-        return FacesUtils.getRequestParameter("project");
+        return WebStudioUtils.getRequestParameter("project");
     }
 
     public String getModule() {
-        return FacesUtils.getRequestParameter("module");
+        return WebStudioUtils.getRequestParameter("module");
     }
 
     public Type getType() {

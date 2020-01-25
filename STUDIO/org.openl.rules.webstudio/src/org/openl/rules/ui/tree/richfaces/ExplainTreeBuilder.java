@@ -1,10 +1,10 @@
 package org.openl.rules.ui.tree.richfaces;
 
 import org.openl.base.INamedThing;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.Formulas;
 import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.openl.util.tree.ITreeElement;
@@ -44,11 +44,11 @@ public class ExplainTreeBuilder extends TreeBuilder {
         if (StringUtils.isNotBlank(url)) {
             return getUrlToElement(element, url);
         }
-        return FacesUtils.getContextPath() + SHOW_TABLE_PAGE;
+        return WebStudioUtils.getExternalContext().getRequestContextPath() + SHOW_TABLE_PAGE;
     }
 
     private String getUrlToElement(ITreeElement<?> element, String url) {
-        return FacesUtils.getContextPath() + SHOW_TABLE_PAGE + Constants.REQUEST_PARAM_URI + "=" + StringTool
+        return WebStudioUtils.getExternalContext().getRequestContextPath() + SHOW_TABLE_PAGE + Constants.REQUEST_PARAM_URI + "=" + StringTool
             .encodeURL("" + url) + "&text=" + StringTool.encodeURL(getDisplayName(element, INamedThing.REGULAR));
     }
 }

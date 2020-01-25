@@ -3,7 +3,7 @@ package org.openl.rules.ui.tablewizard;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
-import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -99,7 +99,7 @@ public class TableWizardManager extends BaseTableWizardManager {
             return next;
         } catch (Exception e) {
             // Process the error situation on start.
-            FacesUtils.addErrorMessage("Cannot create wizard for this kind of table.", e.getMessage());
+            WebStudioUtils.addErrorMessage("Cannot create wizard for this kind of table.", e.getMessage());
             return StringUtils.EMPTY;
         }
     }

@@ -7,7 +7,6 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -41,7 +40,7 @@ public class ShowTraceTableBean {
     public ShowTraceTableBean() {
         TraceHelper traceHelper = WebStudioUtils.getTraceHelper();
 
-        String traceElementIdParam = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
+        String traceElementIdParam = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
         int traceElementId = -100;
         if (traceElementIdParam != null) {
             traceElementId = Integer.parseInt(traceElementIdParam);

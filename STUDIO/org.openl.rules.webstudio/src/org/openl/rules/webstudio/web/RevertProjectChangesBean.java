@@ -15,7 +15,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.diff.UploadExcelDiffController;
@@ -74,7 +73,7 @@ public class RevertProjectChangesBean {
     }
 
     public String restore() throws Exception {
-        String versionToRestoreParam = FacesUtils.getRequestParameter("toRestore");
+        String versionToRestoreParam = WebStudioUtils.getRequestParameter("toRestore");
         long versionToRestore = Long.parseLong(versionToRestoreParam);
 
         ProjectModel model = WebStudioUtils.getProjectModel();
@@ -107,7 +106,7 @@ public class RevertProjectChangesBean {
                     }
                 }
 
-                UploadExcelDiffController diffController = (UploadExcelDiffController) FacesUtils
+                UploadExcelDiffController diffController = (UploadExcelDiffController) WebStudioUtils
                     .getBackingBean("uploadExcelDiffController");
                 diffController.compare(Arrays.asList(file1ToCompare, file2ToCompare));
             }
@@ -120,7 +119,7 @@ public class RevertProjectChangesBean {
     }
 
     private long[] getVersionsToCompare() {
-        String versionsToCompareParam = FacesUtils.getRequestParameter("toCompare");
+        String versionsToCompareParam = WebStudioUtils.getRequestParameter("toCompare");
         String[] versionsToCompareStr = versionsToCompareParam.split(",");
 
         long[] versionsToCompare = new long[versionsToCompareStr.length];

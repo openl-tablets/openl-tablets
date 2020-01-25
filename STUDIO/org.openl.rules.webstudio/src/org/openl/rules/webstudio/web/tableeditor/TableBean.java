@@ -21,7 +21,6 @@ import javax.faces.bean.RequestScoped;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
@@ -102,7 +101,7 @@ public class TableBean {
     private boolean targetTablesHasErrors;
 
     public TableBean() {
-        id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
+        id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
         WebStudio studio = WebStudioUtils.getWebStudio();
         final ProjectModel model = studio.getModel();
@@ -140,9 +139,8 @@ public class TableBean {
             // Save last visited table
             model.getRecentlyVisitedTables().setLastVisitedTable(table);
             // Check the save table parameter
-            boolean saveTable = FacesUtils.getRequestParameterMap()
-                .get("saveTable") == null ? true
-                                          : Boolean.valueOf(FacesUtils.getRequestParameterMap().get("saveTable"));
+            String saveTable1 = WebStudioUtils.getRequestParameter("saveTable");
+            boolean saveTable = saveTable1 == null ? true  : Boolean.valueOf(saveTable1);
             if (saveTable) {
                 storeTable();
             }
@@ -277,7 +275,7 @@ public class TableBean {
     }
 
     public String getMode() {
-        return getCanEdit() ? FacesUtils.getRequestParameter("mode") : null;
+        return getCanEdit() ? WebStudioUtils.getRequestParameter("mode") : null;
     }
 
     public IOpenLTable getTable() {
@@ -433,7 +431,7 @@ public class TableBean {
             XlsSheetGridModel sheetModel = (XlsSheetGridModel) gridTable.getGrid();
             sheetModel.getSheetSource().getWorkbookSource().save();
             gridTable.stopEditing();
-            FacesUtils.removeSessionParam(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
+            WebStudioUtils.getExternalContext().getSessionMap().remove(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
 
             studio.compile();
             RecentlyVisitedTables visitedTables = studio.getModel().getRecentlyVisitedTables();
@@ -464,11 +462,11 @@ public class TableBean {
     }
 
     public boolean beforeSaveAction() {
-        String editorId = FacesUtils
+        String editorId = WebStudioUtils
             .getRequestParameter(org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
 
-        Map<?, ?> editorModelMap = (Map<?, ?>) FacesUtils
-            .getSessionParam(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
+        Map<?, ?> editorModelMap = (Map<?, ?>) WebStudioUtils.getExternalContext().getSessionMap()
+            .get(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
 
         TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
 
