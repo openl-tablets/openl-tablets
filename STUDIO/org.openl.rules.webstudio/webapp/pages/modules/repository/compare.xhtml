@@ -10,12 +10,15 @@
   <ui:define name="title">Repository Diff</ui:define>
 
   <ui:define name="content">
+    <h:outputStylesheet>
+      ul.messages {
+        padding-bottom: 6px;
+      }
+    </h:outputStylesheet>
     <br/>
     <h:form id="compareForm" style="margin-left: 6px;">
       <a4j:outputPanel ajaxRendered="true">
-        <h:panelGroup styleClass="messages" layout="block" rendered="#{!empty facesContext.maximumSeverity and facesContext.getMessages(null).hasNext}">
-          <h:messages infoClass="success" errorClass="error" showDetail="true" showSummary="false" tooltip="true" globalOnly="true"/>
-        </h:panelGroup>
+        <h:messages infoClass="success" errorClass="error" showDetail="true" showSummary="false" tooltip="true" globalOnly="true" styleClass="messages"/>
       </a4j:outputPanel>
 
       <h:outputText value="Show equal elements:" />
