@@ -96,7 +96,7 @@
         <org.apache.poi.version>4.1.1</org.apache.poi.version>
         <org.bouncycastle.version>1.62</org.bouncycastle.version>
         <com.fasterxml.jackson.version>2.10.1</com.fasterxml.jackson.version>
-        <maven.api.version>3.2.5</maven.api.version>
+        <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
         <jetty.server.version>9.4.24.v20191120</jetty.server.version>
         <awaitility.version>3.1.6</awaitility.version>
@@ -269,7 +269,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-invoker-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.2.1</version>
                     <configuration>
                         <projectsDirectory>it</projectsDirectory>
                         <pomIncludes>
