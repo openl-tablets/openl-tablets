@@ -47,7 +47,7 @@
 
         <h:column>
             <a href="javascript:void(0)"
-                onclick="editUser('#{studio.toJSText(user.username)}', '#{studio.toJSText(user.firstName)}', '#{studio.toJSText(user.lastName)}', #{user.internalUser}, #{usersBean.getGroups(user)}, #{usersBean.getOnlyAdminGroups(user)})"
+                onclick="editUser('#{utils.toJSText(user.username)}', '#{utils.toJSText(user.firstName)}', '#{utils.toJSText(user.lastName)}', #{user.internalUser}, #{usersBean.getGroups(user)}, #{usersBean.getOnlyAdminGroups(user)})"
                 title="Edit"><img src="#{request.contextPath}/images/edit2.gif" /></a>
             <a4j:commandLink execute="@this" render="@form" rendered="#{!usersBean.isOnlyAdmin(user)}"
                 action="#{usersBean.deleteUser(user.username)}"

@@ -86,11 +86,11 @@
                     <ul>
                         <ui:repeat value="#{studio.allProjects}" var="project">
                         <li>
-                            <a class="projectName" href="#{studio.toUrl(project.name)}">#{project.name}</a>
+                            <a class="projectName" href="#{utils.toUrl(project.name)}">#{project.name}</a>
                             <ul>
                                 <ui:repeat value="#{project.modules}" var="module">
                                 <li>
-                                    <a href="#{studio.toUrl(project.name, module.name)}">#{module.name}</a>
+                                    <a href="#{utils.toUrl(project.name, module.name)}">#{module.name}</a>
                                 </li>
                                 </ui:repeat>
                             </ul>

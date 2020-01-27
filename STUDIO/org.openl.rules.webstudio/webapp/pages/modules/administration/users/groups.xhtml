@@ -35,7 +35,7 @@
             </td>
             <td>
                 <a href="javascript:void(0)"
-                    onclick="editGroup('#{studio.toJSText(group.name)}', '#{studio.toJSText(group.description)}', #{groupsBean.isOnlyAdmin(group)})"
+                    onclick="editGroup('#{utils.toJSText(group.name)}', '#{utils.toJSText(group.description)}', #{groupsBean.isOnlyAdmin(group)})"
                     title="Edit"><img src="#{request.contextPath}/images/edit2.gif" /></a>
                 <a4j:commandLink execute="@this" render=":userList :addGroupPrivilegeList :addUserGroups :editUserGroups @form"
                     rendered="#{!groupsBean.isOnlyAdmin(group)}"
