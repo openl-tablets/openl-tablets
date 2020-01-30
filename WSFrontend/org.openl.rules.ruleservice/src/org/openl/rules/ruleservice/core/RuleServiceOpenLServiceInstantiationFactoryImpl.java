@@ -88,8 +88,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private void compileOpenClass(OpenLService service,
             RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
-        CompiledOpenClass compiledOpenClass = instantiationStrategy.compile();
-        service.setOpenClass(compiledOpenClass.getOpenClass());
+        service.setCompiledOpenClass(instantiationStrategy.compile());
     }
 
     private void instantiateServiceBean(OpenLService service,

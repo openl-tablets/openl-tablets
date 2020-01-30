@@ -85,15 +85,6 @@
             border: 0;
         }
 
-        .expand-button, .collapse-button {
-            margin: 0;
-            cursor: pointer;
-            width: 16px;
-            height: 16px;
-            display: inline-block;
-            vertical-align: bottom;
-        }
-
         .download-button {
             float: right;
         }
@@ -111,12 +102,24 @@
             display: block;
         }
 
-        .expand-button {
-            background: url('data:image/gif;base64,R0lGODlhCQAJAOMOAAAAAN/c1enn4+vp5e3r5+/t6vDv7PLx7vTz8fb18/j39fn5+Pv7+v39/P///////yH5BAEKAA8ALAAAAAAJAAkAAAQmMMhJXWNLJSTvAtshYQqAHIb0ASxQSBoCGAUhhS4xSCetC5RgIAIAOw==') no-repeat center;
+        .expand-button-deployed:after, .collapse-button-deployed:after {
+            cursor: pointer;
+            content: "✔";
+            color: #00C000;
+            font-size: 16px;
+            padding-right: 5px;
         }
 
-        .collapse-button {
-            background: url('data:image/gif;base64,R0lGODlhCQAJAOMOAAAAAN/c1enn4+vp5e3r5+/t6vDv7PLx7vTz8fb18/j39fn5+Pv7+v39/P///////yH5BAEKAA8ALAAAAAAJAAkAAAQjMMhJXWNLJSRv3oeEachhSAugqoVEmgUhgUY8SGVNDALlBxEAOw==') no-repeat center;
+        .expand-button-failed:before, .collapse-button-failed:before {
+            cursor: pointer;
+            content: "✘";
+            color: #C00000;
+            font-size: 16px;
+            padding-right: 5px;
+        }
+
+        .collapse-button-deployed ~ .methods, .collapse-button-failed ~ .methods {
+            display: block;
         }
 
         .methods {
@@ -129,9 +132,7 @@
             font-size: 11px;
         }
 
-        .collapse-button ~ .methods {
-            display: block;
-        }
+
     </style>
 </head>
 
@@ -160,22 +161,33 @@
         var mainBlock = document.getElementById("main");
         mainBlock.addEventListener('click', function (event) {
             var button = event.target || event.srcElement;
-            var serviceName = button.parentElement.dataset.serviceName;
-            if (button.className === "expand-button") {
+            var serviceData = button.parentElement.dataset;
+            var serviceName = serviceData.serviceName;
+            if (button.className.startsWith("expand-button")) {
                 // Expand the node
                 var childArray = button.parentElement.childNodes
                 var target = childArray[2];
-                var xmlHttpMethods = new XMLHttpRequest();
-                xmlHttpMethods.onload = function () {
-                    var methods = JSON.parse(this.response);
-                    renderMethods(target, methods);
-                };
-                xmlHttpMethods.open("GET", "admin/services" + "/" + serviceName + "/methods", true);
-                xmlHttpMethods.send();
-                button.className = "collapse-button";
-            } else if (button.className === "collapse-button") {
+                if (serviceData.serviceStatus === "FAILED") {
+                    var xmlHttpMethods = new XMLHttpRequest();
+                    xmlHttpMethods.onload = function () {
+                        var errors = JSON.parse(this.response);
+                        renderErrors(target, errors);
+                    };
+                    xmlHttpMethods.open("GET", "admin/services" + "/" + serviceName + "/errors", true);
+                    xmlHttpMethods.send();
+                } else {
+                    var xmlHttpMethods = new XMLHttpRequest();
+                    xmlHttpMethods.onload = function () {
+                        var methods = JSON.parse(this.response);
+                        renderMethods(target, methods);
+                    };
+                    xmlHttpMethods.open("GET", "admin/services" + "/" + serviceName + "/methods", true);
+                    xmlHttpMethods.send();
+                }
+                button.className = defineButtonClass('collapse', serviceData.serviceStatus);
+            } else if (button.className.startsWith("collapse-button")) {
                 // Collapse the node
-                button.className = "expand-button";
+                button.className = defineButtonClass('expand', serviceData.serviceStatus);
             } else if (button.className === "download-button") {
                 downloadProject(serviceName);
             } else if (button.className === "delete-button") {
@@ -195,6 +207,7 @@
                 var html = createServiceHtml(service, deployerEnabled);
                 var el = document.createElement("DIV");
                 el.dataset.serviceName = service.name;
+                el.dataset.serviceStatus = service.status;
                 el.dataset.servicePath = service.servicePath;
                 el.innerHTML = html;
                 mainBlock.appendChild(el);
@@ -252,6 +265,7 @@
                     xmlhttp.open("GET", url, true);
                     xmlhttp.send();
                 }
+                xhr.on
                 xhr.open("PUT", "admin/deploy/", true);
                 xhr.setRequestHeader("Content-type", "application/zip")
                 xhr.send(fileToUpload);
@@ -286,11 +300,31 @@
         }).join("");
     }
 
+    function renderErrors(errorsBlock, errors) {
+        errorsBlock.innerHTML = errors.map(function (err) {
+            return "<pre>" + err + "</pre>"
+        }).join("");
+    }
+    
+    function defineButtonClass(prefix, status) {
+        var expandClass = "";
+        switch (status) {
+            case 'DEPLOYED':
+                expandClass =prefix+'-button-deployed';
+                break;
+            case 'FAILED':
+                expandClass =prefix+'-button-failed';
+                break;
+        }
+        return expandClass;
+    }
+
     // Creating innerHTML of one service
     function createServiceHtml(service, deployerEnabled) {
         var html = "";
         // Name
-        html += "<span class='expand-button' data-path=></span><h3>" + service.name + "</h3>";
+        var expandClass = defineButtonClass('expand', service.status);
+        html += "<span class=" + expandClass + "></span><h3>" + service.name + "</h3>";
 
         // Methods
         html += "<ul class='methods'></ul>";
@@ -315,7 +349,7 @@
             }
         });
         if (deployerEnabled) {
-            html += "<button type=\"button\" class='delete-button'>Delete</button>";
+            html += "&nbsp"+"<button type=\"button\" class='delete-button'>Delete</button>";
             html += "<button type=\"button\" class='download-button'>Download</button>";
         }
 
