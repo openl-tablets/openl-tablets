@@ -235,7 +235,7 @@
         var footerBlock = document.getElementById("footer");
         var el = document.createElement("i");
         el.style = "position:absolute;right:13px;";
-        var html = "<span title=\"Built on #{buildDate}\">v" + servicesResponse.version + "</span>";
+        var html = "<span title='Built on " + servicesResponse.buildDate + "'>v" + servicesResponse.version + "</span>";
         if (version.endsWith('SNAPSHOT')) {
             html += " Revision hash: ";
             html += "<a class='link' href=https://sourceforge.net/p/openl-tablets/openl/ci/" + commitHashId + ">" + commitHash + "</a>";
@@ -328,8 +328,9 @@
             }
         });
         if (deployerEnabled) {
-            html += "&nbsp" + "<button type=\"button\" class='delete-button'>Delete</button>";
-            html += "<button type=\"button\" class='download-button'>Download</button>";
+            html += "&nbsp";
+            html += "<button type='button' class='delete-button'>Delete</button>";
+            html += "<button type='button' class='download-button'>Download</button>";
         }
 
         return html;
@@ -337,8 +338,8 @@
 
     function createServiceButtons() {
         var html = "";
-        html += "<input id=\"file-input\" type=\"file\" name=\"name\" style=\"display: none;\"/>";
-        html += "<button type=\"button\" onclick=\"uploadProject()\" class='deploy-button'>Deploy</button>";
+        html += "<input id='file-input' type='file' name='name' style='display: none;'/>";
+        html += "<button type='button' onclick='uploadProject()' class='deploy-button'>Deploy</button>";
         return html;
     }
 
