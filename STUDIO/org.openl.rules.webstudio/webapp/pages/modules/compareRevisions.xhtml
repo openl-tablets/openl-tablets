@@ -9,6 +9,24 @@
 
   <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
+  <style>
+    .comparison-layout {
+      width: 100%;
+    }
+
+    .comparison-layout > tbody > tr > td:nth-child(1) {
+      border-right: dotted gray 1px;
+    }
+
+    .comparison-layout > tbody > tr:nth-child(1) > td {
+      text-align: center;
+    }
+
+    .comparison-layout .te_table {
+      margin: 0 auto;
+    }
+  </style>
+
   <rich:popupPanel id="modalCompareRevisions" resizeable="true">
     <f:facet name="header">
       <h:outputText value="Compare files" />
@@ -39,7 +57,7 @@
         </div>
 
         <p>
-          <table style="width: 100%">
+          <table class="comparison-layout">
             <tr>
               <td>Their fragment</td>
               <td>Your fragment</td>

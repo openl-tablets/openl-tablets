@@ -17,6 +17,7 @@ import javax.faces.bean.SessionScoped;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.MergeConflictException;
@@ -116,7 +117,19 @@ public class MergeConflictBean {
             return path;
         }
 
-        Repository repository = mergeConflict.getProject().getDesignRepository();
+        RulesProject project = mergeConflict.getProject();
+        Repository repository;
+        try {
+            if (!mergeConflict.isMerging()) {
+                repository = project.getDesignRepository();
+            } else {
+                repository = ((BranchRepository) getUserWorkspace().getDesignTimeRepository().getRepository())
+                    .forBranch(mergeConflict.getMergeBranchTo());
+            }
+        } catch (WorkspaceException | IOException e) {
+            log.error(e.getMessage(), e);
+            return path;
+        }
         if (repository.supports().mappedFolders()) {
             return ((MappedRepository) repository).getRealPath(path);
         }
@@ -231,8 +244,13 @@ public class MergeConflictBean {
         List<FileItem> resolvedFiles = new ArrayList<>();
         WebStudio studio = WebStudioUtils.getWebStudio();
         RulesProject project = mergeConflict.getProject();
+        boolean mergeOperation = mergeConflict.isMerging();
         try {
-            studio.freezeProject(project.getName());
+            if (!mergeOperation) {
+                studio.freezeProject(project.getName());
+            }
+            boolean opened = project != null && project.isOpened();
+
             UserWorkspace userWorkspace = getUserWorkspace();
             String rulesLocation = getRulesLocation();
 
@@ -247,8 +265,12 @@ public class MergeConflictBean {
                 InputStream stream;
                 switch (conflictResolution.getResolutionType()) {
                     case YOURS:
-                        String localName = name.substring(rulesLocation.length());
-                        file = localRepository.read(localName);
+                        if (mergeOperation) {
+                            file = designRepository.readHistory(name, mergeConflict.getException().getYourCommit());
+                        } else {
+                            String localName = name.substring(rulesLocation.length());
+                            file = localRepository.read(localName);
+                        }
                         stream = file == null ? null : file.getStream();
                         resolvedFiles.add(new FileItem(name, stream));
                         break;
@@ -266,8 +288,27 @@ public class MergeConflictBean {
                 }
             }
 
-            project.save(
-                new ConflictResolveData(mergeConflict.getException().getTheirCommit(), resolvedFiles, mergeMessage));
+            ConflictResolveData conflictResolveData = new ConflictResolveData(mergeConflict.getException()
+                .getTheirCommit(), resolvedFiles, mergeMessage);
+            if (mergeOperation) {
+                ((BranchRepository) designRepository).forBranch(mergeConflict.getMergeBranchTo())
+                    .merge(mergeConflict.getMergeBranchFrom(), userWorkspace.getUser().getUserId(), conflictResolveData);
+            } else {
+                project.save(conflictResolveData);
+            }
+
+            if (mergeOperation && project != null) {
+                project.setBranch(mergeConflict.getMergeBranchTo());
+                if (opened) {
+                    if (project.isDeleted()) {
+                        project.close();
+                    } else {
+                        // Update files
+                        project.open();
+                    }
+                }
+            }
+
             studio.reset();
             clearMergeStatus();
         } catch (Exception e) {
@@ -278,7 +319,9 @@ public class MergeConflictBean {
             for (FileItem file : resolvedFiles) {
                 IOUtils.closeQuietly(file.getStream());
             }
-            studio.releaseProject(project.getName());
+            if (!mergeOperation) {
+                studio.releaseProject(project.getName());
+            }
         }
     }
 
@@ -379,7 +422,44 @@ public class MergeConflictBean {
         }
     }
 
-    public boolean hasRepositoryFile(String name, String version) {
+    public boolean hasYourFile(String conflictedFile) {
+        MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
+        if (mergeConflict == null) {
+            return false;
+        }
+
+        boolean merging = isMerging();
+        if (merging) {
+            return hasRepositoryFile(conflictedFile, mergeConflict.getException().getYourCommit());
+        } else {
+            return hasLocalFile(conflictedFile);
+        }
+    }
+
+    public boolean isMerging() {
+        MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
+        return mergeConflict != null && mergeConflict.isMerging();
+    }
+
+    public boolean hasTheirFile(String conflictedFile) {
+        MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
+        if (mergeConflict == null) {
+            return false;
+        }
+
+        return hasRepositoryFile(conflictedFile, mergeConflict.getException().getTheirCommit());
+    }
+
+    public boolean hasBaseFile(String conflictedFile) {
+        MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
+        if (mergeConflict == null) {
+            return false;
+        }
+
+        return hasRepositoryFile(conflictedFile, mergeConflict.getException().getBaseCommit());
+    }
+
+    private boolean hasRepositoryFile(String name, String version) {
         try {
             // ':' is forbidden character in name, so it can be used as a separator.
             String key = name + ":" + version;

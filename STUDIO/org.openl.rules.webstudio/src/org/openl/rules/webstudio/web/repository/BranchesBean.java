@@ -7,11 +7,16 @@ import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.model.SelectItem;
+import javax.faces.model.SelectItemGroup;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
+import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
@@ -30,6 +35,9 @@ public class BranchesBean {
     private List<String> branches;
 
     private String currentBranch;
+
+    private String branchToMergeFrom;
+    private String branchToMergeTo;
 
     public String getCurrentProjectName() {
         return currentProjectName;
@@ -60,6 +68,102 @@ public class BranchesBean {
             }
         }
         return Collections.emptyList();
+    }
+
+    public List<SelectItem> getBranchesToMerge() {
+        List<SelectItem> result = new ArrayList<>();
+
+        RulesProject project = getProject(currentProjectName);
+        if (project != null) {
+            Repository repository = project.getDesignRepository();
+            if (repository.supports().branches()) {
+                try {
+                    List<String> projectBranches = ((BranchRepository) repository).getBranches(currentProjectName);
+
+                    List<SelectItem> projectBranchesList = new ArrayList<>();
+                    for (String projectBranch : projectBranches) {
+                        projectBranchesList.add(new SelectItem(projectBranch, projectBranch));
+                    }
+                    if (!projectBranchesList.isEmpty()) {
+                        SelectItemGroup projectBranchesGroup = new SelectItemGroup("Project branches");
+                        projectBranchesGroup.setSelectItems(projectBranchesList.toArray(new SelectItem[0]));
+                        result.add(projectBranchesGroup);
+                    }
+
+                    List<SelectItem> otherBranchesList = new ArrayList<>();
+                    for (String b : ((BranchRepository) repository).getBranches(null)) {
+                        if (!projectBranches.contains(b)) {
+                            otherBranchesList.add(new SelectItem(b, b));
+                        }
+                    }
+                    if (!otherBranchesList.isEmpty()) {
+                        SelectItemGroup otherBranchesGroup = new SelectItemGroup("Other branches");
+                        otherBranchesGroup.setSelectItems(otherBranchesList.toArray(new SelectItem[0]));
+                        result.add(otherBranchesGroup);
+                    }
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                    return Collections.emptyList();
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public void swapBranches() {
+        String temp = branchToMergeFrom;
+        branchToMergeFrom = branchToMergeTo;
+        branchToMergeTo = temp;
+    }
+
+    public void merge() {
+        try {
+            if (branchToMergeFrom == null || branchToMergeTo == null) {
+                FacesUtils.addErrorMessage("Choose the branches to merge.");
+                return;
+            }
+            if (branchToMergeFrom.equals(branchToMergeTo)) {
+                FacesUtils.addErrorMessage("Can't merge the branch '" + branchToMergeFrom + "' to itself.");
+                return;
+            }
+            RulesProject project = getProject(currentProjectName);
+            if (project != null) {
+                Repository designRepository = project.getDesignRepository();
+                boolean opened = project.isOpened();
+
+                String userId = getUserWorkspace().getUser().getUserId();
+                ((BranchRepository) designRepository).forBranch(branchToMergeTo).merge(branchToMergeFrom, userId, null);
+
+                project.setBranch(branchToMergeTo);
+                if (opened) {
+                    if (project.isDeleted()) {
+                        project.close();
+                    } else {
+                        // Update files
+                        project.open();
+                    }
+                }
+                setWasMerged(true);
+            }
+        } catch (MergeConflictException e) {
+            MergeConflictInfo info = new MergeConflictInfo(e, getProject(currentProjectName), branchToMergeFrom, branchToMergeTo);
+            ConflictUtils.saveMergeConflict(info);
+            log.debug("Failed to save the project because of merge conflict.", e);
+        } catch (Exception e) {
+            String msg = e.getMessage();
+            if (StringUtils.isBlank(msg)) {
+                msg = "Error during merge operation.";
+            }
+            log.error(msg, e);
+            FacesUtils.addErrorMessage(msg);
+        }
+    }
+
+    public void setWasMerged(boolean wasMerged) {
+        if (wasMerged) {
+            FacesUtils.addInfoMessage("Branches were merged successfully.");
+        }
     }
 
     public void save() {
@@ -99,6 +203,8 @@ public class BranchesBean {
             if (project != null) {
                 branches = getBranches(project);
                 currentBranch = project.getBranch();
+                branchToMergeFrom = currentBranch;
+                branchToMergeTo = null;
             } else {
                 currentBranch = null;
             }
@@ -109,6 +215,22 @@ public class BranchesBean {
 
     public String getCurrentBranch() {
         return currentBranch;
+    }
+
+    public String getBranchToMergeFrom() {
+        return branchToMergeFrom;
+    }
+
+    public void setBranchToMergeFrom(String branchToMergeFrom) {
+        this.branchToMergeFrom = branchToMergeFrom;
+    }
+
+    public String getBranchToMergeTo() {
+        return branchToMergeTo;
+    }
+
+    public void setBranchToMergeTo(String branchToMergeTo) {
+        this.branchToMergeTo = branchToMergeTo;
     }
 
     private List<String> getBranches(RulesProject project) {

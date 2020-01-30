@@ -358,6 +358,11 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     @Override
+    public void merge(String branchFrom, String author, ConflictResolveData conflictResolveData) throws IOException {
+        ((BranchRepository) delegate).merge(branchFrom, author, conflictResolveData);
+    }
+
+    @Override
     public String getBranch() {
         return ((BranchRepository) delegate).getBranch();
     }

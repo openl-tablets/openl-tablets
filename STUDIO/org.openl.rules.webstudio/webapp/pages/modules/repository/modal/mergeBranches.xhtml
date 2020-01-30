@@ -1,0 +1,99 @@
+<ui:composition
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <rich:popupPanel id="modalMergeBranches" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Merge changes to Branch"/>
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close" alt="Close" title="Close"
+                            onclick="RichFaces.$('modalMergeBranches').hide();"/>
+        </f:facet>
+
+        <h:form id="mergeBranchesForm">
+            <h:panelGroup id="modalMergeBranchesData">
+                <h:inputHidden id="hiddenProjectName" value="#{branchesBean.currentProjectName}"/>
+
+                <p>
+                    <table>
+                        <tr>
+                            <td>
+                                <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+                                    <h:outputText value="From Branch:"/>
+                                    <h:selectOneMenu id="fromBranch" value="#{branchesBean.branchToMergeFrom}" onchange="updateSaveButton();">
+                                        <f:selectItems value="#{branchesBean.branchesToMerge}"/>
+                                    </h:selectOneMenu>
+
+                                    <h:outputText value="To Branch:"/>
+                                    <h:selectOneMenu id="toBranch" value="#{branchesBean.branchToMergeTo}" onchange="updateSaveButton();">
+                                        <f:selectItems value="#{branchesBean.branchesToMerge}"/>
+                                    </h:selectOneMenu>
+                                </h:panelGrid>
+                            </td>
+                            <td>
+                                <a4j:commandLink title="Swap branches" render="@form" action="#{branchesBean.swapBranches}" oncomplete="updateSaveButton();">
+                                    <h:graphicImage url="#{request.contextPath}/webresource/images/swap16.png" styleClass="actionImage" alt="Delete"/>
+                                </a4j:commandLink>
+
+                            </td>
+                        </tr>
+                    </table>
+                </p>
+            </h:panelGroup>
+
+            <footer>
+                <a4j:commandButton id="merge" value="Merge"
+                                   render="projectTree nodeView @form"
+                                   data="#{studio.mergeConflict}"
+                                   action="#{branchesBean.merge}" styleClass="button-primary"
+                                   oncomplete="onMergeComplete(event.data, #{!facesContext.validationFailed});"/>
+                <input type="button" value="Cancel" onclick="RichFaces.$('modalMergeBranches').hide();"/>
+            </footer>
+
+            <a4j:jsFunction name="renderMergeBranchesForm" render="mergeBranchesForm"
+                            oncomplete="showMergeBranchesDialog()">
+                <a4j:param name="projectName" assignTo="#{branchesBean.initProject}"/>
+            </a4j:jsFunction>
+
+            <a4j:jsFunction name="refreshRepositoryAfterMerge" render="projectTree nodeView">
+                <a4j:param name="wasMerged" assignTo="#{branchesBean.wasMerged}"/>
+            </a4j:jsFunction>
+        </h:form>
+
+    </rich:popupPanel>
+
+    <script>
+        //<![CDATA[
+
+        function openMergeBranchesDialog(projectName) {
+            renderMergeBranchesForm(projectName);
+        }
+
+        function showMergeBranchesDialog() {
+            updateSaveButton();
+            RichFaces.$("modalMergeBranches").show();
+        }
+
+        function onMergeComplete(mergeConflict, successful) {
+            if (mergeConflict) {
+                RichFaces.$('modalMergeBranches').hide();
+                openResolveConflictDialog(refreshRepositoryAfterMerge);
+            } else if (successful) {
+                RichFaces.$('modalMergeBranches').hide();
+            }
+        }
+
+        function updateSaveButton() {
+            var from = $j('#mergeBranchesForm\\:fromBranch option:selected').val();
+            var to = $j('#mergeBranchesForm\\:toBranch option:selected').val();
+            $j('#mergeBranchesForm\\:merge').prop('disabled', from === to);
+        }
+
+        //]]>
+    </script>
+</ui:composition>

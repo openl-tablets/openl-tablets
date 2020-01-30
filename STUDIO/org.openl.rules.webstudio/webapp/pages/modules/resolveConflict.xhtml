@@ -12,6 +12,11 @@
     .merged-file-link {
       margin-left: 24px;
     }
+
+    .conflict-comment {
+      width: 400px;
+      height: 45px;
+    }
   </style>
 
   <rich:popupPanel id="modalResolveConflicts" width="580" autosized="true">
@@ -25,6 +30,8 @@
 
     <div class="scrollable">
       <h:form id="resolveConflictsForm">
+        <ui:param name="isMerging" value="#{mergeConflictBean.merging}"/>
+
         <h:panelGroup id="modalResolveConflictsData">
           <p>
             <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
@@ -38,7 +45,7 @@
               <h:outputText value="#{mergeConflictBean.baseCommit}"/>
 
               <h:outputText value="Comment:"/>
-              <h:inputTextarea id="comment" value="#{mergeConflictBean.mergeMessage}" type="text" size="35" readonly="false">
+              <h:inputTextarea id="comment" value="#{mergeConflictBean.mergeMessage}" styleClass="conflict-comment">
                 <f:ajax execute="@this"/>
               </h:inputTextarea>
             </h:panelGrid>
@@ -74,17 +81,21 @@
                   </div>
                 </h:panelGroup>
 
-                <ui:param name="hasYourFile" value="#{mergeConflictBean.hasLocalFile(conflict)}"/>
+                <ui:param name="hasYourFile" value="#{mergeConflictBean.hasYourFile(conflict)}"/>
                 <div>
-                  <h:panelGroup rendered="#{hasYourFile}">
+                  <h:panelGroup rendered="#{hasYourFile and not isMerging}">
                     <a href="#{contextPath}/web/conflict/local?name=#{conflict}"
+                       title="Download your version">Download Yours</a>
+                  </h:panelGroup>
+                  <h:panelGroup rendered="#{hasYourFile and isMerging}">
+                    <a href="#{contextPath}/web/conflict/repository?name=#{conflict}&amp;version=#{mergeConflictBean.yourCommit}"
                        title="Download your version">Download Yours</a>
                   </h:panelGroup>
                   <h:panelGroup rendered="#{not hasYourFile}">
                     You deleted the file
                   </h:panelGroup>
                 </div>
-                <ui:param name="hasTheirFile" value="#{mergeConflictBean.hasRepositoryFile(conflict, mergeConflictBean.theirCommit)}"/>
+                <ui:param name="hasTheirFile" value="#{mergeConflictBean.hasTheirFile(conflict)}"/>
                 <div>
                   <h:panelGroup rendered="#{hasTheirFile}">
                     <a href="#{contextPath}/web/conflict/repository?name=#{conflict}&amp;version=#{mergeConflictBean.theirCommit}"
@@ -94,7 +105,7 @@
                     They deleted the file
                   </h:panelGroup>
                 </div>
-                <ui:param name="hasBaseFile" value="#{mergeConflictBean.hasRepositoryFile(conflict, mergeConflictBean.baseCommit)}"/>
+                <ui:param name="hasBaseFile" value="#{mergeConflictBean.hasBaseFile(conflict)}"/>
                 <div>
                   <h:panelGroup rendered="#{hasBaseFile}">
                     <a href="#{contextPath}/web/conflict/repository?name=#{conflict}&amp;version=#{mergeConflictBean.baseCommit}"
@@ -140,7 +151,7 @@
                                styleClass="button-primary"
                                disabled="#{mergeConflictBean.saveDisabled}"
                                data="#{mergeConflictBean.mergeError}"
-                               oncomplete="if (!event.data &amp;&amp; #{!facesContext.validationFailed}) {closeResolveConflictDialog();}"/>
+                               oncomplete="if (!event.data &amp;&amp; #{!facesContext.validationFailed}) {successfulConflictResolution();}"/>
             <input class="restore-changed-state" type="button" value="Cancel" onclick="closeResolveConflictDialog();"/>
           </footer>
         </h:panelGroup>
@@ -148,7 +159,9 @@
         <a4j:jsFunction name="refreshResolveConflictDialog" action="#{mergeConflictBean.init}" render="@form"
                         oncomplete="showResolveConflictDialog();"/>
         <a4j:jsFunction name="closeResolveConflictDialog" action="#{mergeConflictBean.clearMergeStatus}"
-                        oncomplete="afterResolveConflict(); RichFaces.$('modalResolveConflicts').hide();"/>
+                        oncomplete="afterResolveConflict(false); RichFaces.$('modalResolveConflicts').hide();"/>
+        <a4j:jsFunction name="successfulConflictResolution" action="#{mergeConflictBean.clearMergeStatus}"
+                        oncomplete="afterResolveConflict(true); RichFaces.$('modalResolveConflicts').hide();"/>
         <a4j:jsFunction name="setConflictAndUploadConflictResolution" oncomplete="openUploadConflictResolutionDialog();">
           <a4j:param name="conflict" assignTo="#{mergeConflictBean.currentConflictedFile}"/>
         </a4j:jsFunction>

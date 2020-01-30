@@ -1436,6 +1436,49 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return result;
     }
 
+    @Override
+    public void merge(String branchFrom, String author, ConflictResolveData conflictResolveData) throws IOException {
+        Lock writeLock = repositoryLock.writeLock();
+        String mergeCommitId = null;
+        try {
+            log.debug("merge(): lock");
+            writeLock.lock();
+
+            reset();
+            if (conflictResolveData == null) {
+                pull(null, author);
+            }
+
+            git.checkout().setName(branch).call();
+            Ref branchRef = git.getRepository().findRef(branchFrom);
+            String mergeMessage = getMergeMessage(author, branchRef);
+            MergeResult mergeResult = git.merge().include(branchRef).setMessage(mergeMessage).call();
+            if (mergeResult.getMergeStatus().isSuccessful()) {
+                mergeCommitId = mergeResult.getNewHead().getName();
+            }
+
+            if (conflictResolveData != null) {
+                resolveConflict(mergeResult, conflictResolveData, author);
+            } else {
+                validateMergeConflict(mergeResult, true);
+            }
+
+            pull(null, author);
+            push();
+        } catch (IOException e) {
+            reset(mergeCommitId);
+            throw e;
+        } catch (Exception e) {
+            reset(mergeCommitId);
+            throw new IOException(e.getMessage(), e);
+        } finally {
+            writeLock.unlock();
+            log.debug("merge(): unlock");
+        }
+
+        monitor.fireOnChange();
+    }
+
     private void saveMultipleFiles(FileData folderData,
             Iterable<FileItem> files,
             ChangesetType changesetType) throws IOException {
@@ -1564,6 +1607,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             .include(getCommitByVersion(conflictResolveData.getCommitToMerge()))
             .call();
 
+        return resolveConflict(mergeResult, conflictResolveData, author);
+    }
+
+    private RevCommit resolveConflict(MergeResult mergeResult,
+            ConflictResolveData conflictResolveData,
+            String author) throws IOException, GitAPIException {
         if (mergeResult.getMergeStatus() != MergeResult.MergeStatus.CONFLICTING) {
             log.debug("Merge status: {}", mergeResult.getMergeStatus());
             throw new IOException("There is no merge conflict, nothing to resolve.");

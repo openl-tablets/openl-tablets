@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:rich="http://richfaces.org/rich"
-    template="/pages/layout/repositoryLayout.xhtml">
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        template="/pages/layout/repositoryLayout.xhtml">
 
     <ui:define name="title">Repository</ui:define>
 
@@ -56,6 +53,7 @@
         </h:panelGroup>
         <h:panelGroup rendered="#{repositoryTreeController.supportsBranches}">
             <ui:include src="/pages/modules/repository/modal/editBranches.xhtml" />
+            <ui:include src="/pages/modules/repository/modal/mergeBranches.xhtml" />
         </h:panelGroup>
     </ui:define>
 

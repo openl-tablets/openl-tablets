@@ -262,6 +262,7 @@ public class RepositoryTreeController {
 
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
+            setWasSaved(true);
         } catch (Exception e) {
             Throwable cause = e.getCause();
             if (cause instanceof MergeConflictException) {
@@ -278,6 +279,12 @@ public class RepositoryTreeController {
             }
         }
         return null;
+    }
+
+    public void setWasSaved(boolean wasSaved) {
+        if (wasSaved) {
+            FacesUtils.addInfoMessage("Project was saved successfully.");
+        }
     }
 
     public String closeProject() {
