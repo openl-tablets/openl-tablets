@@ -2,9 +2,9 @@ package org.openl.rules.webstudio.web;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
+import javax.servlet.ServletRequest;
 
-import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.commons.web.util.WebTool;
+import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.ui.ColorFilterHolder;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -25,13 +25,13 @@ public class TableViewMenuBean {
         WebStudio studio = WebStudioUtils.getWebStudio();
 
         filterHolder = studio.getModel().getFilterHolder();
-        String filterType = FacesUtils.getRequestParameter("filterType");
+        String filterType = WebStudioUtils.getRequestParameter("filterType");
         if (filterType != null) {
             int ftype = Integer.parseInt(filterType);
             filterHolder.setFilterType(ftype);
         }
 
-        String transparency = FacesUtils.getRequestParameter("transparency");
+        String transparency = WebStudioUtils.getRequestParameter("transparency");
         if ("up".equals(transparency)) {
             filterHolder.setTransparency(filterHolder.getTransparency() + 10);
         }
@@ -44,10 +44,10 @@ public class TableViewMenuBean {
 
     private void initRequestParams() {
         String[] menuParams = { "transparency", "filterType" };
-        requestParams = WebTool.listRequestParams(FacesUtils.getRequest(), menuParams);
+        requestParams = WebTool.listRequestParams((ServletRequest) WebStudioUtils.getExternalContext().getRequest(), menuParams);
 
         String[] menuParamsView = { "transparency", "filterType", "view" };
-        requestParamsView = WebTool.listRequestParams(FacesUtils.getRequest(), menuParamsView);
+        requestParamsView = WebTool.listRequestParams((ServletRequest) WebStudioUtils.getExternalContext().getRequest(), menuParamsView);
     }
 
     public ColorFilterHolder getFilterHolder() {

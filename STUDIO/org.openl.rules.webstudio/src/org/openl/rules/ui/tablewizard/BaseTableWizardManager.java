@@ -1,7 +1,6 @@
 package org.openl.rules.ui.tablewizard;
 
 import org.apache.commons.lang.StringUtils;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.table.IOpenLTable;
@@ -63,7 +62,7 @@ public abstract class BaseTableWizardManager {
     }
 
     protected void init() {
-        String id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
+        String id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
         WebStudio studio = WebStudioUtils.getWebStudio();
         final ProjectModel model = studio.getModel();

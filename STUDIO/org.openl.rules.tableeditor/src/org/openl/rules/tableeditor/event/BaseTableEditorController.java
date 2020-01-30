@@ -1,8 +1,8 @@
 package org.openl.rules.tableeditor.event;
 
+import javax.faces.context.FacesContext;
 import java.util.Map;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
@@ -13,7 +13,7 @@ import org.openl.rules.tableeditor.util.Constants;
 public class BaseTableEditorController {
 
     protected TableEditorModel getEditorModel(String editorId) {
-        Map editorModelMap = (Map) FacesUtils.getSessionParam(Constants.TABLE_EDITOR_MODEL_NAME);
+        Map editorModelMap = (Map) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get(Constants.TABLE_EDITOR_MODEL_NAME);
         if (editorModelMap != null) {
             return (TableEditorModel) editorModelMap.get(editorId);
         }
@@ -25,7 +25,7 @@ public class BaseTableEditorController {
         if (editorModel != null) {
             String beforeEditAction = editorModel.getBeforeEditAction();
             if (beforeEditAction != null) {
-                boolean successful = (Boolean) FacesUtils.invokeMethodExpression(beforeEditAction);
+                boolean successful = (Boolean) TableEditorController.invokeMethodExpression(beforeEditAction);
                 if (!successful) {
                     return null;
                 }
@@ -47,7 +47,7 @@ public class BaseTableEditorController {
     }
 
     protected void removeEditorModel() {
-        FacesUtils.removeSessionParam(Constants.TABLE_EDITOR_MODEL_NAME);
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove(Constants.TABLE_EDITOR_MODEL_NAME);
     }
 
     private TableModel initializeTableModel(String editorId) {

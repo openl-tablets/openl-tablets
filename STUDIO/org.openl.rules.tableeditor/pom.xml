@@ -38,12 +38,12 @@
             <artifactId>org.openl.rules</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>org.openl.commons.web</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.sdicons.jsontools</groupId>
             <artifactId>jsontools-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.faces</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.servlet.jsp</groupId>

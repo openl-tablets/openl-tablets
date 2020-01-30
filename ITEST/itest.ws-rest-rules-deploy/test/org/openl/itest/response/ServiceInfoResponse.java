@@ -4,11 +4,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ServiceInfoResponse  {
+public class ServiceInfoResponse {
 
     private String name;
     private Map<String, String> urls = new HashMap<>();
     private Date startedTime;
+    private ServiceStatus status;
+
+    public enum ServiceStatus {
+        DEPLOYED,
+        FAILED
+    }
 
     public String getName() {
         return name;
@@ -32,5 +38,13 @@ public class ServiceInfoResponse  {
 
     public void setStartedTime(Date startedTime) {
         this.startedTime = startedTime;
+    }
+
+    public ServiceStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ServiceStatus status) {
+        this.status = status;
     }
 }

@@ -79,6 +79,19 @@ public class SimpleGroup implements Group {
     }
 
     @Override
+    public boolean hasGroup(String groupName) {
+        for (Privilege privilege : privileges) {
+            if (privilege instanceof Group) {
+                Group x = (Group) privilege;
+                if (x.getName().equalsIgnoreCase(groupName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
     public String toString() {
         return name;
     }

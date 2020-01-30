@@ -14,7 +14,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotBlank;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
@@ -83,7 +82,7 @@ public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
 
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass(), false);
         Collection<String> allClasses = domainTree.getAllClasses();
-        domainTypes = FacesUtils.createSelectItems(allClasses);
+        domainTypes = WizardUtils.createSelectItems(allClasses);
 
         if (!CollectionUtils.isEmpty(allClasses) && CollectionUtils.contains(allClasses.iterator(), "String")) {
             setAliasType("String");

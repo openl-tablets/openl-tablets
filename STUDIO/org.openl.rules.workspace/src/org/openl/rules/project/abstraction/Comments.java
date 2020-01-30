@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
 
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
@@ -58,11 +59,13 @@ public final class Comments {
     }
 
     public String saveProject(String projectName) {
-        return saveProjectTemplate.replaceAll(PROJECT_NAME, projectName == null ? StringUtils.EMPTY : projectName);
+        return saveProjectTemplate.replaceAll(PROJECT_NAME,
+            projectName == null ? StringUtils.EMPTY : Matcher.quoteReplacement(projectName));
     }
 
     public String createProject(String projectName) {
-        return createProjectTemplate.replaceAll(PROJECT_NAME, projectName == null ? StringUtils.EMPTY : projectName);
+        return createProjectTemplate.replaceAll(PROJECT_NAME,
+            projectName == null ? StringUtils.EMPTY : Matcher.quoteReplacement(projectName));
     }
 
     // Only for creation from Workspace!
@@ -70,24 +73,28 @@ public final class Comments {
         if (StringUtils.isBlank(template)) {
             return createProject(projectName);
         }
-        return template.replaceAll(PROJECT_NAME, projectName == null ? StringUtils.EMPTY : projectName);
+        return template.replaceAll(PROJECT_NAME,
+            projectName == null ? StringUtils.EMPTY : Matcher.quoteReplacement(projectName));
     }
 
     public String archiveProject(String projectName) {
-        return archiveProjectTemplate.replaceAll(PROJECT_NAME, projectName == null ? StringUtils.EMPTY : projectName);
+        return archiveProjectTemplate.replaceAll(PROJECT_NAME,
+            projectName == null ? StringUtils.EMPTY : Matcher.quoteReplacement(projectName));
     }
 
     public String restoreProject(String projectName) {
-        return restoreProjectTemplate.replaceAll(PROJECT_NAME, projectName == null ? StringUtils.EMPTY : projectName);
+        return restoreProjectTemplate.replaceAll(PROJECT_NAME,
+            projectName == null ? StringUtils.EMPTY : Matcher.quoteReplacement(projectName));
     }
 
     public String eraseProject(String projectName) {
-        return eraseProjectTemplate.replaceAll(PROJECT_NAME, projectName == null ? StringUtils.EMPTY : projectName);
+        return eraseProjectTemplate.replaceAll(PROJECT_NAME,
+            projectName == null ? StringUtils.EMPTY : Matcher.quoteReplacement(projectName));
     }
 
     public String copiedFrom(String sourceProjectName) {
         return copiedFromTemplate.replaceAll(PROJECT_NAME,
-            sourceProjectName == null ? StringUtils.EMPTY : sourceProjectName);
+            sourceProjectName == null ? StringUtils.EMPTY : Matcher.quoteReplacement(sourceProjectName));
     }
 
     public List<String> getCommentParts(String comment) {
@@ -106,7 +113,8 @@ public final class Comments {
     }
 
     public String restoredFrom(String revisionNum) {
-        return restoredFromTemplate.replaceAll(REVISION, revisionNum == null ? StringUtils.EMPTY : revisionNum);
+        return restoredFromTemplate.replaceAll(REVISION,
+            revisionNum == null ? StringUtils.EMPTY : Matcher.quoteReplacement(revisionNum));
     }
 
     public String getCreateProjectTemplate() {

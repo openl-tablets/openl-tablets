@@ -1,19 +1,21 @@
 package org.openl.rules.ui;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 public class ParameterRegistry extends ObjectRegistry<ParameterWithValueDeclaration> {
     private static ParameterRegistry getCurrent(String requestId) {
-        return (ParameterRegistry) FacesUtils.getSessionParam(Constants.SESSION_PARAM_PARAMETERS + requestId);
+        return (ParameterRegistry) WebStudioUtils.getExternalContext().getSessionMap()
+            .get(Constants.SESSION_PARAM_PARAMETERS + requestId);
     }
 
     private static ParameterRegistry getCurrentOrCreate(String requestId) {
         ParameterRegistry parameterRegistry = getCurrent(requestId);
         if (parameterRegistry == null) {
             parameterRegistry = new ParameterRegistry();
-            FacesUtils.getSessionMap().put(Constants.SESSION_PARAM_PARAMETERS + requestId, parameterRegistry);
+            WebStudioUtils.getExternalContext().getSessionMap()
+                .put(Constants.SESSION_PARAM_PARAMETERS + requestId, parameterRegistry);
         }
         return parameterRegistry;
     }
@@ -28,6 +30,6 @@ public class ParameterRegistry extends ObjectRegistry<ParameterWithValueDeclarat
     }
 
     public static void remove(String requestId) {
-        FacesUtils.getSessionMap().remove(Constants.SESSION_PARAM_PARAMETERS + requestId);
+        WebStudioUtils.getExternalContext().getSessionMap().remove(Constants.SESSION_PARAM_PARAMETERS + requestId);
     }
 }

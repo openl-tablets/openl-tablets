@@ -16,7 +16,6 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.event.AjaxBehaviorEvent;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.CommonVersionImpl;
@@ -28,6 +27,7 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
@@ -292,12 +292,12 @@ public class SmartRedeployController {
                     project.getName(),
                     id.getName(),
                     repositoryName);
-                FacesUtils.addInfoMessage(message);
+                WebStudioUtils.addInfoMessage(message);
             } catch (Exception e) {
                 String msg = String
                     .format("Failed to deploy '%s' to repository '%s'", project.getName(), repositoryName);
                 log.error(msg, e);
-                FacesUtils.addErrorMessage(msg, e.getMessage());
+                WebStudioUtils.addErrorMessage(msg, e.getMessage());
             }
         }
 
@@ -365,7 +365,7 @@ public class SmartRedeployController {
                 return deployConfiguration;
             } else if (deployConfiguration.isLocked()) {
                 // someone else is locked it while we were thinking
-                FacesUtils.addWarnMessage("Deploy configuration '" + deploymentName + "' is locked by other user");
+                WebStudioUtils.addWarnMessage("Deploy configuration '" + deploymentName + "' is locked by other user");
                 return null;
             } else {
                 deployConfiguration.open();
@@ -383,13 +383,13 @@ public class SmartRedeployController {
                 deployConfiguration.save();
 
                 String action = create ? "created" : "updated";
-                FacesUtils.addInfoMessage("Deploy configuration '" + deploymentName + "' is successfully " + action);
+                WebStudioUtils.addInfoMessage("Deploy configuration '" + deploymentName + "' is successfully " + action);
                 return deployConfiguration;
             }
         } catch (ProjectException e) {
             String msg = "Failed to update deploy configuration '" + deploymentName + "'";
             log.error(msg, e);
-            FacesUtils.addErrorMessage(msg);
+            WebStudioUtils.addErrorMessage(msg);
         }
 
         return null;

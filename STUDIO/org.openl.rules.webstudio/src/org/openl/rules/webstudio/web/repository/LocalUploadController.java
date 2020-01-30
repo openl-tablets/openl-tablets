@@ -12,7 +12,6 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.servlet.http.HttpSession;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.resolving.ProjectResolver;
@@ -106,7 +105,7 @@ public class LocalUploadController {
                         }
                     } catch (Exception e) {
                         log.error("Failed to list projects for upload.", e);
-                        FacesUtils.addErrorMessage(e.getMessage());
+                        WebStudioUtils.addErrorMessage(e.getMessage());
                     }
                 }
             }
@@ -140,7 +139,7 @@ public class LocalUploadController {
     };
 
     private RulesUserSession getRules() {
-        HttpSession session = FacesUtils.getSession();
+        HttpSession session = WebStudioUtils.getSession();
         return WebStudioUtils.getRulesUserSession(session);
     }
 
@@ -159,7 +158,7 @@ public class LocalUploadController {
                             bean.getProjectName());
 
                         createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession, comment);
-                        FacesUtils.addInfoMessage("Project " + bean.getProjectName() + " was created successfully");
+                        WebStudioUtils.addInfoMessage("Project " + bean.getProjectName() + " was created successfully");
                     } catch (Exception e) {
                         String msg;
                         if (!NameChecker.checkName(bean.getProjectName())) {
@@ -175,7 +174,7 @@ public class LocalUploadController {
                             msg = "Failed to create the project '" + bean.getProjectName() + "'.";
                             log.error(msg, e);
                         }
-                        FacesUtils.addErrorMessage(msg);
+                        WebStudioUtils.addErrorMessage(msg);
 
                     }
                 }

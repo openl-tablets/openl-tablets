@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -91,38 +92,26 @@ public class UsersBean {
         return userManagementService.getAllUsers();
     }
 
-    public String[] getGroups(Object objUser) {
-        List<String> groups = new ArrayList<>();
+    public String getGroups(Object objUser) {
         @SuppressWarnings("unchecked")
         Collection<Privilege> authorities = (Collection<Privilege>) ((User) objUser).getAuthorities();
-        for (Privilege authority : authorities) {
-            if (authority instanceof Group) {
-                groups.add(authority.getName());
-            }
-        }
-        return groups.toArray(new String[groups.size()]);
+        String collect = authorities.stream().filter((p) -> p instanceof Group).map(Privilege::getName)
+            .map((n) -> "\"" + n + "\"").collect(Collectors.joining(",", "[", "]"));
+        return collect;
     }
 
-    public String[] getOnlyAdminGroups(Object objUser) {
+    public String getOnlyAdminGroups(Object objUser) {
         if (!isOnlyAdmin(objUser)) {
-            return new String[0];
+            return "[]";
         }
 
         String adminPrivilege = Privileges.ADMIN.name();
-
-        List<String> groups = new ArrayList<>();
         @SuppressWarnings("unchecked")
         Collection<Privilege> authorities = (Collection<Privilege>) ((User) objUser).getAuthorities();
-        for (Privilege authority : authorities) {
-            if (authority instanceof Group) {
-                Group group = (Group) authority;
-                if (group.hasPrivilege(adminPrivilege)) {
-                    groups.add(group.getAuthority());
-                }
-            }
-        }
-
-        return groups.toArray(new String[groups.size()]);
+        String collect = authorities.stream().filter((p) -> p instanceof Group).map(p -> ((Group) p))
+            .filter(p -> p.hasPrivilege(adminPrivilege)).map(Group::getAuthority).map((n) -> "\"" + n + "\"")
+            .collect(Collectors.joining(",", "[", "]"));
+        return collect;
     }
 
     private List<Privilege> getSelectedGroups() {

@@ -2,7 +2,7 @@ package org.openl.rules.webstudio.web.repository;
 
 import java.util.regex.Pattern;
 
-import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.spring.env.PropertyResolverProvider;
 import org.openl.util.StringUtils;
 
@@ -21,9 +21,9 @@ public class CommentValidator {
             comment = "";
         }
         if (pattern != null) {
-            FacesUtils.validate(pattern.matcher(comment).matches(), invalidMessage);
+            WebStudioUtils.validate(pattern.matcher(comment).matches(), invalidMessage);
         }
-        FacesUtils.validate(comment.length() <= MAX_COMMENT_LENGTH,
+        WebStudioUtils.validate(comment.length() <= MAX_COMMENT_LENGTH,
             "Length is greater than allowable maximum of '" + MAX_COMMENT_LENGTH + "'");
     }
 

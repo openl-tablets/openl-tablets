@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.test;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestDescription;
@@ -51,20 +50,20 @@ public final class RunTestHelper {
     }
 
     public void catchParams() {
-        this.params = ((InputArgsBean) FacesUtils.getBackingBean("inputArgsBean")).getParams();
+        this.params = ((InputArgsBean) WebStudioUtils.getBackingBean("inputArgsBean")).getParams();
     }
 
     public void fillBean() {
-        ((InputArgsBean) FacesUtils.getBackingBean("inputArgsBean")).fillBean();
+        ((InputArgsBean) WebStudioUtils.getBackingBean("inputArgsBean")).fillBean();
     }
 
     public void catchParamsToDownload() {
         catchParams();
-        Utils.saveTestToSession(FacesUtils.getSession(), getTestSuite());
+        Utils.saveTestToSession(WebStudioUtils.getSession(), getTestSuite());
     }
 
     public TestSuite getTestSuite() {
-        String id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
+        String id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
         ProjectModel model = WebStudioUtils.getProjectModel();
         IOpenLTable table = model.getTableById(id);
@@ -83,7 +82,7 @@ public final class RunTestHelper {
         if (method instanceof TestSuiteMethod) {
             TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
 
-            String testRanges = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_RANGES);
+            String testRanges = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_RANGES);
             if (testRanges == null) {
                 // Run all test cases of selected test suite
                 testSuite = new TestSuite(testSuiteMethod);

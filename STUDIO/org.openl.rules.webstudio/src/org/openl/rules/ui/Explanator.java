@@ -2,23 +2,24 @@ package org.openl.rules.ui;
 
 import java.util.List;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.ui.tree.richfaces.ExplainTreeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 public class Explanator extends ObjectRegistry<ExplanationNumberValue<?>> {
 
     private static Explanator getCurrent(String requestId) {
-        return (Explanator) FacesUtils.getSessionParam(Constants.SESSION_PARAM_EXPLANATOR + requestId);
+        return (Explanator) WebStudioUtils.getExternalContext().getSessionMap().get(Constants.SESSION_PARAM_EXPLANATOR + requestId);
     }
 
     private static Explanator getCurrentOrCreate(String requestId) {
         Explanator explanator = getCurrent(requestId);
         if (explanator == null) {
             explanator = new Explanator();
-            FacesUtils.getSessionMap().put(Constants.SESSION_PARAM_EXPLANATOR + requestId, explanator);
+            WebStudioUtils.getExternalContext().getSessionMap()
+                .put(Constants.SESSION_PARAM_EXPLANATOR + requestId, explanator);
         }
         return explanator;
     }
@@ -50,6 +51,6 @@ public class Explanator extends ObjectRegistry<ExplanationNumberValue<?>> {
     }
 
     public static void remove(String requestId) {
-        FacesUtils.getSessionMap().remove(Constants.SESSION_PARAM_EXPLANATOR + requestId);
+        WebStudioUtils.getExternalContext().getSessionMap().remove(Constants.SESSION_PARAM_EXPLANATOR + requestId);
     }
 }

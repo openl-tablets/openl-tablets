@@ -4,6 +4,10 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.Severity;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
@@ -30,6 +34,8 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
 
     private Collection<RuleServicePublisherListener> listeners = Collections.emptyList();
 
+    private Map<String, OpenLService> failedServices = new HashMap<>();
+
     @Autowired(required = false)
     public void setListeners(Collection<RuleServicePublisherListener> listeners) {
         this.listeners = listeners;
@@ -46,12 +52,19 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
 
     @Override
     public Collection<ServiceInfo> getServicesInfo() {
+        List<ServiceInfo> result = new ArrayList<>();
         Map<String, ServiceInfo> serviceInfos = new TreeMap<>();
         // Wrapped into collection of publishers
         for (RuleServicePublisher p : supportedPublishers.values()) {
             collectServicesInfo(serviceInfos, p);
         }
-        return serviceInfos.values();
+        result.addAll(serviceInfos.values());
+        serviceInfos.keySet().forEach(k -> failedServices.remove(k));
+        result.addAll(failedServices.values()
+            .stream()
+            .map(s -> new ServiceInfo(new Date(), s.getName(), s.getServicePath()))
+            .collect(Collectors.toList()));
+        return result;
     }
 
     private void collectServicesInfo(Map<String, ServiceInfo> servicesInfo, RuleServicePublisher publisher) {
@@ -100,6 +113,19 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
         return null;
     }
 
+    @Override
+    public List<String> getServiceErrors(String serviceName) {
+        OpenLService service = failedServices.get(serviceName);
+        Collection<OpenLMessage> messages = service.getCompiledOpenClass().getMessages();
+        Collection<OpenLMessage> openLMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
+        List<String> errors = openLMessages.stream().map(OpenLMessage::getSummary).collect(Collectors.toList());
+        if (errors.isEmpty()) {
+            Throwable exception = service.getException();
+            errors.add(exception.toString());
+        }
+        return errors;
+    }
+
     private MethodDescriptor toDescriptor(Method method) {
         String name = method.getName();
         String returnType = method.getReturnType().getSimpleName();
@@ -131,6 +157,9 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
                     publisher.deploy(service);
                     deployedPublishers.add(publisher);
                 } catch (RuleServiceDeployException e) {
+                    Throwable rootCause = ExceptionUtils.getRootCause(e);
+                    service.setException(rootCause);
+                    failedServices.put(serviceName, service);
                     e1 = e;
                     break;
                 }
@@ -166,8 +195,19 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
     }
 
     @Override
+    public OpenLService getFailedServiceByName(String serviceName) {
+        Objects.requireNonNull(serviceName, "serviceName cannot be null");
+        return failedServices.get(serviceName);
+    }
+
+    @Override
     public Collection<OpenLService> getServices() {
         return new ArrayList<>(services.values());
+    }
+
+    @Override
+    public void deleteFailedServiceInfo(String name) {
+        failedServices.remove(name);
     }
 
     @Override
@@ -185,6 +225,7 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
         }
         if (e1 == null) {
             services.remove(serviceName);
+            failedServices.remove(serviceName);
         } else {
             throw new RuleServiceUndeployException("Failed to undeploy a service.", e1);
         }

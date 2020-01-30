@@ -1,8 +1,7 @@
 <ui:composition
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
@@ -87,11 +86,11 @@
                     <ul>
                         <ui:repeat value="#{studio.allProjects}" var="project">
                         <li>
-                            <a class="projectName" href="##{jsffn:encodeURL(project.name)}">#{project.name}</a>
+                            <a class="projectName" href="#{utils.toUrl(project.name)}">#{project.name}</a>
                             <ul>
                                 <ui:repeat value="#{project.modules}" var="module">
                                 <li>
-                                    <a href="##{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(module.name)}">#{module.name}</a>
+                                    <a href="#{utils.toUrl(project.name, module.name)}">#{module.name}</a>
                                 </li>
                                 </ui:repeat>
                             </ul>

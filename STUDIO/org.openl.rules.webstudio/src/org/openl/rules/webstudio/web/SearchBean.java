@@ -9,16 +9,14 @@ import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.model.SelectItem;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -30,47 +28,25 @@ import org.openl.util.StringUtils;
 @RequestScoped
 public class SearchBean {
 
-    public static final String[] SEARCH_PARAMS = { "query", "types", "header" };
-
     // TODO Move table names to Rules Core
-    public static final String[] TABLE_NAMES = { "Decision",
-            "Spreadsheet",
-            "TBasic",
-            "Column Match",
-            "Datatype",
-            "Data",
-            "Method",
-            "Test",
-            "Run",
-            "Constants",
-            "Conditions",
-            "Actions",
-            "Returns",
-            "Environment",
-            "Properties",
-            "Other" };
-
-    public static final String[] TABLE_TYPES = { XlsNodeTypes.XLS_DT.toString(),
-            XlsNodeTypes.XLS_SPREADSHEET.toString(),
-            XlsNodeTypes.XLS_TBASIC.toString(),
-            XlsNodeTypes.XLS_COLUMN_MATCH.toString(),
-            XlsNodeTypes.XLS_DATATYPE.toString(),
-            XlsNodeTypes.XLS_DATA.toString(),
-            XlsNodeTypes.XLS_METHOD.toString(),
-            XlsNodeTypes.XLS_TEST_METHOD.toString(),
-            XlsNodeTypes.XLS_RUN_METHOD.toString(),
-            XlsNodeTypes.XLS_CONSTANTS.toString(),
-            XlsNodeTypes.XLS_CONDITIONS.toString(),
-            XlsNodeTypes.XLS_ACTIONS.toString(),
-            XlsNodeTypes.XLS_RETURNS.toString(),
-            XlsNodeTypes.XLS_ENVIRONMENT.toString(),
-            XlsNodeTypes.XLS_PROPERTIES.toString(),
-            XlsNodeTypes.XLS_OTHER.toString() };
-
-    private static final SelectItem[] tableTypeItems;
-    static {
-        tableTypeItems = FacesUtils.createSelectItems(TABLE_TYPES, TABLE_NAMES);
-    }
+    private static final SelectItem[] tableTypeItems = new SelectItem[] {
+        new SelectItem ("Decision", XlsNodeTypes.XLS_DT.toString()),
+        new SelectItem ("Spreadsheet", XlsNodeTypes.XLS_SPREADSHEET.toString()),
+        new SelectItem ("TBasic", XlsNodeTypes.XLS_TBASIC.toString()),
+        new SelectItem ("Column Match", XlsNodeTypes.XLS_COLUMN_MATCH.toString()),
+        new SelectItem ("Datatype", XlsNodeTypes.XLS_DATATYPE.toString()),
+        new SelectItem ("Data", XlsNodeTypes.XLS_DATA.toString()),
+        new SelectItem ("Method", XlsNodeTypes.XLS_METHOD.toString()),
+        new SelectItem ("Test", XlsNodeTypes.XLS_TEST_METHOD.toString()),
+        new SelectItem ("Run", XlsNodeTypes.XLS_RUN_METHOD.toString()),
+        new SelectItem ("Constants", XlsNodeTypes.XLS_CONSTANTS.toString()),
+        new SelectItem ("Conditions", XlsNodeTypes.XLS_CONDITIONS.toString()),
+        new SelectItem ("Actions", XlsNodeTypes.XLS_ACTIONS.toString()),
+        new SelectItem ("Returns", XlsNodeTypes.XLS_RETURNS.toString()),
+        new SelectItem ("Environment", XlsNodeTypes.XLS_ENVIRONMENT.toString()),
+        new SelectItem ("Properties", XlsNodeTypes.XLS_PROPERTIES.toString()),
+        new SelectItem ("Other", XlsNodeTypes.XLS_OTHER.toString())
+    };
 
     private String query;
     private String[] tableTypes;
@@ -82,7 +58,7 @@ public class SearchBean {
     public SearchBean() {
         initProperties();
 
-        if (((HttpServletRequest) FacesUtils.getRequest()).getRequestURI().contains("search.xhtml")) {
+        if (((HttpServletRequest) (ServletRequest) WebStudioUtils.getExternalContext().getRequest()).getRequestURI().contains("search.xhtml")) {
             initSearchQuery();
             search();
         }
@@ -124,9 +100,9 @@ public class SearchBean {
     }
 
     private void initSearchQuery() {
-        String query = FacesUtils.getRequestParameter(SEARCH_PARAMS[0]);
-        String tableTypes = FacesUtils.getRequestParameter(SEARCH_PARAMS[1]);
-        String tableHeader = FacesUtils.getRequestParameter(SEARCH_PARAMS[2]);
+        String query = WebStudioUtils.getRequestParameter("query");
+        String tableTypes = WebStudioUtils.getRequestParameter("types");
+        String tableHeader = WebStudioUtils.getRequestParameter("header");
 
         if (StringUtils.isNotBlank(query)) {
             // Replace all non-breaking spaces by breaking spaces
@@ -143,25 +119,12 @@ public class SearchBean {
         this.tableHeader = tableHeader;
 
         // Init properties query
-        Map<String, String> requestParams = FacesUtils.getRequestParameterMap();
-        for (Map.Entry<String, String> entry : requestParams.entrySet()) {
-            String paramName = entry.getKey();
-            if (!ArrayUtils.contains(SEARCH_PARAMS, paramName) && TablePropertyDefinitionUtils
-                .isPropertyExist(paramName)) {
-                TableProperty property = getPropertyByName(paramName);
-                String propertyValue = entry.getValue();
+        for (TableProperty property : properties) {
+            String propertyValue = WebStudioUtils.getRequestParameter(property.getName());
+            if (propertyValue!= null) {
                 property.setStringValue(propertyValue);
             }
         }
-    }
-
-    private TableProperty getPropertyByName(String name) {
-        for (TableProperty property : properties) {
-            if (property.getName().equals(name)) {
-                return property;
-            }
-        }
-        throw new IllegalArgumentException(String.format("Incorrect property '%s'", name));
     }
 
     private Map<String, Object> getSearchProperties() {

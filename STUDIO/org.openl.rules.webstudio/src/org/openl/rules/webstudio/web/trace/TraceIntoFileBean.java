@@ -6,13 +6,15 @@ import java.io.Writer;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.commons.web.util.WebTool;
+import org.openl.rules.webstudio.util.WebTool;
 import org.openl.main.SourceCodeURLConstants;
 import org.openl.rules.webstudio.web.test.RunTestHelper;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
@@ -46,10 +48,11 @@ public class TraceIntoFileBean {
     public void traceIntoFile() {
         ITracerObject tracer = runTestHelper.getTraceObject();
 
-        HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
+        HttpServletResponse response = (HttpServletResponse) (ServletResponse) WebStudioUtils.getExternalContext()
+            .getResponse();
 
         String outputFileName = "trace.txt";
-        WebTool.setContentDisposition(response, outputFileName);
+        response.setHeader("Content-Disposition", WebTool.getContentDispositionValue(outputFileName));
 
         response.setContentType("text/plain");
 
@@ -65,7 +68,7 @@ public class TraceIntoFileBean {
             IOUtils.closeQuietly(writer);
         }
 
-        FacesUtils.getFacesContext().responseComplete();
+        FacesContext.getCurrentInstance().responseComplete();
     }
 
     private void print(ITracerObject tracer, int level, Writer writer) throws IOException {

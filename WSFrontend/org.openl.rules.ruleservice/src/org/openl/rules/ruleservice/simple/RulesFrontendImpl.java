@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 
-import org.apache.commons.beanutils.MethodUtils;
+import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceRedeployLock;
@@ -81,8 +81,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
         }
         try {
             if (service.getServiceBean() != null) {
-                Method serviceMethod = null;
-                serviceMethod = MethodUtils
+                Method serviceMethod = MethodUtil
                     .getMatchingAccessibleMethod(service.getServiceBean().getClass(), ruleName, inputParamsTypes);
                 if (serviceMethod == null) {
                     StringBuilder sb = new StringBuilder();
@@ -165,10 +164,8 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
         OpenLService service = getService(serviceName);
         if (service != null) {
             try {
-                Method serviceMethod = MethodUtils.getMatchingAccessibleMethod(service.getServiceBean().getClass(),
-                    ClassUtils.getter(fieldName),
-                    new Class<?>[] {});
-                result = serviceMethod.invoke(service.getServiceBean(), new Object[] {});
+                Method serviceMethod = service.getServiceBean().getClass().getMethod(ClassUtils.getter(fieldName));
+                result = serviceMethod.invoke(service.getServiceBean());
             } catch (Exception e) {
                 if (e.getCause() instanceof RuleServiceWrapperException) {
                     throw new MethodInvocationException(e.getCause());

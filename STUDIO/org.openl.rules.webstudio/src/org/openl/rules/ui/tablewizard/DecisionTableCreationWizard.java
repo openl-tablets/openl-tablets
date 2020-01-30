@@ -9,11 +9,11 @@ import javax.faces.model.SelectItem;
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotEmpty;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DecisionTableBuilder;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -293,7 +293,7 @@ public class DecisionTableCreationWizard extends TableCreationWizard {
         reset();
 
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
-        domainTypes = FacesUtils.createSelectItems(domainTree.getAllClasses());
+        domainTypes = WizardUtils.createSelectItems(domainTree.getAllClasses());
     }
 
     @Override
@@ -331,7 +331,7 @@ public class DecisionTableCreationWizard extends TableCreationWizard {
 
     private boolean removeByIndex(List<?> list) {
         try {
-            int index = Integer.parseInt(FacesUtils.getRequestParameter("index"));
+            int index = Integer.parseInt(WebStudioUtils.getRequestParameter("index"));
             if (0 <= index && index < list.size()) {
                 list.remove(index);
                 return true;
@@ -373,10 +373,6 @@ public class DecisionTableCreationWizard extends TableCreationWizard {
         }
     }
 
-    private void reportError(String clientId, String detail) {
-        FacesUtils.addMessage(clientId, "Validation Error: ", detail, FacesMessage.SEVERITY_ERROR);
-    }
-
     @Override
     protected void reset() {
         tableName = returnType = null;
@@ -403,7 +399,7 @@ public class DecisionTableCreationWizard extends TableCreationWizard {
 
     public void selectAction() {
         try {
-            int index = Integer.parseInt(FacesUtils.getRequestParameter("index"));
+            int index = Integer.parseInt(WebStudioUtils.getRequestParameter("index"));
             if (actions.get(index) != null) {
                 if (validateAtStep4()) {
                     actions.setSelectedIndex(index);
@@ -416,7 +412,7 @@ public class DecisionTableCreationWizard extends TableCreationWizard {
 
     public void selectCondition() {
         try {
-            int index = Integer.parseInt(FacesUtils.getRequestParameter("index"));
+            int index = Integer.parseInt(WebStudioUtils.getRequestParameter("index"));
             if (conditions.get(index) != null && validateAtStep3()) {
                 conditions.setSelectedIndex(index);
             }
@@ -478,7 +474,7 @@ public class DecisionTableCreationWizard extends TableCreationWizard {
         String message;
         for (int i = 0; i < parameters.size(); i++) {
             if ((message = WizardUtils.checkParameterName(parameters.get(i).getName())) != null) {
-                reportError(prefix + i + suffix, message);
+                WebStudioUtils.addMessage(prefix + i + suffix, "Validation Error: ", message, FacesMessage.SEVERITY_ERROR);
                 res = false;
             }
         }

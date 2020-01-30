@@ -40,9 +40,21 @@ public class CommentsTest {
     }
 
     @Test
+    public void testSaveProjectWithDollarSign() {
+        String actualWithSymbol = comments.saveProject("$$$myProj$ectName$$");
+        assertEquals("Project {username} {$$$myProj$ectName$$} is saved. {foo}", actualWithSymbol);
+    }
+
+    @Test
     public void testCreateProject() {
         String actual = comments.createProject("myProjectName");
         assertEquals("Project {username} myProjectName is created. {foo}", actual);
+    }
+
+    @Test
+    public void testCreateProjectWithDollarSign() {
+        String actualWithSymbol = comments.createProject("$$$myProj$ectName$$");
+        assertEquals("Project {username} $$$myProj$ectName$$ is created. {foo}", actualWithSymbol);
     }
 
     @Test
@@ -52,9 +64,21 @@ public class CommentsTest {
     }
 
     @Test
+    public void testArchiveProjectWithDollarSign() {
+        String actualWithSymbol = comments.archiveProject("$$$myProj$ectName$$");
+        assertEquals("Project {username} {$$$myProj$ectName$$ is archived. {foo}", actualWithSymbol);
+    }
+
+    @Test
     public void testRestoreProject() {
         String actual = comments.restoreProject("myProjectName");
         assertEquals("Project {username} '{'myProjectName is restored. {foo}", actual);
+    }
+
+    @Test
+    public void testRestoreProjectWithDollarSign() {
+        String actualWithSymbol = comments.restoreProject("$$$myProj$ectName$$");
+        assertEquals("Project {username} '{'$$$myProj$ectName$$ is restored. {foo}", actualWithSymbol);
     }
 
     @Test
@@ -64,9 +88,21 @@ public class CommentsTest {
     }
 
     @Test
+    public void testEraseProjectWithDollarSign() {
+        String actualWithSymbol = comments.eraseProject("$$$myProj$ectName$$");
+        assertEquals("Project {username} $$$myProj$ectName$$ is erased. {foo}", actualWithSymbol);
+    }
+
+    @Test
     public void testCopiedFrom() {
         String actual = comments.copiedFrom("myProjectName");
         assertEquals("Project {username} {myProjectName} is copied-from. {foo}", actual);
+    }
+
+    @Test
+    public void testCopiedFromProjectWithSpecialSymbols() {
+        String actualWithSymbol = comments.copiedFrom("$$$myProj$ectName$$");
+        assertEquals("Project {username} {$$$myProj$ectName$$} is copied-from. {foo}", actualWithSymbol);
     }
 
     @Test
@@ -96,6 +132,12 @@ public class CommentsTest {
     public void testRestoredFrom() {
         String actual = comments.restoredFrom("sdsd-s-ds-d-sd-sd");
         assertEquals("Project {username} sdsd-s-ds-d-sd-sd is restored-from. {foo}", actual);
+    }
+
+    @Test
+    public void testRestoredFromWithDollarSign() {
+        String actualWithSymbol = comments.restoredFrom("$$$12$$3$");
+        assertEquals("Project {username} $$$12$$3$ is restored-from. {foo}", actualWithSymbol);
     }
 
 }

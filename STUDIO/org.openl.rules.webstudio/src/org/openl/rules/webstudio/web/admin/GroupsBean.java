@@ -1,6 +1,12 @@
 package org.openl.rules.webstudio.web.admin;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -9,15 +15,17 @@ import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
+import javax.servlet.ServletRequest;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.webstudio.service.GroupManagementService;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringUtils;
 
 // TODO Needs performance optimization
 /**
@@ -153,14 +161,16 @@ public class GroupsBean {
     private Collection<Privilege> getSelectedAuthorities() {
         Collection<Privilege> authorities = new ArrayList<>();
 
-        String[] privilegesParam = FacesUtils.getRequest().getParameterValues("privilege");
+        String[] privilegesParam = ((ServletRequest) WebStudioUtils.getExternalContext().getRequest())
+            .getParameterValues("privilege");
         List<String> privileges = new ArrayList<>(
             Arrays.asList(privilegesParam == null ? new String[0] : privilegesParam));
         privileges.add(0, Privileges.VIEW_PROJECTS.name());
 
         // Admin
         Map<String, Group> groups = new java.util.HashMap<>();
-        String[] groupNames = FacesUtils.getRequest().getParameterValues("group");
+        String[] groupNames = ((ServletRequest) WebStudioUtils.getExternalContext().getRequest())
+            .getParameterValues("group");
         if (groupNames != null) {
             for (String groupName : groupNames) {
                 if (groupName.equals(oldName)) {
@@ -170,17 +180,31 @@ public class GroupsBean {
                 groups.put(groupName, groupManagementService.getGroupByName(groupName));
             }
 
+            Group oldGroup = null;
+            if (StringUtils.isNotBlank(oldName)) {
+                oldGroup = groupManagementService.getGroupByName(oldName);
+            }
+            /*
+              Trying to find super group, which includes all the subgroups. If there is an old group -> no need to
+              remove its subgroups - it's needed to store them.
+             */
             for (Group group : new ArrayList<>(groups.values())) {
                 if (!groups.isEmpty()) {
-                    removeIncludedGroups(group, groups);
+                    removeIncludedGroups(group, groups, oldGroup);
+                }
+            }
+            // when old group exists and there are super groups, which includes it -> remove them to prevent the cycle
+            if (StringUtils.isNotBlank(oldName)) {
+                for (Group value : new ArrayList<>(groups.values())) {
+                    if (value.hasPrivilege(oldName)) {
+                        groups.remove(value.getName());
+                    }
                 }
             }
 
             removeIncludedPrivileges(privileges, groups);
 
-            for (Group group : groups.values()) {
-                authorities.add(group);
-            }
+            authorities.addAll(groups.values());
         }
 
         for (String privilegeName : privileges) {
@@ -200,17 +224,22 @@ public class GroupsBean {
         groups = null;
     }
 
-    private void removeIncludedGroups(Group group, Map<String, Group> groups) {
+    private void removeIncludedGroups(Group group, Map<String, Group> groups, Group oldGroup) {
         Set<String> groupNames = new HashSet<>(groups.keySet());
         for (String checkGroupName : groupNames) {
-            if (!group.getName().equals(checkGroupName) && group.hasPrivilege(checkGroupName)) {
+            if (!group.getName().equals(checkGroupName) && group
+                .hasPrivilege(checkGroupName) && groupWasBefore(oldGroup, checkGroupName)) {
                 Group includedGroup = groups.get(checkGroupName);
                 if (includedGroup != null) {
-                    removeIncludedGroups(includedGroup, groups);
+                    removeIncludedGroups(includedGroup, groups, oldGroup);
                     groups.remove(checkGroupName);
                 }
             }
         }
+    }
+
+    private boolean groupWasBefore(Group oldGroup, String checkGroupName) {
+        return oldGroup != null && !oldGroup.hasGroup(checkGroupName);
     }
 
     private void removeIncludedPrivileges(List<String> privileges, Map<String, Group> groups) {

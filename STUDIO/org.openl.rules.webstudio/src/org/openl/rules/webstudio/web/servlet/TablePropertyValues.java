@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.util.EnumUtils;
-import org.openl.util.StringUtils;
 
 public class TablePropertyValues extends HttpServlet {
 
@@ -38,8 +37,8 @@ public class TablePropertyValues extends HttpServlet {
                 String[] displayValues = EnumUtils
                     .getValues(propDefinition.getType().getInstanceClass().getComponentType());
 
-                String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
-                String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
+                String choisesString = "\"" + String.join("\", \"", values) + "\"";
+                String displayValuesString = "\"" + String.join("\", \"", displayValues) + "\"";
 
                 String params = String.format(
                     "{\"type\" : \"MULTI\", \"choices\" : [%s], \"displayValues\" : [%s], \"separator\" : \",\", \"separatorEscaper\" : \"&#92;&#92;&#92;&#92;\"}",
@@ -51,8 +50,8 @@ public class TablePropertyValues extends HttpServlet {
                 String[] values = EnumUtils.getNames(propDefinition.getType().getInstanceClass());
                 String[] displayValues = EnumUtils.getValues(propDefinition.getType().getInstanceClass());
 
-                String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
-                String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
+                String choisesString = "\"" + String.join("\", \"", values) + "\"";
+                String displayValuesString = "\"" + String.join("\", \"", displayValues) + "\"";
 
                 String params = String.format(
                     "{\"type\" : \"SINGLE\", \"param\" : {\"choices\" : [%s], \"displayValues\" : [%s]}, \"separator\" : \",\", \"separatorEscaper\" : \"&#92;&#92;&#92;&#92;\"}",

@@ -1,5 +1,6 @@
 package org.openl.rules.ui.tablewizard;
 
+import javax.faces.model.SelectItem;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Map;
@@ -132,5 +133,20 @@ public final class WizardUtils {
         // have any other field.
         return fields.size() > 1;
 
+    }
+
+    /**
+     * Creates an array of <code>SelectItem</code>s from collection of <code>String</code>s.
+     *
+     * @param values an array of <code>SelectItem</code> values.
+     * @return array of JSF objects representing items.
+     */
+    public static SelectItem[] createSelectItems(Collection<String> values) {
+        SelectItem[] items = new SelectItem[values.size()];
+        int index = 0;
+        for (String value : values) {
+            items[index++] = new SelectItem(value);
+        }
+        return items;
     }
 }

@@ -1,12 +1,12 @@
 package org.openl.rules.tableeditor.renderkit;
 
+import javax.faces.context.FacesContext;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -35,7 +35,7 @@ public class HTMLRenderer {
 
     @SuppressWarnings("unchecked")
     protected Set<String> getResourcesWritten() {
-        Map<String, Object> requestMap = FacesUtils.getRequestMap();
+        Map<String, Object> requestMap = FacesContext.getCurrentInstance().getExternalContext().getRequestMap();
         Set<String> resources = (Set<String>) requestMap.get(Constants.TABLE_EDITOR_RESOURCES);
         if (resources == null) {
             resources = new HashSet<>();
@@ -186,45 +186,6 @@ public class HTMLRenderer {
             return "<link rel=\"stylesheet\" href=\"" + internalPath(cssPath) + "\"></link>";
         }
         return "";
-    }
-
-    public String getSingleSelectComponentCode(String componentId,
-            String[] values,
-            String[] displayValues,
-            String value) {
-
-        String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
-        String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
-
-        String params = String.format("{choices : [%s], displayValues : [%s]}", choisesString, displayValuesString);
-
-        String id = componentId == null ? StringUtils.EMPTY : componentId;
-
-        return String.format("new DropdownEditor('', '%s', %s, '%s', '');",
-            id,
-            params,
-            StringEscapeUtils.escapeEcmaScript(value));
-    }
-
-    public String getMultiSelectComponentCode(String componentId,
-            String[] values,
-            String[] displayValues,
-            String value) {
-
-        String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
-        String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
-
-        String params = String.format(
-            "{choices : [%s], displayValues : [%s], separator : \",\", separatorEscaper : \"&#92;&#92;&#92;&#92;\"}",
-            choisesString,
-            displayValuesString);
-
-        String id = componentId == null ? StringUtils.EMPTY : componentId;
-
-        return String.format("new MultiselectEditor('', '%s', %s, '%s', '');",
-            id,
-            params,
-            StringEscapeUtils.escapeEcmaScript(value));
     }
 
     protected String getEditorJSAction(String action) {
@@ -512,6 +473,6 @@ public class HTMLRenderer {
     }
 
     public static String internalPath(String path) {
-        return FacesUtils.getContextPath() + "/faces" + Constants.TABLE_EDITOR_PATTERN + path;
+        return FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + "/faces" + Constants.TABLE_EDITOR_PATTERN + path;
     }
 }

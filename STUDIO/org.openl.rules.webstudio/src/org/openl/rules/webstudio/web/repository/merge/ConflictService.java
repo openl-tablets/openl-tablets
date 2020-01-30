@@ -15,7 +15,7 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
-import org.openl.commons.web.util.WebTool;
+import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;

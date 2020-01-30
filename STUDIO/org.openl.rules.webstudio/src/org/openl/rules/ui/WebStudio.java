@@ -14,8 +14,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.faces.context.FacesContext;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.ValidationException;
@@ -25,7 +34,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.OpenLBundleClassLoader;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -166,6 +174,18 @@ public class WebStudio implements DesignTimeRepositoryListener {
             .parseBoolean(PropertyResolverProvider.getProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES));
         projectResolver = ProjectResolver.instance();
         externalProperties = PropertyResolverProvider.getProperties();
+    }
+
+    private static void addCookie(String name, String value, int age) {
+        Cookie cookie = new Cookie(name, StringTool.encodeURL(value));
+        String contextPath = ((HttpServletRequest) (ServletRequest) WebStudioUtils.getExternalContext().getRequest()).getContextPath();
+        if (!StringUtils.isEmpty(contextPath)) {
+            cookie.setPath(contextPath);
+        } else {
+            cookie.setPath("/"); // EPBDS-7613
+        }
+        cookie.setMaxAge(age);
+        ((HttpServletResponse) (ServletResponse) WebStudioUtils.getExternalContext().getResponse()).addCookie(cookie);
     }
 
     private void initWorkspace(HttpSession session) {
@@ -316,8 +336,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 throw new ProjectException("Exporting module was failed");
             }
 
-            final FacesContext facesContext = FacesUtils.getFacesContext();
-            HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
+            final FacesContext facesContext = FacesContext.getCurrentInstance();
+            HttpServletResponse response = (HttpServletResponse) (ServletResponse) WebStudioUtils.getExternalContext()
+                .getResponse();
             ExportFile.writeOutContent(response, file);
             facesContext.responseComplete();
         } catch (ProjectException e) {
@@ -329,7 +350,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public String exportProject() {
         File file = null;
         String cookePrefix = Constants.RESPONSE_MONITOR_COOKIE;
-        String cookieName = cookePrefix + "_" + FacesUtils.getRequestParameter(cookePrefix);
+        String cookieName = cookePrefix + "_" + WebStudioUtils.getRequestParameter(cookePrefix);
         try {
             RulesProject forExport = getCurrentProject();
             // Export fresh state of the project (it could be modified in
@@ -340,9 +361,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
             String fileName = String.format("%s-%s.zip", forExport.getName(), forExport.getFileData().getVersion());
             file = ProjectExportHelper.export(new WorkspaceUserImpl(userName), forExport);
 
-            final FacesContext facesContext = FacesUtils.getFacesContext();
-            HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
-            FacesUtils.addCookie(cookieName, "success", -1);
+            final FacesContext facesContext = FacesContext.getCurrentInstance();
+            HttpServletResponse response = (HttpServletResponse) (ServletResponse) WebStudioUtils.getExternalContext()
+                .getResponse();
+            addCookie(cookieName, "success", -1);
 
             ExportFile.writeOutContent(response, file, fileName);
             facesContext.responseComplete();
@@ -359,7 +381,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
 
             log.error(message, e);
-            FacesUtils.addCookie(cookieName, message, -1);
+            addCookie(cookieName, message, -1);
         } finally {
             FileUtils.deleteQuietly(file);
         }
@@ -488,8 +510,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
             ProjectDescriptor project = getProjectByName(projectName);
             if (StringUtils.isNotBlank(projectName) && project == null) {
                 // Not empty project name is requested but it's not found
-                FacesUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
-                FacesUtils.getFacesContext().responseComplete();
+                WebStudioUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
+                FacesContext.getCurrentInstance().responseComplete();
                 return;
             }
             // switch current project branch to the selected
@@ -499,16 +521,16 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 project = getProjectByName(projectName);
                 if (StringUtils.isNotBlank(projectName) && project == null) {
                     // Not empty project name is requested but it's not found
-                    FacesUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
-                    FacesUtils.getFacesContext().responseComplete();
+                    WebStudioUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
+                    FacesContext.getCurrentInstance().responseComplete();
                     return;
                 }
             }
             Module module = getModule(project, moduleName);
             if (StringUtils.isNotBlank(moduleName) && module == null) {
                 // Not empty module name is requested but it's not found
-                FacesUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
-                FacesUtils.getFacesContext().responseComplete();
+                WebStudioUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
+                FacesContext.getCurrentInstance().responseComplete();
                 return;
             }
             boolean moduleChanged = currentProject != project || currentModule != module;
@@ -534,8 +556,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
         } catch (Exception e) {
             log.error("Failed initialization. Project='{}'  Module='{}'", projectName, moduleName, e);
-            FacesUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            FacesUtils.getFacesContext().responseComplete();
+            WebStudioUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            FacesContext.getCurrentInstance().responseComplete();
         }
     }
 
@@ -828,12 +850,13 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private ProjectDescriptorArtefactResolver getProjectDescriptorResolver() {
         return (ProjectDescriptorArtefactResolver) WebApplicationContextUtils
-            .getRequiredWebApplicationContext(FacesUtils.getServletContext())
+            .getRequiredWebApplicationContext((ServletContext) WebStudioUtils.getExternalContext().getContext())
             .getBean("projectDescriptorArtefactResolver");
     }
 
     private PathFilter getZipFilter() {
-        return (PathFilter) WebApplicationContextUtils.getRequiredWebApplicationContext(FacesUtils.getServletContext())
+        return (PathFilter) WebApplicationContextUtils.getRequiredWebApplicationContext(
+            (ServletContext) WebStudioUtils.getExternalContext().getContext())
             .getBean("zipFilter");
     }
 
@@ -887,7 +910,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * @return true only if there is a project with specified name and it is not current project
      */
     public boolean isProjectExists(final String name) {
-        HttpSession session = FacesUtils.getSession();
+        HttpSession session = WebStudioUtils.getSession();
         UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
 
         // The order of getting projects is important!

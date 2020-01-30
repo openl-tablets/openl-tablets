@@ -7,8 +7,8 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 @ManagedBean
 @SessionScoped
@@ -38,7 +38,7 @@ public class ProductionRepositoriesTreeController {
     }
 
     public String selectRulesProject() {
-        String projectName = FacesUtils.getRequestParameter("projectName");
+        String projectName = WebStudioUtils.getRequestParameter("projectName");
 
         TreeNode selectedNode = repositorySelectNodeStateHolder.getSelectedNode();
         if (selectedNode == null) {

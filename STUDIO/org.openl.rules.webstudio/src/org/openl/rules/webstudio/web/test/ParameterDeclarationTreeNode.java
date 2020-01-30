@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
+import org.openl.rules.ui.Message;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.richfaces.model.TreeNode;
@@ -56,6 +57,9 @@ public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDec
     }
 
     public Object getValueForced() {
+        if (getError() != null) {
+            throw new Message(getError());
+        }
         if (isValueNull()) {
             return null;
         } else {
@@ -83,6 +87,7 @@ public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDec
 
     public void reset() {
         children = null;
+        setError(null);
     }
 
     protected LinkedHashMap<Object, ParameterDeclarationTreeNode> getChildrenMap() {

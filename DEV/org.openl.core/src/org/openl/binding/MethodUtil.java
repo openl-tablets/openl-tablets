@@ -186,7 +186,7 @@ public final class MethodUtil {
         for (int i = 0; i < classArray.length; i++) {
             Class<?> from = classArray[i];
             Class<?> to = toClassArray[i];
-            if (from.isPrimitive() ^ to.isPrimitive() || !ClassUtils.isAssignable(from, to)) {
+            if (!ClassUtils.isAssignable(from, to)) {
                 return false;
             }
         }

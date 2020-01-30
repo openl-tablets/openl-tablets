@@ -9,12 +9,12 @@ import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.*;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
@@ -99,7 +99,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
             }
         }
 
-        domainTypes = FacesUtils.createSelectItems(allClasses);
+        domainTypes = WizardUtils.createSelectItems(allClasses);
 
         allDataTables = new ArrayList<>();
         for (TableSyntaxNode tbl : WizardUtils.getTableSyntaxNodes()) {
@@ -195,7 +195,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
         Collections.sort(tableNames);
 
-        return FacesUtils.createSelectItems(tableNames);
+        return WizardUtils.createSelectItems(tableNames);
     }
 
     /**
@@ -228,7 +228,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
             }
         }
 
-        return FacesUtils.createSelectItems(columns);
+        return WizardUtils.createSelectItems(columns);
     }
 
     protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule) throws CreateTableException {
@@ -362,7 +362,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
                 if (!node.isComplex() && node.isEditForeignKey()) {
                     clientId += ":simpleForeignKeyTable";
-                    FacesUtils.addMessage(clientId,
+                    WebStudioUtils.addMessage(clientId,
                         "Validation Error: ",
                         "Fill foreign key or uncheck the checkbox",
                         FacesMessage.SEVERITY_ERROR);

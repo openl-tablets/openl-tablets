@@ -2,7 +2,6 @@
 <ui:composition
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:f="http://java.sun.com/jsf/core"
     xmlns:a4j="http://richfaces.org/a4j">
 
     <h:form id="groupsForm">
@@ -36,7 +35,7 @@
             </td>
             <td>
                 <a href="javascript:void(0)"
-                    onclick="editGroup('#{jsffn:toJSText(group.name)}', '#{jsffn:toJSText(group.description)}', #{groupsBean.isOnlyAdmin(group)})"
+                    onclick="editGroup('#{utils.toJSText(group.name)}', '#{utils.toJSText(group.description)}', #{groupsBean.isOnlyAdmin(group)})"
                     title="Edit"><img src="#{request.contextPath}/images/edit2.gif" /></a>
                 <a4j:commandLink execute="@this" render=":userList :addGroupPrivilegeList :addUserGroups :editUserGroups @form"
                     rendered="#{!groupsBean.isOnlyAdmin(group)}"

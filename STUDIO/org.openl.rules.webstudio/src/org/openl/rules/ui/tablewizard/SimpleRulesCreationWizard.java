@@ -15,7 +15,6 @@ import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.FloatValue;
@@ -96,7 +95,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
             allClasses.add(type.getDisplayName(INamedThing.SHORT));
         }
 
-        domainTypes = FacesUtils.createSelectItems(allClasses);
+        domainTypes = WizardUtils.createSelectItems(allClasses);
 
         Collection<IOpenClass> classTypes = DomainTree.buildTree(WizardUtils.getProjectOpenClass()).getAllOpenClasses();
         this.typesList = new ArrayList<>();

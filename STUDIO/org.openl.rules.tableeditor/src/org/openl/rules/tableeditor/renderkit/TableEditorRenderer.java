@@ -12,7 +12,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
-import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.tableeditor.event.TableEditorController;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.ActionLink;
 import org.openl.rules.tableeditor.util.Constants;
@@ -43,7 +43,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
 
         String action = editor.getBeforeEditAction();
         if (action != null && editing) {
-            Boolean successful = (Boolean) FacesUtils.invokeMethodExpression(action);
+            Boolean successful = (Boolean) TableEditorController.invokeMethodExpression(action);
 
             if (!successful) {
                 editor.setEditable(false);

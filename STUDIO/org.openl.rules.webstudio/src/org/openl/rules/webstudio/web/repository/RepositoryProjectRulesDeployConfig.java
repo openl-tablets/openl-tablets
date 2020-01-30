@@ -11,7 +11,6 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
@@ -93,7 +92,7 @@ public class RepositoryProjectRulesDeployConfig {
                 repositoryTreeState.refreshSelectedNode();
                 studio.reset();
             } catch (ProjectException e) {
-                FacesUtils.addErrorMessage("Failed to delete '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
+                WebStudioUtils.addErrorMessage("Failed to delete '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
                 log.error(e.getMessage(), e);
             }
         }
@@ -117,7 +116,7 @@ public class RepositoryProjectRulesDeployConfig {
                 studio.reset();
             }
         } catch (ProjectException e) {
-            FacesUtils.addErrorMessage("Failed to save save '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
+            WebStudioUtils.addErrorMessage("Failed to save save '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
             log.error(e.getMessage(), e);
         }
     }
@@ -150,10 +149,10 @@ public class RepositoryProjectRulesDeployConfig {
             String sourceString = IOUtils.toStringAndClose(content);
             return serializer.deserialize(sourceString, getSupportedVersion(project));
         } catch (IOException | ProjectException e) {
-            FacesUtils.addErrorMessage("Failed to read '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
+            WebStudioUtils.addErrorMessage("Failed to read '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
             log.error(e.getMessage(), e);
         } catch (XStreamException e) {
-            FacesUtils.addErrorMessage("Failed to parse '" + RULES_DEPLOY_CONFIGURATION_FILE + " file.");
+            WebStudioUtils.addErrorMessage("Failed to parse '" + RULES_DEPLOY_CONFIGURATION_FILE + " file.");
             log.error(e.getMessage(), e);
         }
 
@@ -165,14 +164,14 @@ public class RepositoryProjectRulesDeployConfig {
 
         if (StringUtils.isNotBlank(name)) {
             String message = "Invalid service name: only latin letters, numbers and _ are allowed, name must begin with a letter";
-            FacesUtils.validate(name.matches("[a-zA-Z][a-zA-Z_\\-\\d]*"), message);
+            WebStudioUtils.validate(name.matches("[a-zA-Z][a-zA-Z_\\-\\d]*"), message);
         }
     }
 
     public void validateServiceClass(FacesContext context, UIComponent toValidate, Object value) {
         String className = (String) value;
         if (StringUtils.isNotBlank(className)) {
-            FacesUtils.validate(className.matches("([\\w$]+\\.)*[\\w$]+"), "Invalid class name");
+            WebStudioUtils.validate(className.matches("([\\w$]+\\.)*[\\w$]+"), "Invalid class name");
         }
     }
 

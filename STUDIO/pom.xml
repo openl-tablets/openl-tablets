@@ -16,7 +16,6 @@
         <module>org.openl.rules.repository.aws</module>
         <module>org.openl.rules.repository.git</module>
         <module>org.openl.rules.workspace</module>
-        <module>org.openl.commons.web</module>
         <module>org.openl.rules.jackson</module>
         <module>org.openl.rules.variation</module>
         <module>org.openl.rules.webstudio</module>

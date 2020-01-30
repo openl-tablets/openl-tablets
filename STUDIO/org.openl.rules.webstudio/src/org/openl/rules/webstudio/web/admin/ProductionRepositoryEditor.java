@@ -144,7 +144,7 @@ public class ProductionRepositoryEditor {
             productionRepositoryConfigurations.set(i, newProdConfig);
             configNames[i] = newProdConfig.getConfigName();
         }
-        properties.setProperty(PRODUCTION_REPOSITORY_CONFIGS, join(configNames));
+        properties.setProperty(PRODUCTION_REPOSITORY_CONFIGS, String.join(",", configNames));
     }
 
     public void revertChanges() {
@@ -187,7 +187,8 @@ public class ProductionRepositoryEditor {
             if (configNames[i].equals(prodConfig.getConfigName())) {
                 // Found necessary link - rename it
                 configNames[i] = newConfigName;
-                properties.setProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS, join(configNames));
+                properties.setProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS,
+                    String.join(",", configNames));
                 break;
             }
         }
@@ -200,10 +201,6 @@ public class ProductionRepositoryEditor {
 
     private String[] split(String s) {
         return StringUtils.split(s, ',');
-    }
-
-    private String join(String[] arr) {
-        return StringUtils.join(arr, ",");
     }
 
     public abstract static class Callback {

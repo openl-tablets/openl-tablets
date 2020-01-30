@@ -10,7 +10,6 @@ import javax.faces.event.PhaseListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.tableeditor.util.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +48,7 @@ public class TableEditorDispatcher implements PhaseListener {
     private void handleAjaxRequest(FacesContext context, HttpServletResponse response, String path) {
         try {
             String methodExpressionString = makeMethodExpressionString(path.replaceFirst(AJAX_MATCH, ""));
-            String res = (String) FacesUtils.invokeMethodExpression(methodExpressionString);
+            String res = (String) TableEditorController.invokeMethodExpression(methodExpressionString);
 
             response.setHeader("Pragma", "no-cache");
             response.setHeader("Cache-Control", "no-cache");

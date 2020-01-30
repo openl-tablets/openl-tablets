@@ -1,8 +1,8 @@
 package org.openl.rules.webstudio.web.repository.project;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.webstudio.web.repository.upload.AProjectCreator;
 import org.openl.rules.webstudio.web.repository.upload.RulesProjectBuilder;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.IOUtils;
@@ -43,7 +43,7 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
                         projectBuilder.addFile(fileName, changeFileIfNeeded(fileName, file.getInput()));
                     }
                 } catch (Exception e) {
-                    FacesUtils.addErrorMessage("Problem with file " + fileName + ". " + e.getMessage());
+                    WebStudioUtils.addErrorMessage("Problem with file " + fileName + ". " + e.getMessage());
                 }
             }
         }
@@ -60,7 +60,7 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
 
     private boolean checkFileSize(ProjectFile file) {
         if (file.getSize() > 100 * 1024 * 1024) {
-            FacesUtils.addErrorMessage("Size of the file " + file.getName() + " is more then 100MB.");
+            WebStudioUtils.addErrorMessage("Size of the file " + file.getName() + " is more then 100MB.");
             return false;
         }
         return true;

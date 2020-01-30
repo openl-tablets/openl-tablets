@@ -8,7 +8,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
 
-import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
@@ -54,7 +54,7 @@ public class SystemSettingsValidator {
         }
 
         if (errorMessage != null) {
-            FacesUtils.addErrorMessage(errorMessage);
+            WebStudioUtils.addErrorMessage(errorMessage);
             throw new ValidatorException(new FacesMessage(errorMessage));
         }
     }
@@ -69,11 +69,11 @@ public class SystemSettingsValidator {
         try {
             int v = Integer.parseInt(StringUtils.trim(count));
             if (v < 0) {
-                FacesUtils.addErrorMessage(message);
+                WebStudioUtils.addErrorMessage(message);
                 throw new ValidatorException(new FacesMessage(message));
             }
         } catch (NumberFormatException e) {
-            FacesUtils.addErrorMessage(message);
+            WebStudioUtils.addErrorMessage(message);
             throw new ValidatorException(new FacesMessage(message));
         }
     }
@@ -83,11 +83,11 @@ public class SystemSettingsValidator {
         try {
             int v = Integer.parseInt(StringUtils.trim(count));
             if (v <= 0) {
-                FacesUtils.addErrorMessage(message);
+                WebStudioUtils.addErrorMessage(message);
                 throw new ValidatorException(new FacesMessage(message));
             }
         } catch (NumberFormatException e) {
-            FacesUtils.addErrorMessage(message);
+            WebStudioUtils.addErrorMessage(message);
             throw new ValidatorException(new FacesMessage(message));
         }
     }
@@ -117,7 +117,7 @@ public class SystemSettingsValidator {
             FileUtils.deleteQuietly(root);
         }
         if (!hasAccess) {
-            FacesUtils.addErrorMessage(
+            WebStudioUtils.addErrorMessage(
                 "Cannot get access to the folder ' " + folderPath + " '    Please, contact to your system administrator.");
         }
     }
@@ -125,7 +125,7 @@ public class SystemSettingsValidator {
     private void validateNotBlank(String value, String folderType) {
         if (StringUtils.isBlank(value)) {
             String errorMessage = folderType + " could not be empty";
-            FacesUtils.addErrorMessage(errorMessage);
+            WebStudioUtils.addErrorMessage(errorMessage);
             throw new ValidatorException(new FacesMessage(errorMessage));
         }
     }

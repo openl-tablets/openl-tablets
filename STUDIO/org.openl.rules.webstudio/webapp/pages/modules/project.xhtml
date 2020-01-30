@@ -4,8 +4,7 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich"
-    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
+    xmlns:rich="http://richfaces.org/rich">
 
     <style>
         .page img {
@@ -163,13 +162,13 @@
                                         #{empty module.name ? 'Multiple modules' : module.name}
                                     </h:panelGroup>
                                     <h:panelGroup rendered="#{!isModuleWithWildcard}">
-                                        <a href="##{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(module.name)}">#{module.name}</a>
+                                        <a href="#{utils.toUrl(project.name, module.name)}">#{module.name}</a>
                                     </h:panelGroup>
                                     <span class="path">#{projectBean.getModulePath(module)}</span>
                                 </div>
                                 <ui:repeat var="matchedModule" value="#{projectBean.getModulesMatchingPathPattern(module)}">
                                     <div class="nested-item">
-                                        <a href="##{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(matchedModule.name)}">#{matchedModule.name}</a>
+                                        <a href="#{utils.toUrl(project.name, matchedModule.name)}">#{matchedModule.name}</a>
                                         <span class="path">#{projectBean.getModulePath(matchedModule)}</span>
                                     </div>
                                 </ui:repeat>
@@ -196,11 +195,11 @@
                                 </h:panelGroup>
                                 <h:panelGroup rendered="#{editable}">
                                     <a href="javascript:void(0)" title="Edit Module" class="editable-link-inner first-button"
-                                        onclick="editModule({index:'#{i.index}',name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{jsffn:escapeJS(module.methodFilter.includes)}',excludes:'#{jsffn:escapeJS(module.methodFilter.excludes)}'})"><img
+                                        onclick="editModule({index:'#{i.index}',name:'#{module.name}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}'})"><img
                                             src="#{request.contextPath}/webresource/images/edit.png" style="opacity:0.4" /></a>
                                     <h:panelGroup>
                                         <a href="javascript:void(0)" title="Copy Module" class="editable-link-inner second-button"
-                                            onclick="copyModule({isModuleWithWildcard:#{isModuleWithWildcard},index:'#{i.index}',name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{jsffn:escapeJS(module.methodFilter.includes)}',excludes:'#{jsffn:escapeJS(module.methodFilter.excludes)}'})"><img
+                                            onclick="copyModule({isModuleWithWildcard:#{isModuleWithWildcard},index:'#{i.index}',name:'#{module.name}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}'})"><img
                                                 src="#{request.contextPath}/webresource/images/copy.png" style="opacity:0.4" /></a>
                                     </h:panelGroup>
                                     <h:panelGroup rendered="#{modulesNumber > 1}">
@@ -232,7 +231,7 @@
                         <ui:repeat var="dependency" value="#{project.dependencies}">
                             <div class="list-item">
                                 <h:panelGroup rendered="#{!empty studio.getProjectByName(dependency.name)}">
-                                <a href="##{jsffn:encodeURL(dependency.name)}">#{dependency.name}</a>
+                                <a href="#{utils.toUrl(dependency.name)}">#{dependency.name}</a>
                                 <h:panelGroup rendered="#{dependency.autoIncluded}" styleClass="path">
                                     All Modules
                                 </h:panelGroup>
@@ -394,7 +393,7 @@
             <footer>
                 <a4j:commandButton id="editProjectBtn" value="Update" action="#{projectBean.editName}"
                     styleClass="button-primary"
-                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editProjectPopup');ws.nav.go('##{jsffn:encodeURL(projectData.name)}', true)}" />
+                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editProjectPopup');ws.nav.go('#{utils.toUrl(projectData.name)}', true)}" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('editProjectPopup');" />
             </footer>
         </h:form>

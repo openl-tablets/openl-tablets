@@ -8,7 +8,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 
-import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +84,7 @@ public class ProjectsInHistoryController {
                     } catch (Exception e) {
                         msg = "Failed to clean history of project '" + bean.getProjectName() + "'.";
                         log.error(msg, e);
-                        FacesUtils.addErrorMessage(msg, e.getMessage());
+                        WebStudioUtils.addErrorMessage(msg, e.getMessage());
                     }
                     beansNamesBuilder.append(bean.getProjectName()).append(", ");
                     beansSize = beansSize + 1;
@@ -98,7 +98,7 @@ public class ProjectsInHistoryController {
                 } else {
                     msg = "Histories of projects " + beansNames + " were cleaned successfully";
                 }
-                FacesUtils.addInfoMessage(msg);
+                WebStudioUtils.addInfoMessage(msg);
             }
         }
         return null;

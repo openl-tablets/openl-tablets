@@ -1,6 +1,10 @@
 package org.openl.rules.lang.xls.binding;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.openl.OpenL;
@@ -104,7 +108,7 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
             names.add(parameter.getName());
         }
 
-        builder.append("(").append(StringUtils.join(names, ", ")).append(")");
+        builder.append("(").append(String.join(", ", names)).append(")");
 
         // Dimensional properties and version
         //

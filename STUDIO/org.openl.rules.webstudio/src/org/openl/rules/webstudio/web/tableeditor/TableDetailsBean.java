@@ -19,7 +19,6 @@ import javax.faces.model.SelectItemGroup;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
@@ -53,7 +52,7 @@ public class TableDetailsBean {
     public TableDetailsBean() {
         WebStudio studio = WebStudioUtils.getWebStudio();
 
-        id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
+        id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
         IOpenLTable table;
 
@@ -301,6 +300,6 @@ public class TableDetailsBean {
         }
 
         table.getGridTable().stopEditing();
-        FacesUtils.removeSessionParam(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
+        WebStudioUtils.getExternalContext().getSessionMap().remove(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
     }
 }

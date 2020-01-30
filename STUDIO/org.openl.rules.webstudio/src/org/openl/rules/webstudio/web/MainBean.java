@@ -8,7 +8,6 @@ import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.CommonException;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -46,7 +45,7 @@ public class MainBean {
 
     public MainBean() {
         if (WebContext.getContextPath() == null) {
-            WebContext.setContextPath(FacesUtils.getContextPath());
+            WebContext.setContextPath(WebStudioUtils.getExternalContext().getRequestContextPath());
         }
         requestId = UUID.randomUUID().toString();
 
@@ -72,9 +71,9 @@ public class MainBean {
     public void init() {
         WebStudio studio = WebStudioUtils.getWebStudio(true);
 
-        String branchName = FacesUtils.getRequestParameter("branch");
-        String projectName = FacesUtils.getRequestParameter("project");
-        String moduleName = FacesUtils.getRequestParameter("module");
+        String branchName = WebStudioUtils.getRequestParameter("branch");
+        String projectName = WebStudioUtils.getRequestParameter("project");
+        String moduleName = WebStudioUtils.getRequestParameter("module");
 
         studio.init(branchName, projectName, moduleName);
     }
@@ -109,12 +108,12 @@ public class MainBean {
 
     public void saveProject() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.saveProject(FacesUtils.getSession());
+        studio.saveProject(WebStudioUtils.getSession());
     }
 
     public void reload() {
         try {
-            WebStudioUtils.getRulesUserSession(FacesUtils.getSession()).getUserWorkspace().refresh();
+            WebStudioUtils.getRulesUserSession(WebStudioUtils.getSession()).getUserWorkspace().refresh();
         } catch (CommonException e) {
             log.error("Error on reloading user's workspace", e);
         }

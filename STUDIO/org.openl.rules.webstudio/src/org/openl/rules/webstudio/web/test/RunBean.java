@@ -7,7 +7,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.ITestUnit;
@@ -45,7 +44,7 @@ public class RunBean {
     @PostConstruct
     public void init() {
         testSuite = runTestHelper.getTestSuite();
-        id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
+        id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
         if (testSuite != null) {
             ProjectModel model = WebStudioUtils.getProjectModel();
             results = model.runTest(testSuite);

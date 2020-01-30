@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls2.XlsDiff2;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ public class ExcelDiffController extends AbstractDiffController {
                 setDiffTree(diffTree);
             } catch (Exception e) {
                 log.warn(e.getMessage(), e);
-                FacesUtils.addErrorMessage(e.getMessage());
+                WebStudioUtils.addErrorMessage(e.getMessage());
             }
 
         }

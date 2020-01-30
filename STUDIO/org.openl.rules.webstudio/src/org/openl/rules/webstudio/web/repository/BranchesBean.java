@@ -10,7 +10,6 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.MergeConflictException;
@@ -168,7 +167,7 @@ public class BranchesBean {
 
     public void save() {
         if (branches == null || branches.isEmpty()) {
-            FacesUtils.addErrorMessage("At least one branch must be selected.");
+            WebStudioUtils.addErrorMessage("At least one branch must be selected.");
             return;
         }
         try {
@@ -191,7 +190,7 @@ public class BranchesBean {
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            FacesUtils.addErrorMessage("Cannot copy the project: " + e.getMessage());
+            WebStudioUtils.addErrorMessage("Cannot copy the project: " + e.getMessage());
         }
     }
 
@@ -266,7 +265,7 @@ public class BranchesBean {
     }
 
     private UserWorkspace getUserWorkspace() throws WorkspaceException {
-        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
+        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(WebStudioUtils.getSession());
         return rulesUserSession.getUserWorkspace();
     }
 }

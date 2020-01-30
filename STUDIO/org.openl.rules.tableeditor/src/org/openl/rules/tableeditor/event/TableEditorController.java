@@ -5,7 +5,6 @@ import java.util.Date;
 
 import org.apache.poi.ss.formula.FormulaParseException;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.service.TableServiceException;
 import org.openl.rules.table.ICell;
@@ -32,6 +31,10 @@ import org.slf4j.LoggerFactory;
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
 
+import javax.el.ELContext;
+import javax.el.MethodExpression;
+import javax.faces.context.FacesContext;
+
 /**
  * Table editor controller.
  *
@@ -49,6 +52,20 @@ public class TableEditorController extends BaseTableEditorController {
     private static final String ERROR_INSERT_ROW = "Cannot insert row.";
     private static final String ERROR_INSERT_COLUMN = "Cannot insert column.";
     private static final String ERROR_OPENED_EXCEL = ERROR_SAVE_TABLE + " Please close module Excel file and try again.";
+
+    public static Object invokeMethodExpression(String expressionString) {
+        return invokeMethodExpression(expressionString, null, null);
+    }
+
+    private static Object invokeMethodExpression(String expressionString, Object[] params, Class<?>[] paramTypes) {
+        FacesContext context = FacesContext.getCurrentInstance();
+        ELContext elContext = context.getELContext();
+        MethodExpression methodExpression = context.getApplication()
+            .getExpressionFactory()
+            .createMethodExpression(elContext, expressionString, null, paramTypes == null ? new Class[0] : paramTypes);
+        return methodExpression.invoke(
+            FacesContext.getCurrentInstance().getELContext(), params == null ? new Object[0] : params);
+    }
 
     public String insertRowBefore() {
         int row = getRow();
@@ -134,7 +151,13 @@ public class TableEditorController extends BaseTableEditorController {
             value = cell.getStringValue();
         } else if (editorType.equals(ICellEditor.CE_DATE)) {
             // Format must be same as in DateEditor.js
-            value = FormattersManager.format(cell.getObjectValue());
+            Object objectValue;
+            try {
+                objectValue = cell.getNativeDate();
+            } catch (IllegalStateException e) {
+                objectValue = cell.getObjectValue();
+            }
+            value = FormattersManager.format(objectValue);
         }
         return value;
     }
@@ -176,7 +199,7 @@ public class TableEditorController extends BaseTableEditorController {
     }
 
     private String getRequestParam(String name) {
-        String value = FacesUtils.getRequestParameter(name);
+        String value = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get(name);
         if (StringUtils.isEmpty(value)) {
             return null;
         }
@@ -598,7 +621,7 @@ public class TableEditorController extends BaseTableEditorController {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         String beforeSaveAction = editorModel.getBeforeSaveAction();
         if (beforeSaveAction != null) {
-            return (Boolean) FacesUtils.invokeMethodExpression(beforeSaveAction);
+            return (Boolean) invokeMethodExpression(beforeSaveAction);
         }
         return true;
     }
@@ -607,7 +630,7 @@ public class TableEditorController extends BaseTableEditorController {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         String afterSaveAction = editorModel.getAfterSaveAction();
         if (afterSaveAction != null) {
-            FacesUtils.invokeMethodExpression(afterSaveAction,
+            invokeMethodExpression(afterSaveAction,
                 StringUtils.isNotBlank(newId) ? new String[] { newId } : null,
                 StringUtils.isNotBlank(newId) ? new Class[] { String.class } : null);
         }

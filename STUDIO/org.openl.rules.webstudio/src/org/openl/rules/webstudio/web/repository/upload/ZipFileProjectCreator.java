@@ -14,11 +14,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromFile;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -109,7 +109,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
             }
         }
         if (skipped) {
-            FacesUtils.addWarnMessage("Warning: Some malformed zip entries were skipped.");
+            WebStudioUtils.addWarnMessage("Warning: Some malformed zip entries were skipped.");
         }
         return sortedNames;
     }
@@ -120,14 +120,14 @@ public class ZipFileProjectCreator extends AProjectCreator {
         List<String> invalidNames = incorrectNames();
 
         if (!invalidNames.isEmpty()) {
-            FacesUtils.addErrorMessage("Project has not been created. Zip file contains " + invalidNames
+            WebStudioUtils.addErrorMessage("Project has not been created. Zip file contains " + invalidNames
                 .size() + " files/folders with incorrect names:");
 
             /*
              * Display first 20 files/folders with incorrect names
              */
             for (int i = 0; i < Math.min(invalidNames.size(), 20); i++) {
-                FacesUtils.addErrorMessage(invalidNames.get(i));
+                WebStudioUtils.addErrorMessage(invalidNames.get(i));
             }
             throw new ProjectException(NameChecker.BAD_NAME_MSG);
         }
@@ -186,7 +186,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
 
     private boolean checkFileSize(ZipEntry file) {
         if (file.getSize() > 100 * 1024 * 1024) {
-            FacesUtils.addErrorMessage("Size of the file " + file.getName() + " is more then 100MB.");
+            WebStudioUtils.addErrorMessage("Size of the file " + file.getName() + " is more then 100MB.");
             return false;
         }
 

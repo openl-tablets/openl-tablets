@@ -17,10 +17,4 @@
             <var>msg</var>
        </resource-bundle>
     </application>
-
-    <component>
-        <component-type>org.openl.commons.web.jsf.facelets.acegi.Authentication</component-type>
-        <component-class>org.openl.commons.web.jsf.facelets.acegi.AuthenticationComponent</component-class>
-    </component>
-
 </faces-config>

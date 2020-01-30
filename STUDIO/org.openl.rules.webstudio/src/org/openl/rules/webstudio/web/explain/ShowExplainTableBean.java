@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.explain;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.*;
 import org.openl.rules.table.ui.IGridSelector;
 import org.openl.rules.table.ui.RegionGridSelector;
@@ -30,7 +29,7 @@ public class ShowExplainTableBean {
     public ShowExplainTableBean() {
         ProjectModel model = WebStudioUtils.getProjectModel();
 
-        uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
+        uri = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
         table = model.getTable(uri);
     }
 
@@ -119,7 +118,7 @@ public class ShowExplainTableBean {
             header.append(table.getDisplayName());
             header.append(" : ");
 
-            String text = FacesUtils.getRequestParameter("text");
+            String text = WebStudioUtils.getRequestParameter("text");
             if (StringUtils.isNotBlank(text)) {
                 header.append(text);
             }
