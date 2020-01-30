@@ -284,7 +284,7 @@ public class RepositoryTreeController {
 
     public void setWasSaved(boolean wasSaved) {
         if (wasSaved) {
-            FacesUtils.addInfoMessage("Project was saved successfully.");
+            WebStudioUtils.addInfoMessage("Project was saved successfully.");
         }
     }
 

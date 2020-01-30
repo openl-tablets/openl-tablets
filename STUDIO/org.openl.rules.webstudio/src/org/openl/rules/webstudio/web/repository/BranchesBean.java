@@ -119,11 +119,11 @@ public class BranchesBean {
     public void merge() {
         try {
             if (branchToMergeFrom == null || branchToMergeTo == null) {
-                FacesUtils.addErrorMessage("Choose the branches to merge.");
+                WebStudioUtils.addErrorMessage("Choose the branches to merge.");
                 return;
             }
             if (branchToMergeFrom.equals(branchToMergeTo)) {
-                FacesUtils.addErrorMessage("Can't merge the branch '" + branchToMergeFrom + "' to itself.");
+                WebStudioUtils.addErrorMessage("Can't merge the branch '" + branchToMergeFrom + "' to itself.");
                 return;
             }
             RulesProject project = getProject(currentProjectName);
@@ -155,13 +155,13 @@ public class BranchesBean {
                 msg = "Error during merge operation.";
             }
             log.error(msg, e);
-            FacesUtils.addErrorMessage(msg);
+            WebStudioUtils.addErrorMessage(msg);
         }
     }
 
     public void setWasMerged(boolean wasMerged) {
         if (wasMerged) {
-            FacesUtils.addInfoMessage("Branches were merged successfully.");
+            WebStudioUtils.addInfoMessage("Branches were merged successfully.");
         }
     }
 
