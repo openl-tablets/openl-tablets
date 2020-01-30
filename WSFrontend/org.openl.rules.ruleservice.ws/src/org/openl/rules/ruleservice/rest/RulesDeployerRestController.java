@@ -99,19 +99,6 @@ public class RulesDeployerRestController {
     @Path("/delete/{serviceName}")
     public Response delete(@PathParam("serviceName") final String serviceName) throws Exception {
         OpenLService service = ruleServiceManager.getServiceByName(serviceName);
-        if (service != null) {
-            return deleteService(service);
-        } else {
-            service = ruleServiceManager.getFailedServiceByName(serviceName);
-            Response response = deleteService(service);
-            if (Response.Status.OK.getStatusCode() == response.getStatus()) {
-                ruleServiceManager.deleteFailedServiceInfo(serviceName);
-            }
-            return response;
-        }
-    }
-
-    private Response deleteService(OpenLService service) throws IOException {
         boolean deleted = rulesDeployerService.delete(service.getServicePath());
         return Response.status(deleted ? Response.Status.OK : Status.NOT_FOUND).build();
     }

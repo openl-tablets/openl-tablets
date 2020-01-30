@@ -9,10 +9,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -43,8 +41,6 @@ import org.openl.rules.ruleservice.kafka.databinding.KafkaConfigHolder;
 import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
-import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
-import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
 import org.slf4j.Logger;
@@ -60,7 +56,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rits.cloning.Cloner;
 
-public class KafkaRuleServicePublisher implements RuleServicePublisher, AvailableServicesPresenter, ResourceLoaderAware {
+public class KafkaRuleServicePublisher implements RuleServicePublisher, ResourceLoaderAware {
 
     private final Logger log = LoggerFactory.getLogger(KafkaRuleServicePublisher.class);
 
@@ -74,7 +70,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
             "jacksondatabinding.enableDefaultTyping",
             CLIENT_ID_GENERATOR };
 
-    private List<ServiceInfo> availableServices = new ArrayList<>();
     private Map<OpenLService, Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>>> runningServices = new HashMap<>();
 
     private ResourceLoader resourceLoader;
@@ -540,7 +535,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
 
             if (!kafkaServices.isEmpty()) {
                 runningServices.put(service, Triple.of(kafkaServices, kafkaProducers, kafkaConsumers));
-                availableServices.add(createServiceInfo(service));
                 log.info("Service '{}' has been successfully deployed.", service.getName());
             } else {
                 throw new KafkaServiceConfigurationException(String.format(
@@ -627,36 +621,24 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void undeploy(String serviceName) throws RuleServiceUndeployException {
-        Objects.requireNonNull(serviceName, "serviceName cannot be null");
-        OpenLService service = getServiceByName(serviceName);
-        if (service == null) {
+    public void undeploy(OpenLService service) throws RuleServiceUndeployException {
+        Objects.requireNonNull(service, "service cannot be null");
+        Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>> triple = runningServices.get(service);
+        if (triple == null) {
             throw new RuleServiceUndeployException(
-                String.format("There is no running service with name '%s'", serviceName));
+                    String.format("There is no running service with name '%s'", service.getName()));
         }
         try {
-            if (stopAndClose(runningServices.get(service))) {
-                log.info("Service '{}' has been successfully undeployed.", serviceName);
+            if (stopAndClose(triple)) {
+                log.info("Service '{}' has been successfully undeployed.", service.getName());
             } else {
-                log.info("Service '{}' has been undeployed with errors.", serviceName);
+                log.info("Service '{}' has been undeployed with errors.", service.getName());
             }
             runningServices.remove(service);
-            removeServiceInfo(serviceName);
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", serviceName), t);
+            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()), t);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Collection<OpenLService> getServices() {
-        return new ArrayList<>(runningServices.keySet());
     }
 
     /**
@@ -673,25 +655,9 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
         return null;
     }
 
-    private ServiceInfo createServiceInfo(OpenLService service) {
-        return new ServiceInfo(new Date(), service.getName(), "", "Kafka", service.getServicePath());
-    }
-
     @Override
-    public List<ServiceInfo> getAvailableServices() {
-        List<ServiceInfo> services = new ArrayList<>(availableServices);
-        Collections.sort(services, (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
-        return services;
-    }
-
-    private void removeServiceInfo(String serviceName) {
-        for (Iterator<ServiceInfo> iterator = availableServices.iterator(); iterator.hasNext();) {
-            ServiceInfo serviceInfo = iterator.next();
-            if (serviceInfo.getName().equals(serviceName)) {
-                iterator.remove();
-                break;
-            }
-        }
+    public String getUrl(OpenLService service) {
+        return null;
     }
 
     @Override

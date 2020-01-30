@@ -129,8 +129,8 @@ public class RunRestRulesDeploymentTest {
             String expectedSoap,
             String expectedRest) {
         assertEquals(expectedName, service.getName());
-        assertEquals(expectedSoap, service.getUrls().get("SOAP"));
-        assertEquals(expectedRest, service.getUrls().get("REST"));
+        assertEquals(expectedSoap, service.getUrls().get("WEBSERVICE"));
+        assertEquals(expectedRest, service.getUrls().get("RESTFUL"));
     }
 
     private void checkServiceTime(long timeToCheckMs, long createServiceTime) {

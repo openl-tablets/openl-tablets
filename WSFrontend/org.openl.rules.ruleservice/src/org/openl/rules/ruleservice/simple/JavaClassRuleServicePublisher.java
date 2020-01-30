@@ -1,7 +1,5 @@
 package org.openl.rules.ruleservice.simple;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -35,15 +33,6 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
      * {@inheritDoc}
      */
     @Override
-    public Collection<OpenLService> getServices() {
-        Collection<OpenLService> services = runningServices.values();
-        return new ArrayList<>(services);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public OpenLService getServiceByName(String serviceName) {
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
         return runningServices.get(serviceName);
@@ -56,7 +45,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
     public void deploy(OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service cannot be null");
         try {
-            OpenLService registeredService = getServiceByName(service.getName());
+            OpenLService registeredService = frontend.findServiceByName(service.getName());
             if (registeredService != null) {
                 throw new RuleServiceDeployException(
                     String.format("Service '%s' is already deployed.", service.getName()));
@@ -69,11 +58,10 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void undeploy(String serviceName) throws RuleServiceUndeployException {
+    public void undeploy(OpenLService service) throws RuleServiceUndeployException {
+        Objects.requireNonNull(service, "service cannot be null");
+        String serviceName = service.getName();
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
         frontend.unregisterService(serviceName);
         if (runningServices.remove(serviceName) == null) {
@@ -86,4 +74,8 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
         this.frontend = Objects.requireNonNull(frontend, "frontend cannot be null");
     }
 
+    @Override
+    public String getUrl(OpenLService service) {
+        return null;
+    }
 }

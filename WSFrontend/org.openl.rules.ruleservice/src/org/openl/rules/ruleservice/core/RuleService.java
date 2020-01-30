@@ -35,7 +35,7 @@ public interface RuleService {
      * @throws RuleServiceDeployException throws exceptions if the service with specified name is't deployed or undeploy
      *             process fails.
      */
-    void undeploy(String serviceName) throws RuleServiceUndeployException;
+    void undeploy(OpenLService service) throws RuleServiceUndeployException;
 
     /**
      * Returns a collection of deployed OpenL services.

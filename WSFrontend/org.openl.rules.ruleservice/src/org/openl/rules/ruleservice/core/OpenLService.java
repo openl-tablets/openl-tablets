@@ -268,7 +268,7 @@ public final class OpenLService {
         return compiledOpenClass;
     }
 
-    public void setCompiledOpenClass(CompiledOpenClass compiledOpenClass) {
+    void setCompiledOpenClass(CompiledOpenClass compiledOpenClass) {
         this.compiledOpenClass = compiledOpenClass;
         // bad practice. logic moved from another place
         compiledOpenClass.throwErrorExceptionsIfAny();
@@ -317,17 +317,6 @@ public final class OpenLService {
             return false;
         }
         return true;
-    }
-
-    /**
-     * Unregister ClassLoaders of this service.
-     */
-    public void destroy() {
-        try {
-            ClassLoader classloader = getClassLoader();
-            OpenClassUtil.releaseClassLoader(classloader);
-        } catch (RuleServiceInstantiationException e) {
-        }
     }
 
     /**

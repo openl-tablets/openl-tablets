@@ -1,7 +1,5 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.util.Collection;
-
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
@@ -24,17 +22,10 @@ public interface RuleServicePublisher {
     /**
      * Undeploys currently running service.
      *
-     * @param serviceName Name of the service to undeploy.
+     * @param service Service to undeploy.
      * @throws RuleServiceDeployException
      */
-    void undeploy(String serviceName) throws RuleServiceUndeployException;
-
-    /**
-     * Provides info about all currently running services.
-     *
-     * @return List of running services.
-     */
-    Collection<OpenLService> getServices();
+    void undeploy(OpenLService service) throws RuleServiceUndeployException;
 
     /**
      * Searches for the service from currently running with the specified name or null if service with specified name
@@ -44,4 +35,9 @@ public interface RuleServicePublisher {
      * @return Service with the specified name or null if service with specified name wasn't deployed.
      */
     OpenLService getServiceByName(String name);
+
+    /**
+     * Returns a url for the given service.
+     */
+    String getUrl(OpenLService service);
 }

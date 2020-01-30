@@ -12,7 +12,6 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
-import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.MethodDescriptor;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.openl.util.CollectionUtils;
@@ -31,10 +30,9 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
     private Collection<String> defaultRuleServicePublishers = Collections.emptyList();
 
     private Map<String, OpenLService> services = new HashMap<>();
+    private Map<String, Date> startDates = new HashMap<>();
 
     private Collection<RuleServicePublisherListener> listeners = Collections.emptyList();
-
-    private Map<String, OpenLService> failedServices = new HashMap<>();
 
     @Autowired(required = false)
     public void setListeners(Collection<RuleServicePublisherListener> listeners) {
@@ -52,49 +50,23 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
 
     @Override
     public Collection<ServiceInfo> getServicesInfo() {
-        List<ServiceInfo> result = new ArrayList<>();
-        Map<String, ServiceInfo> serviceInfos = new TreeMap<>();
-        // Wrapped into collection of publishers
-        for (RuleServicePublisher p : supportedPublishers.values()) {
-            collectServicesInfo(serviceInfos, p);
-        }
-        result.addAll(serviceInfos.values());
-        serviceInfos.keySet().forEach(k -> failedServices.remove(k));
-        result.addAll(failedServices.values()
-            .stream()
-            .map(s -> new ServiceInfo(new Date(), s.getName(), s.getServicePath()))
-            .collect(Collectors.toList()));
-        return result;
+        return services.values().stream()
+                .map(s -> new ServiceInfo(startDates.get(s.getName()), s.getName(), getUrls(s), s.getServicePath()))
+                .sorted(Comparator.comparing(ServiceInfo::getName, String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
     }
 
-    private void collectServicesInfo(Map<String, ServiceInfo> servicesInfo, RuleServicePublisher publisher) {
-        if (publisher instanceof AvailableServicesPresenter) {
-            List<ServiceInfo> services = ((AvailableServicesPresenter) publisher).getAvailableServices();
-            for (ServiceInfo serviceInfo : services) {
-                String serviceName = serviceInfo.getName();
-                ServiceInfo current = servicesInfo.get(serviceName);
-                if (current == null) {
-                    servicesInfo.put(serviceName, serviceInfo);
-                } else {
-                    // Join urls
-                    Map<String, String> urls = new TreeMap<>(current.getUrls());
-                    urls.putAll(serviceInfo.getUrls());
-
-                    // Select the latest time
-                    Date startedTime = current.getStartedTime();
-                    Date newStartedTime = serviceInfo.getStartedTime();
-                    if (startedTime.before(newStartedTime)) {
-                        startedTime = newStartedTime;
-                    }
-
-                    ServiceInfo newServiceInfo = new ServiceInfo(startedTime,
-                        serviceName,
-                        urls,
-                        serviceInfo.getServicePath());
-                    servicesInfo.put(serviceName, newServiceInfo);
+    private Map<String, String> getUrls(OpenLService service) {
+        HashMap<String, String> result = new HashMap<>();
+        if (service.getException() == null && !service.getCompiledOpenClass().hasErrors()) {
+            supportedPublishers.forEach((id, publisher) -> {
+                if (publisher.getServiceByName(service.getName()) != null) {
+                    String url = publisher.getUrl(service);
+                    result.put(id, url);
                 }
-            }
+            });
         }
+        return result;
     }
 
     @Override
@@ -115,7 +87,7 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
 
     @Override
     public List<String> getServiceErrors(String serviceName) {
-        OpenLService service = failedServices.get(serviceName);
+        OpenLService service = services.get(serviceName);
         Collection<OpenLMessage> messages = service.getCompiledOpenClass().getMessages();
         Collection<OpenLMessage> openLMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
         List<String> errors = openLMessages.stream().map(OpenLMessage::getSummary).collect(Collectors.toList());
@@ -159,19 +131,18 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
                 } catch (RuleServiceDeployException e) {
                     Throwable rootCause = ExceptionUtils.getRootCause(e);
                     service.setException(rootCause);
-                    failedServices.put(serviceName, service);
                     e1 = e;
                     break;
                 }
             }
         }
-        if (e1 == null) {
-            services.put(serviceName, service);
-        } else {
+        startDates.put(serviceName, new Date());
+        services.put(serviceName, service);
+        if (e1 != null) {
             for (RuleServicePublisher publisher : deployedPublishers) {
                 if (publisher.getServiceByName(serviceName) != null) {
                     try {
-                        publisher.undeploy(serviceName);
+                        publisher.undeploy(service);
                     } catch (RuleServiceUndeployException e) {
                         log.error("Failed to undeploy service '{}'.", serviceName, e);
                     }
@@ -195,29 +166,20 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
     }
 
     @Override
-    public OpenLService getFailedServiceByName(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName cannot be null");
-        return failedServices.get(serviceName);
-    }
-
-    @Override
     public Collection<OpenLService> getServices() {
         return new ArrayList<>(services.values());
     }
 
     @Override
-    public void deleteFailedServiceInfo(String name) {
-        failedServices.remove(name);
-    }
-
-    @Override
     public void undeploy(String serviceName) throws RuleServiceUndeployException {
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
+        OpenLService undeployService = services.get(serviceName);
+        Objects.requireNonNull(undeployService, "service '" + serviceName + "' has not been found");
         RuleServiceUndeployException e1 = null;
         for (RuleServicePublisher publisher : supportedPublishers.values()) {
             if (publisher.getServiceByName(serviceName) != null) {
                 try {
-                    publisher.undeploy(serviceName);
+                    publisher.undeploy(undeployService);
                 } catch (RuleServiceUndeployException e) {
                     e1 = e;
                 }
@@ -225,7 +187,7 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
         }
         if (e1 == null) {
             services.remove(serviceName);
-            failedServices.remove(serviceName);
+            startDates.remove(serviceName);
         } else {
             throw new RuleServiceUndeployException("Failed to undeploy a service.", e1);
         }

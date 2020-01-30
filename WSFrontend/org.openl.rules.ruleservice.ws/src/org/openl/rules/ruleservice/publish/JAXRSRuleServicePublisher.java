@@ -13,8 +13,6 @@ import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerStaticFieldsWorkaround;
-import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
-import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.openl.rules.ruleservice.storelogdata.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,14 +28,13 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
  *
  * @author Nail Samatov, Marat Kamalov
  */
-public class JAXRSRuleServicePublisher implements RuleServicePublisher, AvailableServicesPresenter {
+public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     public static final String REST_PREFIX = "REST/";
 
     private final Logger log = LoggerFactory.getLogger(JAXRSRuleServicePublisher.class);
 
     private Map<OpenLService, Server> runningServices = new HashMap<>();
     private String baseAddress;
-    private List<ServiceInfo> availableServices = new ArrayList<>();
     private boolean storeLogDataEnabled = false;
     private boolean swaggerPrettyPrint = false;
 
@@ -137,7 +134,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
                 Server wsServer = svrFactory.create();
 
                 runningServices.put(service, wsServer);
-                availableServices.add(createServiceInfo(service));
                 log.info("Service '{}' has been exposed with URL '{}'.", service.getName(), url);
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
@@ -175,11 +171,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
     }
 
     @Override
-    public Collection<OpenLService> getServices() {
-        return new ArrayList<>(runningServices.keySet());
-    }
-
-    @Override
     public OpenLService getServiceByName(String serviceName) {
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
         for (OpenLService service : runningServices.keySet()) {
@@ -191,46 +182,29 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
     }
 
     @Override
-    public void undeploy(String serviceName) throws RuleServiceUndeployException {
-        Objects.requireNonNull(serviceName, "serviceName cannot be null");
-        OpenLService service = getServiceByName(serviceName);
-        if (service == null) {
+    public void undeploy(OpenLService service) throws RuleServiceUndeployException {
+        Objects.requireNonNull(service, "service cannot be null");
+        Server server = runningServices.get(service);
+        if (server == null) {
             throw new RuleServiceUndeployException(
-                String.format("There is no running service with name '%s'.", serviceName));
+                    String.format("There is no running service with name '%s'.", service.getName()));
         }
         try {
             SwaggerStaticFieldsWorkaround.reset();
-            runningServices.get(service).destroy();
+            server.destroy();
             runningServices.remove(service);
-            removeServiceInfo(serviceName);
-            log.info("Service '{}' has been undeployed succesfully.", serviceName);
+            log.info("Service '{}' has been undeployed succesfully.", service.getName());
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", serviceName), t);
+            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()), t);
         }
     }
 
     @Override
-    public List<ServiceInfo> getAvailableServices() {
-        List<ServiceInfo> services = new ArrayList<>(availableServices);
-        services.sort(Comparator.comparing(ServiceInfo::getName, String.CASE_INSENSITIVE_ORDER));
-        return services;
-    }
-
-    private ServiceInfo createServiceInfo(OpenLService service) {
+    public String getUrl(OpenLService service) {
         String url = URLHelper.processURL(service.getUrl());
         if (service.getPublishers().size() != 1) {
             url = REST_PREFIX + url;
         }
-        return new ServiceInfo(new Date(), service.getName(), url, "REST", service.getServicePath());
-    }
-
-    private void removeServiceInfo(String serviceName) {
-        for (Iterator<ServiceInfo> iterator = availableServices.iterator(); iterator.hasNext();) {
-            ServiceInfo serviceInfo = iterator.next();
-            if (serviceInfo.getName().equals(serviceName)) {
-                iterator.remove();
-                break;
-            }
-        }
+        return url;
     }
 }

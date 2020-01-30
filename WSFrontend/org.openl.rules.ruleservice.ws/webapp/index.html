@@ -314,15 +314,15 @@
         var urls = service.urls;
         Object.keys(urls).forEach(function (name) {
             var url = urls[name];
-            if (name === "SOAP") {
+            if (name === "WEBSERVICE") {
                 html += "<a href='" + url + "?wsdl'\>WSDL</a>";
-            } else if (name === "REST") {
+            } else if (name === "RESTFUL") {
                 html += "<a href='" + url + "?_wadl'\>WADL</a>";
                 html += "<a href='" + url + "/api-docs/index.html?url=../swagger.json'\>Swagger (UI)</a>";
                 html += "<a href='" + url + "/swagger.json'\>Swagger (JSON)</a>";
                 html += "<a href='" + url + "/swagger.yaml'\>Swagger (YAML)</a>";
-            } else if (name === "Kafka") {
-                html += "<span>" + name + "</span>";
+            } else if (url == null) {
+                html += "<span>" + name + "&nbsp;&nbsp;</span>";
             } else {
                 html += "<a href='" + url + "'\>" + name + "</a>";
             }

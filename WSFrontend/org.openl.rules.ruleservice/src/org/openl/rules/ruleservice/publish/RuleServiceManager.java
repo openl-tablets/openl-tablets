@@ -43,13 +43,9 @@ public interface RuleServiceManager {
      */
     OpenLService getServiceByName(String name);
 
-    OpenLService getFailedServiceByName(String name);
-
     Collection<ServiceInfo> getServicesInfo();
 
     Collection<MethodDescriptor> getServiceMethods(String serviceName);
 
     List<String> getServiceErrors(String serviceName);
-
-    void deleteFailedServiceInfo(String name);
 }
