@@ -17,10 +17,14 @@ final class TestGitUtils {
     }
 
     static FileData createFileData(String path, String text) {
+        return createFileData(path, text, "Comment for " + path);
+    }
+
+    static FileData createFileData(String path, String text, String comment) {
         FileData fileData = new FileData();
         fileData.setName(path);
         fileData.setSize(text.length());
-        fileData.setComment("Comment for " + path);
+        fileData.setComment(comment);
         fileData.setAuthor("John Smith");
         return fileData;
     }

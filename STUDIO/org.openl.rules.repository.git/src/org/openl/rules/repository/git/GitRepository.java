@@ -41,6 +41,7 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.FS;
+import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.common.ChangesMonitor;
@@ -1209,14 +1210,21 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 return historyVisitor.getResult();
             }
 
-            Iterator<RevCommit> iterator = git.log().add(resolveBranchId()).addPath(name).call().iterator();
+            // We can't use git.log().addPath(path) because jgit has some issues for some scenarios when merging commits
+            // so some history elements aren't shown. So we iterate all commits and filter them out ourselves.
+            Iterator<RevCommit> iterator = git.log().add(resolveBranchId()).call().iterator();
 
             List<Ref> tags = git.tagList().call();
 
+            Repository repository = git.getRepository();
+
             while (iterator.hasNext()) {
                 RevCommit commit = iterator.next();
+                if (!containsPath(repository, commit, name)) {
+                    continue;
+                }
 
-                boolean stop = historyVisitor.visit(name, commit, getVersionName(git.getRepository(), tags, commit));
+                boolean stop = historyVisitor.visit(name, commit, getVersionName(repository, tags, commit));
                 if (stop) {
                     break;
                 }
@@ -1328,6 +1336,61 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         Ref tagRef = getTagRefForCommit(repository, tags, commitId);
 
         return tagRef != null ? getLocalTagName(tagRef) : commitId.getName();
+    }
+
+    static RevCommit findFirstCommit(Git git, ObjectId startCommit, String path) throws IOException, GitAPIException {
+        // We can't use git.log().addPath(path) because jgit has some issues for some scenarios when merging commits so
+        // some history elements aren't shown. So we iterate all commits and filter them out ourselves.
+        Repository repository = git.getRepository();
+        for (RevCommit commit : git.log().add(startCommit).call()) {
+            if (containsPath(repository, commit, path)) {
+                return commit;
+            }
+        }
+
+        return null;
+    }
+
+    private static boolean containsPath(Repository repository,
+            RevCommit commit,
+            String pathToCheck) throws IOException {
+
+        // Get commit that is previous to the current one.
+        RevCommit oldCommit = getPrevCommit(repository, commit);
+        if (oldCommit == null) {
+            // Initial commit
+            try (TreeWalk ignored = buildTreeWalk(repository, pathToCheck, commit.getTree())) {
+                return true;
+            } catch (FileNotFoundException e) {
+                return false;
+            }
+        }
+
+        try (DiffFormatter formatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
+            formatter.setRepository(repository);
+            List<DiffEntry> diffEntries = formatter.scan(oldCommit.getTree(), commit.getTree());
+            for (DiffEntry entry : diffEntries) {
+                String path = entry.getChangeType() == DiffEntry.ChangeType.DELETE ? entry.getOldPath()
+                                                                                   : entry.getNewPath();
+                String folderPath = pathToCheck.endsWith("/") ? pathToCheck : pathToCheck + "/";
+                if (path.equals(pathToCheck) || path.startsWith(folderPath)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+    private static RevCommit getPrevCommit(Repository repository, RevCommit commit) throws IOException {
+
+        ObjectId prevId = repository.resolve(commit.getName() + "^");
+        if (prevId != null) {
+            try (RevWalk walk = new RevWalk(repository)) {
+                return walk.parseCommit(prevId);
+            }
+        }
+        return null;
     }
 
     private static Ref getTagRefForCommit(Repository repository, List<Ref> tags, ObjectId commitId) throws IOException {
@@ -2055,18 +2118,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return MessageFormat.format(escapedCommentTemplate, CommitType.MERGE, userMessage, mergeAuthor);
     }
 
-    private boolean isCheckoutOldVersion(String path, String baseVersion) throws GitAPIException, IOException {
+    boolean isCheckoutOldVersion(String path, String baseVersion) throws GitAPIException, IOException {
         if (baseVersion != null) {
             List<Ref> tags = git.tagList().call();
 
-            Iterator<RevCommit> iterator = git.log()
-                .add(resolveBranchId())
-                .addPath(path)
-                .setMaxCount(1)
-                .call()
-                .iterator();
-            if (iterator.hasNext()) {
-                String lastVersion = getVersionName(git.getRepository(), tags, iterator.next());
+            RevCommit commit = findFirstCommit(git, resolveBranchId(), path);
+            if (commit != null) {
+                String lastVersion = getVersionName(git.getRepository(), tags, commit);
                 return !baseVersion.equals(lastVersion);
             } else {
                 throw new FileNotFoundException(

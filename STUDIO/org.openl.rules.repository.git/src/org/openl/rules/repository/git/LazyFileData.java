@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.Iterator;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -158,17 +157,15 @@ class LazyFileData extends FileData {
 
         try (Git git = Git.open(repoFolder)) {
             if (fileCommit == null) {
-                Iterator<RevCommit> iterator = null;
                 try {
-                    iterator = git.log().add(fromCommit).addPath(fullPath).setMaxCount(1).call().iterator();
+                    fileCommit = GitRepository.findFirstCommit(git, fromCommit, fullPath);
                 } catch (GitAPIException | MissingObjectException | IncorrectObjectTypeException e) {
                     log.error(e.getMessage(), e);
                 }
-                if (iterator == null || !iterator.hasNext()) {
+                if (fileCommit == null) {
                     throw new IllegalStateException("Cannot find revision for the file " + fullPath);
                 }
 
-                fileCommit = iterator.next();
                 fromCommit = null;
             }
 
