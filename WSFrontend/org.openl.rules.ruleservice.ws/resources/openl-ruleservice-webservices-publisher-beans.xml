@@ -52,5 +52,6 @@
           class="org.openl.rules.ruleservice.publish.JAXWSRuleServicePublisher">
         <property name="baseAddress" value="${ruleservice.baseAddress}"/>
         <property name="storeLogDataEnabled" value="${ruleservice.store.logs.enabled}"/>
+        <property name="noParameterNames" value="false"/>
     </bean>
 </beans>

@@ -49,6 +49,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
     private String baseAddress;
     private List<ServiceInfo> availableServices = new ArrayList<>();
     private boolean storeLogDataEnabled = false;
+    private boolean noParameterNames = false;
 
     @Autowired
     @Qualifier("webServicesServerPrototype")
@@ -94,6 +95,14 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
         return new AegisObjectSerializer((AegisDatabinding) svrFactory.getDataBinding());
     }
 
+    public boolean getNoParameterNames() {
+		return noParameterNames;
+	}
+
+	public void setNoParameterNames(boolean noParameterNames) {
+		this.noParameterNames = noParameterNames;
+	}
+
     @Override
     public void deploy(OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service cannot be null");
@@ -106,7 +115,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
                 String serviceAddress = getBaseAddress() + URLHelper.processURL(service.getUrl());
                 svrFactory.setAddress(serviceAddress);
 
-                Class<?> serviceClass = JAXWSEnhancerHelper.decorateServiceInterface(service);
+                Class<?> serviceClass = JAXWSEnhancerHelper.decorateServiceInterface(service, getNoParameterNames());
                 svrFactory.setServiceClass(serviceClass);
 
                 Object target = Proxy.newProxyInstance(service.getClassLoader(),

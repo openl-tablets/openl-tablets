@@ -33,13 +33,15 @@ public final class JAXWSEnhancerHelper {
 
         private Class<?> originalClass;
         private OpenLService service;
+        private boolean noParameterNames;
 
         private Map<Method, String> operationNames = null;
 
-        JAXWSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0, Class<?> originalClass, OpenLService service) {
+        JAXWSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0, Class<?> originalClass, OpenLService service, boolean noParameterNames) {
             super(Opcodes.ASM5, arg0);
             this.originalClass = originalClass;
             this.service = service;
+            this.noParameterNames = noParameterNames;
         }
 
         @Override
@@ -100,7 +102,7 @@ public final class JAXWSEnhancerHelper {
                 av.visitEnd();
             }
             try {
-                if (service != null && service.getServiceClassName() == null) { // Set
+                if (service != null && service.getServiceClassName() == null && !noParameterNames) { // Set
                     // parameter
                     // names
                     // only
@@ -179,7 +181,7 @@ public final class JAXWSEnhancerHelper {
         return classLoader;
     }
 
-    public static Class<?> decorateServiceInterface(OpenLService service) throws Exception {
+    public static Class<?> decorateServiceInterface(OpenLService service, boolean noParameterNames) throws Exception {
         if (service.getServiceClass() == null) {
             throw new IllegalStateException("Service class is null.");
         }
@@ -193,7 +195,8 @@ public final class JAXWSEnhancerHelper {
         JAXWSInterfaceAnnotationEnhancerClassVisitor jaxrsAnnotationEnhancerClassVisitor = new JAXWSInterfaceAnnotationEnhancerClassVisitor(
             cw,
             service.getServiceClass(),
-            service);
+            service,
+            noParameterNames);
         InterfaceTransformer transformer = new InterfaceTransformer(service.getServiceClass(), enchancedClassName);
         transformer.accept(jaxrsAnnotationEnhancerClassVisitor);
         cw.visitEnd();

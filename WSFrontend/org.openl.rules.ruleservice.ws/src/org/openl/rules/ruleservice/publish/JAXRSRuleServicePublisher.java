@@ -40,6 +40,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
     private List<ServiceInfo> availableServices = new ArrayList<>();
     private boolean storeLogDataEnabled = false;
     private boolean swaggerPrettyPrint = false;
+    private boolean noParameterNames = false;
 
     @Autowired
     @Qualifier("JAXRSServicesServerPrototype")
@@ -63,6 +64,17 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
     public void setBaseAddress(String baseAddress) {
         this.baseAddress = baseAddress;
     }
+
+    public boolean getNoParameterNames() {
+		return noParameterNames;
+	}
+
+	public void setNoParameterNames(boolean noParameterNames) {
+		if(noParameterNames) {
+			log.warn("noParameterNames property is not supported in this Publisher");
+		}
+		this.noParameterNames = noParameterNames;
+	}
 
     public ObjectFactory<JAXRSServerFactoryBean> getServerFactoryBeanObjectFactory() {
         return serverFactoryBeanObjectFactory;
