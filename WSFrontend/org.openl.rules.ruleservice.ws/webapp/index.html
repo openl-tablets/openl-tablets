@@ -102,32 +102,32 @@
             display: block;
         }
 
-        .expand-button-deployed:after, .collapse-button-deployed:after {
+        .icon {
             cursor: pointer;
+            font-size: 16px;
+            padding-right: 5px;
+        }
+
+        .deployed:before {
             content: "✔";
             color: #00C000;
-            font-size: 16px;
-            padding-right: 5px;
         }
 
-        .expand-button-failed:before, .collapse-button-failed:before {
-            cursor: pointer;
+        .failed:before {
             content: "✘";
             color: #C00000;
-            font-size: 16px;
-            padding-right: 5px;
         }
 
-        .collapse-button-deployed ~ .methods, .collapse-button-failed ~ .methods {
+        .expand ~ .info {
             display: block;
         }
 
-        .methods {
+        .info {
             margin-top: 2px;
             display: none;
         }
 
-        .methods > li {
+        .info > li {
             margin-top: 2px;
             font-size: 11px;
         }
@@ -163,31 +163,36 @@
             var button = event.target || event.srcElement;
             var serviceData = button.parentElement.dataset;
             var serviceName = serviceData.serviceName;
-            if (button.className.startsWith("expand-button")) {
+            if (button.classList.contains("collapse")) {
                 // Expand the node
                 var childArray = button.parentElement.childNodes
                 var target = childArray[2];
+                var fun;
+                var data;
                 if (serviceData.serviceStatus === "FAILED") {
-                    var xmlHttpMethods = new XMLHttpRequest();
-                    xmlHttpMethods.onload = function () {
-                        var errors = JSON.parse(this.response);
-                        renderErrors(target, errors);
+                    fun = function (error) {
+                        return "<pre>" + error + "</pre>";
                     };
-                    xmlHttpMethods.open("GET", "admin/services" + "/" + serviceName + "/errors", true);
-                    xmlHttpMethods.send();
+                    data = "/errors";
                 } else {
-                    var xmlHttpMethods = new XMLHttpRequest();
-                    xmlHttpMethods.onload = function () {
-                        var methods = JSON.parse(this.response);
-                        renderMethods(target, methods);
+                    fun = function (method) {
+                        return "<li>" + method.returnType + " <b>" + method.name + "</b> (" + method.paramTypes.join(", ") + ")</li>";
                     };
-                    xmlHttpMethods.open("GET", "admin/services" + "/" + serviceName + "/methods", true);
-                    xmlHttpMethods.send();
+                    data = "/methods";
                 }
-                button.className = defineButtonClass('collapse', serviceData.serviceStatus);
-            } else if (button.className.startsWith("collapse-button")) {
+
+                var xmlHttpMethods = new XMLHttpRequest();
+                xmlHttpMethods.onload = function () {
+                    var methods = JSON.parse(this.response);
+                    target.innerHTML = methods.map(fun).join("");
+                };
+                xmlHttpMethods.open("GET", "admin/services/" + serviceName + data, true);
+                xmlHttpMethods.send();
+
+                button.classList.replace("collapse", "expand");
+            } else if (button.classList.contains("expand")) {
+                button.classList.replace("expand", "collapse");
                 // Collapse the node
-                button.className = defineButtonClass('expand', serviceData.serviceStatus);
             } else if (button.className === "download-button") {
                 downloadProject(serviceName);
             } else if (button.className === "delete-button") {
@@ -294,40 +299,14 @@
         xhr.send();
     }
 
-    function renderMethods(methodsBlock, methods) {
-        methodsBlock.innerHTML = methods.map(function (m) {
-            return "<li>" + m.returnType + " <b>" + m.name + "</b> (" + m.paramTypes.join(", ") + ")</li>"
-        }).join("");
-    }
-
-    function renderErrors(errorsBlock, errors) {
-        errorsBlock.innerHTML = errors.map(function (err) {
-            return "<pre>" + err + "</pre>"
-        }).join("");
-    }
-    
-    function defineButtonClass(prefix, status) {
-        var expandClass = "";
-        switch (status) {
-            case 'DEPLOYED':
-                expandClass =prefix+'-button-deployed';
-                break;
-            case 'FAILED':
-                expandClass =prefix+'-button-failed';
-                break;
-        }
-        return expandClass;
-    }
-
     // Creating innerHTML of one service
     function createServiceHtml(service, deployerEnabled) {
         var html = "";
         // Name
-        var expandClass = defineButtonClass('expand', service.status);
-        html += "<span class=" + expandClass + "></span><h3>" + service.name + "</h3>";
+        html += "<span class='icon collapse " + service.status.toLowerCase() + "'></span><h3>" + service.name + "</h3>";
 
-        // Methods
-        html += "<ul class='methods'></ul>";
+        // Some useful info
+        html += "<ul class='info'></ul>";
 
         // Date and time
         html += "<div class='note'>Started time: " + new Date(service.startedTime).toLocaleString() + "</div>";
@@ -349,7 +328,7 @@
             }
         });
         if (deployerEnabled) {
-            html += "&nbsp"+"<button type=\"button\" class='delete-button'>Delete</button>";
+            html += "&nbsp" + "<button type=\"button\" class='delete-button'>Delete</button>";
             html += "<button type=\"button\" class='download-button'>Download</button>";
         }
 
