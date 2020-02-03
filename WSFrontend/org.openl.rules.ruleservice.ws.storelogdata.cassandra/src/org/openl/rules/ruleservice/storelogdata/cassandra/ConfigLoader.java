@@ -32,7 +32,11 @@ final class ConfigLoader {
         } catch (Exception e) {
             final Logger log = LoggerFactory.getLogger(ConfigLoader.class);
             if (log.isWarnEnabled()) {
-                log.warn("Failed to load spring property '{}'.", propName, e);
+                if (e instanceof IllegalArgumentException) {
+                    log.warn("Failed to load spring property '{}'. {}", propName, e.getMessage());
+                } else {
+                    log.warn("Failed to load spring property '{}'.", propName, e);
+                }
             }
             return false;
         }
