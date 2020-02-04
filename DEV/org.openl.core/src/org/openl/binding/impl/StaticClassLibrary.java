@@ -9,6 +9,7 @@ package org.openl.binding.impl;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.binding.IOpenLibrary;
 import org.openl.types.IOpenClass;
@@ -28,7 +29,7 @@ public class StaticClassLibrary implements IOpenLibrary {
     private final IOpenClass openClass;
 
     public StaticClassLibrary(IOpenClass openClass) {
-        this.openClass = openClass;
+        this.openClass = Objects.requireNonNull(openClass, "openClass can not be null");
     }
 
     /*

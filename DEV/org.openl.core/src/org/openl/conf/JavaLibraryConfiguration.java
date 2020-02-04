@@ -22,8 +22,8 @@ public class JavaLibraryConfiguration extends AConfigurationElement implements I
 
     private volatile StaticClassLibrary library;
 
-    public JavaLibraryConfiguration(String className){
-        this.className = Objects.requireNonNull(className);
+    public JavaLibraryConfiguration(String className) {
+        this.className = Objects.requireNonNull(className, "className can not be null");
     }
 
     /**

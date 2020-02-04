@@ -177,10 +177,9 @@ public class OpenLBuilder extends AOpenLBuilder {
          */
 
         TypeCastFactory typecast = op.createTypecast();
-        TypeCastFactory.JavaCastComponent javacast = typecast.new JavaCastComponent();
-        javacast.setLibraryClassName(org.openl.binding.impl.cast.CastOperators.class.getName());
-        javacast.setClassName(org.openl.binding.impl.cast.CastFactory.class.getName());
-
+        TypeCastFactory.JavaCastComponent javacast = typecast.new JavaCastComponent(
+            org.openl.binding.impl.cast.CastOperators.class.getName(),
+            org.openl.binding.impl.cast.CastFactory.class.getName());
         typecast.addJavaCast(javacast);
 
         /*
