@@ -17,7 +17,7 @@ public class BeanOpenFieldTest {
     @Test
     public void testBeanJavaSpecification() {
         Map<String, IOpenField> fieldsMap = new HashMap<>();
-        BeanOpenField.collectFields(fieldsMap, BeanJavaSpecification.class, null, null);
+        BeanOpenField.collectFields(fieldsMap, BeanJavaSpecification.class);
 
         assertEquals(2, fieldsMap.size());
         assertTrue(fieldsMap.containsKey("fieldName"));
@@ -27,7 +27,7 @@ public class BeanOpenFieldTest {
     @Test
     public void testBeanNONJavaSpecification() {
         Map<String, IOpenField> fieldsMap = new HashMap<>();
-        BeanOpenField.collectFields(fieldsMap, BeanNONJavaSpecification.class, null, null);
+        BeanOpenField.collectFields(fieldsMap, BeanNONJavaSpecification.class);
 
         assertEquals(2, fieldsMap.size());
         assertTrue(fieldsMap.containsKey("FieldName"));

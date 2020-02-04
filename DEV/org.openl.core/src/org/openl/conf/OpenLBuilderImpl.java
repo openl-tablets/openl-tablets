@@ -47,8 +47,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
             TypeCastFactory typeCastFactory = op.createTypecast();
 
             for (String libraryName : this.libraries) {
-                JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
-                javalib.setClassName(libraryName);
+                JavaLibraryConfiguration javalib = new JavaLibraryConfiguration(libraryName);
 
                 try {
                     Class<?> libraryClass = getUserEnvironmentContext().getUserClassLoader().loadClass(libraryName);

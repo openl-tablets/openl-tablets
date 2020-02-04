@@ -93,8 +93,7 @@ public class OpenLBuilder extends AOpenLBuilder {
         library.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
 
         for (String javaLibConfiguration : JAVA_LIBRARY_NAMES) {
-            JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
-            javalib.setClassName(javaLibConfiguration);
+            JavaLibraryConfiguration javalib = new JavaLibraryConfiguration(javaLibConfiguration);
             library.addJavalib(javalib);
         }
 
@@ -103,8 +102,7 @@ public class OpenLBuilder extends AOpenLBuilder {
         NameSpacedLibraryConfiguration nslc = new NameSpacedLibraryConfiguration();
         nslc.setNamespace(ISyntaxConstants.OPERATORS_NAMESPACE);
         for (String className : JAVA_OPERATORS_CLASSES) {
-            JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
-            javalib.setClassName(className);
+            JavaLibraryConfiguration javalib = new JavaLibraryConfiguration(className);
             nslc.addJavalib(javalib);
         }
         libraries.addConfiguredLibrary(nslc);
