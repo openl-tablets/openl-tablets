@@ -27,6 +27,10 @@
             <security:filter-chain pattern="/images/**" filters="none"/>
             <security:filter-chain pattern="/javascript/**" filters="none"/>
             <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none"/>
+            <security:filter-chain pattern="/faces/rfRes/**" filters="none"/>
+            <security:filter-chain pattern="/faces/tableEditor/**" filters="none" />
+            <security:filter-chain pattern="/faces/pages/public/**" filters="none" />
+            <security:filter-chain pattern="/web/public/**" filters="none" />
             <security:filter-chain pattern="/saml/login/**"
                                    filters="securityContextPersistenceFilter,metadataGeneratorFilter,samlEntryPoint"/>
             <security:filter-chain pattern="/security_logout"
