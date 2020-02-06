@@ -77,7 +77,7 @@ public abstract class AbstractDiffController {
     public IOpenLTable getTable(int i) {
         XlsProjection projection = projectionTable(i);
         if (projection != null) {
-            return (IOpenLTable) projection.getData();
+            return projection.getTable();
         }
         return null;
     }
@@ -93,7 +93,7 @@ public abstract class AbstractDiffController {
     public IGridFilter getFilter(int i) {
         XlsProjection projection = projectionTable(i);
         if (projection != null) {
-            IOpenLTable table = (IOpenLTable) projection.getData();
+            IOpenLTable table = projection.getTable();
             List<ICell> diffCells = projection.getDiffCells();
             if (diffCells != null) {
                 return makeFilter(table.getGridTable(), diffCells);
