@@ -11,6 +11,9 @@ final class StringToEnumCast implements IOpenCast {
     @SuppressWarnings("unchecked")
     @Override
     public Object convert(Object from) {
+        if (from == null) {
+            return null;
+        }
         return Enum.valueOf(enumType, (String) from);
     }
 

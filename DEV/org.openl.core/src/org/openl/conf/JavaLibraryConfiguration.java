@@ -6,6 +6,8 @@
 
 package org.openl.conf;
 
+import java.util.Objects;
+
 import org.openl.binding.IOpenLibrary;
 import org.openl.binding.impl.StaticClassLibrary;
 import org.openl.types.java.JavaOpenClass;
@@ -16,9 +18,13 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class JavaLibraryConfiguration extends AConfigurationElement implements IMethodFactoryConfigurationElement {
 
-    String className;
+    private final String className;
 
-    StaticClassLibrary library = null;
+    private volatile StaticClassLibrary library;
+
+    public JavaLibraryConfiguration(String className) {
+        this.className = Objects.requireNonNull(className, "className can not be null");
+    }
 
     /**
      * @return
@@ -33,20 +39,16 @@ public class JavaLibraryConfiguration extends AConfigurationElement implements I
      * @see org.openl.newconf.IMethodFactoryConfigurationElement#getFactory()
      */
     @Override
-    public synchronized IOpenLibrary getLibrary(IConfigurableResourceContext cxt) {
+    public IOpenLibrary getLibrary(IConfigurableResourceContext cxt) {
         if (library == null) {
-            library = new StaticClassLibrary();
-            Class<?> c = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
-            library.setOpenClass(JavaOpenClass.getOpenClass(c));
+            synchronized (this) {
+                if (library == null) {
+                    Class<?> c = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
+                    library = new StaticClassLibrary(JavaOpenClass.getOpenClass(c));
+                }
+            }
         }
         return library;
-    }
-
-    /**
-     * @param string
-     */
-    public void setClassName(String string) {
-        className = string;
     }
 
     /*

@@ -132,7 +132,11 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         if (defaultKafkaDeploy == null) {
             Resource resource = resourceLoader.getResource("classpath:default-kafka-deploy.yaml");
             if (!resource.exists()) {
-                throw new FileNotFoundException("File 'default-kafka-deploy.yaml' is not found.");
+                resource = resourceLoader.getResource("classpath:default-kafka-deploy.yml");
+                if (!resource.exists()) {
+                    throw new FileNotFoundException(
+                        "File 'default-kafka-deploy.yaml' or 'default-kafka-deploy.yml' is not found.");
+                }
             }
             ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();
             defaultKafkaDeploy = mapper.readValue(resource.getInputStream(), KafkaDeploy.class);
@@ -144,7 +148,11 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         if (immutableKafkaDeploy == null) {
             Resource resource = resourceLoader.getResource("classpath:immutable-kafka-deploy.yaml");
             if (!resource.exists()) {
-                throw new FileNotFoundException("File 'immutable-kafka-deploy.yaml' is not found.");
+                resource = resourceLoader.getResource("classpath:immutable-kafka-deploy.yml");
+                if (!resource.exists()) {
+                    throw new FileNotFoundException(
+                        "File 'immutable-kafka-deploy.yaml' or 'immutable-kafka-deploy.yml' is not found.");
+                }
             }
             ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();
             immutableKafkaDeploy = mapper.readValue(resource.getInputStream(), KafkaDeploy.class);
@@ -159,13 +167,13 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         if (configs.containsKey(BOOTSTRAP_SERVERS)) {
             if (kafkaConfig instanceof KafkaMethodConfig) {
                 KafkaMethodConfig kafkaMethodConfig = (KafkaMethodConfig) kafkaConfig;
-                log.warn("{} '{}' property is overriden in service '{}' for method '{}'.",
+                log.warn("{} '{}' property is overridden in service '{}' for method '{}'.",
                     logPrefix,
                     BOOTSTRAP_SERVERS,
                     service.getName(),
                     kafkaMethodConfig.getMethodName());
             } else {
-                log.warn("{} '{}' property is overriden in service '{}'.",
+                log.warn("{} '{}' property is overridden in service '{}'.",
                     logPrefix,
                     BOOTSTRAP_SERVERS,
                     service.getName());
@@ -624,10 +632,11 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     @Override
     public void undeploy(OpenLService service) throws RuleServiceUndeployException {
         Objects.requireNonNull(service, "service cannot be null");
-        Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>> triple = runningServices.get(service);
+        Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>> triple = runningServices
+            .get(service);
         if (triple == null) {
             throw new RuleServiceUndeployException(
-                    String.format("There is no running service with name '%s'", service.getName()));
+                String.format("There is no running service with name '%s'", service.getName()));
         }
         try {
             if (stopAndClose(triple)) {
@@ -637,7 +646,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
             }
             runningServices.remove(service);
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()), t);
+            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()),
+                t);
         }
     }
 

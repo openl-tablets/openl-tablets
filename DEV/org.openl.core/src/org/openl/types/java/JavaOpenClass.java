@@ -185,16 +185,8 @@ public class JavaOpenClass extends AOpenClass {
         }
 
         fields.put("class", new JavaClassClassField(instanceClass));
-        BeanOpenField.collectFields(fields, instanceClass, getGetters(), getSetters());
+        BeanOpenField.collectFields(fields, instanceClass);
         return fields;
-    }
-
-    protected Map<Method, BeanOpenField> getGetters() {
-        return null;
-    }
-
-    protected Map<Method, BeanOpenField> getSetters() {
-        return null;
     }
 
     @Override
@@ -330,9 +322,9 @@ public class JavaOpenClass extends AOpenClass {
         Map<MethodKey, IOpenMethod> constructors = new HashMap<>();
 
         Constructor<?>[] cc = getInstanceClass().getDeclaredConstructors();
-        for (int i = 0; i < cc.length; i++) {
-            if (isPublic(cc[i])) {
-                IOpenMethod om = new JavaOpenConstructor(cc[i]);
+        for (Constructor<?> constructor : cc) {
+            if (isPublic(constructor)) {
+                IOpenMethod om = new JavaOpenConstructor(constructor);
                 constructors.put(new MethodKey(om), om);
             }
         }
@@ -496,7 +488,7 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     private static class JavaPrimitiveClass extends JavaOpenClass {
-        private Object nullObject;
+        private final Object nullObject;
 
         public JavaPrimitiveClass(Class<?> instanceClass, Object nullObject) {
             super(instanceClass, true);
@@ -515,10 +507,6 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     private static class JavaOpenInterface extends JavaOpenClass {
-
-        private Map<Method, BeanOpenField> getters = new HashMap<>();
-        private Map<Method, BeanOpenField> setters = new HashMap<>();
-
         @SuppressWarnings("unused")
         private final Class<?> proxyClass;
 
@@ -526,8 +514,7 @@ public class JavaOpenClass extends AOpenClass {
 
         @Override
         protected Map<MethodKey, IOpenMethod> initMethodMap() {
-            Map<MethodKey, IOpenMethod> methodMap = new HashMap<>();
-            methodMap.putAll(super.initMethodMap());
+            Map<MethodKey, IOpenMethod> methodMap = new HashMap<>(super.initMethodMap());
 
             for (IOpenMethod om : JavaOpenClass.OBJECT.getMethods()) { // Any interface has Object methods. For example:
                 // toString()
@@ -540,17 +527,6 @@ public class JavaOpenClass extends AOpenClass {
         protected JavaOpenInterface(Class<?> instanceClass) {
             super(instanceClass);
             proxyClass = Proxy.getProxyClass(instanceClass.getClassLoader(), instanceClass);
-
-        }
-
-        @Override
-        protected Map<Method, BeanOpenField> getGetters() {
-            return getters;
-        }
-
-        @Override
-        protected Map<Method, BeanOpenField> getSetters() {
-            return setters;
         }
 
         @Override

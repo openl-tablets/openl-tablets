@@ -131,11 +131,11 @@ public class OpenLBuilder extends AOpenLBuilder {
         LibraryFactoryConfiguration lfc = op.createLibraries();
         NameSpacedLibraryConfiguration nslc = new NameSpacedLibraryConfiguration();
         nslc.setNamespace(ISyntaxConstants.OPERATORS_NAMESPACE);
-        JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
-        javalib.setClassName(org.openl.binding.impl.Operators.class.getName());
+        JavaLibraryConfiguration javalib = new JavaLibraryConfiguration(
+            org.openl.binding.impl.Operators.class.getName());
         nslc.addJavalib(javalib);
-        JavaLibraryConfiguration javalib2 = new JavaLibraryConfiguration();
-        javalib2.setClassName(org.openl.binding.impl.operator.Comparison.class.getName());
+        JavaLibraryConfiguration javalib2 = new JavaLibraryConfiguration(
+            org.openl.binding.impl.operator.Comparison.class.getName());
         nslc.addJavalib(javalib2);
         lfc.addConfiguredLibrary(nslc);
 
@@ -177,10 +177,9 @@ public class OpenLBuilder extends AOpenLBuilder {
          */
 
         TypeCastFactory typecast = op.createTypecast();
-        TypeCastFactory.JavaCastComponent javacast = typecast.new JavaCastComponent();
-        javacast.setLibraryClassName(org.openl.binding.impl.cast.CastOperators.class.getName());
-        javacast.setClassName(org.openl.binding.impl.cast.CastFactory.class.getName());
-
+        TypeCastFactory.JavaCastComponent javacast = typecast.new JavaCastComponent(
+            org.openl.binding.impl.cast.CastOperators.class.getName(),
+            org.openl.binding.impl.cast.CastFactory.class.getName());
         typecast.addJavaCast(javacast);
 
         /*

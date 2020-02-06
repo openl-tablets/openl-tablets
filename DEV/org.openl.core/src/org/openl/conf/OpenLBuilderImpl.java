@@ -47,8 +47,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
             TypeCastFactory typeCastFactory = op.createTypecast();
 
             for (String libraryName : this.libraries) {
-                JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
-                javalib.setClassName(libraryName);
+                JavaLibraryConfiguration javalib = new JavaLibraryConfiguration(libraryName);
 
                 try {
                     Class<?> libraryClass = getUserEnvironmentContext().getUserClassLoader().loadClass(libraryName);
@@ -59,13 +58,12 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
                         }
                         operationNamespaceLibrary.addJavalib(javalib);
                     }
-                } catch (Exception e) {
+                } catch (ReflectiveOperationException ignore) {
                 }
                 thisNamespaceLibrary.addJavalib(javalib);
 
-                JavaCastComponent javaCastComponent = typeCastFactory.new JavaCastComponent();
-                javaCastComponent.setLibraryClassName(libraryName);
-                javaCastComponent.setClassName(org.openl.binding.impl.cast.CastFactory.class.getName());
+                JavaCastComponent javaCastComponent = typeCastFactory.new JavaCastComponent(libraryName,
+                    org.openl.binding.impl.cast.CastFactory.class.getName());
                 typeCastFactory.addJavaCast(javaCastComponent);
 
             }

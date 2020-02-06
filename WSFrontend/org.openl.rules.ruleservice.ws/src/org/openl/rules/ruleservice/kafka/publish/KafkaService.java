@@ -41,7 +41,7 @@ public final class KafkaService implements Runnable {
         Runtime.getRuntime().availableProcessors() * 2,
         60L,
         TimeUnit.SECONDS,
-        new LinkedBlockingQueue<Runnable>());
+            new LinkedBlockingQueue<>());
 
     private final Logger log = LoggerFactory.getLogger(KafkaService.class);
 
