@@ -31,24 +31,14 @@
         <h:panelGroup rendered="#{empty requestId}">
             <form action="#{contextPath}/web/public/compare/xls" enctype="multipart/form-data" method="post">
                 <h2>Compare two excel files</h2>
-                <table>
-                    <tr>
-                        <td>
-                            <label for="file1">File1:</label>
-                        </td>
-                        <td>
-                            <input type="file" name="file1" accept=".xlsx,.xls"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="file2">File2:</label>
-                        </td>
-                        <td>
-                            <input type="file" name="file2" accept=".xlsx,.xls"/>
-                        </td>
-                    </tr>
-                </table>
+                <p>
+                    <label for="file1">File1:</label>
+                    <input type="file" name="file1" accept=".xlsx,.xls"/>
+                </p>
+                <p>
+                    <label for="file2">File2:</label>
+                    <input type="file" name="file2" accept=".xlsx,.xls"/>
+                </p>
 
                 <input type="submit" value="Compare"/>
             </form>
@@ -57,13 +47,11 @@
         <h:form>
             <h:panelGroup id="mainCompare">
                 <h:panelGroup rendered="#{not empty requestId and empty showDiffBean.getCurrent(requestId)}">
-                    Comparison for request #{requestId} is expired.
+                    <p>Comparison for request #{requestId} is expired.</p>
                 </h:panelGroup>
 
                 <h:panelGroup styleClass="scrollable"
                               rendered="#{not empty requestId and not empty showDiffBean.getCurrent(requestId)}">
-                    <input type="hidden" name="id" value="#{requestId}"/>
-
                     <p>
                         <h:outputLabel value="#{msg['ws.compare.equals']}:" for="showEqualElements"/>
                         <h:selectBooleanCheckbox id="showEqualElements"
