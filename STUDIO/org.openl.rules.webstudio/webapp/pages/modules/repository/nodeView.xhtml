@@ -74,6 +74,7 @@
           <h:commandButton id="closeId1" rendered="#{repositoryTreeState.canClose}" value="Close" action="#{repositoryTreeController.closeProject}" title="#{closeMessage}"
                            immediate="true"
                            onclick="#{repositoryTreeController.hasDependingProjects || repositoryTreeState.selectedProjectModified ? rich:component('modalCloseProject').concat('.show();return false;') : ''}"/>
+          <h:commandButton id="lockId1" rendered="#{repositoryTreeState.canLock}" value="Edit" action="#{repositoryTreeController.lockProject}" title="lock this project for other users"/>
         </h:panelGroup>
 
         <h:panelGroup rendered="#{environment.getProperty('user.mode') == 'single' and artefact.opened}">

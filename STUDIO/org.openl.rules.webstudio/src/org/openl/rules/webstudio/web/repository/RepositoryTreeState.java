@@ -653,4 +653,13 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             return false;
         }
     }
+
+    public boolean getCanLock() {
+        UserWorkspaceProject selectedProject = getSelectedProject();
+        if (selectedProject == null || selectedProject.isLocked()) {
+            return false;
+        }
+
+        return isGranted(EDIT_PROJECTS);
+    }
 }

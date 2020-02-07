@@ -1779,6 +1779,24 @@ public class RepositoryTreeController {
         uploadedFiles.clear();
     }
 
+    public String lockProject() {
+        UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+        try {
+            if (project.tryLock()) {
+                openProject();
+            }
+            else {
+                String msg = "project is already locked by another user";
+                WebStudioUtils.addInfoMessage(msg);
+            }
+        } catch (Exception e) {
+            String msg = "Failed to lock project.";
+            log.error(msg, e);
+            WebStudioUtils.addErrorMessage(msg, e.getMessage());
+        }
+        return null;
+    }
+
     public String getNewProjectTemplate() {
         return newProjectTemplate;
     }
