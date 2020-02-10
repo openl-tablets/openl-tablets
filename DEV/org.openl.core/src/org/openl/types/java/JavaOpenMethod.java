@@ -9,6 +9,7 @@ package org.openl.types.java;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Objects;
 
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenLRuntimeException;
@@ -24,12 +25,14 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
-    Method method;
-
-    volatile IOpenClass[] parameterTypes;
+    private final Method method;
+    private final IOpenClass[] parameterTypes;
+    private final IOpenClass declaringClass;
 
     public JavaOpenMethod(Method method) {
-        this.method = method;
+        this.method = Objects.requireNonNull(method, "method can not be null");
+        this.parameterTypes = JavaOpenClass.getOpenClasses(method.getParameterTypes());
+        this.declaringClass = JavaOpenClass.getOpenClass(method.getDeclaringClass());
     }
 
     /*
@@ -39,7 +42,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      */
     @Override
     public IOpenClass getDeclaringClass() {
-        return JavaOpenClass.getOpenClass(method.getDeclaringClass());
+        return declaringClass;
     }
 
     @Override
@@ -109,15 +112,6 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
 
     @Override
     public IOpenClass[] getParameterTypes() {
-        if (parameterTypes == null) {
-            synchronized (this) {
-                if (parameterTypes == null) {
-                    parameterTypes = JavaOpenClass.getOpenClasses(method.getParameterTypes());
-                }
-            }
-
-        }
-
         return parameterTypes;
     }
 
