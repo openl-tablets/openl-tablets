@@ -18,12 +18,10 @@ public class RepositoryTree {
     @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
 
-    private TreeRepository root;
-
     @PostConstruct
     public void afterPropertiesSet() {
         // Build tree if needed.
-        root = repositoryTreeState.getRoot();
+        repositoryTreeState.getRoot();
 
         // If during tree building found an error, show it.
         String errorMessage = repositoryTreeState.getErrorMessage();
@@ -37,7 +35,7 @@ public class RepositoryTree {
     }
 
     public TreeRepository getRoot() {
-        return root;
+        return repositoryTreeState.getRoot();
     }
 
     public boolean isHasMessages() {

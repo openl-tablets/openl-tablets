@@ -17,7 +17,7 @@
             <security:filter-security-metadata-source request-matcher="ant" use-expressions="false">
                 <security:intercept-url pattern="/faces/pages/modules/administration/**" access="ADMIN" />
                 <!-- Don't allow unprivileged users to run install wizard by manually entering install wizard url when studio is configured already -->
-                <security:intercept-url pattern="/faces/pages/modules/install/**" access="ADMINISTRATE" />
+                <security:intercept-url pattern="/faces/pages/modules/install/**" access="ADMIN" />
                 <security:intercept-url pattern="/**" access="VIEW_PROJECTS" />
             </security:filter-security-metadata-source>
         </property>

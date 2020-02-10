@@ -4,21 +4,22 @@ import java.util.List;
 
 import org.openl.rules.diff.hierarchy.AbstractProjection;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.IOpenLTable;
 
 public class XlsProjection extends AbstractProjection {
-    private Object data;
+    private IOpenLTable table;
     private List<ICell> diffCells;
 
     public XlsProjection(String name, XlsProjectionType type) {
         super(name, type.name());
     }
 
-    public Object getData() {
-        return data;
+    public IOpenLTable getTable() {
+        return table;
     }
 
-    public void setData(Object data) {
-        this.data = data;
+    public void setTable(IOpenLTable table) {
+        this.table = table;
     }
 
     public List<ICell> getDiffCells() {

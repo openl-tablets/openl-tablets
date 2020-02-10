@@ -1,13 +1,6 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import org.openl.IOpenBinder;
-import org.openl.conf.IUserContext;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
-import org.openl.rules.lang.xls.prebind.XlsPreBinder;
 
 /**
  * IOpenBinder invocation handler that uses XlsPreBinder on prebind step and XlsBinder on compile step (to compile
@@ -16,11 +9,8 @@ import org.openl.rules.lang.xls.prebind.XlsPreBinder;
  *
  * @author NSamatov, Marat Kamalov
  */
-public class LazyBinderInvocationHandler implements InvocationHandler {
+public class LazyBinderInvocationHandler {
     private static final ThreadLocal<IPrebindHandler> prebindHandlerHolder = new ThreadLocal<>();
-
-    private final IOpenBinder originalBinder;
-    private final IUserContext ucxt;
 
     /**
      * Set a prebind handler for current thread
@@ -42,28 +32,4 @@ public class LazyBinderInvocationHandler implements InvocationHandler {
         return prebindHandlerHolder.get();
     }
 
-    /**
-     * Create an IOpenBinder invocation handler.
-     *
-     * @param originalBinder original binder that will be used to compile necessary modules on demand
-     * @param ucxt user context for module
-     */
-    public LazyBinderInvocationHandler(IOpenBinder originalBinder, IUserContext ucxt) {
-        this.originalBinder = originalBinder;
-        this.ucxt = ucxt;
-    }
-
-    @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        IOpenBinder binder = originalBinder;
-        IPrebindHandler prebindHandler = prebindHandlerHolder.get();
-        if (prebindHandler != null) {
-            binder = new XlsPreBinder(ucxt, prebindHandler);
-        }
-        try {
-            return method.invoke(binder, args);
-        } catch (InvocationTargetException e) {
-            throw e.getTargetException();
-        }
-    }
 }

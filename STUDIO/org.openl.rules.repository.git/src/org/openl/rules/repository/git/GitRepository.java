@@ -598,6 +598,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             TreeSet<String> localBranches = getAvailableBranches();
             String remotePrefix = Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/";
             for (Ref remoteBranch : remoteBranches) {
+                if (remoteBranch.isSymbolic()) {
+                    log.debug("Skip the symbolic branch '{}'.", remoteBranch.getName());
+                    continue;
+                }
                 if (!remoteBranch.getName().startsWith(remotePrefix)) {
                     log.warn("The branch {} will not be tracked", remoteBranch.getName());
                     continue;

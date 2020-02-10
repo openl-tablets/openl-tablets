@@ -1,0 +1,122 @@
+<ui:composition
+        xmlns:c="http://java.sun.com/jsp/jstl/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
+        template="/pages/layout/simpleLayout.xhtml">
+
+    <ui:define name="content">
+        <style>
+            .comparison-layout {
+                width: 100%;
+            }
+
+            .comparison-layout > tbody > tr > td:nth-child(1) {
+                border-right: dotted gray 1px;
+            }
+
+            .comparison-layout > tbody > tr:nth-child(1) > td {
+                text-align: center;
+            }
+
+            .comparison-layout .te_table {
+                margin: 0 auto;
+            }
+        </style>
+
+        <c:set var="requestId" value="#{showDiffBean.requestId}"/>
+
+        <h:panelGroup rendered="#{empty requestId}">
+            <form action="#{contextPath}/web/public/compare/xls" enctype="multipart/form-data" method="post">
+                <h2>Compare two excel files</h2>
+                <p>
+                    <label for="file1">File1:</label>
+                    <input type="file" name="file1" accept=".xlsx,.xls"/>
+                </p>
+                <p>
+                    <label for="file2">File2:</label>
+                    <input type="file" name="file2" accept=".xlsx,.xls"/>
+                </p>
+
+                <input type="submit" value="Compare"/>
+            </form>
+        </h:panelGroup>
+
+        <h:form>
+            <h:panelGroup id="mainCompare">
+                <h:panelGroup rendered="#{not empty requestId and empty showDiffBean.getCurrent(requestId)}">
+                    <p>Comparison for request #{requestId} is expired.</p>
+                </h:panelGroup>
+
+                <h:panelGroup styleClass="scrollable"
+                              rendered="#{not empty requestId and not empty showDiffBean.getCurrent(requestId)}">
+                    <p>
+                        <h:outputLabel value="#{msg['ws.compare.equals']}:" for="showEqualElements"/>
+                        <h:selectBooleanCheckbox id="showEqualElements"
+                                                 value="#{showDiffBean.getCurrent(requestId).showEqualElements}">
+                            <a4j:ajax render="mainCompare"/>
+                        </h:selectBooleanCheckbox>
+                    </p>
+
+                    <div style="width: 100%; max-height: 250px; background: #f5f5f5; border-top: 1px solid #bbbbbb; border-bottom: 1px solid #bbbbbb;"
+                         class="scrollable">
+                        <rich:tree id="newTree" toggleType="client" selectionType="ajax"
+                                   selectionChangeListener="#{showDiffBean.getCurrent(requestId).processSelection}"
+                                   value="#{showDiffBean.getCurrent(requestId).richDiffTree}" var="item" nodeType="any"
+                                   render="mainCompare" style="padding: 5px 10px">
+                            <rich:treeNode type="any" iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}"
+                                           iconLeaf="#{item.icon}">
+                                <h:outputText value="#{item.name}"/>
+                            </rich:treeNode>
+                        </rich:tree>
+                    </div>
+
+                    <p>
+                        <table class="comparison-layout">
+                            <tr>
+                                <td>File1 fragment</td>
+                                <td>File2 fragment</td>
+                            </tr>
+                            <tr>
+                                <td valign="top">
+                                    <a4j:outputPanel ajaxRendered="true">
+                                        <rules:tableEditor id="tableEditorOur"
+                                                           table="#{showDiffBean.getCurrent(requestId).table1}"
+                                                           editable="false"
+                                                           filters="#{showDiffBean.getCurrent(requestId).filter1}"/>
+                                    </a4j:outputPanel>
+                                </td>
+                                <td valign="top">
+                                    <a4j:outputPanel ajaxRendered="true">
+                                        <rules:tableEditor id="tableEditorTheir"
+                                                           table="#{showDiffBean.getCurrent(requestId).table2}"
+                                                           editable="false"
+                                                           filters="#{showDiffBean.getCurrent(requestId).filter2}"/>
+                                    </a4j:outputPanel>
+                                </td>
+                            </tr>
+                        </table>
+                    </p>
+
+                    <input type="hidden" name="id" value="#{requestId}"/>
+                    <a4j:jsFunction name="closeComparePage" action="#{showDiffBean.close(requestId)}"/>
+                </h:panelGroup>
+            </h:panelGroup>
+        </h:form>
+
+        <script>
+            //<![CDATA[
+
+            $j(function () {
+                $j(window).on('unload', function () {
+                    closeComparePage();
+                });
+            });
+
+            //]]>
+        </script>
+    </ui:define>
+
+</ui:composition>

@@ -134,7 +134,6 @@ public class BranchesBean {
                 String userId = getUserWorkspace().getUser().getUserId();
                 ((BranchRepository) designRepository).forBranch(branchToMergeTo).merge(branchToMergeFrom, userId, null);
 
-                project.setBranch(branchToMergeTo);
                 if (opened) {
                     if (project.isDeleted()) {
                         project.close();
@@ -202,8 +201,8 @@ public class BranchesBean {
             if (project != null) {
                 branches = getBranches(project);
                 currentBranch = project.getBranch();
-                branchToMergeFrom = currentBranch;
-                branchToMergeTo = null;
+                branchToMergeFrom = null;
+                branchToMergeTo = currentBranch;
             } else {
                 currentBranch = null;
             }

@@ -18,7 +18,7 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.ui.ColorFilterHolder;
 import org.openl.util.FileUtils;
 import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
@@ -77,7 +77,7 @@ public abstract class AbstractDiffController {
     public IOpenLTable getTable(int i) {
         XlsProjection projection = projectionTable(i);
         if (projection != null) {
-            return (IOpenLTable) projection.getData();
+            return projection.getTable();
         }
         return null;
     }
@@ -93,7 +93,7 @@ public abstract class AbstractDiffController {
     public IGridFilter getFilter(int i) {
         XlsProjection projection = projectionTable(i);
         if (projection != null) {
-            IOpenLTable table = (IOpenLTable) projection.getData();
+            IOpenLTable table = projection.getTable();
             List<ICell> diffCells = projection.getDiffCells();
             if (diffCells != null) {
                 return makeFilter(table.getGridTable(), diffCells);
@@ -113,7 +113,7 @@ public abstract class AbstractDiffController {
         }
         IGridRegion[] aRegions = regions.toArray(new IGridRegion[0]);
         return new ColorGridFilter(new RegionGridSelector(aRegions, true),
-            WebStudioUtils.getWebStudio().getModel().getFilterHolder().makeFilter());
+            new ColorFilterHolder().makeFilter());
     }
 
     public void setDiffTree(DiffTreeNode diffTree) {
