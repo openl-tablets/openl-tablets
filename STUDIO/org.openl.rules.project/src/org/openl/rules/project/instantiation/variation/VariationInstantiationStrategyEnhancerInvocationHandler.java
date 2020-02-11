@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.RecursiveTask;
 
 import org.openl.exception.OpenlNotCheckedException;
@@ -33,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLInvocationHandler<Method, Method> {
 
-    private SafeCloner cloner = new SafeCloner();
+    private final SafeCloner cloner = new SafeCloner();
 
     private final Logger log = LoggerFactory.getLogger(VariationInstantiationStrategyEnhancerInvocationHandler.class);
 
@@ -42,8 +43,9 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
 
     VariationInstantiationStrategyEnhancerInvocationHandler(Map<Method, Method> methodsMap,
             Object serviceClassInstance) {
-        this.methodsMap = methodsMap;
-        this.serviceClassInstance = serviceClassInstance;
+        this.methodsMap = Objects.requireNonNull(methodsMap, "methodMap can not be null");
+        this.serviceClassInstance = Objects.requireNonNull(serviceClassInstance,
+            "serviceClassInstance can not be null");
     }
 
     @Override
@@ -181,7 +183,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
             } else {
                 if (!f) {
                     log.warn(
-                        "Variation features are not supported for Wrapper classses. This functionality was depricated.");
+                        "Variation features are not supported for Wrapper classes. This functionality is deprecated.");
                     f = true;
                 }
             }
@@ -191,7 +193,6 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
                 variation,
                 runtimeEnv);
             tasks.add(item);
-
         }
         return tasks.toArray(new VariationCalculationTask[] {});
     }
@@ -231,7 +232,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
 
                 return calculateSingleVariation(member, arguments, variation);
             } catch (Exception e) {
-                log.error("Failed to calculate variation.", e);
+                log.error("Failed to calculate a variation.", e);
                 throw e;
             } finally {
                 if (handler != null) {
