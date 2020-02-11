@@ -11,7 +11,7 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.UseOpenMethodRe
 import org.openl.types.IOpenClass;
 
 @UseOpenMethodReturnType(TypeResolver.IF_CSR_TO_PLAIN)
-public class SPRToPlainConvertorAdvice extends AbstractServiceMethodAfterReturningAdvice<Object> implements IOpenClassAware {
+public class SPRToPlainConverterAdvice extends AbstractServiceMethodAfterReturningAdvice<Object> implements IOpenClassAware {
 
     private XlsModuleOpenClass module;
 

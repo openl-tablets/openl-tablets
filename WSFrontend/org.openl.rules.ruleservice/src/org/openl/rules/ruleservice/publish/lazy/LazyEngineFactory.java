@@ -176,10 +176,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
             Object openClassInstance = openClass.newInstance(runtimeEnv);
             Map<Method, IOpenMember> methodMap = prepareMethodMap(getInterfaceClass(), openClass);
 
-            return prepareProxyInstance(openClassInstance,
-                methodMap,
-                runtimeEnv,
-                getCompiledOpenClass().getClassLoader());
+            return prepareProxyInstance(openClassInstance, methodMap, runtimeEnv, getCompiledOpenClass().getClassLoader());
         } catch (Exception ex) {
             String errorMessage = "Failed to instantiate engine instance.";
             throw new OpenlNotCheckedException(errorMessage, ex);
@@ -218,9 +215,9 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
 
     private CompiledOpenClass initializeOpenClass() {
         // put prebinder to openl
-        IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();
+        IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
         try {
-            LazyBinderInvocationHandler.setPrebindHandler(new IPrebindHandler() {
+            LazyBinderMethodHandler.setPrebindHandler(new IPrebindHandler() {
 
                 @Override
                 public IOpenMethod processMethodAdded(IOpenMethod method, XlsLazyModuleOpenClass moduleOpenClass) {
@@ -242,7 +239,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
             CompiledOpenClass result = engineFactory.getCompiledOpenClass();
             return result;
         } finally {
-            LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
+            LazyBinderMethodHandler.setPrebindHandler(prebindHandler);
         }
     }
 

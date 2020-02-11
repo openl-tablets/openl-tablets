@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -14,7 +13,6 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSEnhancerHelper;
-import org.openl.rules.ruleservice.publish.jaxws.JAXWSInvocationHandler;
 import org.openl.rules.ruleservice.publish.jaxws.storelogdata.AegisObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.CollectObjectSerializerInterceptor;
 import org.openl.rules.ruleservice.storelogdata.CollectOpenLServiceInterceptor;
@@ -96,16 +94,11 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
             try {
                 String serviceAddress = getBaseAddress() + URLHelper.processURL(service.getUrl());
                 svrFactory.setAddress(serviceAddress);
-
                 Class<?> serviceClass = JAXWSEnhancerHelper.decorateServiceInterface(service);
                 svrFactory.setServiceClass(serviceClass);
-
-                Object target = Proxy.newProxyInstance(service.getClassLoader(),
-                    new Class<?>[] { service.getServiceClass() },
-                    new JAXWSInvocationHandler(service.getServiceBean()));
-
-                svrFactory.setServiceBean(target);
-
+                Class<?> proxyInterface = service.getServiceClass();
+                Object serviceProxy = JAXWSEnhancerHelper.createServiceProxy(proxyInterface, serviceClass, service);
+                svrFactory.setServiceBean(serviceProxy);
                 svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
                 if (isStoreLogDataEnabled()) {
                     svrFactory.getFeatures().add(getStoreLoggingFeatureObjectFactory().getObject());
@@ -155,14 +148,16 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
         Objects.requireNonNull(service, "service cannot be null");
         ServiceServer server = runningServices.get(service);
         if (server == null) {
-            throw new RuleServiceUndeployException(String.format("There is no running service '%s'.", service.getName()));
+            throw new RuleServiceUndeployException(
+                String.format("There is no running service '%s'.", service.getName()));
         }
         try {
             server.getServer().destroy();
             runningServices.remove(service);
             log.info("Service '{}' has been undeployed succesfully.", service.getName());
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()), t);
+            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()),
+                t);
         }
 
     }

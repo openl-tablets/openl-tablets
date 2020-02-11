@@ -2,25 +2,24 @@ package org.openl.rules.ruleservice.publish.rmi;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
 
-class DefaultRmiInvocationHandler implements DefaultRmiHandler {
+class DefaultRmiMethodHandler implements DefaultRmiHandler {
 
     private Object target;
     private Map<String, List<Method>> methodMap;
 
-    DefaultRmiInvocationHandler(Object target, Map<String, List<Method>> methodMap) {
+    DefaultRmiMethodHandler(Object target, Map<String, List<Method>> methodMap) {
         this.target = Objects.requireNonNull(target, "target cannot be null");
         this.methodMap = Objects.requireNonNull(methodMap, "methodMap cannot be null");
     }
 
     @Override
-    public Object execute(String ruleName, Class<?>[] inputParamsTypes, Object[] params) throws RemoteException {
+    public Object execute(String ruleName, Class<?>[] inputParamsTypes, Object[] params) {
         if (inputParamsTypes.length != params.length) {
             throw new IllegalArgumentException("inputParamTypes size must be equals to params size.");
         }
@@ -28,7 +27,7 @@ class DefaultRmiInvocationHandler implements DefaultRmiHandler {
     }
 
     @Override
-    public Object execute(String ruleName, Object... params) throws RemoteException {
+    public Object execute(String ruleName, Object... params) {
         Class<?>[] inputParamsTypes = new Class<?>[params.length];
         int i = 0;
         for (Object o : params) {

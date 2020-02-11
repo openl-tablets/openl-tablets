@@ -95,9 +95,9 @@ public abstract class LazyMember<T extends IOpenMember> implements ILazyMember<T
                     @Override
                     public CompiledOpenClass call() throws Exception {
                         CompiledOpenClass compiledOpenClass = null;
-                        IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();
+                        IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
                         try {
-                            LazyBinderInvocationHandler.removePrebindHandler();
+                            LazyBinderMethodHandler.removePrebindHandler();
                             RulesInstantiationStrategy rulesInstantiationStrategy = RulesInstantiationStrategyFactory
                                 .getStrategy(getModule(), true, getDependencyManager(), getClassLoader());
                             rulesInstantiationStrategy.setServiceClass(EmptyInterface.class);// Prevent
@@ -126,7 +126,7 @@ public abstract class LazyMember<T extends IOpenMember> implements ILazyMember<T
                             log.error("Failed to load dependency '{}'.", getModule().getName(), ex);
                             return compiledOpenClass;
                         } finally {
-                            LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
+                            LazyBinderMethodHandler.setPrebindHandler(prebindHandler);
                         }
                     }
                 });

@@ -1,6 +1,5 @@
 package org.openl.rules.runtime;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Map;
@@ -12,6 +11,7 @@ import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.runtime.EngineFactory;
 import org.openl.runtime.IEngineWrapper;
+import org.openl.runtime.IOpenLMethodHandler;
 import org.openl.runtime.IRuntimeEnvBuilder;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenClass;
@@ -183,9 +183,9 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
     }
 
     @Override
-    protected InvocationHandler prepareInvocationHandler(Object openClassInstance,
+    protected IOpenLMethodHandler prepareMethodHandler(Object openClassInstance,
             Map<Method, IOpenMember> methodMap,
             IRuntimeEnv runtimeEnv) {
-        return new OpenLRulesInvocationHandler(openClassInstance, runtimeEnv, methodMap);
+        return new OpenLRulesMethodHandler(openClassInstance, runtimeEnv, methodMap);
     }
 }

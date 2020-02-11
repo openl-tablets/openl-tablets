@@ -1,20 +1,21 @@
 package org.openl.rules.ruleservice.simple;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-public class RulesFrontendProxyInvocationHandler implements InvocationHandler {
+import javassist.util.proxy.MethodHandler;
+
+public class RulesFrontendProxyMethodHandler implements MethodHandler {
 
     private RulesFrontend rulesFrontend;
     private String serviceName;
 
-    public RulesFrontendProxyInvocationHandler(String serviceName, RulesFrontend rulesFrontend) {
+    public RulesFrontendProxyMethodHandler(String serviceName, RulesFrontend rulesFrontend) {
         this.rulesFrontend = rulesFrontend;
         this.serviceName = serviceName;
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Method proceed, Object[] args) throws Throwable {
         try {
             return rulesFrontend.execute(serviceName, method.getName(), args);
         } catch (MethodInvocationException e) {

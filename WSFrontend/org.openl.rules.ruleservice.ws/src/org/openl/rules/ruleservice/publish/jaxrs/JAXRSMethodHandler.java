@@ -6,9 +6,9 @@ import java.util.Objects;
 
 import javax.ws.rs.core.Response;
 
-import org.openl.runtime.IOpenLInvocationHandler;
+import org.openl.runtime.IOpenLMethodHandler;
 
-public class JAXRSInvocationHandler implements IOpenLInvocationHandler<Method, Method> {
+public class JAXRSMethodHandler implements IOpenLMethodHandler<Method, Method> {
 
     private Object target;
     private Map<Method, Method> methodMap;
@@ -18,7 +18,7 @@ public class JAXRSInvocationHandler implements IOpenLInvocationHandler<Method, M
         return methodMap.get(key);
     }
 
-    public JAXRSInvocationHandler(Object target, Map<Method, Method> methodMap) {
+    public JAXRSMethodHandler(Object target, Map<Method, Method> methodMap) {
         this.target = Objects.requireNonNull(target, "target cannot be null");
         this.methodMap = Objects.requireNonNull(methodMap, "methodMap cannot be null");
     }
@@ -29,7 +29,7 @@ public class JAXRSInvocationHandler implements IOpenLInvocationHandler<Method, M
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Method proceed, Object[] args) throws Throwable {
         Method m = methodMap.get(method);
         if (m == null) {
             throw new IllegalStateException("Method is not found in the map of methods.");

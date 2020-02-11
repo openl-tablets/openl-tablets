@@ -20,7 +20,6 @@
 
     <modules>
         <module>server-core</module>
-        <!--<module>itest.policy</module>-->
         <module>itest.smoke</module>
         <module>itest.kafka.smoke</module>
         <module>itest.jacksonbinding</module>
@@ -40,6 +39,7 @@
         <module>itest.EPBDS-6555</module>
         <module>itest.EPBDS-5057</module>
         <module>itest.EPBDS-8076</module>
+        <module>itest.BigServiceDeploy</module>
     </modules>
 
     <dependencyManagement>
