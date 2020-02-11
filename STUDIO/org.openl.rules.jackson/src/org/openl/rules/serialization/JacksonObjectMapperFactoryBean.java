@@ -126,10 +126,11 @@ public class JacksonObjectMapperFactoryBean {
                 DefaultTypingMode.ENABLE.equals(getDefaultTypingMode()) ? ObjectMapper.DefaultTyping.NON_FINAL
                                                                         : ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT,
                 JsonTypeInfo.As.PROPERTY);
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, isFailOnUnknownProperties());
         } else {
             mapper.deactivateDefaultTyping();
         }
+
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, isFailOnUnknownProperties());
 
         if (isSupportVariations()) {
             mapper.addMixIn(Variation.class, VariationType.class);
@@ -139,11 +140,13 @@ public class JacksonObjectMapperFactoryBean {
             mapper.addMixIn(JXPathVariation.class, JXPathVariationType.class);
             mapper.addMixIn(VariationsResult.class, VariationsResultType.class);
         }
+
         if (getDefaultDateFormat() == null) {
             mapper.setDateFormat(getISO8601Format());
         } else {
             mapper.setDateFormat(getDefaultDateFormat());
         }
+
         return mapper;
     }
 
