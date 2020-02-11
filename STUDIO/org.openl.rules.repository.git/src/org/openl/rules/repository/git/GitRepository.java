@@ -38,10 +38,11 @@ import org.eclipse.jgit.transport.TrackingRefUpdate;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
+import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.FS;
-import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.common.ChangesMonitor;
@@ -1222,15 +1223,19 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             Repository repository = git.getRepository();
 
-            while (iterator.hasNext()) {
-                RevCommit commit = iterator.next();
-                if (!containsPath(repository, commit, name)) {
-                    continue;
-                }
+            try (ObjectReader or = repository.newObjectReader()) {
+                TreeWalk tw = createTreeWalk(or, name);
 
-                boolean stop = historyVisitor.visit(name, commit, getVersionName(repository, tags, commit));
-                if (stop) {
-                    break;
+                while (iterator.hasNext()) {
+                    RevCommit commit = iterator.next();
+                    if (!hasChangesInPath(tw, commit)) {
+                        continue;
+                    }
+
+                    boolean stop = historyVisitor.visit(name, commit, getVersionName(repository, tags, commit));
+                    if (stop) {
+                        break;
+                    }
                 }
             }
 
@@ -1346,55 +1351,56 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         // We can't use git.log().addPath(path) because jgit has some issues for some scenarios when merging commits so
         // some history elements aren't shown. So we iterate all commits and filter them out ourselves.
         Repository repository = git.getRepository();
-        for (RevCommit commit : git.log().add(startCommit).call()) {
-            if (containsPath(repository, commit, path)) {
-                return commit;
+        try (ObjectReader or = repository.newObjectReader()) {
+            TreeWalk tw = createTreeWalk(or, path);
+            for (RevCommit commit : git.log().add(startCommit).call()) {
+                if (hasChangesInPath(tw, commit)) {
+                    return commit;
+                }
             }
         }
 
         return null;
     }
 
-    private static boolean containsPath(Repository repository,
-            RevCommit commit,
-            String pathToCheck) throws IOException {
+    private static boolean hasChangesInPath(TreeWalk tw, RevCommit commit) throws IOException {
+        RevCommit[] parents = commit.getParents();
+        int parentsNum = parents.length;
 
-        // Get commit that is previous to the current one.
-        RevCommit oldCommit = getPrevCommit(repository, commit);
-        if (oldCommit == null) {
-            // Initial commit
-            try (TreeWalk ignored = buildTreeWalk(repository, pathToCheck, commit.getTree())) {
-                return true;
-            } catch (FileNotFoundException e) {
-                return false;
-            }
+        ObjectId[] trees = new ObjectId[parentsNum + 1];
+        for (int i = 0; i < parentsNum; i++) {
+            trees[i] = parents[i].getTree();
         }
+        // The last tree is a tree for inspecting commit.
+        trees[parentsNum] = commit.getTree();
+        tw.reset(trees);
 
-        try (DiffFormatter formatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
-            formatter.setRepository(repository);
-            List<DiffEntry> diffEntries = formatter.scan(oldCommit.getTree(), commit.getTree());
-            for (DiffEntry entry : diffEntries) {
-                String path = entry.getChangeType() == DiffEntry.ChangeType.DELETE ? entry.getOldPath()
-                                                                                   : entry.getNewPath();
-                String folderPath = pathToCheck.endsWith("/") ? pathToCheck : pathToCheck + "/";
-                if (path.equals(pathToCheck) || path.startsWith(folderPath)) {
+        while (tw.next()) {
+            if (parentsNum == 0) {
+                // Path is changed but there are no parents. It's a first commit.
+                return true;
+            }
+
+            int currentMode = tw.getRawMode(parentsNum);
+            for (int i = 0; i < parentsNum; i++) {
+                int parentMode = tw.getRawMode(i);
+                if (currentMode != parentMode || !tw.idEqual(i, parentsNum)) {
+                    // Path configured in tw was changed
                     return true;
                 }
             }
-
-            return false;
         }
+
+        return false;
     }
 
-    private static RevCommit getPrevCommit(Repository repository, RevCommit commit) throws IOException {
-
-        ObjectId prevId = repository.resolve(commit.getName() + "^");
-        if (prevId != null) {
-            try (RevWalk walk = new RevWalk(repository)) {
-                return walk.parseCommit(prevId);
-            }
-        }
-        return null;
+    private static TreeWalk createTreeWalk(ObjectReader or, String path) {
+        TreeFilter t = AndTreeFilter.create(PathFilterGroup.create(Collections.singleton(PathFilter.create(path))),
+            TreeFilter.ANY_DIFF);
+        TreeWalk tw = new TreeWalk(or);
+        tw.setFilter(t);
+        tw.setRecursive(t.shouldBeRecursive());
+        return tw;
     }
 
     private static Ref getTagRefForCommit(Repository repository, List<Ref> tags, ObjectId commitId) throws IOException {
