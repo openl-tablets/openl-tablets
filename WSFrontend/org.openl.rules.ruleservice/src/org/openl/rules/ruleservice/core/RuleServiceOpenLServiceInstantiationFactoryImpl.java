@@ -1,9 +1,10 @@
 package org.openl.rules.ruleservice.core;
 
-import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -23,10 +24,10 @@ import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFacto
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl;
 import org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache;
 import org.openl.runtime.IEngineWrapper;
+import org.openl.runtime.OpenLJavaAssistProxy;
 import org.openl.types.IOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.ObjectProvider;
 
 /**
@@ -49,8 +50,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private void initService(ServiceDescription serviceDescription,
             RuleServiceDeploymentRelatedDependencyManager dependencyManager,
-            OpenLService service) throws RuleServiceInstantiationException,
-                                  RulesInstantiationException {
+            OpenLService service) throws RuleServiceInstantiationException, RulesInstantiationException {
         RulesInstantiationStrategy instantiationStrategy = instantiationStrategyFactory.getStrategy(serviceDescription,
             dependencyManager);
         Map<String, Object> parameters = ProjectExternalDependenciesHelper
@@ -98,26 +98,25 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             ClassLoader classLoader) throws RuleServiceInstantiationException {
         Class<?> serviceClass = service.getServiceClass();
 
-        ProxyFactory factory = new ProxyFactory();
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        List<Class> interfaces = new ArrayList<>();
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
             ServiceInvocationAdvice serviceInvocationAdvice = new ServiceInvocationAdvice(service
                 .getOpenClass(), serviceTarget, serviceClass, classLoader, getListServiceInvocationAdviceListeners());
-            factory.addAdvice(serviceInvocationAdvice);
             if (serviceClass.isInterface()) {
-                factory.addInterface(serviceClass);
+                interfaces.add(serviceClass);
                 if (!service.isProvideRuntimeContext()) {
-                    factory.addInterface(IEngineWrapper.class);
+                    interfaces.add(IEngineWrapper.class);
                 }
             } else {
                 // deprecated approach with wrapper: service class is not
                 // interface
-                factory.setTarget(serviceTarget);
-                factory.setProxyTargetClass(!Proxy.isProxyClass(serviceTarget.getClass()));
+                throw new RuleServiceRuntimeException(
+                    "Failed to create a proxy for service target object. Deprecated approach with wrapper: service class is not interface");
             }
-
-            Object proxyServiceBean = factory.getProxy();
+            Object proxyServiceBean = OpenLJavaAssistProxy
+                .create(oldClassLoader, serviceInvocationAdvice, interfaces.toArray(new Class[] {}));
             service.setServiceBean(proxyServiceBean);
         } catch (Exception t) {
             throw new RuleServiceRuntimeException("Failed to create a proxy for service target object.", t);

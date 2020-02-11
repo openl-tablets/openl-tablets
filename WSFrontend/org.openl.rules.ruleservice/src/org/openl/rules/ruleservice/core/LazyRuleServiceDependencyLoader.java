@@ -21,7 +21,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.core.RuleServiceDeploymentRelatedDependencyManager.DependencyCompilationType;
 import org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache;
-import org.openl.rules.ruleservice.publish.lazy.LazyBinderInvocationHandler;
+import org.openl.rules.ruleservice.publish.lazy.LazyBinderMethodHandler;
 import org.openl.rules.ruleservice.publish.lazy.LazyCompiledOpenClass;
 import org.openl.rules.ruleservice.publish.lazy.LazyField;
 import org.openl.rules.ruleservice.publish.lazy.LazyInstantiationStrategy;
@@ -32,7 +32,6 @@ import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenField;
-import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,9 +128,9 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         final Map<String, Object> parameters = ProjectExternalDependenciesHelper
             .getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(), modules);
         rulesInstantiationStrategy.setExternalParameters(parameters);
-        IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();
+        IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
         try {
-            LazyBinderInvocationHandler.setPrebindHandler(new IPrebindHandler() {
+            LazyBinderMethodHandler.setPrebindHandler(new IPrebindHandler() {
 
                 @Override
                 public IOpenMethod processMethodAdded(IOpenMethod method, XlsLazyModuleOpenClass moduleOpenClass) {
@@ -189,7 +188,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         } catch (Exception ex) {
             throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependencyName), ex);
         } finally {
-            LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
+            LazyBinderMethodHandler.setPrebindHandler(prebindHandler);
         }
     }
 
@@ -203,9 +202,9 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
             if (compiledOpenClass != null) {
                 return;
             }
-            IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();
+            IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
             try {
-                LazyBinderInvocationHandler.removePrebindHandler();
+                LazyBinderMethodHandler.removePrebindHandler();
                 RulesInstantiationStrategy rulesInstantiationStrategy = RulesInstantiationStrategyFactory
                     .getStrategy(module, true, dependencyManager, classLoader);
                 rulesInstantiationStrategy.setServiceClass(EmptyInterface.class);
@@ -229,7 +228,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                 throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependencyName),
                     ex);
             } finally {
-                LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
+                LazyBinderMethodHandler.setPrebindHandler(prebindHandler);
             }
         }
     }

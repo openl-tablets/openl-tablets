@@ -14,6 +14,8 @@ import org.openl.rules.project.instantiation.ValidationServiceClassException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javassist.util.proxy.MethodHandler;
+
 /**
  * Auxiliary class for support of variations.
  * <p/>
@@ -70,7 +72,7 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
      * @throws Exception
      */
     @Override
-    protected InvocationHandler makeInvocationHandler(Object originalInstance) throws Exception {
+    protected MethodHandler makeMethodHandler(Object originalInstance) throws Exception {
         Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(),
             getOriginalInstantiationStrategy().getInstanceClass());
         return new VariationInstantiationStrategyEnhancerInvocationHandler(methodsMap, originalInstance);

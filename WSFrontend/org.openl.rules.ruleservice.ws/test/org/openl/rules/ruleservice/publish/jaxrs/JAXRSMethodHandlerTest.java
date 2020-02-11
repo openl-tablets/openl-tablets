@@ -12,30 +12,30 @@ import javax.ws.rs.core.Response;
 
 import org.junit.Test;
 
-public class JAXRSInvocationHandlerTest {
+public class JAXRSMethodHandlerTest {
 
     @Test
     public void checkNotNullConstructorArguments() {
-        new JAXRSInvocationHandler(new Object(), new HashMap<Method, Method>());
+        new JAXRSMethodHandler(new Object(), new HashMap<Method, Method>());
     }
 
     @Test(expected = NullPointerException.class)
     public void checkNullTargetConstructorArgument() {
-        new JAXRSInvocationHandler(null, new HashMap<Method, Method>());
+        new JAXRSMethodHandler(null, new HashMap<Method, Method>());
     }
 
     @Test(expected = NullPointerException.class)
     public void checkNullMethodsConstructorArgument() {
-        new JAXRSInvocationHandler(new Object(), null);
+        new JAXRSMethodHandler(new Object(), null);
     }
 
     @Test(expected = IllegalStateException.class)
     public void checkInvokeOnUnknownMethod() throws Throwable {
         Object target = new Object();
         HashMap<Method, Method> methods = new HashMap<>();
-        JAXRSInvocationHandler handler = new JAXRSInvocationHandler(target, methods);
+        JAXRSMethodHandler handler = new JAXRSMethodHandler(target, methods);
         Method unknownMethod = Object.class.getDeclaredMethod("hashCode");
-        handler.invoke(null, unknownMethod, null);
+        handler.invoke(null, unknownMethod, null, null);
     }
 
     @Test
@@ -46,8 +46,8 @@ public class JAXRSInvocationHandlerTest {
         Method method = target.getClass().getDeclaredMethod("doWork");
         methods.put(method, method);
 
-        JAXRSInvocationHandler handler = new JAXRSInvocationHandler(target, methods);
-        Object result = handler.invoke(null, method, null);
+        JAXRSMethodHandler handler = new JAXRSMethodHandler(target, methods);
+        Object result = handler.invoke(null, method, null, null);
 
         assertTrue(result instanceof Response);
         assertEquals("Done", ((Response) result).getEntity());

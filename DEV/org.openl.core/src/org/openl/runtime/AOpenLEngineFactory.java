@@ -1,6 +1,5 @@
 package org.openl.runtime;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -91,10 +90,10 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
     }
 
     @Override
-    protected InvocationHandler prepareInvocationHandler(Object openClassInstance,
+    protected IOpenLMethodHandler prepareMethodHandler(Object openClassInstance,
             Map<Method, IOpenMember> methodMap,
             IRuntimeEnv runtimeEnv) {
-        return new OpenLInvocationHandler(openClassInstance, runtimeEnv, methodMap);
+        return new OpenLMethodHandler(openClassInstance, runtimeEnv, methodMap);
     }
 
     public String getOpenlName() {

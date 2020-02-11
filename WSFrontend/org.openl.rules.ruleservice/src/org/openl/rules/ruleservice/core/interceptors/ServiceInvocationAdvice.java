@@ -4,10 +4,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.binding.MethodUtil;
@@ -15,7 +17,11 @@ import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.rules.ruleservice.core.*;
+import org.openl.rules.ruleservice.core.ExceptionType;
+import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
+import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
+import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
+import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
@@ -29,6 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 
+import javassist.util.proxy.MethodHandler;
+
 /**
  * Advice for processing method intercepting. Exception wrapping. And fix memory leaks.
  * <p/>
@@ -36,7 +44,7 @@ import org.springframework.core.Ordered;
  *
  * @author Marat Kamalov
  */
-public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered {
+public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
 
     private final Logger log = LoggerFactory.getLogger(ServiceInvocationAdvice.class);
 
@@ -282,9 +290,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
     }
 
     @Override
-    public Object invoke(MethodInvocation invocation) throws Throwable {
-        Method calledMethod = invocation.getMethod();
-        Object[] args = invocation.getArguments();
+    public Object invoke(Object o, Method calledMethod, Method proceed, Object[] args) throws Throwable {
         String methodName = calledMethod.getName();
         Class<?>[] parameterTypes = calledMethod.getParameterTypes();
         Method interfaceMethod = MethodUtil.getMatchingAccessibleMethod(serviceClass, methodName, parameterTypes);
@@ -292,7 +298,8 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         try {
             Method beanMethod = null;
             if (!calledMethod.isAnnotationPresent(ServiceExtraMethod.class)) {
-                beanMethod = MethodUtil.getMatchingAccessibleMethod(serviceTarget.getClass(), methodName, parameterTypes);
+                beanMethod = MethodUtil
+                    .getMatchingAccessibleMethod(serviceTarget.getClass(), methodName, parameterTypes);
                 if (beanMethod == null) {
                     throw new OpenLRuntimeException(String.format(
                         "Called method is not found in the service bean. Please, check that excel file contains method '%s'.",
@@ -502,5 +509,4 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE;
     }
-
 }

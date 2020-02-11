@@ -9,7 +9,7 @@ import org.openl.rules.lang.xls.prebind.IPrebindHandler;
  *
  * @author NSamatov, Marat Kamalov
  */
-public class LazyBinderInvocationHandler {
+public class LazyBinderMethodHandler {
     private static final ThreadLocal<IPrebindHandler> prebindHandlerHolder = new ThreadLocal<>();
 
     /**
