@@ -219,6 +219,9 @@ grant codeBase "file:${catalina.home}/webapps/webservice/-" {
         //tomcat
         permission java.net.NetPermission "specifyStreamHandler";
 
+        //javassist
+        permission java.lang.RuntimePermission "createSecurityManager";
+
         //log4j
         permission java.lang.RuntimePermission "getStackWalkerWithClassReference";
 };
