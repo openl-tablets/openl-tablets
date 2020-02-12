@@ -171,13 +171,15 @@
                         <ui:param name="compareResult" value="#{testCase.resultStatus}" />
                         <h:panelGroup>
                             <tr>
-                                <td width="65px">
-                                    #{testCase.test.id}
-                                    <div class="case-result #{testCase.getResultStatus() == 'TR_OK' ? 'case-success' : 'case-error'}">
+                                <td>
+                                    <div style="display:flex">
+                                        <span style="min-height: 15px; padding-right: 3px; display: inline-block;">#{testCase.test.id}</span>
+                                        <span style="min-height: 15px;  display: inline-block;"
+                                              class="#{testCase.getResultStatus() == 'TR_OK' ? 'case-success' : 'case-error'}">
                                         <h:panelGroup rendered="#{testCase.getResultStatus() != 'TR_OK'}">
                                             <b>(#{testCase.getNumberOfFailedTests()})</b>
                                         </h:panelGroup>
-                                        <br></br>
+                                        </span>
                                     </div>
                                 </td>
                                 <h:panelGroup rendered="#{test.hasDescription()}">

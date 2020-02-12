@@ -21,6 +21,7 @@ public class XlsDateFormatter extends DateFormatter {
         xlsFormat = xlsFormat.replaceAll("Y", "y");
         xlsFormat = xlsFormat.replaceAll("\\\\-", "-");
         xlsFormat = xlsFormat.replaceAll(";@", "");
+        xlsFormat = xlsFormat.replaceAll("AM.PM", "a");
         xlsFormat = xlsFormat.replaceAll("\\\\ ", " ");
         xlsFormat = date_ptrn.matcher(xlsFormat).replaceAll("");
         return xlsFormat;
