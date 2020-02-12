@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.openl.binding.impl.StaticClassLibrary;
 import org.openl.binding.impl.cast.CastFactory;
@@ -30,10 +31,15 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
     private IOpenLConfiguration configuration;
 
     public class JavaCastComponent extends AConfigurationElement {
-        String libraryClassName;
-        String className;
+        private final String libraryClassName;
+        private final String className;
 
         private volatile CastFactory factory = null;
+
+        public JavaCastComponent(String libraryClassName, String className) {
+            this.libraryClassName = Objects.requireNonNull(libraryClassName, "className can not be null");
+            this.className = Objects.requireNonNull(className, "className can not be null");
+        }
 
         CastFactory getCastFactory(IConfigurableResourceContext cxt) {
             if (factory == null) {
@@ -57,20 +63,6 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
                 }
             }
             return factory;
-        }
-
-        /**
-         * @param string
-         */
-        public void setClassName(String string) {
-            className = string;
-        }
-
-        /**
-         * @param string
-         */
-        public void setLibraryClassName(String string) {
-            libraryClassName = string;
         }
 
         /*

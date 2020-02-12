@@ -1,36 +1,31 @@
 package org.openl.rules.ruleservice.publish.jaxws;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.Objects;
 
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.interceptor.Fault;
 import org.openl.rules.ruleservice.publish.common.ExceptionResponseDto;
-import org.openl.runtime.IOpenLInvocationHandler;
 import org.w3c.dom.Element;
 
-public class JAXWSInvocationHandler implements IOpenLInvocationHandler<Method, Method> {
+import javassist.util.proxy.MethodHandler;
 
-    private Object target;
+public class JAXWSMethodHandler implements MethodHandler {
 
-    @Override
-    public Method getTargetMember(Method method) {
-        return method;
-    }
+    private final Object service;
+    private final Map<Method, Method> methodMap;
 
-    public JAXWSInvocationHandler(Object target) {
-        this.target = Objects.requireNonNull(target, "target cannot be null");
-    }
-
-    @Override
-    public Object getTarget() {
-        return target;
+    public JAXWSMethodHandler(Object service, Map<Method, Method> methodMap) {
+        this.service = Objects.requireNonNull(service, "service cannot be null");
+        this.methodMap = Objects.requireNonNull(methodMap, "methodMap cannot be null");
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object o, Method method, Method proceed, Object[] args) throws Throwable {
+        Method m = methodMap.get(method);
         try {
-            return method.invoke(target, args);
+            return m.invoke(service, args);
         } catch (Exception e) {
 
             ExceptionResponseDto dto = ExceptionResponseDto.createFrom(e);

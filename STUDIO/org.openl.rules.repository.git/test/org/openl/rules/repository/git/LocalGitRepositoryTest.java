@@ -8,15 +8,20 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.MergeConflictException;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -28,7 +33,7 @@ public class LocalGitRepositoryTest {
     @Before
     public void setUp() throws IOException, RRepositoryException {
         root = Files.createTempDirectory("openl").toFile();
-        repo = createRepository(root);
+        repo = createRepository(new File(root, "design-repository"));
     }
 
     @After
@@ -111,6 +116,105 @@ public class LocalGitRepositoryTest {
         assertTrue(branches.contains("project1/test1"));
         assertTrue(branches.contains("project1/test2"));
         assertEquals(3, branches.size());
+    }
+
+    @Test
+    public void testHistoryWhenMergeWithoutConflict() throws IOException {
+        writeSampleFile(repo, "rules/project1/file1", "Project1 was created");
+        writeSampleFile(repo, "rules/project11/file1", "Project11 was created");
+        writeSampleFile(repo, "rules/project2/file1", "Project2 was created");
+        assertEquals(1, repo.listHistory("rules/project1").size());
+        assertEquals(1, repo.listHistory("rules/project11").size());
+        assertEquals(1, repo.listHistory("rules/project2").size());
+
+        repo.createBranch("project1", "branch1");
+
+        writeSampleFile(repo, "rules/project1/file2", "'file2' in the branch 'master' was added");
+        writeSampleFile(repo.forBranch("branch1"), "rules/project1/file3", "'file3' in the branch 'branch1' was added");
+        repo.merge("branch1", "admin", null);
+
+        assertEquals(4, repo.listHistory("rules/project1").size());
+        assertEquals(1, repo.listHistory("rules/project11").size());
+        assertEquals(1, repo.listHistory("rules/project2").size());
+
+        assertEquals("Merge branch 'branch1'", repo.check("rules/project1").getComment());
+    }
+
+    @Test
+    public void testHistoryWhenMergeWithConflictAndChooseTheirs() throws IOException, GitAPIException {
+        final String project1 = "rules/project1";
+        final String file = project1 + "/file1";
+        final String textInMaster = "In master";
+        final String textInBranch1 = "In branch1";
+
+        writeSampleFile(repo, file, "Project1 was created");
+        repo.createBranch("project1", "branch1");
+
+        writeSampleFile(repo, file, textInMaster, "Modify master");
+        writeSampleFile(repo.forBranch("branch1"), file, textInBranch1, "Modify branch1");
+        try {
+            repo.merge("branch1", "admin", null);
+            fail("MergeConflictException is expected");
+        } catch (MergeConflictException e) {
+            final String resolveMessage = "Resolve conflict (use theirs)";
+
+            // !!! The text must be same as in branch1 for this test scenario. Resolve with choosing "all theirs".
+            Iterable<FileItem> resolvedFiles = Collections
+                .singletonList(new FileItem(file, IOUtils.toInputStream(textInBranch1)));
+
+            repo.merge("branch1", "admin", new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
+
+            assertEquals(resolveMessage, repo.check(project1).getComment());
+            assertEquals(textInBranch1, IOUtils.toStringAndClose(repo.read(file).getStream()));
+
+            assertEquals(4, repo.listHistory(project1).size());
+            String lastVersion = repo.listHistory(project1).get(3).getVersion();
+            assertFalse("Last commit (resolve merge conflict) is treated as old version. Must be last version.",
+                repo.isCheckoutOldVersion(project1, lastVersion));
+        }
+    }
+
+    @Test
+    public void testHistoryWhenMergeWithConflictAndChooseYours() throws IOException, GitAPIException {
+        final String project1 = "rules/project1";
+        final String file = project1 + "/file1";
+        final String textInMaster = "In master";
+        final String textInBranch1 = "In branch1";
+
+        writeSampleFile(repo, file, "Project1 was created");
+        repo.createBranch("project1", "branch1");
+
+        writeSampleFile(repo, file, textInMaster, "Modify master");
+        writeSampleFile(repo.forBranch("branch1"), file, textInBranch1, "Modify branch1");
+        try {
+            repo.merge("branch1", "admin", null);
+            fail("MergeConflictException is expected");
+        } catch (MergeConflictException e) {
+            final String resolveMessage = "Resolve conflict (use yours)";
+
+            // !!! The text must be same as in master for this test scenario. Resolve with choosing "all yours".
+            Iterable<FileItem> resolvedFiles = Collections
+                .singletonList(new FileItem(file, IOUtils.toInputStream(textInMaster)));
+
+            repo.merge("branch1", "admin", new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
+
+            assertEquals(resolveMessage, repo.check(project1).getComment());
+            assertEquals(textInMaster, IOUtils.toStringAndClose(repo.read(file).getStream()));
+
+            assertEquals(4, repo.listHistory(project1).size());
+            String lastVersion = repo.listHistory(project1).get(3).getVersion();
+            assertFalse("Last commit (resolve merge conflict) is treated as old version. Must be last version.",
+                repo.isCheckoutOldVersion(project1, lastVersion));
+        }
+    }
+
+    private void writeSampleFile(Repository repository, String path, String comment) throws IOException {
+        String text = "File located in " + path;
+        writeSampleFile(repository, path, text, comment);
+    }
+
+    private void writeSampleFile(Repository repository, String path, String text, String comment) throws IOException {
+        repository.save(createFileData(path, text, comment), IOUtils.toInputStream(text));
     }
 
     private GitRepository createRepository(File local) throws RRepositoryException {

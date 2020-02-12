@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.publish.rmi;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.rmi.Remote;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +11,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
+import org.openl.runtime.OpenLJavaAssistProxy;
 
 /**
  * Utility class for generate RMI annotations for service interface.
@@ -38,7 +38,6 @@ public class RmiEnhancerHelper {
     public static DefaultRmiHandler decorateBeanWithDynamicRmiHandler(Object targetBean,
             OpenLService service) throws Exception {
         Class<?> serviceClass = service.getServiceClass();
-        ClassLoader classLoader = getClassLoader(service);
         Map<String, List<Method>> methodMap = new HashMap<>();
         for (Method method : serviceClass.getMethods()) {
             List<Method> methods = null;
@@ -50,15 +49,11 @@ public class RmiEnhancerHelper {
             }
             methods.add(method);
         }
-
-        return (DefaultRmiHandler) Proxy.newProxyInstance(classLoader,
-            new Class<?>[] { DefaultRmiHandler.class },
-            new DefaultRmiInvocationHandler(targetBean, methodMap));
+        return new DefaultRmiMethodHandler(targetBean, methodMap);
     }
 
     public static Remote decorateBeanWithStaticRmiHandler(Object targetBean, OpenLService service) throws Exception {
         Class<?> serviceClass = service.getServiceClass();
-        ClassLoader classLoader = getClassLoader(service);
         Map<Method, Method> methodMap = new HashMap<>();
 
         for (Method m : service.getRmiServiceClass().getMethods()) {
@@ -86,8 +81,8 @@ public class RmiEnhancerHelper {
             }
         }
 
-        return (Remote) Proxy.newProxyInstance(classLoader,
-            new Class<?>[] { service.getRmiServiceClass() },
-            new StaticRmiInvocationHandler(targetBean, methodMap));
+        return (Remote) OpenLJavaAssistProxy.create(getClassLoader(service),
+            new StaticRmiMethodHandler(targetBean, methodMap),
+            new Class<?>[] { service.getRmiServiceClass() });
     }
 }

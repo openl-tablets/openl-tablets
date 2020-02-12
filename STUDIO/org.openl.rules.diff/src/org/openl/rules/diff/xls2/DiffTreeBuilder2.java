@@ -7,7 +7,11 @@ import java.util.Map;
 
 import org.openl.rules.diff.hierarchy.AbstractProperty;
 import org.openl.rules.diff.hierarchy.Projection;
-import org.openl.rules.diff.tree.*;
+import org.openl.rules.diff.tree.DiffElement;
+import org.openl.rules.diff.tree.DiffElementImpl;
+import org.openl.rules.diff.tree.DiffTreeBuilderImpl;
+import org.openl.rules.diff.tree.DiffTreeNode;
+import org.openl.rules.diff.tree.DiffTreeNodeImpl;
 import org.openl.rules.diff.xls.XlsProjection;
 import org.openl.rules.diff.xls.XlsProjectionType;
 import org.openl.rules.table.IGridTable;
@@ -29,7 +33,7 @@ public class DiffTreeBuilder2 extends DiffTreeBuilderImpl {
         DiffTreeNodeImpl n = new DiffTreeNodeImpl();
         DiffElement[] a = new DiffElementImpl[2];
         n.setElements(a);
-        n.setChildren(new ArrayList<DiffTreeNode>());
+        n.setChildren(new ArrayList<>());
 
         return n;
     }
@@ -96,14 +100,14 @@ public class DiffTreeBuilder2 extends DiffTreeBuilderImpl {
 
                 if (t1 != null) {
                     tp1 = new XlsProjection(t1.getTableName(), XlsProjectionType.TABLE);
-                    tp1.setData(t1.getTable());
+                    tp1.setTable(t1.getTable());
                     fillProps(tp1, t1);
 
                     tp1.setDiffCells(r.getDiffCells1());
                 }
                 if (r.getTable2() != null) {
                     tp2 = new XlsProjection(t2.getTableName(), XlsProjectionType.TABLE);
-                    tp2.setData(t2.getTable());
+                    tp2.setTable(t2.getTable());
                     fillProps(tp2, t2);
 
                     tp2.setDiffCells(r.getDiffCells2());

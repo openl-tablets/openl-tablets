@@ -38,6 +38,8 @@ import org.eclipse.jgit.transport.TrackingRefUpdate;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
+import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.FS;
@@ -597,6 +599,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             TreeSet<String> localBranches = getAvailableBranches();
             String remotePrefix = Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/";
             for (Ref remoteBranch : remoteBranches) {
+                if (remoteBranch.isSymbolic()) {
+                    log.debug("Skip the symbolic branch '{}'.", remoteBranch.getName());
+                    continue;
+                }
                 if (!remoteBranch.getName().startsWith(remotePrefix)) {
                     log.warn("The branch {} will not be tracked", remoteBranch.getName());
                     continue;
@@ -1209,16 +1215,27 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 return historyVisitor.getResult();
             }
 
-            Iterator<RevCommit> iterator = git.log().add(resolveBranchId()).addPath(name).call().iterator();
+            // We can't use git.log().addPath(path) because jgit has some issues for some scenarios when merging commits
+            // so some history elements aren't shown. So we iterate all commits and filter them out ourselves.
+            Iterator<RevCommit> iterator = git.log().add(resolveBranchId()).call().iterator();
 
             List<Ref> tags = git.tagList().call();
 
-            while (iterator.hasNext()) {
-                RevCommit commit = iterator.next();
+            Repository repository = git.getRepository();
 
-                boolean stop = historyVisitor.visit(name, commit, getVersionName(git.getRepository(), tags, commit));
-                if (stop) {
-                    break;
+            try (ObjectReader or = repository.newObjectReader()) {
+                TreeWalk tw = createTreeWalk(or, name);
+
+                while (iterator.hasNext()) {
+                    RevCommit commit = iterator.next();
+                    if (!hasChangesInPath(tw, commit)) {
+                        continue;
+                    }
+
+                    boolean stop = historyVisitor.visit(name, commit, getVersionName(repository, tags, commit));
+                    if (stop) {
+                        break;
+                    }
                 }
             }
 
@@ -1330,6 +1347,62 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return tagRef != null ? getLocalTagName(tagRef) : commitId.getName();
     }
 
+    static RevCommit findFirstCommit(Git git, ObjectId startCommit, String path) throws IOException, GitAPIException {
+        // We can't use git.log().addPath(path) because jgit has some issues for some scenarios when merging commits so
+        // some history elements aren't shown. So we iterate all commits and filter them out ourselves.
+        Repository repository = git.getRepository();
+        try (ObjectReader or = repository.newObjectReader()) {
+            TreeWalk tw = createTreeWalk(or, path);
+            for (RevCommit commit : git.log().add(startCommit).call()) {
+                if (hasChangesInPath(tw, commit)) {
+                    return commit;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static boolean hasChangesInPath(TreeWalk tw, RevCommit commit) throws IOException {
+        RevCommit[] parents = commit.getParents();
+        int parentsNum = parents.length;
+
+        ObjectId[] trees = new ObjectId[parentsNum + 1];
+        for (int i = 0; i < parentsNum; i++) {
+            trees[i] = parents[i].getTree();
+        }
+        // The last tree is a tree for inspecting commit.
+        trees[parentsNum] = commit.getTree();
+        tw.reset(trees);
+
+        while (tw.next()) {
+            if (parentsNum == 0) {
+                // Path is changed but there are no parents. It's a first commit.
+                return true;
+            }
+
+            int currentMode = tw.getRawMode(parentsNum);
+            for (int i = 0; i < parentsNum; i++) {
+                int parentMode = tw.getRawMode(i);
+                if (currentMode != parentMode || !tw.idEqual(i, parentsNum)) {
+                    // Path configured in tw was changed
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static TreeWalk createTreeWalk(ObjectReader or, String path) {
+        TreeFilter t = AndTreeFilter.create(PathFilterGroup.create(Collections.singleton(PathFilter.create(path))),
+            TreeFilter.ANY_DIFF);
+        TreeWalk tw = new TreeWalk(or);
+        tw.setFilter(t);
+        tw.setRecursive(t.shouldBeRecursive());
+        return tw;
+    }
+
     private static Ref getTagRefForCommit(Repository repository, List<Ref> tags, ObjectId commitId) throws IOException {
         Ref tagRefForCommit = null;
         for (Ref tagRef : tags) {
@@ -1434,6 +1507,49 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             result.add(check(folderItem.getData().getName()));
         }
         return result;
+    }
+
+    @Override
+    public void merge(String branchFrom, String author, ConflictResolveData conflictResolveData) throws IOException {
+        Lock writeLock = repositoryLock.writeLock();
+        String mergeCommitId = null;
+        try {
+            log.debug("merge(): lock");
+            writeLock.lock();
+
+            reset();
+            if (conflictResolveData == null) {
+                pull(null, author);
+            }
+
+            git.checkout().setName(branch).call();
+            Ref branchRef = git.getRepository().findRef(branchFrom);
+            String mergeMessage = getMergeMessage(author, branchRef);
+            MergeResult mergeResult = git.merge().include(branchRef).setMessage(mergeMessage).call();
+            if (mergeResult.getMergeStatus().isSuccessful()) {
+                mergeCommitId = mergeResult.getNewHead().getName();
+            }
+
+            if (conflictResolveData != null) {
+                resolveConflict(mergeResult, conflictResolveData, author);
+            } else {
+                validateMergeConflict(mergeResult, true);
+            }
+
+            pull(null, author);
+            push();
+        } catch (IOException e) {
+            reset(mergeCommitId);
+            throw e;
+        } catch (Exception e) {
+            reset(mergeCommitId);
+            throw new IOException(e.getMessage(), e);
+        } finally {
+            writeLock.unlock();
+            log.debug("merge(): unlock");
+        }
+
+        monitor.fireOnChange();
     }
 
     private void saveMultipleFiles(FileData folderData,
@@ -1564,6 +1680,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             .include(getCommitByVersion(conflictResolveData.getCommitToMerge()))
             .call();
 
+        return resolveConflict(mergeResult, conflictResolveData, author);
+    }
+
+    private RevCommit resolveConflict(MergeResult mergeResult,
+            ConflictResolveData conflictResolveData,
+            String author) throws IOException, GitAPIException {
         if (mergeResult.getMergeStatus() != MergeResult.MergeStatus.CONFLICTING) {
             log.debug("Merge status: {}", mergeResult.getMergeStatus());
             throw new IOException("There is no merge conflict, nothing to resolve.");
@@ -2006,18 +2128,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return MessageFormat.format(escapedCommentTemplate, CommitType.MERGE, userMessage, mergeAuthor);
     }
 
-    private boolean isCheckoutOldVersion(String path, String baseVersion) throws GitAPIException, IOException {
+    boolean isCheckoutOldVersion(String path, String baseVersion) throws GitAPIException, IOException {
         if (baseVersion != null) {
             List<Ref> tags = git.tagList().call();
 
-            Iterator<RevCommit> iterator = git.log()
-                .add(resolveBranchId())
-                .addPath(path)
-                .setMaxCount(1)
-                .call()
-                .iterator();
-            if (iterator.hasNext()) {
-                String lastVersion = getVersionName(git.getRepository(), tags, iterator.next());
+            RevCommit commit = findFirstCommit(git, resolveBranchId(), path);
+            if (commit != null) {
+                String lastVersion = getVersionName(git.getRepository(), tags, commit);
                 return !baseVersion.equals(lastVersion);
             } else {
                 throw new FileNotFoundException(

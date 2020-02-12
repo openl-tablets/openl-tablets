@@ -151,7 +151,13 @@ public class TableEditorController extends BaseTableEditorController {
             value = cell.getStringValue();
         } else if (editorType.equals(ICellEditor.CE_DATE)) {
             // Format must be same as in DateEditor.js
-            value = FormattersManager.format(cell.getNativeDate());
+            Object objectValue;
+            try {
+                objectValue = cell.getNativeDate();
+            } catch (IllegalStateException e) {
+                objectValue = cell.getObjectValue();
+            }
+            value = FormattersManager.format(objectValue);
         }
         return value;
     }

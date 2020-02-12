@@ -58,6 +58,15 @@ public class AdminRestController {
         return okOrNotFound(ruleServiceManager.getServiceMethods(serviceName));
     }
 
+    /**
+     * @return a list of messages of the given OpenL service.
+     */
+    @GET
+    @Path("/services/{serviceName}/errors/")
+    public Response getServiceErrors(@PathParam("serviceName") final String serviceName) {
+        return okOrNotFound(ruleServiceManager.getServiceErrors(serviceName));
+    }
+
     private Response okOrNotFound(Object entity) {
         return Response.status(entity == null ? Response.Status.NOT_FOUND : Response.Status.OK).entity(entity).build();
     }

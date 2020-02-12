@@ -85,15 +85,6 @@
             border: 0;
         }
 
-        .expand-button, .collapse-button {
-            margin: 0;
-            cursor: pointer;
-            width: 16px;
-            height: 16px;
-            display: inline-block;
-            vertical-align: bottom;
-        }
-
         .download-button {
             float: right;
         }
@@ -111,27 +102,37 @@
             display: block;
         }
 
-        .expand-button {
-            background: url('data:image/gif;base64,R0lGODlhCQAJAOMOAAAAAN/c1enn4+vp5e3r5+/t6vDv7PLx7vTz8fb18/j39fn5+Pv7+v39/P///////yH5BAEKAA8ALAAAAAAJAAkAAAQmMMhJXWNLJSTvAtshYQqAHIb0ASxQSBoCGAUhhS4xSCetC5RgIAIAOw==') no-repeat center;
+        .icon {
+            cursor: pointer;
+            font-size: 16px;
+            padding-right: 5px;
         }
 
-        .collapse-button {
-            background: url('data:image/gif;base64,R0lGODlhCQAJAOMOAAAAAN/c1enn4+vp5e3r5+/t6vDv7PLx7vTz8fb18/j39fn5+Pv7+v39/P///////yH5BAEKAA8ALAAAAAAJAAkAAAQjMMhJXWNLJSRv3oeEachhSAugqoVEmgUhgUY8SGVNDALlBxEAOw==') no-repeat center;
+        .deployed:before {
+            content: "✔";
+            color: #00C000;
         }
 
-        .methods {
+        .failed:before {
+            content: "✘";
+            color: #C00000;
+        }
+
+        .expand ~ .info {
+            display: block;
+        }
+
+        .info {
             margin-top: 2px;
             display: none;
         }
 
-        .methods > li {
+        .info > li {
             margin-top: 2px;
             font-size: 11px;
         }
 
-        .collapse-button ~ .methods {
-            display: block;
-        }
+
     </style>
 </head>
 
@@ -160,22 +161,38 @@
         var mainBlock = document.getElementById("main");
         mainBlock.addEventListener('click', function (event) {
             var button = event.target || event.srcElement;
-            var serviceName = button.parentElement.dataset.serviceName;
-            if (button.className === "expand-button") {
+            var serviceData = button.parentElement.dataset;
+            var serviceName = serviceData.serviceName;
+            if (button.classList.contains("collapse")) {
                 // Expand the node
                 var childArray = button.parentElement.childNodes
                 var target = childArray[2];
+                var fun;
+                var data;
+                if (serviceData.serviceStatus === "FAILED") {
+                    fun = function (error) {
+                        return "<pre>" + error + "</pre>";
+                    };
+                    data = "/errors";
+                } else {
+                    fun = function (method) {
+                        return "<li>" + method.returnType + " <b>" + method.name + "</b> (" + method.paramTypes.join(", ") + ")</li>";
+                    };
+                    data = "/methods";
+                }
+
                 var xmlHttpMethods = new XMLHttpRequest();
                 xmlHttpMethods.onload = function () {
                     var methods = JSON.parse(this.response);
-                    renderMethods(target, methods);
+                    target.innerHTML = methods.map(fun).join("");
                 };
-                xmlHttpMethods.open("GET", "admin/services" + "/" + serviceName + "/methods", true);
+                xmlHttpMethods.open("GET", "admin/services/" + serviceName + data, true);
                 xmlHttpMethods.send();
-                button.className = "collapse-button";
-            } else if (button.className === "collapse-button") {
+
+                button.classList.replace("collapse", "expand");
+            } else if (button.classList.contains("expand")) {
+                button.classList.replace("expand", "collapse");
                 // Collapse the node
-                button.className = "expand-button";
             } else if (button.className === "download-button") {
                 downloadProject(serviceName);
             } else if (button.className === "delete-button") {
@@ -195,6 +212,7 @@
                 var html = createServiceHtml(service, deployerEnabled);
                 var el = document.createElement("DIV");
                 el.dataset.serviceName = service.name;
+                el.dataset.serviceStatus = service.status;
                 el.dataset.servicePath = service.servicePath;
                 el.innerHTML = html;
                 mainBlock.appendChild(el);
@@ -217,7 +235,7 @@
         var footerBlock = document.getElementById("footer");
         var el = document.createElement("i");
         el.style = "position:absolute;right:13px;";
-        var html = "<span title=\"Built on #{buildDate}\">v" + servicesResponse.version + "</span>";
+        var html = "<span title='Built on " + servicesResponse.buildDate + "'>v" + servicesResponse.version + "</span>";
         if (version.endsWith('SNAPSHOT')) {
             html += " Revision hash: ";
             html += "<a class='link' href=https://sourceforge.net/p/openl-tablets/openl/ci/" + commitHashId + ">" + commitHash + "</a>";
@@ -252,6 +270,7 @@
                     xmlhttp.open("GET", url, true);
                     xmlhttp.send();
                 }
+                xhr.on
                 xhr.open("PUT", "admin/deploy/", true);
                 xhr.setRequestHeader("Content-type", "application/zip")
                 xhr.send(fileToUpload);
@@ -280,20 +299,14 @@
         xhr.send();
     }
 
-    function renderMethods(methodsBlock, methods) {
-        methodsBlock.innerHTML = methods.map(function (m) {
-            return "<li>" + m.returnType + " <b>" + m.name + "</b> (" + m.paramTypes.join(", ") + ")</li>"
-        }).join("");
-    }
-
     // Creating innerHTML of one service
     function createServiceHtml(service, deployerEnabled) {
         var html = "";
         // Name
-        html += "<span class='expand-button' data-path=></span><h3>" + service.name + "</h3>";
+        html += "<span class='icon collapse " + service.status.toLowerCase() + "'></span><h3>" + service.name + "</h3>";
 
-        // Methods
-        html += "<ul class='methods'></ul>";
+        // Some useful info
+        html += "<ul class='info'></ul>";
 
         // Date and time
         html += "<div class='note'>Started time: " + new Date(service.startedTime).toLocaleString() + "</div>";
@@ -301,22 +314,23 @@
         var urls = service.urls;
         Object.keys(urls).forEach(function (name) {
             var url = urls[name];
-            if (name === "SOAP") {
+            if (name === "WEBSERVICE") {
                 html += "<a href='" + url + "?wsdl'\>WSDL</a>";
-            } else if (name === "REST") {
+            } else if (name === "RESTFUL") {
                 html += "<a href='" + url + "?_wadl'\>WADL</a>";
                 html += "<a href='" + url + "/api-docs/index.html?url=../swagger.json'\>Swagger (UI)</a>";
                 html += "<a href='" + url + "/swagger.json'\>Swagger (JSON)</a>";
                 html += "<a href='" + url + "/swagger.yaml'\>Swagger (YAML)</a>";
-            } else if (name === "Kafka") {
-                html += "<span>" + name + "</span>";
+            } else if (url == null) {
+                html += "<span>" + name + "&nbsp;&nbsp;</span>";
             } else {
                 html += "<a href='" + url + "'\>" + name + "</a>";
             }
         });
         if (deployerEnabled) {
-            html += "<button type=\"button\" class='delete-button'>Delete</button>";
-            html += "<button type=\"button\" class='download-button'>Download</button>";
+            html += "&nbsp";
+            html += "<button type='button' class='delete-button'>Delete</button>";
+            html += "<button type='button' class='download-button'>Download</button>";
         }
 
         return html;
@@ -324,8 +338,8 @@
 
     function createServiceButtons() {
         var html = "";
-        html += "<input id=\"file-input\" type=\"file\" name=\"name\" style=\"display: none;\"/>";
-        html += "<button type=\"button\" onclick=\"uploadProject()\" class='deploy-button'>Deploy</button>";
+        html += "<input id='file-input' type='file' name='name' style='display: none;'/>";
+        html += "<button type='button' onclick='uploadProject()' class='deploy-button'>Deploy</button>";
         return html;
     }
 

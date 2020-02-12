@@ -3,11 +3,22 @@ package org.openl.rules.ruleservice.core;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.objectweb.asm.*;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
@@ -17,8 +28,13 @@ import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAdvice;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAfterAdvice;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAroundAdvice;
-import org.openl.rules.ruleservice.core.interceptors.annotations.*;
-import org.openl.rules.ruleservice.core.interceptors.converters.SPRToPlainConvertorAdvice;
+import org.openl.rules.ruleservice.core.interceptors.annotations.NotConvertor;
+import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
+import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
+import org.openl.rules.ruleservice.core.interceptors.annotations.TypeResolver;
+import org.openl.rules.ruleservice.core.interceptors.annotations.UseOpenMethodReturnType;
+import org.openl.rules.ruleservice.core.interceptors.converters.SPRToPlainConverterAdvice;
+import org.openl.rules.ruleservice.core.interceptors.converters.VariationResultSPRToPlainConverterAdvice;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
@@ -34,7 +50,7 @@ public final class RuleServiceInstantiationFactoryHelper {
     }
 
     /**
-     * Special ClassVistor to generate interface with {@link Object} as the return type for methods that have "after
+     * Special ClassVisitor to generate interface with {@link Object} as the return type for methods that have "after
      * interceptors".
      *
      * @author PUdalau
@@ -47,14 +63,15 @@ public final class RuleServiceInstantiationFactoryHelper {
          * Constructs instance with delegated {@link ClassVisitor} and set of methods.
          *
          * @param visitor delegated {@link ClassVisitor}.
-         * @param methods Methods where to change return type.
+         * @param methodsWithReturnTypeNeedsChange Methods where to change return type.
          */
         private RuleserviceInterceptorsSupportClassVisitor(ClassVisitor visitor,
                 Map<Method, Pair<Class<?>, Boolean>> methodsWithReturnTypeNeedsChange,
                 Collection<Method> methodsToRemove) {
             super(Opcodes.ASM5, visitor);
-            this.methodsWithReturnTypeNeedsChange = methodsWithReturnTypeNeedsChange;
-            this.methodsToRemove = methodsToRemove;
+            this.methodsWithReturnTypeNeedsChange = Objects.requireNonNull(methodsWithReturnTypeNeedsChange,
+                "methodsWithReturnTypeNeedsChange can not be null");
+            this.methodsToRemove = Objects.requireNonNull(methodsToRemove, "methodsToRemove can not be null");
         }
 
         @Override
@@ -68,16 +85,15 @@ public final class RuleServiceInstantiationFactoryHelper {
             for (Entry<Method, Pair<Class<?>, Boolean>> entry : methodsWithReturnTypeNeedsChange.entrySet()) {
                 Method method = entry.getKey();
                 if (arg1.equals(method.getName()) && arg2.equals(Type.getMethodDescriptor(method))) {
-                    MethodVisitor mv = super.visitMethod(arg0,
-                        arg1,
-                        convertReturnType(arg2, entry.getValue().getKey()),
-                        arg3,
-                        arg4);
+                    Class<?> newRetType = entry.getValue().getKey();
+                    MethodVisitor mv = super.visitMethod(arg0, arg1, convertReturnType(arg2, newRetType), arg3, arg4);
                     if (!entry.getValue().getValue()) {
                         AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ServiceCallAfterInterceptor.class),
                             true);
                         AnnotationVisitor av1 = av.visitArray("value");
-                        av1.visit("value", Type.getType(SPRToPlainConvertorAdvice.class));
+                        av1.visit("value",
+                            Type.getType(VariationsResult.class.equals(newRetType) ? VariationResultSPRToPlainConverterAdvice.class
+                                                                                   : SPRToPlainConverterAdvice.class));
                         av1.visitEnd();
                         av.visitEnd();
                     }
@@ -100,23 +116,25 @@ public final class RuleServiceInstantiationFactoryHelper {
      * Returns service class for instantiation strategy according to after interceptors of methods in service class of
      * service specified as the argument.
      *
-     * @param instantiationStrategy instantiation strategy where returned interfaces will be set.
      * @param serviceClass Interface for service, which will be used for service class creation.
      * @return Service class for instantiation strategy based on service class for service.
-     * @throws Exception
      */
-    public static Class<?> getInterfaceForInstantiationStrategy(Class<?> serviceClass, ClassLoader classLoader) {
-        return processInterface(null, serviceClass, null, true, false, classLoader);
+    public static Class<?> getInterfaceForInstantiationStrategy(ServiceDescription serviceDescription,
+            Class<?> serviceClass,
+            ClassLoader classLoader) {
+        return processInterface(serviceDescription, null, serviceClass, null, true, false, classLoader);
     }
 
-    public static Class<?> getInterfaceForService(IOpenClass openClass,
+    public static Class<?> getInterfaceForService(ServiceDescription serviceDescription,
+            IOpenClass openClass,
             Class<?> serviceClass,
             Object serviceTarget,
             ClassLoader classLoader) {
-        return processInterface(openClass, serviceClass, serviceTarget, false, true, classLoader);
+        return processInterface(serviceDescription, openClass, serviceClass, serviceTarget, false, true, classLoader);
     }
 
-    public static Class<?> processInterface(IOpenClass openClass,
+    public static Class<?> processInterface(ServiceDescription serviceDescription,
+            IOpenClass openClass,
             Class<?> serviceClass,
             Object serviceTarget,
             boolean removeServiceExtraMethods,
@@ -127,6 +145,7 @@ public final class RuleServiceInstantiationFactoryHelper {
         }
 
         Map<Method, Pair<Class<?>, Boolean>> methodsWithReturnTypeNeedsChange = getMethodsWithReturnTypeNeedsChange(
+            serviceDescription,
             openClass,
             serviceClass,
             serviceTarget,
@@ -191,12 +210,14 @@ public final class RuleServiceInstantiationFactoryHelper {
         return null;
     }
 
-    private static Class<?> notNullIfNewMethodReturnTypeWithAnnotations(Method method,
+    private static Class<?> notNullIfNewMethodReturnTypeWithAnnotations(ServiceDescription serviceDescription,
+            Method method,
             Object serviceTarget,
             boolean toServiceClass) {
         ServiceCallAfterInterceptor serviceCallAfterInterceptor = method
             .getAnnotation(ServiceCallAfterInterceptor.class);
-        if (serviceCallAfterInterceptor != null && !method.getReturnType().equals(VariationsResult.class)) {
+        if (serviceCallAfterInterceptor != null && (!serviceDescription.isProvideVariations() || !method.getReturnType()
+            .equals(VariationsResult.class))) {
             Class<? extends ServiceMethodAfterAdvice<?>> lastServiceMethodAfterAdvice = getLastServiceMethodAfterAdvice(
                 serviceCallAfterInterceptor);
             if (lastServiceMethodAfterAdvice != null) {
@@ -206,12 +227,11 @@ public final class RuleServiceInstantiationFactoryHelper {
 
         ServiceCallAroundInterceptor serviceCallAroundInterceptor = method
             .getAnnotation(ServiceCallAroundInterceptor.class);
-        if (serviceCallAroundInterceptor != null && !method.getReturnType().equals(VariationsResult.class)) {
+        if (serviceCallAroundInterceptor != null && (!serviceDescription
+            .isProvideVariations() || !method.getReturnType().equals(VariationsResult.class))) {
             Class<? extends ServiceMethodAroundAdvice<?>> serviceMethodAroundAdvice = serviceCallAroundInterceptor
                 .value();
-            if (serviceMethodAroundAdvice != null) {
-                return extractTypeForMethod(method, serviceTarget, toServiceClass, serviceMethodAroundAdvice);
-            }
+            return extractTypeForMethod(method, serviceTarget, toServiceClass, serviceMethodAroundAdvice);
         }
 
         return null;
@@ -256,9 +276,9 @@ public final class RuleServiceInstantiationFactoryHelper {
                 return returnType.getInstanceClass();
             case IF_CSR_TO_PLAIN:
                 if (returnType instanceof CustomSpreadsheetResultOpenClass) {
-                    return returnType.getInstanceClass();
-                } else {
                     return ((CustomSpreadsheetResultOpenClass) returnType).getBeanClass();
+                } else {
+                    return returnType.getInstanceClass();
                 }
             default:
                 throw new IllegalStateException();
@@ -274,7 +294,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                 if (openMember != null) {
                     break;
                 }
-            } catch (NoSuchMethodException e) {
+            } catch (NoSuchMethodException ignore) {
             }
         }
         return openMember;
@@ -308,13 +328,18 @@ public final class RuleServiceInstantiationFactoryHelper {
      * @param serviceClass Class to be analyzed.
      * @return Methods which have after interceptors.
      */
-    public static Map<Method, Pair<Class<?>, Boolean>> getMethodsWithReturnTypeNeedsChange(IOpenClass openClass,
+    private static Map<Method, Pair<Class<?>, Boolean>> getMethodsWithReturnTypeNeedsChange(
+            ServiceDescription serviceDescription,
+            IOpenClass openClass,
             Class<?> serviceClass,
             Object serviceTarget,
             boolean toServiceClass) {
         Map<Method, Pair<Class<?>, Boolean>> ret = new HashMap<>();
         for (Method method : serviceClass.getMethods()) {
-            Class<?> newReturnType = notNullIfNewMethodReturnTypeWithAnnotations(method, serviceTarget, toServiceClass);
+            Class<?> newReturnType = notNullIfNewMethodReturnTypeWithAnnotations(serviceDescription,
+                method,
+                serviceTarget,
+                toServiceClass);
             if (newReturnType != null) {
                 ret.put(method, Pair.of(newReturnType, Boolean.TRUE));
             } else if (toServiceClass && !isTypeChangingAnnotationPresent(method) && !method
@@ -329,7 +354,9 @@ public final class RuleServiceInstantiationFactoryHelper {
                     type = type.getComponentClass();
                     dim++;
                 }
-                if (type instanceof CustomSpreadsheetResultOpenClass) {
+                if (serviceDescription.isProvideVariations() && method.getReturnType().equals(VariationsResult.class)) {
+                    ret.put(method, Pair.of(VariationsResult.class, Boolean.FALSE));
+                } else if (type instanceof CustomSpreadsheetResultOpenClass) {
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
                     XlsModuleOpenClass module = (XlsModuleOpenClass) openClass;
                     CustomSpreadsheetResultOpenClass csrt = (CustomSpreadsheetResultOpenClass) module

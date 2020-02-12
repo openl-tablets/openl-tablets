@@ -43,9 +43,7 @@ public abstract class AbstractMethodSearchTest {
 
         TypeCastFactory typecast = openLConfiguration.createTypeCastFactory();
         for (String libName : CAST_LIBRARY_NAMES) {
-            TypeCastFactory.JavaCastComponent javacast = typecast.new JavaCastComponent();
-            javacast.setLibraryClassName(libName);
-            javacast.setClassName(org.openl.binding.impl.cast.CastFactory.class.getName());
+            TypeCastFactory.JavaCastComponent javacast = typecast.new JavaCastComponent(libName, org.openl.binding.impl.cast.CastFactory.class.getName());
             typecast.addJavaCast(javacast);
         }
 

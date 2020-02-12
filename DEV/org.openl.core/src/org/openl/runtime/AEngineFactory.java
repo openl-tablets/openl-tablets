@@ -1,8 +1,6 @@
 package org.openl.runtime;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,9 +37,8 @@ public abstract class AEngineFactory {
 
         Class<?>[] proxyInterfaces = prepareInstanceInterfaces();
 
-        InvocationHandler handler = prepareInvocationHandler(openClassInstance, methodMap, runtimeEnv);
-
-        return Proxy.newProxyInstance(classLoader, proxyInterfaces, handler);
+        return OpenLJavaAssistProxy.create(classLoader, prepareMethodHandler(openClassInstance, methodMap, runtimeEnv),
+            proxyInterfaces);
     }
 
     public final Object newInstance(IRuntimeEnv runtimeEnv) {
@@ -58,7 +55,7 @@ public abstract class AEngineFactory {
 
     protected abstract IRuntimeEnvBuilder getRuntimeEnvBuilder();
 
-    protected abstract InvocationHandler prepareInvocationHandler(Object openClassInstance,
+    protected abstract IOpenLMethodHandler prepareMethodHandler(Object openClassInstance,
             Map<Method, IOpenMember> methodMap,
             IRuntimeEnv runtimeEnv);
 

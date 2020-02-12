@@ -2,27 +2,29 @@ package org.openl.rules.project.instantiation.variation;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.RecursiveTask;
 
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.core.ce.ServiceMT;
 import org.openl.rules.project.SafeCloner;
-import org.openl.rules.runtime.OpenLRulesInvocationHandler;
+import org.openl.rules.runtime.OpenLRulesMethodHandler;
 import org.openl.rules.variation.NoVariation;
 import org.openl.rules.variation.Variation;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.runtime.IEngineWrapper;
-import org.openl.runtime.IOpenLInvocationHandler;
+import org.openl.runtime.IOpenLMethodHandler;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javassist.util.proxy.ProxyObject;
 
 /**
  * InvocationHandler for proxy that injects variations into service class.
@@ -31,9 +33,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author PUdalau, Marat Kamalov
  */
-class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLInvocationHandler<Method, Method> {
+class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLMethodHandler<Method, Method> {
 
-    private SafeCloner cloner = new SafeCloner();
+    private final SafeCloner cloner = new SafeCloner();
 
     private final Logger log = LoggerFactory.getLogger(VariationInstantiationStrategyEnhancerInvocationHandler.class);
 
@@ -42,8 +44,9 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
 
     VariationInstantiationStrategyEnhancerInvocationHandler(Map<Method, Method> methodsMap,
             Object serviceClassInstance) {
-        this.methodsMap = methodsMap;
-        this.serviceClassInstance = serviceClassInstance;
+        this.methodsMap = Objects.requireNonNull(methodsMap, "methodMap can not be null");
+        this.serviceClassInstance = Objects.requireNonNull(serviceClassInstance,
+            "serviceClassInstance can not be null");
     }
 
     @Override
@@ -57,7 +60,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Method proceed, Object[] args) throws Throwable {
         Method member = methodsMap.get(method);
         if (member == null) {
             return method.invoke(serviceClassInstance, args);
@@ -169,9 +172,9 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
         for (Variation variation : variationsPack.getVariations()) {
             final IRuntimeEnv runtimeEnv = parentRuntimeEnv.clone();
 
-            if (Proxy.isProxyClass(serviceClassInstance.getClass())) {
-                final OpenLRulesInvocationHandler handler = (OpenLRulesInvocationHandler) Proxy
-                    .getInvocationHandler(serviceClassInstance);
+            if (serviceClassInstance instanceof ProxyObject) {
+                final OpenLRulesMethodHandler handler = (OpenLRulesMethodHandler) ((ProxyObject) serviceClassInstance)
+                    .getHandler();
                 handler.setRuntimeEnv(runtimeEnv);
                 SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) runtimeEnv;
                 simpleRulesRuntimeEnv.changeMethodArgumentsCacheMode(org.openl.rules.vm.CacheMode.READ_ONLY);
@@ -181,7 +184,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
             } else {
                 if (!f) {
                     log.warn(
-                        "Variation features are not supported for Wrapper classses. This functionality was depricated.");
+                        "Variation features are not supported for Wrapper classes. This functionality is deprecated.");
                     f = true;
                 }
             }
@@ -191,7 +194,6 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
                 variation,
                 runtimeEnv);
             tasks.add(item);
-
         }
         return tasks.toArray(new VariationCalculationTask[] {});
     }
@@ -215,11 +217,11 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
 
         @Override
         protected VariationsResult<Object> compute() {
-            OpenLRulesInvocationHandler handler = null;
+            OpenLRulesMethodHandler handler = null;
             try {
                 if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
-                    if (Proxy.isProxyClass(serviceClassInstance.getClass())) {
-                        handler = (OpenLRulesInvocationHandler) Proxy.getInvocationHandler(serviceClassInstance);
+                    if (serviceClassInstance instanceof ProxyObject) {
+                        handler = (OpenLRulesMethodHandler) ((ProxyObject) serviceClassInstance).getHandler();
                         handler.setRuntimeEnv(runtimeEnv);
                     }
                     SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) runtimeEnv;
@@ -231,7 +233,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
 
                 return calculateSingleVariation(member, arguments, variation);
             } catch (Exception e) {
-                log.error("Failed to calculate variation.", e);
+                log.error("Failed to calculate a variation.", e);
                 throw e;
             } finally {
                 if (handler != null) {

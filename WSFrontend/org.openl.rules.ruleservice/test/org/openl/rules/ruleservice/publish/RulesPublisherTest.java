@@ -91,10 +91,10 @@ public class RulesPublisherTest implements ApplicationContextAware {
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         RuleServiceManager publisher = applicationContext.getBean("ruleServiceManager", RuleServiceManager.class);
         assertEquals(2, frontend.getServiceNames().size());
-        Field openClassField = OpenLService.class.getDeclaredField("openClass");
-        openClassField.setAccessible(true);
+        Field compiledOpenClass = OpenLService.class.getDeclaredField("compiledOpenClass");
+        compiledOpenClass.setAccessible(true);
         for (OpenLService service : publisher.getServices()) {
-            Object v = openClassField.get(service);
+            Object v = compiledOpenClass.get(service);
             assertNull("OpenLService must be not compiled for java publisher if not used before.", v);
         }
     }

@@ -11,11 +11,9 @@ public class ServiceInfo {
     private final String servicePath;
     private final Map<String, String> urls = new HashMap<>(1);
 
-    public ServiceInfo(Date startedTime, String name, String url, String urlName, String servicePath) {
-        this.startedTime = Objects.requireNonNull(startedTime, "startedTime cannot be null");
-        this.name = Objects.requireNonNull(name, "name cannot be null");
-        this.servicePath = servicePath;
-        urls.put(urlName, url);
+    private enum ServiceStatus {
+        DEPLOYED,
+        FAILED
     }
 
     public ServiceInfo(Date startedTime, String name, Map<String, String> urls, String servicePath) {
@@ -39,5 +37,9 @@ public class ServiceInfo {
 
     public String getServicePath() {
         return servicePath;
+    }
+
+    public ServiceStatus getStatus() {
+        return urls.isEmpty() ? ServiceStatus.FAILED : ServiceStatus.DEPLOYED;
     }
 }

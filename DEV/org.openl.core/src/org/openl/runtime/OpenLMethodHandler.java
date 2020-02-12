@@ -1,7 +1,6 @@
 package org.openl.runtime;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.Map;
 
 import org.openl.types.IOpenField;
@@ -10,17 +9,19 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
-public class OpenLInvocationHandler implements IOpenLInvocationHandler<Method, IOpenMember>, IEngineWrapper {
+import javassist.util.proxy.ProxyObject;
+
+public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMember>, IEngineWrapper {
 
     private Object openlInstance;
     private Map<Method, IOpenMember> methodMap;
 
-    public OpenLInvocationHandler(Object openlInstance, Map<Method, IOpenMember> methodMap) {
+    public OpenLMethodHandler(Object openlInstance, Map<Method, IOpenMember> methodMap) {
         this.openlInstance = openlInstance;
         this.methodMap = methodMap;
     }
 
-    public OpenLInvocationHandler(Object openlInstance, IRuntimeEnv openlEnv, Map<Method, IOpenMember> methodMap) {
+    public OpenLMethodHandler(Object openlInstance, IRuntimeEnv openlEnv, Map<Method, IOpenMember> methodMap) {
         this(openlInstance, methodMap);
         setRuntimeEnv(openlEnv);
     }
@@ -67,7 +68,7 @@ public class OpenLInvocationHandler implements IOpenLInvocationHandler<Method, I
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Method proceed, Object[] args) throws Throwable {
         if (IEngineWrapper.class.equals(method.getDeclaringClass())) {
             return method.invoke(this, args);
         }
@@ -90,7 +91,7 @@ public class OpenLInvocationHandler implements IOpenLInvocationHandler<Method, I
         if (obj == null) {
             return false;
         }
-        if (obj instanceof Proxy) {
+        if (obj instanceof ProxyObject) {
             return obj.equals(this);
         }
         return super.equals(obj);

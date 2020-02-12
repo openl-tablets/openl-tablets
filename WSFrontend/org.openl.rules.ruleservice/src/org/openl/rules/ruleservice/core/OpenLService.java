@@ -1,7 +1,13 @@
 package org.openl.rules.ruleservice.core;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
+import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.rules.project.model.Module;
 import org.openl.types.IOpenClass;
@@ -26,13 +32,14 @@ public final class OpenLService {
     private Class<?> serviceClass;
     private Class<?> rmiServiceClass;
     private Object serviceBean;
-    private IOpenClass openClass;
+    private CompiledOpenClass compiledOpenClass;
     private boolean provideRuntimeContext = false;
     private boolean provideVariations = false;
     private Collection<Module> modules;
     private Set<String> publishers;
     private ClassLoader classLoader;
     private OpenLServiceInitializer initializer;
+    private Throwable exception;
 
     /**
      * Returns service classloader
@@ -257,13 +264,27 @@ public final class OpenLService {
         this.serviceBean = serviceBean;
     }
 
-    void setOpenClass(IOpenClass openClass) {
-        this.openClass = openClass;
+    public CompiledOpenClass getCompiledOpenClass() {
+        return compiledOpenClass;
+    }
+
+    void setCompiledOpenClass(CompiledOpenClass compiledOpenClass) {
+        this.compiledOpenClass = compiledOpenClass;
+        // bad practice. logic moved from another place
+        compiledOpenClass.throwErrorExceptionsIfAny();
     }
 
     public IOpenClass getOpenClass() throws RuleServiceInstantiationException {
         ensureInitialization();
-        return openClass;
+        return compiledOpenClass != null ? compiledOpenClass.getOpenClass() : null;
+    }
+
+    public Throwable getException() {
+        return exception;
+    }
+
+    public void setException(Throwable exception) {
+        this.exception = exception;
     }
 
     /** {@inheritDoc} */
@@ -296,17 +317,6 @@ public final class OpenLService {
             return false;
         }
         return true;
-    }
-
-    /**
-     * Unregister ClassLoaders of this service.
-     */
-    public void destroy() {
-        try {
-            ClassLoader classloader = getClassLoader();
-            OpenClassUtil.releaseClassLoader(classloader);
-        } catch (RuleServiceInstantiationException e) {
-        }
     }
 
     /**

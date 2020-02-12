@@ -113,16 +113,21 @@ public class RulesProject extends UserWorkspaceProject {
         setHistoryVersion(version);
 
         refresh();
-        // If there are additional commits (merge commits) we cannot assume that their hash codes are same as for local
-        // files
-        List<FileData> fileDatas = getHistoryFileDatas();
-        boolean extraCommits = fileDatas.size() > 1 && !fileDatas.get(fileDatas.size() - 2)
-            .getVersion()
-            .equals(oldVersion) || additionalData instanceof ConflictResolveData;
-        if (extraCommits) {
-            openVersion(version);
-        } else {
-            resetLocalFileData(true);
+        
+        // If oldVersion is null, then the project was absent before, no need to update workspace. Otherwise update
+        // workspace.
+        if (oldVersion != null) {
+            // If there are additional commits (merge commits) we cannot assume that their hash codes are same as for
+            // local files.
+            List<FileData> fileDatas = getHistoryFileDatas();
+            boolean extraCommits = fileDatas.size() > 1 && !fileDatas.get(fileDatas.size() - 2)
+                .getVersion()
+                .equals(oldVersion) || additionalData instanceof ConflictResolveData;
+            if (extraCommits) {
+                openVersion(version);
+            } else {
+                resetLocalFileData(true);
+            }
         }
         unlock();
     }

@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.core;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 
+import org.openl.OpenClassUtil;
 import org.openl.rules.ruleservice.publish.RuleServiceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,14 +42,12 @@ public class RuleServiceImpl implements RuleService {
                 String.format("There is no running service with name '%s'.", serviceDescription.getName()));
         }
         ServiceDescription sd = serviceDescriptionMap.get(serviceDescription.getName());
-        if (sd == null) {
-            throw new IllegalStateException("Invalid state.");
-        }
-        if (sd.getDeployment().getVersion().compareTo(serviceDescription.getDeployment().getVersion()) != 0) {
+        // Can happen when service was deployed unsuccessfully.
+        if (sd == null || sd.getDeployment().getVersion().compareTo(serviceDescription.getDeployment().getVersion()) != 0) {
             Lock lock = RuleServiceRedeployLock.getInstance().getWriteLock();
             try {
                 lock.lock();
-                undeploy(service.getName());
+                undeploy(service);
                 deploy(serviceDescription);
             } finally {
                 lock.unlock();
@@ -60,24 +59,25 @@ public class RuleServiceImpl implements RuleService {
      * {@inheritDoc}
      */
     @Override
-    public void undeploy(String serviceName) throws RuleServiceUndeployException {
-        Objects.requireNonNull(serviceName, "serviceName cannot be null");
-        OpenLService service = ruleServiceManager.getServiceByName(serviceName);
-        if (service == null) {
-            throw new RuleServiceUndeployException(String.format("There is no running service '%s'", serviceName));
-        }
+    public void undeploy(OpenLService service) throws RuleServiceUndeployException {
+        Objects.requireNonNull(service, "service cannot be null");
         try {
             OpenLServiceHolder.getInstance().setOpenLService(service);
-            ServiceDescription serviceDescription = serviceDescriptionMap.get(serviceName);
-            if (serviceDescription == null) {
-                throw new IllegalStateException("This should not happen.");
-            }
+            ServiceDescription serviceDescription = serviceDescriptionMap.get(service.getName());
             try {
-                ruleServiceManager.undeploy(serviceName);
-                serviceDescriptionMap.remove(serviceDescription.getName());
+                ruleServiceManager.undeploy(service.getName());
+                serviceDescriptionMap.remove(service.getName());
             } finally {
-                cleanDeploymentResources(serviceDescription);
-                service.destroy();
+                // null can happen when service was deployed unsuccessfully.
+                if (serviceDescription != null) {
+                    cleanDeploymentResources(serviceDescription);
+                }
+                ClassLoader classloader = null;
+                try {
+                    classloader = service.getClassLoader();
+                } catch (RuleServiceInstantiationException ignored) {
+                }
+                OpenClassUtil.releaseClassLoader(classloader);
             }
             log.info("Service '{}' was undeployed succesfully.", service.getName());
         } finally {
@@ -132,8 +132,8 @@ public class RuleServiceImpl implements RuleService {
             if (sd != null) {
                 throw new IllegalStateException("This should not happen.");
             }
-            ruleServiceManager.deploy(newService);
             serviceDescriptionMap.put(serviceDescription.getName(), serviceDescription);
+            ruleServiceManager.deploy(newService);
             log.info("Service '{}' has been deployed succesfully.", serviceDescription.getName());
         } catch (RuleServiceInstantiationException e) {
             throw new RuleServiceDeployException("Failed on deploy a service.", e);

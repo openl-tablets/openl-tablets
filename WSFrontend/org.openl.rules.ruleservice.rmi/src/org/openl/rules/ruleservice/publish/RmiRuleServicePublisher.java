@@ -5,24 +5,15 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
-import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.publish.rmi.RmiEnhancerHelper;
 import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
-import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
-import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,12 +22,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author PUdalau, Marat Kamalov
  */
-public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableServicesPresenter {
+public class RmiRuleServicePublisher implements RuleServicePublisher {
 
     private final Logger log = LoggerFactory.getLogger(RmiRuleServicePublisher.class);
 
     private Map<OpenLService, ServiceServer> runningServices = new HashMap<>();
-    private List<ServiceInfo> availableServices = new ArrayList<>();
     private int rmiPort = 1099; // Default RMI port
     private String rmiHost = "127.0.0.1"; // Default RMI host
 
@@ -99,18 +89,12 @@ public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableS
 
             ServiceServer serviceServer = new ServiceServer(rmiName, rmiHandler);
             runningServices.put(service, serviceServer);
-            availableServices.add(createServiceInfo(service));
             log.info("Service '{}' has been exposed with RMI name '{}'.", service.getName(), rmiName);
         } catch (Exception t) {
             throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getName()), t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
-    }
-
-    @Override
-    public Collection<OpenLService> getServices() {
-        return new ArrayList<>(runningServices.keySet());
     }
 
     @Override
@@ -125,44 +109,26 @@ public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableS
     }
 
     @Override
-    public void undeploy(String serviceName) throws RuleServiceUndeployException {
-        Objects.requireNonNull(serviceName, "serviceName cannot be null");
-        OpenLService service = getServiceByName(serviceName);
-        if (service == null) {
+    public void undeploy(OpenLService service) throws RuleServiceUndeployException {
+        Objects.requireNonNull(service, "service cannot be null");
+        ServiceServer server = runningServices.get(service);
+        if (server == null) {
             throw new RuleServiceUndeployException(
-                String.format("There is no running service with name '%s'.", serviceName));
+                    String.format("There is no running service with name '%s'.", service.getName()));
         }
         try {
-            getRegistry().unbind(runningServices.get(service).getName());
-            UnicastRemoteObject.unexportObject(runningServices.get(service).getRmiHandler(), true);
+            getRegistry().unbind(server.getName());
+            UnicastRemoteObject.unexportObject(server.getRmiHandler(), true);
             runningServices.remove(service);
-            removeServiceInfo(serviceName);
-            log.info("Service '{}' has been undeployed succesfully.", serviceName);
+            log.info("Service '{}' has been undeployed succesfully.", service.getName());
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", serviceName), t);
+            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()), t);
         }
     }
 
     @Override
-    public List<ServiceInfo> getAvailableServices() {
-        List<ServiceInfo> services = new ArrayList<>(availableServices);
-        Collections.sort(services, (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
-        return services;
-    }
-
-    private ServiceInfo createServiceInfo(OpenLService service) throws RuleServiceInstantiationException {
-        String address = "rmi://" + getRmiHost() + ":" + getRmiPort() + "/" + URLHelper.processURL(service.getUrl());
-        return new ServiceInfo(new Date(), service.getName(), address, "RMI", service.getServicePath());
-    }
-
-    private void removeServiceInfo(String serviceName) {
-        for (Iterator<ServiceInfo> iterator = availableServices.iterator(); iterator.hasNext();) {
-            ServiceInfo serviceInfo = iterator.next();
-            if (serviceInfo.getName().equals(serviceName)) {
-                iterator.remove();
-                break;
-            }
-        }
+    public String getUrl(OpenLService service) {
+        return "rmi://" + getRmiHost() + ":" + getRmiPort() + "/" + URLHelper.processURL(service.getUrl());
     }
 
     private static class ServiceServer {

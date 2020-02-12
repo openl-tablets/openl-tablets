@@ -17,4 +17,6 @@ public interface BranchRepository extends Repository {
     boolean isValidBranchName(String branch);
 
     boolean branchExists(String branch) throws IOException;
+
+    void merge(String branchFrom, String author, ConflictResolveData conflictResolveData) throws IOException;
 }

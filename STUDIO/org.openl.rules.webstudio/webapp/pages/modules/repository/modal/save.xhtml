@@ -44,7 +44,9 @@
         <input type="button" value="Cancel" onclick="#{rich:component('modalSave')}.hide();" />
       </footer>
 
-      <a4j:jsFunction name="refreshRepositoryAfterSave" render="projectTree nodeView"/>
+      <a4j:jsFunction name="refreshRepositoryAfterSave" render="projectTree nodeView">
+        <a4j:param name="wasSaved" assignTo="#{repositoryTreeController.wasSaved}"/>
+      </a4j:jsFunction>
     </h:form>
 
   </rich:popupPanel>

@@ -35,14 +35,14 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallArou
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 
 public class ServiceInterfaceMethodInterceptingTest {
-    public static class ResultConvertor extends AbstractServiceMethodAfterReturningAdvice<Double> {
+    public static class ResultConverter extends AbstractServiceMethodAfterReturningAdvice<Double> {
         @Override
         public Double afterReturning(Method method, Object result, Object... args) throws Exception {
             return ((IntValue) result).doubleValue();
         }
     }
 
-    public static class ResultConvertor1 extends AbstractServiceMethodAfterReturningAdvice<Double> {
+    public static class ResultConverter1 extends AbstractServiceMethodAfterReturningAdvice<Double> {
         @Override
         public Double afterReturning(Method method, Object result, Object... args) throws Exception {
             return ((DoubleValue) result).doubleValue();
@@ -51,7 +51,7 @@ public class ServiceInterfaceMethodInterceptingTest {
 
     public static class AroundInterceptor implements ServiceMethodAroundAdvice<IntValue> {
         @Override
-        public IntValue around(Method interfacemethod,
+        public IntValue around(Method interfaceMethod,
                 Method beanMethod,
                 Object proxy,
                 Object... args) throws Exception {
@@ -61,10 +61,10 @@ public class ServiceInterfaceMethodInterceptingTest {
     }
 
     public interface OverloadInterface {
-        @ServiceCallAfterInterceptor(value = ResultConvertor1.class)
+        @ServiceCallAfterInterceptor(value = ResultConverter1.class)
         Double driverRiskScoreOverloadTest(IRulesRuntimeContext runtimeContext, String driverRisk);
 
-        @ServiceCallAfterInterceptor(ResultConvertor.class)
+        @ServiceCallAfterInterceptor(ResultConverter.class)
         @ServiceCallAroundInterceptor(AroundInterceptor.class)
         Double driverRiskScoreNoOverloadTest(IRulesRuntimeContext runtimeContext, String driverRisk);
 
@@ -118,12 +118,7 @@ public class ServiceInterfaceMethodInterceptingTest {
             .setProvideVariations(false)
             .setDeployment(deploymentDescription)
             .setModules(modules)
-            .setResourceLoader(new ResourceLoader() {
-                @Override
-                public Resource getResource(String location) {
-                    return null;
-                }
-            })
+            .setResourceLoader(location -> null)
             .build();
 
         ruleServiceLoader = mock(RuleServiceLoader.class);
@@ -148,7 +143,7 @@ public class ServiceInterfaceMethodInterceptingTest {
     }
 
     @Test
-    public void testResultConvertorInterceptor() throws Exception {
+    public void testResultConverterInterceptor() throws Exception {
         RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
         instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
         OpenLService service = instantiationFactory.createService(serviceDescription);
@@ -201,7 +196,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         calendar.set(2009, 5, 15);
         runtimeContext.setCurrentDate(calendar.getTime());
         Double result = instance.driverRiskScoreNoOverloadTest(runtimeContext, "High Risk Driver");
-        Assert.assertEquals(new Double(-1), result, 0.1d);
+        Assert.assertEquals(-1d, result, 0.1d);
     }
 
     @Test
@@ -213,7 +208,9 @@ public class ServiceInterfaceMethodInterceptingTest {
         RulesInstantiationStrategy rulesInstantiationStrategy = instantiationFactory.getInstantiationStrategyFactory()
             .getStrategy(serviceDescription, dependencyManager);
         Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper
-            .getInterfaceForInstantiationStrategy(OverloadInterface.class, rulesInstantiationStrategy.getClassLoader());
+            .getInterfaceForInstantiationStrategy(serviceDescription,
+                OverloadInterface.class,
+                rulesInstantiationStrategy.getClassLoader());
         for (Method method : OverloadInterface.class.getMethods()) {
             if (!method.isAnnotationPresent(ServiceExtraMethod.class)) {
                 Method methodGenerated = interfaceForInstantiationStrategy.getMethod(method.getName(),

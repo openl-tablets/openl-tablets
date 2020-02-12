@@ -28,18 +28,7 @@ public class BeanOpenField implements IOpenField {
     private final Method writeMethod;
     private final String contextProperty;
 
-    public static void collectFields(Map<String, IOpenField> map,
-            Class<?> c,
-            Map<Method, BeanOpenField> getters,
-            Map<Method, BeanOpenField> setters) {
-
-        if (c.isInterface()) {
-            Class<?>[] interfaces = c.getInterfaces();
-            for (Class<?> anInterface : interfaces) {
-                collectFields(map, anInterface, getters, setters);
-            }
-        }
-
+    public static void collectFields(Map<String, IOpenField> map, Class<?> c) {
         try {
             BeanInfo info = Introspector.getBeanInfo(c, c.getSuperclass());
             PropertyDescriptor[] pds = info.getPropertyDescriptors();
@@ -89,12 +78,6 @@ public class BeanOpenField implements IOpenField {
 
                 if (field == null || !java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
                     map.put(fieldName, bf);
-                    if (getters != null && pd.getReadMethod() != null) {
-                        getters.put(pd.getReadMethod(), bf);
-                    }
-                    if (setters != null && pd.getWriteMethod() != null) {
-                        setters.put(pd.getWriteMethod(), bf);
-                    }
                 }
             }
         } catch (Exception | LinkageError t) {

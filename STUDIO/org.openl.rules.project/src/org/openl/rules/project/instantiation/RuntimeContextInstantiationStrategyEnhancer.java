@@ -11,6 +11,8 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javassist.util.proxy.MethodHandler;
+
 /**
  * Auxiliary class which enhances rule service with ability to use rule service method with rules runtime context during
  * method invocation. The class is used by engine to expose rules services as web service.
@@ -74,7 +76,7 @@ public class RuntimeContextInstantiationStrategyEnhancer extends AbstractService
      * @throws Exception
      */
     @Override
-    protected InvocationHandler makeInvocationHandler(Object instanceObject) throws Exception {
+    protected MethodHandler makeMethodHandler(Object instanceObject) throws Exception {
         Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(),
             getOriginalInstantiationStrategy().getInstanceClass());
         return new RuntimeContextInstantiationStrategyEnhancerInvocationHandler(methodsMap, instanceObject);

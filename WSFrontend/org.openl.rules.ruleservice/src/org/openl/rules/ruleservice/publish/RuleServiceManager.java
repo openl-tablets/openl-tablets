@@ -7,6 +7,7 @@ import org.openl.rules.ruleservice.servlet.MethodDescriptor;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface RuleServiceManager {
 
@@ -45,4 +46,6 @@ public interface RuleServiceManager {
     Collection<ServiceInfo> getServicesInfo();
 
     Collection<MethodDescriptor> getServiceMethods(String serviceName);
+
+    List<String> getServiceErrors(String serviceName);
 }

@@ -69,8 +69,15 @@ public class RunRestRulesDeploymentTest {
         assertTrue(uiInfoResponseResponseEntity.getDeployerEnabled());
         assertEquals(1, serviceInfo.length);
         assertEquals("deployed-rules", serviceInfo[0].getName());
+        assertEquals(ServiceInfoResponse.ServiceStatus.DEPLOYED, serviceInfo[0].getStatus());
 
         client.post("/REST/deployed-rules/hello", "/deployed-rules_hello.req.json", "/deployed-rules_hello_2.resp.txt");
+
+        client.put("/admin/deploy", "/rules-to-deploy-failed.zip", 201);
+        ServiceInfoResponse[] servicesInfo5 = client.get("/admin/services", ServiceInfoResponse[].class);
+        assertEquals(1, servicesInfo5.length);
+        assertEquals(ServiceInfoResponse.ServiceStatus.FAILED, servicesInfo5[0].getStatus());
+        client.get("/admin/services/deployed-rules/errors", "/deployed-rules_errors.resp.json");
 
         client.delete("/admin/delete/deployed-rules");
         UiInfoResponse uiInfoResponseResponseEntity2 = client.get("/admin/ui/info", UiInfoResponse.class);
@@ -122,8 +129,8 @@ public class RunRestRulesDeploymentTest {
             String expectedSoap,
             String expectedRest) {
         assertEquals(expectedName, service.getName());
-        assertEquals(expectedSoap, service.getUrls().get("SOAP"));
-        assertEquals(expectedRest, service.getUrls().get("REST"));
+        assertEquals(expectedSoap, service.getUrls().get("WEBSERVICE"));
+        assertEquals(expectedRest, service.getUrls().get("RESTFUL"));
     }
 
     private void checkServiceTime(long timeToCheckMs, long createServiceTime) {

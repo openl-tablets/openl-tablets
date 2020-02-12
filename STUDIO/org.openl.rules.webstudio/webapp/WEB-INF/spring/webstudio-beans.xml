@@ -88,6 +88,7 @@
                 <ref bean="traceService"/>
                 <ref bean="testDownloadService"/>
                 <ref bean="conflictService"/>
+                <ref bean="diffService"/>
             </list>
         </property>
         <property name="providers">

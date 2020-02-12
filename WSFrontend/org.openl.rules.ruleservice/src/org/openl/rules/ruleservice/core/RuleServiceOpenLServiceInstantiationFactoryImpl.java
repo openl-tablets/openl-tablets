@@ -1,9 +1,13 @@
 package org.openl.rules.ruleservice.core;
 
-import java.lang.reflect.Proxy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
-import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
@@ -20,10 +24,10 @@ import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFacto
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl;
 import org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache;
 import org.openl.runtime.IEngineWrapper;
+import org.openl.runtime.OpenLJavaAssistProxy;
 import org.openl.types.IOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.ObjectProvider;
 
 /**
@@ -46,9 +50,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private void initService(ServiceDescription serviceDescription,
             RuleServiceDeploymentRelatedDependencyManager dependencyManager,
-            OpenLService service) throws RuleServiceInstantiationException,
-                                  RulesInstantiationException,
-                                  ClassNotFoundException {
+            OpenLService service) throws RuleServiceInstantiationException, RulesInstantiationException {
         RulesInstantiationStrategy instantiationStrategy = instantiationStrategyFactory.getStrategy(serviceDescription,
             dependencyManager);
         Map<String, Object> parameters = ProjectExternalDependenciesHelper
@@ -88,8 +90,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private void compileOpenClass(OpenLService service,
             RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
-        CompiledOpenClass compiledOpenClass = instantiationStrategy.compile();
-        service.setOpenClass(compiledOpenClass.getOpenClass());
+        service.setCompiledOpenClass(instantiationStrategy.compile());
     }
 
     private void instantiateServiceBean(OpenLService service,
@@ -97,26 +98,25 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             ClassLoader classLoader) throws RuleServiceInstantiationException {
         Class<?> serviceClass = service.getServiceClass();
 
-        ProxyFactory factory = new ProxyFactory();
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        List<Class> interfaces = new ArrayList<>();
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
             ServiceInvocationAdvice serviceInvocationAdvice = new ServiceInvocationAdvice(service
                 .getOpenClass(), serviceTarget, serviceClass, classLoader, getListServiceInvocationAdviceListeners());
-            factory.addAdvice(serviceInvocationAdvice);
             if (serviceClass.isInterface()) {
-                factory.addInterface(serviceClass);
+                interfaces.add(serviceClass);
                 if (!service.isProvideRuntimeContext()) {
-                    factory.addInterface(IEngineWrapper.class);
+                    interfaces.add(IEngineWrapper.class);
                 }
             } else {
                 // deprecated approach with wrapper: service class is not
                 // interface
-                factory.setTarget(serviceTarget);
-                factory.setProxyTargetClass(!Proxy.isProxyClass(serviceTarget.getClass()));
+                throw new RuleServiceRuntimeException(
+                    "Failed to create a proxy for service target object. Deprecated approach with wrapper: service class is not interface");
             }
-
-            Object proxyServiceBean = factory.getProxy();
+            Object proxyServiceBean = OpenLJavaAssistProxy
+                .create(oldClassLoader, serviceInvocationAdvice, interfaces.toArray(new Class[] {}));
             service.setServiceBean(proxyServiceBean);
         } catch (Exception t) {
             throw new RuleServiceRuntimeException("Failed to create a proxy for service target object.", t);
@@ -128,16 +128,17 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     private Object resolveInterfaceAndClassLoader(OpenLService service,
             ServiceDescription serviceDescription,
             RulesInstantiationStrategy instantiationStrategy) throws RuleServiceInstantiationException,
-                                                              RulesInstantiationException,
-                                                              ClassNotFoundException {
+                                                              RulesInstantiationException {
         String serviceClassName = service.getServiceClassName();
-        Class<?> serviceClass = null;
+        Class<?> serviceClass;
 
         if (serviceClassName != null) {
             try {
                 serviceClass = service.getClassLoader().loadClass(serviceClassName.trim());
                 Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper
-                    .getInterfaceForInstantiationStrategy(serviceClass, instantiationStrategy.getClassLoader());
+                    .getInterfaceForInstantiationStrategy(serviceDescription,
+                        serviceClass,
+                        instantiationStrategy.getClassLoader());
                 instantiationStrategy.setServiceClass(interfaceForInstantiationStrategy);
                 service.setServiceClass(serviceClass);
                 return instantiationStrategy.instantiate();
@@ -158,8 +159,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         return serviceTarget;
     }
 
-    private void resolveRmiInterface(OpenLService service) throws RuleServiceInstantiationException,
-                                                           ClassNotFoundException {
+    private void resolveRmiInterface(OpenLService service) throws RuleServiceInstantiationException {
         String rmiServiceClassName = service.getRmiServiceClassName();
         Class<?> serviceClass = null;
         ClassLoader serviceClassLoader = service.getClassLoader();
@@ -190,8 +190,11 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             throw new IllegalStateException("It must not happen.");
         }
         try {
-            return RuleServiceInstantiationFactoryHelper
-                .getInterfaceForService(openClass, annotatedClass, serviceTarget, serviceClassLoader);
+            return RuleServiceInstantiationFactoryHelper.getInterfaceForService(serviceDescription,
+                openClass,
+                annotatedClass,
+                serviceTarget,
+                serviceClassLoader);
         } catch (Exception e) {
             log.error("Failed to applying annotation template class for '{}'.", annotatedClass.getTypeName(), e);
         }
@@ -231,7 +234,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
      */
     @Override
     public OpenLService createService(final ServiceDescription serviceDescription) {
-        log.debug("Resoliving modules for service '{}'.", serviceDescription.getName());
+        log.debug("Resolving modules for service '{}'.", serviceDescription.getName());
         Collection<Module> modules = serviceDescription.getModules();
 
         OpenLService.OpenLServiceBuilder builder = new OpenLService.OpenLServiceBuilder();
@@ -258,7 +261,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                     throw e;
                 } catch (Exception e) {
                     throw new RuleServiceInstantiationException(
-                        String.format("Failed to initialiaze OpenL service '%s'.", openLService.getName()),
+                        String.format("Failed to initialize OpenL service '%s'.", openLService.getName()),
                         e);
                 }
             }

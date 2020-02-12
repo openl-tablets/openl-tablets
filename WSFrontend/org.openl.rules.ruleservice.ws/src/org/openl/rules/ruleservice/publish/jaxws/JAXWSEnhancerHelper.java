@@ -2,18 +2,31 @@ package org.openl.rules.ruleservice.publish.jaxws;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
-import org.objectweb.asm.*;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.openl.binding.MethodUtil;
 import org.openl.rules.datatype.gen.ASMUtils;
+import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
+import org.openl.runtime.OpenLJavaAssistProxy;
 import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
@@ -188,7 +201,7 @@ public final class JAXWSEnhancerHelper {
         if (!service.getServiceClass().isInterface()) {
             throw new IllegalStateException("Service class is not an interface.");
         }
-        String enchancedClassName = service.getServiceClass()
+        String enhancedClassName = service.getServiceClass()
             .getName() + JAXWSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
 
         ClassWriter cw = new ClassWriter(0);
@@ -197,13 +210,34 @@ public final class JAXWSEnhancerHelper {
             service.getServiceClass(),
             service,
             noParameterNames);
-        InterfaceTransformer transformer = new InterfaceTransformer(service.getServiceClass(), enchancedClassName);
+        InterfaceTransformer transformer = new InterfaceTransformer(service.getServiceClass(), enhancedClassName);
         transformer.accept(jaxrsAnnotationEnhancerClassVisitor);
         cw.visitEnd();
 
         ClassLoader classLoader = getClassLoader(service);
 
-        return ClassUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
+        return ClassUtils.defineClass(enhancedClassName, cw.toByteArray(), classLoader);
+    }
+
+    public static Object createServiceProxy(Class<?> proxyInterface,
+            Class<?> serviceClass,
+            OpenLService service) throws RulesInstantiationException, RuleServiceInstantiationException {
+        Map<Method, Method> methodMap = new HashMap<>();
+        for (Method method : proxyInterface.getMethods()) {
+            Class<?>[] parameterTypes = method.getParameterTypes();
+            try {
+                Method targetMethod = serviceClass.getMethod(method.getName(), parameterTypes);
+                methodMap.put(targetMethod, method);
+            } catch (NoSuchMethodException ex) {
+                throw new RulesInstantiationException(String.format(
+                    "Failed to find corresponding method in original class for method '%s' in service '%s'",
+                    MethodUtil.printMethod(method.getName(), method.getParameterTypes()),
+                    service.getName()));
+            }
+        }
+        return OpenLJavaAssistProxy.create(service.getClassLoader(),
+            new JAXWSMethodHandler(service.getServiceBean(), methodMap),
+            new Class<?>[] { serviceClass });
     }
 
 }

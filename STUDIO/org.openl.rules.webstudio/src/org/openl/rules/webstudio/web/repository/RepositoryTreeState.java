@@ -3,7 +3,12 @@ package org.openl.rules.webstudio.web.repository;
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.*;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -14,11 +19,21 @@ import javax.faces.context.FacesContext;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.*;
+import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.webstudio.filter.AllFilter;
 import org.openl.rules.webstudio.filter.IFilter;
-import org.openl.rules.webstudio.web.repository.tree.*;
+import org.openl.rules.webstudio.web.repository.tree.TreeDProject;
+import org.openl.rules.webstudio.web.repository.tree.TreeFile;
+import org.openl.rules.webstudio.web.repository.tree.TreeFolder;
+import org.openl.rules.webstudio.web.repository.tree.TreeNode;
+import org.openl.rules.webstudio.web.repository.tree.TreeProject;
+import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -568,6 +583,27 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     // for deployment project
     public boolean getCanDeploy() {
         return !getSelectedProject().isModified() && isGranted(DEPLOY_PROJECTS);
+    }
+
+    public boolean getCanMerge() {
+        if (!isSupportsBranches() || isLocalOnly()) {
+            return false;
+        }
+
+        try {
+            UserWorkspaceProject project = getSelectedProject();
+            if (project.isModified()) {
+                return false;
+            }
+            List<String> branches = ((BranchRepository) project.getDesignRepository()).getBranches(null);
+            if (branches.size() < 2) {
+                return false;
+            }
+
+            return isGranted(EDIT_PROJECTS);
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     public String getDefSelectTab() {

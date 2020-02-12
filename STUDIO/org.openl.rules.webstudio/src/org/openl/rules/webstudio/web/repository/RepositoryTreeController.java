@@ -30,7 +30,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
 import org.openl.rules.common.ArtefactPath;
@@ -263,6 +262,7 @@ public class RepositoryTreeController {
 
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
+            setWasSaved(true);
         } catch (Exception e) {
             Throwable cause = e.getCause();
             if (cause instanceof MergeConflictException) {
@@ -279,6 +279,12 @@ public class RepositoryTreeController {
             }
         }
         return null;
+    }
+
+    public void setWasSaved(boolean wasSaved) {
+        if (wasSaved) {
+            WebStudioUtils.addInfoMessage("Project was saved successfully.");
+        }
     }
 
     public String closeProject() {
@@ -552,15 +558,11 @@ public class RepositoryTreeController {
                 repositoryTreeState.addRulesProjectToTree(createdProject);
                 selectProject(projectName, repositoryTreeState.getRulesRepository());
 
-                repositoryTreeState.getSelectedProject().close();
-                repositoryTreeState.refreshSelectedNode();
-
                 resetStudioModel();
 
                 WebStudioUtils.addInfoMessage("Project was created successfully.");
                 /* Clear the load form */
                 this.clearForm();
-                this.openProject();
             } catch (Exception e) {
                 creationMessage = e.getMessage();
             }
@@ -1070,8 +1072,7 @@ public class RepositoryTreeController {
 
         if (zipFile != null) {
             final FacesContext facesContext = FacesContext.getCurrentInstance();
-            HttpServletResponse response = (HttpServletResponse) (ServletResponse) WebStudioUtils.getExternalContext()
-                .getResponse();
+            HttpServletResponse response = (HttpServletResponse) WebStudioUtils.getExternalContext().getResponse();
             ExportFile.writeOutContent(response, zipFile, zipFileName);
             facesContext.responseComplete();
 
@@ -1101,8 +1102,7 @@ public class RepositoryTreeController {
             IOUtils.copy(is, os);
 
             final FacesContext facesContext = FacesContext.getCurrentInstance();
-            HttpServletResponse response = (HttpServletResponse) (ServletResponse) WebStudioUtils.getExternalContext()
-                .getResponse();
+            HttpServletResponse response = (HttpServletResponse) WebStudioUtils.getExternalContext().getResponse();
             ExportFile.writeOutContent(response, file, fileName);
             facesContext.responseComplete();
         } catch (Exception e) {

@@ -9,10 +9,12 @@ package org.openl.binding.impl;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.binding.IOpenLibrary;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AOpenClass;
 import org.openl.util.CollectionUtils;
@@ -23,14 +25,11 @@ import org.openl.util.CollectionUtils;
  */
 public class StaticClassLibrary implements IOpenLibrary {
 
-    Map<String, List<IOpenMethod>> methodNameMap = null;
-    private IOpenClass openClass;
-
-    public StaticClassLibrary() {
-    }
+    private volatile Map<String, List<IOpenMethod>> methodNameMap = null;
+    private final IOpenClass openClass;
 
     public StaticClassLibrary(IOpenClass openClass) {
-        this.openClass = openClass;
+        this.openClass = Objects.requireNonNull(openClass, "openClass can not be null");
     }
 
     /*
@@ -50,28 +49,20 @@ public class StaticClassLibrary implements IOpenLibrary {
         return null;
     }
 
-    public void setOpenClass(IOpenClass c) {
-        openClass = c;
-    }
-
     @Override
     public Iterable<IOpenMethod> methods(String name) {
         if (methodNameMap == null) {
             synchronized (this) {
-                List<IOpenMethod> methods = CollectionUtils.findAll(openClass.getMethods(),
-                    new CollectionUtils.Predicate<IOpenMethod>() {
-                        @Override
-                        public boolean evaluate(IOpenMethod method) {
-                            return method.isStatic();
-                        }
-                    });
-                methodNameMap = AOpenClass.buildMethodNameMap(methods);
+                if (methodNameMap == null) {
+                    List<IOpenMethod> methods = CollectionUtils.findAll(openClass.getMethods(), IOpenMember::isStatic);
+                    methodNameMap = AOpenClass.buildMethodNameMap(methods);
+                }
             }
         }
 
         List<IOpenMethod> found = methodNameMap.get(name);
 
-        return found == null ? Collections.<IOpenMethod> emptyList() : found;
+        return found == null ? Collections.emptyList() : found;
     }
 
     @Override
@@ -81,6 +72,6 @@ public class StaticClassLibrary implements IOpenLibrary {
 
     @Override
     public Iterable<IOpenMethod> constructors() {
-        return Collections.<IOpenMethod> emptyList();
+        return Collections.emptyList();
     }
 }

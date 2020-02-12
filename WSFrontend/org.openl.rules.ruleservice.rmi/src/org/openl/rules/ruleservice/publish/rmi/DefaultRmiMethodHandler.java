@@ -1,54 +1,43 @@
 package org.openl.rules.ruleservice.publish.rmi;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.openl.runtime.IOpenLInvocationHandler;
+import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
 
-class DefaultRmiInvocationHandler implements IOpenLInvocationHandler<String, List<Method>> {
+class DefaultRmiMethodHandler implements DefaultRmiHandler {
 
     private Object target;
     private Map<String, List<Method>> methodMap;
 
-    @Override
-    public Object getTarget() {
-        return target;
-    }
-
-    @Override
-    public List<Method> getTargetMember(String key) {
-        return methodMap.get(key);
-    }
-
-    public DefaultRmiInvocationHandler(Object target, Map<String, List<Method>> methodMap) {
+    DefaultRmiMethodHandler(Object target, Map<String, List<Method>> methodMap) {
         this.target = Objects.requireNonNull(target, "target cannot be null");
         this.methodMap = Objects.requireNonNull(methodMap, "methodMap cannot be null");
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        String ruleName = (String) args[0];
-        Class<?>[] inputParamsTypes = null;
-        Object[] params = null;
-        boolean strictMatch = true;
-        if (args.length == 3) {
-            inputParamsTypes = (Class<?>[]) args[1];
-            params = (Object[]) args[2];
-            if (inputParamsTypes.length != params.length) {
-                throw new IllegalArgumentException("inputParamTypes size must be equals to params size.");
-            }
-        } else {
-            strictMatch = false;
-            params = (Object[]) args[1];
-            inputParamsTypes = new Class<?>[params.length];
-            int i = 0;
-            for (Object o : params) {
-                inputParamsTypes[i] = o.getClass();
-                i++;
-            }
+    public Object execute(String ruleName, Class<?>[] inputParamsTypes, Object[] params) {
+        if (inputParamsTypes.length != params.length) {
+            throw new IllegalArgumentException("inputParamTypes size must be equals to params size.");
         }
+        return invoke(ruleName, inputParamsTypes, params, true);
+    }
+
+    @Override
+    public Object execute(String ruleName, Object... params) {
+        Class<?>[] inputParamsTypes = new Class<?>[params.length];
+        int i = 0;
+        for (Object o : params) {
+            inputParamsTypes[i] = o.getClass();
+            i++;
+        }
+        return invoke(ruleName, inputParamsTypes, params, false);
+    }
+
+    private Object invoke(String ruleName, Class<?>[] inputParamsTypes, Object[] params, boolean strictMatch) {
         List<Method> methods = methodMap.get(ruleName);
         if (methods == null) {
             throw new IllegalArgumentException("Method with requested ruleName is not found.");
@@ -76,7 +65,11 @@ class DefaultRmiInvocationHandler implements IOpenLInvocationHandler<String, Lis
             }
         }
         if (match == 1) {
-            return matchedMethod.invoke(target, params);
+            try {
+                return matchedMethod.invoke(target, params);
+            } catch (InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
         } else {
             if (match > 1) {
                 throw new IllegalArgumentException(

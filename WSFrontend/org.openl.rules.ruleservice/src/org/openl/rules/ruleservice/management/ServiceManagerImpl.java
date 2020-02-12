@@ -105,7 +105,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
                 try {
                     ServiceDescription serviceDescription = serviceDescriptions.get(runningServiceName);
                     ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
-                    ruleService.undeploy(runningServiceName);
+                    ruleService.undeploy(runningService);
                     serviceDescriptions.remove(runningServiceName);
                     failedServiceDescriptions.remove(runningServiceName);
                 } catch (RuleServiceUndeployException e) {
