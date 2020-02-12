@@ -19,6 +19,9 @@
             <security:filter-chain pattern="/javascript/**" filters="none" />
             <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none" />
             <security:filter-chain pattern="/faces/rfRes/**" filters="none" />
+            <security:filter-chain pattern="/faces/tableEditor/css/**" filters="none" />
+            <security:filter-chain pattern="/faces/tableEditor/img/**" filters="none" />
+            <security:filter-chain pattern="/faces/tableEditor/js/**" filters="none" />
             <security:filter-chain pattern="/faces/pages/public/**" filters="none" />
             <security:filter-chain pattern="/web/public/**" filters="none" />
             <security:filter-chain pattern="/rest/**" filters="restBasicAuthenticationFilter,restExceptionTranslationFilter,filterSecurityInterceptor" />
