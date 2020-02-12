@@ -37,13 +37,15 @@ public class DiffService {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response compareXls(@Context UriInfo uriInfo,
             @Multipart(value = "file1") InputStream file1,
-            @Multipart(value = "file2") InputStream file2) {
+            @Multipart(value = "file2") InputStream file2,
+            @Multipart(value = "commit1", required = false) String commit1,
+            @Multipart(value = "commit1", required = false) String commit2) {
         try {
             String requestId = UUID.randomUUID().toString();
 
             File excelFile1 = createTempFile(file1, "file1");
             File excelFile2 = createTempFile(file2, "file2");
-            diffManager.add(requestId, new ShowDiffController(excelFile1, excelFile2));
+            diffManager.add(requestId, new ShowDiffController(excelFile1, excelFile2, commit1, commit2));
 
             String root = uriInfo.getBaseUri().toString();
             if (root.endsWith("/web") || root.endsWith("/rest")) {
@@ -64,6 +66,10 @@ public class DiffService {
         File tempFile = FileTool.toTempFile(inputStream, FileUtils.getName(fullName));
         if (tempFile == null) {
             throw new FileNotFoundException(String.format("Cannot create temp file for '%s'", fullName));
+        }
+        if (tempFile.length() == 0) {
+            FileUtils.deleteQuietly(tempFile);
+            return null;
         }
         return tempFile;
     }

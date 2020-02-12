@@ -10,7 +10,12 @@ import org.richfaces.component.UITree;
 import org.richfaces.function.RichFunction;
 
 public class ShowDiffController extends ExcelDiffController implements AutoCloseable {
-    ShowDiffController(File tempFile1, File tempFile2) {
+    private final String commit1;
+    private final String commit2;
+
+    ShowDiffController(File tempFile1, File tempFile2, String commit1, String commit2) {
+        this.commit1 = commit1;
+        this.commit2 = commit2;
         addTempFile(tempFile1);
         addTempFile(tempFile2);
         try {
@@ -44,4 +49,11 @@ public class ShowDiffController extends ExcelDiffController implements AutoClose
         setDiffTree(null);
     }
 
+    public String getCommit1() {
+        return commit1;
+    }
+
+    public String getCommit2() {
+        return commit2;
+    }
 }
