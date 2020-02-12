@@ -100,11 +100,15 @@
     </bean>
 
     <bean id="swaggerInitializationBean"
-        class="org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerInitializationBean" scope="singleton"/>
+        class="org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerInitializationBean"/>
 
     <!-- Initializes OpenL Engine instances according to web services configuration description and calls RuleServicePublisher 
         to expose corresponding web service -->
     <!-- Exposes web services. -->
+    <bean id="jaxrsServiceEnhancer" class="org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer">
+        <property name="methodParameterNamesFromRulesEnabled" value="${ruleservice.jaxrs.methodParameterNamesFromRulesEnabled:true}"/>
+    </bean>
+
     <bean id="JAXRSServicesRuleServicePublisher" class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher"
         depends-on="swaggerInitializationBean">
         <property name="baseAddress" value="${ruleservice.baseAddress}"/>

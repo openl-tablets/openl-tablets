@@ -3,14 +3,19 @@ package org.openl.rules.ruleservice.core;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openl.rules.ruleservice.publish.jaxrs.JAXRSEnhancerHelper;
+import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer;
 
-public class JAXRSEnhancerHelperTest {
+public class JAXRSOpenLServiceEnhancerTest {
 
     public interface TestInterface {
         void someMethod(int arg);
@@ -182,9 +187,9 @@ public class JAXRSEnhancerHelperTest {
 
     @Test
     public void testMethodWithAnnotation3() throws Exception {
-        Class<?> enchancedClass = createService(TestAnnotatedInterface3.class);
+        Class<?> enhancedClass = createService(TestAnnotatedInterface3.class);
         Method someMethod = null;
-        for (Method method : enchancedClass.getMethods()) {
+        for (Method method : enhancedClass.getMethods()) {
             if ("someMethod".equals(method.getName())) {
                 someMethod = method;
                 break;
@@ -201,9 +206,9 @@ public class JAXRSEnhancerHelperTest {
 
     @Test
     public void testMethodWithAnnotation() throws Exception {
-        Class<?> enchancedClass = createService(TestAnnotatedInterface.class);
+        Class<?> enhancedClass = createService(TestAnnotatedInterface.class);
         boolean f = false;
-        Annotation pathAnnotation = enchancedClass.getAnnotation(Path.class);
+        Annotation pathAnnotation = enhancedClass.getAnnotation(Path.class);
         if (pathAnnotation != null) {
             Path path = (Path) pathAnnotation;
             String value = path.value();
@@ -222,7 +227,7 @@ public class JAXRSEnhancerHelperTest {
         boolean consumesAnnotationExists = false;
         boolean pathParamAnnotationExists = false;
 
-        Method someMethod = enchancedClass.getMethod("someMethod", String.class);
+        Method someMethod = enhancedClass.getMethod("someMethod", String.class);
         for (Annotation annotation : someMethod.getAnnotations()) {
             if (annotation.annotationType().equals(Path.class)) {
                 Path path = (Path) annotation;
@@ -312,8 +317,8 @@ public class JAXRSEnhancerHelperTest {
 
     @Test
     public void testMethodNamesAndPath() throws Exception {
-        Class<?> enchancedClass = createService(TestMethodNameAndPath.class);
-        Method[] methods = enchancedClass.getMethods();
+        Class<?> enhancedClass = createService(TestMethodNameAndPath.class);
+        Method[] methods = enhancedClass.getMethods();
         Assert.assertEquals("Method is not found.", 3, methods.length);
 
         for (Method method : methods) {
@@ -352,9 +357,7 @@ public class JAXRSEnhancerHelperTest {
                 }
             });
         service.setServiceBean(new Object());
-        Object proxy = JAXRSEnhancerHelper.decorateServiceBean(service);
-        Class<?> decoratedInterface = proxy.getClass().getInterfaces()[0];
-
-        return decoratedInterface;
+        Object proxy = new JAXRSOpenLServiceEnhancer().decorateServiceBean(service);
+        return proxy.getClass().getInterfaces()[0];
     }
 }

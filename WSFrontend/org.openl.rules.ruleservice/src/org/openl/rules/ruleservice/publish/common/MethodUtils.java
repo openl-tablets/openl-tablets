@@ -97,7 +97,7 @@ public final class MethodUtils {
 
                 return parameterNames;
             }
-        } catch (RuleServiceInstantiationException e) {
+        } catch (RuleServiceInstantiationException ignored) {
         }
         return GenUtils.getParameterNames(method);
     }

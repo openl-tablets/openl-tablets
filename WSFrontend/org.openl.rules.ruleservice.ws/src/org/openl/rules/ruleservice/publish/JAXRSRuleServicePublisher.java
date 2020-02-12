@@ -1,6 +1,8 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
@@ -10,10 +12,15 @@ import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
-import org.openl.rules.ruleservice.publish.jaxrs.JAXRSEnhancerHelper;
+import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer;
 import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerStaticFieldsWorkaround;
-import org.openl.rules.ruleservice.storelogdata.*;
+import org.openl.rules.ruleservice.storelogdata.CollectObjectSerializerInterceptor;
+import org.openl.rules.ruleservice.storelogdata.CollectOpenLServiceInterceptor;
+import org.openl.rules.ruleservice.storelogdata.CollectOperationResourceInfoInterceptor;
+import org.openl.rules.ruleservice.storelogdata.CollectPublisherTypeInterceptor;
+import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
+import org.openl.rules.ruleservice.storelogdata.StoreLogDataFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
@@ -37,6 +44,9 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     private String baseAddress;
     private boolean storeLogDataEnabled = false;
     private boolean swaggerPrettyPrint = false;
+
+    @Autowired
+    private JAXRSOpenLServiceEnhancer jaxrsServiceEnhancer;
 
     @Autowired
     @Qualifier("JAXRSServicesServerPrototype")
@@ -87,6 +97,14 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         return swaggerPrettyPrint;
     }
 
+    public JAXRSOpenLServiceEnhancer getJaxrsServiceEnhancer() {
+        return jaxrsServiceEnhancer;
+    }
+
+    public void setJaxrsServiceEnhancer(JAXRSOpenLServiceEnhancer jaxrsServiceEnhancer) {
+        this.jaxrsServiceEnhancer = jaxrsServiceEnhancer;
+    }
+
     @Override
     public void deploy(final OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service cannot be null");
@@ -118,7 +136,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
                 svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
             }
 
-            Object proxyServiceBean = JAXRSEnhancerHelper.decorateServiceBean(service);
+            Object proxyServiceBean = getJaxrsServiceEnhancer().decorateServiceBean(service);
             Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0]; // The first is a decorated
             // interface
 

@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.openl.rules.ruleservice.core.AbstractOpenLServiceInitializer;
 import org.openl.rules.ruleservice.core.OpenLService;
 
-public class JAXWSEnchancerHelperTest {
+public class JAXWSOpenLServiceEnhancerTest {
     public interface TestInterface {
         void someMethod(String arg);
     }
@@ -55,20 +55,20 @@ public class JAXWSEnchancerHelperTest {
                 }
             });
 
-        Class<?> enchancedClass = JAXWSEnhancerHelper.decorateServiceInterface(service);
+        Class<?> enhancedClass = new JAXWSOpenLServiceEnhancer().decorateServiceInterface(service);
 
-        Annotation webServiceAnnotation = enchancedClass.getAnnotation(WebService.class);
-        Assert.assertNotNull("Enchanced interface should contains @WebService annotation on class.",
+        Annotation webServiceAnnotation = enhancedClass.getAnnotation(WebService.class);
+        Assert.assertNotNull("Enhanced interface should contains @WebService annotation on class.",
             webServiceAnnotation);
 
-        Method someMethod = enchancedClass.getMethod("someMethod", String.class);
+        Method someMethod = enhancedClass.getMethod("someMethod", String.class);
 
-        Annotation webMethodAnnotatopn = someMethod.getAnnotation(WebMethod.class);
-        Assert.assertNotNull("Generated method should contains @WebMethod annotation.", webMethodAnnotatopn);
+        Annotation webMethodAnnotation = someMethod.getAnnotation(WebMethod.class);
+        Assert.assertNotNull("Generated method should contains @WebMethod annotation.", webMethodAnnotation);
 
         Assert.assertEquals("Generated method should contains @WebMethod annotation on method with operation name.",
             "someMethod",
-            ((WebMethod) webMethodAnnotatopn).operationName());
+            ((WebMethod) webMethodAnnotation).operationName());
     }
 
     @Test
@@ -83,25 +83,25 @@ public class JAXWSEnchancerHelperTest {
                 protected void init(OpenLService openLService) {
                 }
             });
-        Class<?> enchancedClass = JAXWSEnhancerHelper.decorateServiceInterface(service);
+        Class<?> enhancedClass = new JAXWSOpenLServiceEnhancer().decorateServiceInterface(service);
 
-        Annotation webServiceAnnotation = enchancedClass.getAnnotation(WebService.class);
-        Assert.assertNotNull("Enchanced interface should contains @WebService annotation on class.",
+        Annotation webServiceAnnotation = enhancedClass.getAnnotation(WebService.class);
+        Assert.assertNotNull("Enhanced interface should contains @WebService annotation on class.",
             webServiceAnnotation);
 
         Assert.assertEquals("Generated method should contains @WebService annotation with defined in interface name.",
             "TestAnnotatedInterface2",
             ((WebService) webServiceAnnotation).name());
 
-        Method someMethod = enchancedClass.getMethod("someMethod", String.class);
+        Method someMethod = enhancedClass.getMethod("someMethod", String.class);
 
-        Annotation webMethodAnnotatopn = someMethod.getAnnotation(WebMethod.class);
-        Assert.assertNotNull("Generated method should contains @WebMethod annotation.", webMethodAnnotatopn);
+        Annotation webMethodAnnotation = someMethod.getAnnotation(WebMethod.class);
+        Assert.assertNotNull("Generated method should contains @WebMethod annotation.", webMethodAnnotation);
 
         Assert.assertEquals(
             "Generated method should contains @WebMethod annotation on method with defined in interface operation name.",
             "someMethod1",
-            ((WebMethod) webMethodAnnotatopn).operationName());
+            ((WebMethod) webMethodAnnotation).operationName());
     }
 
     @Test
@@ -116,9 +116,9 @@ public class JAXWSEnchancerHelperTest {
                 protected void init(OpenLService openLService) {
                 }
             });
-        Class<?> enchancedClass = JAXWSEnhancerHelper.decorateServiceInterface(service);
+        Class<?> enhancedClass = new JAXWSOpenLServiceEnhancer().decorateServiceInterface(service);
         int i = 0;
-        for (Method method : enchancedClass.getMethods()) {
+        for (Method method : enhancedClass.getMethods()) {
             if ("someMethod".equals(method.getName()) && method.getParameterTypes().length == 0) {
                 i++;
                 Annotation webMethodAnnotation = method.getAnnotation(WebMethod.class);

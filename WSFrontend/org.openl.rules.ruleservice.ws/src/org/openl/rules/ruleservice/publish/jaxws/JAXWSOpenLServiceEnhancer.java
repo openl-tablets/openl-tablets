@@ -23,12 +23,19 @@ import org.openl.util.generation.InterfaceTransformer;
  * @author Marat Kamalov
  *
  */
-public final class JAXWSEnhancerHelper {
+public final class JAXWSOpenLServiceEnhancer {
 
-    private JAXWSEnhancerHelper() {
+    private boolean methodParameterNamesFromRulesEnabled = true;
+
+    public boolean isMethodParameterNamesFromRulesEnabled() {
+        return methodParameterNamesFromRulesEnabled;
     }
 
-    private static class JAXWSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
+    public void setMethodParameterNamesFromRulesEnabled(boolean methodParameterNamesFromRulesEnabled) {
+        this.methodParameterNamesFromRulesEnabled = methodParameterNamesFromRulesEnabled;
+    }
+
+    private class JAXWSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$JAXWSAnnotated";
 
         private Class<?> originalClass;
@@ -100,7 +107,8 @@ public final class JAXWSEnhancerHelper {
                 av.visitEnd();
             }
             try {
-                if (service != null && service.getServiceClassName() == null) { // Set
+                if (service != null && service.getServiceClassName() == null && JAXWSOpenLServiceEnhancer.this
+                    .isMethodParameterNamesFromRulesEnabled()) { // Set
                     // parameter
                     // names
                     // only
@@ -124,7 +132,7 @@ public final class JAXWSEnhancerHelper {
                         i++;
                     }
                 }
-            } catch (RuleServiceInstantiationException e) {
+            } catch (RuleServiceInstantiationException ignore) {
                 // Skip
             }
             return mv;
@@ -152,7 +160,7 @@ public final class JAXWSEnhancerHelper {
                     int i = 0;
                     while (operations.contains(s)) {
                         i++;
-                        s = m.getName() + String.valueOf(i);
+                        s = m.getName() + i;
                     }
                     operations.add(s);
                     operationNames.put(m, s);
@@ -168,7 +176,7 @@ public final class JAXWSEnhancerHelper {
         }
     }
 
-    private static ClassLoader getClassLoader(OpenLService service) throws RuleServiceInstantiationException {
+    private ClassLoader getClassLoader(OpenLService service) throws RuleServiceInstantiationException {
         ClassLoader classLoader = null;
         if (service != null) {
             classLoader = service.getClassLoader();
@@ -179,28 +187,28 @@ public final class JAXWSEnhancerHelper {
         return classLoader;
     }
 
-    public static Class<?> decorateServiceInterface(OpenLService service) throws Exception {
+    public Class<?> decorateServiceInterface(OpenLService service) throws Exception {
         if (service.getServiceClass() == null) {
             throw new IllegalStateException("Service class is null.");
         }
         if (!service.getServiceClass().isInterface()) {
             throw new IllegalStateException("Service class is not an interface.");
         }
-        String enchancedClassName = service.getServiceClass()
+        String enhancedClassName = service.getServiceClass()
             .getName() + JAXWSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
 
         ClassWriter cw = new ClassWriter(0);
-        JAXWSInterfaceAnnotationEnhancerClassVisitor jaxrsAnnotationEnhancerClassVisitor = new JAXWSInterfaceAnnotationEnhancerClassVisitor(
+        JAXWSInterfaceAnnotationEnhancerClassVisitor jaxrsAnnotationEnhancerClassVisitor = this.new JAXWSInterfaceAnnotationEnhancerClassVisitor(
             cw,
             service.getServiceClass(),
             service);
-        InterfaceTransformer transformer = new InterfaceTransformer(service.getServiceClass(), enchancedClassName);
+        InterfaceTransformer transformer = new InterfaceTransformer(service.getServiceClass(), enhancedClassName);
         transformer.accept(jaxrsAnnotationEnhancerClassVisitor);
         cw.visitEnd();
 
         ClassLoader classLoader = getClassLoader(service);
 
-        return ClassUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
+        return ClassUtils.defineClass(enhancedClassName, cw.toByteArray(), classLoader);
     }
 
 }

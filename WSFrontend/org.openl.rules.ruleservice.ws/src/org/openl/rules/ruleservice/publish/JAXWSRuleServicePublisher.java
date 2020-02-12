@@ -13,8 +13,8 @@ import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
-import org.openl.rules.ruleservice.publish.jaxws.JAXWSEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSInvocationHandler;
+import org.openl.rules.ruleservice.publish.jaxws.JAXWSOpenLServiceEnhancer;
 import org.openl.rules.ruleservice.publish.jaxws.storelogdata.AegisObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.CollectObjectSerializerInterceptor;
 import org.openl.rules.ruleservice.storelogdata.CollectOpenLServiceInterceptor;
@@ -40,6 +40,9 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
     private Map<OpenLService, ServiceServer> runningServices = new HashMap<>();
     private String baseAddress;
     private boolean storeLogDataEnabled = false;
+
+    @Autowired
+    private JAXWSOpenLServiceEnhancer jaxwsServiceEnhancer;
 
     @Autowired
     @Qualifier("webServicesServerPrototype")
@@ -81,8 +84,16 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
         this.storeLoggingFeatureObjectFactory = storeLoggingFeatureObjectFactory;
     }
 
-    private ObjectSerializer getObjectSeializer(ServerFactoryBean svrFactory) {
+    private ObjectSerializer getObjectSerializer(ServerFactoryBean svrFactory) {
         return new AegisObjectSerializer((AegisDatabinding) svrFactory.getDataBinding());
+    }
+
+    public JAXWSOpenLServiceEnhancer getJaxwsServiceEnhancer() {
+        return jaxwsServiceEnhancer;
+    }
+
+    public void setJaxwsServiceEnhancer(JAXWSOpenLServiceEnhancer jaxwsServiceEnhancer) {
+        this.jaxwsServiceEnhancer = jaxwsServiceEnhancer;
     }
 
     @Override
@@ -97,7 +108,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
                 String serviceAddress = getBaseAddress() + URLHelper.processURL(service.getUrl());
                 svrFactory.setAddress(serviceAddress);
 
-                Class<?> serviceClass = JAXWSEnhancerHelper.decorateServiceInterface(service);
+                Class<?> serviceClass = getJaxwsServiceEnhancer().decorateServiceInterface(service);
                 svrFactory.setServiceClass(serviceClass);
 
                 Object target = Proxy.newProxyInstance(service.getClassLoader(),
@@ -111,14 +122,14 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
                     svrFactory.getFeatures().add(getStoreLoggingFeatureObjectFactory().getObject());
 
                     svrFactory.getInInterceptors()
-                        .add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
+                        .add(new CollectObjectSerializerInterceptor(getObjectSerializer(svrFactory)));
                     svrFactory.getInInterceptors().add(new CollectOpenLServiceInterceptor(service));
                     svrFactory.getInInterceptors()
                         .add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.WEBSERVICE));
                     svrFactory.getInInterceptors().add(new CollectOperationResourceInfoInterceptor());
 
                     svrFactory.getInFaultInterceptors()
-                        .add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
+                        .add(new CollectObjectSerializerInterceptor(getObjectSerializer(svrFactory)));
                     svrFactory.getInFaultInterceptors().add(new CollectOpenLServiceInterceptor(service));
                     svrFactory.getInFaultInterceptors()
                         .add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.WEBSERVICE));
@@ -155,14 +166,16 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
         Objects.requireNonNull(service, "service cannot be null");
         ServiceServer server = runningServices.get(service);
         if (server == null) {
-            throw new RuleServiceUndeployException(String.format("There is no running service '%s'.", service.getName()));
+            throw new RuleServiceUndeployException(
+                String.format("There is no running service '%s'.", service.getName()));
         }
         try {
             server.getServer().destroy();
             runningServices.remove(service);
             log.info("Service '{}' has been undeployed succesfully.", service.getName());
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()), t);
+            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()),
+                t);
         }
 
     }

@@ -29,12 +29,46 @@ import io.swagger.annotations.ApiOperation;
  * @author Marat Kamalov
  *
  */
-public final class JAXRSEnhancerHelper {
+public final class JAXRSOpenLServiceEnhancer {
 
-    private JAXRSEnhancerHelper() {
+    private boolean methodParameterNamesFromRulesEnabled = true;
+
+    public boolean isMethodParameterNamesFromRulesEnabled() {
+        return methodParameterNamesFromRulesEnabled;
     }
 
-    private static class JAXRSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
+    public void setMethodParameterNamesFromRulesEnabled(boolean methodParameterNamesFromRulesEnabled) {
+        this.methodParameterNamesFromRulesEnabled = methodParameterNamesFromRulesEnabled;
+    }
+
+    private static final Set<Class<?>> TEXT_MEDIA_TYPE_SET = new HashSet<>();
+    static {
+        TEXT_MEDIA_TYPE_SET.add(Number.class);
+        TEXT_MEDIA_TYPE_SET.add(Enum.class);
+        TEXT_MEDIA_TYPE_SET.add(String.class);
+        TEXT_MEDIA_TYPE_SET.add(Date.class);
+    }
+
+    private static class ParamAnnotationValue {
+
+        private Class<?> annotationClass;
+        private String fieldName;
+
+        public ParamAnnotationValue(Class<?> withPathParamValues, String fieldName) {
+            this.annotationClass = withPathParamValues;
+            this.fieldName = fieldName;
+        }
+
+        public Class<?> getAnnotationClass() {
+            return annotationClass;
+        }
+
+        public String getFieldName() {
+            return fieldName;
+        }
+    }
+
+    private class JAXRSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
 
         private static final int MAX_PARAMETERS_COUNT_FOR_GET = 4;
 
@@ -47,14 +81,6 @@ public final class JAXRSEnhancerHelper {
         private ClassLoader classLoader;
         private Map<Method, String> paths = null;
         private Map<Method, String> methodRequests = null;
-
-        private static final Set<Class<?>> TEXT_MEDIA_TYPE_SET = new HashSet();
-        static {
-            TEXT_MEDIA_TYPE_SET.add(Number.class);
-            TEXT_MEDIA_TYPE_SET.add(Enum.class);
-            TEXT_MEDIA_TYPE_SET.add(String.class);
-            TEXT_MEDIA_TYPE_SET.add(Date.class);
-        }
 
         JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                 Class<?> originalClass,
@@ -106,7 +132,8 @@ public final class JAXRSEnhancerHelper {
         }
 
         private Class<?> generateWrapperClass(Method originalMethod) throws Exception {
-            String[] parameterNames = MethodUtils.getParameterNames(originalMethod, service);
+            String[] parameterNames = MethodUtils.getParameterNames(originalMethod,
+                JAXRSOpenLServiceEnhancer.this.isMethodParameterNamesFromRulesEnabled() ? service : null);
             String requestParameterName = getRequestParameterName(originalMethod);
             String beanName = "org.openl.jaxrs." + requestParameterName;
 
@@ -185,7 +212,7 @@ public final class JAXRSEnhancerHelper {
                 for (Method m : methods) {
                     String s = m.getName();
                     int i = 1;
-                    while (paths.values().contains(s)) {
+                    while (paths.containsValue(s)) {
                         s = m.getName() + i;
                         i++;
                     }
@@ -276,27 +303,8 @@ public final class JAXRSEnhancerHelper {
             return mv;
         }
 
-        private class ParamAnnotationValue {
-
-            private Class<?> annotationClass;
-            private String fieldName;
-
-            public ParamAnnotationValue(Class<?> withPathParamValues, String fieldName) {
-                this.annotationClass = withPathParamValues;
-                this.fieldName = fieldName;
-            }
-
-            public Class<?> getAnnotationClass() {
-                return annotationClass;
-            }
-
-            public String getFieldName() {
-                return fieldName;
-            }
-        }
-
         private List<ParamAnnotationValue> getParamAnnotationsValue(Method originalMethod) {
-            final List<ParamAnnotationValue> values = new ArrayList(originalMethod.getParameterCount());
+            final List<ParamAnnotationValue> values = new ArrayList<>(originalMethod.getParameterCount());
             for (Annotation[] annotations : originalMethod.getParameterAnnotations()) {
                 if (annotations.length > 0) {
                     for (Annotation annotation : annotations) {
@@ -355,11 +363,11 @@ public final class JAXRSEnhancerHelper {
 
         private void processAnnotationsOnMethodParameters(Method originalMethod, MethodVisitor mv) {
             int index = 0;
-            for (Annotation[] annotatons : originalMethod.getParameterAnnotations()) {
-                for (Annotation annotaton : annotatons) {
+            for (Annotation[] annotations : originalMethod.getParameterAnnotations()) {
+                for (Annotation annotation : annotations) {
                     AnnotationVisitor av = mv
-                        .visitParameterAnnotation(index, Type.getDescriptor(annotaton.annotationType()), true);
-                    InterfaceTransformer.processAnnotation(annotaton, av);
+                        .visitParameterAnnotation(index, Type.getDescriptor(annotation.annotationType()), true);
+                    InterfaceTransformer.processAnnotation(annotation, av);
                 }
                 index++;
             }
@@ -428,7 +436,7 @@ public final class JAXRSEnhancerHelper {
         }
     }
 
-    public static Object decorateServiceBean(OpenLService service) throws Exception {
+    public Object decorateServiceBean(OpenLService service) throws Exception {
         Class<?> serviceClass = service.getServiceClass();
         Objects.requireNonNull(serviceClass, "Service class cannot be null");
         if (!serviceClass.isInterface()) {
