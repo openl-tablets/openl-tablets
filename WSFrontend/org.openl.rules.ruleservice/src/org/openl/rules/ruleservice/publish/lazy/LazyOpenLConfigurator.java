@@ -10,10 +10,11 @@ import org.openl.conf.OpenLConfigurator;
  * LazyMultiModule projects. Creates an IOpenBinder proxy that uses XlsPreBinder on prebind step and XlsBinder on
  * compile step.
  *
+ * @see LazyBinderMethodHandler
  * @author NSamatov
- * @see LazyBinderInvocationHandler
  */
 public class LazyOpenLConfigurator extends OpenLConfigurator {
+
     @Override
     public synchronized IOpenLBuilder getBuilder(String openlName, IUserContext ucxt) {
         IOpenLBuilder builder = super.getBuilder(openlName, ucxt);
@@ -24,5 +25,4 @@ public class LazyOpenLConfigurator extends OpenLConfigurator {
 
         return new LazyOpenLBuilder(builder, ucxt);
     }
-
 }

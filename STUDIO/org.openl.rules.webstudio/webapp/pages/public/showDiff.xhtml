@@ -76,13 +76,23 @@
                     <p>
                         <table class="comparison-layout">
                             <tr>
-                                <td>File1 fragment</td>
-                                <td>File2 fragment</td>
+                                <td>
+                                    <p>File1 fragment</p>
+                                    <h:panelGroup rendered="#{not empty showDiffBean.getCurrent(requestId).commit1}">
+                                        <p>Commit: <h:outputText value="#{showDiffBean.getCurrent(requestId).commit1}"/></p>
+                                    </h:panelGroup>
+                                </td>
+                                <td>
+                                    <p>File2 fragment</p>
+                                    <h:panelGroup rendered="#{not empty showDiffBean.getCurrent(requestId).commit2}">
+                                        <p>Commit: <h:outputText value="#{showDiffBean.getCurrent(requestId).commit2}"/></p>
+                                    </h:panelGroup>
+                                </td>
                             </tr>
                             <tr>
                                 <td valign="top">
                                     <a4j:outputPanel ajaxRendered="true">
-                                        <rules:tableEditor id="tableEditorOur"
+                                        <rules:tableEditor
                                                            table="#{showDiffBean.getCurrent(requestId).table1}"
                                                            editable="false"
                                                            filters="#{showDiffBean.getCurrent(requestId).filter1}"/>
@@ -90,7 +100,7 @@
                                 </td>
                                 <td valign="top">
                                     <a4j:outputPanel ajaxRendered="true">
-                                        <rules:tableEditor id="tableEditorTheir"
+                                        <rules:tableEditor
                                                            table="#{showDiffBean.getCurrent(requestId).table2}"
                                                            editable="false"
                                                            filters="#{showDiffBean.getCurrent(requestId).filter2}"/>

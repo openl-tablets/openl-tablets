@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -13,7 +12,6 @@ import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
-import org.openl.rules.ruleservice.publish.jaxws.JAXWSInvocationHandler;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSOpenLServiceEnhancer;
 import org.openl.rules.ruleservice.publish.jaxws.storelogdata.AegisObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.CollectObjectSerializerInterceptor;
@@ -107,16 +105,12 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
             try {
                 String serviceAddress = getBaseAddress() + URLHelper.processURL(service.getUrl());
                 svrFactory.setAddress(serviceAddress);
-
                 Class<?> serviceClass = getJaxwsServiceEnhancer().decorateServiceInterface(service);
                 svrFactory.setServiceClass(serviceClass);
-
-                Object target = Proxy.newProxyInstance(service.getClassLoader(),
-                    new Class<?>[] { service.getServiceClass() },
-                    new JAXWSInvocationHandler(service.getServiceBean()));
-
-                svrFactory.setServiceBean(target);
-
+                Class<?> proxyInterface = service.getServiceClass();
+                Object serviceProxy = getJaxwsServiceEnhancer()
+                    .createServiceProxy(proxyInterface, serviceClass, service);
+                svrFactory.setServiceBean(serviceProxy);
                 svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
                 if (isStoreLogDataEnabled()) {
                     svrFactory.getFeatures().add(getStoreLoggingFeatureObjectFactory().getObject());

@@ -1,17 +1,23 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
 import org.openl.IOpenBinder;
-import org.openl.binding.*;
+import org.openl.binding.IBindingContext;
+import org.openl.binding.IBoundCode;
+import org.openl.binding.ICastFactory;
+import org.openl.binding.INameSpacedMethodFactory;
+import org.openl.binding.INameSpacedTypeFactory;
+import org.openl.binding.INameSpacedVarFactory;
+import org.openl.binding.INodeBinderFactory;
 import org.openl.conf.IUserContext;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsPreBinder;
 import org.openl.syntax.code.IParsedCode;
 
 /**
- * A wrapper for replacing Java dynamic proxying.
+ * A wrapper for replacing Javassist proxy.
  *
  * @author Yury Molchan
- * @see LazyBinderInvocationHandler
+ * @see LazyBinderMethodHandler
  */
 class LazyOpenLBinder implements IOpenBinder {
     private final IOpenBinder originalBinder;
@@ -24,7 +30,7 @@ class LazyOpenLBinder implements IOpenBinder {
 
     private IOpenBinder getBinder() {
         IOpenBinder binder = originalBinder;
-        IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();
+        IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
         if (prebindHandler != null) {
             binder = new XlsPreBinder(ucxt, prebindHandler);
         }

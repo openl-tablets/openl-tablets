@@ -174,6 +174,40 @@ public class LocalGitRepositoryTest {
         }
     }
 
+    @Test
+    public void testHistoryWhenMergeWithConflictAndChooseYours() throws IOException, GitAPIException {
+        final String project1 = "rules/project1";
+        final String file = project1 + "/file1";
+        final String textInMaster = "In master";
+        final String textInBranch1 = "In branch1";
+
+        writeSampleFile(repo, file, "Project1 was created");
+        repo.createBranch("project1", "branch1");
+
+        writeSampleFile(repo, file, textInMaster, "Modify master");
+        writeSampleFile(repo.forBranch("branch1"), file, textInBranch1, "Modify branch1");
+        try {
+            repo.merge("branch1", "admin", null);
+            fail("MergeConflictException is expected");
+        } catch (MergeConflictException e) {
+            final String resolveMessage = "Resolve conflict (use yours)";
+
+            // !!! The text must be same as in master for this test scenario. Resolve with choosing "all yours".
+            Iterable<FileItem> resolvedFiles = Collections
+                .singletonList(new FileItem(file, IOUtils.toInputStream(textInMaster)));
+
+            repo.merge("branch1", "admin", new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
+
+            assertEquals(resolveMessage, repo.check(project1).getComment());
+            assertEquals(textInMaster, IOUtils.toStringAndClose(repo.read(file).getStream()));
+
+            assertEquals(4, repo.listHistory(project1).size());
+            String lastVersion = repo.listHistory(project1).get(3).getVersion();
+            assertFalse("Last commit (resolve merge conflict) is treated as old version. Must be last version.",
+                repo.isCheckoutOldVersion(project1, lastVersion));
+        }
+    }
+
     private void writeSampleFile(Repository repository, String path, String comment) throws IOException {
         String text = "File located in " + path;
         writeSampleFile(repository, path, text, comment);
