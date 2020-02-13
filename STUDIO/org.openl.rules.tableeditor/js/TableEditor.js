@@ -219,6 +219,11 @@ var TableEditor = Class.create({
             var cellPos = this.editCell.split(":");
             var cell = this.$cell(cellPos);
             if (cell) this.editBeginRequest(cell, null, true);
+        } else {
+            const params = {
+                editorId: this.editorId
+            };
+            this.doOperation(TableEditor.Operations.START_EDITING, params);
         }
     },
 
@@ -1107,7 +1112,8 @@ TableEditor.Operations = {
     UNDO : "undo",
     REDO : "redo",
     SAVE : "saveTable",
-    ROLLBACK : "rollbackTable"
+    ROLLBACK : "rollbackTable",
+    START_EDITING : "startEditing"
 };
 
 // Standalone functions
@@ -1204,7 +1210,9 @@ function initTableEditor(editorId, url, cellToEdit, actions, mode, editable) {
         });
     };
 
-    tableEditor.startEditing();
+    if (cellToEdit && cellToEdit.indexOf(":") > 0) {
+        tableEditor.startEditing();
+    }
 
     return tableEditor;
 }

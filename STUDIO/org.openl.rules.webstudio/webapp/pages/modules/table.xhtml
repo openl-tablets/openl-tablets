@@ -229,11 +229,9 @@
                         <table>
                             <tr>
                                 <td>
-                                    <h:outputLink value="#{studio.url('table')}" title="Edit the table" styleClass="toolbarButton"
-                                        onclick="return onBeforeEdit();"
+                                    <h:outputLink value="javascript:void(0)" title="Edit the table" styleClass="toolbarButton"
+                                        onclick="editTable();"
                                         rendered="#{tableBean.canEdit}"  >
-                                        <f:param name="id" value="#{tableBean.id}" />
-                                        <f:param name="mode" value="edit" />
                                         <img src="#{contextPath}/webresource/images/editTable.gif" />
                                         <span>Edit</span>
                                     </h:outputLink>
@@ -806,6 +804,12 @@
 
         function downloadManualTest() {
             ws.nav.download("#{contextPath}/web/test/rule?id=#{tableBean.id}");
+        }
+        
+        function editTable() {
+            if (onBeforeEdit()) {
+                getCurrentTable().toEditMode();
+            }
         }
 
         function getCurrentTable() {
