@@ -213,7 +213,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             SwaggerStaticFieldsWorkaround.reset();
             server.destroy();
             runningServices.remove(service);
-            log.info("Service '{}' has been undeployed succesfully.", service.getName());
+            log.info("Service '{}' has been undeployed successfully.", service.getName());
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()),
                 t);

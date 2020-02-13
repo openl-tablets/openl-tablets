@@ -640,7 +640,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         }
         try {
             if (stopAndClose(triple)) {
-                log.info("Service '{}' has been successfully undeployed.", service.getName());
+                log.info("Service '{}' has been undeployed successfully.", service.getName());
             } else {
                 log.info("Service '{}' has been undeployed with errors.", service.getName());
             }

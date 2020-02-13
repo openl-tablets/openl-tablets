@@ -78,7 +78,7 @@ public class RmiRuleServicePublisher implements RuleServicePublisher {
             String rmiName = service.getRmiName() != null ? service.getRmiName()
                                                           : URLHelper.processURL(service.getUrl());
 
-            Remote rmiHandler = null;
+            Remote rmiHandler;
             if (service.getRmiServiceClass() == null) {
                 rmiHandler = enhanceServiceBeanWithDynamicRmiHandler(service);
             } else {
