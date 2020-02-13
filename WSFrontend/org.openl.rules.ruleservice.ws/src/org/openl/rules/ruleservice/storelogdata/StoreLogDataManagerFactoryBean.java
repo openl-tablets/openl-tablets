@@ -39,7 +39,7 @@ public class StoreLogDataManagerFactoryBean implements FactoryBean<SimpleStoreLo
     }
 
     @Override
-    public SimpleStoreLogDataManager getObject() throws Exception {
+    public SimpleStoreLogDataManager getObject() {
         if (!isStoreLogDataEnabled()) {
             return null;
         }

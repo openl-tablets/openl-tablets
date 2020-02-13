@@ -37,7 +37,7 @@ public class JAXRS200StatusOutInterceptor extends AbstractPhaseInterceptor<Messa
 
         Object responseObj = objs.get(0);
 
-        Response response = null;
+        Response response;
         if (responseObj instanceof Response) {
             response = (Response) responseObj;
             if (response.getStatus() != Status.OK.getStatusCode() && response instanceof ResponseImpl) {

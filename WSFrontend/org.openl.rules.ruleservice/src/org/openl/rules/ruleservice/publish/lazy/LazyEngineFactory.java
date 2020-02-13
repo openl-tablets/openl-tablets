@@ -83,8 +83,8 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
     /**
      * Added to allow using openl that is different from default, such as org.openl.xls.ce
      *
-     * @param modules
-     * @param openlName `
+     * @param deployment
+     * @param modules `
      */
     public LazyEngineFactory(DeploymentDescription deployment, Collection<Module> modules) {
         super(RULES_XLS_OPENL_NAME);
@@ -236,8 +236,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
                 getOpenlName());// FIXME
             engineFactory.setDependencyManager(dependencyManager);
             engineFactory.setExecutionMode(true);
-            CompiledOpenClass result = engineFactory.getCompiledOpenClass();
-            return result;
+            return engineFactory.getCompiledOpenClass();
         } finally {
             LazyBinderMethodHandler.setPrebindHandler(prebindHandler);
         }

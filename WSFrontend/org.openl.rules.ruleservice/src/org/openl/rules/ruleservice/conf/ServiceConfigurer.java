@@ -15,7 +15,7 @@ public interface ServiceConfigurer {
      * Compute all service to be deployed according to the projects in the data source state(accessed through the
      * loader).
      *
-     * @param loader Loader to access projects.
+     * @param ruleServiceLoader Loader to access projects.
      * @return List of {@link ServiceDescription} to deployed.
      */
     Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader ruleServiceLoader);

@@ -14,7 +14,7 @@ public interface RuleServiceInstantiationStrategyFactory {
     /**
      * Returns strategy for creating service bean.
      *
-     * @param modules modules
+     * @param serviceDescription serviceDescription
      * @param dependencyManager
      * @return
      */

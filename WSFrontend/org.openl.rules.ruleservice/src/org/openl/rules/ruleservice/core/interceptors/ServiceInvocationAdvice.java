@@ -313,7 +313,7 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
                     beforeInvocation(interfaceMethod, args);
                     ServiceMethodAroundAdvice<?> serviceMethodAroundAdvice = aroundInterceptors.get(interfaceMethod);
                     try {
-                        invokeBeforeMethodInvocationOnListeners(interfaceMethod, args, null, null);
+                        invokeBeforeMethodInvocationOnListeners(interfaceMethod, args);
                         if (serviceMethodAroundAdvice != null) {
                             invokeBeforeServiceMethodAdviceOnListeners(serviceMethodAroundAdvice,
                                 interfaceMethod,
@@ -338,7 +338,7 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
                             }
                         }
                     } finally {
-                        invokeAfterMethodInvocationOnListeners(interfaceMethod, args, result, null);
+                        invokeAfterMethodInvocationOnListeners(interfaceMethod, args, result);
                     }
                     result = afterInvocation(interfaceMethod, result, null, args);
                 } finally {
@@ -375,11 +375,10 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
 
     private void invokeAfterMethodInvocationOnListeners(Method interfaceMethod,
             Object[] args,
-            Object result,
-            Exception e) {
+            Object result) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             try {
-                listener.afterMethodInvocation(interfaceMethod, args, result, e);
+                listener.afterMethodInvocation(interfaceMethod, args, result, null);
             } catch (Exception e1) {
                 log.error("Exception occured.", e1);
             }
@@ -387,12 +386,10 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
     }
 
     private void invokeBeforeMethodInvocationOnListeners(Method interfaceMethod,
-            Object[] args,
-            Object result,
-            Exception e) {
+            Object[] args) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             try {
-                listener.beforeMethodInvocation(interfaceMethod, args, result, e);
+                listener.beforeMethodInvocation(interfaceMethod, args, null, null);
             } catch (Exception e1) {
                 log.error("Exception occured.", e1);
             }
@@ -403,12 +400,10 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
         Throwable t = e;
         while (t instanceof InvocationTargetException || t instanceof UndeclaredThrowableException) {
             if (t instanceof InvocationTargetException) {
-                Throwable t1 = ((InvocationTargetException) t).getTargetException();
-                t = t1;
+                t = ((InvocationTargetException) t).getTargetException();
             }
             if (t instanceof UndeclaredThrowableException) {
-                Throwable t1 = ((UndeclaredThrowableException) t).getUndeclaredThrowable();
-                t = t1;
+                t = ((UndeclaredThrowableException) t).getUndeclaredThrowable();
             }
         }
         return t;
@@ -489,7 +484,7 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
         Throwable t = ex.getCause();
         boolean isNotFirst = false;
         while (t != null && t.getCause() != t) {
-            if ((t instanceof OpenLRuntimeException || t instanceof OpenLException) && t.getMessage() != null) {
+            if ((t instanceof OpenLException) && t.getMessage() != null) {
                 if (isNotFirst) {
                     sb.append(MSG_SEPARATOR);
                 }

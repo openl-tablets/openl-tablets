@@ -118,14 +118,12 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
 
     private OpenLService getService(String serviceName) {
         Lock lock = RuleServiceRedeployLock.getInstance().getReadLock();
-        OpenLService service = null;
         try {
             lock.lock();
-            service = runningServices.get(serviceName);
+            return runningServices.get(serviceName);
         } finally {
             lock.unlock();
         }
-        return service;
     }
 
     /**

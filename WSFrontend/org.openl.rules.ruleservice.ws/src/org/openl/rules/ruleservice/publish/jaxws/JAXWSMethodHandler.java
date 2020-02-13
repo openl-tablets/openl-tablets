@@ -22,7 +22,7 @@ public class JAXWSMethodHandler implements MethodHandler {
     }
 
     @Override
-    public Object invoke(Object o, Method method, Method proceed, Object[] args) throws Throwable {
+    public Object invoke(Object o, Method method, Method proceed, Object[] args) {
         Method m = methodMap.get(method);
         try {
             return m.invoke(service, args);

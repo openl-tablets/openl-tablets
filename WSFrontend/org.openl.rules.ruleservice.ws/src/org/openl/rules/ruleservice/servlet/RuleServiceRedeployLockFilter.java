@@ -22,7 +22,7 @@ public class RuleServiceRedeployLockFilter implements javax.servlet.Filter {
         if (ignorePrefixesParameter != null) {
             ignorePrefixes = Arrays.stream(ignorePrefixesParameter.split(","))
                 .map(String::trim)
-                .toArray(size -> new String[size]);
+                .toArray(String[]::new);
         } else {
             ignorePrefixes = new String[] {};
         }

@@ -256,7 +256,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             recreateFolderIfExists(destDir);
             ZipUtils.extractAll(file, destDir);
 
-            log.info("Unpacking '{}' into '{}' was completed.", file.getAbsolutePath(), destDirectory);
+            log.info("Unpacking '{}' into '{}' has been completed.", file.getAbsolutePath(), destDirectory);
         }
 
         Resource[] deploymentResources = prpr

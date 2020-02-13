@@ -58,8 +58,6 @@ public class KafkaDeployConfigurationSerializationInclusionFactoryBean extends S
                 value = getKafkaDeploy().getProducerConfigs().getProperty(property);
             } else if (Type.CONSUMER.equals(getType())) {
                 value = getKafkaDeploy().getConsumerConfigs().getProperty(property);
-            } else {
-                value = null;
             }
             if (value == null && getServiceDescription().getConfiguration() != null) {
                 value = getServiceDescription().getConfiguration().get(property);

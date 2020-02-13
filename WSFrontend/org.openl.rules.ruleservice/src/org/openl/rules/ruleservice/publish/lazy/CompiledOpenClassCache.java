@@ -76,7 +76,7 @@ public final class CompiledOpenClassCache {
         cache.put(key, compiledOpenClass);
     }
 
-    private Map<Key, Collection<Event>> eventsMap = new HashMap<>();
+    private final Map<Key, Collection<Event>> eventsMap = new HashMap<>();
 
     public void registerEvent(DeploymentDescription deploymentDescription, String dependencyName, Event event) {
         Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");

@@ -146,7 +146,7 @@ public final class KafkaService implements Runnable {
             @Override
             public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
                 if (log.isInfoEnabled()) {
-                    log.info("Lost partitions in rebalance. Commiting current offsets: {}", currentOffsets);
+                    log.info("Lost partitions in rebalance. Committing current offsets: {}", currentOffsets);
                 }
                 consumer.commitSync(currentOffsets);
                 currentOffsets.clear();

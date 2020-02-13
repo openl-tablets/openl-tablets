@@ -29,7 +29,7 @@ public abstract class LazyField extends LazyMember<IOpenField> implements IOpenF
         this.fieldName = fieldName;
     }
 
-    public static final LazyField getLazyField(final XlsLazyModuleOpenClass xlsLazyModuleOpenClass,
+    public static LazyField getLazyField(final XlsLazyModuleOpenClass xlsLazyModuleOpenClass,
             final DeploymentDescription deployment,
             final Module module,
             IOpenField original,

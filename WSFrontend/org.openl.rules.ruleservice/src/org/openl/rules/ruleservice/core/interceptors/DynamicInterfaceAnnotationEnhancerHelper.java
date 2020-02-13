@@ -78,7 +78,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                                         if (annotation.annotationType().equals(AnyType.class)) {
                                             AnyType anyTypeAnnotation = (AnyType) annotation;
                                             String pattern = anyTypeAnnotation.value();
-                                            if (pattern == null || pattern.isEmpty()) {
+                                            if (pattern.isEmpty()) {
                                                 isAnyTypeParameter = true;
                                             } else {
                                                 if (Pattern.matches(pattern, typesInCurrentMethod[i].getClassName())) {
@@ -157,13 +157,13 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
 
         processServiceExtraMethods(dynamicInterfaceAnnotationEnhancerClassVisitor, templateClass);
 
-        String enchancedClassName = originalClass
+        String enhancedClassName = originalClass
             .getName() + DynamicInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
-        InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName);
+        InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enhancedClassName);
         transformer.accept(dynamicInterfaceAnnotationEnhancerClassVisitor);
         cw.visitEnd();
         logMissedMethods(dynamicInterfaceAnnotationEnhancerClassVisitor);
-        return ClassUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
+        return ClassUtils.defineClass(enhancedClassName, cw.toByteArray(), classLoader);
     }
 
     private static void logMissedMethods(

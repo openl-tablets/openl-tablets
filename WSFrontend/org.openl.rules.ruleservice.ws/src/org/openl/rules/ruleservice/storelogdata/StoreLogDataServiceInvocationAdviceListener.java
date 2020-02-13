@@ -29,7 +29,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
     public void process(Method interfaceMethod,
             Object[] args,
             Object result,
-            Exception lastOccuredException,
+            Exception lastOccurredException,
             Predicate<PrepareStoreLogData> predicate) {
         PrepareStoreLogDatas storeLoggings = interfaceMethod.getAnnotation(PrepareStoreLogDatas.class);
         if (storeLoggings != null) {
@@ -61,7 +61,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                                                                      // initialization
                         }
 
-                        storeLogDataAdvice.prepare(storeLogData.getCustomValues(), args, result, lastOccuredException);
+                        storeLogDataAdvice.prepare(storeLogData.getCustomValues(), args, result, lastOccurredException);
                     }
                 }
             }

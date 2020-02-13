@@ -52,11 +52,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                     "Cannot detect deployment version. Please, check 'version in deployment name' parameter in the configuration.");
             }
             String deploymentName = deployment.getDeploymentName();
-            Map<String, Deployment> internalMap = latestDeployments.get(deploymentName);
-            if (internalMap == null) {
-                internalMap = new HashMap<>();
-                latestDeployments.put(deploymentName, internalMap);
-            }
+            Map<String, Deployment> internalMap = latestDeployments.computeIfAbsent(deploymentName, k -> new HashMap<>());
             boolean hasRulesDeployXML = false;
             for (AProject project : deployment.getProjects()) {
                 try {
@@ -83,7 +79,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                                 internalMap.put(version, deployment);
                             }
                         }
-                    } catch (ProjectException e) {
+                    } catch (ProjectException ignored) {
                     } finally {
                         if (content != null) {
                             try {
@@ -114,9 +110,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
 
         Collection<Deployment> ret = new ArrayList<>();
         for (String key : latestDeployments.keySet()) {
-            for (Deployment d : latestDeployments.get(key).values()) {
-                ret.add(d);
-            }
+            ret.addAll(latestDeployments.get(key).values());
         }
         return ret;
     }
@@ -146,8 +140,8 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                     Collection<Module> modulesOfProject = ruleServiceLoader
                         .resolveModulesForProject(deploymentName, deploymentVersion, projectName);
                     ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder()
-                        .setProvideRuntimeContext(provideRuntimeContext)
-                        .setProvideVariations(supportVariations)
+                        .setProvideRuntimeContext(isProvideRuntimeContext())
+                        .setProvideVariations(isSupportVariations())
                         .setDeployment(deploymentDescription);
 
                     serviceDescriptionBuilder.setModules(modulesOfProject);
@@ -205,7 +199,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                                         rulesDeploy.getAnnotationTemplateClassName().trim());
                                 }
                             }
-                        } catch (ProjectException e) {
+                        } catch (ProjectException ignored) {
                         } finally {
                             if (content != null) {
                                 try {

@@ -9,8 +9,7 @@ public final class YamlObjectMapperBuilder {
     }
 
     public static ObjectMapper newInstance() {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        return mapper;
+        return new ObjectMapper(new YAMLFactory());
     }
 
 }

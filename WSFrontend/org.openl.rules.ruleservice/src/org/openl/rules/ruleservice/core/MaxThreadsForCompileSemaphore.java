@@ -27,15 +27,15 @@ public final class MaxThreadsForCompileSemaphore {
     }
 
     public <T> T run(Callable<T> callable) throws Exception {
-        boolean requiredSemophore = MaxThreadsForCompileSemaphore.getInstance().getThreadsMarker().get() == null;
+        boolean requiredSemaphore = MaxThreadsForCompileSemaphore.getInstance().getThreadsMarker().get() == null;
         try {
-            if (requiredSemophore) {
+            if (requiredSemaphore) {
                 MaxThreadsForCompileSemaphore.getInstance().getThreadsMarker().set(Thread.currentThread());
                 MaxThreadsForCompileSemaphore.getInstance().getLimitCompilationThreadsSemaphore().acquire();
             }
             return callable.call();
         } finally {
-            if (requiredSemophore) {
+            if (requiredSemaphore) {
                 MaxThreadsForCompileSemaphore.getInstance().getThreadsMarker().remove();
                 MaxThreadsForCompileSemaphore.getInstance().getLimitCompilationThreadsSemaphore().release();
             }
