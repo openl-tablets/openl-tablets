@@ -38,14 +38,14 @@ import org.openl.util.generation.InterfaceTransformer;
  */
 public final class JAXWSOpenLServiceEnhancer {
 
-    private boolean methodParameterNamesFromRulesEnabled = true;
+    private boolean resolveMethodParameterNamesEnabled = true;
 
-    public boolean isMethodParameterNamesFromRulesEnabled() {
-        return methodParameterNamesFromRulesEnabled;
+    public boolean isResolveMethodParameterNamesEnabled() {
+        return resolveMethodParameterNamesEnabled;
     }
 
-    public void setMethodParameterNamesFromRulesEnabled(boolean methodParameterNamesFromRulesEnabled) {
-        this.methodParameterNamesFromRulesEnabled = methodParameterNamesFromRulesEnabled;
+    public void setResolveMethodParameterNamesEnabled(boolean resolveMethodParameterNamesEnabled) {
+        this.resolveMethodParameterNamesEnabled = resolveMethodParameterNamesEnabled;
     }
 
     private class JAXWSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
@@ -121,7 +121,7 @@ public final class JAXWSOpenLServiceEnhancer {
             }
             try {
                 if (service != null && service.getServiceClassName() == null && JAXWSOpenLServiceEnhancer.this
-                    .isMethodParameterNamesFromRulesEnabled()) { // Set
+                    .isResolveMethodParameterNamesEnabled()) { // Set
                     // parameter
                     // names
                     // only

@@ -6,7 +6,7 @@
 	<!-- Initializes OpenL Engine instances according to web services configuration 
 		description and calls RuleServicePublisher to expose corresponding web service -->
 	<!-- Exposes web services. -->
-	<bean id="RMIServicesRuleServicePublisher"
+	<bean id="rmiServicesRuleServicePublisher"
 		class="org.openl.rules.ruleservice.publish.RmiRuleServicePublisher">
 		<property name="rmiPort" value="${ruleservice.rmiPort}"/>
 		<property name="rmiHost" value="${ruleservice.rmiHost}"/>

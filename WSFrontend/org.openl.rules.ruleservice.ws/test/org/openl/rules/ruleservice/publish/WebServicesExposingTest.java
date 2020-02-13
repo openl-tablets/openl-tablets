@@ -1,7 +1,7 @@
 package org.openl.rules.ruleservice.publish;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotSame;
 
 import java.util.ArrayList;
 
@@ -75,7 +75,7 @@ public class WebServicesExposingTest implements ApplicationContextAware {
                 .getObject();
             ServerFactoryBean secondServer = webServicesRuleServicePublisher.getServerFactoryBeanObjectFactory()
                 .getObject();
-            assertTrue(firstServer != secondServer);
+            assertNotSame(firstServer, secondServer);
         } finally {
             ServiceDescriptionHolder.getInstance().remove();
             OpenLServiceHolder.getInstance().remove();

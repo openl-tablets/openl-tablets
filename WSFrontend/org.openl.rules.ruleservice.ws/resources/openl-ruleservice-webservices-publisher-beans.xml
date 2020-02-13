@@ -3,28 +3,34 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!-- Data binding type in WebServices(set it to the "serverPrototype" bean). -->
-    <bean id="serviceConfigurationReadXsiTypesFactoryBean"
+    <bean id="jaxwsServiceConfigurationReadXsiTypesFactoryBean"
           class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean" scope="prototype">
         <property name="propertyName" value="aegisdatabinding.readXsiTypes"/>
         <property name="defaultValue" value="${ruleservice.aegisbinding.readXsiTypes}"/>
     </bean>
 
-    <bean id="serviceConfigurationWriteXsiTypesFactoryBean"
+    <bean id="jaxwsServiceConfigurationWriteXsiTypesFactoryBean"
           class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean" scope="prototype">
         <property name="propertyName" value="aegisdatabinding.writeXsiTypes"/>
         <property name="defaultValue" value="${ruleservice.aegisbinding.writeXsiTypes}"/>
     </bean>
 
-    <bean id="aegisDatabindingFactoryBean"
+    <bean id="jaxwsServiceConfigurationResolveMethodParameterNamesFactoryBean"
+          class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean" scope="prototype">
+        <property name="propertyName" value="jaxws.resolveMethodParameterNames"/>
+        <property name="defaultValue" value="${ruleservice.jaxws.resolveMethodParameterNames:true}"/>
+    </bean>
+
+    <bean id="jaxwsAegisDatabindingFactoryBean"
           class="org.openl.rules.ruleservice.databinding.AegisDatabindingFactoryBean"
           scope="prototype">
-        <property name="readXsiTypes" ref="serviceConfigurationReadXsiTypesFactoryBean"/>
-        <property name="writeXsiTypes" ref="serviceConfigurationWriteXsiTypesFactoryBean"/>
+        <property name="readXsiTypes" ref="jaxwsServiceConfigurationReadXsiTypesFactoryBean"/>
+        <property name="writeXsiTypes" ref="jaxwsServiceConfigurationWriteXsiTypesFactoryBean"/>
         <property name="overrideTypes" ref="serviceConfigurationRootClassNamesBindingFactoryBean"/>
         <property name="supportVariations" ref="serviceConfigurationSupportVariationsFactoryBean"/>
     </bean>
 
-    <bean id="webServicesDataBinding" factory-bean="aegisDatabindingFactoryBean" factory-method="createAegisDatabinding"
+    <bean id="jaxwsServiceDataBinding" factory-bean="jaxwsAegisDatabindingFactoryBean" factory-method="createAegisDatabinding"
           scope="prototype"/>
 
     <!-- Main description for the one WebService -->
@@ -33,8 +39,8 @@
         simple frontend configuration(see http://cxf.apache.org/docs/simple-frontend-configuration.html) 
         but without namespace "simple". -->
 
-    <bean id="webServicesServerPrototype" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean" scope="prototype">
-        <property name="dataBinding" ref="webServicesDataBinding"/>
+    <bean id="jaxwsServiceServerPrototype" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean" scope="prototype">
+        <property name="dataBinding" ref="jaxwsServiceDataBinding"/>
         <property name="features">
             <list>
                 <bean id="webServicesLoggingFeature" class="org.openl.rules.ruleservice.storelogdata.LoggingFeature">
@@ -48,11 +54,11 @@
     <!-- Initializes OpenL Engine instances according to web services configuration 
         description and calls DeploymentAdmin to expose corresponding web service -->
     <!-- Exposes web services. -->
-    <bean id="jaxwsServiceEnhancer" class="org.openl.rules.ruleservice.publish.jaxws.JAXWSOpenLServiceEnhancer">
-        <property name="methodParameterNamesFromRulesEnabled" value="${ruleservice.jaxws.methodParameterNamesFromRulesEnabled:true}"/>
+    <bean id="jaxwsServiceEnhancer" class="org.openl.rules.ruleservice.publish.jaxws.JAXWSOpenLServiceEnhancer" scope="prototype">
+        <property name="resolveMethodParameterNamesEnabled" ref="jaxwsServiceConfigurationResolveMethodParameterNamesFactoryBean"/>
     </bean>
 
-    <bean id="webServiceRuleServicePublisher"
+    <bean id="jaxwsServiceRuleServicePublisher"
           class="org.openl.rules.ruleservice.publish.JAXWSRuleServicePublisher">
         <property name="baseAddress" value="${ruleservice.baseAddress}"/>
         <property name="storeLogDataEnabled" value="${ruleservice.store.logs.enabled}"/>

@@ -50,14 +50,14 @@ import io.swagger.annotations.ApiOperation;
  */
 public final class JAXRSOpenLServiceEnhancer {
 
-    private boolean methodParameterNamesFromRulesEnabled = true;
+    private boolean resolveMethodParameterNamesEnabled = true;
 
-    public boolean isMethodParameterNamesFromRulesEnabled() {
-        return methodParameterNamesFromRulesEnabled;
+    public boolean isResolveMethodParameterNamesEnabled() {
+        return resolveMethodParameterNamesEnabled;
     }
 
-    public void setMethodParameterNamesFromRulesEnabled(boolean methodParameterNamesFromRulesEnabled) {
-        this.methodParameterNamesFromRulesEnabled = methodParameterNamesFromRulesEnabled;
+    public void setResolveMethodParameterNamesEnabled(boolean resolveMethodParameterNamesEnabled) {
+        this.resolveMethodParameterNamesEnabled = resolveMethodParameterNamesEnabled;
     }
 
     private static final Set<Class<?>> TEXT_MEDIA_TYPE_SET = new HashSet<>();
@@ -152,7 +152,7 @@ public final class JAXRSOpenLServiceEnhancer {
 
         private Class<?> generateWrapperClass(Method originalMethod) throws Exception {
             String[] parameterNames = MethodUtils.getParameterNames(originalMethod,
-                JAXRSOpenLServiceEnhancer.this.isMethodParameterNamesFromRulesEnabled() ? service : null);
+                JAXRSOpenLServiceEnhancer.this.isResolveMethodParameterNamesEnabled() ? service : null);
             String requestParameterName = getRequestParameterName(originalMethod);
             String beanName = "org.openl.jaxrs." + requestParameterName;
 

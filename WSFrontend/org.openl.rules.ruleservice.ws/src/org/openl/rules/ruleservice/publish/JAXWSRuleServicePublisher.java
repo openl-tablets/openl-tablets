@@ -40,10 +40,10 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
     private boolean storeLogDataEnabled = false;
 
     @Autowired
-    private JAXWSOpenLServiceEnhancer jaxwsServiceEnhancer;
+    private ObjectFactory<JAXWSOpenLServiceEnhancer> jaxwsOpenLServiceEnhancerObjectFactory;
 
     @Autowired
-    @Qualifier("webServicesServerPrototype")
+    @Qualifier("jaxwsServiceServerPrototype")
     private ObjectFactory<ServerFactoryBean> serverFactoryBeanObjectFactory;
 
     @Autowired
@@ -86,12 +86,13 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
         return new AegisObjectSerializer((AegisDatabinding) svrFactory.getDataBinding());
     }
 
-    public JAXWSOpenLServiceEnhancer getJaxwsServiceEnhancer() {
-        return jaxwsServiceEnhancer;
+    public ObjectFactory<JAXWSOpenLServiceEnhancer> getJaxwsOpenLServiceEnhancerObjectFactory() {
+        return jaxwsOpenLServiceEnhancerObjectFactory;
     }
 
-    public void setJaxwsServiceEnhancer(JAXWSOpenLServiceEnhancer jaxwsServiceEnhancer) {
-        this.jaxwsServiceEnhancer = jaxwsServiceEnhancer;
+    public void setJaxwsOpenLServiceEnhancerObjectFactory(
+            ObjectFactory<JAXWSOpenLServiceEnhancer> jaxwsOpenLServiceEnhancerObjectFactory) {
+        this.jaxwsOpenLServiceEnhancerObjectFactory = jaxwsOpenLServiceEnhancerObjectFactory;
     }
 
     @Override
@@ -105,10 +106,12 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
             try {
                 String serviceAddress = getBaseAddress() + URLHelper.processURL(service.getUrl());
                 svrFactory.setAddress(serviceAddress);
-                Class<?> serviceClass = getJaxwsServiceEnhancer().decorateServiceInterface(service);
+                JAXWSOpenLServiceEnhancer jaxwsOpenLServiceEnhancer = getJaxwsOpenLServiceEnhancerObjectFactory()
+                    .getObject();
+                Class<?> serviceClass = jaxwsOpenLServiceEnhancer.decorateServiceInterface(service);
                 svrFactory.setServiceClass(serviceClass);
                 Class<?> proxyInterface = service.getServiceClass();
-                Object serviceProxy = getJaxwsServiceEnhancer()
+                Object serviceProxy = jaxwsOpenLServiceEnhancer
                     .createServiceProxy(proxyInterface, serviceClass, service);
                 svrFactory.setServiceBean(serviceProxy);
                 svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);

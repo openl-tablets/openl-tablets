@@ -46,10 +46,10 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     private boolean swaggerPrettyPrint = false;
 
     @Autowired
-    private JAXRSOpenLServiceEnhancer jaxrsServiceEnhancer;
+    private ObjectFactory<JAXRSOpenLServiceEnhancer> jaxrsServiceEnhancerObjectFactory;
 
     @Autowired
-    @Qualifier("JAXRSServicesServerPrototype")
+    @Qualifier("jaxrsServiceServerPrototype")
     private ObjectFactory<JAXRSServerFactoryBean> serverFactoryBeanObjectFactory;
 
     @Autowired
@@ -97,12 +97,13 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         return swaggerPrettyPrint;
     }
 
-    public JAXRSOpenLServiceEnhancer getJaxrsServiceEnhancer() {
-        return jaxrsServiceEnhancer;
+    public ObjectFactory<JAXRSOpenLServiceEnhancer> getJaxrsServiceEnhancerObjectFactory() {
+        return jaxrsServiceEnhancerObjectFactory;
     }
 
-    public void setJaxrsServiceEnhancer(JAXRSOpenLServiceEnhancer jaxrsServiceEnhancer) {
-        this.jaxrsServiceEnhancer = jaxrsServiceEnhancer;
+    public void setJaxrsServiceEnhancerObjectFactory(
+            ObjectFactory<JAXRSOpenLServiceEnhancer> jaxrsServiceEnhancerObjectFactory) {
+        this.jaxrsServiceEnhancerObjectFactory = jaxrsServiceEnhancerObjectFactory;
     }
 
     @Override
@@ -136,7 +137,8 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
                 svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
             }
 
-            Object proxyServiceBean = getJaxrsServiceEnhancer().decorateServiceBean(service);
+            JAXRSOpenLServiceEnhancer jaxrsOpenLServiceEnhancer = getJaxrsServiceEnhancerObjectFactory().getObject();
+            Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service);
             Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0]; // The first is a decorated
             // interface
 
@@ -205,7 +207,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         Server server = runningServices.get(service);
         if (server == null) {
             throw new RuleServiceUndeployException(
-                    String.format("There is no running service with name '%s'.", service.getName()));
+                String.format("There is no running service with name '%s'.", service.getName()));
         }
         try {
             SwaggerStaticFieldsWorkaround.reset();
@@ -213,7 +215,8 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             runningServices.remove(service);
             log.info("Service '{}' has been undeployed succesfully.", service.getName());
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()), t);
+            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()),
+                t);
         }
     }
 

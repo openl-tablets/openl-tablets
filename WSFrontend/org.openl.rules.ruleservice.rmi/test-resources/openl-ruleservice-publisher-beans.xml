@@ -8,7 +8,7 @@
 	<bean id="ruleServiceManager" class="org.openl.rules.ruleservice.publish.RuleServiceManagerImpl">
 		<property name="supportedPublishers">
 			<map>
-				<entry key="RMI" value-ref="RMIServicesRuleServicePublisher"/>
+				<entry key="RMI" value-ref="rmiServicesRuleServicePublisher"/>
 			</map>
 		</property>
 	</bean>
