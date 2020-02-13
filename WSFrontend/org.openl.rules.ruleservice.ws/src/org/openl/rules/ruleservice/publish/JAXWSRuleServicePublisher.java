@@ -40,7 +40,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
     private boolean storeLogDataEnabled = false;
 
     @Autowired
-    private ObjectFactory<JAXWSOpenLServiceEnhancer> jaxwsOpenLServiceEnhancerObjectFactory;
+    private ObjectFactory<JAXWSOpenLServiceEnhancer> serviceEnhancerObjectFactory;
 
     @Autowired
     @Qualifier("jaxwsServiceServerPrototype")
@@ -86,13 +86,13 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
         return new AegisObjectSerializer((AegisDatabinding) svrFactory.getDataBinding());
     }
 
-    public ObjectFactory<JAXWSOpenLServiceEnhancer> getJaxwsOpenLServiceEnhancerObjectFactory() {
-        return jaxwsOpenLServiceEnhancerObjectFactory;
+    public ObjectFactory<JAXWSOpenLServiceEnhancer> getServiceEnhancerObjectFactory() {
+        return serviceEnhancerObjectFactory;
     }
 
-    public void setJaxwsOpenLServiceEnhancerObjectFactory(
-            ObjectFactory<JAXWSOpenLServiceEnhancer> jaxwsOpenLServiceEnhancerObjectFactory) {
-        this.jaxwsOpenLServiceEnhancerObjectFactory = jaxwsOpenLServiceEnhancerObjectFactory;
+    public void setServiceEnhancerObjectFactory(
+            ObjectFactory<JAXWSOpenLServiceEnhancer> serviceEnhancerObjectFactory) {
+        this.serviceEnhancerObjectFactory = serviceEnhancerObjectFactory;
     }
 
     @Override
@@ -106,7 +106,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
             try {
                 String serviceAddress = getBaseAddress() + URLHelper.processURL(service.getUrl());
                 svrFactory.setAddress(serviceAddress);
-                JAXWSOpenLServiceEnhancer jaxwsOpenLServiceEnhancer = getJaxwsOpenLServiceEnhancerObjectFactory()
+                JAXWSOpenLServiceEnhancer jaxwsOpenLServiceEnhancer = getServiceEnhancerObjectFactory()
                     .getObject();
                 Class<?> serviceClass = jaxwsOpenLServiceEnhancer.decorateServiceInterface(service);
                 svrFactory.setServiceClass(serviceClass);

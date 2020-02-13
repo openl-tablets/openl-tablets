@@ -46,7 +46,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     private boolean swaggerPrettyPrint = false;
 
     @Autowired
-    private ObjectFactory<JAXRSOpenLServiceEnhancer> jaxrsServiceEnhancerObjectFactory;
+    private ObjectFactory<JAXRSOpenLServiceEnhancer> serviceEnhancerObjectFactory;
 
     @Autowired
     @Qualifier("jaxrsServiceServerPrototype")
@@ -97,13 +97,13 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         return swaggerPrettyPrint;
     }
 
-    public ObjectFactory<JAXRSOpenLServiceEnhancer> getJaxrsServiceEnhancerObjectFactory() {
-        return jaxrsServiceEnhancerObjectFactory;
+    public ObjectFactory<JAXRSOpenLServiceEnhancer> getServiceEnhancerObjectFactory() {
+        return serviceEnhancerObjectFactory;
     }
 
-    public void setJaxrsServiceEnhancerObjectFactory(
-            ObjectFactory<JAXRSOpenLServiceEnhancer> jaxrsServiceEnhancerObjectFactory) {
-        this.jaxrsServiceEnhancerObjectFactory = jaxrsServiceEnhancerObjectFactory;
+    public void setServiceEnhancerObjectFactory(
+            ObjectFactory<JAXRSOpenLServiceEnhancer> serviceEnhancerObjectFactory) {
+        this.serviceEnhancerObjectFactory = serviceEnhancerObjectFactory;
     }
 
     @Override
@@ -137,7 +137,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
                 svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
             }
 
-            JAXRSOpenLServiceEnhancer jaxrsOpenLServiceEnhancer = getJaxrsServiceEnhancerObjectFactory().getObject();
+            JAXRSOpenLServiceEnhancer jaxrsOpenLServiceEnhancer = getServiceEnhancerObjectFactory().getObject();
             Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service);
             Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0]; // The first is a decorated
             // interface
