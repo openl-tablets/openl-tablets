@@ -38,15 +38,13 @@ public class DiffService {
     public Response compareXls(@Context UriInfo uriInfo,
             @Multipart(value = "file1", required = false) InputStream file1,
             @Multipart(value = "file2", required = false) InputStream file2,
-            @Multipart(value = "commit1", required = false) String commit1,
-            @Multipart(value = "commit1", required = false) String commit2,
             @Multipart(value = "fileName") String fileName) {
         try {
             String requestId = UUID.randomUUID().toString();
 
             File excelFile1 = createTempFile(file1, "file1");
             File excelFile2 = createTempFile(file2, "file2");
-            diffManager.add(requestId, new ShowDiffController(excelFile1, excelFile2, commit1, commit2, fileName));
+            diffManager.add(requestId, new ShowDiffController(excelFile1, excelFile2, fileName));
 
             String root = uriInfo.getBaseUri().toString();
             if (root.endsWith("/web") || root.endsWith("/rest")) {

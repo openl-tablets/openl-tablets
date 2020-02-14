@@ -116,11 +116,23 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
         if (CollectionUtils.isEmpty(sp)) {
             sp = defaultRuleServicePublishers;
         }
-        Collection<RuleServicePublisher> publishers = sp.stream()
-            .map(supportedPublishers::get)
-            .collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(publishers)) {
-            publishers = supportedPublishers.values();
+        Collection<RuleServicePublisher> publishers = new ArrayList<>();
+        if (supportedPublishers.size() > 1) {
+            for (String p : sp) {
+                RuleServicePublisher ruleServicePublisher = supportedPublishers.get(p);
+                if (ruleServicePublisher != null) {
+                    publishers.add(ruleServicePublisher);
+                } else {
+                    log.warn("Publisher for '{}' is registered. Please, validate your configuration for service '{}'.",
+                        p,
+                        service.getName());
+                }
+            }
+            if (publishers.isEmpty()) {
+                publishers.addAll(supportedPublishers.values());
+            }
+        } else {
+            publishers.addAll(supportedPublishers.values());
         }
         RuleServiceDeployException e1 = null;
         List<RuleServicePublisher> deployedPublishers = new ArrayList<>();
@@ -139,12 +151,10 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
         services.put(serviceName, service);
         if (e1 != null) {
             for (RuleServicePublisher publisher : deployedPublishers) {
-                if (publisher.getServiceByName(serviceName) != null) {
-                    try {
-                        publisher.undeploy(service);
-                    } catch (RuleServiceUndeployException e) {
-                        log.error("Failed to undeploy service '{}'.", serviceName, e);
-                    }
+                try {
+                    publisher.undeploy(service);
+                } catch (RuleServiceUndeployException e) {
+                    log.error("Failed to undeploy service '{}'.", serviceName, e);
                 }
             }
             throw new RuleServiceDeployException("Failed to deploy service.", e1);

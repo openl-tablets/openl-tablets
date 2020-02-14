@@ -1,0 +1,14 @@
+{
+    "hour": "1",
+    "runtimeContext": null,
+    "variationPack": {
+        "variations": [
+            {
+                "@class": "org.openl.rules.variation.ArgumentReplacementVariation",
+                "updatedArgumentIndex": 0,
+                "valueToSet": 2,
+                "variationID": "FOR_2"
+            }
+        ]
+    }
+}

@@ -1,0 +1,6 @@
+<rules-deploy>
+    <publishers>
+        <publisher>KAFKA</publisher>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+</rules-deploy>

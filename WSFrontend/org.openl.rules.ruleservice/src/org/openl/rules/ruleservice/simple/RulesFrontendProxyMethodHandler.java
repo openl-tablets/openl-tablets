@@ -17,7 +17,7 @@ public class RulesFrontendProxyMethodHandler implements MethodHandler {
     @Override
     public Object invoke(Object proxy, Method method, Method proceed, Object[] args) throws Throwable {
         try {
-            return rulesFrontend.execute(serviceName, method.getName(), args);
+            return rulesFrontend.execute(serviceName, method.getName(), method.getParameterTypes(), args);
         } catch (MethodInvocationException e) {
             if (e.getCause() instanceof RuntimeException) {
                 throw e.getCause();

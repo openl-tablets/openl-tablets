@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -844,16 +843,34 @@ public class RunStoreLogDataITest {
             }, equalTo(true));
     }
 
+    private interface Procedure {
+        void invoke();
+    }
+
+    private static void doQuite(Procedure procedure) {
+        try {
+            procedure.invoke();
+        } catch (RuntimeException ignore) {
+        }
+    }
+
     @AfterClass
     public static void tearDown() throws Exception {
-        // Thread.sleep(Long.MAX_VALUE);
         server.stop();
-        // close runner
-        elasticRunner.close();
-        // delete all files
-        elasticRunner.clean();
-        EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
-        cluster.stop();
+        doQuite(() -> {
+            // close runner
+            elasticRunner.close();
+        });
+        doQuite(() -> {
+            // delete all files
+            elasticRunner.clean();
+        });
+        doQuite(() -> {
+            EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
+        });
+        doQuite(() -> {
+            cluster.stop();
+        });
     }
 
 }
