@@ -33,6 +33,11 @@ public class RunWebservicesITest {
     }
 
     @Test
+    public void testSimple1_invoke_with_Variations() {
+        client.post("/REST/deployment1/simple1/test1", "/simple1_invoke_test.req.json", "/simple1_invoke_test.resp.json");
+    }
+
+    @Test
     public void testWadlSchemaSimple2() {
         client.get("/REST/deployment2/simple2?_wadl", "/simple2_wadl.resp.xml");
     }
