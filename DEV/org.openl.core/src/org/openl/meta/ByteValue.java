@@ -33,12 +33,18 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
 
     public static class ByteValueAdapter extends XmlAdapter<Byte, ByteValue> {
         @Override
-        public ByteValue unmarshal(Byte val) throws Exception {
+        public ByteValue unmarshal(Byte val) {
+            if (val == null) {
+                return null;
+            }
             return new ByteValue(val);
         }
 
         @Override
-        public Byte marshal(ByteValue val) throws Exception {
+        public Byte marshal(ByteValue val) {
+            if (val == null) {
+                return null;
+            }
             return val.getValue();
         }
     }

@@ -33,12 +33,18 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
 
     public static class IntValueAdapter extends XmlAdapter<Integer, IntValue> {
         @Override
-        public IntValue unmarshal(Integer val) throws Exception {
+        public IntValue unmarshal(Integer val) {
+            if (val == null) {
+                return null;
+            }
             return new IntValue(val);
         }
 
         @Override
-        public Integer marshal(IntValue val) throws Exception {
+        public Integer marshal(IntValue val) {
+            if (val == null) {
+                return null;
+            }
             return val.getValue();
         }
     }

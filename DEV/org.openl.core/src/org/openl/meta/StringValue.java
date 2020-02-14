@@ -20,17 +20,23 @@ import org.slf4j.LoggerFactory;
 @XmlJavaTypeAdapter(StringValueAdapter.class)
 public class StringValue implements IMetaHolder, CharSequence, Comparable<StringValue> {
     private final Logger log = LoggerFactory.getLogger(StringValue.class);
-    private ValueMetaInfo metaInfo;
+    private transient ValueMetaInfo metaInfo;
     private final String value;
 
     public static class StringValueAdapter extends XmlAdapter<String, StringValue> {
         @Override
-        public StringValue unmarshal(String val) throws Exception {
+        public StringValue unmarshal(String val) {
+            if (val == null) {
+                return null;
+            }
             return new StringValue(val);
         }
 
         @Override
-        public String marshal(StringValue val) throws Exception {
+        public String marshal(StringValue val) {
+            if (val == null) {
+                return null;
+            }
             return val.getValue();
         }
     }

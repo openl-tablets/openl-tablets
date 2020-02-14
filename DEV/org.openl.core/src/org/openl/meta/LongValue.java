@@ -34,12 +34,18 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
 
     public static class LongValueAdapter extends XmlAdapter<Long, LongValue> {
         @Override
-        public LongValue unmarshal(Long val) throws Exception {
+        public LongValue unmarshal(Long val) {
+            if (val == null) {
+                return null;
+            }
             return new LongValue(val);
         }
 
         @Override
-        public Long marshal(LongValue val) throws Exception {
+        public Long marshal(LongValue val) {
+            if (val == null) {
+                return null;
+            }
             return val.getValue();
         }
     }

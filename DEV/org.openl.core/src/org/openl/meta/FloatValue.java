@@ -34,12 +34,18 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
     public static class FloatValueAdapter extends XmlAdapter<Float, FloatValue> {
         @Override
-        public FloatValue unmarshal(Float val) throws Exception {
+        public FloatValue unmarshal(Float val) {
+            if (val == null) {
+                return null;
+            }
             return new FloatValue(val);
         }
 
         @Override
-        public Float marshal(FloatValue val) throws Exception {
+        public Float marshal(FloatValue val) {
+            if (val == null) {
+                return null;
+            }
             return val.getValue();
         }
     }

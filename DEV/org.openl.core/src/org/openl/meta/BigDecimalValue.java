@@ -37,12 +37,18 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     public static class BigDecimalValueAdapter extends XmlAdapter<BigDecimal, BigDecimalValue> {
         @Override
-        public BigDecimalValue unmarshal(BigDecimal val) throws Exception {
+        public BigDecimalValue unmarshal(BigDecimal val) {
+            if (val == null) {
+                return null;
+            }
             return new BigDecimalValue(val);
         }
 
         @Override
-        public BigDecimal marshal(BigDecimalValue val) throws Exception {
+        public BigDecimal marshal(BigDecimalValue val) {
+            if (val == null) {
+                return null;
+            }
             return val.getValue();
         }
     }

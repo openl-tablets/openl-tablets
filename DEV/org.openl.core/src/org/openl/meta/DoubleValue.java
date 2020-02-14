@@ -42,11 +42,17 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     public static class DoubleValueAdapter extends XmlAdapter<Double, DoubleValue> {
         @Override
         public DoubleValue unmarshal(Double val) throws Exception {
+            if (val == null) {
+                return null;
+            }
             return new DoubleValue(val);
         }
 
         @Override
         public Double marshal(DoubleValue val) throws Exception {
+            if (val == null) {
+                return null;
+            }
             return val.doubleValue();
         }
     }

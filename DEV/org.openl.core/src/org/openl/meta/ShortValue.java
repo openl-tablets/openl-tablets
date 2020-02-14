@@ -33,12 +33,18 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
 
     public static class ShortValueAdapter extends XmlAdapter<Short, ShortValue> {
         @Override
-        public ShortValue unmarshal(Short val) throws Exception {
+        public ShortValue unmarshal(Short val) {
+            if (val == null) {
+                return null;
+            }
             return new ShortValue(val);
         }
 
         @Override
-        public Short marshal(ShortValue val) throws Exception {
+        public Short marshal(ShortValue val) {
+            if (val == null) {
+                return null;
+            }
             return val.getValue();
         }
     }

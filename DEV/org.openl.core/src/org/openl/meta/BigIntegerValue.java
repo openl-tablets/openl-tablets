@@ -36,12 +36,18 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
 
     public static class BigIntegerValueAdapter extends XmlAdapter<BigInteger, BigIntegerValue> {
         @Override
-        public BigIntegerValue unmarshal(BigInteger val) throws Exception {
+        public BigIntegerValue unmarshal(BigInteger val) {
+            if (val == null) {
+                return null;
+            }
             return new BigIntegerValue(val);
         }
 
         @Override
-        public BigInteger marshal(BigIntegerValue val) throws Exception {
+        public BigInteger marshal(BigIntegerValue val) {
+            if (val == null) {
+                return null;
+            }
             return val.getValue();
         }
     }
