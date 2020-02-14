@@ -12,10 +12,12 @@ import org.richfaces.function.RichFunction;
 public class ShowDiffController extends ExcelDiffController implements AutoCloseable {
     private final String commit1;
     private final String commit2;
+    private final String fileName;
 
-    ShowDiffController(File tempFile1, File tempFile2, String commit1, String commit2) {
+    ShowDiffController(File tempFile1, File tempFile2, String commit1, String commit2, String fileName) {
         this.commit1 = commit1;
         this.commit2 = commit2;
+        this.fileName = fileName;
         addTempFile(tempFile1);
         addTempFile(tempFile2);
         try {
@@ -55,5 +57,9 @@ public class ShowDiffController extends ExcelDiffController implements AutoClose
 
     public String getCommit2() {
         return commit2;
+    }
+
+    public String getFileName() {
+        return fileName;
     }
 }

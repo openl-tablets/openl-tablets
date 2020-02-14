@@ -60,6 +60,11 @@
                         </h:selectBooleanCheckbox>
                     </p>
 
+                    <h:panelGroup rendered="#{not empty showDiffBean.getCurrent(requestId).fileName}">
+                        <p>File name: <h:outputText value="#{showDiffBean.getCurrent(requestId).fileName}"/>
+                        </p>
+                    </h:panelGroup>
+
                     <div style="width: 100%; max-height: 250px; background: #f5f5f5; border-top: 1px solid #bbbbbb; border-bottom: 1px solid #bbbbbb;"
                          class="scrollable">
                         <rich:tree id="newTree" toggleType="client" selectionType="ajax"
@@ -79,13 +84,15 @@
                                 <td>
                                     <p>File1 fragment</p>
                                     <h:panelGroup rendered="#{not empty showDiffBean.getCurrent(requestId).commit1}">
-                                        <p>Commit: <h:outputText value="#{showDiffBean.getCurrent(requestId).commit1}"/></p>
+                                        <p>Commit: <h:outputText value="#{showDiffBean.getCurrent(requestId).commit1}"/>
+                                        </p>
                                     </h:panelGroup>
                                 </td>
                                 <td>
                                     <p>File2 fragment</p>
                                     <h:panelGroup rendered="#{not empty showDiffBean.getCurrent(requestId).commit2}">
-                                        <p>Commit: <h:outputText value="#{showDiffBean.getCurrent(requestId).commit2}"/></p>
+                                        <p>Commit: <h:outputText value="#{showDiffBean.getCurrent(requestId).commit2}"/>
+                                        </p>
                                     </h:panelGroup>
                                 </td>
                             </tr>
@@ -93,17 +100,17 @@
                                 <td valign="top">
                                     <a4j:outputPanel ajaxRendered="true">
                                         <rules:tableEditor
-                                                           table="#{showDiffBean.getCurrent(requestId).table1}"
-                                                           editable="false"
-                                                           filters="#{showDiffBean.getCurrent(requestId).filter1}"/>
+                                                table="#{showDiffBean.getCurrent(requestId).table1}"
+                                                editable="false"
+                                                filters="#{showDiffBean.getCurrent(requestId).filter1}"/>
                                     </a4j:outputPanel>
                                 </td>
                                 <td valign="top">
                                     <a4j:outputPanel ajaxRendered="true">
                                         <rules:tableEditor
-                                                           table="#{showDiffBean.getCurrent(requestId).table2}"
-                                                           editable="false"
-                                                           filters="#{showDiffBean.getCurrent(requestId).filter2}"/>
+                                                table="#{showDiffBean.getCurrent(requestId).table2}"
+                                                editable="false"
+                                                filters="#{showDiffBean.getCurrent(requestId).filter2}"/>
                                     </a4j:outputPanel>
                                 </td>
                             </tr>
