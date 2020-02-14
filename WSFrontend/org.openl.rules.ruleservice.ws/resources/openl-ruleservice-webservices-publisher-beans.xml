@@ -60,7 +60,6 @@
 
     <bean id="jaxwsServiceRuleServicePublisher"
           class="org.openl.rules.ruleservice.publish.JAXWSRuleServicePublisher">
-        <property name="baseAddress" value="${ruleservice.baseAddress}"/>
         <property name="storeLogDataEnabled" value="${ruleservice.store.logs.enabled}"/>
     </bean>
 </beans>

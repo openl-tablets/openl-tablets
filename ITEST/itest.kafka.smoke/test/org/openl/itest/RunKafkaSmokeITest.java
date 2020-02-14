@@ -10,6 +10,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 
@@ -24,6 +25,7 @@ import net.mguenther.kafka.junit.TopicConfig;
 public class RunKafkaSmokeITest {
     private static JettyServer server;
     private static EmbeddedKafkaCluster cluster;
+    private static HttpClient client;
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -34,6 +36,12 @@ public class RunKafkaSmokeITest {
         cluster.start();
 
         server = JettyServer.start();
+        client = server.client();
+    }
+
+    @Test
+    public void testRest() {
+        client.post("simple1/Hello", "/simple1.req.json", "/simple1.resp.txt");
     }
 
     @Test

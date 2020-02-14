@@ -36,7 +36,6 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
     private final Logger log = LoggerFactory.getLogger(JAXWSRuleServicePublisher.class);
 
     private Map<OpenLService, ServiceServer> runningServices = new HashMap<>();
-    private String baseAddress;
     private boolean storeLogDataEnabled = false;
 
     @Autowired
@@ -55,14 +54,6 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
 
     public void setStoreLogDataEnabled(boolean storeLogDataEnabled) {
         this.storeLogDataEnabled = storeLogDataEnabled;
-    }
-
-    public String getBaseAddress() {
-        return baseAddress;
-    }
-
-    public void setBaseAddress(String address) {
-        this.baseAddress = address;
     }
 
     public ObjectFactory<ServerFactoryBean> getServerFactoryBeanObjectFactory() {
@@ -90,8 +81,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
         return serviceEnhancerObjectFactory;
     }
 
-    public void setServiceEnhancerObjectFactory(
-            ObjectFactory<JAXWSOpenLServiceEnhancer> serviceEnhancerObjectFactory) {
+    public void setServiceEnhancerObjectFactory(ObjectFactory<JAXWSOpenLServiceEnhancer> serviceEnhancerObjectFactory) {
         this.serviceEnhancerObjectFactory = serviceEnhancerObjectFactory;
     }
 
@@ -104,10 +94,9 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
             ServerFactoryBean svrFactory = getServerFactoryBeanObjectFactory().getObject();
             ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
             try {
-                String serviceAddress = getBaseAddress() + URLHelper.processURL(service.getUrl());
+                String serviceAddress = "/" + URLHelper.processURL(service.getUrl());
                 svrFactory.setAddress(serviceAddress);
-                JAXWSOpenLServiceEnhancer jaxwsOpenLServiceEnhancer = getServiceEnhancerObjectFactory()
-                    .getObject();
+                JAXWSOpenLServiceEnhancer jaxwsOpenLServiceEnhancer = getServiceEnhancerObjectFactory().getObject();
                 Class<?> serviceClass = jaxwsOpenLServiceEnhancer.decorateServiceInterface(service);
                 svrFactory.setServiceClass(serviceClass);
                 Class<?> proxyInterface = service.getServiceClass();

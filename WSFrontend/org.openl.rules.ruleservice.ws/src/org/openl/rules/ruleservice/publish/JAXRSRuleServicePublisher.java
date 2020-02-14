@@ -41,7 +41,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     private final Logger log = LoggerFactory.getLogger(JAXRSRuleServicePublisher.class);
 
     private Map<OpenLService, Server> runningServices = new HashMap<>();
-    private String baseAddress;
     private boolean storeLogDataEnabled = false;
     private boolean swaggerPrettyPrint = false;
 
@@ -61,14 +60,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
     public void setStoreLogDataEnabled(boolean storeLogDataEnabled) {
         this.storeLogDataEnabled = storeLogDataEnabled;
-    }
-
-    public String getBaseAddress() {
-        return baseAddress;
-    }
-
-    public void setBaseAddress(String baseAddress) {
-        this.baseAddress = baseAddress;
     }
 
     public ObjectFactory<JAXRSServerFactoryBean> getServerFactoryBeanObjectFactory() {
@@ -113,12 +104,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
             JAXRSServerFactoryBean svrFactory = getServerFactoryBeanObjectFactory().getObject();
-            String url = URLHelper.processURL(service.getUrl());
-            if (service.getPublishers().size() != 1) {
-                url = getBaseAddress() + REST_PREFIX + url;
-            } else {
-                url = getBaseAddress() + url;
-            }
+            String url = "/" + getUrl(service);
             svrFactory.setAddress(url);
             if (isStoreLogDataEnabled()) {
                 svrFactory.getFeatures().add(getStoreLoggingFeatureObjectFactory().getObject());
@@ -223,7 +209,14 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     @Override
     public String getUrl(OpenLService service) {
         String url = URLHelper.processURL(service.getUrl());
-        if (service.getPublishers().size() != 1) {
+        int numOfServicesWithUrls = service.getPublishers().size();
+        if (service.getPublishers().contains(RulesDeploy.PublisherType.KAFKA.toString())) {
+            numOfServicesWithUrls--;
+        }
+        if (service.getPublishers().contains(RulesDeploy.PublisherType.RMI.toString())) {
+            numOfServicesWithUrls--;
+        }
+        if (numOfServicesWithUrls != 1) {
             url = REST_PREFIX + url;
         }
         return url;

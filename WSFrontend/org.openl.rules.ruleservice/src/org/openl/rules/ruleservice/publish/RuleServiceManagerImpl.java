@@ -50,10 +50,11 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
 
     @Override
     public Collection<ServiceInfo> getServicesInfo() {
-        return services.values().stream()
-                .map(s -> new ServiceInfo(startDates.get(s.getName()), s.getName(), getUrls(s), s.getServicePath()))
-                .sorted(Comparator.comparing(ServiceInfo::getName, String.CASE_INSENSITIVE_ORDER))
-                .collect(Collectors.toList());
+        return services.values()
+            .stream()
+            .map(s -> new ServiceInfo(startDates.get(s.getName()), s.getName(), getUrls(s), s.getServicePath()))
+            .sorted(Comparator.comparing(ServiceInfo::getName, String.CASE_INSENSITIVE_ORDER))
+            .collect(Collectors.toList());
     }
 
     private Map<String, String> getUrls(OpenLService service) {
@@ -124,16 +125,14 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
         RuleServiceDeployException e1 = null;
         List<RuleServicePublisher> deployedPublishers = new ArrayList<>();
         for (RuleServicePublisher publisher : publishers) {
-            if (publisher.getServiceByName(serviceName) == null) {
-                try {
-                    publisher.deploy(service);
-                    deployedPublishers.add(publisher);
-                } catch (RuleServiceDeployException e) {
-                    Throwable rootCause = ExceptionUtils.getRootCause(e);
-                    service.setException(rootCause);
-                    e1 = e;
-                    break;
-                }
+            try {
+                publisher.deploy(service);
+                deployedPublishers.add(publisher);
+            } catch (RuleServiceDeployException e) {
+                Throwable rootCause = ExceptionUtils.getRootCause(e);
+                service.setException(rootCause);
+                e1 = e;
+                break;
             }
         }
         startDates.put(serviceName, new Date());

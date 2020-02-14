@@ -3,6 +3,8 @@
     <isProvideVariations>false</isProvideVariations>
     <serviceName>simple1</serviceName>
     <publishers>
-        <publisher>kafka</publisher>
+        <publisher>KAFKA</publisher>
+        <publisher>RESTFUL</publisher>
     </publishers>
+    <url>simple1</url>
 </rules-deploy>
