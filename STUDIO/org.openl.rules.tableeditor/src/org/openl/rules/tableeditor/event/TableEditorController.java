@@ -3,6 +3,10 @@ package org.openl.rules.tableeditor.event;
 import java.io.IOException;
 import java.util.Date;
 
+import javax.el.ELContext;
+import javax.el.MethodExpression;
+import javax.faces.context.FacesContext;
+
 import org.apache.poi.ss.formula.FormulaParseException;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -30,10 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
-
-import javax.el.ELContext;
-import javax.el.MethodExpression;
-import javax.faces.context.FacesContext;
 
 /**
  * Table editor controller.
@@ -65,6 +65,10 @@ public class TableEditorController extends BaseTableEditorController {
             .createMethodExpression(elContext, expressionString, null, paramTypes == null ? new Class[0] : paramTypes);
         return methodExpression.invoke(
             FacesContext.getCurrentInstance().getELContext(), params == null ? new Object[0] : params);
+    }
+
+    public void startEditing() {
+        startEditing(getEditorId());
     }
 
     public String insertRowBefore() {
