@@ -16,6 +16,7 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
 import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancer;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdviceListener;
@@ -69,7 +70,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         try {
             Thread.currentThread().setContextClassLoader(serviceClassLoader);
             Object serviceTarget = resolveInterfaceAndClassLoader(service, serviceDescription, instantiationStrategy);
-            resolveRmiInterface(service);
+            if (service.getPublishers().contains(RulesDeploy.PublisherType.RMI.toString())) {
+                resolveRmiInterface(service);
+            }
             instantiateServiceBean(service, serviceTarget, service.getClassLoader());
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);

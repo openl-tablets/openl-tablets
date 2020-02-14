@@ -2,7 +2,9 @@
 	<isProvideRuntimeContext>false</isProvideRuntimeContext>
 	<isProvideVariations>false</isProvideVariations>
 	<serviceName>staticRmiHandlerTest</serviceName>
-
+	<publishers>
+		<publisher>RMI</publisher>
+	</publishers>
 	<rmiServiceClass>org.openl.rules.ruleservice.publish.StaticRmiHandler</rmiServiceClass>
 	<url>staticRmiHandler</url>
 </rules-deploy>
