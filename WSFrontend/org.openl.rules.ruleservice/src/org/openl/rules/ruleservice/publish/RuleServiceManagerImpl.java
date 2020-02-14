@@ -118,6 +118,7 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
         }
         Collection<RuleServicePublisher> publishers = sp.stream()
             .map(supportedPublishers::get)
+            .filter(Objects::nonNull)
             .collect(Collectors.toList());
         if (CollectionUtils.isEmpty(publishers)) {
             publishers = supportedPublishers.values();
@@ -139,12 +140,10 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
         services.put(serviceName, service);
         if (e1 != null) {
             for (RuleServicePublisher publisher : deployedPublishers) {
-                if (publisher.getServiceByName(serviceName) != null) {
-                    try {
-                        publisher.undeploy(service);
-                    } catch (RuleServiceUndeployException e) {
-                        log.error("Failed to undeploy service '{}'.", serviceName, e);
-                    }
+                try {
+                    publisher.undeploy(service);
+                } catch (RuleServiceUndeployException e) {
+                    log.error("Failed to undeploy service '{}'.", serviceName, e);
                 }
             }
             throw new RuleServiceDeployException("Failed to deploy service.", e1);
