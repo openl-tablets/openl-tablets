@@ -562,7 +562,7 @@ public class RunStoreLogDataITest {
                     .indexExists(customElasticIndexName3) && !elasticRunner.indexExists(customElasticIndexName4);
         }, equalTo(true));
 
-        client.post("/REST/deployment4/simple4/Hello", "/simple4_Hello.req.json", "/simple4_Hello.resp.txt");
+        client.post("/deployment4/simple4/Hello", "/simple4_Hello.req.json", "/simple4_Hello.resp.txt");
 
         given().ignoreException(InvalidQueryException.class)
             .await()
@@ -704,7 +704,7 @@ public class RunStoreLogDataITest {
             return !elasticRunner.indexExists(customElasticIndexName1);
         }, equalTo(true));
 
-        client.post("/REST/deployment4/simple4/Hello2", "/simple4_Hello2.req.json", "/simple4_Hello2.resp.txt");
+        client.post("/deployment4/simple4/Hello2", "/simple4_Hello2.req.json", "/simple4_Hello2.resp.txt");
 
         given().ignoreException(InvalidQueryException.class)
             .await()
