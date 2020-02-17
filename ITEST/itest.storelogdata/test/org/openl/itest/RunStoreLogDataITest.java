@@ -6,6 +6,7 @@ import static org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner.newCo
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner;
 import org.elasticsearch.action.ActionFuture;
@@ -59,7 +61,7 @@ import net.mguenther.kafka.junit.ObserveKeyValues;
 import net.mguenther.kafka.junit.SendKeyValues;
 
 public class RunStoreLogDataITest {
-    // private static final int TIMEOUT = Integer.MAX_VALUE;
+    private static Logger log = Logger.getLogger(RunStoreLogDataITest.class);
 
     public static final int POLL_INTERVAL_IN_MILLISECONDS = 500;
     private static final int AWAIT_TIMEOUT = 60;
@@ -850,7 +852,8 @@ public class RunStoreLogDataITest {
     private static void doQuite(Procedure procedure) {
         try {
             procedure.invoke();
-        } catch (RuntimeException ignore) {
+        } catch (RuntimeException e) {
+            log.warn(e);
         }
     }
 
@@ -859,7 +862,11 @@ public class RunStoreLogDataITest {
         server.stop();
         doQuite(() -> {
             // close runner
-            elasticRunner.close();
+            try {
+                elasticRunner.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
         doQuite(() -> {
             // delete all files
