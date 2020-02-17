@@ -37,7 +37,7 @@
     <c:set var="closeMessage" value="Close the project and make it unavailable in Rules editor" />
     <c:set var="unlockMessage" value="Unlock the project and make it available for editing" />
     <c:set var="saveMessage" value="Save the project changes in Design Repository as a new revision and make it available for editing to other users" />
-    <c:set var="mergeMessage" value="Merge branches" />
+    <c:set var="mergeMessage" value="Synchronize changes" />
     <c:set var="copyMessage" value="Create a new project in Design Repository with a different project name but the same content " />
 
     <h:panelGroup rendered="#{node.type != 'deployment'}">
@@ -85,7 +85,7 @@
         </h:panelGroup>
 
         <h:commandButton  id="saveId1" rendered="#{repositoryTreeState.canSaveProject and !repositoryTreeState.localOnly}" value="Save" onclick="openSaveDialog();return false;" title="#{saveMessage}"/>
-        <h:commandButton rendered="#{repositoryTreeState.canMerge}" value="Merge" title="#{mergeMessage}" onclick="openMergeBranchesDialog('#{node.name}'); return false;"/>
+        <h:commandButton rendered="#{repositoryTreeState.canMerge}" value="Sync" title="#{mergeMessage}" onclick="openMergeBranchesDialog('#{node.name}'); return false;"/>
 
         <h:commandButton id="copyId1" rendered="#{repositoryTreeState.canCreate}" value="Copy" onclick="openCopyProjectDialog('#{artefact.name}', function() {location.href = location.href;});return false;" title="#{copyMessage}"/>
         <h:commandButton id="deleteId2" rendered="#{repositoryTreeState.canDelete}" value="Delete" onclick="#{rich:component('modalDeleteNode')}.show();return false;" title="#{deleteMessage}"/>

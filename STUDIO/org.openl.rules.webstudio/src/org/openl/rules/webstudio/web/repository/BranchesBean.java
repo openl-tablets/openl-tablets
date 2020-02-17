@@ -35,8 +35,7 @@ public class BranchesBean {
 
     private String currentBranch;
 
-    private String branchToMergeFrom;
-    private String branchToMergeTo;
+    private String branchToMerge;
 
     public String getCurrentProjectName() {
         return currentProjectName;
@@ -81,7 +80,9 @@ public class BranchesBean {
 
                     List<SelectItem> projectBranchesList = new ArrayList<>();
                     for (String projectBranch : projectBranches) {
-                        projectBranchesList.add(new SelectItem(projectBranch, projectBranch));
+                        if (!projectBranch.equals(currentBranch)) {
+                            projectBranchesList.add(new SelectItem(projectBranch, projectBranch));
+                        }
                     }
                     if (!projectBranchesList.isEmpty()) {
                         SelectItemGroup projectBranchesGroup = new SelectItemGroup("Project branches");
@@ -91,7 +92,7 @@ public class BranchesBean {
 
                     List<SelectItem> otherBranchesList = new ArrayList<>();
                     for (String b : ((BranchRepository) repository).getBranches(null)) {
-                        if (!projectBranches.contains(b)) {
+                        if (!b.equals(currentBranch) && !projectBranches.contains(b)) {
                             otherBranchesList.add(new SelectItem(b, b));
                         }
                     }
@@ -110,13 +111,15 @@ public class BranchesBean {
         return result;
     }
 
-    public void swapBranches() {
-        String temp = branchToMergeFrom;
-        branchToMergeFrom = branchToMergeTo;
-        branchToMergeTo = temp;
+    public void mergeImport() {
+        merge(branchToMerge, currentBranch);
     }
 
-    public void merge() {
+    public void mergeExport() {
+        merge(currentBranch, branchToMerge);
+    }
+
+    private void merge(String branchToMergeFrom, String branchToMergeTo) {
         try {
             if (branchToMergeFrom == null || branchToMergeTo == null) {
                 WebStudioUtils.addErrorMessage("Choose the branches to merge.");
@@ -201,8 +204,6 @@ public class BranchesBean {
             if (project != null) {
                 branches = getBranches(project);
                 currentBranch = project.getBranch();
-                branchToMergeFrom = null;
-                branchToMergeTo = currentBranch;
             } else {
                 currentBranch = null;
             }
@@ -215,20 +216,12 @@ public class BranchesBean {
         return currentBranch;
     }
 
-    public String getBranchToMergeFrom() {
-        return branchToMergeFrom;
+    public String getBranchToMerge() {
+        return branchToMerge;
     }
 
-    public void setBranchToMergeFrom(String branchToMergeFrom) {
-        this.branchToMergeFrom = branchToMergeFrom;
-    }
-
-    public String getBranchToMergeTo() {
-        return branchToMergeTo;
-    }
-
-    public void setBranchToMergeTo(String branchToMergeTo) {
-        this.branchToMergeTo = branchToMergeTo;
+    public void setBranchToMerge(String branchToMerge) {
+        this.branchToMerge = branchToMerge;
     }
 
     private List<String> getBranches(RulesProject project) {
