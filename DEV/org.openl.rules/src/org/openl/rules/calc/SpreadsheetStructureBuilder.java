@@ -146,6 +146,7 @@ public class SpreadsheetStructureBuilder {
                     int column = cell.getColumnIndex();
                     if (row == rowIndex && columnIndex == column) {
                         found = true;
+                        break;
                     }
                 }
                 if (!found) {
@@ -329,12 +330,12 @@ public class SpreadsheetStructureBuilder {
         String rowName = rowDefinition.getName().getIdentifier();
 
         // create name of the field
-        String fieldname = getSpreadsheetCellFieldName(columnName, rowName);
+        String fieldName = getSpreadsheetCellFieldName(columnName, rowName);
 
         // create spreadsheet cell field
         SpreadsheetCellField field = createSpreadsheetCellField(spreadsheetType,
             spreadsheetCell,
-            fieldname,
+            fieldName,
             SpreadsheetCellRefType.ROW_AND_COLUMN);
 
         // add spreadsheet cell field to its open class

@@ -107,12 +107,11 @@ public class SpreadsheetResult implements Serializable {
                         fieldsCoordinates.put(
                             SpreadsheetStructureBuilder.getSpreadsheetCellFieldName(columnNames[j], rowNames[i]),
                             new Point(j, i));
-                        if (nonNullsRowsCount == 1) {
-                            fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + columnNames[j],
-                                new Point(j, i));
-                        }
                         if (nonNullsColumnsCount == 1) {
                             fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + rowNames[i],
+                                new Point(j, i));
+                        } else if (nonNullsRowsCount == 1) {
+                            fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + columnNames[j],
                                 new Point(j, i));
                         }
                     }
