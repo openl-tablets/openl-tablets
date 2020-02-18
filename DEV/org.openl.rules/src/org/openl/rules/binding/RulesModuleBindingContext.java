@@ -256,7 +256,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 getExternalParams()) && prebindingOpenMethodPreBinder.get().isReturnsCustomSpreadsheetResult()) {
                 throw new RecursiveSpreadsheetMethodPreBindingException();
             } else {
-                throw new IllegalStateException("Method compilaiton is failed with the circular reference to itself.");
+                throw new IllegalStateException("Method compilation is failed with the circular reference to itself.");
             }
         }
         openMethodBinders.forEach(RecursiveOpenMethodPreBinder::startPreBind);
