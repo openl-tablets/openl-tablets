@@ -12,8 +12,6 @@ import org.openl.runtime.OpenLProxyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javassist.util.proxy.MethodHandler;
-
 /**
  * Auxiliary class which enhances rule service with ability to use rule service method with rules runtime context during
  * method invocation. The class is used by engine to expose rules services as web service.
