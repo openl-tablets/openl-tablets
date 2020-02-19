@@ -75,7 +75,7 @@ public final class OpenLTest {
             TestUnitsResults testUnitsResults = (TestUnitsResults) result;
             assertEquals("Unexpected test name", "HelloTest12()", testUnitsResults.getName());
             assertTrue("Unexpected execution time", testUnitsResults.getExecutionTime() > 0);
-            assertTrue("Shoud have a context", testUnitsResults.hasContext());
+            assertTrue("Should have a context", testUnitsResults.hasContext());
             assertEquals("Unexpected number of test cases", 19, testUnitsResults.getNumberOfTestUnits());
             assertEquals("Unexpected number of failures", 11, testUnitsResults.getNumberOfFailures());
             assertEquals("Unexpected number of errors", 1, testUnitsResults.getNumberOfErrors());
@@ -94,7 +94,7 @@ public final class OpenLTest {
             TestUnitsResults testUnitsResults = (TestUnitsResults) result;
             assertEquals("Unexpected test name", "GreetingTest()", testUnitsResults.getName());
             assertTrue("Unexpected execution time", testUnitsResults.getExecutionTime() > 0);
-            assertFalse("Shoud not have a context", testUnitsResults.hasContext());
+            assertFalse("Should not have a context", testUnitsResults.hasContext());
             assertEquals("Unexpected number of test cases", 4, testUnitsResults.getNumberOfTestUnits());
             assertEquals("Unexpected number of failures", 0, testUnitsResults.getNumberOfFailures());
             assertEquals("Unexpected number of errors", 0, testUnitsResults.getNumberOfErrors());

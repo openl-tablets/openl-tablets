@@ -231,7 +231,7 @@ public class FileUtils {
         if (file.isDirectory()) {
             File[] files = file.listFiles();
             if (files == null) { // null if security restricted
-                throw new IOException("Failed to list contents of direcory: " + file);
+                throw new IOException("Failed to list contents of directory: " + file);
             }
 
             IOException exception = null;
