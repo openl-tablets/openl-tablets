@@ -1,10 +1,8 @@
 package org.openl.rules.ruleservice.core;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -24,7 +22,6 @@ import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactory;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl;
 import org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache;
-import org.openl.runtime.IEngineWrapper;
 import org.openl.runtime.OpenLASMProxy;
 import org.openl.types.IOpenClass;
 import org.slf4j.Logger;
@@ -102,24 +99,17 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         Class<?> serviceClass = service.getServiceClass();
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        List<Class> interfaces = new ArrayList<>();
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
-            ServiceInvocationAdvice serviceInvocationAdvice = new ServiceInvocationAdvice(service
-                .getOpenClass(), serviceTarget, serviceClass, classLoader, getListServiceInvocationAdviceListeners());
-            if (serviceClass.isInterface()) {
-                interfaces.add(serviceClass);
-                if (!service.isProvideRuntimeContext()) {
-                    interfaces.add(IEngineWrapper.class);
-                }
-            } else {
+            if (!serviceClass.isInterface()) {
                 // deprecated approach with wrapper: service class is not
                 // interface
                 throw new RuleServiceRuntimeException(
                     "Failed to create a proxy for service target object. Deprecated approach with wrapper: service class is not interface");
             }
-            Object proxyServiceBean = OpenLASMProxy
-                .newProxyInstance(oldClassLoader, serviceInvocationAdvice, interfaces.toArray(new Class[] {}));
+            ServiceInvocationAdvice serviceInvocationAdvice = new ServiceInvocationAdvice(service
+                    .getOpenClass(), serviceTarget, serviceClass, classLoader, getListServiceInvocationAdviceListeners());
+            Object proxyServiceBean = OpenLASMProxy.newProxyInstance(oldClassLoader, serviceInvocationAdvice, serviceClass);
             service.setServiceBean(proxyServiceBean);
         } catch (Exception t) {
             throw new RuleServiceRuntimeException("Failed to create a proxy for service target object.", t);
