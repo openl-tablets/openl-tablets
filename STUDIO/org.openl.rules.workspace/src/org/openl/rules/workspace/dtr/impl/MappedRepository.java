@@ -363,6 +363,16 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     @Override
+    public void pull(String author) throws IOException {
+        ((BranchRepository) delegate).pull(author);
+    }
+
+    @Override
+    public boolean isMergedInto(String from, String to) throws IOException {
+        return ((BranchRepository) delegate).isMergedInto(from, to);
+    }
+
+    @Override
     public String getBranch() {
         return ((BranchRepository) delegate).getBranch();
     }
@@ -414,7 +424,6 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     private Iterable<FileItem> toInternal(final Map<String, String> mapping, final Iterable<FileItem> files) {
         return new Iterable<FileItem>() {
-            @SuppressWarnings("NullableProblems")
             @Override
             public Iterator<FileItem> iterator() {
                 return new Iterator<FileItem>() {

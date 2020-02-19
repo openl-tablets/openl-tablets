@@ -1510,6 +1510,25 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
+    public void pull(String author) throws IOException {
+        Lock writeLock = repositoryLock.writeLock();
+        try {
+            log.debug("pull(author): lock");
+            writeLock.lock();
+
+            pull(null, author);
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IOException(e.getMessage(), e);
+        } finally {
+            writeLock.unlock();
+            log.debug("pull(author): unlock");
+        }
+
+    }
+
+    @Override
     public void merge(String branchFrom, String author, ConflictResolveData conflictResolveData) throws IOException {
         Lock writeLock = repositoryLock.writeLock();
         String mergeCommitId = null;
@@ -1550,6 +1569,29 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
 
         monitor.fireOnChange();
+    }
+
+    @Override
+    public boolean isMergedInto(String from, String to) throws IOException {
+        Lock readLock = repositoryLock.readLock();
+        try {
+            log.debug("isMergedInto(): lock");
+            readLock.lock();
+            Repository repository = git.getRepository();
+
+            try (RevWalk revWalk = new RevWalk(repository)) {
+                RevCommit fromCommit = revWalk.parseCommit(repository.resolve(from));
+                RevCommit toCommit = revWalk.parseCommit(repository.resolve(to));
+                return revWalk.isMergedInto(fromCommit, toCommit);
+            } catch (IOException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new IOException(e.getMessage(), e);
+            }
+        } finally {
+            readLock.unlock();
+            log.debug("isMergedInto(): unlock");
+        }
     }
 
     private void saveMultipleFiles(FileData folderData,

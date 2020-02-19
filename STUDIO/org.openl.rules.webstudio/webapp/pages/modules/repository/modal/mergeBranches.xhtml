@@ -21,29 +21,52 @@
 
                 <p>
                     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-                        <h:outputText value="Current branch:"/>
+                        <h:outputText value="Your branch:"/>
                         <h:outputText value="#{branchesBean.currentBranch}"/>
 
-                        <h:outputText value="Merge with:"/>
+                        <h:outputText value="Their branch:"/>
                         <h:selectOneMenu id="branchToMerge" value="#{branchesBean.branchToMerge}">
+                            <f:ajax event="change" render="importButton exportButton cannotImportMessage cannotExportMessage" />
                             <f:selectItems value="#{branchesBean.branchesToMerge}"/>
                         </h:selectOneMenu>
                     </h:panelGrid>
                 </p>
+
+                <ui:param name="theirBranchMerged" value="#{branchesBean.theirBranchMerged}"/>
+                <ui:param name="yourBranchMerged" value="#{branchesBean.yourBranchMerged}"/>
+                <ui:param name="confirmExportMessage" value="There were changes in \'#{branchesBean.branchToMerge}\' after you created your copy. Are you sure it won\'t impact the project and everything will work?\n'+
+'If not, please use \'Import their changes\' button and test that everything works" />
+
+                <h:panelGroup id="cannotImportMessage" layout="block">
+                    <h:outputText rendered="#{theirBranchMerged}"
+                                  value="Their branch '#{branchesBean.branchToMerge}' is already merged into '#{branchesBean.currentBranch}'. Nothing to import."
+                                  styleClass="success"/>
+                </h:panelGroup>
+                <h:panelGroup id="cannotExportMessage" layout="block">
+                    <h:outputText rendered="#{yourBranchMerged}"
+                                  value="Your branch '#{branchesBean.currentBranch}' is already merged into '#{branchesBean.branchToMerge}'. Nothing to export."
+                                  styleClass="success"/>
+                </h:panelGroup>
             </h:panelGroup>
 
             <footer>
-                <a4j:commandButton value="Import their changes"
-                                   title="Get the latest changes from the chosen branch to #{branchesBean.currentBranch}"
+
+                <a4j:commandButton id="importButton"
+                                   value="Import their changes"
+                                   title="Get the latest changes from '#{branchesBean.branchToMerge}' to '#{branchesBean.currentBranch}'"
                                    render="projectTree nodeView @form"
                                    data="#{studio.mergeConflict}"
                                    action="#{branchesBean.mergeImport}" styleClass="button-primary"
+                                   disabled="#{theirBranchMerged}"
                                    oncomplete="onMergeComplete(event.data, #{!facesContext.validationFailed});"/>
-                <a4j:commandButton value="Export your changes"
-                                   title="Apply changes from #{branchesBean.currentBranch} to chosen branch"
+                <a4j:commandButton id="exportButton"
+                                   value="Export your changes"
+                                   title="Apply changes from '#{branchesBean.currentBranch}' to '#{branchesBean.branchToMerge}'"
                                    render="projectTree nodeView @form"
                                    data="#{studio.mergeConflict}"
                                    action="#{branchesBean.mergeExport}" styleClass="button-primary"
+                                   disabled="#{yourBranchMerged}"
+                                   onclick="if (!#{theirBranchMerged}) return confirm('#{confirmExportMessage}'); else return true;"
                                    oncomplete="onMergeComplete(event.data, #{!facesContext.validationFailed});"/>
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalMergeBranches').hide();"/>
             </footer>

@@ -202,14 +202,84 @@ public class BranchesBean {
 
             RulesProject project = getProject(currentProjectName);
             if (project != null) {
+                Repository repository = project.getDesignRepository();
+                if (repository.supports().branches()) {
+                    ((BranchRepository) repository).pull(getUserWorkspace().getUser().getUserId());
+                }
                 branches = getBranches(project);
                 currentBranch = project.getBranch();
+                initBranchToMerge(currentProjectName, (BranchRepository) repository);
             } else {
                 currentBranch = null;
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    private void initBranchToMerge(String currentProjectName, BranchRepository repository) throws
+                                                                                           IOException,
+                                                                                           WorkspaceException {
+        // Try to find a parent branch based on project's branch names.
+        List<String> projectBranches = repository.getBranches(currentProjectName);
+        Collections.sort(projectBranches);
+        boolean found = false;
+        for (int i = projectBranches.size() - 1; i >= 0; i--) {
+            String branch = projectBranches.get(i);
+            if (!currentBranch.equals(branch) && currentBranch.startsWith(branch)) {
+                branchToMerge = branch;
+                found = true;
+            }
+        }
+        if (!found) {
+            // Get base branch. It can be different from project.getDesignRepository().getBranch().
+            branchToMerge = ((BranchRepository) getUserWorkspace().getDesignTimeRepository().getRepository()).getBranch();
+
+            boolean existInCombobox = false;
+            List<SelectItem> branchesToMerge = getBranchesToMerge();
+
+            comboSearch:
+            for (SelectItem item : branchesToMerge) {
+                for (SelectItem selectItem : ((SelectItemGroup) item).getSelectItems()) {
+                    if (branchesToMerge.equals(selectItem.getValue())) {
+                        existInCombobox = true;
+                        break comboSearch;
+                    }
+                }
+            }
+
+            if (!existInCombobox) {
+                // Base branch can't be selected. Use a first available branch.
+                if (!branchesToMerge.isEmpty()) {
+                    branchToMerge = (String) ((SelectItemGroup) branchesToMerge.get(0)).getSelectItems()[0].getValue();
+                }
+            }
+        }
+    }
+
+    public boolean isTheirBranchMerged() {
+        return isMergedInto(branchToMerge, currentBranch);
+    }
+
+    public boolean isYourBranchMerged() {
+        return isMergedInto(currentBranch, branchToMerge);
+    }
+
+    private boolean isMergedInto(String from, String to) {
+        try {
+            RulesProject project = getProject(currentProjectName);
+            if (project != null) {
+                Repository repository = project.getDesignRepository();
+                if (repository.supports().branches()) {
+                    return ((BranchRepository) repository).isMergedInto(from, to);
+                }
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            WebStudioUtils.addErrorMessage("Cannot determine if the branches are merged: " + e.getMessage());
+        }
+
+        return false;
     }
 
     public String getCurrentBranch() {
