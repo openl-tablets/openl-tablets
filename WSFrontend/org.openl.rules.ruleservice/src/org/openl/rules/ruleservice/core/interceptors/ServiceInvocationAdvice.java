@@ -29,13 +29,12 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallArou
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.runtime.IEngineWrapper;
+import org.openl.runtime.OpenLProxyHandler;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
-
-import javassist.util.proxy.MethodHandler;
 
 /**
  * Advice for processing method intercepting. Exception wrapping. And fix memory leaks.
@@ -44,7 +43,7 @@ import javassist.util.proxy.MethodHandler;
  *
  * @author Marat Kamalov
  */
-public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
+public final class ServiceInvocationAdvice implements OpenLProxyHandler, Ordered {
 
     private final Logger log = LoggerFactory.getLogger(ServiceInvocationAdvice.class);
 
@@ -290,7 +289,7 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
     }
 
     @Override
-    public Object invoke(Object o, Method calledMethod, Method proceed, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method calledMethod, Object[] args) throws Throwable {
         String methodName = calledMethod.getName();
         Class<?>[] parameterTypes = calledMethod.getParameterTypes();
         Method interfaceMethod = MethodUtil.getMatchingAccessibleMethod(serviceClass, methodName, parameterTypes);
@@ -373,9 +372,7 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
         }
     }
 
-    private void invokeAfterMethodInvocationOnListeners(Method interfaceMethod,
-            Object[] args,
-            Object result) {
+    private void invokeAfterMethodInvocationOnListeners(Method interfaceMethod, Object[] args, Object result) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             try {
                 listener.afterMethodInvocation(interfaceMethod, args, result, null);
@@ -385,8 +382,7 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
         }
     }
 
-    private void invokeBeforeMethodInvocationOnListeners(Method interfaceMethod,
-            Object[] args) {
+    private void invokeBeforeMethodInvocationOnListeners(Method interfaceMethod, Object[] args) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             try {
                 listener.beforeMethodInvocation(interfaceMethod, args, null, null);

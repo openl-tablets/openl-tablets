@@ -1,8 +1,6 @@
 package org.openl.runtime;
 
-import javassist.util.proxy.MethodHandler;
-
-public interface IOpenLMethodHandler<K, V> extends MethodHandler {
+public interface IOpenLMethodHandler<K, V> extends OpenLProxyHandler {
 
     Object getTarget();
 

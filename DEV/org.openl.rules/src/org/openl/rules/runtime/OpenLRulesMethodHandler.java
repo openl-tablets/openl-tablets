@@ -35,7 +35,7 @@ public class OpenLRulesMethodHandler extends OpenLMethodHandler implements IRule
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Method proceed, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (IRulesRuntimeContextProvider.class.equals(method.getDeclaringClass())) {
             return method.invoke(this, args);
         }
@@ -46,6 +46,6 @@ public class OpenLRulesMethodHandler extends OpenLMethodHandler implements IRule
                     .validateProxyArguments(((IOpenMethod) targetMethod).getSignature(), getRuntimeEnv(), args);
             }
         }
-        return super.invoke(proxy, method, proceed, args);
+        return super.invoke(proxy, method, args);
     }
 }

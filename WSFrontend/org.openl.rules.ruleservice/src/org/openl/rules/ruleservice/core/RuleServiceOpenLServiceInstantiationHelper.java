@@ -3,10 +3,9 @@ package org.openl.rules.ruleservice.core;
 import java.lang.reflect.Method;
 
 import org.openl.runtime.IOpenLMethodHandler;
+import org.openl.runtime.OpenLASMProxy;
+import org.openl.runtime.OpenLProxyHandler;
 import org.openl.types.IOpenMember;
-
-import javassist.util.proxy.MethodHandler;
-import javassist.util.proxy.ProxyObject;
 
 public final class RuleServiceOpenLServiceInstantiationHelper {
 
@@ -17,8 +16,8 @@ public final class RuleServiceOpenLServiceInstantiationHelper {
     public static final IOpenMember getOpenMember(Method method, Object serviceTarget) {
         Object t = serviceTarget;
         Object key = method;
-        while (t instanceof ProxyObject) {
-            MethodHandler invocationHandler = ((ProxyObject) t).getHandler();
+        while (OpenLASMProxy.isProxy(t)) {
+            OpenLProxyHandler invocationHandler = OpenLASMProxy.getHandler(t);
             if (invocationHandler instanceof IOpenLMethodHandler) {
                 @SuppressWarnings("unchecked")
                 IOpenLMethodHandler<Object, Object> openLInvocationHandler = (IOpenLMethodHandler<Object, Object>) invocationHandler;

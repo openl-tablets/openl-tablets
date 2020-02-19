@@ -11,7 +11,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
-import org.openl.runtime.OpenLJavaAssistProxy;
+import org.openl.runtime.OpenLASMProxy;
 
 /**
  * Utility class for generate RMI annotations for service interface.
@@ -81,7 +81,7 @@ public class RmiEnhancerHelper {
             }
         }
 
-        return (Remote) OpenLJavaAssistProxy.create(getClassLoader(service),
+        return (Remote) OpenLASMProxy.create(getClassLoader(service),
             new StaticRmiMethodHandler(targetBean, methodMap),
             new Class<?>[] { service.getRmiServiceClass() });
     }

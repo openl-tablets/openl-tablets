@@ -20,11 +20,10 @@ import org.openl.rules.variation.VariationsResult;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.runtime.IOpenLMethodHandler;
+import org.openl.runtime.OpenLASMProxy;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javassist.util.proxy.ProxyObject;
 
 /**
  * InvocationHandler for proxy that injects variations into service class.
@@ -60,7 +59,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLM
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Method proceed, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Method member = methodsMap.get(method);
         if (member == null) {
             return method.invoke(serviceClassInstance, args);
@@ -172,9 +171,9 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLM
         for (Variation variation : variationsPack.getVariations()) {
             final IRuntimeEnv runtimeEnv = parentRuntimeEnv.clone();
 
-            if (serviceClassInstance instanceof ProxyObject) {
-                final OpenLRulesMethodHandler handler = (OpenLRulesMethodHandler) ((ProxyObject) serviceClassInstance)
-                    .getHandler();
+            if (OpenLASMProxy.isProxy(serviceClassInstance)) {
+                final OpenLRulesMethodHandler handler = (OpenLRulesMethodHandler) OpenLASMProxy
+                    .getHandler(serviceClassInstance);
                 handler.setRuntimeEnv(runtimeEnv);
                 SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) runtimeEnv;
                 simpleRulesRuntimeEnv.changeMethodArgumentsCacheMode(org.openl.rules.vm.CacheMode.READ_ONLY);
@@ -220,8 +219,8 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLM
             OpenLRulesMethodHandler handler = null;
             try {
                 if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
-                    if (serviceClassInstance instanceof ProxyObject) {
-                        handler = (OpenLRulesMethodHandler) ((ProxyObject) serviceClassInstance).getHandler();
+                    if (OpenLASMProxy.isProxy(serviceClassInstance)) {
+                        handler = (OpenLRulesMethodHandler) OpenLASMProxy.getHandler(serviceClassInstance);
                         handler.setRuntimeEnv(runtimeEnv);
                     }
                     SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) runtimeEnv;

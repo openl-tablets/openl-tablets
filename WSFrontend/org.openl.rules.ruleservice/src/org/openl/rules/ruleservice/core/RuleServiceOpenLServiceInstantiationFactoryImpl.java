@@ -25,7 +25,7 @@ import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFacto
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl;
 import org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache;
 import org.openl.runtime.IEngineWrapper;
-import org.openl.runtime.OpenLJavaAssistProxy;
+import org.openl.runtime.OpenLASMProxy;
 import org.openl.types.IOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +118,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 throw new RuleServiceRuntimeException(
                     "Failed to create a proxy for service target object. Deprecated approach with wrapper: service class is not interface");
             }
-            Object proxyServiceBean = OpenLJavaAssistProxy
+            Object proxyServiceBean = OpenLASMProxy
                 .create(oldClassLoader, serviceInvocationAdvice, interfaces.toArray(new Class[] {}));
             service.setServiceBean(proxyServiceBean);
         } catch (Exception t) {

@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.runtime.OpenLProxyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +77,7 @@ public class RuntimeContextInstantiationStrategyEnhancer extends AbstractService
      * @throws Exception
      */
     @Override
-    protected MethodHandler makeMethodHandler(Object instanceObject) throws Exception {
+    protected OpenLProxyHandler makeMethodHandler(Object instanceObject) throws Exception {
         Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(),
             getOriginalInstantiationStrategy().getInstanceClass());
         return new RuntimeContextInstantiationStrategyEnhancerInvocationHandler(methodsMap, instanceObject);

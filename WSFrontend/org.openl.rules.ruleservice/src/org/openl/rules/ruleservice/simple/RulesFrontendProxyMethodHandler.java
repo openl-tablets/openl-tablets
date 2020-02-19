@@ -2,9 +2,9 @@ package org.openl.rules.ruleservice.simple;
 
 import java.lang.reflect.Method;
 
-import javassist.util.proxy.MethodHandler;
+import org.openl.runtime.OpenLProxyHandler;
 
-public class RulesFrontendProxyMethodHandler implements MethodHandler {
+public class RulesFrontendProxyMethodHandler implements OpenLProxyHandler {
 
     private RulesFrontend rulesFrontend;
     private String serviceName;
@@ -15,7 +15,7 @@ public class RulesFrontendProxyMethodHandler implements MethodHandler {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Method proceed, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
             return rulesFrontend.execute(serviceName, method.getName(), method.getParameterTypes(), args);
         } catch (MethodInvocationException e) {

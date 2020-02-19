@@ -11,6 +11,7 @@ import org.openl.rules.project.instantiation.AbstractServiceClassEnhancerInstant
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.ValidationServiceClassException;
+import org.openl.runtime.OpenLProxyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +73,7 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
      * @throws Exception
      */
     @Override
-    protected MethodHandler makeMethodHandler(Object originalInstance) throws Exception {
+    protected OpenLProxyHandler makeMethodHandler(Object originalInstance) throws Exception {
         Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(),
             getOriginalInstantiationStrategy().getInstanceClass());
         return new VariationInstantiationStrategyEnhancerInvocationHandler(methodsMap, originalInstance);

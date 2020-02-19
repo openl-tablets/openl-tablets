@@ -34,7 +34,7 @@ import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
-import org.openl.runtime.OpenLJavaAssistProxy;
+import org.openl.runtime.OpenLASMProxy;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
@@ -497,7 +497,7 @@ public final class JAXRSOpenLServiceEnhancer {
                 methodMap.put(method, targetMethod);
             }
         }
-        return OpenLJavaAssistProxy.create(classLoader,
+        return OpenLASMProxy.create(classLoader,
             new JAXRSMethodHandler(service.getServiceBean(), methodMap),
             new Class<?>[] { proxyInterface });
     }
