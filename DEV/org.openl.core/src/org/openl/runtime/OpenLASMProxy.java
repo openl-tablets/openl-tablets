@@ -19,16 +19,20 @@ import org.openl.util.ClassUtils;
 
 public final class OpenLASMProxy {
 
-    public final static AtomicInteger nameCounter = new AtomicInteger(0);
+    private final static AtomicInteger nameCounter = new AtomicInteger(0);
 
     private OpenLASMProxy() {
     }
 
-    public static Object newProxyInstance(ClassLoader classLoader,
-            OpenLProxyHandler openLProxyHandler,
-            Class<?>[] interfaces) {
-        String proxyClassName = (OpenLASMProxy.class.getName() + "$" + nameCounter.incrementAndGet()).replaceAll("\\.",
-            "/");
+    public static <T> T newProxyInstance(ClassLoader classLoader, OpenLProxyHandler handler, Class<T> proxyInterface) {
+        @SuppressWarnings("unchecked")
+        T proxyInstance = (T) newProxyInstance(classLoader, handler, new Class[] { proxyInterface });
+        return proxyInstance;
+
+    }
+
+    public static Object newProxyInstance(ClassLoader classLoader, OpenLProxyHandler handler, Class<?>... interfaces) {
+        String proxyClassName = Type.getInternalName(interfaces[0]) + "$proxy" + nameCounter.incrementAndGet();
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         List<Class<?>> listInterfaces = Arrays.stream(interfaces).collect(Collectors.toList());
         if (!listInterfaces.contains(OpenLProxy.class)) {
@@ -64,9 +68,9 @@ public final class OpenLASMProxy {
         byte[] bytes = cw.toByteArray();
         try {
             Class<?> aClass = ClassUtils.defineClass(proxyClassName.replaceAll("/", "."), bytes, classLoader);
-            return aClass.getDeclaredConstructor(OpenLProxyHandler.class).newInstance(openLProxyHandler);
+            return aClass.getDeclaredConstructor(OpenLProxyHandler.class).newInstance(handler);
         } catch (Exception e) {
-            throw new OpenlNotCheckedException("Failed to instantiate a new proxy.",e);
+            throw new OpenlNotCheckedException("Failed to instantiate a new proxy.", e);
         }
     }
 

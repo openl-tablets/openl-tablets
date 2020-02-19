@@ -15,9 +15,8 @@ public abstract class AbstractRulesFrontend implements RulesFrontend {
     public <T> T buildServiceProxy(String serviceName, Class<T> proxyInterface, ClassLoader classLoader) {
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
         Objects.requireNonNull(proxyInterface, "proxyInterface cannot be null");
-        return (T) OpenLASMProxy.newProxyInstance(classLoader,
-            new RulesFrontendProxyMethodHandler(serviceName, this),
-            new Class[] { proxyInterface });
+        return OpenLASMProxy
+            .newProxyInstance(classLoader, new RulesFrontendProxyMethodHandler(serviceName, this), proxyInterface);
 
     }
 }

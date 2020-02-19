@@ -497,8 +497,7 @@ public final class JAXRSOpenLServiceEnhancer {
                 methodMap.put(method, targetMethod);
             }
         }
-        return OpenLASMProxy.newProxyInstance(classLoader,
-            new JAXRSMethodHandler(service.getServiceBean(), methodMap),
-            new Class<?>[] { proxyInterface });
+        return OpenLASMProxy
+            .newProxyInstance(classLoader, new JAXRSMethodHandler(service.getServiceBean(), methodMap), proxyInterface);
     }
 }
