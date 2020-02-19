@@ -158,7 +158,7 @@ public class MethodNodeBinder extends ANodeBinder {
 
             // only one child, as there are 2 nodes, one of them is the function itself.
             //
-            IOpenField field = bindingContext.findFieldFor(argumentType, methodName, false);
+            IOpenField field = argumentType.getField(methodName, false);
             if (field != null) {
                 log(methodName, argumentTypes, "field access method");
                 return new FieldBoundNode(methodNode, field, children[0], dims);

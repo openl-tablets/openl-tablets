@@ -23,6 +23,7 @@ import org.openl.types.impl.MethodKey;
  *
  */
 public class BindingContext implements IBindingContext {
+    private static final Object NOT_FOUND = "NOT_FOUND";
 
     private IOpenBinder binder;
     private IOpenClass returnType;
@@ -84,15 +85,6 @@ public class BindingContext implements IBindingContext {
     public INodeBinder findBinder(ISyntaxNode node) {
         return binder.getNodeBinderFactory().getNodeBinder(node);
     }
-
-    @Override
-    public IOpenField findFieldFor(IOpenClass type,
-            String fieldName,
-            boolean strictMatch) throws AmbiguousVarException {
-        return type.getField(fieldName, strictMatch);
-    }
-
-    private static final Object NOT_FOUND = "NOT_FOUND";
 
     @Override
     public IMethodCaller findMethodCaller(String namespace,

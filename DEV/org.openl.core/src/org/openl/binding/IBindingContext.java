@@ -42,17 +42,6 @@ public interface IBindingContext extends ICastFactory {
 
     INodeBinder findBinder(ISyntaxNode node);
 
-    /**
-     * This method is implemented by default by calling type.getFiled(fieldName, strictMatch), but some context may
-     * override it to provide dynamic mapping functionality
-     *
-     * @param type
-     * @param fieldName
-     * @param strictMatch
-     * @return
-     */
-    IOpenField findFieldFor(IOpenClass type, String fieldName, boolean strictMatch) throws AmbiguousVarException;
-
     IMethodCaller findMethodCaller(String namespace,
             String name,
             IOpenClass[] parTypes) throws AmbiguousMethodException;

@@ -59,13 +59,6 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     }
 
     @Override
-    public IOpenField findFieldFor(IOpenClass type,
-            String fieldName,
-            boolean strictMatch) throws AmbiguousVarException {
-        return delegate.findFieldFor(type, fieldName, strictMatch);
-    }
-
-    @Override
     public IMethodCaller findMethodCaller(String namespace,
             String name,
             IOpenClass[] parTypes) throws AmbiguousMethodException {

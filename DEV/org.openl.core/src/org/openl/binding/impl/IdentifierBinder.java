@@ -1,7 +1,5 @@
 package org.openl.binding.impl;
 
-import java.util.Objects;
-
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.exception.OpenlNotCheckedException;
@@ -55,7 +53,7 @@ public class IdentifierBinder extends ANodeBinder {
             type = type.getComponentClass();
         }
 
-        IOpenField field = bindingContext.findFieldFor(type, fieldName, false);
+        IOpenField field = type.getField(fieldName, false);
         if (field == null) {
             throw new OpenlNotCheckedException(String.format("Field '%s' is not found in type '%s'.", fieldName, type));
         }
