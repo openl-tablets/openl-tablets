@@ -19,9 +19,9 @@ public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMemb
         this.methodMap = methodMap;
     }
 
-    public OpenLMethodHandler(Object openlInstance, IRuntimeEnv openlEnv, Map<Method, IOpenMember> methodMap) {
+    public OpenLMethodHandler(Object openlInstance, IRuntimeEnv runtimeEnv, Map<Method, IOpenMember> methodMap) {
         this(openlInstance, methodMap);
-        setRuntimeEnv(openlEnv);
+        setRuntimeEnv(runtimeEnv);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMemb
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) throws Exception {
         if (IEngineWrapper.class.equals(method.getDeclaringClass())) {
             return method.invoke(this, args);
         }

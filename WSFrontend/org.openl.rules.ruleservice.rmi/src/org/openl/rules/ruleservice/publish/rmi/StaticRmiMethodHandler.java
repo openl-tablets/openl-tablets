@@ -27,7 +27,7 @@ class StaticRmiMethodHandler implements IOpenLMethodHandler<Method, Method> {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) throws Exception {
         Method m = methodMap.get(method);
         if (m == null) {
             throw new IllegalStateException("Method is not found in methods map.");

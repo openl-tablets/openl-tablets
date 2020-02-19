@@ -240,7 +240,7 @@ public final class JAXWSOpenLServiceEnhancer {
                     service.getName()));
             }
         }
-        return OpenLASMProxy.create(service.getClassLoader(),
+        return OpenLASMProxy.newProxyInstance(service.getClassLoader(),
             new JAXWSMethodHandler(service.getServiceBean(), methodMap),
             new Class<?>[] { serviceClass });
     }

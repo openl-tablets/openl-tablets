@@ -111,7 +111,7 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
     public final Object instantiate() throws RulesInstantiationException {
         try {
             Object originalInstance = getOriginalInstantiationStrategy().instantiate();
-            return OpenLASMProxy.create(getClassLoader(), makeMethodHandler(originalInstance), getProxyInterfaces(originalInstance));
+            return OpenLASMProxy.newProxyInstance(getClassLoader(), makeMethodHandler(originalInstance), getProxyInterfaces(originalInstance));
         } catch (Exception e) {
             throw new RulesInstantiationException(e.getMessage(), e);
         }

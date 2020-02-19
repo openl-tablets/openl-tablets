@@ -14,61 +14,63 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
-import org.openl.exception.OpenLRuntimeException;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.util.ClassUtils;
 
 public final class OpenLASMProxy {
 
-    public static AtomicInteger nameCounter = new AtomicInteger(0);
+    public final static AtomicInteger nameCounter = new AtomicInteger(0);
 
     private OpenLASMProxy() {
     }
 
-    public static Object create(ClassLoader classLoader, OpenLProxyHandler openLProxyHandler, Class[] interfaces) {
-        String name = (OpenLASMProxy.class.getName() + nameCounter.incrementAndGet()).replaceAll("\\.", "/");
+    public static Object newProxyInstance(ClassLoader classLoader,
+            OpenLProxyHandler openLProxyHandler,
+            Class<?>[] interfaces) {
+        String proxyClassName = (OpenLASMProxy.class.getName() + "$" + nameCounter.incrementAndGet()).replaceAll("\\.",
+            "/");
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        List<Class> listInterfaces = Arrays.stream(interfaces).collect(Collectors.toList());
+        List<Class<?>> listInterfaces = Arrays.stream(interfaces).collect(Collectors.toList());
         if (!listInterfaces.contains(OpenLProxy.class)) {
             listInterfaces.add(OpenLProxy.class);
         }
         cw.visit(Opcodes.V1_8,
             Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER,
-            name,
+            proxyClassName,
             null,
             Type.getInternalName(Object.class),
-            listInterfaces.stream().map(i -> Type.getInternalName(i)).toArray(String[]::new));
+            listInterfaces.stream().map(Type::getInternalName).toArray(String[]::new));
         FieldVisitor fv = cw.visitField(Opcodes.ACC_PRIVATE + Opcodes.ACC_FINAL,
             "openLProxyHandler",
             "Lorg/openl/runtime/OpenLProxyHandler;",
             null,
             null);
         fv.visitEnd();
-        createConstructor(cw, name);
-        createHandlerGetter(cw, name);
+        writeConstructor(cw, proxyClassName);
+        writeHandlerGetter(cw, proxyClassName);
         Map<String, String> methodsDescriptors = new HashMap<>();
-        for (Class proxyInterface : interfaces) {
+        for (Class<?> proxyInterface : interfaces) {
             if (!proxyInterface.getName().equals(OpenLProxy.class.getName())) {
                 for (Method method : proxyInterface.getMethods()) {
                     if (!(methodsDescriptors.containsKey(method.getName()) && methodsDescriptors.get(method.getName())
                         .equals(Type.getMethodDescriptor(method)))) {
                         methodsDescriptors.put(method.getName(), Type.getMethodDescriptor(method));
-                        createMethods(cw, method, name, proxyInterface);
+                        writeMethods(cw, method, proxyClassName, proxyInterface);
                     }
                 }
             }
         }
         cw.visitEnd();
         byte[] bytes = cw.toByteArray();
-        Class<?> aClass = null;
         try {
-            aClass = ClassUtils.defineClass(name.replaceAll("/", "."), bytes, classLoader);
+            Class<?> aClass = ClassUtils.defineClass(proxyClassName.replaceAll("/", "."), bytes, classLoader);
             return aClass.getDeclaredConstructor(OpenLProxyHandler.class).newInstance(openLProxyHandler);
         } catch (Exception e) {
-            throw new OpenLRuntimeException(e);
+            throw new OpenlNotCheckedException("Failed to instantiate a new proxy.",e);
         }
     }
 
-    public static void createConstructor(ClassWriter cw, String name) {
+    private static void writeConstructor(ClassWriter cw, String name) {
         MethodVisitor mv = cw
             .visitMethod(Opcodes.ACC_PUBLIC, "<init>", "(Lorg/openl/runtime/OpenLProxyHandler;)V", null, null);
         mv.visitCode();
@@ -82,7 +84,7 @@ public final class OpenLASMProxy {
         mv.visitEnd();
     }
 
-    public static void createHandlerGetter(ClassWriter cw, String name) {
+    private static void writeHandlerGetter(ClassWriter cw, String name) {
         MethodVisitor mv = cw
             .visitMethod(Opcodes.ACC_PUBLIC, "getHandler", "()Lorg/openl/runtime/OpenLProxyHandler;", null, null);
         mv.visitCode();
@@ -93,7 +95,7 @@ public final class OpenLASMProxy {
         mv.visitEnd();
     }
 
-    public static void createMethods(ClassWriter cw, Method method, String name, Class proxyInterface) {
+    private static void writeMethods(ClassWriter cw, Method method, String name, Class proxyInterface) {
         org.objectweb.asm.commons.Method method1 = org.objectweb.asm.commons.Method.getMethod(method);
         GeneratorAdapter mv = new GeneratorAdapter(Opcodes.ACC_PUBLIC,
             method1,
@@ -132,10 +134,11 @@ public final class OpenLASMProxy {
     }
 
     public static OpenLProxyHandler getHandler(Object o) {
-        return ((OpenLProxy) o).getHandler();
-    }
-
-    public interface OpenLProxy {
-        OpenLProxyHandler getHandler();
+        if (isProxy(o)) {
+            return ((OpenLProxy) o).getHandler();
+        } else {
+            throw new IllegalArgumentException(
+                String.format("Expected an instance of '%s'", OpenLProxy.class.getTypeName()));
+        }
     }
 }

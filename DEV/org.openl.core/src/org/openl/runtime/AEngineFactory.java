@@ -37,7 +37,7 @@ public abstract class AEngineFactory {
 
         Class<?>[] proxyInterfaces = prepareInstanceInterfaces();
 
-        return OpenLASMProxy.create(classLoader, prepareMethodHandler(openClassInstance, methodMap, runtimeEnv),
+        return OpenLASMProxy.newProxyInstance(classLoader, prepareMethodHandler(openClassInstance, methodMap, runtimeEnv),
             proxyInterfaces);
     }
 

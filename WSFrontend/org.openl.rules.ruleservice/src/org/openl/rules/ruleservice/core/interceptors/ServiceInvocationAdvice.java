@@ -222,32 +222,32 @@ public final class ServiceInvocationAdvice implements OpenLProxyHandler, Ordered
         List<ServiceMethodAfterAdvice<?>> postInterceptors = afterInterceptors.get(interfaceMethod);
         if (postInterceptors != null && !postInterceptors.isEmpty()) {
             Object ret = result;
-            Exception lastOccuredException = t;
+            Exception lastOccurredException = t;
             for (ServiceMethodAfterAdvice<?> interceptor : postInterceptors) {
                 invokeBeforeServiceMethodAdviceOnListeners(interceptor,
                     interfaceMethod,
                     args,
                     ret,
-                    lastOccuredException);
+                    lastOccurredException);
                 try {
-                    if (lastOccuredException == null) {
+                    if (lastOccurredException == null) {
                         ret = interceptor.afterReturning(interfaceMethod, ret, args);
                     } else {
-                        ret = interceptor.afterThrowing(interfaceMethod, lastOccuredException, args);
+                        ret = interceptor.afterThrowing(interfaceMethod, lastOccurredException, args);
                     }
-                    lastOccuredException = null;
+                    lastOccurredException = null;
                 } catch (Exception e) {
-                    lastOccuredException = e;
+                    lastOccurredException = e;
                     ret = null;
                 }
                 invokeAfterServiceMethodAdviceOnListeners(interceptor,
                     interfaceMethod,
                     args,
                     ret,
-                    lastOccuredException);
+                    lastOccurredException);
             }
-            if (lastOccuredException != null) {
-                throw lastOccuredException;
+            if (lastOccurredException != null) {
+                throw lastOccurredException;
             } else {
                 return ret;
             }
@@ -269,7 +269,7 @@ public final class ServiceInvocationAdvice implements OpenLProxyHandler, Ordered
             try {
                 listener.afterServiceMethodAdvice(interceptor, interfaceMethod, args, ret, lastOccuredException);
             } catch (Exception e1) {
-                log.error("Exception occured.", e1);
+                log.error("Exception occurred.", e1);
             }
         }
     }
@@ -278,18 +278,18 @@ public final class ServiceInvocationAdvice implements OpenLProxyHandler, Ordered
             Method interfaceMethod,
             Object[] args,
             Object ret,
-            Exception lastOccuredException) {
+            Exception lastOccurredException) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             try {
-                listener.beforeServiceMethodAdvice(interceptor, interfaceMethod, args, ret, lastOccuredException);
+                listener.beforeServiceMethodAdvice(interceptor, interfaceMethod, args, ret, lastOccurredException);
             } catch (Exception e1) {
-                log.error("Exception occured.", e1);
+                log.error("Exception occurred.", e1);
             }
         }
     }
 
     @Override
-    public Object invoke(Object proxy, Method calledMethod, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method calledMethod, Object[] args) throws Exception {
         String methodName = calledMethod.getName();
         Class<?>[] parameterTypes = calledMethod.getParameterTypes();
         Method interfaceMethod = MethodUtil.getMatchingAccessibleMethod(serviceClass, methodName, parameterTypes);
@@ -347,11 +347,17 @@ public final class ServiceInvocationAdvice implements OpenLProxyHandler, Ordered
                 Throwable t = extractInvocationTargetException(e);
                 if (t instanceof Exception) {
                     result = afterInvocation(interfaceMethod, null, (Exception) t, args);
+                } else if (t instanceof Error) {
+                    throw (Error) t;
                 } else {
-                    throw t;
+                    throw new Exception(t);
                 }
             } catch (Exception e) {
                 result = afterInvocation(interfaceMethod, null, e, args);
+            } catch (Error e) {
+                throw e;
+            } catch (Throwable t) {
+                throw new Exception(t);
             }
             return result;
         } catch (Exception t) {

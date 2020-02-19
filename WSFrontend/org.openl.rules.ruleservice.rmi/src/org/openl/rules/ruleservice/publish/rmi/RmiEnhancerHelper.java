@@ -81,7 +81,7 @@ public class RmiEnhancerHelper {
             }
         }
 
-        return (Remote) OpenLASMProxy.create(getClassLoader(service),
+        return (Remote) OpenLASMProxy.newProxyInstance(getClassLoader(service),
             new StaticRmiMethodHandler(targetBean, methodMap),
             new Class<?>[] { service.getRmiServiceClass() });
     }

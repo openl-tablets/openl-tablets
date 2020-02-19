@@ -119,7 +119,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                     "Failed to create a proxy for service target object. Deprecated approach with wrapper: service class is not interface");
             }
             Object proxyServiceBean = OpenLASMProxy
-                .create(oldClassLoader, serviceInvocationAdvice, interfaces.toArray(new Class[] {}));
+                .newProxyInstance(oldClassLoader, serviceInvocationAdvice, interfaces.toArray(new Class[] {}));
             service.setServiceBean(proxyServiceBean);
         } catch (Exception t) {
             throw new RuleServiceRuntimeException("Failed to create a proxy for service target object.", t);
