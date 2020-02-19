@@ -21,12 +21,6 @@ public class ShowDiffBean {
         return diffManager.get(requestId);
     }
 
-    public void close(String requestId) {
-        if (StringUtils.isNotBlank(requestId)) {
-            diffManager.scheduleForRemove(requestId);
-        }
-    }
-
     public void setDiffManager(DiffManager diffManager) {
         this.diffManager = diffManager;
     }

@@ -106,22 +106,9 @@
                     </p>
 
                     <input type="hidden" name="id" value="#{requestId}"/>
-                    <a4j:jsFunction name="closeComparePage" action="#{showDiffBean.close(requestId)}"/>
                 </h:panelGroup>
             </h:panelGroup>
         </h:form>
-
-        <script>
-            //<![CDATA[
-
-            $j(function () {
-                $j(window).on('unload', function () {
-                    closeComparePage();
-                });
-            });
-
-            //]]>
-        </script>
     </ui:define>
 
 </ui:composition>

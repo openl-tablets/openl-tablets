@@ -43,25 +43,6 @@ public class DiffManager implements AutoCloseable {
         }
     }
 
-    void scheduleForRemove(String id) {
-        // Comparison can be resurrected in 10 seconds. If not resurrected in this time, remove it.
-        int timeToResurrect = 10;
-
-        // 100ms is inaccuracy because of jsf specifics: jsf invokes get() after the page was closed.
-        int inaccuracy = 100;
-        long removeTime = System.currentTimeMillis() + inaccuracy;
-        scheduledPool.schedule(() -> {
-            synchronized (diffControllers) {
-                Comparison comparison = diffControllers.get(id);
-                if (comparison != null && comparison.getAccessTime() <= removeTime) {
-                    // Not requested comparison during waiting to remove. Can clean up.
-                    diffControllers.remove(id);
-                    comparison.getController().close();
-                }
-            }
-        }, timeToResurrect, TimeUnit.SECONDS);
-    }
-
     @Override
     public void close() {
         if (scheduledPool != null) {
