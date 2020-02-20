@@ -80,7 +80,7 @@ public class ParameterExportTest {
     public void emptyParameters() throws IOException {
         export.write(sheet, mockResults());
 
-        assertEquals(0, saveAndReadSheet().getLastRowNum());
+        assertEquals(-1, saveAndReadSheet().getLastRowNum());
     }
 
     @Test

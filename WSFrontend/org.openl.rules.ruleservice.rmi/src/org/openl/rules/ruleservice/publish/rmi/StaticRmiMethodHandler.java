@@ -4,9 +4,9 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Objects;
 
-import org.openl.runtime.IOpenLMethodHandler;
+import org.openl.runtime.AbstractOpenLMethodHandler;
 
-class StaticRmiMethodHandler implements IOpenLMethodHandler<Method, Method> {
+class StaticRmiMethodHandler extends AbstractOpenLMethodHandler<Method, Method> {
 
     private Object target;
     private Map<Method, Method> methodMap;
@@ -27,7 +27,7 @@ class StaticRmiMethodHandler implements IOpenLMethodHandler<Method, Method> {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Method proceed, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) throws Exception {
         Method m = methodMap.get(method);
         if (m == null) {
             throw new IllegalStateException("Method is not found in methods map.");

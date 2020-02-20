@@ -93,7 +93,7 @@
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
         <org.apache.cxf.version>3.3.5</org.apache.cxf.version>
         <org.slf4j.version>1.7.30</org.slf4j.version>
-        <org.apache.poi.version>4.1.1</org.apache.poi.version>
+        <org.apache.poi.version>4.1.2</org.apache.poi.version>
         <org.bouncycastle.version>1.62</org.bouncycastle.version>
         <com.fasterxml.jackson.version>2.10.1</com.fasterxml.jackson.version>
         <maven.api.version>3.6.0</maven.api.version>

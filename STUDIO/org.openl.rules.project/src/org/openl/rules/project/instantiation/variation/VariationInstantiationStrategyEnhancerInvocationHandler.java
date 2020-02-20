@@ -18,13 +18,12 @@ import org.openl.rules.variation.Variation;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
+import org.openl.runtime.ASMProxyFactory;
+import org.openl.runtime.AbstractOpenLMethodHandler;
 import org.openl.runtime.IEngineWrapper;
-import org.openl.runtime.IOpenLMethodHandler;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javassist.util.proxy.ProxyObject;
 
 /**
  * InvocationHandler for proxy that injects variations into service class.
@@ -33,7 +32,7 @@ import javassist.util.proxy.ProxyObject;
  *
  * @author PUdalau, Marat Kamalov
  */
-class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLMethodHandler<Method, Method> {
+class VariationInstantiationStrategyEnhancerInvocationHandler extends AbstractOpenLMethodHandler<Method, Method> {
 
     private final SafeCloner cloner = new SafeCloner();
 
@@ -60,7 +59,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLM
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Method proceed, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) throws Exception {
         Method member = methodsMap.get(method);
         if (member == null) {
             return method.invoke(serviceClassInstance, args);
@@ -172,9 +171,9 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLM
         for (Variation variation : variationsPack.getVariations()) {
             final IRuntimeEnv runtimeEnv = parentRuntimeEnv.clone();
 
-            if (serviceClassInstance instanceof ProxyObject) {
-                final OpenLRulesMethodHandler handler = (OpenLRulesMethodHandler) ((ProxyObject) serviceClassInstance)
-                    .getHandler();
+            if (ASMProxyFactory.isProxy(serviceClassInstance)) {
+                final OpenLRulesMethodHandler handler = (OpenLRulesMethodHandler) ASMProxyFactory
+                    .getProxyHandler(serviceClassInstance);
                 handler.setRuntimeEnv(runtimeEnv);
                 SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) runtimeEnv;
                 simpleRulesRuntimeEnv.changeMethodArgumentsCacheMode(org.openl.rules.vm.CacheMode.READ_ONLY);
@@ -220,8 +219,8 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLM
             OpenLRulesMethodHandler handler = null;
             try {
                 if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
-                    if (serviceClassInstance instanceof ProxyObject) {
-                        handler = (OpenLRulesMethodHandler) ((ProxyObject) serviceClassInstance).getHandler();
+                    if (ASMProxyFactory.isProxy(serviceClassInstance)) {
+                        handler = (OpenLRulesMethodHandler) ASMProxyFactory.getProxyHandler(serviceClassInstance);
                         handler.setRuntimeEnv(runtimeEnv);
                     }
                     SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) runtimeEnv;

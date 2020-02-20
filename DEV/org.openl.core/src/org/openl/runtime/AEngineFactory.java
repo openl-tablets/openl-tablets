@@ -37,7 +37,7 @@ public abstract class AEngineFactory {
 
         Class<?>[] proxyInterfaces = prepareInstanceInterfaces();
 
-        return OpenLJavaAssistProxy.create(classLoader, prepareMethodHandler(openClassInstance, methodMap, runtimeEnv),
+        return ASMProxyFactory.newProxyInstance(classLoader, prepareMethodHandler(openClassInstance, methodMap, runtimeEnv),
             proxyInterfaces);
     }
 

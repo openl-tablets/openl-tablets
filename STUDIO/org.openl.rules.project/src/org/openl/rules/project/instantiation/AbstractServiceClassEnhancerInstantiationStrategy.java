@@ -9,9 +9,8 @@ import java.util.Map;
 import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.model.Module;
-import org.openl.runtime.OpenLJavaAssistProxy;
-
-import javassist.util.proxy.MethodHandler;
+import org.openl.runtime.ASMProxyFactory;
+import org.openl.runtime.ASMProxyHandler;
 
 /**
  *
@@ -88,7 +87,7 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
      * @return {@link InvocationHandler} instance
      * @throws Exception
      */
-    protected abstract MethodHandler makeMethodHandler(Object instanceObject) throws Exception;
+    protected abstract ASMProxyHandler makeMethodHandler(Object instanceObject) throws Exception;
 
     /**
      * Gets interface classes what used for proxy construction.
@@ -112,7 +111,7 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
     public final Object instantiate() throws RulesInstantiationException {
         try {
             Object originalInstance = getOriginalInstantiationStrategy().instantiate();
-            return OpenLJavaAssistProxy.create(getClassLoader(), makeMethodHandler(originalInstance), getProxyInterfaces(originalInstance));
+            return ASMProxyFactory.newProxyInstance(getClassLoader(), makeMethodHandler(originalInstance), getProxyInterfaces(originalInstance));
         } catch (Exception e) {
             throw new RulesInstantiationException(e.getMessage(), e);
         }

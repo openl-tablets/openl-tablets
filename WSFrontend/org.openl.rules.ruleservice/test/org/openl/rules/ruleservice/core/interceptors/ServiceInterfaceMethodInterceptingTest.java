@@ -208,7 +208,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         RulesInstantiationStrategy rulesInstantiationStrategy = instantiationFactory.getInstantiationStrategyFactory()
             .getStrategy(serviceDescription, dependencyManager);
         Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper
-            .getInterfaceForInstantiationStrategy(serviceDescription,
+            .buildInterfaceForInstantiationStrategy(serviceDescription,
                 OverloadInterface.class,
                 rulesInstantiationStrategy.getClassLoader());
         for (Method method : OverloadInterface.class.getMethods()) {

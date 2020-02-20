@@ -1,11 +1,12 @@
 package org.openl.runtime;
 
-import javassist.util.proxy.MethodHandler;
+import org.openl.types.IOpenMember;
 
-public interface IOpenLMethodHandler<K, V> extends MethodHandler {
+public interface IOpenLMethodHandler<K, V> extends ASMProxyHandler {
 
     Object getTarget();
 
     V getTargetMember(K key);
 
+    IOpenMember getOpenMember(K key);
 }

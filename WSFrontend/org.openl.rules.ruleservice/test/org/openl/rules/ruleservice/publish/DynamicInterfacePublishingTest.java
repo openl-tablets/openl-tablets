@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -92,9 +93,7 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
                 "method2(Lorg/openl/rules/context/IRulesRuntimeContext;Lorg/openl/generated/beans/MyType;)Lorg/openl/generated/beans/MyType;",
                 "method2(Lorg/openl/rules/context/IRulesRuntimeContext;Lorg/openl/ruleservice/dynamicinterface/test/MyClass;)Lorg/openl/ruleservice/dynamicinterface/test/MyClass;" };
         Set<String> methodNames = new HashSet<>();
-        for (String s : methods) {
-            methodNames.add(s);
-        }
+        Collections.addAll(methodNames, methods);
         int count = 0;
         for (Method method : service.getServiceClass().getMethods()) {
             if (methodNames.contains(method.getName() + Type.getMethodDescriptor(method))) {

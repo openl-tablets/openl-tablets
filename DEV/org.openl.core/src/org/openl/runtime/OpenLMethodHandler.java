@@ -9,8 +9,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
-import javassist.util.proxy.ProxyObject;
-
 public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMember>, IEngineWrapper {
 
     private Object openlInstance;
@@ -21,13 +19,18 @@ public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMemb
         this.methodMap = methodMap;
     }
 
-    public OpenLMethodHandler(Object openlInstance, IRuntimeEnv openlEnv, Map<Method, IOpenMember> methodMap) {
+    public OpenLMethodHandler(Object openlInstance, IRuntimeEnv runtimeEnv, Map<Method, IOpenMember> methodMap) {
         this(openlInstance, methodMap);
-        setRuntimeEnv(openlEnv);
+        setRuntimeEnv(runtimeEnv);
     }
 
     @Override
     public IOpenMember getTargetMember(Method key) {
+        return methodMap.get(key);
+    }
+
+    @Override
+    public IOpenMember getOpenMember(Method key) {
         return methodMap.get(key);
     }
 
@@ -68,7 +71,7 @@ public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMemb
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Method proceed, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) throws Exception {
         if (IEngineWrapper.class.equals(method.getDeclaringClass())) {
             return method.invoke(this, args);
         }
@@ -91,7 +94,7 @@ public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMemb
         if (obj == null) {
             return false;
         }
-        if (obj instanceof ProxyObject) {
+        if (ASMProxyFactory.isProxy(obj)) {
             return obj.equals(this);
         }
         return super.equals(obj);
