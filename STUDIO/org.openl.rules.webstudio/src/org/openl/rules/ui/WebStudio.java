@@ -1,5 +1,8 @@
 package org.openl.rules.ui;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,15 +17,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -178,14 +175,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private static void addCookie(String name, String value, int age) {
         Cookie cookie = new Cookie(name, StringTool.encodeURL(value));
-        String contextPath = ((HttpServletRequest) (ServletRequest) WebStudioUtils.getExternalContext().getRequest()).getContextPath();
+        String contextPath = ((HttpServletRequest) WebStudioUtils.getExternalContext().getRequest()).getContextPath();
         if (!StringUtils.isEmpty(contextPath)) {
             cookie.setPath(contextPath);
         } else {
             cookie.setPath("/"); // EPBDS-7613
         }
         cookie.setMaxAge(age);
-        ((HttpServletResponse) (ServletResponse) WebStudioUtils.getExternalContext().getResponse()).addCookie(cookie);
+        ((HttpServletResponse) WebStudioUtils.getExternalContext().getResponse()).addCookie(cookie);
     }
 
     private void initWorkspace(HttpSession session) {
@@ -337,7 +334,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
 
             final FacesContext facesContext = FacesContext.getCurrentInstance();
-            HttpServletResponse response = (HttpServletResponse) (ServletResponse) WebStudioUtils.getExternalContext()
+            HttpServletResponse response = (HttpServletResponse) WebStudioUtils.getExternalContext()
                 .getResponse();
             ExportFile.writeOutContent(response, file);
             facesContext.responseComplete();
@@ -362,7 +359,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             file = ProjectExportHelper.export(new WorkspaceUserImpl(userName), forExport);
 
             final FacesContext facesContext = FacesContext.getCurrentInstance();
-            HttpServletResponse response = (HttpServletResponse) (ServletResponse) WebStudioUtils.getExternalContext()
+            HttpServletResponse response = (HttpServletResponse) WebStudioUtils.getExternalContext()
                 .getResponse();
             addCookie(cookieName, "success", -1);
 
@@ -1203,6 +1200,29 @@ public class WebStudio implements DesignTimeRepositoryListener {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return Collections.emptyList();
+        }
+    }
+
+    public boolean getCanMerge() {
+        RulesProject project = getCurrentProject();
+
+        if (project == null || !isSupportsBranches() || project.isLocalOnly()) {
+            return false;
+        }
+
+
+        try {
+            if (project.isModified()) {
+                return false;
+            }
+            List<String> branches = ((BranchRepository) project.getDesignRepository()).getBranches(null);
+            if (branches.size() < 2) {
+                return false;
+            }
+
+            return isGranted(EDIT_PROJECTS);
+        } catch (IOException e) {
+            return false;
         }
     }
 

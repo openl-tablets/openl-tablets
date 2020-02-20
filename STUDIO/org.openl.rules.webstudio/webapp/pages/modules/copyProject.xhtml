@@ -32,7 +32,7 @@
                     <h:inputText id="newBranchName" value="#{copyBean.newBranchName}"
                                  validator="#{copyBean.newBranchNameValidator}"/>
                     <h:outputText value=""/>
-                    <h:message id="newBranchNameMessage" for="newBranchName" styleClass="error"/>
+                    <h:message id="newBranchNameMessage" for="newBranchName" styleClass="error" style="white-space: pre-wrap;"/>
                 </h:panelGrid>
                 <h:panelGrid id="newProject" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                     <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name:"/>
