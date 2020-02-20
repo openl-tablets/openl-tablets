@@ -7,8 +7,8 @@ import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextConsumer;
+import org.openl.runtime.AbstractOpenLMethodHandler;
 import org.openl.runtime.IEngineWrapper;
-import org.openl.runtime.IOpenLMethodHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * The implementation of {@link InvocationHandler} which used by {@link RuntimeContextInstantiationStrategyEnhancer}
  * class to construct proxy of service class.
  */
-class RuntimeContextInstantiationStrategyEnhancerInvocationHandler implements IOpenLMethodHandler<Method, Method> {
+class RuntimeContextInstantiationStrategyEnhancerInvocationHandler extends AbstractOpenLMethodHandler<Method, Method> {
 
     private final Logger log = LoggerFactory
         .getLogger(RuntimeContextInstantiationStrategyEnhancerInvocationHandler.class);

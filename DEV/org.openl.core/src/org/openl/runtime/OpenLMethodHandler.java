@@ -29,6 +29,11 @@ public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMemb
         return methodMap.get(key);
     }
 
+    @Override
+    public IOpenMember getOpenMember(Method key) {
+        return methodMap.get(key);
+    }
+
     private ThreadLocal<IRuntimeEnv> env = ThreadLocal.withInitial(this::makeRuntimeEnv);
 
     public IRuntimeEnv makeRuntimeEnv() {
@@ -89,7 +94,7 @@ public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMemb
         if (obj == null) {
             return false;
         }
-        if (OpenLASMProxy.isProxy(obj)) {
+        if (ASMProxyFactory.isProxy(obj)) {
             return obj.equals(this);
         }
         return super.equals(obj);

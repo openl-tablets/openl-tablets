@@ -22,7 +22,7 @@ import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactory;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl;
 import org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache;
-import org.openl.runtime.OpenLASMProxy;
+import org.openl.runtime.ASMProxyFactory;
 import org.openl.types.IOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,8 +108,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                     "Failed to create a proxy for service target object. Deprecated approach with wrapper: service class is not interface");
             }
             ServiceInvocationAdvice serviceInvocationAdvice = new ServiceInvocationAdvice(service
-                    .getOpenClass(), serviceTarget, serviceClass, classLoader, getListServiceInvocationAdviceListeners());
-            Object proxyServiceBean = OpenLASMProxy.newProxyInstance(oldClassLoader, serviceInvocationAdvice, serviceClass);
+                .getOpenClass(), serviceTarget, serviceClass, classLoader, getListServiceInvocationAdviceListeners());
+            Object proxyServiceBean = ASMProxyFactory
+                .newProxyInstance(oldClassLoader, serviceInvocationAdvice, serviceClass);
             service.setServiceBean(proxyServiceBean);
         } catch (Exception t) {
             throw new RuleServiceRuntimeException("Failed to create a proxy for service target object.", t);
@@ -129,7 +130,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             try {
                 serviceClass = service.getClassLoader().loadClass(serviceClassName.trim());
                 Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper
-                    .getInterfaceForInstantiationStrategy(serviceDescription,
+                    .buildInterfaceForInstantiationStrategy(serviceDescription,
                         serviceClass,
                         instantiationStrategy.getClassLoader());
                 instantiationStrategy.setServiceClass(interfaceForInstantiationStrategy);
@@ -176,25 +177,13 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             Class<?> serviceClass,
             Object serviceTarget,
             ClassLoader serviceClassLoader) {
-        Class<?> annotatedClass = processInterceptingTemplateClass(serviceDescription,
-            serviceClass,
-            serviceClassLoader);
-        if (annotatedClass == null) {
-            throw new IllegalStateException("It must not happen.");
-        }
-        try {
-            return RuleServiceInstantiationFactoryHelper.getInterfaceForService(serviceDescription,
-                openClass,
-                annotatedClass,
-                serviceTarget,
-                serviceClassLoader);
-        } catch (Exception e) {
-            log.error("Failed to applying annotation template class for '{}'.", annotatedClass.getTypeName(), e);
-        }
-        return annotatedClass;
+        Class<?> annotatedClass = processAnnotatedTemplateClass(serviceDescription, serviceClass, serviceClassLoader);
+        return RuleServiceInstantiationFactoryHelper
+            .buildInterfaceForService(serviceDescription, openClass, annotatedClass, serviceTarget, serviceClassLoader);
+
     }
 
-    private Class<?> processInterceptingTemplateClass(ServiceDescription serviceDescription,
+    private Class<?> processAnnotatedTemplateClass(ServiceDescription serviceDescription,
             Class<?> serviceClass,
             ClassLoader classLoader) {
         String annotationTemplateClassName = serviceDescription.getAnnotationTemplateClassName();

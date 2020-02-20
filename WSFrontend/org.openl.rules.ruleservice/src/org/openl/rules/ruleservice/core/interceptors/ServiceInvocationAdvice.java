@@ -29,7 +29,7 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallArou
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.runtime.IEngineWrapper;
-import org.openl.runtime.OpenLProxyHandler;
+import org.openl.runtime.ASMProxyHandler;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ import org.springframework.core.Ordered;
  *
  * @author Marat Kamalov
  */
-public final class ServiceInvocationAdvice implements OpenLProxyHandler, Ordered {
+public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
 
     private final Logger log = LoggerFactory.getLogger(ServiceInvocationAdvice.class);
 
@@ -128,7 +128,7 @@ public final class ServiceInvocationAdvice implements OpenLProxyHandler, Ordered
                 aroundInterceptors.put(method, aroundInterceptor);
             } catch (Exception e) {
                 throw new RuleServiceRuntimeException(String.format(
-                    "Failed to instantiate 'around' interceptor for method '%s'. Please, check that class '%s' is not abstact and has a default constructor.",
+                    "Failed to instantiate 'around' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
                     MethodUtil.printQualifiedMethodName(method),
                     interceptorClass.getTypeName()), e);
             }

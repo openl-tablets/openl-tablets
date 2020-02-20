@@ -55,7 +55,7 @@ public final class RuleServiceInstantiationFactoryHelper {
      *
      * @author PUdalau
      */
-    private static class RuleserviceInterceptorsSupportClassVisitor extends ClassVisitor {
+    private static class RuleServiceInterceptorsSupportClassVisitor extends ClassVisitor {
         private Map<Method, Pair<Class<?>, Boolean>> methodsWithReturnTypeNeedsChange;
         private Collection<Method> methodsToRemove;
 
@@ -65,7 +65,7 @@ public final class RuleServiceInstantiationFactoryHelper {
          * @param visitor delegated {@link ClassVisitor}.
          * @param methodsWithReturnTypeNeedsChange Methods where to change return type.
          */
-        private RuleserviceInterceptorsSupportClassVisitor(ClassVisitor visitor,
+        private RuleServiceInterceptorsSupportClassVisitor(ClassVisitor visitor,
                 Map<Method, Pair<Class<?>, Boolean>> methodsWithReturnTypeNeedsChange,
                 Collection<Method> methodsToRemove) {
             super(Opcodes.ASM5, visitor);
@@ -92,8 +92,9 @@ public final class RuleServiceInstantiationFactoryHelper {
                             true);
                         AnnotationVisitor av1 = av.visitArray("value");
                         av1.visit("value",
-                            Type.getType(VariationsResult.class.equals(newRetType) ? VariationResultSPRToPlainConverterAdvice.class
-                                                                                   : SPRToPlainConverterAdvice.class));
+                            Type.getType(VariationsResult.class
+                                .equals(newRetType) ? VariationResultSPRToPlainConverterAdvice.class
+                                                    : SPRToPlainConverterAdvice.class));
                         av1.visitEnd();
                         av.visitEnd();
                     }
@@ -119,13 +120,13 @@ public final class RuleServiceInstantiationFactoryHelper {
      * @param serviceClass Interface for service, which will be used for service class creation.
      * @return Service class for instantiation strategy based on service class for service.
      */
-    public static Class<?> getInterfaceForInstantiationStrategy(ServiceDescription serviceDescription,
+    public static Class<?> buildInterfaceForInstantiationStrategy(ServiceDescription serviceDescription,
             Class<?> serviceClass,
             ClassLoader classLoader) {
         return processInterface(serviceDescription, null, serviceClass, null, true, false, classLoader);
     }
 
-    public static Class<?> getInterfaceForService(ServiceDescription serviceDescription,
+    public static Class<?> buildInterfaceForService(ServiceDescription serviceDescription,
             IOpenClass openClass,
             Class<?> serviceClass,
             Object serviceTarget,
@@ -140,8 +141,9 @@ public final class RuleServiceInstantiationFactoryHelper {
             boolean removeServiceExtraMethods,
             boolean toServiceClass,
             ClassLoader classLoader) {
+        Objects.requireNonNull(serviceClass, "serviceClass can not be null");
         if (toServiceClass) {
-            Objects.requireNonNull(serviceTarget);
+            Objects.requireNonNull(serviceTarget, "serviceTarget can not be null");
         }
 
         Map<Method, Pair<Class<?>, Boolean>> methodsWithReturnTypeNeedsChange = getMethodsWithReturnTypeNeedsChange(
@@ -170,7 +172,7 @@ public final class RuleServiceInstantiationFactoryHelper {
             }
 
             ClassWriter classWriter = new ClassWriter(0);
-            ClassVisitor classVisitor = new RuleserviceInterceptorsSupportClassVisitor(classWriter,
+            ClassVisitor classVisitor = new RuleServiceInterceptorsSupportClassVisitor(classWriter,
                 methodsWithReturnTypeNeedsChange,
                 methodsToRemove);
             String className = serviceClass.getName() + UNDECORATED_CLASS_NAME_SUFFIX;
@@ -346,7 +348,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                 .isAnnotationPresent(ServiceExtraMethod.class)) {
                 IOpenMember openMember = extractOpenMember(method, serviceTarget);
                 if (openMember == null) {
-                    throw new IllegalArgumentException("Open member is not found.");
+                    throw new IllegalStateException("Open member is not found.");
                 }
                 IOpenClass type = openMember.getType();
                 int dim = 0;

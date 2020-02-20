@@ -26,7 +26,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
-import org.openl.runtime.OpenLASMProxy;
+import org.openl.runtime.ASMProxyFactory;
 import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
@@ -240,7 +240,7 @@ public final class JAXWSOpenLServiceEnhancer {
                     service.getName()));
             }
         }
-        return OpenLASMProxy.newProxyInstance(service.getClassLoader(),
+        return ASMProxyFactory.newProxyInstance(service.getClassLoader(),
             new JAXWSMethodHandler(service.getServiceBean(), methodMap),
             serviceClass);
     }

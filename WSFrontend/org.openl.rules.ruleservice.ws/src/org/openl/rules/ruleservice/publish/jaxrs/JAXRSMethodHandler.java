@@ -6,9 +6,9 @@ import java.util.Objects;
 
 import javax.ws.rs.core.Response;
 
-import org.openl.runtime.IOpenLMethodHandler;
+import org.openl.runtime.AbstractOpenLMethodHandler;
 
-public class JAXRSMethodHandler implements IOpenLMethodHandler<Method, Method> {
+public class JAXRSMethodHandler extends AbstractOpenLMethodHandler<Method, Method> {
 
     private Object target;
     private Map<Method, Method> methodMap;

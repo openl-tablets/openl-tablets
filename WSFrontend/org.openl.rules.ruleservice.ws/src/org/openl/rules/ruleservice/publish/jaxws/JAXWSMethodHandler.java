@@ -7,10 +7,10 @@ import java.util.Objects;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.interceptor.Fault;
 import org.openl.rules.ruleservice.publish.common.ExceptionResponseDto;
-import org.openl.runtime.OpenLProxyHandler;
+import org.openl.runtime.ASMProxyHandler;
 import org.w3c.dom.Element;
 
-public class JAXWSMethodHandler implements OpenLProxyHandler {
+public class JAXWSMethodHandler implements ASMProxyHandler {
 
     private final Object service;
     private final Map<Method, Method> methodMap;

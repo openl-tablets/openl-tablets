@@ -14,9 +14,9 @@ import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
-import org.openl.runtime.OpenLASMProxy;
+import org.openl.runtime.ASMProxyFactory;
 import org.openl.runtime.OpenLMethodHandler;
-import org.openl.runtime.OpenLProxyHandler;
+import org.openl.runtime.ASMProxyHandler;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -128,8 +128,8 @@ public final class WrapperLogic {
                 if (target instanceof IDynamicObject) {
                     IDynamicObject dynamicObject = (IDynamicObject) target;
                     typeClass = dynamicObject.getType();
-                } else if (OpenLASMProxy.isProxy(target)) {
-                    OpenLProxyHandler invocationHandler = OpenLASMProxy.getHandler(target);
+                } else if (ASMProxyFactory.isProxy(target)) {
+                    ASMProxyHandler invocationHandler = ASMProxyFactory.getProxyHandler(target);
                     if (invocationHandler instanceof OpenLMethodHandler) {
                         OpenLMethodHandler openLMethodHandler = (OpenLMethodHandler) invocationHandler;
                         Object openlInstance = openLMethodHandler.getInstance();

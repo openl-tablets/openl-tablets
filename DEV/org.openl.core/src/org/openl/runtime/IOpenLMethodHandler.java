@@ -1,9 +1,12 @@
 package org.openl.runtime;
 
-public interface IOpenLMethodHandler<K, V> extends OpenLProxyHandler {
+import org.openl.types.IOpenMember;
+
+public interface IOpenLMethodHandler<K, V> extends ASMProxyHandler {
 
     Object getTarget();
 
     V getTargetMember(K key);
 
+    IOpenMember getOpenMember(K key);
 }

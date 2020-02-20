@@ -2,9 +2,9 @@ package org.openl.rules.ruleservice.simple;
 
 import java.lang.reflect.Method;
 
-import org.openl.runtime.OpenLProxyHandler;
+import org.openl.runtime.ASMProxyHandler;
 
-public class RulesFrontendProxyMethodHandler implements OpenLProxyHandler {
+public class RulesFrontendProxyMethodHandler implements ASMProxyHandler {
 
     private RulesFrontend rulesFrontend;
     private String serviceName;

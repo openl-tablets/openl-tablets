@@ -4,9 +4,9 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Objects;
 
-import org.openl.runtime.IOpenLMethodHandler;
+import org.openl.runtime.AbstractOpenLMethodHandler;
 
-class StaticRmiMethodHandler implements IOpenLMethodHandler<Method, Method> {
+class StaticRmiMethodHandler extends AbstractOpenLMethodHandler<Method, Method> {
 
     private Object target;
     private Map<Method, Method> methodMap;

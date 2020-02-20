@@ -11,7 +11,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
-import org.openl.runtime.OpenLASMProxy;
+import org.openl.runtime.ASMProxyFactory;
 
 /**
  * Utility class for generate RMI annotations for service interface.
@@ -81,7 +81,7 @@ public class RmiEnhancerHelper {
             }
         }
 
-        return (Remote) OpenLASMProxy.newProxyInstance(getClassLoader(service),
+        return (Remote) ASMProxyFactory.newProxyInstance(getClassLoader(service),
             new StaticRmiMethodHandler(targetBean, methodMap),
             service.getRmiServiceClass());
     }

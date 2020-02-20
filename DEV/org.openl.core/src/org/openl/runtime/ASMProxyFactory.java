@@ -15,34 +15,34 @@ import org.objectweb.asm.commons.Method;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.util.ClassUtils;
 
-public final class OpenLASMProxy {
+public final class ASMProxyFactory {
 
     private final static AtomicInteger nameCounter = new AtomicInteger(0);
-    private static final String HANDLER = "openLProxyHandler";
-    private static final Type HANDLER_TYPE = Type.getType(OpenLProxyHandler.class);
-    private static final Method INVOKE_HANDLER = Method.getMethod(OpenLProxyHandler.class.getDeclaredMethods()[0]);
+    private static final String HANDLER = "proxyHandler";
+    private static final Type HANDLER_TYPE = Type.getType(ASMProxyHandler.class);
+    private static final Method INVOKE_HANDLER = Method.getMethod(ASMProxyHandler.class.getDeclaredMethods()[0]);
     private static final Type CLASS_TYPE = Type.getType(Class.class);
     private static final Method GET_METHOD = Method
         .getMethod("java.lang.reflect.Method getMethod(java.lang.String, java.lang.Class[])");
-    private static final Method GET_HANDLER = Method.getMethod(OpenLProxy.class.getDeclaredMethods()[0]);
+    private static final Method GET_HANDLER = Method.getMethod(ASMProxy.class.getDeclaredMethods()[0]);
 
-    private OpenLASMProxy() {
+    private ASMProxyFactory() {
     }
 
-    public static <T> T newProxyInstance(ClassLoader classLoader, OpenLProxyHandler handler, Class<T> proxyInterface) {
+    public static <T> T newProxyInstance(ClassLoader classLoader, ASMProxyHandler handler, Class<T> proxyInterface) {
         @SuppressWarnings("unchecked")
         T proxyInstance = (T) newProxyInstance(classLoader, handler, new Class[] { proxyInterface });
         return proxyInstance;
 
     }
 
-    public static Object newProxyInstance(ClassLoader classLoader, OpenLProxyHandler handler, Class<?>... interfaces) {
+    public static Object newProxyInstance(ClassLoader classLoader, ASMProxyHandler handler, Class<?>... interfaces) {
         String proxyClassName = Type.getInternalName(interfaces[0]) + "$proxy" + nameCounter.incrementAndGet();
         Type proxyType = Type.getObjectType(proxyClassName);
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
         List<Class<?>> listInterfaces = Arrays.stream(interfaces).collect(Collectors.toList());
-        if (!listInterfaces.contains(OpenLProxy.class)) {
-            listInterfaces.add(OpenLProxy.class);
+        if (!listInterfaces.contains(ASMProxy.class)) {
+            listInterfaces.add(ASMProxy.class);
         }
         cw.visit(Opcodes.V1_8,
             Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER | Opcodes.ACC_FINAL,
@@ -57,7 +57,7 @@ public final class OpenLASMProxy {
         writeHandlerGetter(cw, proxyType);
         HashSet<Method> methods = new HashSet<>();
         for (Class<?> proxyInterface : interfaces) {
-            if (!proxyInterface.getName().equals(OpenLProxy.class.getName())) {
+            if (!proxyInterface.getName().equals(ASMProxy.class.getName())) {
                 Type interfaceType = Type.getType(proxyInterface);
                 for (java.lang.reflect.Method method : proxyInterface.getMethods()) {
                     Method m = Method.getMethod(method);
@@ -72,7 +72,7 @@ public final class OpenLASMProxy {
         byte[] bytes = cw.toByteArray();
         try {
             Class<?> aClass = ClassUtils.defineClass(proxyType.getClassName(), bytes, classLoader);
-            return aClass.getDeclaredConstructor(OpenLProxyHandler.class).newInstance(handler);
+            return aClass.getDeclaredConstructor(ASMProxyHandler.class).newInstance(handler);
         } catch (Exception e) {
             throw new OpenlNotCheckedException("Failed to instantiate a new proxy.", e);
         }
@@ -80,7 +80,7 @@ public final class OpenLASMProxy {
 
     private static void writeConstructor(ClassWriter cw, Type name) {
         GeneratorAdapter mv = new GeneratorAdapter(Opcodes.ACC_PUBLIC,
-            Method.getMethod("void <init>(org.openl.runtime.OpenLProxyHandler)"),
+            Method.getMethod("void <init>(" + ASMProxyHandler.class.getName() + ")"),
             null,
             null,
             cw);
@@ -133,15 +133,15 @@ public final class OpenLASMProxy {
     }
 
     public static boolean isProxy(Object o) {
-        return o instanceof OpenLProxy;
+        return o instanceof ASMProxy;
     }
 
-    public static OpenLProxyHandler getHandler(Object o) {
+    public static ASMProxyHandler getProxyHandler(Object o) {
         if (isProxy(o)) {
-            return ((OpenLProxy) o).getHandler();
+            return ((ASMProxy) o).getProxyHandler();
         } else {
             throw new IllegalArgumentException(
-                String.format("Expected to be proxied using '%s' class", OpenLASMProxy.class.getTypeName()));
+                String.format("Expected to be proxied using '%s' class", ASMProxyFactory.class.getTypeName()));
         }
     }
 }
