@@ -39,12 +39,12 @@
 
                 <h:panelGroup id="cannotImportMessage" layout="block">
                     <h:outputText rendered="#{theirBranchMerged}"
-                                  value="Their branch '#{branchesBean.branchToMerge}' is already merged into '#{branchesBean.currentBranch}'. Nothing to import."
+                                  value="Their changes in branch '#{branchesBean.branchToMerge}' have already been imported into branch '#{branchesBean.currentBranch}'."
                                   styleClass="success"/>
                 </h:panelGroup>
                 <h:panelGroup id="cannotExportMessage" layout="block">
                     <h:outputText rendered="#{yourBranchMerged}"
-                                  value="Your branch '#{branchesBean.currentBranch}' is already merged into '#{branchesBean.branchToMerge}'. Nothing to export."
+                                  value="Your changes in branch '#{branchesBean.currentBranch}' have already been exported into branch '#{branchesBean.branchToMerge}'."
                                   styleClass="success"/>
                 </h:panelGroup>
             </h:panelGroup>
@@ -76,7 +76,7 @@
                 <a4j:param name="projectName" assignTo="#{branchesBean.initProject}"/>
             </a4j:jsFunction>
 
-            <a4j:jsFunction name="refreshRepositoryAfterMerge" render="projectTree nodeView">
+            <a4j:jsFunction name="refreshRepositoryAfterMerge" render="projectTree nodeView" rendered="#{menu != 'rules'}">
                 <a4j:param name="wasMerged" assignTo="#{branchesBean.wasMerged}"/>
             </a4j:jsFunction>
         </h:form>
@@ -94,11 +94,19 @@
             RichFaces.$("modalMergeBranches").show();
         }
 
+        function showMessageAfterMerge(wasMerged) {
+            if (wasMerged) {
+                ws.ui.info('Branches were merged successfully.');
+            }
+        }
+
         function onMergeComplete(mergeConflict, successful) {
             if (mergeConflict) {
                 RichFaces.$('modalMergeBranches').hide();
-                openResolveConflictDialog(refreshRepositoryAfterMerge);
+                let afterResolveFunction = #{menu == 'rules' ? 'showMessageAfterMerge' : 'refreshRepositoryAfterMerge'};
+                openResolveConflictDialog(afterResolveFunction);
             } else if (successful) {
+                #{menu == 'rules' ? 'showMessageAfterMerge(successful);' : ''}
                 RichFaces.$('modalMergeBranches').hide();
             }
         }

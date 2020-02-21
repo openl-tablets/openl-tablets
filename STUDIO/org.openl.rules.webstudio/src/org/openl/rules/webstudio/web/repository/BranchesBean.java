@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
 
@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ManagedBean
-@ViewScoped
+@SessionScoped
 public class BranchesBean {
     private final Logger log = LoggerFactory.getLogger(BranchesBean.class);
 

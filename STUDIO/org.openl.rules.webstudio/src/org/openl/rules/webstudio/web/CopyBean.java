@@ -298,6 +298,12 @@ public class CopyBean {
                 "Invalid branch name. It should not contain reserved words or symbols.");
             WebStudioUtils.validate(!designRepository.branchExists(newBranchName),
                 "Branch " + newBranchName + " already exists.");
+            for (String branch : designRepository.getBranches(null)) {
+                String message = "Can't create the branch '" + newBranchName + "' because the branch '" + branch + "' already exists.\n"
+                    + "Explanation: for example a branch 'foo/bar'exists. That branch can be considered as a file 'bar' located in the folder 'foo'.\n"
+                    + "So you can't create a branch 'foo/bar/baz' because you can't create the folder 'foo/bar': the file with such name already exists.";
+                WebStudioUtils.validate(!newBranchName.startsWith(branch + "/"), message);
+            }
         } catch (WorkspaceException | IOException ignored) {
         }
 

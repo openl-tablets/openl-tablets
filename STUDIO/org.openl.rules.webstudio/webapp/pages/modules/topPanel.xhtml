@@ -38,6 +38,12 @@
         <ui:include src="/pages/modules/copyProject.xhtml" />
     </h:panelGroup>
 
+    <h:panelGroup rendered="#{studio.canMerge}">
+        <ui:include src="/pages/modules/repository/modal/mergeBranches.xhtml">
+            <ui:param name="menu" value="rules" />
+        </ui:include>
+    </h:panelGroup>
+
     <h:form id="headerForm" prependId="false" styleClass="navbar">
         <div class="breadcrumbs" style="margin-right:15px">
             <a href="#{contextPath}/" class="changes-listener">Projects</a>
@@ -117,6 +123,10 @@
                                id="saveProjectButton"
                                title="Save the project changes in Design Repository as a new revision and make it available for editing to other users"
                                rendered="#{!empty rProject and rProject.openedForEditing and rProject.modified and studio.model.editable}" />
+                <h:commandLink styleClass="changes-listener" onclick="openMergeBranchesDialog('#{rProject.name}'); return false;"
+                               value="Sync"
+                               title="Synchronize changes"
+                               rendered="#{studio.canMerge}" />
                 <h:commandLink styleClass="changes-listener" onclick="openCopyProjectDialog('#{rProject.name}'); return false;"
                                id="copyProjectButton"
                                value="Copy" title="Copy project"
