@@ -193,7 +193,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 if (annotationTemplateClass.isInterface()) {
                     Class<?> decoratedClass = DynamicInterfaceAnnotationEnhancerHelper
                         .decorate(serviceClass, annotationTemplateClass, classLoader);
-                    log.info("Interceptor template class '{}' has been used for service: {}.",
+                    log.info("Annotation template class '{}' has been used for service: {}.",
                         annotationTemplateClassName,
                         serviceDescription.getName());
                     return decoratedClass;

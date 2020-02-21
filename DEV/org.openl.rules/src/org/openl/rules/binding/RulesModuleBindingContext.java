@@ -104,7 +104,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             if (method != null) {
                 RecursiveOpenMethodPreBinder openMethodBinder = extractOpenMethodPrebinder(method);
                 if (openMethodBinder.isPreBindStarted()) {
-                    if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams()) && openMethodBinder
+                    if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(getExternalParams()) && openMethodBinder
                         .isReturnsCustomSpreadsheetResult()) {
                         throw new RecursiveSpreadsheetMethodPreBindingException();
                     }
@@ -179,7 +179,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     @Override
     public IOpenClass findType(String namespace, String typeName) {
-        if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams()) && ISyntaxConstants.THIS_NAMESPACE
+        if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(getExternalParams()) && ISyntaxConstants.THIS_NAMESPACE
             .equals(namespace) && typeName.startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName
                 .length() > Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) {
             final String methodName = typeName.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
@@ -201,7 +201,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     public void addBinderMethod(OpenMethodHeader openMethodHeader, RecursiveOpenMethodPreBinder method) {
-        if (!isExecutionMode() && OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams()) && method
+        if (!isExecutionMode() && OpenLSystemProperties.isCustomSpreadsheetTypesSupported(getExternalParams()) && method
             .isReturnsCustomSpreadsheetResult()) {
             final String sprTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + method.getName();
             IOpenClass openClass = findType(ISyntaxConstants.THIS_NAMESPACE, sprTypeName);
@@ -229,7 +229,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         final String customSpreadsheetResultTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + openMethodHeader
             .getName();
         final boolean isCustomSpreadsheetResultEnabled = OpenLSystemProperties
-            .isCustomSpreadsheetType(getExternalParams());
+            .isCustomSpreadsheetTypesSupported(getExternalParams());
         // All custom spreadsheet methods compiles at once
         Collection<RecursiveOpenMethodPreBinder> openMethodBinders;
         if (isCustomSpreadsheetResultEnabled && openMethodBinder.isReturnsCustomSpreadsheetResult()) {
@@ -254,7 +254,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             .filter(RecursiveOpenMethodPreBinder::isPreBindStarted)
             .findAny();
         if (prebindingOpenMethodPreBinder.isPresent()) {
-            if (OpenLSystemProperties.isCustomSpreadsheetType(
+            if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(
                 getExternalParams()) && prebindingOpenMethodPreBinder.get().isReturnsCustomSpreadsheetResult()) {
                 throw new RecursiveSpreadsheetMethodPreBindingException();
             } else {

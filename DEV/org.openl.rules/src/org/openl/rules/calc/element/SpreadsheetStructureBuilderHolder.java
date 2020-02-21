@@ -1,5 +1,7 @@
 package org.openl.rules.calc.element;
 
+import java.util.Objects;
+
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 
 public class SpreadsheetStructureBuilderHolder {
@@ -7,7 +9,7 @@ public class SpreadsheetStructureBuilderHolder {
     SpreadsheetStructureBuilder spreadsheetStructureBuilder;
 
     public SpreadsheetStructureBuilderHolder(SpreadsheetStructureBuilder spreadsheetStructureBuilder) {
-        this.spreadsheetStructureBuilder = spreadsheetStructureBuilder;
+        this.spreadsheetStructureBuilder = Objects.requireNonNull(spreadsheetStructureBuilder, "spreadsheetStructureBuilder can not be null");
     }
 
     public SpreadsheetStructureBuilder getSpreadsheetStructureBuilder() {

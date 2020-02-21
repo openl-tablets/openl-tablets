@@ -528,7 +528,7 @@ public class XlsBinder implements IOpenBinder {
 
     private void registerNewCustomSpreadsheetResultTypes(TableSyntaxNode[] tableSyntaxNodes,
             RulesModuleBindingContext rulesModuleBindingContext) {
-        if (OpenLSystemProperties.isCustomSpreadsheetType(rulesModuleBindingContext.getExternalParams())) {
+        if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(rulesModuleBindingContext.getExternalParams())) {
             Collection<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = new ArrayList<>();
             for (TableSyntaxNode tableSyntaxNode : tableSyntaxNodes) {
                 if (isCustomSpreadsheetResultTableSyntaxNode(tableSyntaxNode)) {

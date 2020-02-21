@@ -599,11 +599,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
         String name = customSpreadsheetResultOpenClass.getName()
             .substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
-        String firstLetterUppercasedName = Character
+        String firstLetterUppercaseName = Character
             .toUpperCase(name.charAt(0)) + (name.length() > 1 ? name.substring(1) : StringUtils.EMPTY);
         if (customSpreadsheetResultOpenClass.getModule()
-            .findType(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + firstLetterUppercasedName) == null) {
-            name = firstLetterUppercasedName;
+            .findType(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + firstLetterUppercaseName) == null) {
+            name = firstLetterUppercaseName;
         }
 
         return customSpreadsheetResultOpenClass.getModule().getCsrBeansPackage() + "." + name;
