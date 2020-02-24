@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
@@ -18,13 +17,12 @@ import org.openl.util.ClassUtils;
 public final class ASMProxyFactory {
 
     private final static AtomicInteger nameCounter = new AtomicInteger(0);
-    private static final String HANDLER = "proxyHandler";
+    private static final String HANDLER = "_handler";
     private static final Type HANDLER_TYPE = Type.getType(ASMProxyHandler.class);
     private static final Method INVOKE_HANDLER = Method.getMethod(ASMProxyHandler.class.getDeclaredMethods()[0]);
     private static final Type CLASS_TYPE = Type.getType(Class.class);
     private static final Method GET_METHOD = Method
         .getMethod("java.lang.reflect.Method getMethod(java.lang.String, java.lang.Class[])");
-    private static final Method GET_HANDLER = Method.getMethod(ASMProxy.class.getDeclaredMethods()[0]);
 
     private ASMProxyFactory() {
     }
@@ -41,30 +39,21 @@ public final class ASMProxyFactory {
         Type proxyType = Type.getObjectType(proxyClassName);
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
         List<Class<?>> listInterfaces = Arrays.stream(interfaces).collect(Collectors.toList());
-        if (!listInterfaces.contains(ASMProxy.class)) {
-            listInterfaces.add(ASMProxy.class);
-        }
         cw.visit(Opcodes.V1_8,
             Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER | Opcodes.ACC_FINAL,
             proxyType.getInternalName(),
             null,
-            Type.getInternalName(Object.class),
+            Type.getInternalName(ASMProxy.class),
             listInterfaces.stream().map(Type::getInternalName).toArray(String[]::new));
-        FieldVisitor fv = cw
-            .visitField(Opcodes.ACC_PRIVATE + Opcodes.ACC_FINAL, HANDLER, HANDLER_TYPE.getDescriptor(), null, null);
-        fv.visitEnd();
         writeConstructor(cw, proxyType);
-        writeHandlerGetter(cw, proxyType);
         HashSet<Method> methods = new HashSet<>();
         for (Class<?> proxyInterface : interfaces) {
-            if (!proxyInterface.getName().equals(ASMProxy.class.getName())) {
-                Type interfaceType = Type.getType(proxyInterface);
-                for (java.lang.reflect.Method method : proxyInterface.getMethods()) {
-                    Method m = Method.getMethod(method);
-                    if (!methods.contains(m)) {
-                        methods.add(m);
-                        writeMethods(cw, m, proxyType, interfaceType);
-                    }
+            Type interfaceType = Type.getType(proxyInterface);
+            for (java.lang.reflect.Method method : proxyInterface.getMethods()) {
+                Method m = Method.getMethod(method);
+                if (!methods.contains(m)) {
+                    methods.add(m);
+                    writeMethods(cw, m, proxyType, interfaceType);
                 }
             }
         }
@@ -86,19 +75,10 @@ public final class ASMProxyFactory {
             cw);
         mv.visitCode();
         mv.loadThis();
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(Object.class), "<init>", "()V", false);
+        mv.invokeConstructor(Type.getType(ASMProxy.class), Method.getMethod("void <init>()"));
         mv.loadThis();
-        mv.visitVarInsn(Opcodes.ALOAD, 1);
+        mv.loadArg(0);
         mv.putField(name, HANDLER, HANDLER_TYPE);
-        mv.returnValue();
-        mv.endMethod();
-    }
-
-    private static void writeHandlerGetter(ClassWriter cw, Type name) {
-        GeneratorAdapter mv = new GeneratorAdapter(Opcodes.ACC_PUBLIC, GET_HANDLER, null, null, cw);
-        mv.visitCode();
-        mv.loadThis();
-        mv.getField(name, HANDLER, HANDLER_TYPE);
         mv.returnValue();
         mv.endMethod();
     }
@@ -138,7 +118,7 @@ public final class ASMProxyFactory {
 
     public static ASMProxyHandler getProxyHandler(Object o) {
         if (isProxy(o)) {
-            return ((ASMProxy) o).getProxyHandler();
+            return ((ASMProxy) o)._handler;
         } else {
             throw new IllegalArgumentException(
                 String.format("Expected to be proxied using '%s' class", ASMProxyFactory.class.getTypeName()));
