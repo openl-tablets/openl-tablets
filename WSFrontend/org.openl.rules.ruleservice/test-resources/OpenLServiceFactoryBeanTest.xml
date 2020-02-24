@@ -4,13 +4,14 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="ruleService1" class="org.openl.rules.ruleservice.simple.OpenLServiceFactoryBean">
-		<property name="proxyInterface" value="org.openl.rules.ruleservice.simple.OpenLServiceFactoryBeanTest.ServiceInterface"/>
-		<property name="serviceName" value="RulesFrontendTest_multimodule"/>
+		<constructor-arg name="proxyInterface" value="org.openl.rules.ruleservice.simple.OpenLServiceFactoryBeanTest.ServiceInterface"/>
+		<constructor-arg name="serviceName" value="RulesFrontendTest_multimodule"/>
 	</bean>
 
 	<bean id="ruleService2" class="org.openl.rules.ruleservice.simple.OpenLServiceFactoryBean">
 		<property name="proxyInterface" value="org.openl.rules.ruleservice.simple.OpenLServiceFactoryBeanTest.ServiceInterface"/>
-		<property name="serviceName" value="RulesFrontendTest_multimodule"/>
+		<constructor-arg name="proxyInterface" value="org.openl.rules.ruleservice.simple.OpenLServiceFactoryBeanTest.ServiceInterface"/>
+		<constructor-arg name="serviceName" value="RulesFrontendTest_multimodule"/>
 		<property name="rulesFrontend" ref="newFrontend"/>
 	</bean>
 	<bean id="newFrontend" class="org.openl.rules.ruleservice.simple.OpenLServiceFactoryBeanTest.FrontendImpl">
