@@ -79,7 +79,6 @@ import org.openl.source.SourceHistoryManager;
 import org.openl.spring.env.PropertyResolverProvider;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -998,10 +997,7 @@ public class ProjectModel {
                 messages.add(new OpenLMessage(message, Severity.ERROR));
             }
 
-            compiledOpenClass = new CompiledOpenClass(NullOpenClass.the,
-                messages,
-                new SyntaxNodeException[0],
-                new SyntaxNodeException[0]);
+            compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages);
 
             WorkbookLoaders.resetCurrentFactory();
         }

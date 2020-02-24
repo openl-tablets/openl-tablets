@@ -10,7 +10,6 @@ import org.openl.message.OpenLMessage;
 import org.openl.rules.ruleservice.core.LazyRuleServiceDependencyLoader;
 import org.openl.rules.ruleservice.core.RuleServiceDeploymentRelatedDependencyManager;
 import org.openl.syntax.code.IDependency;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 
 public class LazyCompiledOpenClass extends CompiledOpenClass {
@@ -22,7 +21,7 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
     public LazyCompiledOpenClass(RuleServiceDeploymentRelatedDependencyManager dependencyManager,
             LazyRuleServiceDependencyLoader lazyRuleServiceDependencyLoader,
             IDependency dependency) {
-        super(null, null, null, null);
+        super(null, null);
         this.dependencyManager = Objects.requireNonNull(dependencyManager, "dependencyManager cannot be null");
         this.lazyRuleServiceDependencyLoader = Objects.requireNonNull(lazyRuleServiceDependencyLoader,
             "lazyRuleServiceDependencyLoader cannot be null");
@@ -38,10 +37,6 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
 
     }
 
-    @Override
-    public SyntaxNodeException[] getBindingErrors() {
-        return getCompiledOpenClass().getBindingErrors();
-    }
 
     @Override
     public IOpenClass getOpenClass() {
@@ -56,11 +51,6 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
     @Override
     public int hashCode() {
         return getCompiledOpenClass().hashCode();
-    }
-
-    @Override
-    public SyntaxNodeException[] getParsingErrors() {
-        return getCompiledOpenClass().getParsingErrors();
     }
 
     @Override
