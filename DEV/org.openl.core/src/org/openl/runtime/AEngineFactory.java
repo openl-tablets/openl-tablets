@@ -18,14 +18,6 @@ public abstract class AEngineFactory {
 
     private static final String INCORRECT_RET_TYPE_MSG = "Expected '%s' for the return type of method '%s', but found '%s' type.";
 
-    /**
-     * This method deprecated. Use newInstance method.
-     */
-    @Deprecated
-    public final Object makeInstance() {
-        return newInstance();
-    }
-
     public final Object newInstance() {
         return newInstance(getRuntimeEnvBuilder().buildRuntimeEnv());
     }
