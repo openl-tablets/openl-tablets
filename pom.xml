@@ -1105,12 +1105,6 @@
                 <version>2.1.10</version>
             </dependency>
             <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <!-- 19.0 is compatible with Swagger and Cassandra -->
-                <version>19.0</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi-ooxml</artifactId>
                 <version>${org.apache.poi.version}</version>
