@@ -6,17 +6,7 @@ import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
 import static org.openl.rules.security.Privileges.EDIT_TABLES;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
@@ -118,6 +108,8 @@ public class ProjectModel {
     // TODO Fix performance
     private Map<String, TableSyntaxNode> uriTableCache = new HashMap<>();
     private Map<String, TableSyntaxNode> idTableCache = new HashMap<>();
+
+    private Map<OpenLMessage, String> messageNodeIds = new HashMap<>();
 
     private DependencyRulesGraph dependencyGraph;
 
@@ -860,6 +852,7 @@ public class ProjectModel {
         webStudioWorkspaceDependencyManager = null;
         xlsModuleSyntaxNode = null;
         allXlsModuleSyntaxNodes.clear();
+        messageNodeIds.clear();
         projectRoot = null;
     }
 
@@ -954,30 +947,18 @@ public class ProjectModel {
             WorkbookLoaders.setCurrentFactory(factory);
 
             // Find all dependent XlsModuleSyntaxNode-s
-            final String moduleName = moduleInfo.getName();
-
             compiledOpenClass = instantiationStrategy.compile();
-            Collection<IDependencyLoader> dependencyLoaders = webStudioWorkspaceDependencyManager.getDependencyLoaders()
-                .get(moduleName);
-            IDependencyLoader dependencyLoader = null;
-            for (IDependencyLoader dl : dependencyLoaders) {
-                if (Objects.equals(dl.getProject().getName(), moduleInfo.getProject().getName())) {
-                    dependencyLoader = dl;
-                }
-            }
-            if (dependencyLoader == null) {
-                throw new IllegalStateException(String.format("Module '%s' is not found!", moduleName));
-            }
-            XlsMetaInfo metaInfo = (XlsMetaInfo) dependencyLoader.getCompiledDependency()
-                .getCompiledOpenClass()
-                .getOpenClassWithErrors()
-                .getMetaInfo();
 
-            if (metaInfo != null) {
-                allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
+            for (Collection<IDependencyLoader> dependencyLoaders : webStudioWorkspaceDependencyManager
+                .getDependencyLoaders()
+                .values()) {
+                addAllSyntaxNodes(dependencyLoaders);
             }
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);
+
+            fillMessageNodeIds();
+
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
             if (!isSingleModuleMode()) {
                 // EPBDS-7629: In multimodule mode xlsModuleSyntaxNode does not contain Virtual Module with dispatcher
@@ -987,7 +968,6 @@ public class ProjectModel {
                 XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
                 allXlsModuleSyntaxNodes.add(xmi.getXlsModuleNode());
             }
-
             WorkbookLoaders.resetCurrentFactory();
         } catch (Throwable t) {
             log.error("Failed to load.", t);
@@ -1001,7 +981,41 @@ public class ProjectModel {
 
             WorkbookLoaders.resetCurrentFactory();
         }
+    }
 
+    private void addAllSyntaxNodes(Collection<IDependencyLoader> dependencyLoaders) throws OpenLCompilationException {
+        boolean projectDependencyLoaderFound = false;
+        for (IDependencyLoader dl : dependencyLoaders) {
+            XlsMetaInfo metaInfo = null;
+            if (!projectDependencyLoaderFound && Objects.equals(dl.getProject().getName(),
+                moduleInfo.getProject().getName())) {
+                projectDependencyLoaderFound = true;
+                metaInfo = (XlsMetaInfo) dl.getCompiledDependency()
+                    .getCompiledOpenClass()
+                    .getOpenClassWithErrors()
+                    .getMetaInfo();
+            } else if (!dl.isProject() && dl.isCompiled()) {
+                metaInfo = (XlsMetaInfo) dl.getCompiledDependency()
+                    .getCompiledOpenClass()
+                    .getOpenClassWithErrors()
+                    .getMetaInfo();
+            }
+            if (metaInfo != null) {
+                allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
+            }
+        }
+        if (!projectDependencyLoaderFound) {
+            throw new IllegalStateException(String.format("Module '%s' is not found!", moduleInfo.getName()));
+        }
+    }
+
+    private void fillMessageNodeIds() {
+        for (OpenLMessage message : compiledOpenClass.getMessages()) {
+            TableSyntaxNode node = getNode(message.getSourceLocation());
+            if (node != null) {
+                messageNodeIds.put(message, node.getId());
+            }
+        }
     }
 
     private void prepareWebstudioWorkspaceDependencyManager(boolean singleModuleMode, Module previousModuleInfo) {
@@ -1305,6 +1319,10 @@ public class ProjectModel {
             }
         }
         return studio.isSingleModuleModeByDefault();
+    }
+
+    public String getMessageNodeId(OpenLMessage message) {
+        return messageNodeIds.get(message);
     }
 
     private static class XlsModificationListener implements XlsWorkbookListener {
