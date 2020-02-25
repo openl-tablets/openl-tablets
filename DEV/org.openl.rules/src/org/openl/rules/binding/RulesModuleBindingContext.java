@@ -30,7 +30,6 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.impl.MethodSignature;
@@ -111,15 +110,15 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                     }
                     method = super.findMethodCaller(namespace, methodName, parTypes);
                     if (method == null) {
-                        Iterable<IOpenMethod> internalselect = CollectionUtils.findAll(internalMethods,
+                        Iterable<IOpenMethod> internalSelect = CollectionUtils.findAll(internalMethods,
                             e -> Objects.equals(methodName, e.getName()));
-                        method = MethodSearch.findMethod(methodName, parTypes, this, internalselect);
+                        method = MethodSearch.findMethod(methodName, parTypes, this, internalSelect);
                     }
                     if (method != null) {
                         return method;
                     }
                     throw new IllegalStateException(
-                        "Method compilaiton is failed with the circular reference to itself.");
+                        "Method compilation is failed with the circular reference to itself.");
                 }
                 preBindMethod(openMethodBinder.getHeader());
             }
@@ -160,6 +159,9 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         if (type instanceof CustomSpreadsheetResultOpenClass) {
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
             IOpenClass openClass = super.findType(namespace, typeName);
+            if (openClass == customSpreadsheetResultOpenClass) {
+                return openClass;
+            }
             if (openClass == null) {
                 IOpenClass copyOfCustomSpreadsheetResultOpenClass = customSpreadsheetResultOpenClass
                     .makeCopyForModule(getModule());
@@ -263,19 +265,6 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         openMethodBinders.forEach(RecursiveOpenMethodPreBinder::preBind);
         openMethodBinders.forEach(e -> preBinderMethods.remove(e.getHeader()));
         openMethodBinders.forEach(RecursiveOpenMethodPreBinder::finishPreBind);
-
-        // After recursive compilation non initialized fields need to be initialized for CSR type in compile time and
-        // meta info initialized.
-        if (isCustomSpreadsheetResultEnabled && openMethodBinders.stream()
-            .anyMatch(RecursiveOpenMethodPreBinder::isReturnsCustomSpreadsheetResult)) {
-            IOpenClass openClass = super.findType(ISyntaxConstants.THIS_NAMESPACE, customSpreadsheetResultTypeName);
-            if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-                CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) openClass;
-                csroc.getFields().values().forEach(IOpenField::getType);
-            } else {
-                throw new IllegalStateException(MessageUtils.getTypeNotFoundMessage(customSpreadsheetResultTypeName));
-            }
-        }
     }
 
     public static final class CurrentRuntimeContextMethod implements IOpenMethod {
