@@ -155,21 +155,6 @@ public class InterfaceGenerator {
     }
 
     /**
-     * Generates interface class using methods and fields of given IOpenClass instance.
-     *
-     * @param className name of result class
-     * @param openClass IOpenClass instance
-     * @param classLoader class loader what will be used to load generated interface
-     * @return generated interface
-     * @throws Exception if an error has occurred
-     */
-    public static Class<?> generateInterface(String className,
-            IOpenClass openClass,
-            ClassLoader classLoader) throws Exception {
-        return generateInterface(className, openClass, classLoader, null, null);
-    }
-
-    /**
      * Gets rule information of IOpenField instance.
      *
      * @param field IOpenField instance
