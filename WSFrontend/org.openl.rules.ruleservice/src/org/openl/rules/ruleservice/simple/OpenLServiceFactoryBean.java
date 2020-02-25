@@ -28,7 +28,7 @@ public class OpenLServiceFactoryBean<T> implements FactoryBean<T> {
     @Override
     public T getObject() {
         ClassLoader cl = classLoader != null ? classLoader : Thread.currentThread().getContextClassLoader();
-        return ASMProxyFactory.newProxyInstance(cl, (proxy, method, args) -> {
+        return ASMProxyFactory.newProxyInstance(cl, (method, args) -> {
             try {
                 return rulesFrontend.execute(serviceName, method.getName(), method.getParameterTypes(), args);
             } catch (MethodInvocationException e) {

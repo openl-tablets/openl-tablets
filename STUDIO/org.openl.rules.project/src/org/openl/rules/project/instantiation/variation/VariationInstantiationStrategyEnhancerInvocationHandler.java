@@ -59,7 +59,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler extends AbstractOp
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Exception {
+    public Object invoke(Method method, Object[] args) throws Exception {
         Method member = methodsMap.get(method);
         if (member == null) {
             return method.invoke(serviceClassInstance, args);

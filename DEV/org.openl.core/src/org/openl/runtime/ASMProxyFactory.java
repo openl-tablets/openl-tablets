@@ -92,7 +92,6 @@ public final class ASMProxyFactory {
         mv.visitCode();
         mv.loadThis();
         mv.getField(name, HANDLER, HANDLER_TYPE);
-        mv.loadThis();
         mv.push(proxyInterface);
         mv.push(method.getName());
         mv.push(method.getArgumentTypes().length);

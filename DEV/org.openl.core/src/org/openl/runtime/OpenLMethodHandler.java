@@ -71,7 +71,7 @@ public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMemb
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Exception {
+    public Object invoke(Method method, Object[] args) throws Exception {
         if (IEngineWrapper.class.equals(method.getDeclaringClass())) {
             return method.invoke(this, args);
         }

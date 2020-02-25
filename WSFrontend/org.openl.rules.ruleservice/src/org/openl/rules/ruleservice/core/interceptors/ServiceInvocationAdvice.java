@@ -289,7 +289,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
     }
 
     @Override
-    public Object invoke(Object proxy, Method calledMethod, Object[] args) throws Exception {
+    public Object invoke(Method calledMethod, Object[] args) throws Exception {
         String methodName = calledMethod.getName();
         Class<?>[] parameterTypes = calledMethod.getParameterTypes();
         Method interfaceMethod = MethodUtil.getMatchingAccessibleMethod(serviceClass, methodName, parameterTypes);

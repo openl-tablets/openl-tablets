@@ -35,7 +35,7 @@ public class JAXRSMethodHandlerTest {
         HashMap<Method, Method> methods = new HashMap<>();
         JAXRSMethodHandler handler = new JAXRSMethodHandler(target, methods);
         Method unknownMethod = Object.class.getDeclaredMethod("hashCode");
-        handler.invoke(null, unknownMethod, null);
+        handler.invoke(unknownMethod, null);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class JAXRSMethodHandlerTest {
         methods.put(method, method);
 
         JAXRSMethodHandler handler = new JAXRSMethodHandler(target, methods);
-        Object result = handler.invoke(null, method, null);
+        Object result = handler.invoke(method, null);
 
         assertTrue(result instanceof Response);
         assertEquals("Done", ((Response) result).getEntity());
