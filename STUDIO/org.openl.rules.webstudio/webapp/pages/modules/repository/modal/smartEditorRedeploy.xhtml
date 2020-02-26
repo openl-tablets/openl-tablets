@@ -5,7 +5,7 @@
         xmlns:rich="http://richfaces.org/rich"
         xmlns:ui="http://java.sun.com/jsf/facelets">
 
-    <rich:popupPanel id="modalSmartRedeploy" width="480" autosized="true">
+    <rich:popupPanel id="modalSmartEditorRedeploy" width="480" autosized="true">
         <f:facet name="header">
             <h:outputText value="Auto Deploy"/>
         </f:facet>
@@ -14,30 +14,31 @@
             <h:graphicImage value="/images/close.gif" class="close" onclick="closeSmartRedeploy();" alt="Close"/>
         </f:facet>
 
-        <h:form id="smartRedeployForm">
+        <h:form id="smartRedeployEditorForm">
             <h:panelGroup style="width:380px; height:180px; overflow:auto;" id="modalSmartRedeployData">
                 <h:panelGroup layout="block" style="margin: 0px 7px">
                     <h:outputText value="Repository: "/>
-                    <h:selectOneMenu value="#{smartRedeployController.repositoryConfigName}">
-                        <f:selectItems value="#{smartRedeployController.repositories}" var="repository"
+                    <h:selectOneMenu value="#{smartRedeployEditorController.repositoryConfigName}">
+                        <f:selectItems value="#{smartRedeployEditorController.repositories}" var="repository"
                                        itemValue="#{repository.configName}" itemLabel="#{repository.name}"/>
                         <f:ajax event="change" render="@form" execute="@this"/>
                     </h:selectOneMenu>
                 </h:panelGroup>
 
-                <h:outputText value="Wait..." rendered="#{smartRedeployController.loading}" style="margin: 25px 0px"/>
+                <h:outputText value="Wait..." rendered="#{smartRedeployEditorController.loading}"
+                              style="margin: 25px 0px"/>
                 <h:outputText
-                        value="There are no deploy configurations containing project '#{repositoryTreeState.selectedProject.name}'"
-                        rendered="#{!smartRedeployController.loading and empty smartRedeployController.items}"
+                        value="There are no deploy configurations containing project '#{smartRedeployEditorController.currentProject.name}'"
+                        rendered="#{!smartRedeployEditorController.loading and empty smartRedeployEditorController.items}"
                         style="margin: 25px 0px"/>
-                <rich:dataTable id="smartRedeployTable" value="#{smartRedeployController.items}" var="item"
-                                styleClass="table" rendered="#{not empty smartRedeployController.items}"
+                <rich:dataTable id="smartRedeployTable" value="#{smartRedeployEditorController.items}" var="item"
+                                styleClass="table" rendered="#{not empty smartRedeployEditorController.items}"
                                 style="margin: 25px 0px">
                     <f:facet name="header">
                         <rich:columnGroup>
                             <rich:column>
                                 <h:selectBooleanCheckbox id="allDeploymentsCheck"
-                                                         value="#{smartRedeployController.selectAll4SmartRedeploy}"
+                                                         value="#{smartRedeployEditorController.selectAll4SmartRedeploy}"
                                                          title="Select All">
                                     <f:ajax event="change" render="@form" execute="@this"/>
                                 </h:selectBooleanCheckbox>
@@ -73,23 +74,44 @@
             </h:panelGrid>
 
             <footer>
-                <h:commandButton id="smartRedeployBtn" value="Deploy" onclick="return startSmartRedeploy();"
-                                 action="#{smartRedeployController.redeploy}"
-                                 disabled="#{!smartRedeployController.projectHasSelectedItems}"
-                                 styleClass="button-primary"/>
-                <h:commandButton id="cancelBtn" value="Cancel" action="#{smartRedeployController.reset}"/>
+                <a4j:commandButton id="smartRedeployBtn" value="Deploy"
+                                   disabled="#{!smartRedeployEditorController.projectHasSelectedItems}"
+                                   onclick="return startSmartRedeploy();"
+                                   action="#{smartRedeployEditorController.redeploy}"
+                                   render="@form"
+                                   styleClass="button-primary"
+                                   oncomplete="onDeployComplete(event.data,#{!facesContext.validationFailed});"/>
+
+                <a4j:commandButton id="cancelBtn" value="Cancel"
+                                   action="#{smartRedeployEditorController.reset}"
+                                   render="@form"
+                                   oncomplete="if (!event.data &amp;&amp; #{!facesContext.validationFailed}) {RichFaces.$('modalSmartEditorRedeploy').hide(); return false;}"/>
             </footer>
+
+            <a4j:jsFunction name="renderSmartRedeploy" render="smartRedeployEditorForm"
+                            oncomplete="openSmartRedeployDialog()">
+                <a4j:param name="projectName" assignTo="#{smartRedeployEditorController.project}"/>
+            </a4j:jsFunction>
+
         </h:form>
     </rich:popupPanel>
 
     <script>
+
+        let project;
+
         function openSmartRedeployDialog() {
-            RichFaces.$('modalSmartRedeploy').show();
+            RichFaces.$('modalSmartEditorRedeploy').show();
             window._smartRedeployInProgress = false;
         }
 
+        function openSmartRedeployDialogFromEditor(projectName) {
+            renderSmartRedeploy(projectName);
+            project = projectName;
+        }
+
         function isEmptySelection4SmartRedeploy() {
-            var table = document.getElementById('smartRedeployForm:smartRedeployTable');
+            var table = document.getElementById('smartRedeployEditorForm:smartRedeployTable');
 
             if (table) {
                 for (var i = 0; i &lt; table.childNodes[2].childNodes.length; i++) {
@@ -104,7 +126,7 @@
 
         function closeSmartRedeploy() {
             if (window._smartRedeployInProgress) return;
-            RichFaces.$('modalSmartRedeploy').hide();
+            RichFaces.$('modalSmartEditorRedeploy').hide();
         }
 
         function startSmartRedeploy() {
@@ -112,10 +134,33 @@
             if (isEmptySelection4SmartRedeploy()) return false;
             window._smartRedeployInProgress = true;
 
-            document.getElementById('smartRedeployForm:cancelBtn').disabled = true;
-            document.getElementById('smartRedeployForm:processing').style.visibility = 'visible';
+            document.getElementById('smartRedeployEditorForm:cancelBtn').disabled = true;
+            document.getElementById('smartRedeployEditorForm:processing').style.visibility = 'visible';
 
             return true;
+        }
+
+        function showMessageAfterDeploy(successful) {
+            if (successful)
+                ws.ui.info('Project ' + project + ' was deployed successfully.');
+            else
+                ws.ui.error('Project ' + project + ' was not deployed');
+
+            project = '';
+        }
+
+        function onDeployComplete(data, successful) {
+            if (successful) {
+                window._smartRedeployInProgress = false;
+                closeSmartRedeploy();
+                showMessageAfterDeploy(successful);
+                return false;
+            } else {
+                window._smartRedeployInProgress = false;
+                closeSmartRedeploy();
+                showMessageAfterDeploy(successful);
+                return false;
+            }
         }
 
     </script>
