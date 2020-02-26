@@ -19,7 +19,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ADynamicClass;
-import org.openl.types.impl.ComponentTypeArrayOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
@@ -281,15 +280,7 @@ public class CastFactory implements ICastFactory {
      */
     @Override
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
-        // Workaround for ComponentTypeOpenClass
-        if (from instanceof ComponentTypeArrayOpenClass) {
-            from = JavaOpenClass.getOpenClass(from.getInstanceClass());
-        }
-        if (to instanceof ComponentTypeArrayOpenClass) {
-            to = JavaOpenClass.getOpenClass(to.getInstanceClass());
-        }
-
-        /* BEGIN: This is very cheap operations, so no needs to chache it */
+        /* BEGIN: This is very cheap operations, so no needs to cache it */
         if (from == to || from.equals(to)) {
             return JavaNoCast.getInstance();
         }

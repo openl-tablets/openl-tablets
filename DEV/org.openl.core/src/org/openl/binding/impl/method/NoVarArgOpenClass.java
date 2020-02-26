@@ -78,11 +78,6 @@ public class NoVarArgOpenClass implements IOpenClass {
     }
 
     @Override
-    public boolean isAssignableFrom(Class<?> c) {
-        return delegate.isAssignableFrom(c);
-    }
-
-    @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
         return delegate.isAssignableFrom(ioc);
     }

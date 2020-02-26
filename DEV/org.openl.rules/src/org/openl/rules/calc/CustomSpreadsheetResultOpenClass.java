@@ -112,6 +112,15 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         super.addField(field);
     }
 
+    @Override
+    public boolean isAssignableFrom(IOpenClass ioc) {
+        if (ioc instanceof CustomSpreadsheetResultOpenClass) {
+            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) ioc;
+            return this.getName().equals(customSpreadsheetResultOpenClass.getName());
+        }
+        return false;
+    }
+
     public CustomSpreadsheetResultOpenClass(String name) {
         super(name, SpreadsheetResult.class);
     }

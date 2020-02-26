@@ -79,13 +79,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
      */
     boolean isAbstract();
 
-    /**
-     * @param c Class to check
-     * @return true if the instance of corresponding Class class belongs to the open class.
-     */
-    boolean isAssignableFrom(Class<?> c);
-
-    /**
+   /**
      * @param ioc IOpenClass to check
      * @return true if the instance of corresponding IOpenClass class belongs to the open class.
      */

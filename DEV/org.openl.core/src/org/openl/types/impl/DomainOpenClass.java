@@ -129,11 +129,6 @@ public class DomainOpenClass implements IOpenClass {
     }
 
     @Override
-    public boolean isAssignableFrom(Class<?> c) {
-        return baseClass.isAssignableFrom(c);
-    }
-
-    @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
         return baseClass.isAssignableFrom(ioc);
     }
