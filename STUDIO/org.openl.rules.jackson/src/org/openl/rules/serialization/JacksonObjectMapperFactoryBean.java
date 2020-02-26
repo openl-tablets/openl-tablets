@@ -204,20 +204,6 @@ public class JacksonObjectMapperFactoryBean {
         return failOnUnknownProperties;
     }
 
-    @Deprecated
-    public boolean getEnableDefaultTyping() {
-        return DefaultTypingMode.ENABLE.equals(getDefaultTypingMode());
-    }
-
-    @Deprecated
-    public void setEnableDefaultTyping(boolean enableDefaultTyping) {
-        if (enableDefaultTyping) {
-            setDefaultTypingMode(DefaultTypingMode.ENABLE);
-        } else {
-            setDefaultTypingMode(DefaultTypingMode.SMART);
-        }
-    }
-
     public Set<String> getOverrideTypes() {
         return overrideTypes;
     }

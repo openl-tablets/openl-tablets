@@ -98,8 +98,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
         if (resultTsn != null) {
             ITableProperties tableProperties = resultTsn.getTableProperties();
             assertNotNull(tableProperties);
-            assertTrue(getCompiledOpenClass().getBindingErrors().length == 0);
-            assertTrue(getCompiledOpenClass().getParsingErrors().length == 0);
+            assertFalse(getCompiledOpenClass().hasErrors());
 
             IDecisionTable dt = (IDecisionTable) resultTsn.getMember();
             try {

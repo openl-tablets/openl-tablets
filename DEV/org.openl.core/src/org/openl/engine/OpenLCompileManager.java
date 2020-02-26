@@ -16,7 +16,6 @@ import org.openl.message.OpenLMessage;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
 import org.openl.syntax.code.ProcessedCode;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.validation.ValidationResult;
@@ -85,8 +84,6 @@ public class OpenLCompileManager extends OpenLHolder {
             processedCode = sourceManager.processSource(source, SourceType.MODULE, null, true, dependencyManager);
         }
         IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
-        SyntaxNodeException[] parsingErrors = processedCode.getParsingErrors();
-        SyntaxNodeException[] bindingErrors = processedCode.getBindingErrors();
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
         if (!executionMode) {
             // for WebStudio
@@ -98,7 +95,7 @@ public class OpenLCompileManager extends OpenLHolder {
 
         messages.addAll(processedCode.getMessages());
 
-        return new CompiledOpenClass(openClass, messages, parsingErrors, bindingErrors);
+        return new CompiledOpenClass(openClass, messages);
     }
 
     /**

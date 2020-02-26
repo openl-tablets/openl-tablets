@@ -85,8 +85,8 @@
         <org.mojarra.version>2.1.19</org.mojarra.version>
         <asm.version>7.2</asm.version>
         <cglib.version>3.3.0</cglib.version>
-        <kafka.version>2.3.0</kafka.version>
-        <kafka-junit.version>2.3.0</kafka-junit.version>
+        <kafka.version>2.4.0</kafka.version>
+        <kafka-junit.version>2.4.0</kafka-junit.version>
         <cassandra.driver.version>4.3.1</cassandra.driver.version>
         <cassandra.unit.version>3.11.2.0</cassandra.unit.version>
         <cassandra.unit.driver.version>3.8.0</cassandra.unit.driver.version>
@@ -1103,12 +1103,6 @@
                 <groupId>com.github.jnr</groupId>
                 <artifactId>jnr-ffi</artifactId>
                 <version>2.1.10</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <!-- 19.0 is compatible with Swagger and Cassandra -->
-                <version>19.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.poi</groupId>

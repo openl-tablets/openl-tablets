@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.simple;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,11 +46,6 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
     public void unregisterService(String serviceName) {
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
         runningServices.remove(serviceName);
-    }
-
-    // for internal usage
-    Collection<OpenLService> getServices() {
-        return new ArrayList<>(runningServices.values());
     }
 
     @Override
