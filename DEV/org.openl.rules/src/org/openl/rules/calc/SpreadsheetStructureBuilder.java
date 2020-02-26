@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -74,8 +75,9 @@ public class SpreadsheetStructureBuilder {
 
     private SpreadsheetCell[][] cells;
 
-    private List<SpreadsheetCell> processingCells = new ArrayList<>();
     private List<SpreadsheetCell> extractedCellValues = new ArrayList<>();
+
+    public static final ThreadLocal<Stack<Map<SpreadsheetStructureBuilder, List<SpreadsheetCell>>>> preventCellsLoopingOnThis = new ThreadLocal<>();
 
     private volatile boolean cellsExtracted = false;
 
@@ -162,16 +164,36 @@ public class SpreadsheetStructureBuilder {
             int columnIndex = cell.getColumnIndex();
 
             IBindingContext rowContext = getRowContext(rowIndex);
-            if (processingCells.contains(cell)) {
-                cell.setTypeUnknown(true);
-                throw new SpreadsheetCellsLoopException("Spreadsheet Expression Loop: " + processingCells.toString());
-            }
+            Stack<Map<SpreadsheetStructureBuilder, List<SpreadsheetCell>>> stack = preventCellsLoopingOnThis.get();
+            boolean f = stack == null;
             try {
-                processingCells.add(cell);
-                extractCellValue(rowContext, rowIndex, columnIndex);
-                extractedCellValues.add(cell);
+                if (f) {
+                    preventCellsLoopingOnThis.set(stack = new Stack<>());
+                }
+                Map<SpreadsheetStructureBuilder, List<SpreadsheetCell>> map;
+                if (stack.isEmpty()) {
+                    map = new HashMap<>();
+                    stack.push(map);
+                } else {
+                    map = stack.peek();
+                }
+                List<SpreadsheetCell> cellInChain = map.computeIfAbsent(this, (k) -> new ArrayList<>());
+                if (cellInChain.contains(cell)) {
+                    cell.setTypeUnknown(true);
+                    throw new SpreadsheetCellsLoopException(
+                        "Spreadsheet Expression Loop: " + cellInChain.toString());
+                }
+                try {
+                    cellInChain.add(cell);
+                    extractCellValue(rowContext, rowIndex, columnIndex);
+                    extractedCellValues.add(cell);
+                } finally {
+                    cellInChain.remove(cell);
+                }
             } finally {
-                processingCells.remove(cell);
+                if (f) {
+                    preventCellsLoopingOnThis.remove();
+                }
             }
         }
         if (cell.isTypeUnknown()) {

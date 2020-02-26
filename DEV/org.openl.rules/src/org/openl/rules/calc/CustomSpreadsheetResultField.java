@@ -12,7 +12,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class CustomSpreadsheetResultField extends ASpreadsheetField {
 
-    private volatile IOpenField field;
+    private IOpenField field;
 
     public CustomSpreadsheetResultField(CustomSpreadsheetResultOpenClass declaringClass, IOpenField field) {
         super(declaringClass, field.getName(), null);
@@ -25,10 +25,12 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
+        if (field != null) {
+            throw new IllegalStateException("Spreadsheet cell type is not resolved at compile time");
+        }
         if (target == null) {
             return getType().nullObject();
         }
-
         Object res = ((SpreadsheetResult) target).getFieldValue(getName());
         return processResult(res);
     }
@@ -36,17 +38,13 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
     @Override
     public IOpenClass getType() {
         if (field != null) {
-            synchronized (this) {
-                if (field != null) {
-                    // Lazy initialization for cells level recursive compilation
-                    try {
-                        setType(field.getType());
-                    } catch (RecursiveSpreadsheetMethodPreBindingException | SpreadsheetCellsLoopException e) {
-                        setType(JavaOpenClass.OBJECT);
-                    }
-                    field = null;
-                }
+            // Lazy initialization for cells level recursive compilation
+            try {
+                setType(field.getType());
+            } catch (RecursiveSpreadsheetMethodPreBindingException | SpreadsheetCellsLoopException e) {
+                setType(JavaOpenClass.OBJECT);
             }
+            field = null;
         }
         return super.getType();
     }

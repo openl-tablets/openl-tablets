@@ -12,7 +12,7 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
     protected SpreadsheetCell cell;
     private SpreadsheetStructureBuilderHolder structureBuilderContainer;
     private SpreadsheetCellRefType refType;
-    private volatile IOpenClass type;
+    private IOpenClass type;
 
     public SpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
             IOpenClass declaringClass,
@@ -52,15 +52,14 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
     @Override
     public IOpenClass getType() {
         if (this.type == null) {
-            synchronized (this) {
-                if (this.type == null) {
-                    IOpenClass t = cell.getType();
-                    if (t == null) {
-                        t = structureBuilderContainer.getSpreadsheetStructureBuilder().makeType(cell);
-                    }
-                    this.type = t;
+            IOpenClass t = cell.getType();
+            if (t == null) {
+                if (structureBuilderContainer.getSpreadsheetStructureBuilder() == null) {
+                    throw new IllegalStateException("Spreadsheet cell type is not resolved at compile time");
                 }
+                t = structureBuilderContainer.getSpreadsheetStructureBuilder().makeType(cell);
             }
+            this.type = t;
         }
         return this.type;
     }
@@ -72,7 +71,7 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
 
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
-        throw new UnsupportedOperationException("Cannot write to spreadsheet cell result");
+        throw new UnsupportedOperationException("Can not write to spreadsheet cell result");
     }
 
     @Override

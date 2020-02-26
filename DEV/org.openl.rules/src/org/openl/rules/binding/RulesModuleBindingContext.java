@@ -20,6 +20,7 @@ import org.openl.engine.OpenLSystemProperties;
 import org.openl.meta.TableMetaInfo;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
+import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextDelegator;
 import org.openl.rules.context.RulesRuntimeContextFactory;
@@ -62,6 +63,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     private boolean ignoreCustomSpreadsheetResultCompilation = false;
 
+    private SpreadsheetResultOpenClass moduleSpreadsheetResultOpenClass;
+
     public RulesModuleBindingContext(IBindingContext delegate, XlsModuleOpenClass module) {
         super(delegate, module);
         internalMethods = new ArrayList<>();
@@ -70,6 +73,17 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         internalMethods.add(new RestoreRuntimeContextMethod());
         internalMethods.add(new SetRuntimeContextMethod());
         internalMethods.add(new ModifyRuntimeContextMethod());
+    }
+
+    private SpreadsheetResultOpenClass getModuleSpreadsheetResultOpenClass() {
+        if (moduleSpreadsheetResultOpenClass == null) {
+            synchronized (this) {
+                if (moduleSpreadsheetResultOpenClass == null) {
+                    moduleSpreadsheetResultOpenClass = new SpreadsheetResultOpenClass(this, getModule());
+                }
+            }
+        }
+        return moduleSpreadsheetResultOpenClass;
     }
 
     /**
@@ -197,7 +211,13 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 throw new IllegalStateException(MessageUtils.getTypeNotFoundMessage(typeName));
             }
         }
-        return super.findType(namespace, typeName);
+        IOpenClass ret = super.findType(namespace, typeName);
+        if (OpenLSystemProperties
+            .isCustomSpreadsheetTypesSupported(getExternalParams()) && ret instanceof SpreadsheetResultOpenClass) {
+            return getModuleSpreadsheetResultOpenClass();
+        } else {
+            return ret;
+        }
     }
 
     public void addBinderMethod(OpenMethodHeader openMethodHeader, RecursiveOpenMethodPreBinder method) {
