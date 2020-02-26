@@ -190,7 +190,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             Arrays.stream(errors).forEach(tableSyntaxNode::addError);
             bestCaseTestMethodBoundNode.setTable(bestDataTable);
 
-            DataNodeBinder.putSubTableForBussinesView(tableSyntaxNode, bestTestMethodOpenClass);
+            DataNodeBinder.putSubTableForBusinessView(tableSyntaxNode, bestTestMethodOpenClass);
             if (bestCaseErrors != null) {
                 Arrays.stream(bestCaseErrors).forEach(tableSyntaxNode::addError);
             }

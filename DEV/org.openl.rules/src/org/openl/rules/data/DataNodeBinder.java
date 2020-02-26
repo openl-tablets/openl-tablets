@@ -7,6 +7,7 @@
 package org.openl.rules.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.openl.OpenL;
@@ -116,9 +117,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             new TextInterval(parsedHeader[1].getLocation().getStart(), parsedHeader[i - 1].getLocation().getEnd()),
             parsedHeader[1].getIdentifier() + sb.toString(),
             parsedHeader[1].getModule()));
-        for (int j = i; j < parsedHeader.length; j++) {
-            parsedHeader1.add(parsedHeader[j]);
-        }
+        parsedHeader1.addAll(Arrays.asList(parsedHeader).subList(i, parsedHeader.length));
         return parsedHeader1.toArray(new IdentifierNode[] {});
     }
 
@@ -206,7 +205,7 @@ public class DataNodeBinder extends AXlsTableBinder {
      * @param tableSyntaxNode <code>TableSyntaxNode</code> representing table.
      * @param tableType Type of the data in table.
      */
-    public static void putSubTableForBussinesView(TableSyntaxNode tableSyntaxNode, IOpenClass tableType) {
+    public static void putSubTableForBusinessView(TableSyntaxNode tableSyntaxNode, IOpenClass tableType) {
 
         ILogicalTable tableBody = DataTableBindHelper.getTableBody(tableSyntaxNode);
         ILogicalTable dataWithTitle = DataTableBindHelper.getSubTableForBusinessView(tableBody, tableType);
@@ -245,7 +244,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         ILogicalTable tableBody = DataTableBindHelper.getTableBody(tableSyntaxNode);
 
         processTable(xlsOpenClass, resultTable, tableBody, tableName, tableType, bindingContext, openl, true);
-        putSubTableForBussinesView(tableSyntaxNode, tableType);
+        putSubTableForBusinessView(tableSyntaxNode, tableType);
 
         return resultTable;
     }
