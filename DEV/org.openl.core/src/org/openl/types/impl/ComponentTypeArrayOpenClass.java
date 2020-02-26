@@ -21,11 +21,14 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     protected IOpenIndex index;
     private final String javaName;
 
-    public static final ComponentTypeArrayOpenClass createComponentTypeArrayOpenClass(IOpenClass componentClass,
-            int dimensions) {
+    public static ComponentTypeArrayOpenClass createComponentTypeArrayOpenClass(IOpenClass componentClass,
+            int dim) {
         ComponentTypeArrayOpenClass componentTypeArrayOpenClass = null;
-        for (int i = 0; i <= dimensions; i++) {
+        if (dim > 0) {
             componentTypeArrayOpenClass = new ComponentTypeArrayOpenClass(componentClass);
+        }
+        for (int i = 0; i < dim - 1; i++) {
+            componentTypeArrayOpenClass = new ComponentTypeArrayOpenClass(componentTypeArrayOpenClass);
         }
         return componentTypeArrayOpenClass;
     }

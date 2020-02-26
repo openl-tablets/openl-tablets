@@ -62,9 +62,9 @@ public abstract class ADynamicClass extends AOpenClass {
         if (instanceClass != null && !DynamicObject.class.isAssignableFrom(instanceClass)) {
             Method[] mm = instanceClass.getDeclaredMethods();
             if (isPublic(instanceClass)) {
-                for (int i = 0; i < mm.length; i++) {
-                    if (isPublic(mm[i])) {
-                        JavaOpenMethod om = new JavaOpenMethod(mm[i]);
+                for (Method method : mm) {
+                    if (isPublic(method)) {
+                        JavaOpenMethod om = new JavaOpenMethod(method);
                         MethodKey kom = new MethodKey(om);
                         methodMap.put(kom, om);
                     }
@@ -109,9 +109,9 @@ public abstract class ADynamicClass extends AOpenClass {
             constructorMap = new HashMap<>(1);
         }
         Constructor<?>[] cc = getInstanceClass().getDeclaredConstructors();
-        for (int i = 0; i < cc.length; i++) {
-            if (isPublic(cc[i])) {
-                IOpenMethod om = new JavaOpenConstructor(cc[i]);
+        for (Constructor<?> constructor : cc) {
+            if (isPublic(constructor)) {
+                IOpenMethod om = new JavaOpenConstructor(constructor);
                 MethodKey kom = new MethodKey(om);
                 constructorMap.put(kom, om);
             }

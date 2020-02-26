@@ -284,10 +284,20 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         }
         for (String fieldName : fieldMap().keySet()) {
             IOpenField openField = fieldMap().get(fieldName);
-            if (openField.getType() instanceof CustomSpreadsheetResultOpenClass) {
-                IOpenClass openClass = module.findType(openField.getType().getName());
+            IOpenClass type = openField.getType();
+            int dim = 0;
+            while (type.isArray()) {
+                type = type.getComponentClass();
+                dim++;
+            }
+            if (type instanceof CustomSpreadsheetResultOpenClass) {
+                IOpenClass openClass = module.findType(type.getName());
                 if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-                    fieldMap().put(fieldName, new CustomSpreadsheetResultField(module, fieldName, openClass));
+                    IOpenClass t = openClass;
+                    if (dim > 0) {
+                        t = t.getArrayType(dim);
+                    }
+                    fieldMap().put(fieldName, new CustomSpreadsheetResultField(module, fieldName, t));
                 } else if (openClass != null) {
                     throw new IllegalStateException(String.format("Expected type '%s', but found type '%s'.",
                         CustomSpreadsheetResultOpenClass.class.getTypeName(),

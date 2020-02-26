@@ -1,0 +1,19 @@
+<project>
+  <name>SRBug_New</name>
+  <comment></comment>
+  <modules>
+    <module>
+      <name>SRBug_AK</name>
+      <rules-root path="SRBug_AK.xlsx"/>
+    </module>
+    <module>
+      <name>SRBug_NY</name>
+      <rules-root path="SRBug_NY.xlsx"/>
+    </module>
+    <module>
+      <name>SRBug_tst</name>
+      <rules-root path="SRBug_tst.xlsx"/>
+    </module>
+  </modules>
+  <properties-file-name-pattern>SRBug_%state%</properties-file-name-pattern>
+</project>
