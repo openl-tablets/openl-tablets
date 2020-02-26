@@ -19,7 +19,6 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public abstract class ABoundNode implements IBoundNode {
-    private static final IBoundNode[] EMPTY = new IBoundNode[0];
 
     protected ISyntaxNode syntaxNode;
 
@@ -27,7 +26,7 @@ public abstract class ABoundNode implements IBoundNode {
 
     protected ABoundNode(ISyntaxNode syntaxNode, IBoundNode... children) {
         this.syntaxNode = syntaxNode;
-        this.children = children != null && children.length == 0 ? EMPTY : children;
+        this.children = children != null && children.length == 0 ? IBoundNode.EMPTY : children;
     }
 
     @Override
@@ -58,6 +57,8 @@ public abstract class ABoundNode implements IBoundNode {
     public Object[] evaluateChildren(IRuntimeEnv env) {
         if (children == null) {
             return null;
+        } else if (children == EMPTY) {
+            return EMPTY_RESULT;
         }
 
         Object[] ch = new Object[children.length];

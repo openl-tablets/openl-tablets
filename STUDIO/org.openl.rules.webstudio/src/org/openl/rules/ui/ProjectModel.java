@@ -949,11 +949,7 @@ public class ProjectModel {
             // Find all dependent XlsModuleSyntaxNode-s
             compiledOpenClass = instantiationStrategy.compile();
 
-            for (Collection<IDependencyLoader> dependencyLoaders : webStudioWorkspaceDependencyManager
-                .getDependencyLoaders()
-                .values()) {
-                addAllSyntaxNodes(dependencyLoaders);
-            }
+            addAllSyntaxNodes(webStudioWorkspaceDependencyManager.getDependencyLoaders().values());
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);
 
@@ -983,25 +979,28 @@ public class ProjectModel {
         }
     }
 
-    private void addAllSyntaxNodes(Collection<IDependencyLoader> dependencyLoaders) throws OpenLCompilationException {
+    private void addAllSyntaxNodes(
+            Collection<Collection<IDependencyLoader>> collectionsDependencyLoaders) throws OpenLCompilationException {
         boolean projectDependencyLoaderFound = false;
-        for (IDependencyLoader dl : dependencyLoaders) {
-            XlsMetaInfo metaInfo = null;
-            if (!projectDependencyLoaderFound && Objects.equals(dl.getProject().getName(),
-                moduleInfo.getProject().getName())) {
-                projectDependencyLoaderFound = true;
-                metaInfo = (XlsMetaInfo) dl.getCompiledDependency()
-                    .getCompiledOpenClass()
-                    .getOpenClassWithErrors()
-                    .getMetaInfo();
-            } else if (!dl.isProject() && dl.isCompiled()) {
-                metaInfo = (XlsMetaInfo) dl.getCompiledDependency()
-                    .getCompiledOpenClass()
-                    .getOpenClassWithErrors()
-                    .getMetaInfo();
-            }
-            if (metaInfo != null) {
-                allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
+        for (Collection<IDependencyLoader> collectionDependencyLoaders : collectionsDependencyLoaders) {
+            for (IDependencyLoader dl : collectionDependencyLoaders) {
+                XlsMetaInfo metaInfo = null;
+                if (!projectDependencyLoaderFound && Objects.equals(dl.getProject().getName(),
+                    moduleInfo.getProject().getName())) {
+                    projectDependencyLoaderFound = true;
+                    metaInfo = (XlsMetaInfo) dl.getCompiledDependency()
+                        .getCompiledOpenClass()
+                        .getOpenClassWithErrors()
+                        .getMetaInfo();
+                } else if (!dl.isProject() && dl.isCompiled()) {
+                    metaInfo = (XlsMetaInfo) dl.getCompiledDependency()
+                        .getCompiledOpenClass()
+                        .getOpenClassWithErrors()
+                        .getMetaInfo();
+                }
+                if (metaInfo != null) {
+                    allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
+                }
             }
         }
         if (!projectDependencyLoaderFound) {
