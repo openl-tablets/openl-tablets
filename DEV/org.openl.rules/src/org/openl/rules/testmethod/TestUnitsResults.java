@@ -138,7 +138,7 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public boolean isRunmethod() {
-        return testSuite.getTestSuiteMethod().isRunmethod();
+        return testSuite.getTestSuiteMethod().isRunMethod();
     }
 
     public String[] getTestDataColumnDisplayNames() {

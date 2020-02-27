@@ -34,8 +34,8 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     private static final Pattern DASH_SEPARATOR = Pattern.compile("\\s[-]\\s");
     private IOpenMethod testedMethod;
     private TestDescription[] tests;
-    private Map<String, Integer> indeces;
-    private final boolean runmethod;
+    private Map<String, Integer> indexes;
+    private final boolean runMethod;
     private DynamicObject[] testObjects;
     private final IDataBase db;
     private ITableModel dataModel;
@@ -46,7 +46,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         db = boundNode.getDataBase();
         this.testedMethod = testedMethod;
         initProperties(getSyntaxNode().getTableProperties());
-        runmethod = XlsNodeTypes.XLS_RUN_METHOD.toString().equals(getSyntaxNode().getType());
+        runMethod = XlsNodeTypes.XLS_RUN_METHOD.toString().equals(getSyntaxNode().getType());
     }
 
     public TestSuiteMethod(IOpenMethod testedMethod, TestSuiteMethod copy) {
@@ -55,7 +55,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         db = copy.db;
         this.testedMethod = testedMethod;
         initProperties(copy.getMethodProperties());
-        this.runmethod = copy.isRunmethod();
+        this.runMethod = copy.isRunMethod();
         this.testObjects = copy.getTestObjects();
         this.dataModel = copy.getDataModel();
         this.setUri(copy.getUri());
@@ -64,7 +64,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     private TestDescription[] initTestsAndIndexes() {
         DynamicObject[] testObjects = getTestObjects();
         TestDescription[] tests = new TestDescription[testObjects.length];
-        indeces = new HashMap<>(tests.length);
+        indexes = new HashMap<>(tests.length);
         Map<String, Object> properties = getProperties();
         Integer precision = null;
         if (properties != null && properties.containsKey(PRECISION_PARAM)) {
@@ -76,7 +76,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         for (int i = 0; i < tests.length; i++) {
             tests[i] = new TestDescription(testedMethod, testObjects[i], fields, getDataModel(), db);
             tests[i].setIndex(i);
-            indeces.put(tests[i].getId(), i);
+            indexes.put(tests[i].getId(), i);
         }
         return tests;
     }
@@ -89,13 +89,13 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
         String[] ranges = StringUtils.split(ids.trim(), ',');
         for (String range : ranges) {
-            if (range.isEmpty() && indeces.containsKey(",")) {
-                result.add(indeces.get(","));
+            if (range.isEmpty() && indexes.containsKey(",")) {
+                result.add(indexes.get(","));
                 continue;
             }
             String v = range.trim();
-            if (indeces.containsKey(v)) {
-                result.add(indeces.get(v));
+            if (indexes.containsKey(v)) {
+                result.add(indexes.get(v));
                 continue;
             }
             String[] edges = StringUtils.split(v, '-');
@@ -103,15 +103,15 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                 edges = DASH_SEPARATOR.split(v);
             }
             if (edges.length == 0) {
-                if (indeces.containsKey("-")) {
-                    result.add(indeces.get("-"));
+                if (indexes.containsKey("-")) {
+                    result.add(indexes.get("-"));
                 }
             } else {
                 String startIdValue = edges[0].trim();
                 String endIdValue = edges[edges.length - 1].trim();
 
-                int startIndex = indeces.get(startIdValue);
-                int endIndex = indeces.get(endIdValue);
+                int startIndex = indexes.get(startIdValue);
+                int endIndex = indexes.get(endIdValue);
 
                 for (int i = startIndex; i <= endIndex; i++) {
                     result.add(i);
@@ -227,8 +227,8 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         return new TestSuite(this).invoke(target, env);
     }
 
-    public boolean isRunmethod() {
-        return runmethod;
+    public boolean isRunMethod() {
+        return runMethod;
     }
 
     /**

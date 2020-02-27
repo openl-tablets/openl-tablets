@@ -6,8 +6,15 @@
 
 package org.openl.types.impl;
 
-import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedMethodException;
@@ -17,7 +24,6 @@ import org.openl.meta.IMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
@@ -74,8 +80,7 @@ public abstract class AOpenClass implements IOpenClass {
 
     public static IOpenClass getArrayType(IOpenClass openClass, int dim) {
         if (dim > 0) {
-            IOpenClass arrayType = JavaOpenClass
-                .getOpenClass(Array.newInstance(openClass.getInstanceClass(), new int[dim]).getClass());
+            IOpenClass arrayType = ComponentTypeArrayOpenClass.createComponentTypeArrayOpenClass(openClass, dim);
             if (openClass.getDomain() != null) {
                 StringBuilder domainOpenClassName = new StringBuilder(openClass.getName());
                 for (int j = 0; j < dim; j++) {
@@ -341,10 +346,10 @@ public abstract class AOpenClass implements IOpenClass {
 
     public void addConstructor(IOpenMethod method) throws DuplicatedMethodException {
         MethodKey key = new MethodKey(method);
-        final IOpenMethod existCostructor = putConstructor(method);
-        if (existCostructor != null) {
+        final IOpenMethod existConstructor = putConstructor(method);
+        if (existConstructor != null) {
             throw new DuplicatedMethodException(String
-                .format("Constructor '%s' is already defined in class '%s'", key, getName()), existCostructor, method);
+                .format("Constructor '%s' is already defined in class '%s'", key, getName()), existConstructor, method);
         }
     }
 

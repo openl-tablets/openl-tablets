@@ -1,1 +1,1 @@
-Null cannot be used as expression for array index operator.
+ERROR: Null cannot be used as expression for array index operator.

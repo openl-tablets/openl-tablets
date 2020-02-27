@@ -21,7 +21,7 @@ public class JAXWSMethodHandler implements ASMProxyHandler {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) {
+    public Object invoke(Method method, Object[] args) {
         Method m = methodMap.get(method);
         try {
             return m.invoke(service, args);

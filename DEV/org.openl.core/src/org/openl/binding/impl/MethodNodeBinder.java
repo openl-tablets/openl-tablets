@@ -151,7 +151,27 @@ public class MethodNodeBinder extends ANodeBinder {
             dims++;
             argumentType = argumentType.getComponentClass();
         }
+        IBoundNode field = bindAsFieldBoundNode(methodNode,
+            methodName,
+            argumentTypes,
+            children,
+            childrenCount,
+            argumentType,
+            dims);
+        if (field != null) {
+            return field;
+        }
 
+        throw new MethodNotFoundException(methodName, argumentTypes);
+    }
+
+    protected FieldBoundNode bindAsFieldBoundNode(ISyntaxNode methodNode,
+            String methodName,
+            IOpenClass[] argumentTypes,
+            IBoundNode[] children,
+            int childrenCount,
+            IOpenClass argumentType,
+            int dims) throws Exception{
         // Try to bind method call Name(driver) as driver.Name;
         //
         if (childrenCount == 2) {
@@ -164,8 +184,7 @@ public class MethodNodeBinder extends ANodeBinder {
                 return new FieldBoundNode(methodNode, field, children[0], dims);
             }
         }
-
-        throw new MethodNotFoundException(methodName, argumentTypes);
+        return null;
     }
 
     private void log(String methodName, IOpenClass[] argumentTypes, String bindingType) {

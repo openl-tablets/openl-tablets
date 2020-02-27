@@ -45,7 +45,7 @@ public final class ProjectHelper {
         if (tester instanceof TestSuiteMethod) {
             try {
                 TestSuiteMethod testSuiteMethod = (TestSuiteMethod) tester;
-                return !testSuiteMethod.isRunmethod() && testSuiteMethod.isRunmethodTestable() && (testSuiteMethod
+                return !testSuiteMethod.isRunMethod() && testSuiteMethod.isRunmethodTestable() && (testSuiteMethod
                     .getSyntaxNode() == null || !testSuiteMethod.getSyntaxNode().hasErrors());
             } catch (Exception e) {
                 Logger log = LoggerFactory.getLogger(ProjectHelper.class);
@@ -117,7 +117,7 @@ public final class ProjectHelper {
 
         if (testMethod instanceof TestSuiteMethod) {
             TestSuiteMethod testSuite = (TestSuiteMethod) testMethod;
-            if (testSuite.isRunmethod()) {
+            if (testSuite.isRunMethod()) {
                 if (numberOfTests < 1) {
                     info = "No runs";
                 } else if (numberOfTests == 1) {

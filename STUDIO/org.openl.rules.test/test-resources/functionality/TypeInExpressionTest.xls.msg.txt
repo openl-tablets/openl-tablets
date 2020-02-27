@@ -1,0 +1,1 @@
+ERROR: Cannot execute expression with only type definition 'Double'.

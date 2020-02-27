@@ -1,6 +1,7 @@
 package org.openl.rules.ui;
 
 import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.DEPLOY_PROJECTS;
 import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
 
 import java.io.File;
@@ -39,6 +40,7 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
@@ -1228,6 +1230,16 @@ public class WebStudio implements DesignTimeRepositoryListener {
         } catch (IOException e) {
             return false;
         }
+    }
+
+    public boolean getCanRedeploy() {
+        UserWorkspaceProject selectedProject = getCurrentProject();
+
+        if (selectedProject == null || selectedProject.isLocalOnly() || selectedProject.isModified()) {
+            return false;
+        }
+
+        return isGranted(DEPLOY_PROJECTS);
     }
 
     public void freezeProject(String name) {

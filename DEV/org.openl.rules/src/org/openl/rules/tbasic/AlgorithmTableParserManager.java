@@ -52,7 +52,7 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
             IAlgorithmTableParserManager.class);
         engineFactory.setExecutionMode(true);
 
-        rulesWrapperInstance = (IAlgorithmTableParserManager) engineFactory.makeInstance();
+        rulesWrapperInstance = (IAlgorithmTableParserManager) engineFactory.newInstance();
     }
 
     private ConversionRuleBean[] fixBrokenValues(ConversionRuleBean[] conversionRules) {

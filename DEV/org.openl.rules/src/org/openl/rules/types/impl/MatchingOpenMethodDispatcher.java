@@ -81,8 +81,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                     context.toString(),
                     candidateMethod.getName()));
             case 1:
-                IOpenMethod matchingMethod = selected.iterator().next();
-                return matchingMethod;
+                return selected.iterator().next();
             default:
                 IOpenMethod method = selected.iterator().next();
                 throw new OpenLRuntimeException(
@@ -97,9 +96,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     @Override
     public TableSyntaxNode getDispatcherTable() {
         if (decisionTableOpenMethod == null) {
-            DispatcherTablesBuilder dispTableBuilder = new DispatcherTablesBuilder(moduleOpenClass,
+            DispatcherTablesBuilder dispatcherTablesBuilder = new DispatcherTablesBuilder(moduleOpenClass,
                 moduleOpenClass.getRulesModuleBindingContext());
-            dispTableBuilder.build(this);
+            dispatcherTablesBuilder.build(this);
         }
         if (decisionTableOpenMethod != null) {
             return (TableSyntaxNode) decisionTableOpenMethod.getInfo().getSyntaxNode();

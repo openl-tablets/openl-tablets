@@ -1,7 +1,11 @@
 package org.openl.util;
 
+import java.util.ArrayDeque;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Queue;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
@@ -88,26 +92,71 @@ public final class OpenClassUtils {
             }
             return null;
         }
-        Set<Class<?>> superClasses = new HashSet<>();
-        Class<?> clazz = class1.getInstanceClass();
-        superClasses.add(clazz);
-        while (!clazz.isInterface() && !Object.class.equals(clazz)) {
-            clazz = clazz.getSuperclass();
-            superClasses.add(clazz);
-        }
-        clazz = class2.getInstanceClass();
-        if (superClasses.contains(clazz)) {
-            return JavaOpenClass.getOpenClass(clazz);
-        }
-        while (!clazz.isInterface() && !Object.class.equals(clazz)) {
-            clazz = clazz.getSuperclass();
-            if (superClasses.contains(clazz)) {
-                return JavaOpenClass.getOpenClass(clazz);
+        Set<IOpenClass> superClasses = new HashSet<>();
+        superClasses.add(class1);
+        IOpenClass openClass = class1;
+        Set<IOpenClass> interfaces = new LinkedHashSet<>();
+        while (openClass != null && !JavaOpenClass.OBJECT.equals(openClass)) {
+            IOpenClass next = null;
+            for (IOpenClass x : openClass.superClasses()) {
+                if (!x.isInterface()) {
+                    superClasses.add(x);
+                    next = x;
+                } else {
+                    interfaces.add(x);
+                }
             }
-            superClasses.add(clazz);
+            openClass = next;
         }
-
-        return null;
+        if (superClasses.contains(class2)) {
+            return class2;
+        }
+        openClass = class2;
+        while (openClass != null && !JavaOpenClass.OBJECT.equals(openClass)) {
+            IOpenClass next = null;
+            for (IOpenClass x : openClass.superClasses()) {
+                if (!x.isInterface()) {
+                    if (superClasses.contains(x)) {
+                        return x;
+                    }
+                    next = x;
+                }
+            }
+            openClass = next;
+        }
+        Queue<IOpenClass> queue = new ArrayDeque<>(interfaces);
+        while (!queue.isEmpty()) {
+            Set<IOpenClass> queue1 = new LinkedHashSet<>();
+            for (IOpenClass oc : queue) {
+                StreamSupport.stream(oc.superClasses().spliterator(), false)
+                    .filter(IOpenClass::isInterface)
+                    .filter(e -> !interfaces.contains(e))
+                    .forEach(e -> {
+                        interfaces.add(e);
+                        queue1.add(e);
+                    });
+            }
+            queue = new ArrayDeque<>(queue1);
+        }
+        queue = new ArrayDeque<>();
+        for (IOpenClass x : class2.superClasses()) {
+            if (x.isInterface()) {
+                queue.add(x);
+            }
+        }
+        while (!queue.isEmpty()) {
+            Set<IOpenClass> queue1 = new LinkedHashSet<>();
+            for (IOpenClass oc : queue) {
+                if (oc.getInstanceClass().getTypeParameters().length == 0 && interfaces.contains(oc)) {
+                    return oc;
+                }
+                StreamSupport.stream(oc.superClasses().spliterator(), false)
+                    .filter(IOpenClass::isInterface)
+                    .filter(e -> !interfaces.contains(e))
+                    .forEach(queue1::add);
+            }
+            queue = new ArrayDeque<>(queue1);
+        }
+        return JavaOpenClass.OBJECT;
     }
-
 }

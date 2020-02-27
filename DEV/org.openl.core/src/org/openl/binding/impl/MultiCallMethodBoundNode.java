@@ -46,7 +46,7 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
         if (!JavaOpenClass.VOID.equals(returnType)) {
             arrayClass = returnType.getInstanceClass();
             // create an array type.
-            returnType = returnType.getAggregateInfo().getIndexedAggregateType(returnType);
+            returnType = returnType.getArrayType(1);
         }
 
         this.arrayArgArguments = new int[arrayArgArgumentList.size()];

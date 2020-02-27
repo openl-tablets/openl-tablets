@@ -161,11 +161,6 @@ public final class NullOpenClass implements IOpenClass {
         return null;
     }
 
-    @Override
-    public boolean isAssignableFrom(Class<?> c) {
-        return true;
-    }
-
     /*
      * (non-Javadoc)
      *

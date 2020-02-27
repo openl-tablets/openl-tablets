@@ -19,7 +19,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ADynamicClass;
-import org.openl.types.impl.ComponentTypeArrayOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
@@ -114,7 +113,9 @@ public class CastFactory implements ICastFactory {
         if (NullOpenClass.the.equals(openClass2)) {
             return getWrapperIfPrimitive(openClass1);
         }
-        openClass1 = JavaOpenClass.getOpenClass(openClass1.getInstanceClass()); // AliasDatatypes support
+
+        //Use java classes only because wa can't find cast method with OpenL types
+        openClass1 = JavaOpenClass.getOpenClass(openClass1.getInstanceClass());
         openClass2 = JavaOpenClass.getOpenClass(openClass2.getInstanceClass());
 
         Iterator<IOpenMethod> itr = methods.iterator();
@@ -281,15 +282,7 @@ public class CastFactory implements ICastFactory {
      */
     @Override
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
-        // Workaround for ComponentTypeOpenClass
-        if (from instanceof ComponentTypeArrayOpenClass) {
-            from = JavaOpenClass.getOpenClass(from.getInstanceClass());
-        }
-        if (to instanceof ComponentTypeArrayOpenClass) {
-            to = JavaOpenClass.getOpenClass(to.getInstanceClass());
-        }
-
-        /* BEGIN: This is very cheap operations, so no needs to chache it */
+        /* BEGIN: This is very cheap operations, so no needs to cache it */
         if (from == to || from.equals(to)) {
             return JavaNoCast.getInstance();
         }
@@ -472,7 +465,7 @@ public class CastFactory implements ICastFactory {
             return null;
         }
 
-        if (toClass.isAssignableFrom(fromClass)) {
+        if (to.isAssignableFrom(from)) {
             return getUpCast(fromClass, toClass);
         }
 
@@ -488,7 +481,7 @@ public class CastFactory implements ICastFactory {
             return typeCast;
         }
 
-        if (isAllowJavaDowncast(fromClass, toClass)) {
+        if (isAllowJavaDownСast(fromClass, toClass)) {
             return new JavaDownCast(to, getGlobalCastFactory());
         }
 
@@ -820,7 +813,7 @@ public class CastFactory implements ICastFactory {
      * @param to to type
      * @return <code>true</code> is downcast operation is allowed for given types; <code>false</code> - otherwise
      */
-    private boolean isAllowJavaDowncast(Class<?> from, Class<?> to) {
+    private boolean isAllowJavaDownСast(Class<?> from, Class<?> to) {
 
         if (from.isAssignableFrom(to)) {
             return true;

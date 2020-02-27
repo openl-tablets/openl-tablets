@@ -13,7 +13,6 @@ import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.SimpleDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.NullOpenClass;
 
 final class WebStudioDependencyLoader extends SimpleDependencyLoader {
@@ -53,11 +52,7 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
         Thread.currentThread().setContextClassLoader(classLoader);
 
         try {
-            return new CompiledDependency(dependencyName,
-                new CompiledOpenClass(NullOpenClass.the,
-                    messages,
-                    new SyntaxNodeException[0],
-                    new SyntaxNodeException[0]));
+            return new CompiledDependency(dependencyName, new CompiledOpenClass(NullOpenClass.the, messages));
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }

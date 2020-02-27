@@ -79,7 +79,9 @@ public interface RulesFrontend {
      * @param serviceName service name
      * @param proxyInterface interface for proxy
      * @return Proxy object for service
+     * @deprecated Use {@link OpenLServiceFactoryBean}
      */
+    @Deprecated
     <T> T buildServiceProxy(String serviceName, Class<T> proxyInterface);
 
     /**
@@ -89,6 +91,8 @@ public interface RulesFrontend {
      * @param proxyInterface interface for proxy
      * @param classLoader classloader
      * @return Proxy object for service
+     * @deprecated Use {@link OpenLServiceFactoryBean}
      */
+    @Deprecated
     <T> T buildServiceProxy(String serviceName, Class<T> proxyInterface, ClassLoader classLoader);
 }

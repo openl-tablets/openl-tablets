@@ -35,10 +35,10 @@ public class OpenLSystemProperties {
 
     public static int getTestRunThreadCount(Map<String, Object> externalParameters) {
         String testRunTheadCount = getProperty(externalParameters, TEST_RUN_THREAD_COUNT_PROPERTY);
-        return Integer.valueOf(testRunTheadCount);
+        return Integer.parseInt(testRunTheadCount);
     }
 
-    public static boolean isCustomSpreadsheetType(Map<String, Object> externalParameters) {
+    public static boolean isCustomSpreadsheetTypesSupported(Map<String, Object> externalParameters) {
         String customSpreadsheetType = getProperty(externalParameters, CUSTOM_SPREADSHEET_TYPE_PROPERTY);
         return BooleanUtils.toBoolean(customSpreadsheetType, true);
     }

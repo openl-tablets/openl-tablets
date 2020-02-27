@@ -113,8 +113,7 @@ public class ComponentOpenClass extends ADynamicClass {
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             try {
                 env.pushThis(target);
-                for (int i = 0; i < boundNodes.size(); i++) {
-                    IBoundNode node = boundNodes.get(i);
+                for (IBoundNode node : boundNodes) {
                     node.evaluate(env);
                 }
 

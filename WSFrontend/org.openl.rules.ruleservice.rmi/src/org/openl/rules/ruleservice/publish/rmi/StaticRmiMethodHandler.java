@@ -27,7 +27,7 @@ class StaticRmiMethodHandler extends AbstractOpenLMethodHandler<Method, Method> 
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Exception {
+    public Object invoke(Method method, Object[] args) throws Exception {
         Method m = methodMap.get(method);
         if (m == null) {
             throw new IllegalStateException("Method is not found in methods map.");

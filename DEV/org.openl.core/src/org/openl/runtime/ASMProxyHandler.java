@@ -5,5 +5,5 @@ import java.lang.reflect.Method;
 @FunctionalInterface
 public interface ASMProxyHandler {
 
-    Object invoke(Object proxy, Method method, Object[] args) throws Exception;
+    Object invoke(Method method, Object[] args) throws Exception;
 }
