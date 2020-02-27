@@ -25,6 +25,10 @@
         <ui:include src="/pages/modules/exportModule.xhtml" />
     </h:panelGroup>
 
+    <h:panelGroup rendered="#{studio.canRedeploy}">
+        <ui:include src="/pages/modules/repository/modal/smartEditorRedeploy.xhtml" />
+    </h:panelGroup>
+
     <h:panelGroup rendered="#{!empty rProject and rProject.openedForEditing and studio.model.editable}">
         <ui:param name="artefact" value="#{rProject}"/>
         <ui:include src="/pages/modules/saveRevision.xhtml" />
@@ -127,6 +131,11 @@
                                value="Sync"
                                title="Synchronize changes"
                                rendered="#{studio.canMerge}" />
+                <h:commandLink styleClass="changes-listener" onclick="openSmartRedeployDialogFromEditor('#{rProject.name}'); return false;" value="Deploy"
+                               id="deployProjectButton"
+                               title="Deploy the project"
+                               rendered="#{studio.canRedeploy}">
+                </h:commandLink>
                 <h:commandLink styleClass="changes-listener" onclick="openCopyProjectDialog('#{rProject.name}'); return false;"
                                id="copyProjectButton"
                                value="Copy" title="Copy project"
