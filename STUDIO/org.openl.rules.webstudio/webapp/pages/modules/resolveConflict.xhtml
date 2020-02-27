@@ -16,6 +16,7 @@
     .conflict-comment {
       width: 400px;
       height: 45px;
+      resize: none;
     }
   </style>
 
@@ -159,9 +160,9 @@
         <a4j:jsFunction name="refreshResolveConflictDialog" action="#{mergeConflictBean.init}" render="@form"
                         oncomplete="showResolveConflictDialog();"/>
         <a4j:jsFunction name="closeResolveConflictDialog" action="#{mergeConflictBean.clearMergeStatus}"
-                        oncomplete="afterResolveConflict(false); RichFaces.$('modalResolveConflicts').hide();"/>
+                        oncomplete="afterResolveConflict(false); disableCommentTextareaResize(); RichFaces.$('modalResolveConflicts').hide();"/>
         <a4j:jsFunction name="successfulConflictResolution" action="#{mergeConflictBean.clearMergeStatus}"
-                        oncomplete="afterResolveConflict(true); RichFaces.$('modalResolveConflicts').hide();"/>
+                        oncomplete="afterResolveConflict(true); disableCommentTextareaResize(); RichFaces.$('modalResolveConflicts').hide();"/>
         <a4j:jsFunction name="setConflictAndUploadConflictResolution" oncomplete="openUploadConflictResolutionDialog();">
           <a4j:param name="conflict" assignTo="#{mergeConflictBean.currentConflictedFile}"/>
         </a4j:jsFunction>
@@ -174,6 +175,14 @@
       //<![CDATA[
       var afterResolveConflict = function () {};
 
+      function disableCommentTextareaResize(){
+        document.getElementById("resolveConflictsForm:comment").style.resize = "none";
+      }
+
+      function enableCommentTextareaResize() {
+        document.getElementById("resolveConflictsForm:comment").style.resize = "both";
+      }
+
       function openResolveConflictDialog(afterResolveFunction) {
         afterResolveConflict = afterResolveFunction;
         refreshResolveConflictDialog();
@@ -181,6 +190,7 @@
 
       function showResolveConflictDialog() {
         var $dialog = RichFaces.$("modalResolveConflicts");
+        enableCommentTextareaResize();
         $dialog.show();
 
         var maxHeight = $j(window).height() * 0.8;
