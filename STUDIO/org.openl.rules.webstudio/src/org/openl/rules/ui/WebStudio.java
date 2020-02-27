@@ -1219,7 +1219,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             if (project.isModified()) {
                 return false;
             }
-            List<String> branches = ((BranchRepository) project.getDesignRepository()).getBranches(null);
+            List<String> branches = ((BranchRepository) project.getDesignRepository()).getBranches(project.getName());
             if (branches.size() < 2) {
                 return false;
             }
