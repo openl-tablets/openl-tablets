@@ -75,13 +75,9 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         internalMethods.add(new ModifyRuntimeContextMethod());
     }
 
-    private SpreadsheetResultOpenClass getModuleSpreadsheetResultOpenClass() {
+    private SpreadsheetResultOpenClass getSpreadsheetResultOpenClassWithFieldTypesResolving() {
         if (moduleSpreadsheetResultOpenClass == null) {
-            synchronized (this) {
-                if (moduleSpreadsheetResultOpenClass == null) {
-                    moduleSpreadsheetResultOpenClass = new SpreadsheetResultOpenClass(this, getModule());
-                }
-            }
+            this.moduleSpreadsheetResultOpenClass = new SpreadsheetResultOpenClass(this, getModule());
         }
         return moduleSpreadsheetResultOpenClass;
     }
@@ -193,9 +189,10 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     @Override
     public IOpenClass findType(String namespace, String typeName) {
-        if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(getExternalParams()) && ISyntaxConstants.THIS_NAMESPACE
-            .equals(namespace) && typeName.startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName
-                .length() > Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) {
+        if (OpenLSystemProperties
+            .isCustomSpreadsheetTypesSupported(getExternalParams()) && ISyntaxConstants.THIS_NAMESPACE
+                .equals(namespace) && typeName.startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName
+                    .length() > Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) {
             final String methodName = typeName.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
             IOpenClass openClass = super.findType(namespace, typeName);
             if (openClass instanceof CustomSpreadsheetResultOpenClass) {
@@ -214,7 +211,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         IOpenClass ret = super.findType(namespace, typeName);
         if (OpenLSystemProperties
             .isCustomSpreadsheetTypesSupported(getExternalParams()) && ret instanceof SpreadsheetResultOpenClass) {
-            return getModuleSpreadsheetResultOpenClass();
+            return getSpreadsheetResultOpenClassWithFieldTypesResolving();
         } else {
             return ret;
         }
