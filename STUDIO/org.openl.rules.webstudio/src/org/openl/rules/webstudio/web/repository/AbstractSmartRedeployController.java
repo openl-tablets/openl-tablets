@@ -6,7 +6,6 @@ import static org.openl.rules.security.Privileges.EDIT_DEPLOYMENT;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -102,10 +101,9 @@ public abstract class AbstractSmartRedeployController {
 
     private List<DeploymentProjectItem> getItems4Project(AProject project, String repositoryConfigName) {
         String projectName = project.getName();
-        UserWorkspace workspace = RepositoryUtils.getWorkspace();
 
         List<DeploymentProjectItem> result = new LinkedList<>();
-        if (workspace == null) {
+        if (userWorkspace == null) {
             return result; // must never happen
         }
 
@@ -125,7 +123,7 @@ public abstract class AbstractSmartRedeployController {
 
             ADeploymentProject latestDeploymentVersion = deploymentProject;
             if (deploymentProject.isOpenedOtherVersion()) {
-                latestDeploymentVersion = workspace.getLatestDeploymentConfiguration(deploymentProject.getName());
+                latestDeploymentVersion = userWorkspace.getLatestDeploymentConfiguration(deploymentProject.getName());
             }
 
             ProjectDescriptor<?> projectDescriptor = null;
@@ -212,7 +210,7 @@ public abstract class AbstractSmartRedeployController {
             result.add(item);
         }
 
-        if (!workspace.hasDDProject(projectName) && isGranted(CREATE_DEPLOYMENT)) {
+        if (!userWorkspace.hasDDProject(projectName) && isGranted(CREATE_DEPLOYMENT)) {
             // there is no deployment project with the same name...
             DeploymentProjectItem item = new DeploymentProjectItem();
             item.setName(projectName);
@@ -322,7 +320,6 @@ public abstract class AbstractSmartRedeployController {
     }
 
     private ADeploymentProject update(String deploymentName, AProject project) {
-        UserWorkspace workspace = RepositoryUtils.getWorkspace();
         try {
 
             // get latest version
@@ -330,22 +327,22 @@ public abstract class AbstractSmartRedeployController {
             // ADeployConfiguration, because of the renaming 'Deployment
             // Project' to the 'Deploy configuration'
             ADeploymentProject deployConfiguration = null;
-            if (workspace == null) {
+            if (userWorkspace == null) {
                 return null; // must never happen
             }
 
             if (deploymentName.equals(project.getName())) {
                 // the same name
-                if (!workspace.hasDDProject(deploymentName)) {
+                if (!userWorkspace.hasDDProject(deploymentName)) {
                     // create if absent
-                    deployConfiguration = workspace.createDDProject(deploymentName);
+                    deployConfiguration = userWorkspace.createDDProject(deploymentName);
                 }
             }
 
             boolean create;
 
             if (deployConfiguration == null) {
-                deployConfiguration = workspace.getDDProject(deploymentName);
+                deployConfiguration = userWorkspace.getDDProject(deploymentName);
                 create = false;
             } else {
                 create = true;
