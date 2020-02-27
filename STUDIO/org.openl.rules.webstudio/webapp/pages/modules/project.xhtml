@@ -53,11 +53,6 @@
             vertical-align: middle;
         }
 
-        .expandable-link {
-            cursor: pointer;
-            border-bottom: 1px dashed #777777;
-        }
-
         #leaveExcelFileConfirmation span {
             display: table-cell;
             vertical-align: middle;
@@ -97,7 +92,10 @@
                         </h:panelGroup>
                         <tr>
                             <td>Revision:</td>
-                            <td>#{projectData.version.versionName}</td>
+                            <td>
+                                <span class="expandable">#{projectData.version.shortVersion}</span>
+                                <span class="hidden">#{projectData.version.versionName}</span>
+                            </td>
                         </tr>
                         <tr>
                             <ui:param name="statusClass"
@@ -645,6 +643,10 @@
             var confirmNeeded = #{studio.model.confirmOverwriteNewerRevision};
             return !confirmNeeded || confirm("#{msg['ws.project.warning.version.old']}");
         }
+
+        $j(function () {
+            initExpandableLinks();
+        });
 
     //]]>
     </script>

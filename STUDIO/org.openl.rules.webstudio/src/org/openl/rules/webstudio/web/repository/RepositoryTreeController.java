@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -66,6 +67,7 @@ import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.util.PreferencesManager;
+import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
@@ -86,6 +88,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
+import org.openl.spring.env.PropertyResolverProvider;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -1062,8 +1065,11 @@ public class RepositoryTreeController {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
             AProject forExport = userWorkspace.getDesignTimeRepository()
                 .getProject(selectedProject.getName(), new CommonVersionImpl(version));
+            FileData fileData = forExport.getFileData();
             zipFile = ProjectExportHelper.export(userWorkspace.getUser(), forExport);
-            zipFileName = String.format("%s-%s.zip", selectedProject.getName(), version);
+            String modifiedOnStr = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(fileData.getModifiedAt());
+            String suffix = fileData.getAuthor() + "-" + modifiedOnStr;
+            zipFileName = String.format("%s-%s.zip", selectedProject.getName(), suffix);
         } catch (Exception e) {
             String msg = "Failed to export project version.";
             log.error(msg, e);
@@ -1296,13 +1302,24 @@ public class RepositoryTreeController {
     public SelectItem[] getSelectedProjectVersions() {
         Collection<ProjectVersion> versions = repositoryTreeState.getSelectedNode().getVersions();
 
+        return toSelectItems(versions);
+    }
+
+    public SelectItem[] toSelectItems(Collection<ProjectVersion> versions) {
         List<SelectItem> selectItems = new ArrayList<>();
         for (ProjectVersion version : versions) {
             if (!version.isDeleted()) {
-                selectItems.add(new SelectItem(version.getVersionName()));
+                selectItems.add(new SelectItem(version.getVersionName(), getDescriptiveVersion(version)));
             }
         }
         return selectItems.toArray(new SelectItem[0]);
+    }
+
+    private String getDescriptiveVersion(ProjectVersion version) {
+        String dateModifiedPattern = PropertyResolverProvider.getProperty(AdministrationSettings.DATE_PATTERN);
+        String modifiedOnStr = new SimpleDateFormat(dateModifiedPattern).format(version.getVersionInfo().getCreatedAt());
+
+        return version.getVersionInfo().getCreatedBy() + ": " + modifiedOnStr;
     }
 
     public String getUploadFrom() {
