@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -10,13 +9,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
-import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -33,22 +29,14 @@ public class LazyCompilationTest {
 
     private static final String SERVICE_NAME = "LazyCompilationTest_multimodule";
 
-    private ApplicationContext applicationContext;
-
     private volatile boolean failed = false;
     private volatile boolean running = true;
 
     @Autowired
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
+    private RulesFrontend frontend;
 
     @Test
     public void lazyCompilationTest() throws Exception {
-        assertNotNull(applicationContext);
-        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
-        assertNotNull(serviceManager);
-        RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
 
         Thread[] threads = new Thread[MAX_THREADS];
         CountDownLatch countDownLatch = new CountDownLatch(2000);
@@ -69,7 +57,7 @@ public class LazyCompilationTest {
         private RulesFrontend frontend;
         private CountDownLatch countDownLatch;
 
-        public LazyCompilationTestRunnable(RulesFrontend frontend, CountDownLatch countDownLatch) {
+        LazyCompilationTestRunnable(RulesFrontend frontend, CountDownLatch countDownLatch) {
             this.frontend = frontend;
             this.countDownLatch = countDownLatch;
         }
@@ -80,10 +68,13 @@ public class LazyCompilationTest {
             while (running) {
                 try {
                     int n = rnd.nextInt(9) + 1;
+                    String lob = "module" + n;
                     try {
                         IRulesRuntimeContext cxt = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-                        cxt.setLob("module" + n);
-                        if (!("module" + n).equals(frontend.execute(SERVICE_NAME, "hello", cxt))) {
+
+                        cxt.setLob(lob);
+                        Object result = frontend.execute(SERVICE_NAME, "hello", cxt);
+                        if (!(lob).equals(result)) {
                             failed = true;
                             running = false;
                         }
