@@ -126,6 +126,12 @@ public class CommonVersionImpl implements CommonVersion {
     }
 
     @Override
+    public String getShortVersion() {
+        String version = getVersionName();
+        return version == null || version.length() < 6 ? version : version.substring(0, 6);
+    }
+
+    @Override
     public int hashCode() {
         return major << 22 ^ minor << 11 ^ revision.hashCode();
     }

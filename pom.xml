@@ -79,8 +79,8 @@
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
         <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl-pub</staging.hg.repo.url>
-        <org.springframework.version>5.2.3.RELEASE</org.springframework.version>
-        <org.springsecurity.version>5.2.1.RELEASE</org.springsecurity.version>
+        <org.springframework.version>5.2.4.RELEASE</org.springframework.version>
+        <org.springsecurity.version>5.2.2.RELEASE</org.springsecurity.version>
         <org.hibernate.version>5.2.18.Final</org.hibernate.version>
         <org.mojarra.version>2.1.19</org.mojarra.version>
         <asm.version>7.2</asm.version>
@@ -104,7 +104,7 @@
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
         <surefire.argLine>-Xms8m -Xmx45m</surefire.argLine>
-        <invoker.mavenOpts>-Xms32m -Xmx80m</invoker.mavenOpts>
+        <invoker.mavenOpts>-Xms32m -Xmx48m</invoker.mavenOpts>
         <invoker.timeoutInSeconds>30</invoker.timeoutInSeconds>
         <openl.home>${project.build.directory}/openl-test</openl.home>
     </properties>

@@ -59,10 +59,6 @@ public final class MethodSearch {
                     arrayDims[i] = JavaGenericsUtils.getGenericTypeDim(type);
                     int arrayDim = arrayDims[i];
                     IOpenClass t = callParam[i];
-                    if (t.getInstanceClass() != null) {
-                        // don't use alias datatypes as Generics
-                        t = JavaOpenClass.getOpenClass(t.getInstanceClass());
-                    }
 
                     if (t.getInstanceClass() != null && t.getInstanceClass().isPrimitive()) {
                         t = JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(t.getInstanceClass()));
@@ -398,7 +394,7 @@ public final class MethodSearch {
             IOpenClass methodsReturnType,
             IOpenMethod m,
             IMethodCaller methodCaller) {
-        if (methodsReturnCast != null && methodsReturnType != m.getType()) {
+        if (methodsReturnCast != null && !methodsReturnType.equals(m.getType())) {
             return new AutoCastableResultOpenMethod(methodCaller, methodsReturnType, methodsReturnCast);
         } else {
             return methodCaller;

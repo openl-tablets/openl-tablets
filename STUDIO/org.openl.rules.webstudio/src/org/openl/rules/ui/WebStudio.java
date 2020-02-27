@@ -1,6 +1,7 @@
 package org.openl.rules.ui;
 
 import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.DEPLOY_PROJECTS;
 import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
 
 import java.io.File;
@@ -8,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,6 +40,7 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
@@ -355,7 +358,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
             forExport.refresh();
             String userName = rulesUserSession.getUserName();
 
-            String fileName = String.format("%s-%s.zip", forExport.getName(), forExport.getFileData().getVersion());
+            FileData fileData = forExport.getFileData();
+            String modifiedOnStr = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(fileData.getModifiedAt());
+            String suffix = fileData.getAuthor() + "-" + modifiedOnStr;
+            String fileName = String.format("%s-%s.zip", forExport.getName(), suffix);
             file = ProjectExportHelper.export(new WorkspaceUserImpl(userName), forExport);
 
             final FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -1215,7 +1221,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             if (project.isModified()) {
                 return false;
             }
-            List<String> branches = ((BranchRepository) project.getDesignRepository()).getBranches(null);
+            List<String> branches = ((BranchRepository) project.getDesignRepository()).getBranches(project.getName());
             if (branches.size() < 2) {
                 return false;
             }
@@ -1224,6 +1230,16 @@ public class WebStudio implements DesignTimeRepositoryListener {
         } catch (IOException e) {
             return false;
         }
+    }
+
+    public boolean getCanRedeploy() {
+        UserWorkspaceProject selectedProject = getCurrentProject();
+
+        if (selectedProject == null || selectedProject.isLocalOnly() || selectedProject.isModified()) {
+            return false;
+        }
+
+        return isGranted(DEPLOY_PROJECTS);
     }
 
     public void freezeProject(String name) {

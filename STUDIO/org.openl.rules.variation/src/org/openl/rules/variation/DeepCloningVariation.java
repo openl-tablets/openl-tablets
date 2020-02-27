@@ -60,21 +60,15 @@ public class DeepCloningVariation extends Variation {
 
     @Override
     public Object[] applyModification(Object[] originalArguments) {
-        Object[] clonedParams = null;
-        if (originalArguments != null) {
-            try {
-                clonedParams = cloner.deepClone(originalArguments);
-            } catch (Exception ex) {
-                throw new VariationRuntimeException("Original arguments deep cloning is failed.", ex);
-            }
-        } else {
-            clonedParams = new Object[0];
-        }
-        return variation.applyModification(clonedParams);
+        return variation.applyModification(clone(originalArguments));
     }
 
     @Override
     public Object currentValue(Object[] originalArguments) {
+        return variation.currentValue(clone(originalArguments));
+    }
+
+    private Object[] clone(Object[] originalArguments) {
         Object[] clonedParams = null;
         if (originalArguments != null) {
             try {
@@ -85,7 +79,7 @@ public class DeepCloningVariation extends Variation {
         } else {
             clonedParams = new Object[0];
         }
-        return variation.currentValue(clonedParams);
+        return clonedParams;
     }
 
     @Override

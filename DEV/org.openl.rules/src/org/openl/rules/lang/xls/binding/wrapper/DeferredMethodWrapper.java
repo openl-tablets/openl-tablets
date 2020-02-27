@@ -1,24 +1,40 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
+import java.util.Objects;
+
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.module.DeferredMethod;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.*;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
+import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
 public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethodWrapper {
-    DeferredMethod delegate;
-    XlsModuleOpenClass xlsModuleOpenClass;
-    ContextPropertiesInjector contextPropertiesInjector;
+    static {
+        WrapperLogic.validateWrapperClass(DeferredMethodWrapper.class, DeferredMethodWrapper.class.getSuperclass());
+    }
+
+    private DeferredMethod delegate;
+    private XlsModuleOpenClass xlsModuleOpenClass;
+    private ContextPropertiesInjector contextPropertiesInjector;
+    private IOpenClass type;
+    private IMethodSignature methodSignature;
 
     public DeferredMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             DeferredMethod delegate,
             ContextPropertiesInjector contextPropertiesInjector) {
         super(null, null, null, null, null);
-        this.delegate = delegate;
-        this.xlsModuleOpenClass = xlsModuleOpenClass;
-        this.contextPropertiesInjector = contextPropertiesInjector;
+        this.delegate = Objects.requireNonNull(delegate, "delegate can not be null");
+        this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass can not be null");
+        this.contextPropertiesInjector = Objects.requireNonNull(contextPropertiesInjector,
+            "contextPropertiesInjector can not be null");
+        IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
+        this.type = type != null ? type : delegate.getType();
+        this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
     }
 
     @Override
@@ -48,7 +64,7 @@ public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethod
 
     @Override
     public IOpenMethodHeader getHeader() {
-        return delegate.getHeader();
+        return this;
     }
 
     @Override
@@ -58,7 +74,7 @@ public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethod
 
     @Override
     public IOpenMethod getMethod() {
-        return delegate.getMethod();
+        return this;
     }
 
     @Override
@@ -73,12 +89,12 @@ public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethod
 
     @Override
     public IMethodSignature getSignature() {
-        return delegate.getSignature();
+        return methodSignature;
     }
 
     @Override
     public IOpenClass getType() {
-        return delegate.getType();
+        return type;
     }
 
     @Override

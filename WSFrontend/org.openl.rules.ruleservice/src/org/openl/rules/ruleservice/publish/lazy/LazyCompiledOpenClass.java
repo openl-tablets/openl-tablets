@@ -11,6 +11,7 @@ import org.openl.rules.ruleservice.core.LazyRuleServiceDependencyLoader;
 import org.openl.rules.ruleservice.core.RuleServiceDeploymentRelatedDependencyManager;
 import org.openl.syntax.code.IDependency;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 
 public class LazyCompiledOpenClass extends CompiledOpenClass {
 
@@ -21,7 +22,7 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
     public LazyCompiledOpenClass(RuleServiceDeploymentRelatedDependencyManager dependencyManager,
             LazyRuleServiceDependencyLoader lazyRuleServiceDependencyLoader,
             IDependency dependency) {
-        super(null, null);
+        super(NullOpenClass.the, null);
         this.dependencyManager = Objects.requireNonNull(dependencyManager, "dependencyManager cannot be null");
         this.lazyRuleServiceDependencyLoader = Objects.requireNonNull(lazyRuleServiceDependencyLoader,
             "lazyRuleServiceDependencyLoader cannot be null");

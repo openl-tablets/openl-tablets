@@ -176,11 +176,19 @@ public class TreeProject extends TreeFolder {
     public String getVersion() {
         try {
             String projectVersion = getProject().getFileData().getVersion();
-            return projectVersion == null ? "unversioned" : projectVersion;
+            return projectVersion == null ? UNVERSIONED : projectVersion;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return "Error";
         }
+    }
+
+    public String getShortVersion() {
+        String version = getVersion();
+        if (UNVERSIONED.equals(version)) {
+            return UNVERSIONED;
+        }
+        return version == null || version.length() < 6 ? version : version.substring(0, 6);
     }
 
     public boolean isRenamed() {

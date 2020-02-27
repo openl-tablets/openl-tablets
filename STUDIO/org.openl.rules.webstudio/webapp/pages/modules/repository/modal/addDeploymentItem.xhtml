@@ -20,7 +20,7 @@
             <h:outputLabel for="projectName" styleClass="required" value="Name" />
             <h:selectOneMenu id="projectName" value="#{deploymentController.projectName}" style="width:250px;">
                 <f:selectItems value="#{availableProjects}" />
-                <f:ajax event="change" render="projectVersion" execute="@this" />
+                <f:ajax event="change" render="projectVersion" execute="@this" onevent="onProjectNameChange"/>
             </h:selectOneMenu>
         </h:panelGrid>
 
@@ -33,6 +33,12 @@
             	        <rich:column>
             	          <h:outputText value="Revision" />
             	        </rich:column>
+            	        <rich:column style="min-width: 70px">
+            	          <h:outputText value="Modified By"/>
+            	        </rich:column>
+            	        <rich:column style="min-width: 70px">
+            	          <h:outputText value="Modified At"/>
+            	        </rich:column>
             	        <rich:column>
             	          <h:outputText value="Comment" />
             	        </rich:column>
@@ -42,7 +48,16 @@
             	      </rich:columnGroup>
             	    </f:facet>
                   <rich:column style="text-align: center;">
-                    <h:outputText value="#{version.versionName}" />
+                    <h:outputText id="short-value-for-deploy" value="#{version.shortVersion}" styleClass="expandable"/>
+                    <h:outputText value="#{version.versionName}" styleClass="hidden"/>
+                  </rich:column>
+                  <rich:column>
+                    <h:outputText value="#{version.versionInfo.createdBy}" />
+                  </rich:column>
+                  <rich:column>
+                    <h:outputText value="#{version.versionInfo.createdAt}">
+                        <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.date')}" />
+                    </h:outputText>
                   </rich:column>
                   <rich:column>
                     <h:outputText value="#{version.versionComment}" />
@@ -78,6 +93,7 @@
   </rich:popupPanel>
 
   <script>
+      //<![CDATA[
       function showAddDeployEntry() {
           initAddDeployEntry();
       }
@@ -88,6 +104,12 @@
               projectSelector.onchange();
           }
           RichFaces.$('addDeployEntry').show();
+          focusElement('addDeployEntryForm:projectName');
       }
+
+      function onProjectNameChange(data) {
+          if (data.status === 'success') initExpandableLinks();
+      }
+      //]]>
   </script>
 </ui:composition>

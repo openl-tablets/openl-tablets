@@ -21,8 +21,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     protected IOpenIndex index;
     private final String javaName;
 
-    public static ComponentTypeArrayOpenClass createComponentTypeArrayOpenClass(IOpenClass componentClass,
-            int dim) {
+    public static ComponentTypeArrayOpenClass createComponentTypeArrayOpenClass(IOpenClass componentClass, int dim) {
         ComponentTypeArrayOpenClass componentTypeArrayOpenClass = null;
         if (dim > 0) {
             componentTypeArrayOpenClass = new ComponentTypeArrayOpenClass(componentClass);
@@ -39,6 +38,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
         this.fieldMap = new HashMap<>(1);
         this.fieldMap.put(lengthOpenField.getName(), lengthOpenField);
         this.javaName = createJavaName(componentClass);
+        JavaOpenClass.OBJECT.getMethods().forEach(this::addMethod);
     }
 
     @Override
@@ -84,10 +84,6 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     public boolean isAssignableFrom(IOpenClass ioc) {
         if (ioc == null || ioc.getInstanceClass() == null) {
             return false;
-        }
-        if (ioc instanceof ComponentTypeArrayOpenClass) {
-            ComponentTypeArrayOpenClass componentTypeArrayOpenClass = (ComponentTypeArrayOpenClass) ioc;
-            return getComponentClass().isAssignableFrom(componentTypeArrayOpenClass.getComponentClass());
         }
         if (ioc.isArray()) {
             return getComponentClass().isAssignableFrom(ioc.getComponentClass());
@@ -167,4 +163,5 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     public String toString() {
         return javaName;
     }
+
 }

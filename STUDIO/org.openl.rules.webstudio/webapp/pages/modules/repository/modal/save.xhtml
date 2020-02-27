@@ -26,7 +26,10 @@
           </h:panelGroup>
 
           <h:outputText value="Current Revision:" />
-          <h:outputText value="#{node.versionName}"/>
+          <h:panelGroup>
+            <h:outputText value="#{node.shortVersion}" styleClass="expandable"/>
+            <h:outputText value="#{node.versionName}" styleClass="hidden"/>
+          </h:panelGroup>
 
           <h:outputText value="Comment:" />
           <h:inputTextarea id="comment" value="#{repositoryTreeController.versionComment}" type="text" size="35"
@@ -35,6 +38,13 @@
           <h:outputText value=""/>
           <h:message for="comment" styleClass="error"/>
         </h:panelGrid>
+
+        <script>
+          // Must be inside modalSaveData block
+          $j(function () {
+            initExpandableLinks();
+          });
+        </script>
       </h:panelGroup>
 
       <footer>

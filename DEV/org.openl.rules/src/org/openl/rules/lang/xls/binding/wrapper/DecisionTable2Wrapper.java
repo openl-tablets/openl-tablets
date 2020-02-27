@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
@@ -19,20 +20,34 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.types.*;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
+import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
 public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodWrapper {
-    DecisionTable delegate;
-    XlsModuleOpenClass xlsModuleOpenClass;
-    ContextPropertiesInjector contextPropertiesInjector;
+    static {
+        WrapperLogic.validateWrapperClass(DecisionTable2Wrapper.class, DecisionTable2Wrapper.class.getSuperclass());
+    }
+
+    private DecisionTable delegate;
+    private XlsModuleOpenClass xlsModuleOpenClass;
+    private ContextPropertiesInjector contextPropertiesInjector;
+    private IOpenClass type;
+    private IMethodSignature methodSignature;
 
     public DecisionTable2Wrapper(XlsModuleOpenClass xlsModuleOpenClass,
             DecisionTable delegate,
             ContextPropertiesInjector contextPropertiesInjector) {
-        this.delegate = delegate;
-        this.xlsModuleOpenClass = xlsModuleOpenClass;
-        this.contextPropertiesInjector = contextPropertiesInjector;
+        this.delegate = Objects.requireNonNull(delegate, "delegate can not be null");
+        this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass can not be null");
+        this.contextPropertiesInjector = Objects.requireNonNull(contextPropertiesInjector,
+            "contextPropertiesInjector can not be null");
+        IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
+        this.type = type != null ? type : delegate.getType();
+        this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
     }
 
     @Override
@@ -52,7 +67,7 @@ public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodW
 
     @Override
     public IOpenMethodHeader getHeader() {
-        return delegate.getHeader();
+        return this;
     }
 
     @Override
@@ -67,12 +82,12 @@ public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodW
 
     @Override
     public IMethodSignature getSignature() {
-        return delegate.getSignature();
+        return methodSignature;
     }
 
     @Override
     public IOpenClass getType() {
-        return delegate.getType();
+        return type;
     }
 
     @Override
@@ -112,7 +127,7 @@ public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodW
 
     @Override
     public IOpenMethod getMethod() {
-        return delegate.getMethod();
+        return this;
     }
 
     @Override
