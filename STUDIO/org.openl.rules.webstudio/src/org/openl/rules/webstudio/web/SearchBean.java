@@ -72,6 +72,10 @@ public class SearchBean {
         return tableTypes;
     }
 
+    public void setTableTypes(String[] tableTypes) {
+        this.tableTypes = tableTypes;
+    }
+
     public String getTableHeader() {
         return tableHeader;
     }
