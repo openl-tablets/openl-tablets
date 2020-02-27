@@ -168,6 +168,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             String key) throws SyntaxNodeException {
 
         Object result;
+        IOpenClass resType;
 
         try {
             if (foreignKeyColumnChainTokens.length == 0) {
@@ -182,16 +183,19 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 }
             }
             result = foreignTable.findObject(foreignKeyIndex, key, bindingContext);
+            resType = foreignTable.getDataModel().getType();
+
             if (result == null) {
                 throw createIndexNotFoundError(foreignTable, valueTable, key, null, bindingContext);
             }
 
             if (!ArrayUtils.isEmpty(foreignKeyTableAccessorChainTokens)) {
-                ResultChainObject chainRes = getChainObject(bindingContext, result, foreignKeyTableAccessorChainTokens);
+                ResultChainObject chainRes = getChainObject(bindingContext, resType, result, foreignKeyTableAccessorChainTokens);
                 if (chainRes == null) {
                     throw createIndexNotFoundError(foreignTable, valueTable, key, null, bindingContext);
                 }
                 result = chainRes.getValue();
+                resType = chainRes.getType();
             }
 
         } catch (SyntaxNodeException ex) {
@@ -345,20 +349,14 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         return;
                     }
                     if (result != null) {
-                        ResultChainObject chainRes = getChainObject(cxt, result, foreignKeyTableAccessorChainTokens);
+                        ResultChainObject chainRes = getChainObject(cxt,
+                            resType,
+                            result,
+                            foreignKeyTableAccessorChainTokens);
                         if (chainRes == null) {
                             throw createIndexNotFoundError(foreignTable, valuesTable, s, null, cxt);
                         }
-                        Class<?> instanceClass = chainRes.instanceClass;
-                        int dim = 0;
-                        while (instanceClass.isArray()) {
-                            instanceClass = instanceClass.getComponentType();
-                            dim++;
-                        }
-                        resType = JavaOpenClass.getOpenClass(instanceClass);
-                        if (dim > 0) {
-                            resType = resType.getArrayType(dim);
-                        }
+                        resType = chainRes.getType();
                     }
                 }
 
@@ -595,22 +593,22 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     }
 
     private ResultChainObject getChainObject(IBindingContext bindingContext,
+            IOpenClass resType,
             Object parentObj,
             IdentifierNode[] fieldChainTokens) {
         Object resObj = parentObj;
-        Class<?> resInctClass = parentObj.getClass();
         if (fieldChainTokens.length > 1) {
             IOpenField openField = DataTableBindHelper.processFieldsChain(bindingContext,
                 null,
-                JavaOpenClass.getOpenClass(resInctClass),
+                resType,
                 ArrayUtils.subarray(fieldChainTokens, 1, fieldChainTokens.length));
             if (openField == null) {
                 return null;
             }
             resObj = openField.get(resObj, new SimpleRulesVM().getRuntimeEnv());
-            resInctClass = openField.getType().getInstanceClass();
+            resType = openField.getType();
         }
-        return new ResultChainObject(resObj, resInctClass);
+        return new ResultChainObject(resObj, resType);
     }
 
     public IdentifierNode getForeignKeyTable() {
@@ -637,19 +635,19 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     static class ResultChainObject {
         private Object value;
-        private Class<?> instanceClass;
+        private IOpenClass type;
 
-        ResultChainObject(Object value, Class<?> instanceClass) {
+        ResultChainObject(Object value, IOpenClass type) {
             this.value = value;
-            this.instanceClass = instanceClass;
+            this.type = type;
         }
 
         public Object getValue() {
             return value;
         }
 
-        public Class<?> getInstanceClass() {
-            return instanceClass;
+        public IOpenClass getType() {
+            return type;
         }
     }
 }

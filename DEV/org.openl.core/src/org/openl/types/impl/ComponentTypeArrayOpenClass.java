@@ -85,10 +85,6 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
         if (ioc == null || ioc.getInstanceClass() == null) {
             return false;
         }
-        if (ioc instanceof ComponentTypeArrayOpenClass) {
-            ComponentTypeArrayOpenClass componentTypeArrayOpenClass = (ComponentTypeArrayOpenClass) ioc;
-            return getComponentClass().isAssignableFrom(componentTypeArrayOpenClass.getComponentClass());
-        }
         if (ioc.isArray()) {
             return getComponentClass().isAssignableFrom(ioc.getComponentClass());
         }

@@ -113,7 +113,9 @@ public class CastFactory implements ICastFactory {
         if (NullOpenClass.the.equals(openClass2)) {
             return getWrapperIfPrimitive(openClass1);
         }
-        openClass1 = JavaOpenClass.getOpenClass(openClass1.getInstanceClass()); // AliasDatatypes support
+
+        //Use java classes only because wa can't find cast method with OpenL types
+        openClass1 = JavaOpenClass.getOpenClass(openClass1.getInstanceClass());
         openClass2 = JavaOpenClass.getOpenClass(openClass2.getInstanceClass());
 
         Iterator<IOpenMethod> itr = methods.iterator();
@@ -463,7 +465,7 @@ public class CastFactory implements ICastFactory {
             return null;
         }
 
-        if (toClass.isAssignableFrom(fromClass)) {
+        if (to.isAssignableFrom(from)) {
             return getUpCast(fromClass, toClass);
         }
 
@@ -479,7 +481,7 @@ public class CastFactory implements ICastFactory {
             return typeCast;
         }
 
-        if (isAllowJavaDowncast(fromClass, toClass)) {
+        if (isAllowJavaDownСast(fromClass, toClass)) {
             return new JavaDownCast(to, getGlobalCastFactory());
         }
 
@@ -811,7 +813,7 @@ public class CastFactory implements ICastFactory {
      * @param to to type
      * @return <code>true</code> is downcast operation is allowed for given types; <code>false</code> - otherwise
      */
-    private boolean isAllowJavaDowncast(Class<?> from, Class<?> to) {
+    private boolean isAllowJavaDownСast(Class<?> from, Class<?> to) {
 
         if (from.isAssignableFrom(to)) {
             return true;
