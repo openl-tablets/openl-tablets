@@ -63,7 +63,7 @@ public final class PackageMojo extends BaseOpenLMojo {
     private File classesDirectory;
 
     /**
-     * Comma separated list of packaging formats.
+     * Comma separated list of packaging formats. Supported values: zip, jar.
      */
     @Parameter(defaultValue = "zip")
     private String format;
