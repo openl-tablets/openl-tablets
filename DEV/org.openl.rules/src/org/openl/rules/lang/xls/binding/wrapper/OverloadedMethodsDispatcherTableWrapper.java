@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -13,16 +14,25 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDispatcherTable implements IOpenMethodWrapper {
-    OverloadedMethodsDispatcherTable delegate;
-    XlsModuleOpenClass xlsModuleOpenClass;
-    ContextPropertiesInjector contextPropertiesInjector;
+    static {
+        WrapperLogic.validateWrapperClass(OverloadedMethodsDispatcherTableWrapper.class, OverloadedMethodsDispatcherTableWrapper.class.getSuperclass());
+    }
+
+    private OverloadedMethodsDispatcherTable delegate;
+    private XlsModuleOpenClass xlsModuleOpenClass;
+    private ContextPropertiesInjector contextPropertiesInjector;
+    private IOpenClass type;
+    private IMethodSignature methodSignature;
 
     public OverloadedMethodsDispatcherTableWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             OverloadedMethodsDispatcherTable delegate,
             ContextPropertiesInjector contextPropertiesInjector) {
-        this.delegate = delegate;
-        this.xlsModuleOpenClass = xlsModuleOpenClass;
-        this.contextPropertiesInjector = contextPropertiesInjector;
+        this.delegate = Objects.requireNonNull(delegate, "delegate can not be null");
+        this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass can not be null");
+        this.contextPropertiesInjector = Objects.requireNonNull(contextPropertiesInjector, "contextPropertiesInjector can not be null");
+        IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
+        this.type = type != null ? type : delegate.getType();
+        this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
     }
 
     @Override
@@ -52,7 +62,7 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
 
     @Override
     public IMethodSignature getSignature() {
-        return delegate.getSignature();
+        return methodSignature;
     }
 
     @Override
@@ -72,7 +82,7 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
 
     @Override
     public IOpenClass getType() {
-        return delegate.getType();
+        return type;
     }
 
     @Override
@@ -92,7 +102,7 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
 
     @Override
     public IOpenMethod getMethod() {
-        return delegate.getMethod();
+        return this;
     }
 
     @Override

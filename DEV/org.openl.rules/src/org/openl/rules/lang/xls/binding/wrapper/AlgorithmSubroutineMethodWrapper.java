@@ -2,6 +2,7 @@ package org.openl.rules.lang.xls.binding.wrapper;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
@@ -11,21 +12,37 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
-import org.openl.types.*;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
+import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
 public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod implements IOpenMethodWrapper {
-    AlgorithmSubroutineMethod delegate;
-    XlsModuleOpenClass xlsModuleOpenClass;
-    ContextPropertiesInjector contextPropertiesInjector;
+
+    static {
+        WrapperLogic.validateWrapperClass(AlgorithmSubroutineMethodWrapper.class,
+            AlgorithmSubroutineMethodWrapper.class.getSuperclass());
+    }
+
+    private AlgorithmSubroutineMethod delegate;
+    private XlsModuleOpenClass xlsModuleOpenClass;
+    private ContextPropertiesInjector contextPropertiesInjector;
+    private IOpenClass type;
+    private IMethodSignature methodSignature;
 
     public AlgorithmSubroutineMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             AlgorithmSubroutineMethod delegate,
             ContextPropertiesInjector contextPropertiesInjector) {
         super(null);
-        this.delegate = delegate;
-        this.xlsModuleOpenClass = xlsModuleOpenClass;
-        this.contextPropertiesInjector = contextPropertiesInjector;
+        this.delegate = Objects.requireNonNull(delegate, "delegate can not be null");
+        this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass can not be null");
+        this.contextPropertiesInjector = Objects.requireNonNull(contextPropertiesInjector,
+            "contextPropertiesInjector can not be null");
+        IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
+        this.type = type != null ? type : delegate.getType();
+        this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
     }
 
     @Override
@@ -45,7 +62,7 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
 
     @Override
     public IOpenClass getDeclaringClass() {
-        return delegate.getDeclaringClass();
+        return xlsModuleOpenClass;
     }
 
     @Override
@@ -60,7 +77,7 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
 
     @Override
     public IOpenMethodHeader getHeader() {
-        return delegate.getHeader();
+        return this;
     }
 
     @Override
@@ -70,7 +87,7 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
 
     @Override
     public IOpenMethod getMethod() {
-        return delegate.getMethod();
+        return this;
     }
 
     @Override
@@ -80,12 +97,12 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
 
     @Override
     public IMethodSignature getSignature() {
-        return delegate.getSignature();
+        return methodSignature;
     }
 
     @Override
     public IOpenClass getType() {
-        return delegate.getType();
+        return type;
     }
 
     @Override

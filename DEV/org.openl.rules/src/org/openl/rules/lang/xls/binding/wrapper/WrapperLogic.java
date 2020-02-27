@@ -1,5 +1,8 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+
 import org.openl.binding.impl.module.DeferredMethod;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.cmatch.ColumnMatch;
@@ -15,13 +18,17 @@ import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.runtime.ASMProxyFactory;
-import org.openl.runtime.OpenLMethodHandler;
 import org.openl.runtime.ASMProxyHandler;
+import org.openl.runtime.OpenLMethodHandler;
 import org.openl.types.IDynamicObject;
+import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodDelegator;
+import org.openl.types.impl.MethodSignature;
+import org.openl.types.impl.ParameterDeclaration;
 import org.openl.vm.IRuntimeEnv;
 
 public final class WrapperLogic {
@@ -57,6 +64,23 @@ public final class WrapperLogic {
         return (SimpleRulesRuntimeEnv) env1;
     }
 
+    static void validateWrapperClass(Class<?> methodWrapperClass, Class<?> methodClass) {
+        if (Arrays.stream(methodClass.getDeclaredMethods())
+            .filter(e -> !e.isSynthetic() && Modifier.isPublic(e.getModifiers()) && !Modifier.isStatic(e.getModifiers()))
+            .anyMatch(e -> {
+                try {
+                    methodWrapperClass.getDeclaredMethod(e.getName(), e.getParameterTypes());
+                } catch (NoSuchMethodException ignore) {
+                    return true;
+                }
+                return false;
+            })) {
+            throw new IllegalStateException(String.format("%s must override all public methods of %s",
+                methodWrapperClass.getTypeName(),
+                methodClass.getTypeName()));
+        }
+    }
+
     private static IOpenMethod extractMethod(SimpleRulesRuntimeEnv simpleRulesRuntimeEnv, IOpenMethod method) {
         while (method instanceof LazyMethodWrapper || method instanceof MethodDelegator) {
             if (method instanceof LazyMethodWrapper) {
@@ -70,9 +94,24 @@ public final class WrapperLogic {
         return method;
     }
 
-    public static IOpenMethod wrapOpenMethod(final IOpenMethod openMethod, final XlsModuleOpenClass module) {
-        if (openMethod instanceof IOpenMethodWrapper || openMethod instanceof TestSuiteMethod) {
+    public static IMethodSignature buildMethodSignature(IOpenMethod openMethod, XlsModuleOpenClass xlsModuleOpenClass) {
+        IOpenClass[] parameterTypes = openMethod.getSignature().getParameterTypes();
+        IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[parameterTypes.length];
+        for (int i = 0; i < parameterTypes.length; i++) {
+            IOpenClass t = xlsModuleOpenClass.findType(parameterTypes[i].getName());
+            t = t != null ? t : parameterTypes[i];
+            parameterDeclarations[i] = new ParameterDeclaration(t, openMethod.getSignature().getParameterName(i));
+        }
+        return new MethodSignature(parameterDeclarations);
+    }
+
+    public static IOpenMethod wrapOpenMethod(IOpenMethod openMethod, final XlsModuleOpenClass module) {
+        if (openMethod instanceof TestSuiteMethod) {
             return openMethod;
+        }
+
+        if (openMethod instanceof IOpenMethodWrapper) {
+            openMethod = ((IOpenMethodWrapper) openMethod).getDelegate();
         }
 
         ContextPropertiesInjector contextPropertiesInjector = new ContextPropertiesInjector(

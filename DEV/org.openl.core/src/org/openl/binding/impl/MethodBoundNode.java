@@ -26,7 +26,7 @@ public class MethodBoundNode extends ATargetBoundNode {
             IMethodCaller methodCaller,
             IBoundNode targetNode) {
         super(syntaxNode, targetNode, child);
-        boundMethod = methodCaller;
+        this.boundMethod = methodCaller;
     }
 
     @Override

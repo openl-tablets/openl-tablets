@@ -1,7 +1,13 @@
 package org.openl.rules.types.impl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -37,6 +43,8 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     private IOpenMethod decisionTableOpenMethod;
 
+    private IOpenClass type;
+
     public IOpenMethod getDecisionTableOpenMethod() {
         return decisionTableOpenMethod;
     }
@@ -50,8 +58,11 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     public MatchingOpenMethodDispatcher(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {
         super();
+        Objects.requireNonNull(method, "method can not be null");
         decorate(method);
-        this.moduleOpenClass = moduleOpenClass;
+        this.moduleOpenClass = Objects.requireNonNull(moduleOpenClass, "moduleOpenClass can not be null");
+        IOpenClass type = moduleOpenClass.findType(method.getType().getName());
+        this.type = type != null ? type : method.getType();
     }
 
     @Override
@@ -305,11 +316,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     @Override
     public IOpenClass getType() {
-        // Use types from declaring types. For customspreadsheetresult types.
-        IOpenClass type = getDeclaringClass().findType(super.getType().getName());
-        if (type == null) {
-            return super.getType();
-        }
         return type;
     }
 
