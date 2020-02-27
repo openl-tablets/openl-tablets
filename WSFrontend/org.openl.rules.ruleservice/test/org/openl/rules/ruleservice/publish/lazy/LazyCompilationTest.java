@@ -12,6 +12,8 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -24,6 +26,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
         "ruleservice.datasource.deploy.clean.datasource=false" })
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
 public class LazyCompilationTest {
+
+    private static Logger log = LoggerFactory.getLogger(LazyCompilationTest.class);
 
     private static final int MAX_THREADS = Runtime.getRuntime().availableProcessors();
 
@@ -74,18 +78,26 @@ public class LazyCompilationTest {
         public void run() {
             Random rnd = new Random();
             while (running) {
-                int n = rnd.nextInt(9) + 1;
                 try {
-                    IRulesRuntimeContext cxt = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-                    cxt.setLob("module" + n);
-                    if (!("module" + n).equals(frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }))) {
+                    int n = rnd.nextInt(9) + 1;
+                    try {
+                        IRulesRuntimeContext cxt = RulesRuntimeContextFactory.buildRulesRuntimeContext();
+                        cxt.setLob("module" + n);
+                        if (!("module" + n).equals(frontend.execute(SERVICE_NAME, "hello", cxt))) {
+                            failed = true;
+                            running = false;
+                        }
+                    } catch (Exception e) {
+                        log.error("Unexpected exception", e);
                         failed = true;
                         running = false;
                     }
-                } catch (Exception e) {
-                    failed = true;
-                    running = false;
+                } finally {
+                    countDownLatch.countDown();
                 }
+            }
+            while (countDownLatch.getCount() > 0) {
+                failed = true;
                 countDownLatch.countDown();
             }
         }
