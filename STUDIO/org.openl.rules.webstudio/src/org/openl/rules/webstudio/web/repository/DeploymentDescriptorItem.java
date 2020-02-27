@@ -11,19 +11,13 @@ public class DeploymentDescriptorItem extends AbstractItem {
     /** Project version. */
     private CommonVersion version;
 
-    private String versionName;
-
-    public DeploymentDescriptorItem() {
-    }
-
-    public DeploymentDescriptorItem(String name, CommonVersion version) {
+    DeploymentDescriptorItem(String name, CommonVersion version) {
         this(name, version, null);
     }
 
-    public DeploymentDescriptorItem(String name, CommonVersion version, String messages) {
+    private DeploymentDescriptorItem(String name, CommonVersion version, String messages) {
         setName(name);
         this.version = version;
-        versionName = version.getVersionName();
         setMessages(messages);
     }
 
@@ -45,23 +39,11 @@ public class DeploymentDescriptorItem extends AbstractItem {
         return version;
     }
 
-    public String getVersionName() {
-        return versionName;
-    }
-
     @Override
     public int hashCode() {
         int result;
         result = getName().hashCode();
         result = 31 * result + version.hashCode();
         return result;
-    }
-
-    public void setVersion(CommonVersion version) {
-        this.version = version;
-    }
-
-    public void setVersionName(String version) {
-        versionName = version;
     }
 }

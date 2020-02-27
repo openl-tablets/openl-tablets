@@ -1,7 +1,15 @@
 package org.openl.rules.webstudio.web.diff;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -16,7 +24,11 @@ import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls2.XlsDiff2;
-import org.openl.rules.project.abstraction.*;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -77,17 +89,8 @@ public class RepositoryDiffController extends AbstractDiffController {
         return selectedVersionRepo;
     }
 
-    public SelectItem[] getVersionsRepo() {
-        Collection<ProjectVersion> versions = projectUW.getVersions();
-        SelectItem[] selectItems = new SelectItem[versions.size()];
-
-        int i = 0;
-        for (ProjectVersion version : versions) {
-            selectItems[i] = new SelectItem(version.getVersionName());
-            i++;
-        }
-
-        return selectItems;
+    public List<ProjectVersion> getVersionsRepo() {
+        return projectUW.getVersions();
     }
 
     public List<SelectItem> getExcelFilesUW() {

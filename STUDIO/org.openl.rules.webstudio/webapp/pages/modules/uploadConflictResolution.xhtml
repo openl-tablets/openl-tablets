@@ -32,13 +32,13 @@
         <footer>
           <a4j:commandButton value="Apply" action="#{mergeConflictBean.applyConflictResolution}" render="modalUploadFileData :modalResolveConflictsData :modalResolveConflictsButtons" styleClass="button-primary"
                              data="#{mergeConflictBean.uploadError}"
-                             oncomplete="if (!event.data &amp;&amp; #{!facesContext.validationFailed}) {RichFaces.$('modalUploadConflictResolution').hide();}"/>
+                             oncomplete="if (!event.data &amp;&amp; #{!facesContext.validationFailed}) {RichFaces.$('modalUploadConflictResolution').hide(); enableCommentTextareaResize();}"/>
           <input type="button" value="Cancel" onclick="cancelConflictResolution();" />
         </footer>
       </h:panelGroup>
 
       <a4j:jsFunction name="refreshUploadConflictResolutionDialog" render="@form" oncomplete="showUploadConflictResolutionDialog();" />
-      <a4j:jsFunction name="cancelConflictResolution" action="#{mergeConflictBean.cancelConflictResolution}" render=":modalResolveConflictsData :modalResolveConflictsButtons" oncomplete="RichFaces.$('modalUploadConflictResolution').hide();" />
+      <a4j:jsFunction name="cancelConflictResolution" action="#{mergeConflictBean.cancelConflictResolution}" render=":modalResolveConflictsData :modalResolveConflictsButtons" oncomplete="RichFaces.$('modalUploadConflictResolution').hide(); enableCommentTextareaResize();" />
     </h:form>
 
   </rich:popupPanel>

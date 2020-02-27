@@ -1,8 +1,10 @@
 package org.openl.rules.webstudio.web.repository.tree;
 
-import java.util.*;
-
-import javax.faces.model.SelectItem;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
@@ -42,6 +44,7 @@ import com.google.common.collect.Iterators;
 public abstract class AbstractTreeNode implements TreeNode {
 
     private static final long serialVersionUID = 1238954077308840345L;
+    static final String UNVERSIONED = "unversioned";
 
     // private static final Comparator<AbstractTreeNode> CHILD_COMPARATOR
     // = new Comparator<AbstractTreeNode>() {
@@ -275,6 +278,11 @@ public abstract class AbstractTreeNode implements TreeNode {
         return null;
     }
 
+    public String getShortVersion() {
+        String version = getVersionName();
+        return version == null || version.length() < 6 ? version : version.substring(0, 6);
+    }
+
     private RulesProject findProjectContainingCurrentArtefact() {
         TreeNode node = this;
         while (node != null && !(node.getData() instanceof RulesProject)) {
@@ -327,16 +335,6 @@ public abstract class AbstractTreeNode implements TreeNode {
 
     public boolean isHasModifications() {
         return getData().hasModifications();
-    }
-
-    public SelectItem[] getSelectedFileVersions() {
-        Collection<ProjectVersion> versions = getVersions();
-
-        List<SelectItem> selectItems = new ArrayList<>();
-        for (ProjectVersion version : versions) {
-            selectItems.add(new SelectItem(version.getVersionName()));
-        }
-        return selectItems.toArray(new SelectItem[selectItems.size()]);
     }
 
     @Override

@@ -24,16 +24,16 @@
                 <rich:column>
                   <h:outputText value="Revision" />
                 </rich:column>
-                <rich:column>
+                <rich:column style="min-width: 90px">
                   <h:outputText value="Status" />
                 </rich:column>
-                <rich:column>
+                <rich:column style="min-width: 70px">
                   <h:outputText value="Modified By" />
                 </rich:column>
-                <rich:column>
+                <rich:column style="min-width: 70px">
                   <h:outputText value="Modified At" />
                 </rich:column>
-                <rich:column>
+                <rich:column style="min-width: 50px">
                   <h:outputText value="Actions" />
                 </rich:column>
               </rich:columnGroup>
@@ -45,7 +45,8 @@
                 </h:commandLink>
               </rich:column>
               <rich:column style="text-align:center">
-                <h:outputText value="#{prj.version}" />
+                  <h:outputText value="#{prj.shortVersion}" styleClass="expandable"/>
+                  <h:outputText value="#{prj.version}" styleClass="hidden"/>
               </rich:column>
               <rich:column>
                 <h:outputText value="#{prj.status}" />
