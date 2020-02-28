@@ -75,7 +75,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         internalMethods.add(new ModifyRuntimeContextMethod());
     }
 
-    private SpreadsheetResultOpenClass getSpreadsheetResultOpenClassWithFieldTypesResolving() {
+    public SpreadsheetResultOpenClass getSpreadsheetResultOpenClassWithFieldTypesResolving() {
         if (moduleSpreadsheetResultOpenClass == null) {
             this.moduleSpreadsheetResultOpenClass = new SpreadsheetResultOpenClass(this, getModule());
         }

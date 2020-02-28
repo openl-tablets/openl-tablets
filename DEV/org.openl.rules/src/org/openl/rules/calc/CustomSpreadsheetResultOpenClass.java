@@ -312,6 +312,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         CustomSpreadsheetResultOpenClass.class.getTypeName(),
                         openClass.getName()));
                 }
+            } else if (type instanceof SpreadsheetResultOpenClass) {
+                IOpenClass t = module.getRulesModuleBindingContext().getSpreadsheetResultOpenClassWithFieldTypesResolving();
+                if (dim > 0) {
+                    t = t.getArrayType(dim);
+                }
+                fieldMap().put(fieldName, new CustomSpreadsheetResultField(module, fieldName, t));
             }
         }
     }
