@@ -16,7 +16,6 @@ import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
