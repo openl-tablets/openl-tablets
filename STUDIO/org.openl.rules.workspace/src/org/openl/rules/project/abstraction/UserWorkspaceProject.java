@@ -97,10 +97,10 @@ public abstract class UserWorkspaceProject extends AProject {
         } else if (isOpenedOtherVersion()) {
             return ProjectStatus.VIEWING_VERSION;
         } else if (isOpened()) {
-            if (isLockedByMe()) {
-                return ProjectStatus.VIEWING;
-            } else {
+            if (isLocked() && !isLockedByMe()) {
                 return ProjectStatus.VIEWING_VERSION;
+            } else {
+                return ProjectStatus.VIEWING;
             }
 
         } else {
