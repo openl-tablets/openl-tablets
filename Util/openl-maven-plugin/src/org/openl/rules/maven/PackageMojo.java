@@ -1,11 +1,15 @@
 package org.openl.rules.maven;
 
-import static org.codehaus.plexus.archiver.util.DefaultFileSet.fileSet;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
@@ -17,12 +21,11 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProjectHelper;
-import org.codehaus.plexus.archiver.Archiver;
-import org.codehaus.plexus.archiver.jar.JarArchiver;
-import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
+import org.openl.util.ProjectPackager;
 import org.openl.util.StringUtils;
+import org.openl.util.ZipArchiver;
 import org.openl.util.ZipUtils;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -36,13 +39,8 @@ import org.yaml.snakeyaml.Yaml;
 @Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.RUNTIME, requiresDependencyCollection = ResolutionScope.RUNTIME)
 public final class PackageMojo extends BaseOpenLMojo {
 
-    private static final String RULES_XML = "rules.xml";
-    private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     private static final String DEPLOYMENT_YAML = "deployment.yaml";
     private static final String DEPLOYMENT_CLASSIFIER = "deployment";
-
-    @Component
-    ArchiverManager archiverManager;
 
     @Parameter(defaultValue = "${project.packaging}", readonly = true)
     private String packaging;
@@ -142,32 +140,26 @@ public final class PackageMojo extends BaseOpenLMojo {
         if (!mainArtifactExists && CollectionUtils.isNotEmpty(classesDirectory.list())) {
             // create a jar file with compiled Java sources for OpenL rules
             dependencyLib = File.createTempFile(finalName, "-lib.jar", outputDirectory);
-            Archiver jarArch = new JarArchiver();
-            jarArch.setIncludeEmptyDirs(false);
-            jarArch.setDestFile(dependencyLib);
-            jarArch.addFileSet(fileSet(classesDirectory).includeEmptyDirs(false));
-            jarArch.createArchive();
+
+            JarArchiver.archive(classesDirectory, dependencyLib);
         }
 
         for (String type : types) {
             File outputFile = getOutputFile(outputDirectory, finalName, classifier, type);
-            Archiver arch = archiverManager.getArchiver(type);
-            arch.setIncludeEmptyDirs(false);
-            addFile(arch, openLSourceDir, RULES_XML);
-            addFile(arch, openLSourceDir, RULES_DEPLOY_XML);
-            arch.addFileSet(
-                fileSet(openLSourceDir).includeEmptyDirs(false).exclude(new String[] { RULES_XML, RULES_DEPLOY_XML }));
 
-            if (dependencyLib != null && dependencyLib.isFile()) {
-                arch.addFile(dependencyLib, classpathFolder + finalName + ".jar");
-            }
-            for (Artifact artifact : dependencies) {
-                File file = artifact.getFile();
-                arch.addFile(file, classpathFolder + file.getName());
+            try (ZipArchiver arch = new ZipArchiver(outputFile.toPath())) {
+
+                ProjectPackager.addOpenLProject(openLSourceDir, arch);
+
+                if (dependencyLib != null && dependencyLib.isFile()) {
+                    arch.addFile(dependencyLib, classpathFolder + finalName + ".jar");
+                }
+                for (Artifact artifact : dependencies) {
+                    File file = artifact.getFile();
+                    arch.addFile(file, classpathFolder + file.getName());
+                }
             }
 
-            arch.setDestFile(outputFile);
-            arch.createArchive();
             if (mainArtifactExists || StringUtils.isNotBlank(classifier)) {
                 info("Attaching the supplemental artifact '", outputFile, ",");
                 projectHelper.attachArtifact(project, type, classifier, outputFile);
@@ -197,11 +189,8 @@ public final class PackageMojo extends BaseOpenLMojo {
                 deploymentName,
                 DEPLOYMENT_CLASSIFIER,
                 OPENL_ARTIFACT_TYPE);
-            Archiver arch = archiverManager.getArchiver(OPENL_ARTIFACT_TYPE);
-            arch.setIncludeEmptyDirs(false);
-            arch.addFileSet(fileSet(outputDeploymentDir).includeEmptyDirs(false));
-            arch.setDestFile(outputFile);
-            arch.createArchive();
+            ZipUtils.archive(outputDeploymentDir, outputFile);
+
             info("Attaching the deployment artifact '", outputFile, ",");
             projectHelper.attachArtifact(project, OPENL_ARTIFACT_TYPE, DEPLOYMENT_CLASSIFIER, outputFile);
         }
@@ -273,13 +262,6 @@ public final class PackageMojo extends BaseOpenLMojo {
             }
         }
         return false;
-    }
-
-    private void addFile(Archiver arch, File folder, String fileName) {
-        File file = new File(folder, fileName);
-        if (file.isFile()) {
-            arch.addFile(file, fileName);
-        }
     }
 
     @Override
