@@ -416,7 +416,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 throw new DuplicatedMethodException(message, existedMethod, method);
             }
 
-            if (method != existedMethod && method instanceof TestSuiteMethod) {
+            if (!method.equals(existedMethod) && method instanceof TestSuiteMethod) {
                 validateTestSuiteMethod(method, existedMethod);
                 return;
             }
@@ -431,7 +431,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
                     decorator.addMethod(undecorateForMultimoduleDispatching(m));
                 } else {
-                    if (m != existedMethod) {
+                    if (!m.equals(existedMethod)) {
                         // Create decorator for existed method.
                         //
                         OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(existedMethod);
