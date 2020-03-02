@@ -65,9 +65,12 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
             // prevent cycled call
             return null;
         }
-
-        String value = StringUtils.trimToNull(getProperties().getProperty(name));
-        return decode(value);
+        String property = getProperties().getProperty(name);
+        if (property == null) {
+            return null;
+        }
+        property = StringUtils.trimToEmpty(property);
+        return decode(property);
     }
 
     static DynamicPropertySource THE;

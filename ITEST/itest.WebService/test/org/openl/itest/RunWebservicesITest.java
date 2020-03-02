@@ -60,7 +60,7 @@ public class RunWebservicesITest {
     public void testSimple4SerializationInclusion() {
         client.post("/REST/deployment4/simple4/main",
             "/simple3_main.req.json",
-            "/simple3_main_response_serialization_inclusion.json");
+            "/simple4_main_response_serialization_inclusion.json");
     }
 
     @Test

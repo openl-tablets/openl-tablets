@@ -52,6 +52,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     volatile Map<String, List<IOpenField>> beanFieldsMap;
     volatile boolean beanClassInitializing = false;
     private boolean ignoreCompilation = false;
+
     private ILogicalTable logicalTable;
 
     public CustomSpreadsheetResultOpenClass(String name,
@@ -625,8 +626,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
     private static synchronized String getBeanClassName(
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
-        String name = customSpreadsheetResultOpenClass.getName()
-            .substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
+        String name = customSpreadsheetResultOpenClass.getName();
+        if (name.startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX)) {
+            name = name.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
+        } else {
+            throw new IllegalStateException(
+                String.format("Prefix '%s' is required", Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX));
+        }
         String firstLetterUppercaseName = Character
             .toUpperCase(name.charAt(0)) + (name.length() > 1 ? name.substring(1) : StringUtils.EMPTY);
         if (customSpreadsheetResultOpenClass.getModule()
