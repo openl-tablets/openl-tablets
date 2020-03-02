@@ -10,4 +10,6 @@ public interface CommonVersion extends Comparable<CommonVersion> {
     int getMinor();
 
     String getVersionName();
+
+    String getShortVersion();
 }

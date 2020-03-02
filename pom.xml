@@ -104,7 +104,7 @@
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
         <surefire.argLine>-Xms8m -Xmx45m</surefire.argLine>
-        <invoker.mavenOpts>-Xms32m -Xmx80m</invoker.mavenOpts>
+        <invoker.mavenOpts>-Xms16m -Xmx40m</invoker.mavenOpts>
         <invoker.timeoutInSeconds>30</invoker.timeoutInSeconds>
         <openl.home>${project.build.directory}/openl-test</openl.home>
     </properties>
@@ -1403,11 +1403,6 @@
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-core</artifactId>
                 <version>${maven.api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-archiver</artifactId>
-                <version>4.1.0</version>
             </dependency>
             <!-- OpenL modules -->
             <!-- DEV -->

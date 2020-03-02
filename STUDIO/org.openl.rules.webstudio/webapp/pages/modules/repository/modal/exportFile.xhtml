@@ -1,9 +1,8 @@
 <ui:composition
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich"
-    xmlns:ui="http://java.sun.com/jsf/facelets">
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets">
 
   <rich:popupPanel id="modalExportFile" width="480" autosized="true">
     <f:facet name="header">
@@ -20,7 +19,7 @@
         <h:outputLabel id="exportingFileName" value="#{node.name}" />
         <h:outputLabel for="fileVersion" styleClass="required" value="File Revision:" />
         <h:selectOneMenu id="fileVersion" value="#{repositoryTreeController.version}" required="true">
-            <f:selectItems value="#{node.selectedFileVersions}" />
+            <f:selectItems value="#{repositoryTreeController.toSelectItems(node.versions)}" />
         </h:selectOneMenu>
       </h:panelGrid>
 

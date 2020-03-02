@@ -154,7 +154,8 @@
                     <h:outputText value="Revision:" />
                 </td>
                 <td>
-                    <h:outputText value="#{artefact.version.versionName}" />
+                    <h:outputText value="#{artefact.version.shortVersion}" styleClass="expandable"/>
+                    <h:outputText value="#{artefact.version.versionName}" styleClass="hidden"/>
                 </td>
             </tr>
             <tr>
@@ -293,6 +294,8 @@
             }
 
             $selectedBranch = $j('#branchSelector option:selected');
+
+            initExpandableLinks();
         });
 
         function canOverwriteRevision() {

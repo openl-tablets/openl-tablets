@@ -150,3 +150,18 @@ function fixInputNumberSpinner(id) {
         }
     };
 }
+
+function initExpandableLinks() {
+    if (!$j) {
+        return;
+    }
+
+    $j('.expandable').each(function () {
+        console.info(this);
+    });
+
+    $j('.expandable').off().click(function () {
+        $j(this).next().show();
+        $j(this).hide();
+    })
+}

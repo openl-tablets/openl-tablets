@@ -26,7 +26,10 @@
           </h:panelGroup>
 
           <h:outputText value="Current Revision:" />
-          <h:outputText value="#{artefact.version.versionName}"/>
+          <h:panelGroup>
+            <h:outputText value="#{artefact.version.shortVersion}" styleClass="expandable"/>
+            <h:outputText value="#{artefact.version.versionName}" styleClass="hidden"/>
+          </h:panelGroup>
 
           <h:outputText value="Comment:" />
           <h:inputTextarea id="comment" value="#{mainBean.versionComment}" type="text" size="35" readonly="false"
@@ -75,6 +78,10 @@
           }
           ws.nav.go(newUrl, true);
       }
+
+      $j(function () {
+        initExpandableLinks();
+      });
       //]]>
   </script>
 </ui:composition>

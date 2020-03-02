@@ -445,6 +445,9 @@ public class CastFactory implements ICastFactory {
      * @return cast operation if conversion is found; null - otherwise
      */
     private IOpenCast findJavaCast(IOpenClass from, IOpenClass to) {
+        if (from instanceof DomainOpenClass && to instanceof DomainOpenClass && from != to) {
+            return null;
+        }
 
         // Try to find cast using instance classes.
         //
@@ -563,7 +566,9 @@ public class CastFactory implements ICastFactory {
      */
     private IOpenCast findAliasCast(IOpenClass from, IOpenClass to) {
         if (!from.isArray() && (from instanceof DomainOpenClass || to instanceof DomainOpenClass)) {
-
+            if (from instanceof DomainOpenClass && to instanceof DomainOpenClass && from != to) {
+                return null;
+            }
             if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass) && to
                 .equals(((DomainOpenClass) from).getBaseClass())) {
                 return AliasToTypeCast.getInstance();

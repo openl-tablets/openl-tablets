@@ -8,7 +8,10 @@
         <h:outputText value="#{node.name}" style="font-weight: bold"/>
 
         <h:outputText value="Revision:"/>
-        <h:outputText value="#{artefact.version.versionName}"/>
+        <h:panelGroup>
+            <h:outputText value="#{artefact.version.shortVersion}" styleClass="expandable"/>
+            <h:outputText value="#{artefact.version.versionName}" styleClass="hidden"/>
+        </h:panelGroup>
 
         <h:outputText value="Status:"/>
         <h:outputText value="#{node.status}"/>

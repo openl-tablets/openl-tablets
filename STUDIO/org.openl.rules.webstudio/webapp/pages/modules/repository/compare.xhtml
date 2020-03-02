@@ -61,7 +61,7 @@
                   </td>
                 <td>
                   <h:selectOneMenu value="#{repositoryDiffController.selectedVersionRepo}">
-                    <f:selectItems value="#{repositoryDiffController.versionsRepo}"/>
+                    <f:selectItems value="#{repositoryTreeController.toSelectItems(repositoryDiffController.versionsRepo)}"/>
                     <f:ajax event="change" action="#{repositoryDiffController.initProjectRepo}"
                       render="repositoryExcelCombo compareBtn" />
                   </h:selectOneMenu>
