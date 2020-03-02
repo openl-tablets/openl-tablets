@@ -1,16 +1,11 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.BENCHMARK;
-import static org.openl.rules.security.Privileges.CREATE_TABLES;
-import static org.openl.rules.security.Privileges.EDIT_TABLES;
-import static org.openl.rules.security.Privileges.REMOVE_TABLES;
-import static org.openl.rules.security.Privileges.RUN;
-import static org.openl.rules.security.Privileges.TRACE;
+import static org.openl.rules.security.Privileges.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -410,7 +405,7 @@ public class TableBean {
             TableSyntaxNode syntaxNode = (TableSyntaxNode) test.getInfo().getSyntaxNode();
             tableDescriptions.add(new TableDescription(tableUri, syntaxNode.getId(), getTestName(test)));
         }
-        Collections.sort(tableDescriptions, (o1, o2) -> o1.getName().compareTo(o2.getName()));
+        tableDescriptions.sort(Comparator.comparing(TableDescription::getName));
         return tableDescriptions.toArray(new TableDescription[0]);
     }
 
