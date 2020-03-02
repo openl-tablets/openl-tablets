@@ -438,10 +438,9 @@ public abstract class AOpenClass implements IOpenClass {
      * Default implementation.
      *
      * @param type IOpenClass instance
-     * @throws Exception if an error had occurred.
      */
     @Override
-    public void addType(IOpenClass type) throws Exception {
+    public void addType(IOpenClass type) {
     }
 
     @Override
