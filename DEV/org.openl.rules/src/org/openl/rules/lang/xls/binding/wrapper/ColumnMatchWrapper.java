@@ -252,4 +252,18 @@ public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrappe
         return contextPropertiesInjector;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ColumnMatchWrapper that = (ColumnMatchWrapper) o;
+        return delegate.equals(that.delegate);
+    }
+
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
+    }
 }
