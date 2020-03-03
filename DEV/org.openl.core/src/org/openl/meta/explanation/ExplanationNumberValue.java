@@ -1,5 +1,7 @@
 package org.openl.meta.explanation;
 
+import java.util.Collection;
+
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.openl.meta.IMetaInfo;
@@ -123,7 +125,7 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
     }
 
     @Override
-    public Iterable<? extends ITreeElement<T>> getChildren() {
+    public Collection<? extends ITreeElement<T>> getChildren() {
         return getExplanation().getChildren();
     }
 

@@ -1,8 +1,10 @@
 package org.openl.meta.explanation;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 import org.openl.meta.number.NumberOperations;
+import org.openl.util.tree.ITreeElement;
 
 /**
  * Explanation implementation for functions.
@@ -24,7 +26,7 @@ public class FunctionExplanationValue<T extends ExplanationNumberValue<T>> exten
     }
 
     @Override
-    public Iterable<? extends org.openl.util.tree.ITreeElement<T>> getChildren() {
+    public Collection<? extends ITreeElement<T>> getChildren() {
         return Arrays.asList(params);
     }
 

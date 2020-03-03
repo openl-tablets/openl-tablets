@@ -103,7 +103,7 @@
         <elasticsearch-cluster-runner.version>6.8.1.0</elasticsearch-cluster-runner.version>
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
-        <surefire.argLine>-Xms8m -Xmx45m</surefire.argLine>
+        <surefire.argLine>-Xms8m -Xmx40m</surefire.argLine>
         <invoker.mavenOpts>-Xms16m -Xmx40m</invoker.mavenOpts>
         <invoker.timeoutInSeconds>30</invoker.timeoutInSeconds>
         <openl.home>${project.build.directory}/openl-test</openl.home>

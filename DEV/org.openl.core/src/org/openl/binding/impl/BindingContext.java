@@ -90,7 +90,7 @@ public class BindingContext implements IBindingContext {
     public IMethodCaller findMethodCaller(String namespace,
             String name,
             IOpenClass[] parTypes) throws AmbiguousMethodException {
-        MethodKey key = new MethodKey(namespace + ':' + name, parTypes, false, true);
+        MethodKey key = new MethodKey(namespace + ':' + name, parTypes, true);
         Map<MethodKey, Object> methodCache = ((Binder) binder).methodCache;
 
         synchronized (methodCache) {
