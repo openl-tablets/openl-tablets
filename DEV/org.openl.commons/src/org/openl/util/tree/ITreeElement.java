@@ -1,8 +1,10 @@
 package org.openl.util.tree;
 
+import java.util.Collection;
+
 public interface ITreeElement<T> {
 
-    Iterable<? extends ITreeElement<T>> getChildren();
+    Collection<? extends ITreeElement<T>> getChildren();
 
     T getObject();
 

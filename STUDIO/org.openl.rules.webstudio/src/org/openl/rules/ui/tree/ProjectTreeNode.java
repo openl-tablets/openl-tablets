@@ -78,13 +78,13 @@ public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
         int result = 0;
 
         TableSyntaxNode table = getTableSyntaxNode();
-        Iterable<? extends ITreeElement<Object>> children = getChildren();
+        Collection<? extends ITreeElement<Object>> children = getChildren();
         if (table != null) {
             SyntaxNodeException[] errors = table.getErrors();
             if (errors != null) {
                 result += errors.length;
             }
-            if (((Collection) children).isEmpty()) {
+            if (children.isEmpty()) {
                 return result;
             }
         }

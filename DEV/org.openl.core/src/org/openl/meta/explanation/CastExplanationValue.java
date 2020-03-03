@@ -1,8 +1,10 @@
 package org.openl.meta.explanation;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 import org.openl.meta.number.CastOperand;
+import org.openl.util.tree.ITreeElement;
 
 @SuppressWarnings("rawtypes")
 public class CastExplanationValue extends SingleValueExplanation {
@@ -23,7 +25,7 @@ public class CastExplanationValue extends SingleValueExplanation {
     }
 
     @Override
-    public Iterable<? extends org.openl.util.tree.ITreeElement> getChildren() {
+    public Collection<? extends ITreeElement> getChildren() {
         return Arrays.asList(value);
     }
 

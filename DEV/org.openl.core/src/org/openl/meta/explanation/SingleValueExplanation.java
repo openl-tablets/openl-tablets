@@ -1,5 +1,6 @@
 package org.openl.meta.explanation;
 
+import java.util.Collection;
 import java.util.Collections;
 
 import org.openl.meta.IMetaInfo;
@@ -73,7 +74,7 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
     }
 
     @Override
-    public Iterable<? extends ITreeElement<T>> getChildren() {
+    public Collection<? extends ITreeElement<T>> getChildren() {
         return Collections.emptyList();
     }
 
