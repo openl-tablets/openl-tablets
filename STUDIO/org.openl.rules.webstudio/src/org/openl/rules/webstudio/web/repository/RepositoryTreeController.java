@@ -1248,7 +1248,8 @@ public class RepositoryTreeController {
         Comments comments = getComments(project);
 
         if (project != null && project.isOpenedOtherVersion()) {
-            return comments.restoredFrom(project.getHistoryVersion());
+            FileData fileData = project.getFileData();
+            return comments.restoredFrom(fileData.getVersion(), fileData.getAuthor(), fileData.getModifiedAt());
         }
 
         return comments.saveProject(project == null ? StringUtils.EMPTY : project.getName());

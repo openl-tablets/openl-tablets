@@ -83,7 +83,8 @@ public class MainBean {
         RulesProject project = studio.getCurrentProject();
 
         if (project != null && project.isOpenedOtherVersion()) {
-            return designRepoComments.restoredFrom(project.getHistoryVersion());
+            FileData fileData = project.getFileData();
+            return designRepoComments.restoredFrom(fileData.getVersion(), fileData.getAuthor(), fileData.getModifiedAt());
         }
 
         return designRepoComments.saveProject(project == null ? "" : project.getName());

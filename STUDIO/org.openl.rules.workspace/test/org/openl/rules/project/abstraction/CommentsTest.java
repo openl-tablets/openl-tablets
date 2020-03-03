@@ -3,6 +3,9 @@ package org.openl.rules.project.abstraction;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,14 +20,16 @@ public class CommentsTest {
     @Before
     public void setUp() {
         Map<String, Object> parameters = new HashMap<>();
+        String dateTimeFormat = "MM/dd/yyyy 'at' hh:mm:ss a";
         String saveProjectTemplate = "Project {username} {{project-name}} is saved. {foo}";
         String createProjectTemplate = "Project {username} {project-name} is created. {foo}";
         String archiveProjectTemplate = "Project {username} {{project-name} is archived. {foo}";
         String restoreProjectTemplate = "Project {username} '{'{project-name} is restored. {foo}";
         String eraseProjectTemplate = "Project {username} {project-name} is erased. {foo}";
         String copiedFromTemplate = "Project {username} {{project-name}} is copied-from. {foo}";
-        String restoredFromTemplate = "Project {username} {revision} is restored-from. {foo}";
-        comments = new Comments(saveProjectTemplate,
+        String restoredFromTemplate = "Project {username} {revision} is restored-from. Author: {author}, date: {datetime}. {foo}";
+        comments = new Comments(dateTimeFormat,
+            saveProjectTemplate,
             createProjectTemplate,
             archiveProjectTemplate,
             restoreProjectTemplate,
@@ -130,14 +135,16 @@ public class CommentsTest {
 
     @Test
     public void testRestoredFrom() {
-        String actual = comments.restoredFrom("sdsd-s-ds-d-sd-sd");
-        assertEquals("Project {username} sdsd-s-ds-d-sd-sd is restored-from. {foo}", actual);
+        Date date = new GregorianCalendar(2020, Calendar.JUNE, 22, 21, 2, 42).getTime();
+        String actual = comments.restoredFrom("sdsd-s-ds-d-sd-sd", "john", date);
+        assertEquals("Project {username} sdsd-s-ds-d-sd-sd is restored-from. Author: john, date: 06/22/2020 at 09:02:42 PM. {foo}", actual);
     }
 
     @Test
     public void testRestoredFromWithDollarSign() {
-        String actualWithSymbol = comments.restoredFrom("$$$12$$3$");
-        assertEquals("Project {username} $$$12$$3$ is restored-from. {foo}", actualWithSymbol);
+        Date date = new GregorianCalendar(2020, Calendar.JUNE, 22, 21, 2, 42).getTime();
+        String actualWithSymbol = comments.restoredFrom("$$$12$$3$", "john", date);
+        assertEquals("Project {username} $$$12$$3$ is restored-from. Author: john, date: 06/22/2020 at 09:02:42 PM. {foo}", actualWithSymbol);
     }
 
 }
