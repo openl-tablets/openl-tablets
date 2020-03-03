@@ -27,6 +27,6 @@ public final class TestUtils {
             }
         }
 
-        return params.toArray(new ParameterWithValueDeclaration[params.size()]);
+        return params.toArray(new ParameterWithValueDeclaration[0]);
     }
 }
