@@ -335,11 +335,10 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     public void addMethod(IOpenMethod method) throws DuplicatedMethodException {
-        MethodKey key = new MethodKey(method);
         final IOpenMethod existMethod = putMethod(method);
         if (existMethod != null) {
             throw new DuplicatedMethodException(String
-                .format("Method '%s' is already defined in class '%s'", key, getName()), existMethod, method);
+                .format("Method '%s' is already defined in class '%s'", method, getName()), existMethod, method);
         }
         invalidateInternalData();
     }

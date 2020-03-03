@@ -20,7 +20,7 @@ public class CastNode extends ABoundNode {
      * @param children
      */
     public CastNode(ISyntaxNode castSyntaxNode, IBoundNode bnode, IOpenCast cast, IOpenClass castedType) {
-        super(castSyntaxNode == null ? bnode.getSyntaxNode() : castSyntaxNode, new IBoundNode[] { bnode });
+        super(castSyntaxNode == null ? bnode.getSyntaxNode() : castSyntaxNode, bnode);
         this.cast = cast;
         this.castedType = castedType;
     }
