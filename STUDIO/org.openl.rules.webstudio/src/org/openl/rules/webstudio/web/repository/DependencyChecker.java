@@ -12,7 +12,6 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +68,7 @@ public class DependencyChecker {
                 } else {
                     projectVersions.put(projectName, null);
                 }
-            } catch (RepositoryException e) {
+            } catch (Exception e) {
                 log.error("Cannot get project '{}' version {}.", projectName, projectVersion.getVersionName(), e);
 
                 // WARNING: trick

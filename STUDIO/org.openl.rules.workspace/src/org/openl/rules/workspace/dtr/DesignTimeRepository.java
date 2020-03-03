@@ -43,9 +43,8 @@ public interface DesignTimeRepository extends ProjectsContainer {
      * @param name name of rules project
      * @param version exact version of project
      * @return specified version of rules project
-     * @throws RepositoryException if failed
      */
-    AProject getProject(String name, CommonVersion version) throws RepositoryException;
+    AProject getProject(String name, CommonVersion version);
 
     AProject getProject(String branch, String project, String version) throws IOException;
 
