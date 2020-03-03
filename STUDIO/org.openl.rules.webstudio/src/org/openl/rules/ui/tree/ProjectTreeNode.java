@@ -1,5 +1,7 @@
 package org.openl.rules.ui.tree;
 
+import java.util.Collection;
+
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -76,15 +78,17 @@ public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
         int result = 0;
 
         TableSyntaxNode table = getTableSyntaxNode();
+        Iterable<? extends ITreeElement<Object>> children = getChildren();
         if (table != null) {
             SyntaxNodeException[] errors = table.getErrors();
-
             if (errors != null) {
-                return errors.length;
+                result += errors.length;
+            }
+            if (((Collection) children).isEmpty()) {
+                return result;
             }
         }
 
-        Iterable<? extends ITreeElement<Object>> children = getChildren();
         for (ITreeElement<Object> treeNode : children) {
             if (treeNode instanceof ProjectTreeNode) {
                 ProjectTreeNode projectTreeNode = (ProjectTreeNode) treeNode;
