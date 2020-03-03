@@ -1986,6 +1986,9 @@ public class RepositoryTreeController {
     public List<SelectItem> getProjectBranches() {
         try {
             UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+            if (selectedProject == null) {
+                return Collections.emptyList();
+            }
 
             List<String> branches = new ArrayList<>(
                 ((BranchRepository) userWorkspace.getDesignTimeRepository().getRepository())
@@ -1997,7 +2000,7 @@ public class RepositoryTreeController {
             }
 
             return Arrays.asList(WizardUtils.createSelectItems(branches));
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
             return Collections.emptyList();
         }

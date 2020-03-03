@@ -284,6 +284,13 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     @Override
+    public AProject getProject(String branch, String project, String version) throws IOException {
+        BranchRepository repository = ((BranchRepository) getRepository()).forBranch(branch);
+        String projectPath = rulesLocation + project;
+        return new AProject(repository, projectPath, version);
+    }
+
+    @Override
     public Collection<AProject> getProjects() {
         List<AProject> result;
 
