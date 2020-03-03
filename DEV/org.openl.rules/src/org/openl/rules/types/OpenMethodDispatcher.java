@@ -239,17 +239,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         if (compareResult > 0) {
             return newMethod;
         } else if (compareResult == 0) {
-            /**
-             * Throw the error with the right message for the case when the methods are equal
-             */
-            if (newMethod instanceof IUriMember && existedMethod instanceof IUriMember) {
-                if (!UriMemberHelper.isTheSame((IUriMember) newMethod, (IUriMember) existedMethod)) {
-                    String message = ValidationMessages.getDuplicatedMethodMessage(existedMethod, newMethod);
-                    throw new DuplicatedMethodException(message, existedMethod, newMethod);
-                }
-            } else {
-                throw new IllegalStateException("Implementation supports only IUriMember.");
-            }
+            UriMemberHelper.validateMethodDuplication(newMethod, existedMethod);
         }
         return existedMethod;
     }

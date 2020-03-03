@@ -44,10 +44,8 @@ import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.types.IUriMember;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.UriMemberHelper;
-import org.openl.rules.types.ValidationMessages;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.source.IOpenSourceCodeModule;
@@ -346,17 +344,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 throw new DuplicatedFieldException("", field.getName());
             }
 
-            if (openField instanceof IUriMember && existedField instanceof IUriMember) {
-                if (!UriMemberHelper.isTheSame((IUriMember) openField, (IUriMember) existedField)) {
-                    throw new DuplicatedFieldException("", openField.getName());
-                }
-            } else {
-                if (existedField != openField) {
-                    throw new DuplicatedFieldException("", openField.getName());
-                } else {
-                    return;
-                }
-            }
+            UriMemberHelper.validateFieldDuplication(openField, existedField);
         }
         fieldMap().put(openField.getName(), openField);
         if (field instanceof ConstantOpenField) {
@@ -384,7 +372,18 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     @Override
     public void addMethod(IOpenMethod method) {
         if (method instanceof OpenMethodDispatcher) {
-            addDispatcherMethod((OpenMethodDispatcher) method);
+            /*
+             * Dispatcher method should be added by adding all candidates of the specified dispatcher to current
+             * XlsModuleOpenClass(it will cause adding methods to dispatcher of current module or creating new
+             * dispatcher in current module).
+             *
+             * Previously there was problems because dispatcher from dependency was either added to dispatcher of
+             * current module(dispatcher as a candidate in another dispatcher) or added to current module and was
+             * modified during the current module processing. FIXME
+             */
+            for (IOpenMethod candidate : ((OpenMethodDispatcher) method).getCandidates()) {
+                addMethod(candidate);
+            }
             return;
         }
         IOpenMethod m = decorateForMultimoduleDispatching(method);
@@ -416,8 +415,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 throw new DuplicatedMethodException(message, existedMethod, method);
             }
 
-            if (method != existedMethod && method instanceof TestSuiteMethod) {
-                validateTestSuiteMethod(method, existedMethod);
+            if (!method.equals(existedMethod) && method instanceof TestSuiteMethod) {
+                UriMemberHelper.validateMethodDuplication(method, existedMethod);
                 return;
             }
 
@@ -431,7 +430,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
                     decorator.addMethod(undecorateForMultimoduleDispatching(m));
                 } else {
-                    if (m != existedMethod) {
+                    if (!m.equals(existedMethod)) {
                         // Create decorator for existed method.
                         //
                         OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(existedMethod);
@@ -489,17 +488,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
     }
 
-    private void validateTestSuiteMethod(IOpenMethod method, IOpenMethod existedMethod) {
-        if (method instanceof IUriMember && existedMethod instanceof IUriMember) {
-            if (!UriMemberHelper.isTheSame((IUriMember) method, (IUriMember) existedMethod)) {
-                String message = ValidationMessages.getDuplicatedMethodMessage(existedMethod, method);
-                throw new DuplicatedMethodException(message, existedMethod, method);
-            }
-        } else {
-            throw new IllegalStateException("Implementation supports only IUriMember.");
-        }
-    }
-
     private boolean dimensionalPropertyPresented(IOpenMethod m) {
         List<TablePropertyDefinition> dimensionalPropertiesDef = TablePropertyDefinitionUtils
             .getDimensionalTableProperties();
@@ -511,23 +499,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             }
         }
         return false;
-    }
-
-    /**
-     * Dispatcher method should be added by adding all candidates of the specified dispatcher to current
-     * XlsModuleOpenClass(it will cause adding methods to dispatcher of current module or creating new dispatcher in
-     * current module).
-     *
-     * Previously there was problems because dispatcher from dependency was either added to dispatcher of current
-     * module(dispatcher as a candidate in another dispatcher) or added to current module and was modified during the
-     * current module processing. FIXME
-     *
-     * @param dispatcher Dispatcher methods to add.
-     */
-    public void addDispatcherMethod(OpenMethodDispatcher dispatcher) {
-        for (IOpenMethod candidate : dispatcher.getCandidates()) {
-            addMethod(candidate);
-        }
     }
 
     private OpenMethodDispatcher getOpenMethodDispatcher(IOpenMethod method) {

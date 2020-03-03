@@ -79,8 +79,8 @@ public final class ZipUtils {
                     String.format("Directory '%s' is empty.", sourceDirectory.getAbsolutePath()));
             }
         }
-        try (OutputStream fos = new FileOutputStream(targetFile)) {
-            ZipCompressor.archive(sourceDirectory, fos);
+        try (ZipArchiver arch = new ZipArchiver(targetFile.toPath())) {
+            ProjectPackager.addOpenLProject(sourceDirectory, arch);
         }
     }
 }

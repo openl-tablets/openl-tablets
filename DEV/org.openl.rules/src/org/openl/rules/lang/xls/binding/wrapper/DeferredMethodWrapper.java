@@ -139,4 +139,18 @@ public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethod
         return contextPropertiesInjector;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        DeferredMethodWrapper that = (DeferredMethodWrapper) o;
+        return delegate.equals(that.delegate);
+    }
+
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
+    }
 }

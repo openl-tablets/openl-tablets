@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.SortedMap;
-import java.util.SortedSet;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -356,7 +354,7 @@ public class SpreadsheetResult implements Serializable {
         this.customSpreadsheetResultOpenClass = customSpreadsheetResultOpenClass;
     }
 
-    public Object toPlain() throws InstantiationException, IllegalAccessException {
+    public Object toPlain() {
         if (getCustomSpreadsheetResultOpenClass() != null) {
             return toPlain(getCustomSpreadsheetResultOpenClass().getModule());
         } else {
@@ -364,11 +362,11 @@ public class SpreadsheetResult implements Serializable {
         }
     }
 
-    public Map<String, Object> toMap() throws InstantiationException, IllegalAccessException {
+    public Map<String, Object> toMap() {
         return toMap(null);
     }
 
-    public Object toPlain(XlsModuleOpenClass module) throws InstantiationException, IllegalAccessException {
+    public Object toPlain(XlsModuleOpenClass module) {
         if (module == null) {
             return toMap(null);
         }
@@ -386,7 +384,7 @@ public class SpreadsheetResult implements Serializable {
         }
     }
 
-    public Map<String, Object> toMap(XlsModuleOpenClass module) throws InstantiationException, IllegalAccessException {
+    public Map<String, Object> toMap(XlsModuleOpenClass module) {
         Map<String, Object> values = new HashMap<>();
         if (columnNames != null && rowNames != null) {
             long nonNullsColumnsCount = Arrays.stream(columnNamesForResultModel).filter(Objects::nonNull).count();
@@ -408,7 +406,7 @@ public class SpreadsheetResult implements Serializable {
                         if (p != null && columnNamesForResultModel[p.getColumn()] != null && rowNamesForResultModel[p
                             .getRow()] != null) {
                             values.put(e.getKey(),
-                                convertSpreadsheetResults(module, getValue(p.getRow(), p.getColumn())));
+                                convertSpreadsheetResult(module, getValue(p.getRow(), p.getColumn())));
                             if (isDetailedPlainModel) {
                                 fieldNames[p.getRow()][p.getColumn()] = e.getKey();
                             }
@@ -427,7 +425,7 @@ public class SpreadsheetResult implements Serializable {
                             } else {
                                 fName = columnNamesForResultModel[j] + "_" + rowNamesForResultModel[i];
                             }
-                            values.put(fName, convertSpreadsheetResults(module, getValue(i, j)));
+                            values.put(fName, convertSpreadsheetResult(module, getValue(i, j)));
                             if (isDetailedPlainModel) {
                                 fieldNames[i][j] = fName;
                             }
@@ -444,32 +442,39 @@ public class SpreadsheetResult implements Serializable {
         return values;
     }
 
-    public static Object convertSpreadsheetResults(XlsModuleOpenClass module, Object v) throws InstantiationException,
-                                                                                        IllegalAccessException {
-        return convertSpreadsheetResults(module, v, null);
+    public static Object convertSpreadsheetResult(XlsModuleOpenClass module, Object v) {
+        return convertSpreadsheetResult(module, v, null);
     }
 
     @SuppressWarnings("unchecked")
-    public static Object convertSpreadsheetResults(XlsModuleOpenClass module,
-            Object v,
-            Class<?> type) throws InstantiationException, IllegalAccessException {
+    public static Object convertSpreadsheetResult(XlsModuleOpenClass module, Object v, Class<?> toType) {
         if (v == null) {
             return null;
         }
-        if (v instanceof Collection && !(v instanceof SortedSet)) {
+        if (v instanceof Collection) {
             Collection<Object> collection = (Collection<Object>) v;
-            Collection<Object> newCollection = (Collection<Object>) v.getClass().newInstance();
+            Collection<Object> newCollection;
+            try {
+                newCollection = (Collection<Object>) v.getClass().newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                return v;
+            }
             for (Object o : collection) {
-                newCollection.add(convertSpreadsheetResults(module, o));
+                newCollection.add(convertSpreadsheetResult(module, o));
             }
             return newCollection;
         }
-        if (v instanceof Map && !(v instanceof SortedMap)) {
+        if (v instanceof Map) {
             Map<Object, Object> map = (Map<Object, Object>) v;
-            Map<Object, Object> newMap = (Map<Object, Object>) v.getClass().newInstance();
+            Map<Object, Object> newMap;
+            try {
+                newMap = (Map<Object, Object>) v.getClass().newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                return v;
+            }
             for (Entry<Object, Object> e : map.entrySet()) {
-                newMap.put(convertSpreadsheetResults(module, e.getKey()),
-                    convertSpreadsheetResults(module, e.getValue()));
+                newMap.put(convertSpreadsheetResult(module, e.getKey()),
+                    convertSpreadsheetResult(module, e.getValue()));
             }
             return newMap;
         }
@@ -482,15 +487,15 @@ public class SpreadsheetResult implements Serializable {
             int len = Array.getLength(v);
             if (ClassUtils.isAssignable(t, SpreadsheetResult.class)) {
                 Object tmpArray = Array
-                    .newInstance(type != null && type.isArray() ? type.getComponentType() : Object.class, len);
+                    .newInstance(toType != null && toType.isArray() ? toType.getComponentType() : Object.class, len);
                 for (int i = 0; i < len; i++) {
                     Array.set(tmpArray,
                         i,
-                        convertSpreadsheetResults(module,
+                        convertSpreadsheetResult(module,
                             Array.get(v, i),
-                            type != null && type.isArray() ? type.getComponentType() : null));
+                            toType != null && toType.isArray() ? toType.getComponentType() : null));
                 }
-                if (type != null && type.isArray() && !Object.class.equals(type.getComponentType())) {
+                if (toType != null && toType.isArray() && !Object.class.equals(toType.getComponentType())) {
                     return tmpArray;
                 }
                 Class<?> c = null;
@@ -515,12 +520,11 @@ public class SpreadsheetResult implements Serializable {
                     return newArray;
                 }
                 return tmpArray;
-            } else if (Object.class
-                .equals(t) || Map.class.isAssignableFrom(t) && !SortedMap.class.isAssignableFrom(t) || Collection.class
-                    .isAssignableFrom(t) && !SortedSet.class.isAssignableFrom(t)) {
+            } else if (ClassUtils.isAssignable(SpreadsheetResult.class, t) || ClassUtils.isAssignable(t,
+                Map.class) || ClassUtils.isAssignable(t, Collection.class)) {
                 Object newArray = Array.newInstance(componentType, len);
                 for (int i = 0; i < len; i++) {
-                    Array.set(newArray, i, convertSpreadsheetResults(module, Array.get(v, i)));
+                    Array.set(newArray, i, convertSpreadsheetResult(module, Array.get(v, i)));
                 }
                 return newArray;
             } else {
@@ -528,10 +532,11 @@ public class SpreadsheetResult implements Serializable {
             }
         }
         if (v instanceof SpreadsheetResult) {
-            if (Map.class.equals(type)) {
-                return ((SpreadsheetResult) v).toMap(module);
+            SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
+            if (Map.class == toType || spreadsheetResult.getCustomSpreadsheetResultOpenClass() == null) {
+                return spreadsheetResult.toMap(module);
             } else {
-                return ((SpreadsheetResult) v).toPlain(module);
+                return spreadsheetResult.toPlain(module);
             }
         }
         return v;

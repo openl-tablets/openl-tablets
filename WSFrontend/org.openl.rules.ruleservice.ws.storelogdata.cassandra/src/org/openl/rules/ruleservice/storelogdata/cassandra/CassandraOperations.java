@@ -25,7 +25,6 @@ import org.springframework.context.ApplicationContextAware;
 
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.DriverException;
-import com.datastax.oss.driver.api.core.session.Session;
 import com.datastax.oss.driver.api.core.type.codec.TypeCodecs;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 
@@ -35,6 +34,19 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
     private CqlSession session;
     private boolean schemaCreationEnabled = false;
     private ApplicationContext applicationContext;
+    private AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
+        Collections.unmodifiableSet(new HashSet<>()));
+    private AtomicReference<Map<Class<?>, CassandraEntitySaver>> entitySavers = new AtomicReference<>(
+        Collections.unmodifiableMap(new HashMap<>()));
+    private boolean enabled;
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
@@ -52,13 +64,6 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
         }
     }
 
-    public Session connect() {
-        if (session == null) {
-            init();
-        }
-        return session;
-    }
-
     @Override
     public void destroy() {
         if (session != null) {
@@ -70,13 +75,8 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
         }
     }
 
-    private AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
-        Collections.unmodifiableSet(new HashSet<>()));
-    private AtomicReference<Map<Class<?>, CassandraEntitySaver>> entitySavers = new AtomicReference<>(
-        Collections.unmodifiableMap(new HashMap<>()));
-
-    protected CassandraEntitySaver getEntitySaver(Class<?> entityClass) throws DaoCreationException,
-                                                                        ReflectiveOperationException {
+    private CassandraEntitySaver getEntitySaver(Class<?> entityClass) throws DaoCreationException,
+                                                                      ReflectiveOperationException {
         CassandraEntitySaver cassandraEntitySaver = null;
         Map<Class<?>, CassandraEntitySaver> current;
         Map<Class<?>, CassandraEntitySaver> next;
@@ -114,6 +114,9 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
     }
 
     public void save(Object entity) {
+        if (!isEnabled()) {
+            throw new IllegalStateException("Failed to save cassandra entity. Feature is not enabled.");
+        }
         if (entity == null) {
             return;
         }
@@ -138,12 +141,14 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
 
     @Override
     public void onUndeploy(String serviceName) {
-        entitiesWithAlreadyCreatedSchema.set(Collections.emptySet());
-        entitySavers.set(Collections.emptyMap());
+        if (isEnabled()) {
+            entitiesWithAlreadyCreatedSchema.set(Collections.emptySet());
+            entitySavers.set(Collections.emptyMap());
+        }
     }
 
     public void createSchemaIfMissed(Class<?> entityClass) {
-        if (isCreateSchemaEnabled()) {
+        if (isEnabled() && isCreateSchemaEnabled()) {
             Set<Class<?>> current;
             Set<Class<?>> next;
             do {
@@ -180,7 +185,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
         }
     }
 
-    protected static String removeCommentsInStatement(String statement) {
+    static String removeCommentsInStatement(String statement) {
         return statement.replaceAll("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)|(?:--.*)", "");
     }
 
@@ -203,10 +208,12 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
 
     @Override
     public void afterPropertiesSet() {
-        try {
-            init();
-        } catch (Exception e) {
-            log.error("Cassandra initialization failure.", e);
+        if (isEnabled()) {
+            try {
+                init();
+            } catch (Exception e) {
+                log.error("Cassandra initialization failure.", e);
+            }
         }
     }
 }

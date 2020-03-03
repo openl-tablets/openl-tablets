@@ -319,38 +319,13 @@ public abstract class AOpenClass implements IOpenClass {
         return methodMap.put(key, method);
     }
 
-    private IOpenMethod putConstructor(IOpenMethod method) {
-        if (constructorMap == null || constructorMap == STUB) {
-            synchronized (this) {
-                if (constructorMap == null) {
-                    constructorMap = initConstructorMap();
-                }
-                if (constructorMap == STUB) {
-                    constructorMap = new HashMap<>(4);
-                }
-            }
-        }
-        MethodKey key = new MethodKey(method);
-        return constructorMap.put(key, method);
-    }
-
     public void addMethod(IOpenMethod method) throws DuplicatedMethodException {
-        MethodKey key = new MethodKey(method);
         final IOpenMethod existMethod = putMethod(method);
         if (existMethod != null) {
             throw new DuplicatedMethodException(String
-                .format("Method '%s' is already defined in class '%s'", key, getName()), existMethod, method);
+                .format("Method '%s' is already defined in class '%s'", method, getName()), existMethod, method);
         }
         invalidateInternalData();
-    }
-
-    public void addConstructor(IOpenMethod method) throws DuplicatedMethodException {
-        MethodKey key = new MethodKey(method);
-        final IOpenMethod existConstructor = putConstructor(method);
-        if (existConstructor != null) {
-            throw new DuplicatedMethodException(String
-                .format("Constructor '%s' is already defined in class '%s'", key, getName()), existConstructor, method);
-        }
     }
 
     protected void overrideMethod(IOpenMethod method) {
@@ -438,10 +413,9 @@ public abstract class AOpenClass implements IOpenClass {
      * Default implementation.
      *
      * @param type IOpenClass instance
-     * @throws Exception if an error had occurred.
      */
     @Override
-    public void addType(IOpenClass type) throws Exception {
+    public void addType(IOpenClass type) {
     }
 
     @Override

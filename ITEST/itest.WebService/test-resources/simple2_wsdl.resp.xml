@@ -1,37 +1,23 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-                  xmlns:tns="http://DefaultNamespace" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-                  xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="simple2"
-                  targetNamespace="http://DefaultNamespace">
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://DefaultNamespace" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="simple2" targetNamespace="http://DefaultNamespace">
     <wsdl:types>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://runtime.openl.org"
-                    attributeFormDefault="qualified" elementFormDefault="qualified"
-                    targetNamespace="http://runtime.openl.org">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://runtime.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://runtime.openl.org">
             <xsd:complexType name="IRuntimeContext">
                 <xsd:sequence/>
             </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://cxf.apache.org/arrays"
-                    attributeFormDefault="qualified" elementFormDefault="qualified"
-                    targetNamespace="http://cxf.apache.org/arrays">
-            <xsd:complexType name="ArrayOfArrayOfAnyType">
-                <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfAnyType" nillable="true"
-                                 type="tns:ArrayOfAnyType"/>
-                </xsd:sequence>
-            </xsd:complexType>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://cxf.apache.org/arrays" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://cxf.apache.org/arrays">
             <xsd:complexType name="ArrayOfAnyType">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="anyType" nillable="true"
-                                 type="xsd:anyType"/>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="anyType" nillable="true" type="xsd:anyType"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="ArrayOfArrayOfAnyType">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfAnyType" nillable="true" type="tns:ArrayOfAnyType"/>
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://DefaultNamespace"
-                    xmlns:ns2="http://cxf.apache.org/arrays" xmlns:ns1="http://csr.generated.openl.org"
-                    xmlns:ns0="http://context.rules.openl.org" attributeFormDefault="qualified"
-                    elementFormDefault="qualified"
-                    targetNamespace="http://DefaultNamespace">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://DefaultNamespace" xmlns:ns2="http://cxf.apache.org/arrays" xmlns:ns1="http://csr.generated.openl.org" xmlns:ns0="http://context.rules.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://DefaultNamespace">
             <xsd:import namespace="http://context.rules.openl.org"/>
             <xsd:import namespace="http://csr.generated.openl.org"/>
             <xsd:import namespace="http://cxf.apache.org/arrays"/>
@@ -40,16 +26,14 @@
                     <xsd:element maxOccurs="unbounded" minOccurs="0" name="int" nillable="true" type="xsd:int"/>
                 </xsd:sequence>
             </xsd:complexType>
-            <xsd:complexType name="ArrayOfArrayOfString">
-                <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfString" nillable="true"
-                                 type="tns:ArrayOfString"/>
-                </xsd:sequence>
-            </xsd:complexType>
             <xsd:complexType name="ArrayOfString">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="string" nillable="true"
-                                 type="xsd:string"/>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="string" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="ArrayOfArrayOfString">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfString" nillable="true" type="tns:ArrayOfString"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:element name="dtRetSpr" type="tns:dtRetSpr"/>
@@ -91,6 +75,19 @@
                     <xsd:element name="return" nillable="true" type="ns2:ArrayOfAnyType"/>
                 </xsd:sequence>
             </xsd:complexType>
+            <xsd:element name="sprIfNode" type="tns:sprIfNode"/>
+            <xsd:complexType name="sprIfNode">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="runtimeContext" type="ns0:IRulesRuntimeContext"/>
+                    <xsd:element minOccurs="0" name="myVar" nillable="true" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="sprIfNodeResponse" type="tns:sprIfNodeResponse"/>
+            <xsd:complexType name="sprIfNodeResponse">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" type="ns1:SprIfNode"/>
+                </xsd:sequence>
+            </xsd:complexType>
             <xsd:element name="dtRetSpr3" type="tns:dtRetSpr3"/>
             <xsd:complexType name="dtRetSpr3">
                 <xsd:sequence>
@@ -105,20 +102,24 @@
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://csr.generated.openl.org"
-                    xmlns:ns0="http://DefaultNamespace" attributeFormDefault="qualified" elementFormDefault="qualified"
-                    targetNamespace="http://csr.generated.openl.org">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://csr.generated.openl.org" xmlns:ns0="http://DefaultNamespace" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://csr.generated.openl.org">
             <xsd:import namespace="http://DefaultNamespace"/>
-            <xsd:complexType name="SprTwoTwo">
+            <xsd:complexType name="SprOneColumn">
                 <xsd:sequence>
-                    <xsd:element minOccurs="0" name="Formula2_Step3" type="xsd:int"/>
-                    <xsd:element minOccurs="0" name="Formula2_Step4" type="xsd:int"/>
-                    <xsd:element minOccurs="0" name="Formula_Step1" type="xsd:int"/>
-                    <xsd:element minOccurs="0" name="Formula_Step2" type="xsd:int"/>
-                    <xsd:element minOccurs="0" name="Values2_Step3" type="xsd:int"/>
-                    <xsd:element minOccurs="0" name="Values2_Step4" type="xsd:int"/>
-                    <xsd:element minOccurs="0" name="Values_Step1" type="xsd:int"/>
-                    <xsd:element minOccurs="0" name="Values_Step2" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="moreValues" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="Values" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="Values1" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="SprWithEmptyRow">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="_" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="SprWithEmptyColumn">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="_" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="Values" type="xsd:int"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="SprTwoTwo2">
@@ -132,14 +133,36 @@
                     <xsd:element minOccurs="0" name="Values_Step2" type="xsd:int"/>
                 </xsd:sequence>
             </xsd:complexType>
+            <xsd:complexType name="SprTwoTwo">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="Formula2_Step3" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="Formula2_Step4" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="Formula_Step1" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="Formula_Step2" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="Values2_Step3" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="Values2_Step4" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="Values_Step1" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="Values_Step2" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="HiddenCalc">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="Step1" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
             <xsd:complexType name="SprIfNode">
                 <xsd:sequence>
                     <xsd:element minOccurs="0" name="Step1" type="xsd:anyType"/>
                 </xsd:sequence>
             </xsd:complexType>
-            <xsd:complexType name="SprTwoTwo1">
+            <xsd:complexType name="SprOneOne">
                 <xsd:sequence>
                     <xsd:element minOccurs="0" name="Step1" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="ArrayOfSprOneOne">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="SprOneOne" nillable="true" type="tns:SprOneOne"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="SprOneRow">
@@ -149,32 +172,9 @@
                     <xsd:element minOccurs="0" name="Values1" type="xsd:int"/>
                 </xsd:sequence>
             </xsd:complexType>
-            <xsd:complexType name="SprWithEmptyColumn">
-                <xsd:sequence>
-                    <xsd:element minOccurs="0" name="_" type="xsd:int"/>
-                    <xsd:element minOccurs="0" name="Values" type="xsd:int"/>
-                </xsd:sequence>
-            </xsd:complexType>
             <xsd:complexType name="Calc">
                 <xsd:sequence>
                     <xsd:element minOccurs="0" name="Step1" type="tns:SprOneRow"/>
-                </xsd:sequence>
-            </xsd:complexType>
-            <xsd:complexType name="SprOneOne">
-                <xsd:sequence>
-                    <xsd:element minOccurs="0" name="Step1" type="xsd:int"/>
-                </xsd:sequence>
-            </xsd:complexType>
-            <xsd:complexType name="SprOneColumn">
-                <xsd:sequence>
-                    <xsd:element minOccurs="0" name="moreValues" type="xsd:int"/>
-                    <xsd:element minOccurs="0" name="Values" type="xsd:int"/>
-                    <xsd:element minOccurs="0" name="Values1" type="xsd:int"/>
-                </xsd:sequence>
-            </xsd:complexType>
-            <xsd:complexType name="HiddenCalc">
-                <xsd:sequence>
-                    <xsd:element minOccurs="0" name="Step1" type="xsd:string"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="SprOneOneNoAsterisk">
@@ -182,83 +182,13 @@
                     <xsd:element minOccurs="0" name="Step1" type="xsd:int"/>
                 </xsd:sequence>
             </xsd:complexType>
-            <xsd:complexType name="ArrayOfSprOneOne">
+            <xsd:complexType name="SprTwoTwo1">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="SprOneOne" nillable="true"
-                                 type="tns:SprOneOne"/>
-                </xsd:sequence>
-            </xsd:complexType>
-            <xsd:complexType name="SprWithEmptyRow">
-                <xsd:sequence>
-                    <xsd:element minOccurs="0" name="_" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="Step1" type="xsd:int"/>
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://enumeration.rules.openl.org"
-                    attributeFormDefault="qualified" elementFormDefault="qualified"
-                    targetNamespace="http://enumeration.rules.openl.org">
-            <xsd:simpleType name="UsStatesEnum">
-                <xsd:restriction base="xsd:string">
-                    <xsd:enumeration value="AL"/>
-                    <xsd:enumeration value="AK"/>
-                    <xsd:enumeration value="AZ"/>
-                    <xsd:enumeration value="AR"/>
-                    <xsd:enumeration value="CA"/>
-                    <xsd:enumeration value="CO"/>
-                    <xsd:enumeration value="CT"/>
-                    <xsd:enumeration value="DC"/>
-                    <xsd:enumeration value="DE"/>
-                    <xsd:enumeration value="FL"/>
-                    <xsd:enumeration value="GA"/>
-                    <xsd:enumeration value="HI"/>
-                    <xsd:enumeration value="ID"/>
-                    <xsd:enumeration value="IL"/>
-                    <xsd:enumeration value="IN"/>
-                    <xsd:enumeration value="IA"/>
-                    <xsd:enumeration value="KS"/>
-                    <xsd:enumeration value="KY"/>
-                    <xsd:enumeration value="LA"/>
-                    <xsd:enumeration value="ME"/>
-                    <xsd:enumeration value="MD"/>
-                    <xsd:enumeration value="MA"/>
-                    <xsd:enumeration value="MI"/>
-                    <xsd:enumeration value="MN"/>
-                    <xsd:enumeration value="MS"/>
-                    <xsd:enumeration value="MO"/>
-                    <xsd:enumeration value="MT"/>
-                    <xsd:enumeration value="NE"/>
-                    <xsd:enumeration value="NV"/>
-                    <xsd:enumeration value="NH"/>
-                    <xsd:enumeration value="NJ"/>
-                    <xsd:enumeration value="NM"/>
-                    <xsd:enumeration value="NY"/>
-                    <xsd:enumeration value="NC"/>
-                    <xsd:enumeration value="ND"/>
-                    <xsd:enumeration value="OH"/>
-                    <xsd:enumeration value="OK"/>
-                    <xsd:enumeration value="OR"/>
-                    <xsd:enumeration value="PA"/>
-                    <xsd:enumeration value="PR"/>
-                    <xsd:enumeration value="RI"/>
-                    <xsd:enumeration value="SC"/>
-                    <xsd:enumeration value="SD"/>
-                    <xsd:enumeration value="TN"/>
-                    <xsd:enumeration value="TX"/>
-                    <xsd:enumeration value="UT"/>
-                    <xsd:enumeration value="VT"/>
-                    <xsd:enumeration value="VA"/>
-                    <xsd:enumeration value="WA"/>
-                    <xsd:enumeration value="WV"/>
-                    <xsd:enumeration value="WI"/>
-                    <xsd:enumeration value="WY"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="CaRegionsEnum">
-                <xsd:restriction base="xsd:string">
-                    <xsd:enumeration value="QC"/>
-                    <xsd:enumeration value="HQ"/>
-                </xsd:restriction>
-            </xsd:simpleType>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://enumeration.rules.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://enumeration.rules.openl.org">
             <xsd:simpleType name="CurrenciesEnum">
                 <xsd:restriction base="xsd:string">
                     <xsd:enumeration value="ALL"/>
@@ -333,6 +263,76 @@
                     <xsd:enumeration value="YER"/>
                 </xsd:restriction>
             </xsd:simpleType>
+            <xsd:simpleType name="RegionsEnum">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="NCSA"/>
+                    <xsd:enumeration value="EU"/>
+                    <xsd:enumeration value="EMEA"/>
+                    <xsd:enumeration value="APJ"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+            <xsd:simpleType name="CaRegionsEnum">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="QC"/>
+                    <xsd:enumeration value="HQ"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+            <xsd:simpleType name="UsStatesEnum">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="AL"/>
+                    <xsd:enumeration value="AK"/>
+                    <xsd:enumeration value="AZ"/>
+                    <xsd:enumeration value="AR"/>
+                    <xsd:enumeration value="CA"/>
+                    <xsd:enumeration value="CO"/>
+                    <xsd:enumeration value="CT"/>
+                    <xsd:enumeration value="DC"/>
+                    <xsd:enumeration value="DE"/>
+                    <xsd:enumeration value="FL"/>
+                    <xsd:enumeration value="GA"/>
+                    <xsd:enumeration value="HI"/>
+                    <xsd:enumeration value="ID"/>
+                    <xsd:enumeration value="IL"/>
+                    <xsd:enumeration value="IN"/>
+                    <xsd:enumeration value="IA"/>
+                    <xsd:enumeration value="KS"/>
+                    <xsd:enumeration value="KY"/>
+                    <xsd:enumeration value="LA"/>
+                    <xsd:enumeration value="ME"/>
+                    <xsd:enumeration value="MD"/>
+                    <xsd:enumeration value="MA"/>
+                    <xsd:enumeration value="MI"/>
+                    <xsd:enumeration value="MN"/>
+                    <xsd:enumeration value="MS"/>
+                    <xsd:enumeration value="MO"/>
+                    <xsd:enumeration value="MT"/>
+                    <xsd:enumeration value="NE"/>
+                    <xsd:enumeration value="NV"/>
+                    <xsd:enumeration value="NH"/>
+                    <xsd:enumeration value="NJ"/>
+                    <xsd:enumeration value="NM"/>
+                    <xsd:enumeration value="NY"/>
+                    <xsd:enumeration value="NC"/>
+                    <xsd:enumeration value="ND"/>
+                    <xsd:enumeration value="OH"/>
+                    <xsd:enumeration value="OK"/>
+                    <xsd:enumeration value="OR"/>
+                    <xsd:enumeration value="PA"/>
+                    <xsd:enumeration value="PR"/>
+                    <xsd:enumeration value="RI"/>
+                    <xsd:enumeration value="SC"/>
+                    <xsd:enumeration value="SD"/>
+                    <xsd:enumeration value="TN"/>
+                    <xsd:enumeration value="TX"/>
+                    <xsd:enumeration value="UT"/>
+                    <xsd:enumeration value="VT"/>
+                    <xsd:enumeration value="VA"/>
+                    <xsd:enumeration value="WA"/>
+                    <xsd:enumeration value="WV"/>
+                    <xsd:enumeration value="WI"/>
+                    <xsd:enumeration value="WY"/>
+                </xsd:restriction>
+            </xsd:simpleType>
             <xsd:simpleType name="UsRegionsEnum">
                 <xsd:restriction base="xsd:string">
                     <xsd:enumeration value="MW"/>
@@ -342,47 +342,21 @@
                     <xsd:enumeration value="W"/>
                 </xsd:restriction>
             </xsd:simpleType>
-            <xsd:simpleType name="LanguagesEnum">
+            <xsd:simpleType name="CaProvincesEnum">
                 <xsd:restriction base="xsd:string">
-                    <xsd:enumeration value="ALB"/>
-                    <xsd:enumeration value="ARA"/>
-                    <xsd:enumeration value="BEL"/>
-                    <xsd:enumeration value="BUL"/>
-                    <xsd:enumeration value="CAT"/>
-                    <xsd:enumeration value="CHI"/>
-                    <xsd:enumeration value="SCR"/>
-                    <xsd:enumeration value="CZE"/>
-                    <xsd:enumeration value="DAN"/>
-                    <xsd:enumeration value="DUT"/>
-                    <xsd:enumeration value="ENG"/>
-                    <xsd:enumeration value="FIN"/>
-                    <xsd:enumeration value="FRE"/>
-                    <xsd:enumeration value="GER"/>
-                    <xsd:enumeration value="GRE"/>
-                    <xsd:enumeration value="HEB"/>
-                    <xsd:enumeration value="HIN"/>
-                    <xsd:enumeration value="HUN"/>
-                    <xsd:enumeration value="IND"/>
-                    <xsd:enumeration value="GLE"/>
-                    <xsd:enumeration value="ITA"/>
-                    <xsd:enumeration value="JPN"/>
-                    <xsd:enumeration value="LAV"/>
-                    <xsd:enumeration value="LIT"/>
-                    <xsd:enumeration value="MAC"/>
-                    <xsd:enumeration value="MAY"/>
-                    <xsd:enumeration value="MLT"/>
-                    <xsd:enumeration value="NOR"/>
-                    <xsd:enumeration value="POL"/>
-                    <xsd:enumeration value="POR"/>
-                    <xsd:enumeration value="RUM"/>
-                    <xsd:enumeration value="RUS"/>
-                    <xsd:enumeration value="SCC"/>
-                    <xsd:enumeration value="SLO"/>
-                    <xsd:enumeration value="SPA"/>
-                    <xsd:enumeration value="THA"/>
-                    <xsd:enumeration value="TUR"/>
-                    <xsd:enumeration value="UKR"/>
-                    <xsd:enumeration value="VIE"/>
+                    <xsd:enumeration value="AB"/>
+                    <xsd:enumeration value="BC"/>
+                    <xsd:enumeration value="PE"/>
+                    <xsd:enumeration value="MB"/>
+                    <xsd:enumeration value="NB"/>
+                    <xsd:enumeration value="NS"/>
+                    <xsd:enumeration value="NU"/>
+                    <xsd:enumeration value="ON"/>
+                    <xsd:enumeration value="QC"/>
+                    <xsd:enumeration value="SK"/>
+                    <xsd:enumeration value="NL"/>
+                    <xsd:enumeration value="YT"/>
+                    <xsd:enumeration value="NT"/>
                 </xsd:restriction>
             </xsd:simpleType>
             <xsd:simpleType name="CountriesEnum">
@@ -480,35 +454,58 @@
                     <xsd:enumeration value="YE"/>
                 </xsd:restriction>
             </xsd:simpleType>
-            <xsd:simpleType name="CaProvincesEnum">
+            <xsd:simpleType name="LanguagesEnum">
                 <xsd:restriction base="xsd:string">
-                    <xsd:enumeration value="AB"/>
-                    <xsd:enumeration value="BC"/>
-                    <xsd:enumeration value="PE"/>
-                    <xsd:enumeration value="MB"/>
-                    <xsd:enumeration value="NB"/>
-                    <xsd:enumeration value="NS"/>
-                    <xsd:enumeration value="NU"/>
-                    <xsd:enumeration value="ON"/>
-                    <xsd:enumeration value="QC"/>
-                    <xsd:enumeration value="SK"/>
-                    <xsd:enumeration value="NL"/>
-                    <xsd:enumeration value="YT"/>
-                    <xsd:enumeration value="NT"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="RegionsEnum">
-                <xsd:restriction base="xsd:string">
-                    <xsd:enumeration value="NCSA"/>
-                    <xsd:enumeration value="EU"/>
-                    <xsd:enumeration value="EMEA"/>
-                    <xsd:enumeration value="APJ"/>
+                    <xsd:enumeration value="ALB"/>
+                    <xsd:enumeration value="ARA"/>
+                    <xsd:enumeration value="BEL"/>
+                    <xsd:enumeration value="BUL"/>
+                    <xsd:enumeration value="CAT"/>
+                    <xsd:enumeration value="CHI"/>
+                    <xsd:enumeration value="SCR"/>
+                    <xsd:enumeration value="CZE"/>
+                    <xsd:enumeration value="DAN"/>
+                    <xsd:enumeration value="DUT"/>
+                    <xsd:enumeration value="ENG"/>
+                    <xsd:enumeration value="FIN"/>
+                    <xsd:enumeration value="FRE"/>
+                    <xsd:enumeration value="GER"/>
+                    <xsd:enumeration value="GRE"/>
+                    <xsd:enumeration value="HEB"/>
+                    <xsd:enumeration value="HIN"/>
+                    <xsd:enumeration value="HUN"/>
+                    <xsd:enumeration value="IND"/>
+                    <xsd:enumeration value="GLE"/>
+                    <xsd:enumeration value="ITA"/>
+                    <xsd:enumeration value="JPN"/>
+                    <xsd:enumeration value="LAV"/>
+                    <xsd:enumeration value="LIT"/>
+                    <xsd:enumeration value="MAC"/>
+                    <xsd:enumeration value="MAY"/>
+                    <xsd:enumeration value="MLT"/>
+                    <xsd:enumeration value="NOR"/>
+                    <xsd:enumeration value="POL"/>
+                    <xsd:enumeration value="POR"/>
+                    <xsd:enumeration value="RUM"/>
+                    <xsd:enumeration value="RUS"/>
+                    <xsd:enumeration value="SCC"/>
+                    <xsd:enumeration value="SLO"/>
+                    <xsd:enumeration value="SPA"/>
+                    <xsd:enumeration value="THA"/>
+                    <xsd:enumeration value="TUR"/>
+                    <xsd:enumeration value="UKR"/>
+                    <xsd:enumeration value="VIE"/>
                 </xsd:restriction>
             </xsd:simpleType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://table.rules.openl.org"
-                    attributeFormDefault="qualified" elementFormDefault="qualified"
-                    targetNamespace="http://table.rules.openl.org">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://itest.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://itest.openl.org">
+            <xsd:complexType name="Error">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="message" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://table.rules.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://table.rules.openl.org">
             <xsd:complexType name="Point">
                 <xsd:sequence>
                     <xsd:element minOccurs="0" name="column" type="xsd:int"/>
@@ -516,19 +513,7 @@
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://itest.openl.org"
-                    attributeFormDefault="qualified" elementFormDefault="qualified"
-                    targetNamespace="http://itest.openl.org">
-            <xsd:complexType name="Error">
-                <xsd:sequence>
-                    <xsd:element minOccurs="0" name="message" nillable="true" type="xsd:string"/>
-                </xsd:sequence>
-            </xsd:complexType>
-        </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://calc.rules.openl.org"
-                    xmlns:ns1="http://cxf.apache.org/arrays" xmlns:ns0="http://DefaultNamespace"
-                    attributeFormDefault="qualified"
-                    elementFormDefault="qualified" targetNamespace="http://calc.rules.openl.org">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://calc.rules.openl.org" xmlns:ns1="http://cxf.apache.org/arrays" xmlns:ns0="http://DefaultNamespace" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://calc.rules.openl.org">
             <xsd:import namespace="http://DefaultNamespace"/>
             <xsd:import namespace="http://cxf.apache.org/arrays"/>
             <xsd:complexType name="SpreadsheetResult">
@@ -539,18 +524,14 @@
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://context.rules.openl.org"
-                    xmlns:ns1="http://enumeration.rules.openl.org" xmlns:ns0="http://runtime.openl.org"
-                    attributeFormDefault="qualified" elementFormDefault="qualified"
-                    targetNamespace="http://context.rules.openl.org">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://context.rules.openl.org" xmlns:ns1="http://enumeration.rules.openl.org" xmlns:ns0="http://runtime.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://context.rules.openl.org">
             <xsd:import namespace="http://enumeration.rules.openl.org"/>
             <xsd:import namespace="http://runtime.openl.org"/>
             <xsd:complexType name="IRulesRuntimeContext">
                 <xsd:complexContent>
                     <xsd:extension base="ns0:IRuntimeContext">
                         <xsd:sequence>
-                            <xsd:element minOccurs="0" name="caProvince" nillable="true"
-                                         type="ns1:CaProvincesEnum"/>
+                            <xsd:element minOccurs="0" name="caProvince" nillable="true" type="ns1:CaProvincesEnum"/>
                             <xsd:element minOccurs="0" name="caRegion" nillable="true" type="ns1:CaRegionsEnum"/>
                             <xsd:element minOccurs="0" name="country" nillable="true" type="ns1:CountriesEnum"/>
                             <xsd:element minOccurs="0" name="currency" nillable="true" type="ns1:CurrenciesEnum"/>
@@ -568,6 +549,10 @@
             </xsd:complexType>
         </xsd:schema>
     </wsdl:types>
+    <wsdl:message name="sprIfNodeResponse">
+        <wsdl:part element="tns:sprIfNodeResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
     <wsdl:message name="dtRetSprResponse">
         <wsdl:part element="tns:dtRetSprResponse" name="parameters">
         </wsdl:part>
@@ -590,6 +575,10 @@
     </wsdl:message>
     <wsdl:message name="dtRetSpr2">
         <wsdl:part element="tns:dtRetSpr2" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="sprIfNode">
+        <wsdl:part element="tns:sprIfNode" name="parameters">
         </wsdl:part>
     </wsdl:message>
     <wsdl:message name="dtRetSpr3">
@@ -617,6 +606,12 @@
             <wsdl:input message="tns:dtRetSpr2" name="dtRetSpr2">
             </wsdl:input>
             <wsdl:output message="tns:dtRetSpr2Response" name="dtRetSpr2Response">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="sprIfNode">
+            <wsdl:input message="tns:sprIfNode" name="sprIfNode">
+            </wsdl:input>
+            <wsdl:output message="tns:sprIfNodeResponse" name="sprIfNodeResponse">
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="dtRetSpr3">
@@ -652,6 +647,15 @@
                 <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output name="dtRetSpr2Response">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="sprIfNode">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="sprIfNode">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="sprIfNodeResponse">
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>

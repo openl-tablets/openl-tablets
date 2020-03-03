@@ -52,6 +52,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     volatile Map<String, List<IOpenField>> beanFieldsMap;
     volatile boolean beanClassInitializing = false;
     private boolean ignoreCompilation = false;
+
     private ILogicalTable logicalTable;
 
     public CustomSpreadsheetResultOpenClass(String name,
@@ -360,13 +361,17 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return spr;
     }
 
-    public Object createBean(SpreadsheetResult spreadsheetResult) throws IllegalAccessException,
-                                                                  InstantiationException {
+    public Object createBean(SpreadsheetResult spreadsheetResult) {
         if (!this.getName().equals(spreadsheetResult.getCustomSpreadsheetResultOpenClass().getName())) {
             throw new IllegalArgumentException("Invalid spreadsheet result.");
         }
         Class<?> clazz = getBeanClass();
-        Object target = clazz.newInstance();
+        Object target;
+        try {
+            target = clazz.newInstance();
+        } catch (InstantiationException | IllegalAccessException ignore) {
+            return null;
+        }
         for (SpreadsheetResultSetter spreadsheetResultSetter : spreadsheetResultSetters) {
             spreadsheetResultSetter.set(spreadsheetResult, target);
         }
@@ -509,6 +514,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                                     if (!found && Objects.equals(columnNamesForResultModel[point.getColumn()],
                                         col) && Objects.equals(rowNamesForResultModel[point.getRow()], row)) {
                                         found = true;
+                                        break;
                                     }
                                 }
                             }
@@ -546,9 +552,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             .collect(joining()) + "L" + fieldClsName + ";" : fieldClsName;
                     } else if (t instanceof SpreadsheetResultOpenClass) {
                         if (dim > 0) {
-                            typeName = Array.newInstance(Map.class, new int[dim]).getClass().getName();
+                            typeName = Array.newInstance(Object.class, new int[dim]).getClass().getName();
                         } else {
-                            typeName = Map.class.getName();
+                            typeName = Object.class.getName();
                         }
                     } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t) || NullOpenClass.the
                         .equals(t)) {
@@ -601,9 +607,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         List<IOpenField> fields = new ArrayList<>();
         fields.add(field);
         if (simpleRefBeanByRow) {
-            for (int w = 0; w < used[point.getRow()].length; w++) {
-                used[point.getRow()][w] = fields;
-            }
+            Arrays.fill(used[point.getRow()], fields);
         } else if (simpleRefBeanByColumn) {
             for (int w = 0; w < used.length; w++) {
                 used[w][point.getColumn()] = fields;
@@ -616,8 +620,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
     private static synchronized String getBeanClassName(
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
-        String name = customSpreadsheetResultOpenClass.getName()
-            .substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
+        String name = customSpreadsheetResultOpenClass.getName();
+        if (name.startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX)) {
+            name = name.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
+        } else {
+            throw new IllegalStateException(
+                String.format("Prefix '%s' is required", Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX));
+        }
         String firstLetterUppercaseName = Character
             .toUpperCase(name.charAt(0)) + (name.length() > 1 ? name.substring(1) : StringUtils.EMPTY);
         if (customSpreadsheetResultOpenClass.getModule()
@@ -628,9 +637,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return customSpreadsheetResultOpenClass.getModule().getCsrBeansPackage() + "." + name;
     }
 
-    private static interface SpreadsheetResultSetter {
-        void set(SpreadsheetResult spreadsheetResult, Object target) throws IllegalAccessException,
-                                                                     InstantiationException;
+    private interface SpreadsheetResultSetter {
+        void set(SpreadsheetResult spreadsheetResult, Object target);
     }
 
     private static class SpreadsheetResultValueSetter implements SpreadsheetResultSetter {
@@ -640,29 +648,26 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
         private SpreadsheetResultValueSetter(XlsModuleOpenClass module, Field field, IOpenField openField) {
             this.field = Objects.requireNonNull(field);
-
             this.openField = Objects.requireNonNull(openField);
-
             this.module = Objects.requireNonNull(module);
-
             this.field.setAccessible(true);
         }
 
         @Override
-        public void set(SpreadsheetResult spreadsheetResult, Object target) throws IllegalAccessException,
-                                                                            InstantiationException {
+        public void set(SpreadsheetResult spreadsheetResult, Object target) {
             if (!spreadsheetResult.isFieldUsedInModel(openField.getName())) {
                 return;
             }
-
             Object v = openField.get(spreadsheetResult, null);
-
-            if (v == null) {
-                field.set(target, null);
-                return;
+            try {
+                if (v == null) {
+                    field.set(target, null);
+                } else {
+                    Object cv = SpreadsheetResult.convertSpreadsheetResult(module, v, field.getType());
+                    field.set(target, cv);
+                }
+            } catch (IllegalAccessException ignore) {
             }
-            Object cv = SpreadsheetResult.convertSpreadsheetResults(module, v, field.getType());
-            field.set(target, cv);
         }
     }
 
@@ -675,10 +680,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         }
 
         @Override
-        public void set(SpreadsheetResult spreadsheetResult, Object target) throws IllegalAccessException,
-                                                                            InstantiationException {
-            if (spreadsheetResult.isDetailedPlainModel()) {
-                field.set(target, spreadsheetResult.columnNames);
+        public void set(SpreadsheetResult spreadsheetResult, Object target) {
+            try {
+                if (spreadsheetResult.isDetailedPlainModel()) {
+                    field.set(target, spreadsheetResult.columnNames);
+                }
+            } catch (IllegalAccessException ignore) {
             }
         }
 
@@ -693,13 +700,14 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         }
 
         @Override
-        public void set(SpreadsheetResult spreadsheetResult, Object target) throws IllegalAccessException,
-                                                                            InstantiationException {
-            if (spreadsheetResult.isDetailedPlainModel()) {
-                field.set(target, spreadsheetResult.rowNames);
+        public void set(SpreadsheetResult spreadsheetResult, Object target) {
+            try {
+                if (spreadsheetResult.isDetailedPlainModel()) {
+                    field.set(target, spreadsheetResult.rowNames);
+                }
+            } catch (IllegalAccessException ignore) {
             }
         }
-
     }
 
     private static class SpreadsheetResultFieldNamesSetter implements SpreadsheetResultSetter {
@@ -714,8 +722,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         }
 
         @Override
-        public void set(SpreadsheetResult spreadsheetResult, Object target) throws IllegalAccessException,
-                                                                            InstantiationException {
+        public void set(SpreadsheetResult spreadsheetResult, Object target) {
             if (spreadsheetResult.isDetailedPlainModel()) {
                 String[][] fieldNames = new String[spreadsheetResult.getRowNames().length][spreadsheetResult
                     .getColumnNames().length];
@@ -729,7 +736,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         }
                     }
                 }
-                field.set(target, fieldNames);
+                try {
+                    field.set(target, fieldNames);
+                } catch (IllegalAccessException ignore) {
+                }
             }
         }
     }

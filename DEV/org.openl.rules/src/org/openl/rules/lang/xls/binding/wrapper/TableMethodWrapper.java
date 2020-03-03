@@ -183,4 +183,18 @@ public class TableMethodWrapper extends TableMethod implements IOpenMethodWrappe
         return contextPropertiesInjector;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        TableMethodWrapper that = (TableMethodWrapper) o;
+        return delegate.equals(that.delegate);
+    }
+
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
+    }
 }

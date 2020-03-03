@@ -20,6 +20,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     protected HashMap<String, IOpenField> fieldMap;
     protected IOpenIndex index;
     private final String javaName;
+    private static final Iterable<IOpenClass> OBJECT_CLASS = Collections.singleton(JavaOpenClass.OBJECT);
 
     public static ComponentTypeArrayOpenClass createComponentTypeArrayOpenClass(IOpenClass componentClass, int dim) {
         ComponentTypeArrayOpenClass componentTypeArrayOpenClass = null;
@@ -38,7 +39,6 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
         this.fieldMap = new HashMap<>(1);
         this.fieldMap.put(lengthOpenField.getName(), lengthOpenField);
         this.javaName = createJavaName(componentClass);
-        JavaOpenClass.OBJECT.getMethods().forEach(this::addMethod);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
 
     @Override
     public Iterable<IOpenClass> superClasses() {
-        return Collections.emptyList();
+        return OBJECT_CLASS;
     }
 
     @Override

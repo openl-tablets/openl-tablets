@@ -200,4 +200,18 @@ public class AlgorithmWrapper extends Algorithm implements IOpenMethodWrapper {
         return contextPropertiesInjector;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        AlgorithmWrapper that = (AlgorithmWrapper) o;
+        return delegate.equals(that.delegate);
+    }
+
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
+    }
 }

@@ -1,11 +1,13 @@
 package org.openl.rules.ui.tree;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.ui.IProjectTypes;
+import org.openl.util.tree.ITreeElement;
 
 /**
  * Folder tree node that represents table with several versions. If node has several versions then folder node will be
@@ -69,7 +71,7 @@ public class VersionedTreeNode extends ProjectTreeNode {
     }
 
     @Override
-    public Iterable<? extends org.openl.util.tree.ITreeElement<Object>> getChildren() {
+    public Collection<? extends ITreeElement<Object>> getChildren() {
         return getElements().values();
     }
 
