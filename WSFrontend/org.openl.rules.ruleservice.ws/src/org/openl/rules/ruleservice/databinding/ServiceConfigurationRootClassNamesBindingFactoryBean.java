@@ -33,6 +33,7 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
         Set<String> ret = new HashSet<>(getDefaultAdditionalRootClassNames());
         ret.addAll(fromServiceDescription());
         ret.addAll(fromOpenLService());
+        ret.addAll(fromConfiguration());
         checkXmlSeeAlso(ret);
         return Collections.unmodifiableSet(ret);
     }
@@ -54,8 +55,7 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
             try {
                 Class<?> cls = openLService.getClassLoader().loadClass(className);
                 checkXmlSeeAlso(rootClassNames, cls);
-            } catch (ClassNotFoundException e) {
-            } catch (RuleServiceInstantiationException e) {
+            } catch (RuleServiceInstantiationException | ClassNotFoundException e) {
                 throw new ServiceConfigurationException(e);
             }
         }
@@ -76,18 +76,25 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
                     }
                 }
             }
-            if (openLService.isProvideVariations()) {
-                ret.add(Variation.class.getName());
-                ret.add(NoVariation.class.getName());
-                ret.add(ArgumentReplacementVariation.class.getName());
-                ret.add(ComplexVariation.class.getName());
-                ret.add(DeepCloningVariation.class.getName());
-                ret.add(JXPathVariation.class.getName());
-                ret.add(VariationsResult.class.getName());
-            }
         } catch (RuleServiceInstantiationException e) {
             throw new ServiceConfigurationException(e);
         }
+        return ret;
+    }
+
+    private Set<String> fromConfiguration() throws ServiceConfigurationException {
+        OpenLService openLService = getOpenLService();
+        Set<String> ret = new HashSet<>();
+        if (openLService.isProvideVariations()) {
+            ret.add(Variation.class.getName());
+            ret.add(NoVariation.class.getName());
+            ret.add(ArgumentReplacementVariation.class.getName());
+            ret.add(ComplexVariation.class.getName());
+            ret.add(DeepCloningVariation.class.getName());
+            ret.add(JXPathVariation.class.getName());
+            ret.add(VariationsResult.class.getName());
+        }
+
         return ret;
     }
 
