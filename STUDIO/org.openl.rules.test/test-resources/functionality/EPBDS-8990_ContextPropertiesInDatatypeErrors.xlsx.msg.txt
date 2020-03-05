@@ -2,3 +2,5 @@ ERROR: Property 'state' is not found in context. Supported properties: [caProvin
 ERROR: Property 'lob2' is not found in context. Supported properties: [caProvince, caRegion, country, currency, currentDate, lang, lob, nature, region, requestDate, usRegion, usState].
 ERROR: Type mismatch for context property 'currentDate'. Cannot convert from 'java.lang.Integer' to 'java.util.Date'.
 ERROR: Type mismatch for context property 'requestDate'. Cannot convert from 'java.lang.Integer' to 'java.util.Date'.
+ERROR: Multiple fields refer to the same context property 'usState'.
+ERROR: Multiple fields refer to the same context property 'caProvince'.
