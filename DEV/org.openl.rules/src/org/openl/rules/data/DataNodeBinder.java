@@ -8,7 +8,9 @@ package org.openl.rules.data;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -25,11 +27,14 @@ import org.openl.rules.lang.xls.types.meta.DataTableMetaInfoReader;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.rules.testmethod.TestMethodOpenClass;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.util.MessageUtils;
 import org.openl.util.text.TextInterval;
 
@@ -164,6 +169,10 @@ public class DataNodeBinder extends AXlsTableBinder {
                     descriptorRows,
                     dataWithTitleRows);
 
+                if (tableType instanceof TestMethodOpenClass) {
+                    validateTestTableDescriptors(descriptors, tableToProcess);
+                }
+
                 OpenlBasedDataTableModel dataModel = new OpenlBasedDataTableModel(tableName,
                     tableType,
                     openl,
@@ -176,6 +185,32 @@ public class DataNodeBinder extends AXlsTableBinder {
             } else {
                 String message = "Invalid table structure: data table body should contain key and value columns.";
                 throw SyntaxNodeExceptionUtils.createError(message, tableToProcess.getTableSyntaxNode());
+            }
+        }
+    }
+
+    private void validateTestTableDescriptors(ColumnDescriptor[] descriptors,
+            ITable tableToProcess) throws SyntaxNodeException {
+        Set<String> props = new HashSet<>();
+        for (ColumnDescriptor descriptor : descriptors) {
+            if (descriptor != null) {
+                IOpenField field = descriptor.getField();
+                if (field instanceof FieldChain) {
+                    IOpenField[] fields = ((FieldChain) descriptor.getField()).getFields();
+                    // for fields with a context property, the length must be 2
+                    if (fields.length != 2) {
+                        continue;
+                    }
+                    if (fields[1].isContextProperty()) {
+                        String contextProperty = fields[1].getContextProperty();
+                        if (props.contains(contextProperty)) {
+                            throw SyntaxNodeExceptionUtils.createError(
+                                    String.format("Multiple fields refer to the same context property '%s'.", contextProperty),
+                                tableToProcess.getTableSyntaxNode());
+                        }
+                        props.add(contextProperty);
+                    }
+                }
             }
         }
     }

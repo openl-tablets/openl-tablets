@@ -148,8 +148,8 @@ public class InstallWizard {
 
     public String reconfigure() {
         PreferencesManager.INSTANCE.setInstallerMode(getAppName());
-        ReloadableDelegatingFilter.reloadApplicationContext(
-            (ServletContext) WebStudioUtils.getExternalContext().getContext());
+        ReloadableDelegatingFilter
+            .reloadApplicationContext((ServletContext) WebStudioUtils.getExternalContext().getContext());
         return next();
     }
 
@@ -319,7 +319,15 @@ public class InstallWizard {
             propertyResolver.getProperty("security.saml.attribute.last-name"),
             propertyResolver.getProperty("security.saml.attribute.groups"),
             propertyResolver.getProperty("security.saml.authentication-contexts"),
-            propertyResolver.getRequiredProperty("security.saml.local-logout", Boolean.class));
+            propertyResolver.getRequiredProperty("security.saml.local-logout", Boolean.class),
+            propertyResolver.getProperty("security.saml.scheme"),
+            propertyResolver.getProperty("security.saml.server-name"),
+            propertyResolver.getRequiredProperty("security.saml.server-port", Integer.class),
+            propertyResolver.getRequiredProperty("security.saml.include-server-port-in-request-url", Boolean.class),
+            propertyResolver.getProperty("security.saml.context-path"),
+            propertyResolver.getRequiredProperty("security.saml.max-authentication-age", Integer.class),
+            propertyResolver.getRequiredProperty("security.saml.metadata-trust-check", Boolean.class),
+            propertyResolver.getRequiredProperty("security.saml.is-app-after-balancer", Boolean.class));
     }
 
     public String finish() {
@@ -368,6 +376,17 @@ public class InstallWizard {
                     properties.setProperty("security.saml.authentication-contexts",
                         samlSettings.getAuthenticationContexts());
                     properties.setProperty("security.saml.local-logout", samlSettings.isLocalLogout());
+
+                    properties.setProperty("security.saml.scheme", samlSettings.getSamlScheme());
+                    properties.setProperty("security.saml.server-name", samlSettings.getSamlServerName());
+                    properties.setProperty("security.saml.server-port", samlSettings.getServerPort());
+                    properties.setProperty("security.saml.include-server-port-in-request-url",
+                        samlSettings.isIncludeServerPortInRequestUrl());
+                    properties.setProperty("security.saml.context-path", samlSettings.getContextPath());
+                    properties.setProperty("security.saml.max-authentication-age",
+                        samlSettings.getMaxAuthenticationAge());
+                    properties.setProperty("security.saml.metadata-trust-check", samlSettings.isMetadataTrustCheck());
+                    properties.setProperty("security.saml.is-app-after-balancer", samlSettings.isAppAfterBalancer());
                 }
             }
 
@@ -386,11 +405,12 @@ public class InstallWizard {
             destroyRepositoryObjects();
             destroyDbContext();
 
-            ReloadableDelegatingFilter.reloadApplicationContext(
-                (ServletContext) WebStudioUtils.getExternalContext().getContext());
+            ReloadableDelegatingFilter
+                .reloadApplicationContext((ServletContext) WebStudioUtils.getExternalContext().getContext());
 
-            FacesContext.getCurrentInstance().getExternalContext().redirect(
-                WebStudioUtils.getExternalContext().getRequestContextPath() + "/");
+            FacesContext.getCurrentInstance()
+                .getExternalContext()
+                .redirect(WebStudioUtils.getExternalContext().getRequestContextPath() + "/");
 
             return "/";
         } catch (Exception e) {
@@ -506,8 +526,7 @@ public class InstallWizard {
                 throw new ValidatorException(createErrorMessage("Database URL cannot be blank."));
             } else {
                 if (StringUtils.isNotEmpty(dbUsername) && dbUsername.length() > 100) {
-                    throw new ValidatorException(
-                        createErrorMessage("Username length must be less than 100."));
+                    throw new ValidatorException(createErrorMessage("Username length must be less than 100."));
                 }
                 testDBConnection(dbUrl, dbUsername, dbPasswordString);
             }
@@ -584,6 +603,8 @@ public class InstallWizard {
         String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerUrl")).getSubmittedValue();
         String requestTimeout = (String) ((UIInput) viewRoot.findComponent("step3Form:samlRequestTimeout"))
             .getSubmittedValue();
+        String maxAuthenticationAge = (String) ((UIInput) viewRoot.findComponent("step3Form:samlMaxAuthenticationAge"))
+            .getSubmittedValue();
         String keystoreFilePath = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreFilePath"))
             .getSubmittedValue();
         String keystorePassword = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystorePassword"))
@@ -593,6 +614,16 @@ public class InstallWizard {
         String keystoreSpPassword = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreSpPassword"))
             .getSubmittedValue();
         String groupsAttribute = (String) ((UIInput) viewRoot.findComponent("step3Form:samlGroupsAttribute"))
+            .getSubmittedValue();
+
+        boolean isAppAfterBalancer = (boolean) ((UIInput) viewRoot.findComponent("step3Form:samlIsAppAfterBalancer"))
+            .getSubmittedValue();
+        String samlScheme = (String) ((UIInput) viewRoot.findComponent("step3Form:samlScheme")).getSubmittedValue();
+        String samlServerName = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerName"))
+            .getSubmittedValue();
+        String samlServerPort = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerPort"))
+            .getSubmittedValue();
+        String samlContextPath = (String) ((UIInput) viewRoot.findComponent("step3Form:samlContextPath"))
             .getSubmittedValue();
 
         if (StringUtils.isBlank(webStudioUrl)) {
@@ -605,6 +636,10 @@ public class InstallWizard {
 
         if (StringUtils.isBlank(requestTimeout)) {
             throw new ValidatorException(createErrorMessage("Request timeout cannot be blank."));
+        }
+
+        if (StringUtils.isBlank(maxAuthenticationAge)) {
+            throw new ValidatorException(createErrorMessage("SAML max authentication age cannot be blank"));
         }
 
         if (StringUtils.isBlank(keystoreFilePath)) {
@@ -627,6 +662,23 @@ public class InstallWizard {
             throw new ValidatorException(createErrorMessage(
                 "Attribute for Groups cannot be blank or Internal User Management must be selected."));
         }
+
+        if (isAppAfterBalancer) {
+            if (StringUtils.isBlank(samlScheme)) {
+                throw new ValidatorException(createErrorMessage("SAML scheme cannot be blank."));
+            }
+            if (StringUtils.isBlank(samlServerName)) {
+                throw new ValidatorException(createErrorMessage("SAML server name cannot be blank."));
+            }
+
+            if (StringUtils.isBlank(samlServerPort)) {
+                throw new ValidatorException(createErrorMessage("SAML server port cannot be blank."));
+            }
+
+            if (StringUtils.isBlank(samlContextPath)) {
+                throw new ValidatorException(createErrorMessage("SAML context path cannot be blank."));
+            }
+        }
     }
 
     public void externalAdminsValidator(FacesContext context, UIComponent toValidate, Object value) {
@@ -638,8 +690,7 @@ public class InstallWizard {
         String[] allAdmins = StringUtils.split(admins, ',');
         for (String admin : allAdmins) {
             if (admin.length() > 50) {
-                throw new ValidatorException(
-                    createErrorMessage("Administrator username length must be less than 50."));
+                throw new ValidatorException(createErrorMessage("Administrator username length must be less than 50."));
             }
         }
     }
@@ -817,9 +868,8 @@ public class InstallWizard {
     }
 
     private String getAppName() {
-        return PropertySourcesLoader
-            .getAppName(WebApplicationContextUtils.getRequiredWebApplicationContext(
-                (ServletContext) WebStudioUtils.getExternalContext().getContext()));
+        return PropertySourcesLoader.getAppName(WebApplicationContextUtils
+            .getRequiredWebApplicationContext((ServletContext) WebStudioUtils.getExternalContext().getContext()));
     }
 
     public String getGroupsAreManagedInStudio() {

@@ -1,48 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    template="/pages/layout/simpleLayout.xhtml"
-    xmlns:a4j="http://richfaces.org/a4j">
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        template="/pages/layout/simpleLayout.xhtml"
+        xmlns:a4j="http://richfaces.org/a4j">
 
     <ui:define name="content">
-    <style>
-        .installMessages ul {
-            margin: 0;
-            padding: 0;
-            list-style-type: none;
-        }
+        <style>
+            .installMessages ul {
+                margin: 0;
+                padding: 0;
+                list-style-type: none;
+            }
 
-        select, input[type='text'], input[type='password'] {
-            width: 20em;
-        }
+            select, input[type='text'], input[type='password'] {
+                width: 20em;
+            }
 
-        #adBlock table tr td:first-child {
-            min-width: 145px;
-        }
+            #adBlock table tr td:first-child {
+                min-width: 145px;
+            }
 
-        .block-with-description > div {
-            display: table-cell;
-            vertical-align: top;
-        }
+            .block-with-description > div {
+                display: table-cell;
+                vertical-align: top;
+            }
 
-        .block-with-description > .field-edit {
-            width: 30%;
-        }
+            .block-with-description > .field-edit {
+                width: 30%;
+            }
 
-        .block-with-description > .field-description {
-            padding: 10px;
-            background-color: #f2f2f2;
-        }
-        .block-with-description > .field-description > p {
-            margin: 0;
+            .block-with-description > .field-description {
+                padding: 10px;
+                background-color: #f2f2f2;
+            }
 
-            /* Default value to reduce blinking. Is changed by js when the page is loaded. */
-            display: none;
-        }
+            .block-with-description > .field-description > p {
+                margin: 0;
 
-    </style>
+                /* Default value to reduce blinking. Is changed by js when the page is loaded. */
+                display: none;
+            }
+
+        </style>
 
         <div class="wizard-page">
             <div class="wizard-page-container">
@@ -58,16 +59,18 @@
                         </h3>
                         <div class="block-with-description">
                             <div class="field-edit">
-                                <h:selectOneRadio id="userMode" value="#{installWizard.userMode}" layout="pageDirection" >
-                                    <f:selectItem itemValue="demo" itemLabel="Demo" />
-                                    <f:selectItem itemValue="single" itemLabel="Single-user" />
-                                    <f:selectItem itemValue="multi" itemLabel="Multi-user" />
-                                    <f:selectItem itemValue="ad" itemLabel="Active Directory" />
-                                    <f:selectItem itemValue="cas" itemLabel="SSO: CAS" />
-                                    <f:selectItem itemValue="saml" itemLabel="SSO: SAML" />
+                                <h:selectOneRadio id="userMode" value="#{installWizard.userMode}"
+                                                  layout="pageDirection">
+                                    <f:selectItem itemValue="demo" itemLabel="Demo"/>
+                                    <f:selectItem itemValue="single" itemLabel="Single-user"/>
+                                    <f:selectItem itemValue="multi" itemLabel="Multi-user"/>
+                                    <f:selectItem itemValue="ad" itemLabel="Active Directory"/>
+                                    <f:selectItem itemValue="cas" itemLabel="SSO: CAS"/>
+                                    <f:selectItem itemValue="saml" itemLabel="SSO: SAML"/>
                                 </h:selectOneRadio>
                             </div><!-- Remove whitespace between nearby divs
-                         --><div class="field-description">
+                         -->
+                            <div class="field-description">
                                 <p class="user-mode-demo">You will use an internal User Database with predefined list of users. All changes in the database will be lost after the application restart. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder.</p>
                                 <p class="user-mode-single">Only the currently logged in user can run OpenL Tablets WebStudio. All user projects will be saved in the root of the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace' directory.</p>
                                 <p class="user-mode-multi">Multiple users can run OpenL Tablets WebStudio using their unique user names. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. User credentials are managed inside WebStudio.</p>
@@ -85,10 +88,12 @@
                         </h3>
                         <div class="block-with-description">
                             <div class="field-edit">
-                                <h:selectOneRadio id="groupsAreManagedInStudio" value="#{installWizard.groupsAreManagedInStudio}" layout="pageDirection" immediate="true">
-                                    <f:selectItem itemValue="true" itemLabel="Local user management" />
-                                    <f:selectItem itemValue="false" itemLabel="External user management" />
-                                    <f:ajax  listener="#{installWizard.groupsAreManagedInStudioChanged}" />
+                                <h:selectOneRadio id="groupsAreManagedInStudio"
+                                                  value="#{installWizard.groupsAreManagedInStudio}"
+                                                  layout="pageDirection" immediate="true">
+                                    <f:selectItem itemValue="true" itemLabel="Local user management"/>
+                                    <f:selectItem itemValue="false" itemLabel="External user management"/>
+                                    <f:ajax listener="#{installWizard.groupsAreManagedInStudioChanged}"/>
                                 </h:selectOneRadio>
                             </div>
                             <div class="field-description">
@@ -100,8 +105,8 @@
                     <div class="wizard-block" id="adBlock">
                         <h3>Configure Active Directory:
                             <div class="field-description">
-                                <p>Set up an Active Directory to use for managing users in OpenL Tablets WebStudio.<br />
-                                   Please contact your System Administrator for this information if necessary.</p>
+                                <p>Set up an Active Directory to use for managing users in OpenL Tablets WebStudio.<br/>
+                                    Please contact your System Administrator for this information if necessary.</p>
                             </div>
                         </h3>
                         <div>
@@ -110,12 +115,13 @@
                                     <td colspan="2">
                                         <a4j:outputPanel styleClass="installMessages" ajaxRendered="true">
                                             <h:messages infoClass="success" errorClass="error" showDetail="true"
-                                                showSummary="false" tooltip="true" globalOnly="true" />
-                                            <h:message  class="error" for="adPassword" />
+                                                        showSummary="false" tooltip="true" globalOnly="true"/>
+                                            <h:message class="error" for="adPassword"/>
                                         </a4j:outputPanel>
-                                        <span id="ad-successful-message" class="success" style="display:none">Connection successful</span>
+                                        <span id="ad-successful-message" class="success"
+                                              style="display:none">Connection successful</span>
                                     </td>
-                                   </tr>
+                                </tr>
                                 <tr>
                                     <td><label class="required">Active Directory domain:</label></td>
                                     <td>
@@ -140,7 +146,8 @@
                                 <tr>
                                     <td><label>LDAP filter:</label></td>
                                     <td>
-                                        <h:inputText id="ldapFilter" value="#{installWizard.ldapFilter}" style="width:400px" size="200"/>
+                                        <h:inputText id="ldapFilter" value="#{installWizard.ldapFilter}"
+                                                     style="width:400px" size="200"/>
                                     </td>
                                 </tr>
                             </table>
@@ -159,7 +166,8 @@
                                 <tr>
                                     <td><label>Password:</label></td>
                                     <td>
-                                        <h:inputSecret id="adPassword" value="#{installWizard.adPassword}" size="40" validator="#{installWizard.adValidator}" redisplay="true"/>
+                                        <h:inputSecret id="adPassword" value="#{installWizard.adPassword}" size="40"
+                                                       validator="#{installWizard.adValidator}" redisplay="true"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -177,7 +185,7 @@
                     <div class="wizard-block" id="casBlock">
                         <h3>Configure CAS:
                             <div class="field-description">
-                                <p>Set up a CAS to use for managing users in OpenL Tablets WebStudio.<br />
+                                <p>Set up a CAS to use for managing users in OpenL Tablets WebStudio.<br/>
                                     Please contact your System Administrator for this information if necessary.</p>
                             </div>
                         </h3>
@@ -187,39 +195,46 @@
                                     <td colspan="2">
                                         <a4j:outputPanel styleClass="installMessages" ajaxRendered="true">
                                             <h:messages infoClass="success" errorClass="error" showDetail="true"
-                                                        showSummary="false" tooltip="true" globalOnly="true" />
-                                            <h:message  class="error" for="casWebStudioUrl" />
+                                                        showSummary="false" tooltip="true" globalOnly="true"/>
+                                            <h:message class="error" for="casWebStudioUrl"/>
                                         </a4j:outputPanel>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label class="required">WebStudio server URL:</label></td>
                                     <td>
-                                        <h:inputText id="casWebStudioUrl" value="#{installWizard.casSettings.webStudioUrl}" size="40" validator="#{installWizard.casValidator}"/>
+                                        <h:inputText id="casWebStudioUrl"
+                                                     value="#{installWizard.casSettings.webStudioUrl}" size="40"
+                                                     validator="#{installWizard.casValidator}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label class="required">CAS server url:</label></td>
                                     <td>
-                                        <h:inputText id="casServerUrl" value="#{installWizard.casSettings.casServerUrl}" size="40"/>
+                                        <h:inputText id="casServerUrl" value="#{installWizard.casSettings.casServerUrl}"
+                                                     size="40"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label>Attribute for First Name:</label></td>
                                     <td>
-                                        <h:inputText id="casFirstNameAttribute" value="#{installWizard.casSettings.firstNameAttribute}" size="40"/>
+                                        <h:inputText id="casFirstNameAttribute"
+                                                     value="#{installWizard.casSettings.firstNameAttribute}" size="40"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label>Attribute for Second Name:</label></td>
                                     <td>
-                                        <h:inputText id="casSecondNameAttribute" value="#{installWizard.casSettings.secondNameAttribute}" size="40"/>
+                                        <h:inputText id="casSecondNameAttribute"
+                                                     value="#{installWizard.casSettings.secondNameAttribute}"
+                                                     size="40"/>
                                     </td>
                                 </tr>
                                 <tr id="cas-group-field">
                                     <td><label class="required">Attribute for Groups:</label></td>
                                     <td>
-                                        <h:inputText id="casGroupsAttribute" value="#{installWizard.casSettings.groupsAttribute}" size="40"/>
+                                        <h:inputText id="casGroupsAttribute"
+                                                     value="#{installWizard.casSettings.groupsAttribute}" size="40"/>
                                     </td>
                                 </tr>
                             </table>
@@ -228,7 +243,7 @@
                     <div class="wizard-block" id="samlBlock">
                         <h3>Configure SAML:
                             <div class="field-description">
-                                <p>Set up SAML to use for managing users in OpenL Tablets WebStudio.<br />
+                                <p>Set up SAML to use for managing users in OpenL Tablets WebStudio.<br/>
                                     Please contact your System Administrator for this information if necessary.</p>
                             </div>
                         </h3>
@@ -238,87 +253,176 @@
                                     <td colspan="2">
                                         <a4j:outputPanel styleClass="installMessages" ajaxRendered="true">
                                             <h:messages infoClass="success" errorClass="error" showDetail="true"
-                                                        showSummary="false" tooltip="true" globalOnly="true" />
-                                            <h:message  class="error" for="samlWebStudioUrl" />
+                                                        showSummary="false" tooltip="true" globalOnly="true"/>
+                                            <h:message class="error" for="samlWebStudioUrl"/>
                                         </a4j:outputPanel>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label class="required">WebStudio server URL:</label></td>
                                     <td>
-                                        <h:inputText id="samlWebStudioUrl" value="#{installWizard.samlSettings.webStudioUrl}" size="40" validator="#{installWizard.samlValidator}"/>
+                                        <h:inputText id="samlWebStudioUrl"
+                                                     value="#{installWizard.samlSettings.webStudioUrl}" size="40"
+                                                     validator="#{installWizard.samlValidator}"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>Metadata trust check:</label></td>
+                                    <td>
+                                        <h:selectBooleanCheckbox id="samlMetadataTrustCheck"
+                                                                 value="#{installWizard.samlSettings.metadataTrustCheck}"
+                                                                 size="40"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label class="required">Max authentication age in seconds:</label></td>
+                                    <td>
+                                        <h:inputText id="samlMaxAuthenticationAge"
+                                                     value="#{installWizard.samlSettings.maxAuthenticationAge}"
+                                                     size="40"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label class="required">SAML server metadata url:</label></td>
                                     <td>
-                                        <h:inputText id="samlServerUrl" value="#{installWizard.samlSettings.samlServerMetadataUrl}" size="40"/>
+                                        <h:inputText id="samlServerUrl"
+                                                     value="#{installWizard.samlSettings.samlServerMetadataUrl}"
+                                                     size="40"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label class="required">Request timeout:</label></td>
                                     <td>
-                                        <h:inputText id="samlRequestTimeout" value="#{installWizard.samlSettings.requestTimeout}" size="40"/>
+                                        <h:inputText id="samlRequestTimeout"
+                                                     value="#{installWizard.samlSettings.requestTimeout}" size="40"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label class="required">Keystore path:</label></td>
                                     <td>
-                                        <h:inputText id="samlKeystoreFilePath" value="#{installWizard.samlSettings.keystoreFilePath}" size="40"/>
+                                        <h:inputText id="samlKeystoreFilePath"
+                                                     value="#{installWizard.samlSettings.keystoreFilePath}" size="40"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label class="required">Keystore password:</label></td>
                                     <td>
-                                        <h:inputSecret id="samlKeystorePassword" value="#{installWizard.samlSettings.keystorePassword}" size="40" redisplay="true"/>
+                                        <h:inputSecret id="samlKeystorePassword"
+                                                       value="#{installWizard.samlSettings.keystorePassword}" size="40"
+                                                       redisplay="true"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label class="required">Keystore SP alias:</label></td>
                                     <td>
-                                        <h:inputText id="samlKeystoreSpAlias" value="#{installWizard.samlSettings.keystoreSpAlias}" size="40"/>
+                                        <h:inputText id="samlKeystoreSpAlias"
+                                                     value="#{installWizard.samlSettings.keystoreSpAlias}" size="40"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label class="required">Keystore SP password:</label></td>
                                     <td>
-                                        <h:inputSecret id="samlKeystoreSpPassword" value="#{installWizard.samlSettings.keystoreSpPassword}" size="40" redisplay="true"/>
+                                        <h:inputSecret id="samlKeystoreSpPassword"
+                                                       value="#{installWizard.samlSettings.keystoreSpPassword}"
+                                                       size="40" redisplay="true"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label>Authentication Contexts:</label></td>
                                     <td>
-                                        <h:inputText id="samlAuthenticationContexts" value="#{installWizard.samlSettings.authenticationContexts}" size="40"/>
+                                        <h:inputText id="samlAuthenticationContexts"
+                                                     value="#{installWizard.samlSettings.authenticationContexts}"
+                                                     size="40"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label>Local logout</label></td>
                                     <td>
-                                        <h:selectBooleanCheckbox id="samlLocalLogout" value="#{installWizard.samlSettings.localLogout}" size="40"/>
+                                        <h:selectBooleanCheckbox id="samlLocalLogout"
+                                                                 value="#{installWizard.samlSettings.localLogout}"
+                                                                 size="40"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label>Attribute for Username:</label></td>
                                     <td>
-                                        <h:inputText id="samlUsernameAttribute" value="#{installWizard.samlSettings.usernameAttribute}" size="40"/>
+                                        <h:inputText id="samlUsernameAttribute"
+                                                     value="#{installWizard.samlSettings.usernameAttribute}" size="40"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label>Attribute for First Name:</label></td>
                                     <td>
-                                        <h:inputText id="samlFirstNameAttribute" value="#{installWizard.samlSettings.firstNameAttribute}" size="40"/>
+                                        <h:inputText id="samlFirstNameAttribute"
+                                                     value="#{installWizard.samlSettings.firstNameAttribute}"
+                                                     size="40"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label>Attribute for Second Name:</label></td>
                                     <td>
-                                        <h:inputText id="samlSecondNameAttribute" value="#{installWizard.samlSettings.secondNameAttribute}" size="40"/>
+                                        <h:inputText id="samlSecondNameAttribute"
+                                                     value="#{installWizard.samlSettings.secondNameAttribute}"
+                                                     size="40"/>
                                     </td>
                                 </tr>
                                 <tr id="saml-group-field">
-                                    <td><label class="required">Attribute for Groups:</label></td>
+                                    <td><label>Attribute for Groups:</label></td>
                                     <td>
-                                        <h:inputText id="samlGroupsAttribute" value="#{installWizard.samlSettings.groupsAttribute}" size="40"/>
+                                        <h:inputText id="samlGroupsAttribute"
+                                                     value="#{installWizard.samlSettings.groupsAttribute}" size="40"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label>Is load-balancer or reverse-proxy in front of the local application</label>
+                                    </td>
+                                    <td>
+                                        <h:selectBooleanCheckbox id="samlIsAppAfterBalancer"
+                                                                 value="#{installWizard.samlSettings.appAfterBalancer}"
+                                                                 size="40">
+                                        </h:selectBooleanCheckbox>
+                                    </td>
+                                </tr>
+                                <tr class="samlSchemeTd">
+                                    <td><label class="required">Scheme of load balancer server(http or https):</label></td>
+                                    <td>
+                                        <h:inputText id="samlScheme"
+                                                     value="#{installWizard.samlSettings.samlScheme}" size="40"/>
+                                    </td>
+                                </tr>
+                                <tr class="samlServerNameTd">
+                                    <td><label class="required">Server name of load balancer server(e.g. app.abcd.com):</label></td>
+                                    <td>
+                                        <h:inputText id="samlServerName"
+                                                     value="#{installWizard.samlSettings.samlServerName}"
+                                                     size="40"/>
+                                    </td>
+                                </tr>
+                                <tr class="samlServerPortTd">
+                                    <td><label class="required">Port of the load balancer server(e.g. 443):</label></td>
+                                    <td>
+                                        <h:inputText id="samlServerPort"
+                                                     value="#{installWizard.samlSettings.serverPort}" size="40"/>
+                                    </td>
+                                </tr>
+                                <tr class="samlMetadataIncludeServerPortInRequestUrlTd">
+                                    <td>
+                                        <label>When true serverPort will be used in construction of LB requestURL:</label>
+                                    </td>
+                                    <td>
+                                        <h:selectBooleanCheckbox id="samlMetadataIncludeServerPortInRequestUrl"
+                                                                 value="#{installWizard.samlSettings.includeServerPortInRequestUrl}"
+                                                                 size="40"/>
+                                    </td>
+                                </tr>
+                                <tr class="samlContextPathTd">
+                                    <td>
+                                        <label class="required">Context path of the Lolad Balancer(must be starting with slash, e.g. /):</label>
+                                    </td>
+                                    <td>
+                                        <h:inputText id="samlContextPath"
+                                                     value="#{installWizard.samlSettings.contextPath}" size="40"/>
                                     </td>
                                 </tr>
                             </table>
@@ -336,21 +440,24 @@
                                     <td colspan="2">
                                         <a4j:outputPanel styleClass="installMessages" ajaxRendered="true">
                                             <h:messages infoClass="success" errorClass="error" showDetail="true"
-                                                        showSummary="false" tooltip="true" globalOnly="true" />
-                                            <h:message  class="error" for="adAdminUsers" />
+                                                        showSummary="false" tooltip="true" globalOnly="true"/>
+                                            <h:message class="error" for="adAdminUsers"/>
                                         </a4j:outputPanel>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label class="required">Administrators:</label></td>
                                     <td>
-                                        <h:inputText id="adAdminUsers" value="#{installWizard.externalAdmins}" size="40" validator="#{installWizard.externalAdminsValidator}"/>
+                                        <h:inputText id="adAdminUsers" value="#{installWizard.externalAdmins}" size="40"
+                                                     validator="#{installWizard.externalAdminsValidator}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label>All authenticated users have View access</label></td>
                                     <td>
-                                        <h:selectBooleanCheckbox id="adAllowAccessToNewUsers" value="#{installWizard.allowAccessToNewUsers}" size="40"/>
+                                        <h:selectBooleanCheckbox id="adAllowAccessToNewUsers"
+                                                                 value="#{installWizard.allowAccessToNewUsers}"
+                                                                 size="40"/>
                                     </td>
                                 </tr>
                             </table>
@@ -359,7 +466,7 @@
                     <div class="wizard-block" id="dbBlock">
                         <h3>Configure database:
                             <div class="field-description">
-                                <p>Set up a database to be used for managing users in OpenL Tablets WebStudio.<br />
+                                <p>Set up a database to be used for managing users in OpenL Tablets WebStudio.<br/>
                                     Please contact your System Administrator for this information if necessary.</p>
                             </div>
                         </h3>
@@ -370,26 +477,30 @@
                                     <td colspan="2">
                                         <a4j:outputPanel styleClass="installMessages" ajaxRendered="true">
                                             <h:messages infoClass="success" errorClass="error" showDetail="true"
-                                                        showSummary="false" tooltip="true" globalOnly="true" />
-                                            <h:message  class="error" for="dbPassword" />
+                                                        showSummary="false" tooltip="true" globalOnly="true"/>
+                                            <h:message class="error" for="dbPassword"/>
                                         </a4j:outputPanel>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label class="required">Database URL:</label></td>
                                     <td>
-                                        <h:inputText id="dbUrl" value="#{installWizard.dbUrl}" size="40" >
-                                            <f:ajax  listener="#{installWizard.urlChanged}" />
+                                        <h:inputText id="dbUrl" value="#{installWizard.dbUrl}" size="40">
+                                            <f:ajax listener="#{installWizard.urlChanged}"/>
                                         </h:inputText>
                                     </td>
                                 </tr>
-                                <tr><td></td></tr>
-                                <tr><td></td></tr>
+                                <tr>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                </tr>
                                 <tr>
                                     <td><label>Login:</label></td>
                                     <td>
                                         <h:inputText id="dbUsername" value="#{installWizard.dbUsername}" size="40">
-                                            <f:ajax  listener="#{installWizard.usernameChanged}" />
+                                            <f:ajax listener="#{installWizard.usernameChanged}"/>
                                         </h:inputText>
                                     </td>
                                 </tr>
@@ -407,13 +518,17 @@
 
 
                     <div class="wizard-buttons" id="finish-buttons">
-                        <h:commandButton id="prevButton" value="Prev" action="#{installWizard.prev}" onclick="showLoader()" immediate="true" />
-                        <h:commandButton value="Finish" action="#{installWizard.finish}" class="button-primary" onclick="showLoader()" />
+                        <h:commandButton id="prevButton" value="Prev" action="#{installWizard.prev}"
+                                         onclick="showLoader()" immediate="true"/>
+                        <h:commandButton value="Finish" action="#{installWizard.finish}" class="button-primary"
+                                         onclick="showLoader()"/>
                         <span style="color:#7b1">Click 'Finish' to complete the installation process</span>
                     </div>
                     <div class="wizard-buttons" id="next-buttons">
-                        <h:commandButton id="prevButtonAd" value="Prev" action="#{installWizard.prev}" onclick="showLoader()" immediate="true" />
-                        <h:commandButton value="Next" action="#{installWizard.next}" class="button-primary" onclick="showLoader()" />
+                        <h:commandButton id="prevButtonAd" value="Prev" action="#{installWizard.prev}"
+                                         onclick="showLoader()" immediate="true"/>
+                        <h:commandButton value="Next" action="#{installWizard.next}" class="button-primary"
+                                         onclick="showLoader()"/>
                     </div>
                 </h:form>
             </div>
@@ -431,7 +546,7 @@
                     .prop('disabled', !toggle);
             }
 
-            (function() {
+            (function () {
                 var toggleVisibleBlocks = function () {
                     var userMode = $j("#usermodeBlock input:checked").val();
                     var groupsInStudio = $j("#groupsManagingModeBlock input:checked").val() === "true";
@@ -462,10 +577,34 @@
                     $j("#step3Form\\:adConnectionCheck").prop('disabled', isBlank);
                 };
 
+                var showSamlAppAfterBalancer = function () {
+                    var isAfterBalancer = $("#step3Form\\:samlIsAppAfterBalancer").is(":checked");
+                    console.log(isAfterBalancer);
+                    let samlScheme = $(".samlSchemeTd");
+                    let samlServerName = $(".samlServerNameTd");
+                    let samlServerPort = $(".samlServerPortTd");
+                    let samlMetadataIncludePort = $(".samlMetadataIncludeServerPortInRequestUrlTd");
+                    let samlContextPath = $(".samlContextPathTd");
+                    if (isAfterBalancer) {
+                        samlScheme.show();
+                        samlServerName.show();
+                        samlServerPort.show();
+                        samlMetadataIncludePort.show();
+                        samlContextPath.show();
+                    } else {
+                        samlScheme.hide();
+                        samlServerName.hide();
+                        samlServerPort.hide();
+                        samlMetadataIncludePort.hide();
+                        samlContextPath.hide();
+                    }
+                };
+
+
                 toggleVisibleBlocks();
                 updateCheckConnectionButton();
 
-                $j("#usermodeBlock input, #groupsManagingModeBlock input").change(function() {
+                $j("#usermodeBlock input, #groupsManagingModeBlock input").change(function () {
                     toggleVisibleBlocks();
                 });
 
@@ -474,6 +613,11 @@
                 });
                 $j("#step3Form\\:adPassword").on("change keyup cut paste", function () {
                     updateCheckConnectionButton();
+                });
+
+                showSamlAppAfterBalancer();
+                $j("#step3Form\\:samlIsAppAfterBalancer").on("change", function () {
+                    showSamlAppAfterBalancer();
                 });
 
             })();
