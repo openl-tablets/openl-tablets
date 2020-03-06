@@ -1580,8 +1580,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             Repository repository = git.getRepository();
 
             try (RevWalk revWalk = new RevWalk(repository)) {
-                RevCommit fromCommit = revWalk.parseCommit(repository.resolve(from));
-                RevCommit toCommit = revWalk.parseCommit(repository.resolve(to));
+                ObjectId fromId = repository.resolve(from);
+                ObjectId toId = repository.resolve(to);
+                if (fromId == null || toId == null) {
+                    return false;
+                }
+                RevCommit fromCommit = revWalk.parseCommit(fromId);
+                RevCommit toCommit = revWalk.parseCommit(toId);
                 return revWalk.isMergedInto(fromCommit, toCommit);
             } catch (IOException e) {
                 throw e;
