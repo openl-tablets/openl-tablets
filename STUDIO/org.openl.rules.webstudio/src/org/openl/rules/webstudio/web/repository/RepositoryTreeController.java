@@ -1317,7 +1317,7 @@ public class RepositoryTreeController {
     }
 
     private String getDescriptiveVersion(ProjectVersion version) {
-        String dateModifiedPattern = PropertyResolverProvider.getProperty(AdministrationSettings.DATE_PATTERN);
+        String dateModifiedPattern = PropertyResolverProvider.getProperty(AdministrationSettings.DATETIME_PATTERN);
         String modifiedOnStr = new SimpleDateFormat(dateModifiedPattern).format(version.getVersionInfo().getCreatedAt());
 
         return version.getVersionInfo().getCreatedBy() + ": " + modifiedOnStr;

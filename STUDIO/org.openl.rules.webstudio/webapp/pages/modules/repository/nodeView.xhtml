@@ -172,7 +172,7 @@
                 </td>
                 <td>
                     <h:outputText value="#{node.createdAt}">
-                        <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.date')}"/>
+                        <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.datetime')}"/>
                     </h:outputText>
                 </td>
             </tr>
@@ -187,7 +187,7 @@
                     <td class="label">Modified At:</td>
                     <td>
                         <h:outputText value="#{node.modifiedAt}">
-                            <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.date')}"/>
+                            <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.datetime')}"/>
                         </h:outputText>
                     </td>
                 </tr>
