@@ -468,7 +468,7 @@ public class StringOperators {
         return TYPE_TO_STRING_DISTANCE;
     }
 
-    public static short autocast(String x, Short y) {
+    public static Short autocast(String x, Short y) {
         return x == null ? null : Short.parseShort(x);
     }
 
