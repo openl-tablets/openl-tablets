@@ -15,6 +15,14 @@ public class SAMLSettings {
     private String groupsAttribute;
     private String authenticationContexts;
     private boolean localLogout;
+    private String samlScheme;
+    private String samlServerName;
+    private int serverPort;
+    private boolean includeServerPortInRequestUrl;
+    private String contextPath;
+    private int maxAuthenticationAge;
+    private boolean metadataTrustCheck;
+    private boolean isAppAfterBalancer;
 
     public SAMLSettings(String webStudioUrl,
             String samlServerMetadataUrl,
@@ -29,7 +37,15 @@ public class SAMLSettings {
             String secondNameAttribute,
             String groupsAttribute,
             String authenticationContexts,
-            boolean localLogout) {
+            boolean localLogout,
+            String samlScheme,
+            String samlServerName,
+            int serverPort,
+            boolean includeServerPortInRequestUrl,
+            String contextPath,
+            int maxAuthenticationAge,
+            boolean metadataTrustCheck,
+            boolean isAppAfterBalancer) {
         this.webStudioUrl = webStudioUrl;
         this.samlServerMetadataUrl = samlServerMetadataUrl;
         this.requestTimeout = requestTimeout;
@@ -44,6 +60,14 @@ public class SAMLSettings {
         this.groupsAttribute = groupsAttribute;
         this.authenticationContexts = authenticationContexts;
         this.localLogout = localLogout;
+        this.samlScheme = samlScheme;
+        this.samlServerName = samlServerName;
+        this.serverPort = serverPort;
+        this.includeServerPortInRequestUrl = includeServerPortInRequestUrl;
+        this.contextPath = contextPath;
+        this.maxAuthenticationAge = maxAuthenticationAge;
+        this.metadataTrustCheck = metadataTrustCheck;
+        this.isAppAfterBalancer = isAppAfterBalancer;
     }
 
     public String getWebStudioUrl() {
@@ -161,5 +185,69 @@ public class SAMLSettings {
 
     public void setLocalLogout(boolean localLogout) {
         this.localLogout = localLogout;
+    }
+
+    public String getSamlScheme() {
+        return samlScheme;
+    }
+
+    public void setSamlScheme(String samlScheme) {
+        this.samlScheme = samlScheme;
+    }
+
+    public String getSamlServerName() {
+        return samlServerName;
+    }
+
+    public void setSamlServerName(String samlServerName) {
+        this.samlServerName = samlServerName;
+    }
+
+    public int getServerPort() {
+        return serverPort;
+    }
+
+    public void setServerPort(int serverPort) {
+        this.serverPort = serverPort;
+    }
+
+    public String getContextPath() {
+        return contextPath;
+    }
+
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
+    }
+
+    public int getMaxAuthenticationAge() {
+        return maxAuthenticationAge;
+    }
+
+    public void setMaxAuthenticationAge(int maxAuthenticationAge) {
+        this.maxAuthenticationAge = maxAuthenticationAge;
+    }
+
+    public boolean isMetadataTrustCheck() {
+        return metadataTrustCheck;
+    }
+
+    public void setMetadataTrustCheck(boolean metadataTrustCheck) {
+        this.metadataTrustCheck = metadataTrustCheck;
+    }
+
+    public boolean isIncludeServerPortInRequestUrl() {
+        return includeServerPortInRequestUrl;
+    }
+
+    public void setIncludeServerPortInRequestUrl(boolean includeServerPortInRequestUrl) {
+        this.includeServerPortInRequestUrl = includeServerPortInRequestUrl;
+    }
+
+    public boolean isAppAfterBalancer() {
+        return isAppAfterBalancer;
+    }
+
+    public void setAppAfterBalancer(boolean appAfterBalancer) {
+        isAppAfterBalancer = appAfterBalancer;
     }
 }

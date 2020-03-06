@@ -28,11 +28,11 @@
             <security:filter-chain pattern="/javascript/**" filters="none"/>
             <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none"/>
             <security:filter-chain pattern="/faces/rfRes/**" filters="none"/>
-            <security:filter-chain pattern="/faces/tableEditor/css/**" filters="none" />
-            <security:filter-chain pattern="/faces/tableEditor/img/**" filters="none" />
-            <security:filter-chain pattern="/faces/tableEditor/js/**" filters="none" />
-            <security:filter-chain pattern="/faces/pages/public/**" filters="none" />
-            <security:filter-chain pattern="/web/public/**" filters="none" />
+            <security:filter-chain pattern="/faces/tableEditor/css/**" filters="none"/>
+            <security:filter-chain pattern="/faces/tableEditor/img/**" filters="none"/>
+            <security:filter-chain pattern="/faces/tableEditor/js/**" filters="none"/>
+            <security:filter-chain pattern="/faces/pages/public/**" filters="none"/>
+            <security:filter-chain pattern="/web/public/**" filters="none"/>
             <security:filter-chain pattern="/saml/login/**"
                                    filters="securityContextPersistenceFilter,metadataGeneratorFilter,samlEntryPoint"/>
             <security:filter-chain pattern="/security_logout"
@@ -131,6 +131,7 @@
                 <property name="binding" value="#{environment.getProperty('security.saml.binding')}"/>
                 <property name="authnContexts"
                           value="#{T(java.util.Arrays).asList('${security.saml.authentication-contexts}')}"/>
+                <property name="forceAuthN" value="true"/>
             </bean>
         </property>
     </bean>
@@ -164,14 +165,19 @@
     <bean id="metadata" class="org.springframework.security.saml.metadata.CachingMetadataManager">
         <constructor-arg>
             <list>
-                <!-- Example of HTTP metadata without Extended Metadata -->
-                <bean class="org.opensaml.saml2.metadata.provider.HTTPMetadataProvider">
-                    <!-- URL containing the metadata -->
-                    <constructor-arg name="metadataURL"
-                                     value="#{environment.getProperty('security.saml.saml-server-metadata-url')}"/>
-                    <!-- Timeout for metadata loading in ms -->
-                    <constructor-arg name="requestTimeout" value="${security.saml.request-timeout}"/>
-                    <property name="parserPool" ref="parserPool"/>
+                <bean class="org.springframework.security.saml.metadata.ExtendedMetadataDelegate">
+                    <constructor-arg>
+                        <bean class="org.opensaml.saml2.metadata.provider.HTTPMetadataProvider">
+                            <!-- URL containing the metadata -->
+                            <constructor-arg name="metadataURL"
+                                             value="#{environment.getProperty('security.saml.saml-server-metadata-url')}"/>
+                            <!-- Timeout for metadata loading in ms -->
+                            <constructor-arg name="requestTimeout" value="${security.saml.request-timeout}"/>
+                            <property name="parserPool" ref="parserPool"/>
+                        </bean>
+                    </constructor-arg>
+                    <property name="metadataTrustCheck"
+                              value="#{environment.getProperty('security.saml.metadata-trust-check')}"/>
                 </bean>
             </list>
         </constructor-arg>
@@ -210,9 +216,8 @@
         </constructor-arg>
         <property name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>
     </bean>
-
     <!-- Provider of default SAML Context -->
-    <bean id="contextProvider" class="org.springframework.security.saml.context.SAMLContextProviderImpl"/>
+    <import resource="security-saml-loadbalancer-${security.saml.is-app-after-balancer}.xml"/>
 
     <!-- Processing filter for WebSSO profile messages -->
     <bean id="samlWebSSOProcessingFilter" class="org.springframework.security.saml.SAMLProcessingFilter">
@@ -257,7 +262,10 @@
     </bean>
 
     <!-- SAML 2.0 WebSSO Assertion Consumer -->
-    <bean id="webSSOprofileConsumer" class="org.springframework.security.saml.websso.WebSSOProfileConsumerImpl"/>
+    <bean id="webSSOprofileConsumer" class="org.springframework.security.saml.websso.WebSSOProfileConsumerImpl">
+        <property name="maxAuthenticationAge"
+                  value="#{environment.getProperty('security.saml.max-authentication-age')}"/>
+    </bean>
 
     <!-- SAML 2.0 Holder-of-Key WebSSO Assertion Consumer -->
     <bean id="hokWebSSOprofileConsumer" class="org.springframework.security.saml.websso.WebSSOProfileConsumerHoKImpl"/>
