@@ -241,7 +241,7 @@ public class BranchesBean {
             comboSearch:
             for (SelectItem item : branchesToMerge) {
                 for (SelectItem selectItem : ((SelectItemGroup) item).getSelectItems()) {
-                    if (branchesToMerge.equals(selectItem.getValue())) {
+                    if (branchToMerge.equals(selectItem.getValue())) {
                         existInCombobox = true;
                         break comboSearch;
                     }
