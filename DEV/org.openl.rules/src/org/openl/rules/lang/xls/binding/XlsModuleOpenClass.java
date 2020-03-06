@@ -403,19 +403,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         // exists then "overload" it using decorator; otherwise - just add to
         // the class.
         //
-        IOpenMethod existedMethod = getDeclaredMethod(method.getName(), method.getSignature().getParameterTypes());
+        IOpenMethod existedMethod = getDeclaredMethod(m.getName(), m.getSignature().getParameterTypes());
         if (existedMethod != null) {
 
-            if (!existedMethod.getType().equals(method.getType())) {
+            if (!existedMethod.getType().equals(m.getType())) {
                 String message = String.format(
                     "Method '%s' with return type '%s' is already defined with another return type ('%s')",
-                    method.getName(),
-                    method.getType().getDisplayName(0),
+                    m.getName(),
+                    m.getType().getDisplayName(0),
                     existedMethod.getType().getDisplayName(0));
                 throw new DuplicatedMethodException(message, existedMethod, method);
             }
 
-            if (!method.equals(existedMethod) && method instanceof TestSuiteMethod) {
+            if (!m.equals(existedMethod) && method instanceof TestSuiteMethod) {
                 UriMemberHelper.validateMethodDuplication(method, existedMethod);
                 return;
             }

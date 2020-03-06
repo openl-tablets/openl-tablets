@@ -411,28 +411,34 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     .createError(t.getMessage(), t, null, getCellSource(row, bindingContext, 1));
             }
 
-            if (fieldNameCellParsed.getValue() != null) {
-                if (DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(fieldNameCellParsed.getValue()) == null) {
+            String contextPropertyName = fieldNameCellParsed.getValue();
+            if (contextPropertyName != null) {
+                if (DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(contextPropertyName) == null) {
                     throw SyntaxNodeExceptionUtils.createError(
                         String.format("Property '%s' is not found in context. Supported properties: [%s].",
-                            fieldNameCellParsed.getValue(),
+                            contextPropertyName,
                             String.join(", ", DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.keySet())),
                         getCellSource(row, bindingContext, 1));
                 }
+                if (fields.values().stream().anyMatch(f -> f.getContextPropertyName().equals(contextPropertyName))) {
+                    throw SyntaxNodeExceptionUtils.createError(
+                        String.format("Multiple fields refer to the same context property '%s'.", contextPropertyName),
+                        getCellSource(row, bindingContext, 1));
+                }
                 IOpenClass contextPropertyType = JavaOpenClass
-                    .getOpenClass(DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(fieldNameCellParsed.getValue()));
+                    .getOpenClass(DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(contextPropertyName));
                 IOpenCast openCast = bindingContext.getCast(fieldType, contextPropertyType);
                 if (openCast == null || !openCast.isImplicit() && !contextPropertyType.getInstanceClass().isEnum()) {
                     throw SyntaxNodeExceptionUtils.createError(
                         String.format("Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.",
-                            fieldNameCellParsed.getValue(),
+                            contextPropertyName,
                             fieldType.getName(),
                             contextPropertyType.getName()),
                         getCellSource(row, bindingContext, 1));
                 }
             }
 
-            fieldDescriptionBuilder.setContextPropertyName(fieldNameCellParsed.getValue());
+            fieldDescriptionBuilder.setContextPropertyName(contextPropertyName);
 
             FieldDescription fieldDescription = null;
             if (row.getWidth() > 2) {

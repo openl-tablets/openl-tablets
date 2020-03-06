@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -514,7 +515,13 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         Object propValue = getPropertyValue(key);
         if (propValue != null) {
             if (propValue instanceof Date) {
-                String format = TablePropertyDefinitionUtils.getPropertyByName(key).getFormat();
+                String format;
+                //check whether the date contains a time other than the default
+                if (new SimpleDateFormat("HH:mm").format(propValue).equals("00:00")) {
+                    format = DefaultPropertyDefinitions.SHORT_PROP_DATE_FORMAT;
+                } else {
+                    format = TablePropertyDefinitionUtils.getPropertyByName(key).getFormat();
+                }
                 if (format != null) {
                     SimpleDateFormat dateFormat = new SimpleDateFormat(format);
                     result = dateFormat.format((Date) propValue);
