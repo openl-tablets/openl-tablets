@@ -5,21 +5,30 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 
+import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.WebStudio;
@@ -249,7 +258,7 @@ public class MergeConflictBean {
             if (!mergeOperation) {
                 studio.freezeProject(project.getName());
             }
-            boolean opened = project != null && project.isOpened();
+            boolean opened = project.isOpened();
 
             UserWorkspace userWorkspace = getUserWorkspace();
             String rulesLocation = getRulesLocation();
@@ -288,6 +297,10 @@ public class MergeConflictBean {
                 }
             }
 
+            Map<String, List<Module>> modulesToAppend = findModulesToAppend(mergeConflict,
+                rulesLocation,
+                resolvedFiles);
+
             ConflictResolveData conflictResolveData = new ConflictResolveData(mergeConflict.getException()
                 .getTheirCommit(), resolvedFiles, mergeMessage);
             if (mergeOperation) {
@@ -297,18 +310,22 @@ public class MergeConflictBean {
                 project.save(conflictResolveData);
             }
 
-            if (mergeOperation && project != null) {
+            String branch = mergeOperation ? mergeConflict.getMergeBranchTo() : project.getBranch();
+            updateRulesXmlFiles(modulesToAppend, branch);
+
+            if (mergeOperation) {
                 project.setBranch(mergeConflict.getMergeBranchTo());
-                if (opened) {
-                    if (project.isDeleted()) {
-                        project.close();
-                    } else {
-                        // Update files
-                        project.open();
-                    }
+            }
+            if (opened) {
+                if (project.isDeleted()) {
+                    project.close();
+                } else {
+                    // Update files
+                    project.open();
                 }
             }
 
+            userWorkspace.refresh();
             studio.reset();
             clearMergeStatus();
         } catch (Exception e) {
@@ -347,6 +364,107 @@ public class MergeConflictBean {
 
     public String getUploadError() {
         return uploadError;
+    }
+
+    private Map<String, List<Module>> findModulesToAppend(MergeConflictInfo mergeConflict,
+        String rulesLocation,
+        List<FileItem> resolvedFiles) throws WorkspaceException, IOException {
+        Map<String, List<Module>> modulesToAppend = new HashMap<>();
+        for (FileItem resolvedFile : resolvedFiles) {
+            String name = resolvedFile.getData().getName();
+            if (!isExcelFile(name)) {
+                continue;
+            }
+            if ((!hasYourFile(name) || !hasTheirFile(name)) && resolvedFile.getStream() != null) {
+                int from = rulesLocation.length();
+                int to = name.indexOf('/', from);
+                String projectPath = name.substring(0, to);
+                String rulesXmlFile = projectPath + "/rules.xml";
+                if (hasYourFile(rulesXmlFile) && hasTheirFile(rulesXmlFile)) {
+                    String moduleInternalPath = name.substring(to + 1);
+
+                    IProjectDescriptorSerializer serializer = WebStudioUtils
+                        .getBean(ProjectDescriptorSerializerFactory.class)
+                        .getDefaultSerializer();
+                    Repository repository = getUserWorkspace().getDesignTimeRepository().getRepository();
+
+                    Module module;
+
+                    FileItem fileItem = repository.readHistory(rulesXmlFile, mergeConflict.getException().getTheirCommit());
+                    module = getModule(serializer, fileItem, moduleInternalPath);
+                    if (module == null) {
+                        if (mergeConflict.isMerging()) {
+                            fileItem = repository.readHistory(rulesXmlFile,
+                                mergeConflict.getException().getYourCommit());
+                        } else {
+                            String localName = name.startsWith(rulesLocation) ? name.substring(rulesLocation.length()) : name;
+                            fileItem = getUserWorkspace().getLocalWorkspace().getRepository().read(localName);
+                        }
+                        module = getModule(serializer, fileItem, moduleInternalPath);
+                    }
+
+                    if (module != null) {
+                        List<Module> modules = modulesToAppend.computeIfAbsent(projectPath, k -> new ArrayList<>());
+                        modules.add(module);
+                    }
+                }
+            }
+        }
+        return modulesToAppend;
+    }
+
+    private void updateRulesXmlFiles(Map<String, List<Module>> modulesToAppend, String branch) throws
+                                                                                               WorkspaceException,
+                                                                                               IOException {
+        // Update rules.xml files if needed after merge was successful.
+        if (!modulesToAppend.isEmpty()) {
+            Repository repository = getUserWorkspace().getDesignTimeRepository().getRepository();
+            IProjectDescriptorSerializer serializer = WebStudioUtils
+                .getBean(ProjectDescriptorSerializerFactory.class)
+                .getDefaultSerializer();
+
+            List<FileItem> files = new ArrayList<>();
+            for (Map.Entry<String, List<Module>> entry : modulesToAppend.entrySet()) {
+                String projectPath = entry.getKey();
+                String rulesXmlFile = projectPath + "/rules.xml";
+                FileItem fileItem = repository.read(rulesXmlFile);
+                if (fileItem != null) {
+                    ProjectDescriptor descriptor = serializer.deserialize(fileItem.getStream());
+                    Map<String, Module> modules = new LinkedHashMap<>();
+                    modules.putAll(descriptor.getModules().stream().collect(Collectors.toMap(m -> m.getRulesRootPath().getPath(), m -> m)));
+                    for (Module module : entry.getValue()) {
+                        String path = module.getRulesRootPath().getPath();
+                        // After merge there is possibility that there is no need to add a module.
+                        if (!modules.containsKey(path)) {
+                            modules.put(path, module);
+                        }
+                    }
+                    descriptor.setModules(new ArrayList<>(modules.values()));
+                    files.add(new FileItem(rulesXmlFile, IOUtils.toInputStream(serializer.serialize(descriptor))));
+                }
+            }
+
+            if (!files.isEmpty()) {
+                FileData folderData = new FileData();
+                folderData.setName("");
+                folderData.setAuthor(getUserWorkspace().getUser().getUserId());
+                folderData.setComment(mergeMessage);
+                folderData.setBranch(branch);
+                ((FolderRepository) repository).save(folderData, files, ChangesetType.DIFF);
+            }
+        }
+    }
+
+    private Module getModule(IProjectDescriptorSerializer serializer, FileItem fileItem, String moduleInternalPath) throws IOException {
+        try (InputStream stream = fileItem.getStream()) {
+            ProjectDescriptor descriptor = serializer.deserialize(stream);
+            for (Module module : descriptor.getModules()) {
+                if (module.getRulesRootPath().getPath().equals(moduleInternalPath)) {
+                    return module;
+                }
+            }
+        }
+        return null;
     }
 
     private String generateMergeMessage() {
