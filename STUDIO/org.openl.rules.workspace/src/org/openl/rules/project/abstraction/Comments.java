@@ -1,7 +1,9 @@
 package org.openl.rules.project.abstraction;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -13,8 +15,11 @@ public final class Comments {
 
     private static final String PROJECT_NAME = "\\{project-name}";
     private static final String REVISION = "\\{revision}";
+    private static final String USER_NAME = "\\{author}";
+    private static final String DATETIME = "\\{datetime}";
     private static final String REPOSITORY_PREFIX = "repository.";
 
+    private final String dateTimeFormat;
     private final String saveProjectTemplate;
     private final String createProjectTemplate;
     private final String archiveProjectTemplate;
@@ -24,6 +29,7 @@ public final class Comments {
     private final String restoredFromTemplate;
 
     public Comments(PropertyResolver environment, String prefix) {
+        dateTimeFormat = Objects.requireNonNull(environment.getProperty("data.format.datetime"));
         Objects.requireNonNull(prefix, "prefix cannot be null");
         saveProjectTemplate = environment
             .getProperty(REPOSITORY_PREFIX + prefix + "comment-template.user-message.default.save");
@@ -42,13 +48,15 @@ public final class Comments {
     }
 
     // protected for tests
-    protected Comments(String saveProjectTemplate,
+    protected Comments(String dateTimeFormat,
+            String saveProjectTemplate,
             String createProjectTemplate,
             String archiveProjectTemplate,
             String restoreProjectTemplate,
             String eraseProjectTemplate,
             String copiedFromTemplate,
             String restoredFromTemplate) {
+        this.dateTimeFormat = Objects.requireNonNull(dateTimeFormat);
         this.saveProjectTemplate = saveProjectTemplate;
         this.createProjectTemplate = createProjectTemplate;
         this.archiveProjectTemplate = archiveProjectTemplate;
@@ -112,9 +120,11 @@ public final class Comments {
         }
     }
 
-    public String restoredFrom(String revisionNum) {
-        return restoredFromTemplate.replaceAll(REVISION,
-            revisionNum == null ? StringUtils.EMPTY : Matcher.quoteReplacement(revisionNum));
+    public String restoredFrom(String revisionNum, String userName, Date modifiedAt) {
+        String dateStr = modifiedAt == null ? "" : new SimpleDateFormat(dateTimeFormat).format(modifiedAt);
+        return restoredFromTemplate.replaceAll(REVISION, Matcher.quoteReplacement(StringUtils.trimToEmpty(revisionNum)))
+            .replaceAll(USER_NAME, Matcher.quoteReplacement(StringUtils.trimToEmpty(userName)))
+            .replaceAll(DATETIME, Matcher.quoteReplacement(dateStr));
     }
 
     public String getCreateProjectTemplate() {

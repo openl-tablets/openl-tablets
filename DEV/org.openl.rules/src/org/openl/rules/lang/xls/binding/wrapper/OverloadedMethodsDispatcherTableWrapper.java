@@ -15,7 +15,8 @@ import org.openl.vm.IRuntimeEnv;
 
 public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDispatcherTable implements IOpenMethodWrapper {
     static {
-        WrapperLogic.validateWrapperClass(OverloadedMethodsDispatcherTableWrapper.class, OverloadedMethodsDispatcherTableWrapper.class.getSuperclass());
+        WrapperLogic.validateWrapperClass(OverloadedMethodsDispatcherTableWrapper.class,
+            OverloadedMethodsDispatcherTableWrapper.class.getSuperclass());
     }
 
     private OverloadedMethodsDispatcherTable delegate;
@@ -29,7 +30,8 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
             ContextPropertiesInjector contextPropertiesInjector) {
         this.delegate = Objects.requireNonNull(delegate, "delegate can not be null");
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass can not be null");
-        this.contextPropertiesInjector = Objects.requireNonNull(contextPropertiesInjector, "contextPropertiesInjector can not be null");
+        this.contextPropertiesInjector = Objects.requireNonNull(contextPropertiesInjector,
+            "contextPropertiesInjector can not be null");
         IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
         this.type = type != null ? type : delegate.getType();
         this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
@@ -148,4 +150,18 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
         return contextPropertiesInjector;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        OverloadedMethodsDispatcherTableWrapper that = (OverloadedMethodsDispatcherTableWrapper) o;
+        return delegate.equals(that.delegate);
+    }
+
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
+    }
 }

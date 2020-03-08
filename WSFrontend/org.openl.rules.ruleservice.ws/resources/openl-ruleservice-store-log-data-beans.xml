@@ -18,6 +18,6 @@
     </bean>
 
     <bean class="org.openl.rules.ruleservice.storelogdata.StoreLogDataServiceInvocationAdviceListener">
-        <property name="storeLoggingEnabled" value="${ruleservice.store.logs.enabled}"/>
+        <property name="storeLogDataEnabled" value="${ruleservice.store.logs.enabled}"/>
     </bean>
 </beans>

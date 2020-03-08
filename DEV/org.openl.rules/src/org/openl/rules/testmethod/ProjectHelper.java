@@ -72,7 +72,7 @@ public final class ProjectHelper {
 
         }
 
-        return res.toArray(new IOpenMethod[res.size()]);
+        return res.toArray(new IOpenMethod[0]);
     }
 
     /**
@@ -84,7 +84,7 @@ public final class ProjectHelper {
             return false;
         }
         IOpenMethod toTest = ((TestSuiteMethod) tester).getTestedMethod();
-        if (toTest == tested) {
+        if (toTest.equals(tested)) {
             return true;
         }
         if (toTest instanceof OpenMethodDispatcher && ((OpenMethodDispatcher) toTest).getCandidates()

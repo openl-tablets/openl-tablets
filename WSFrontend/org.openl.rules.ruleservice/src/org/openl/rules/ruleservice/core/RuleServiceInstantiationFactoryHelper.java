@@ -267,7 +267,7 @@ public final class RuleServiceInstantiationFactoryHelper {
             Object serviceTarget,
             Class<?> interceptorClass,
             TypeResolver typeResolver) {
-        IOpenMember openMember = extractOpenMember(method, serviceTarget);
+        IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.extractOpenMember(method, serviceTarget);
         if (openMember == null) {
             logWarn(method, interceptorClass);
             return null;
@@ -285,21 +285,6 @@ public final class RuleServiceInstantiationFactoryHelper {
             default:
                 throw new IllegalStateException();
         }
-    }
-
-    private static IOpenMember extractOpenMember(Method method, Object serviceTarget) {
-        IOpenMember openMember = null;
-        for (Class<?> cls : serviceTarget.getClass().getInterfaces()) {
-            try {
-                Method m = cls.getMethod(method.getName(), method.getParameterTypes());
-                openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, serviceTarget);
-                if (openMember != null) {
-                    break;
-                }
-            } catch (NoSuchMethodException ignore) {
-            }
-        }
-        return openMember;
     }
 
     private static void logWarn(Method method, Class<?> interceptorClass) {
@@ -346,7 +331,8 @@ public final class RuleServiceInstantiationFactoryHelper {
                 ret.put(method, Pair.of(newReturnType, Boolean.TRUE));
             } else if (toServiceClass && !isTypeChangingAnnotationPresent(method) && !method
                 .isAnnotationPresent(ServiceExtraMethod.class)) {
-                IOpenMember openMember = extractOpenMember(method, serviceTarget);
+                IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.extractOpenMember(method,
+                    serviceTarget);
                 if (openMember == null) {
                     throw new IllegalStateException("Open member is not found.");
                 }

@@ -16,14 +16,14 @@ import org.slf4j.LoggerFactory;
 public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvocationAdviceListener {
     private final Logger log = LoggerFactory.getLogger(StoreLogDataServiceInvocationAdviceListener.class);
 
-    private boolean storeLoggingEnabled = false;
+    private boolean storeLogDataEnabled = false;
 
-    public boolean isStoreLoggingEnabled() {
-        return storeLoggingEnabled;
+    public boolean isStoreLogDataEnabled() {
+        return storeLogDataEnabled;
     }
 
-    public void setStoreLoggingEnabled(boolean storeLoggingEnabled) {
-        this.storeLoggingEnabled = storeLoggingEnabled;
+    public void setStoreLogDataEnabled(boolean storeLogDataEnabled) {
+        this.storeLogDataEnabled = storeLogDataEnabled;
     }
 
     public void process(Method interfaceMethod,
@@ -73,12 +73,12 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Method interfaceMethod,
             Object[] args,
             Object result,
-            Exception lastOccuredException) {
-        if (isStoreLoggingEnabled()) {
+            Exception lastOccurredException) {
+        if (isStoreLogDataEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
-                lastOccuredException,
+                lastOccurredException,
                 e -> e.before() && e.bindToServiceMethodAdvice().equals(serviceMethodAdvice.getClass()));
         }
     }
@@ -88,12 +88,12 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Method interfaceMethod,
             Object[] args,
             Object result,
-            Exception lastOccuredException) {
-        if (isStoreLoggingEnabled()) {
+            Exception lastOccurredException) {
+        if (isStoreLogDataEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
-                lastOccuredException,
+                lastOccurredException,
                 e -> !e.before() && e.bindToServiceMethodAdvice().equals(serviceMethodAdvice.getClass()));
         }
     }
@@ -102,12 +102,12 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
     public void beforeMethodInvocation(Method interfaceMethod,
             Object[] args,
             Object result,
-            Exception lastOccuredException) {
-        if (isStoreLoggingEnabled()) {
+            Exception lastOccurredException) {
+        if (isStoreLogDataEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
-                lastOccuredException,
+                lastOccurredException,
                 e -> e.before() && e.bindToServiceMethodAdvice().equals(PrepareStoreLogData.Default.class));
         }
     }
@@ -116,12 +116,12 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
     public void afterMethodInvocation(Method interfaceMethod,
             Object[] args,
             Object result,
-            Exception lastOccuredException) {
-        if (isStoreLoggingEnabled()) {
+            Exception lastOccurredException) {
+        if (isStoreLogDataEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
-                lastOccuredException,
+                lastOccurredException,
                 e -> !e.before() && e.bindToServiceMethodAdvice().equals(PrepareStoreLogData.Default.class));
         }
     }

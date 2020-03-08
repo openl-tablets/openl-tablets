@@ -1,11 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.DATE_PATTERN;
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PROJECT_HISTORY_COUNT;
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PROJECT_HISTORY_HOME;
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PROJECT_HISTORY_UNLIMITED;
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.UPDATE_SYSTEM_PROPERTIES;
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.USER_WORKSPACE_HOME;
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -121,6 +116,14 @@ public class SystemSettingsBean {
 
     public void setDatePattern(String datePattern) {
         properties.setProperty(DATE_PATTERN, datePattern);
+    }
+
+    public String getTimePattern() {
+        return properties.getProperty(TIME_PATTERN);
+    }
+
+    public void setTimePattern(String timePattern) {
+        properties.setProperty(TIME_PATTERN, timePattern);
     }
 
     public boolean isUpdateSystemProperties() {

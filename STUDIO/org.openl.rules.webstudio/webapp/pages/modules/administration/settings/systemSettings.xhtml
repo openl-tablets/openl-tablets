@@ -277,6 +277,10 @@
                                             <h:inputText id="date-format" value="#{systemSettingsBean.datePattern}"
                                                          disabled="#{systemSettingsBean.isSystemProp('data.format.date')}"
                                                          validator="#{validator.dateFormatValidator}"/>
+                                            <h:outputText value="Time Format:"/>
+                                            <h:inputText id="time-format" value="#{systemSettingsBean.timePattern}"
+                                                         disabled="#{systemSettingsBean.isSystemProp('data.format.time')}"
+                                                         validator="#{validator.dateFormatValidator}"/>
                                         </h:panelGrid>
                                     </div>
                                 </section>

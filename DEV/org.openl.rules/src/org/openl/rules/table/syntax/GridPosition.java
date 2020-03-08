@@ -16,14 +16,14 @@ import org.openl.util.text.TextInfo;
  */
 public class GridPosition implements IPosition {
 
-    private int x, y;
+    private final int x, y;
 
-    private final String uri;
+    private final IGrid grid;
 
-    public GridPosition(int x, int y, IGrid grid) {
+    GridPosition(int x, int y, IGrid grid) {
         this.x = x;
         this.y = y;
-        this.uri = grid.getCell(x, y).getUri();
+        this.grid = grid;
     }
 
     /*
@@ -58,7 +58,7 @@ public class GridPosition implements IPosition {
 
     @Override
     public String toString() {
-        return uri;
+        return grid.getCell(x, y).getUri();
     }
 
 }

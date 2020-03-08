@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="contextProvider" class="org.springframework.security.saml.context.SAMLContextProviderLB">
+        <property name="scheme" value="#{environment.getProperty('security.saml.scheme')}"/>
+        <property name="serverName" value="#{environment.getProperty('security.saml.server-name')}"/>
+        <property name="serverPort" value="#{environment.getProperty('security.saml.server-port')}"/>
+        <property name="includeServerPortInRequestURL"
+                  value="#{environment.getProperty('security.saml.include-server-port-in-request-url')}"/>
+        <property name="contextPath" value="#{environment.getProperty('security.saml.context-path')}"/>
+    </bean>
+</beans>

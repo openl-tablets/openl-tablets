@@ -1,7 +1,10 @@
 package org.openl.rules.ui.tree;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
+
+import org.openl.util.tree.ITreeElement;
 
 /**
  * Class that represents tree node. Used as container for specified object.
@@ -45,7 +48,7 @@ public class TreeNode<T> implements ITreeNode<T> {
      * {@inheritDoc}
      */
     @Override
-    public Iterable<? extends org.openl.util.tree.ITreeElement<T>> getChildren() {
+    public Collection<? extends ITreeElement<T>> getChildren() {
         return elements.values();
     }
 

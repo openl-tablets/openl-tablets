@@ -10,11 +10,35 @@
   <ui:define name="title">Repository Diff</ui:define>
 
   <ui:define name="content">
-    <h:outputStylesheet>
+    <style>
       ul.messages {
         padding-bottom: 6px;
       }
-    </h:outputStylesheet>
+
+      .selection-column {
+        width: 448px;
+        vertical-align: top;
+      }
+
+      .text-field-as-input {
+        padding: 6px;
+      }
+
+      .comparison-tree {
+        width: 100%;
+        min-height: 30px;
+        max-height: 480px;
+        background-color: #f5f5f5;
+        border: 1px solid Silver;
+        overflow: auto;
+        clear: left;
+      }
+
+      .comparison-table {
+        width: 450px;
+        overflow-x: scroll;
+      }
+    </style>
     <br/>
     <h:form id="compareForm" style="margin-left: 6px;">
       <a4j:outputPanel ajaxRendered="true">
@@ -31,14 +55,14 @@
       </h:commandButton>
       <table style="border: 1px dashed rgb(170,170,170); margin-top: 10px">
         <tr>
-          <td style="width: 448px;">
+          <td class="selection-column">
               <table>
                 <tr>
                   <td>
                     <h:outputText value="Revision:" />
                   </td>
                   <td>
-                    <h:outputText value="User workspace" />
+                    <div class="text-field-as-input">User workspace</div>
                   </td>
                 </tr>
                 <tr>
@@ -53,14 +77,28 @@
                 </tr>
               </table>
             </td>
-            <td style="width: 448px;">
+            <td class="selection-column">
               <table>
+                <h:panelGroup rendered="#{repositoryTreeController.supportsBranches}">
+                  <tr>
+                    <td>
+                      <h:outputText value="Branch:" />
+                    </td>
+                    <td>
+                      <h:selectOneMenu value="#{repositoryDiffController.branch}">
+                        <f:selectItems value="#{repositoryTreeController.projectBranches}"/>
+                        <f:ajax event="change" action="#{repositoryDiffController.initProjectRepo}"
+                                render="repositoryRevision repositoryExcelCombo compareBtn"/>
+                      </h:selectOneMenu>
+                    </td>
+                  </tr>
+                </h:panelGroup>
                 <tr>
                   <td>
                     <h:outputText value="Revision:" />
                   </td>
                 <td>
-                  <h:selectOneMenu value="#{repositoryDiffController.selectedVersionRepo}">
+                  <h:selectOneMenu id="repositoryRevision" value="#{repositoryDiffController.selectedVersionRepo}">
                     <f:selectItems value="#{repositoryTreeController.toSelectItems(repositoryDiffController.versionsRepo)}"/>
                     <f:ajax event="change" action="#{repositoryDiffController.initProjectRepo}"
                       render="repositoryExcelCombo compareBtn" />
@@ -100,7 +138,7 @@
               </tr>
               <tr>
                <td colspan="2">
-                  <rich:panel style="width:100%; height:480px; background-color: #f5f5f5; border: 1px solid Silver; overflow:auto; clear:left;">
+                  <rich:panel styleClass="comparison-tree">
                     <rich:tree id="newTree" toggleType="client" selectionType="ajax"
                       value="#{repositoryDiffController.richDiffTree}"
                       var="item" nodeType="any" selectionChangeListener="#{repositoryDiffController.processSelection}"
@@ -116,8 +154,8 @@
               <tr>
                 <td>
                   <p />
-                  <div style="width:450px; overflow-x:scroll">
-                  	<a4j:outputPanel ajaxRendered="true">
+                  <div class="comparison-table">
+                    <a4j:outputPanel ajaxRendered="true">
                     <rules:tableEditor id="editor1" table="#{repositoryDiffController.table1}" mode="view"
                       editable="false" />
                       </a4j:outputPanel>
@@ -125,7 +163,7 @@
                 </td>
                 <td>
                   <p />
-                  <div style="width:450px; overflow-x:scroll">
+                  <div class="comparison-table">
                   <a4j:outputPanel ajaxRendered="true">
                     <rules:tableEditor id="editor2" table="#{repositoryDiffController.table2}" mode="view"
                       filters="#{repositoryDiffController.filter2}" editable="false" />

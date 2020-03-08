@@ -13,7 +13,6 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.ColumnDescriptor;
@@ -37,7 +36,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.CollectionUtils;
 import org.openl.util.MessageUtils;
 
 /**
@@ -91,19 +89,11 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             tableName = parsedHeader[TABLE_NAME_INDEX].getIdentifier();
         }
 
-        List<IOpenMethod> testedMethods = CollectionUtils.findAll(module.getMethods(),
-            e -> methodName.equals(e.getName()));
-
-        if (testedMethods.isEmpty()) {
-            throw new MethodNotFoundException(methodName);
-        }
-
         IOpenMethodHeader header = new OpenMethodHeader(tableName,
             JavaOpenClass.getOpenClass(TestUnitsResults.class),
             IMethodSignature.VOID,
             module);
 
-        int i = 0;
         TestMethodBoundNode bestCaseTestMethodBoundNode = null;
         IOpenMethod bestCaseOpenMethod = null;
         SyntaxNodeException[] bestCaseErrors = null;
@@ -115,7 +105,10 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         Collection<OpenLMessage> bestMessages = null;
         SyntaxNodeException[] bestBindingContextErrors = null;
 
-        for (IOpenMethod testedMethod : testedMethods) {
+        for (IOpenMethod testedMethod : module.getMethods()) {
+            if (!methodName.equals(testedMethod.getName())) {
+                continue;
+            }
             tableSyntaxNode.clearErrors();
             Arrays.stream(errors).forEach(tableSyntaxNode::addError);
             TestMethodBoundNode testMethodBoundNode = (TestMethodBoundNode) makeNode(tableSyntaxNode,
@@ -172,13 +165,6 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                         bestCaseErrors = new SyntaxNodeException[0];
                     }
                 }
-            } catch (AmbiguousMethodException e) {
-                throw e;
-            } catch (Exception e) {
-                if (i < testedMethods.size() - 1) {
-                    continue;
-                }
-                throw e;
             } finally {
                 bindingContext.popErrors();
                 bindingContext.popMessages();

@@ -2,23 +2,16 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="cassandraOperations" class="org.openl.rules.ruleservice.storelogdata.cassandra.CassandraOperations">
+    <bean id="cassandraOperations" class="org.openl.rules.ruleservice.storelogdata.cassandra.CassandraOperations" lazy-init="true">
         <property name="createSchemaEnabled" value="${ruleservice.store.logs.cassandra.schema.create}"/>
-    </bean>
-
-    <bean class="org.openl.rules.ruleservice.conf.LazyInitBeanFactoryPostProcessor">
-        <property name="lazyBeanNames">
-            <list>
-                <value>cassandraOperations</value>
-            </list>
-        </property>
+        <property name="enabled" value="#{ ${ruleservice.store.logs.cassandra.enabled} and ${ruleservice.store.logs.enabled} }"/>
     </bean>
 
     <!-- Cassandra logging store service bean. -->
     <bean id="cassandraStoreLogDataService"
         class="org.openl.rules.ruleservice.storelogdata.cassandra.CassandraStoreLogDataService" lazy-init="true">
         <property name="cassandraOperations" ref="cassandraOperations"/>
-        <property name="enabled" value="${ruleservice.store.logs.cassandra.enabled}"/>
+        <property name="enabled" value="#{ ${ruleservice.store.logs.cassandra.enabled} and ${ruleservice.store.logs.enabled} }"/>
     </bean>
 </beans>
 

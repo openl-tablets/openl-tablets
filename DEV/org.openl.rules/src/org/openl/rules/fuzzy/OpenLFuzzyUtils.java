@@ -382,8 +382,21 @@ public final class OpenLFuzzyUtils {
             tokensList[i] = tokens[i].getValue().split(" ");
         }
 
-        BuildBySimilarity buildBySimilarity1 = new BuildBySimilarity(1.0d, sourceTokens, tokens, tokensList).invoke();
-        BuildBySimilarity buildBySimilarity = new BuildBySimilarity(ACCEPTABLE_SIMILARITY_VALUE,
+        double[][][] distances = new double[tokensList.length][sourceTokens.length][];
+        for (int i = 0; i < tokensList.length; i++) {
+            for (int k = 0; k < sourceTokens.length; k++) {
+                double[] w = new double[tokensList[i].length];
+                for (int q = 0; q < tokensList[i].length; q++) {
+                    w[q] = StringUtils.getJaroWinklerDistance(sourceTokens[k], tokensList[i][q]);
+                }
+                distances[i][k] = w;
+            }
+        }
+
+        BuildBySimilarity buildBySimilarity1 = new BuildBySimilarity(distances, 1.0d, sourceTokens, tokens, tokensList)
+            .invoke();
+        BuildBySimilarity buildBySimilarity = new BuildBySimilarity(distances,
+            ACCEPTABLE_SIMILARITY_VALUE,
             sourceTokens,
             tokens,
             tokensList).invoke();
@@ -395,7 +408,8 @@ public final class OpenLFuzzyUtils {
             double b = 1.0d;
             while (b - a > 1e-4) {
                 double p = (a + b) / 2;
-                BuildBySimilarity pSimilarity = new BuildBySimilarity(p, sourceTokens, tokens, tokensList).invoke();
+                BuildBySimilarity pSimilarity = new BuildBySimilarity(distances, p, sourceTokens, tokens, tokensList)
+                    .invoke();
                 if (pSimilarity.maxMatchedTokens == maxMatchedTokens) {
                     a = p;
                     buildBySimilarity = pSimilarity;
@@ -526,8 +540,10 @@ public final class OpenLFuzzyUtils {
         private int[] f;
         private double acceptableSimilarity;
         private Token[] tokens;
+        private double[][][] distances;
 
-        public BuildBySimilarity(double acceptableSimilarity,
+        public BuildBySimilarity(double[][][] distances,
+                double acceptableSimilarity,
                 String[] sourceTokens,
                 Token[] tokens,
                 String[]... tokensList) {
@@ -535,6 +551,7 @@ public final class OpenLFuzzyUtils {
             this.tokens = tokens;
             this.tokensList = tokensList;
             this.acceptableSimilarity = acceptableSimilarity;
+            this.distances = distances;
         }
 
         public List<Pair<String, String>> getSimilarity() {
@@ -564,7 +581,7 @@ public final class OpenLFuzzyUtils {
                 List<Pair<Integer, Integer>> edges = new ArrayList<>();
                 for (int k = 0; k < sourceTokens.length; k++) {
                     for (int q = 0; q < tokensList[i].length; q++) {
-                        double d = StringUtils.getJaroWinklerDistance(sourceTokens[k], tokensList[i][q]);
+                        double d = distances[i][k][q];
                         if (d >= acceptableSimilarity) {
                             edges.add(Pair.of(k, q));
                         }

@@ -14,33 +14,27 @@ import org.openl.types.java.JavaOpenClass;
  */
 public final class MethodKey {
     private String name;
-    private boolean isConstructor = false;
     private IOpenClass[] internalParameters;
-    int hashCode = 0;
 
     public MethodKey(IOpenMethod om) {
         IOpenClass[] pars = om.getSignature().getParameterTypes();
         this.internalParameters = getNormalizedParams(pars);
-        this.isConstructor = om.isConstructor();
-        this.name = isConstructor ? "<init>" : om.getName();
+        this.name = om.isConstructor() ? "<init>" : om.getName();
     }
 
     public MethodKey(String name, IOpenClass[] pars) {
         this.name = name;
         this.internalParameters = getNormalizedParams(pars);
-        this.isConstructor = false;
     }
 
     public MethodKey(IOpenClass[] pars) {
         this.name = "<init>";
         this.internalParameters = getNormalizedParams(pars);
-        this.isConstructor = true;
     }
 
-    public MethodKey(String name, IOpenClass[] parTypes, boolean isConstructor, boolean doNotNormalizeParams) {
+    public MethodKey(String name, IOpenClass[] parTypes, boolean doNotNormalizeParams) {
         this.name = name;
         this.internalParameters = doNotNormalizeParams ? parTypes : getNormalizedParams(parTypes);
-        this.isConstructor = isConstructor;
     }
 
     /**
@@ -98,16 +92,13 @@ public final class MethodKey {
 
         MethodKey mk = (MethodKey) obj;
 
-        return Objects.equals(name, mk.name) && isConstructor == mk.isConstructor && Arrays.equals(internalParameters,
+        return Objects.equals(name, mk.name) && Arrays.equals(internalParameters,
             mk.internalParameters);
     }
 
     @Override
     public int hashCode() {
-        if (hashCode == 0) {
-            hashCode = Objects.hash(name, isConstructor) * 17 + Arrays.hashCode(internalParameters);
-        }
-        return hashCode;
+        return name.hashCode() * 17 + Arrays.hashCode(internalParameters);
     }
 
     @Override

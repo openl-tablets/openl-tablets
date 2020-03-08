@@ -1,5 +1,6 @@
 package org.openl.rules.workspace.dtr;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.openl.rules.common.CommonVersion;
@@ -42,9 +43,10 @@ public interface DesignTimeRepository extends ProjectsContainer {
      * @param name name of rules project
      * @param version exact version of project
      * @return specified version of rules project
-     * @throws RepositoryException if failed
      */
-    AProject getProject(String name, CommonVersion version) throws RepositoryException;
+    AProject getProject(String name, CommonVersion version);
+
+    AProject getProject(String branch, String project, String version) throws IOException;
 
     /**
      * Checks whether the DTR has deployment project with specified name.

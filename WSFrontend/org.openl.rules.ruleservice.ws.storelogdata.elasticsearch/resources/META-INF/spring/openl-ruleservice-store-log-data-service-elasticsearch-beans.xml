@@ -12,7 +12,7 @@
                                hosts="${elasticsearch.hosts}"/>
 
     <bean name="elasticsearchRestTemplate"
-          class="org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate">
+          class="org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate" lazy-init="true">
         <constructor-arg name="client" ref="elasticsearchClient"/>
     </bean>
 

@@ -131,7 +131,11 @@ public class LocalGitRepositoryTest {
 
         writeSampleFile(repo, "rules/project1/file2", "'file2' in the branch 'master' was added");
         writeSampleFile(repo.forBranch("branch1"), "rules/project1/file3", "'file3' in the branch 'branch1' was added");
+
+        assertFalse(repo.isMergedInto("branch1", repo.getBranch()));
         repo.merge("branch1", "admin", null);
+        assertTrue(repo.isMergedInto("branch1", repo.getBranch()));
+        assertFalse(repo.isMergedInto(repo.getBranch(), "branch1"));
 
         assertEquals(4, repo.listHistory("rules/project1").size());
         assertEquals(1, repo.listHistory("rules/project11").size());

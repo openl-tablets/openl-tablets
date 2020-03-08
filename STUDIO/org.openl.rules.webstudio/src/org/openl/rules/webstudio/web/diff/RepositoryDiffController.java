@@ -8,7 +8,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.annotation.PreDestroy;
@@ -29,6 +28,8 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -57,6 +58,7 @@ public class RepositoryDiffController extends AbstractDiffController {
     @ManagedProperty(value = "#{designTimeRepository}")
     private DesignTimeRepository designTimeRepository;
 
+    private String branch;
     private AProject projectUW; // User Workspace project
     private List<AProjectArtefact> excelArtefactsUW;
     private List<AProjectArtefact> excelArtefactsRepo;
@@ -64,6 +66,16 @@ public class RepositoryDiffController extends AbstractDiffController {
     private String selectedExcelFileUW;
     private String selectedExcelFileRepo;
     private String selectedVersionRepo;
+
+    public String getBranch() {
+        return branch;
+    }
+
+    public void setBranch(String branch) {
+        this.branch = branch;
+        // In the new branch that revision can be absent. Clear it.
+        selectedVersionRepo = null;
+    }
 
     public void setSelectedExcelFileUW(String selectedExcelFileUW) {
         this.selectedExcelFileUW = selectedExcelFileUW;
@@ -90,7 +102,20 @@ public class RepositoryDiffController extends AbstractDiffController {
     }
 
     public List<ProjectVersion> getVersionsRepo() {
-        return projectUW.getVersions();
+        try {
+            if (designTimeRepository.getRepository().supports().branches()) {
+                Repository repository = ((BranchRepository) designTimeRepository.getRepository()).forBranch(branch);
+                String folderPath = designTimeRepository.getProject(projectUW.getName()).getFolderPath();
+                List<ProjectVersion> versions = new AProject(repository, folderPath).getVersions();
+                Collections.reverse(versions);
+                return versions;
+            } else {
+                return projectUW.getVersions();
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return Collections.emptyList();
+        }
     }
 
     public List<SelectItem> getExcelFilesUW() {
@@ -127,13 +152,17 @@ public class RepositoryDiffController extends AbstractDiffController {
         return null;
     }
 
-    public void initProjectUW() {
+    private void initProjectUW() {
         try {
             UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
             if (projectUW != selectedProject) {
                 projectUW = selectedProject;
                 selectedVersionRepo = projectUW.getVersion().getVersionName();
                 setDiffTree(null);
+
+                if (selectedProject.isSupportsBranches()) {
+                    branch = selectedProject.getBranch();
+                }
             }
             excelArtefactsUW = getExcelArtefacts(projectUW, "");
         } catch (Exception e) {
@@ -143,14 +172,22 @@ public class RepositoryDiffController extends AbstractDiffController {
 
     public void initProjectRepo() {
         try {
-            CommonVersionImpl version = new CommonVersionImpl(selectedVersionRepo);
             // Repository project
             AProject projectRepo;
-            try {
-                projectRepo = designTimeRepository.getProject(projectUW.getName(), version);
-            } catch (Exception e) {
-                log.warn("Could not get project'{}' of version '{}'", projectUW.getName(), version.getVersionName(), e);
-                projectRepo = designTimeRepository.getProject(projectUW.getName());
+
+            if (designTimeRepository.getRepository().supports().branches()) {
+                projectRepo = designTimeRepository.getProject(branch, projectUW.getName(), selectedVersionRepo);
+            } else {
+                CommonVersionImpl version = new CommonVersionImpl(selectedVersionRepo);
+                try {
+                    projectRepo = designTimeRepository.getProject(projectUW.getName(), version);
+                } catch (Exception e) {
+                    log.warn("Could not get project'{}' of version '{}'",
+                        projectUW.getName(),
+                        version.getVersionName(),
+                        e);
+                    projectRepo = designTimeRepository.getProject(projectUW.getName());
+                }
             }
             excelArtefactsRepo = getExcelArtefacts(projectRepo, "");
         } catch (Exception e) {
@@ -178,21 +215,18 @@ public class RepositoryDiffController extends AbstractDiffController {
                 excelArtefacts.add(projectArtefact);
             }
         }
-        Collections.sort(excelArtefacts, new Comparator<AProjectArtefact>() {
-            @Override
-            public int compare(AProjectArtefact o1, AProjectArtefact o2) {
-                String s1 = o1.getName();
-                int t = s1.lastIndexOf(".");
-                if (t > 0) {
-                    s1 = s1.substring(0, t);
-                }
-                String s2 = o2.getName();
-                t = s2.lastIndexOf(".");
-                if (t > 0) {
-                    s2 = s2.substring(0, t);
-                }
-                return s1.compareTo(s2);
+        excelArtefacts.sort((o1, o2) -> {
+            String s1 = o1.getName();
+            int t = s1.lastIndexOf(".");
+            if (t > 0) {
+                s1 = s1.substring(0, t);
             }
+            String s2 = o2.getName();
+            t = s2.lastIndexOf(".");
+            if (t > 0) {
+                s2 = s2.substring(0, t);
+            }
+            return s1.compareTo(s2);
         });
         return excelArtefacts;
     }

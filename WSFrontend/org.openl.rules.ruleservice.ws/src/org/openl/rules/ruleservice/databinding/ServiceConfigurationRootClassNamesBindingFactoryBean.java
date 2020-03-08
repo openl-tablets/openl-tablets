@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.databinding;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
@@ -11,8 +12,15 @@ import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
-import org.openl.rules.variation.*;
+import org.openl.rules.variation.ArgumentReplacementVariation;
+import org.openl.rules.variation.ComplexVariation;
+import org.openl.rules.variation.DeepCloningVariation;
+import org.openl.rules.variation.JXPathVariation;
+import org.openl.rules.variation.NoVariation;
+import org.openl.rules.variation.Variation;
+import org.openl.rules.variation.VariationsResult;
 import org.openl.types.IOpenClass;
+import org.openl.util.ClassUtils;
 
 public class ServiceConfigurationRootClassNamesBindingFactoryBean extends ServiceConfigurationFactoryBean<Set<String>> {
     private static final String ROOT_CLASS_NAMES_BINDING = "rootClassNamesBinding";
@@ -33,6 +41,7 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
         Set<String> ret = new HashSet<>(getDefaultAdditionalRootClassNames());
         ret.addAll(fromServiceDescription());
         ret.addAll(fromOpenLService());
+        ret.addAll(fromConfiguration());
         checkXmlSeeAlso(ret);
         return Collections.unmodifiableSet(ret);
     }
@@ -54,15 +63,17 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
             try {
                 Class<?> cls = openLService.getClassLoader().loadClass(className);
                 checkXmlSeeAlso(rootClassNames, cls);
-            } catch (ClassNotFoundException e) {
-            } catch (RuleServiceInstantiationException e) {
+            } catch (RuleServiceInstantiationException | ClassNotFoundException e) {
                 throw new ServiceConfigurationException(e);
             }
         }
     }
 
-    private Set<String> fromOpenLService() throws ServiceConfigurationException {
+    private Set<String> fromOpenLService() throws ServiceConfigurationException, RuleServiceInstantiationException {
         OpenLService openLService = getOpenLService();
+
+        boolean found = false;
+
         Set<String> ret = new HashSet<>();
         try {
             if (openLService.getOpenClass() != null) {
@@ -72,22 +83,38 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
                         XlsModuleOpenClass module = (XlsModuleOpenClass) openLService.getOpenClass();
                         CustomSpreadsheetResultOpenClass csrt = (CustomSpreadsheetResultOpenClass) module
                             .findType(customSpreadsheetResultOpenClass.getName());
-                        ret.add(csrt.getBeanClass().getName());
+                        Class<?> beanClass = csrt.getBeanClass();
+                        ret.add(beanClass.getName());
+                        if (!found) {
+                            for (Method method : openLService.getServiceClass().getMethods()) {
+                                if (!found && ClassUtils.isAssignable(beanClass, method.getReturnType())) {
+                                    found = true;
+                                }
+                            }
+                        }
                     }
                 }
-            }
-            if (openLService.isProvideVariations()) {
-                ret.add(Variation.class.getName());
-                ret.add(NoVariation.class.getName());
-                ret.add(ArgumentReplacementVariation.class.getName());
-                ret.add(ComplexVariation.class.getName());
-                ret.add(DeepCloningVariation.class.getName());
-                ret.add(JXPathVariation.class.getName());
-                ret.add(VariationsResult.class.getName());
             }
         } catch (RuleServiceInstantiationException e) {
             throw new ServiceConfigurationException(e);
         }
+
+        return found ? ret : Collections.emptySet();
+    }
+
+    private Set<String> fromConfiguration() throws ServiceConfigurationException {
+        OpenLService openLService = getOpenLService();
+        Set<String> ret = new HashSet<>();
+        if (openLService.isProvideVariations()) {
+            ret.add(Variation.class.getName());
+            ret.add(NoVariation.class.getName());
+            ret.add(ArgumentReplacementVariation.class.getName());
+            ret.add(ComplexVariation.class.getName());
+            ret.add(DeepCloningVariation.class.getName());
+            ret.add(JXPathVariation.class.getName());
+            ret.add(VariationsResult.class.getName());
+        }
+
         return ret;
     }
 
