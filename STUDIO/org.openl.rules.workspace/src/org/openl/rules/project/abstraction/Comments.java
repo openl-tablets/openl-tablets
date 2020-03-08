@@ -29,7 +29,7 @@ public final class Comments {
     private final String restoredFromTemplate;
 
     public Comments(PropertyResolver environment, String prefix) {
-        dateTimeFormat = Objects.requireNonNull(environment.getProperty("data.format.date"));
+        dateTimeFormat = Objects.requireNonNull(environment.getProperty("data.format.datetime"));
         Objects.requireNonNull(prefix, "prefix cannot be null");
         saveProjectTemplate = environment
             .getProperty(REPOSITORY_PREFIX + prefix + "comment-template.user-message.default.save");

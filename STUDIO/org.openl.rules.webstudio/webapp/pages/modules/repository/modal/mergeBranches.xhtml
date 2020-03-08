@@ -39,12 +39,12 @@
 
                 <h:panelGroup id="cannotImportMessage" layout="block">
                     <h:outputText rendered="#{theirBranchMerged}"
-                                  value="Their changes in branch '#{branchesBean.branchToMerge}' have already been imported into branch '#{branchesBean.currentBranch}'."
+                                  value="Nothing to import from '#{branchesBean.branchToMerge}' into '#{branchesBean.currentBranch}'."
                                   styleClass="success"/>
                 </h:panelGroup>
                 <h:panelGroup id="cannotExportMessage" layout="block">
                     <h:outputText rendered="#{yourBranchMerged}"
-                                  value="Your changes in branch '#{branchesBean.currentBranch}' have already been exported into branch '#{branchesBean.branchToMerge}'."
+                                  value="Nothing to export from '#{branchesBean.currentBranch}' into '#{branchesBean.branchToMerge}'."
                                   styleClass="success"/>
                 </h:panelGroup>
             </h:panelGroup>

@@ -1580,8 +1580,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             Repository repository = git.getRepository();
 
             try (RevWalk revWalk = new RevWalk(repository)) {
-                RevCommit fromCommit = revWalk.parseCommit(repository.resolve(from));
-                RevCommit toCommit = revWalk.parseCommit(repository.resolve(to));
+                ObjectId fromId = repository.resolve(from);
+                ObjectId toId = repository.resolve(to);
+                if (fromId == null || toId == null) {
+                    return false;
+                }
+                RevCommit fromCommit = revWalk.parseCommit(fromId);
+                RevCommit toCommit = revWalk.parseCommit(toId);
                 return revWalk.isMergedInto(fromCommit, toCommit);
             } catch (IOException e) {
                 throw e;
@@ -2324,7 +2329,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         public FileData apply(org.eclipse.jgit.lib.Repository repository,
                 TreeWalk rootWalk,
                 String baseFolder) throws IOException {
-            if (rootWalk != null) {
+            if (rootWalk != null && StringUtils.isNotEmpty(baseFolder)) {
                 return createFileData(rootWalk, "", resolveBranchId());
             } else {
                 return null;
@@ -2337,7 +2342,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         public FileItem apply(org.eclipse.jgit.lib.Repository repository,
                 TreeWalk rootWalk,
                 String baseFolder) throws IOException {
-            if (rootWalk != null) {
+            if (rootWalk != null && StringUtils.isNotEmpty(baseFolder)) {
                 FileData fileData = createFileData(rootWalk, "", resolveBranchId());
                 ObjectLoader loader = repository.open(rootWalk.getObjectId(0));
                 return new FileItem(fileData, loader.openStream());
