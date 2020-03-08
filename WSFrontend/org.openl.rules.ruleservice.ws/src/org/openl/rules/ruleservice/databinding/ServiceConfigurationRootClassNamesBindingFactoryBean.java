@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.databinding;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
@@ -11,8 +12,15 @@ import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
-import org.openl.rules.variation.*;
+import org.openl.rules.variation.ArgumentReplacementVariation;
+import org.openl.rules.variation.ComplexVariation;
+import org.openl.rules.variation.DeepCloningVariation;
+import org.openl.rules.variation.JXPathVariation;
+import org.openl.rules.variation.NoVariation;
+import org.openl.rules.variation.Variation;
+import org.openl.rules.variation.VariationsResult;
 import org.openl.types.IOpenClass;
+import org.openl.util.ClassUtils;
 
 public class ServiceConfigurationRootClassNamesBindingFactoryBean extends ServiceConfigurationFactoryBean<Set<String>> {
     private static final String ROOT_CLASS_NAMES_BINDING = "rootClassNamesBinding";
@@ -61,8 +69,11 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
         }
     }
 
-    private Set<String> fromOpenLService() throws ServiceConfigurationException {
+    private Set<String> fromOpenLService() throws ServiceConfigurationException, RuleServiceInstantiationException {
         OpenLService openLService = getOpenLService();
+
+        boolean found = false;
+
         Set<String> ret = new HashSet<>();
         try {
             if (openLService.getOpenClass() != null) {
@@ -72,14 +83,23 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
                         XlsModuleOpenClass module = (XlsModuleOpenClass) openLService.getOpenClass();
                         CustomSpreadsheetResultOpenClass csrt = (CustomSpreadsheetResultOpenClass) module
                             .findType(customSpreadsheetResultOpenClass.getName());
-                        ret.add(csrt.getBeanClass().getName());
+                        Class<?> beanClass = csrt.getBeanClass();
+                        ret.add(beanClass.getName());
+                        if (!found) {
+                            for (Method method : openLService.getServiceClass().getMethods()) {
+                                if (!found && ClassUtils.isAssignable(beanClass, method.getReturnType())) {
+                                    found = true;
+                                }
+                            }
+                        }
                     }
                 }
             }
         } catch (RuleServiceInstantiationException e) {
             throw new ServiceConfigurationException(e);
         }
-        return ret;
+
+        return found ? ret : Collections.emptySet();
     }
 
     private Set<String> fromConfiguration() throws ServiceConfigurationException {
