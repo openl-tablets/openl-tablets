@@ -1,0 +1,6 @@
+ERROR: Cannot convert from 'Datatype2' to 'Datatype1'.
+ERROR: Method 'myMethod1(Datatype3)' is not found.
+ERROR: Cannot convert from 'Datatype1' to 'Datatype2'.
+ERROR: Method 'myMethod2(Datatype3)' is not found.
+ERROR: Cannot convert from 'Datatype1' to 'Datatype3'.
+ERROR: Cannot convert from 'Datatype2' to 'Datatype3'.
