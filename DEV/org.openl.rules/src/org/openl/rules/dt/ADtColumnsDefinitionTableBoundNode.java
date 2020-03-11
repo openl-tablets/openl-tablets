@@ -431,14 +431,28 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 }
             }
         }
-        if (localParameterCount > 2 || parameterType != null && !ConditionHelper
-            .findConditionCasts(parameterType, compositeMethod.getType(), cxt)
-            .atLeastOneExists()) {
+
+        if (localParameterCount > 2) {
             throw SyntaxNodeExceptionUtils.createError(
                 "Condition expression type is incompatible with condition parameter type.",
                 null,
                 null,
                 expressionCellSourceCodeModule);
+        }
+
+        if (parameterType != null) {
+            boolean f1 = ConditionHelper.findConditionCasts(parameterType, compositeMethod.getType(), cxt)
+                .atLeastOneExists();
+            boolean f2 = parameterType.isArray() && ConditionHelper
+                .findConditionCasts(parameterType.getComponentClass(), compositeMethod.getType(), cxt)
+                .atLeastOneExists();
+            if (!(f1 || f2)) {
+                throw SyntaxNodeExceptionUtils.createError(
+                    "Condition expression type is incompatible with condition parameter type.",
+                    null,
+                    null,
+                    expressionCellSourceCodeModule);
+            }
         }
     }
 
