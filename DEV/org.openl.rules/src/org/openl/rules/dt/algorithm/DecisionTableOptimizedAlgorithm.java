@@ -444,7 +444,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
      * used).
      */
     @Override
-    public void removeParamValuesForIndexedConditions() {
+    public void cleanParamValuesForIndexedConditions() {
         for (ConditionToEvaluatorHolder eval : evaluators) {
             if (eval.canIndex()) {
                 if (!isDependencyOnConditionExists(eval.getCondition())) {

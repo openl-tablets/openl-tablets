@@ -5,7 +5,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public interface IDecisionTableAlgorithm {
 
-    void removeParamValuesForIndexedConditions();
+    void cleanParamValuesForIndexedConditions();
 
     IIntIterator checkedRules(Object target, Object[] params, IRuntimeEnv env);
 
