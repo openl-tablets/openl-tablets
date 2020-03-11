@@ -172,6 +172,11 @@ class TableSyntaxNodeDispatcherBuilder {
 
             dispatcher.setDecisionTableOpenMethod(decisionTable);
 
+            IDecisionTableAlgorithm algorithm = decisionTable.getAlgorithm();
+            if (algorithm != null) {
+                algorithm.cleanParamValuesForIndexedConditions();
+            }
+
             if (rulesModuleBindingContext.isExecutionMode()) {
                 removeDebugInformation(decisionTable, tsn);
             }
@@ -181,11 +186,6 @@ class TableSyntaxNodeDispatcherBuilder {
 
     private void removeDebugInformation(DecisionTable decisionTable, TableSyntaxNode tsn) {
         decisionTable.setBoundNode(null);
-
-        IDecisionTableAlgorithm algorithm = decisionTable.getAlgorithm();
-        if (algorithm != null) {
-            algorithm.removeParamValuesForIndexedConditions();
-        }
 
         clearCompositeMethods(decisionTable);
 

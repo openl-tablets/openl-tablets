@@ -1,6 +1,7 @@
 package org.openl.syntax.exception;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,9 +17,7 @@ public class SyntaxNodeExceptionCollector {
             syntaxNodeExceptions.add(e);
         } catch (CompositeSyntaxNodeException e) {
             if (e.getErrors() != null) {
-                for (SyntaxNodeException sne : e.getErrors()) {
-                    syntaxNodeExceptions.add(sne);
-                }
+                Collections.addAll(syntaxNodeExceptions, e.getErrors());
             }
         }
     }

@@ -19,9 +19,9 @@ public class TwoDimensionalAlgorithm implements IDecisionTableAlgorithm {
     }
 
     @Override
-    public void removeParamValuesForIndexedConditions() {
-        va.removeParamValuesForIndexedConditions();
-        ha.removeParamValuesForIndexedConditions();
+    public void cleanParamValuesForIndexedConditions() {
+        va.cleanParamValuesForIndexedConditions();
+        ha.cleanParamValuesForIndexedConditions();
     }
 
     @Override

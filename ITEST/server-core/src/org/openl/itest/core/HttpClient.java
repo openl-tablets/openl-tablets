@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -192,6 +193,9 @@ public class HttpClient {
     private void compareBinary(String responseFile, Resource body) {
         try (InputStream actual = body.getInputStream();
                 InputStream file = getClass().getResourceAsStream(responseFile)) {
+            if (file == null) {
+                throw new FileNotFoundException(String.format("File '%s' is not found", responseFile));
+            }
 
             int ch = file.read();
             int counter = -1;
@@ -305,6 +309,6 @@ public class HttpClient {
     }
 
     private static void failDiff(JsonNode expectedJson, JsonNode actualJson, String path) {
-        assertEquals("Path: \\" + path ,actualJson, expectedJson);
+        assertEquals("Path: \\" + path, actualJson, expectedJson);
     }
 }

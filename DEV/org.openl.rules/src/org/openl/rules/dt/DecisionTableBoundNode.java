@@ -55,7 +55,7 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
         super.removeDebugInformation(cxt);
         IDecisionTableAlgorithm algorithm = getDecisionTable().getAlgorithm();
         if (algorithm != null) {
-            algorithm.removeParamValuesForIndexedConditions();
+            algorithm.cleanParamValuesForIndexedConditions();
         }
     }
 
