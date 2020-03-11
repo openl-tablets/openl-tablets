@@ -65,18 +65,25 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                     .getRepository()
                     .readHistory(conflictedFile, exception.getTheirCommit());
                 File theirFile = createTempFile(their, conflictedFile);
+                File ourFile;
 
                 FileItem our;
                 if (mergeConflict.isMerging()) {
                     our = userWorkspace.getDesignTimeRepository()
                         .getRepository()
                         .readHistory(conflictedFile, exception.getYourCommit());
+                    ourFile = createTempFile(our, conflictedFile);
+                    if (mergeConflict.isExportOperation()) {
+                        File tmp = ourFile;
+                        ourFile = theirFile;
+                        theirFile = tmp;
+                    }
                 } else {
                     String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
                     String localName = conflictedFile.substring(rulesLocation.length());
                     our = userWorkspace.getLocalWorkspace().getRepository().read(localName);
+                    ourFile = createTempFile(our, conflictedFile);
                 }
-                File ourFile = createTempFile(our, conflictedFile);
 
                 compare(Arrays.asList(theirFile, ourFile));
             }

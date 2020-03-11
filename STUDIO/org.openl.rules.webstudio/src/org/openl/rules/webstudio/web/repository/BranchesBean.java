@@ -148,7 +148,8 @@ public class BranchesBean {
                 setWasMerged(true);
             }
         } catch (MergeConflictException e) {
-            MergeConflictInfo info = new MergeConflictInfo(e, getProject(currentProjectName), branchToMergeFrom, branchToMergeTo);
+            MergeConflictInfo info = new MergeConflictInfo(e, getProject(currentProjectName), branchToMergeFrom, branchToMergeTo,
+                currentBranch);
             ConflictUtils.saveMergeConflict(info);
             log.debug("Failed to save the project because of merge conflict.", e);
         } catch (Exception e) {
