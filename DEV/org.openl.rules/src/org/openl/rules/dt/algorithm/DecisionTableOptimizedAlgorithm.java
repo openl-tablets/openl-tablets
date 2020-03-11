@@ -566,6 +566,9 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
         @Override
         public int compareTo(ConditionToEvaluatorHolder o) {
+            if (!this.canIndex() && !o.canIndex()) {
+                return 0;
+            }
             if (this.canIndex() && !o.canIndex()) {
                 return -1;
             }
