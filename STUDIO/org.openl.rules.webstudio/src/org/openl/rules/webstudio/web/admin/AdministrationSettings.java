@@ -1,11 +1,11 @@
 package org.openl.rules.webstudio.web.admin;
 
-import static org.openl.engine.OpenLSystemProperties.*;
+
+import org.openl.engine.OpenLSystemProperties;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -49,11 +49,7 @@ public final class AdministrationSettings {
             }
         }
 
-        settingNames.addAll(Arrays.asList(CUSTOM_SPREADSHEET_TYPE_PROPERTY,
-            RUN_TESTS_IN_PARALLEL,
-            TEST_RUN_THREAD_COUNT_PROPERTY,
-            DISPATCHING_MODE_PROPERTY,
-            AUTO_COMPILE));
+        settingNames.add(OpenLSystemProperties.DISPATCHING_VALIDATION);
 
         allSettings = Collections.unmodifiableCollection(settingNames);
     }
