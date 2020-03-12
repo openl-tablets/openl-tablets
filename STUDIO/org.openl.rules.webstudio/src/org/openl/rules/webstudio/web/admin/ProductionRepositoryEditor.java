@@ -140,7 +140,7 @@ public class ProductionRepositoryEditor {
         String[] configNames = new String[productionRepositoryConfigurations.size()];
         for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
             RepositoryConfiguration prodConfig = productionRepositoryConfigurations.get(i);
-            RepositoryConfiguration newProdConfig = saveProductionRepository(prodConfig, callback);
+            RepositoryConfiguration newProdConfig = saveProductionRepository(prodConfig);
             productionRepositoryConfigurations.set(i, newProdConfig);
             configNames[i] = newProdConfig.getConfigName();
         }
@@ -161,42 +161,14 @@ public class ProductionRepositoryEditor {
         properties.revertProperties(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS);
     }
 
-    private RepositoryConfiguration saveProductionRepository(RepositoryConfiguration prodConfig, Callback callback) {
+    private RepositoryConfiguration saveProductionRepository(RepositoryConfiguration prodConfig) {
         prodConfig.commit();
-        String oldConfigName = prodConfig.getConfigName();
         if (prodConfig.isNameChangedIgnoreCase()) {
-            prodConfig = renameConfigName(prodConfig);
+            String newConfigName = prodConfig.getName();
+            properties.setProperty("repository." + prodConfig.getConfigName() + ".name", newConfigName);
         }
-        String newConfigName = prodConfig.getConfigName();
 
-        if (callback != null) {
-            callback.onRename(oldConfigName, newConfigName);
-        }
         return prodConfig;
-    }
-
-    private RepositoryConfiguration renameConfigName(RepositoryConfiguration prodConfig) {
-        // Move config to a new file
-        String newConfigName = prodConfig.getName();
-        RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, properties, prodConfig);
-        newConfig.commit();
-
-        // Rename link to a file in system config
-        String[] configNames = split(properties.getProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS));
-        for (int i = 0; i < configNames.length; i++) {
-            if (configNames[i].equals(prodConfig.getConfigName())) {
-                // Found necessary link - rename it
-                configNames[i] = newConfigName;
-                properties.setProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS,
-                    String.join(",", configNames));
-                break;
-            }
-        }
-
-        // Delete old config file
-        prodConfig.revert();
-
-        return newConfig;
     }
 
     private String[] split(String s) {

@@ -1,10 +1,12 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedProperty;
 
+import org.openl.config.ConfigNames;
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.util.StringUtils;
@@ -60,6 +62,14 @@ public abstract class AbstractProductionRepoController {
 
     protected RepositoryConfiguration createRepositoryConfiguration() {
         String name = repositoryConfiguration.getName();
+        String finalName = name;
+        Optional<RepositoryConfiguration> first = getProductionRepositoryConfigurations().stream()
+            .filter(x -> x.getConfigName().equalsIgnoreCase(finalName))
+            .findFirst();
+        // If there is already config with the given name we need to modify it to avoid collision
+        if (first.isPresent() || ConfigNames.DEFAULT_CONFIGS.contains(name)) {
+            name += "1";
+        }
         RepositoryConfiguration repoConfig = new RepositoryConfiguration(name, properties, repositoryConfiguration);
         repoConfig.commit();
         return repoConfig;
@@ -71,11 +81,9 @@ public abstract class AbstractProductionRepoController {
     }
 
     private RepositoryConfiguration createDummyRepositoryConfiguration() {
-        RepositoryConfiguration previousConfig = productionRepositoryConfigurations.get(0);
-        RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration(previousConfig.getConfigName(),
-            properties);
-        repositoryConfiguration.setType(RepositoryType.DB.name().toLowerCase());
-        return repositoryConfiguration;
+        RepositoryConfiguration rc = new RepositoryConfiguration(ConfigNames.PRODUCTION, properties);
+        rc.setType(RepositoryType.DB.name().toLowerCase());
+        return rc;
     }
 
     public boolean isInputParamInvalid(RepositoryConfiguration prodConfig) {
