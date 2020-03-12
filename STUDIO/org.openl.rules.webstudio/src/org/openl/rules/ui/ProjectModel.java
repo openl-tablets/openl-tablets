@@ -63,6 +63,7 @@ import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.web.Props;
+import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -798,7 +799,7 @@ public class ProjectModel {
     }
 
     public TestUnitsResults runTest(TestSuite test) {
-        boolean isParallel = Props.bool("test.run.parallel");
+        boolean isParallel = Props.bool(AdministrationSettings.RUN_TESTS_IN_PARALLEL);
         return runTest(test, isParallel);
     }
 

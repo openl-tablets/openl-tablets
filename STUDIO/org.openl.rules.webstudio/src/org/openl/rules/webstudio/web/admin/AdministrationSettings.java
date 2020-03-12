@@ -28,6 +28,10 @@ public final class AdministrationSettings {
     public static final String UPDATE_SYSTEM_PROPERTIES = "update.system.properties";
     public static final String PRODUCTION_REPOSITORY_CONFIGS = "production-repository-configs";
 
+    public static final String RUN_TESTS_IN_PARALLEL = "test.run.parallel";
+    public static final String TEST_RUN_THREAD_COUNT_PROPERTY = "test.run.thread.count";
+    public static final String AUTO_COMPILE = "compile.auto";
+
     static {
         List<String> settingNames = new ArrayList<>();
 

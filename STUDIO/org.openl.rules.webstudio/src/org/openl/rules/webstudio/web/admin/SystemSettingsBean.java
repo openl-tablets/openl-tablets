@@ -206,24 +206,24 @@ public class SystemSettingsBean {
     }
 
     public boolean isRunTestsInParallel() {
-        return Boolean.parseBoolean(properties.getProperty(OpenLSystemProperties.RUN_TESTS_IN_PARALLEL));
+        return Boolean.parseBoolean(properties.getProperty(RUN_TESTS_IN_PARALLEL));
     }
 
     public void setRunTestsInParallel(boolean runTestsInParallel) {
-        properties.setProperty(OpenLSystemProperties.RUN_TESTS_IN_PARALLEL, runTestsInParallel);
+        properties.setProperty(RUN_TESTS_IN_PARALLEL, runTestsInParallel);
     }
 
     public String getTestRunThreadCount() {
-        return properties.getProperty(OpenLSystemProperties.TEST_RUN_THREAD_COUNT_PROPERTY);
+        return properties.getProperty(TEST_RUN_THREAD_COUNT_PROPERTY);
     }
 
     public void setTestRunThreadCount(String testRunThreadCount) {
-        properties.setProperty(OpenLSystemProperties.TEST_RUN_THREAD_COUNT_PROPERTY,
+        properties.setProperty(TEST_RUN_THREAD_COUNT_PROPERTY,
             Integer.parseInt(StringUtils.trim(testRunThreadCount)));
     }
 
     public boolean isAutoCompile() {
-        return Boolean.parseBoolean(properties.getProperty(OpenLSystemProperties.AUTO_COMPILE));
+        return Boolean.parseBoolean(properties.getProperty(AUTO_COMPILE));
     }
 
     public boolean isAdmin() {
@@ -231,7 +231,7 @@ public class SystemSettingsBean {
     }
 
     public void setAutoCompile(boolean autoCompile) {
-        properties.setProperty(OpenLSystemProperties.AUTO_COMPILE, autoCompile);
+        properties.setProperty(AUTO_COMPILE, autoCompile);
     }
 
     public void applyChanges() {

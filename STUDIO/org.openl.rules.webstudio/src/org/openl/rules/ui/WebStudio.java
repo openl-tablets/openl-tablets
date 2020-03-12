@@ -166,9 +166,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         copyExternalProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY);
         copyExternalProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY);
         copyExternalProperty(OpenLSystemProperties.DISPATCHING_VALIDATION);
-        copyExternalProperty(OpenLSystemProperties.RUN_TESTS_IN_PARALLEL);
-        copyExternalProperty(OpenLSystemProperties.TEST_RUN_THREAD_COUNT_PROPERTY);
-        copyExternalProperty(OpenLSystemProperties.AUTO_COMPILE);
     }
 
     private void copyExternalProperty(String key) {
@@ -496,7 +493,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     boolean isAutoCompile() {
-        return Props.bool("compile.auto");
+        return Props.bool(AdministrationSettings.AUTO_COMPILE);
     }
 
     public boolean isManualCompileNeeded() {
