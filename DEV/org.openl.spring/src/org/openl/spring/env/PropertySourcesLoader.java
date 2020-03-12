@@ -46,7 +46,6 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         ConfigLog.LOG
             .info("The initialization of properties from 'contextInitializerClasses' context-param in web.xml");
         ConfigurableEnvironment env = appContext.getEnvironment();
-        PropertyResolverProvider.environment = env;
         loadEnvironment(env, appContext);
 
     }

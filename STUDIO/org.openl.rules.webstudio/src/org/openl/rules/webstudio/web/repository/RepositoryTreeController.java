@@ -67,6 +67,7 @@ import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.util.PreferencesManager;
+import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
@@ -88,7 +89,6 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
-import org.openl.spring.env.PropertyResolverProvider;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -1317,7 +1317,7 @@ public class RepositoryTreeController {
     }
 
     private String getDescriptiveVersion(ProjectVersion version) {
-        String dateModifiedPattern = PropertyResolverProvider.getProperty(AdministrationSettings.DATETIME_PATTERN);
+        String dateModifiedPattern = Props.text(AdministrationSettings.DATETIME_PATTERN);
         String modifiedOnStr = new SimpleDateFormat(dateModifiedPattern).format(version.getVersionInfo().getCreatedAt());
 
         return version.getVersionInfo().getCreatedBy() + ": " + modifiedOnStr;

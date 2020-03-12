@@ -10,15 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
@@ -33,6 +25,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -64,6 +57,7 @@ import org.openl.rules.ui.tree.view.TypeView;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
@@ -84,8 +78,6 @@ import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
-import org.openl.spring.env.PropertyResolverProvider;
-import org.openl.util.BooleanUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
@@ -129,7 +121,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private final ProjectModel model;
     private ProjectResolver projectResolver;
     private List<ProjectDescriptor> projects = null;
-    private boolean updateSystemProperties;
 
     private RulesTreeView treeView;
     private String tableView;
@@ -170,10 +161,19 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
         initWorkspace(session);
         initUserSettings();
-        updateSystemProperties = Boolean
-            .parseBoolean(PropertyResolverProvider.getProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES));
         projectResolver = ProjectResolver.instance();
-        externalProperties = PropertyResolverProvider.getProperties();
+        externalProperties = new HashMap<>();
+        copyExternalProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY);
+        copyExternalProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY);
+        copyExternalProperty(OpenLSystemProperties.DISPATCHING_VALIDATION);
+        copyExternalProperty(OpenLSystemProperties.RUN_TESTS_IN_PARALLEL);
+        copyExternalProperty(OpenLSystemProperties.TEST_RUN_THREAD_COUNT_PROPERTY);
+        copyExternalProperty(OpenLSystemProperties.AUTO_COMPILE);
+    }
+
+    private void copyExternalProperty(String key) {
+        String value = Props.text(key);
+        externalProperties.put(key, value);
     }
 
     private static void addCookie(String name, String value, int age) {
@@ -496,7 +496,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     boolean isAutoCompile() {
-        return BooleanUtils.toBoolean(PropertyResolverProvider.getProperty("compile.auto"));
+        return Props.bool("compile.auto");
     }
 
     public boolean isManualCompileNeeded() {
@@ -953,7 +953,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public boolean isUpdateSystemProperties() {
-        return updateSystemProperties;
+        return Props.bool(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES);
     }
 
     public boolean isShowFormulas() {

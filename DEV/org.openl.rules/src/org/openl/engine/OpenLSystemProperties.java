@@ -6,14 +6,15 @@ import org.openl.util.BooleanUtils;
 
 public class OpenLSystemProperties {
 
-    public static final String CUSTOM_SPREADSHEET_TYPE_PROPERTY = "custom.spreadsheet.type";
     public static final String RUN_TESTS_IN_PARALLEL = "test.run.parallel";
     public static final String TEST_RUN_THREAD_COUNT_PROPERTY = "test.run.thread.count";
-    public static final String DISPATCHING_MODE_PROPERTY = "dispatching.mode";
+    public static final String AUTO_COMPILE = "compile.auto";
+
+    public static final String CUSTOM_SPREADSHEET_TYPE_PROPERTY = "custom.spreadsheet.type";
     public static final String DISPATCHING_VALIDATION = "dispatching.validation";
+    public static final String DISPATCHING_MODE_PROPERTY = "dispatching.mode";
     public static final String DISPATCHING_MODE_JAVA = "java";
     public static final String DISPATCHING_MODE_DT = "dt";
-    public static final String AUTO_COMPILE = "compile.auto";
 
     private OpenLSystemProperties() {
     }

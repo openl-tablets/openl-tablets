@@ -62,11 +62,11 @@ import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
+import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.source.SourceHistoryManager;
-import org.openl.spring.env.PropertyResolverProvider;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.impl.IdentifierNode;
@@ -798,7 +798,7 @@ public class ProjectModel {
     }
 
     public TestUnitsResults runTest(TestSuite test) {
-        boolean isParallel = Boolean.parseBoolean(PropertyResolverProvider.getProperty("test.run.parallel"));
+        boolean isParallel = Props.bool("test.run.parallel");
         return runTest(test, isParallel);
     }
 
@@ -1127,11 +1127,10 @@ public class ProjectModel {
 
     public SourceHistoryManager<File> getHistoryManager() {
         if (historyManager == null) {
-            String projectHistoryHome = PropertyResolverProvider.getProperty("project.history.home");
-            String projectHistoryCount = PropertyResolverProvider.getProperty("project.history.count");
+            String projectHistoryHome = Props.text("project.history.home");
+            String projectHistoryCount = Props.text("project.history.count");
             Integer maxFilesInStorage = Integer.valueOf(Objects.requireNonNull(projectHistoryCount));
-            boolean unlimitedStorage = Boolean
-                .parseBoolean(PropertyResolverProvider.getProperty("project.history.unlimited"));
+            boolean unlimitedStorage = Props.bool("project.history.unlimited");
             String storagePath = projectHistoryHome + File.separator + getProject().getName();
             historyManager = new FileBasedProjectHistoryManager(this, storagePath, maxFilesInStorage, unlimitedStorage);
         }
