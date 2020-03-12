@@ -41,8 +41,8 @@
                                 <h:outputText value="#{prop.displayName}" />
                             </td>
                             <td>
-                                <rich:calendar id="date" value="#{prop.value}" datePattern="#{prop.format}"
-                                    rendered="#{prop.dateType}" required="true" requiredMessage="Can not be empty " />
+                                <rich:calendar id="date" value="#{prop.value}" datePattern="#{prop.format}" defaultTime="00:00"
+                                    rendered="#{prop.dateType}" required="true" requiredMessage="Can not be empty" />
 
                                 <h:selectBooleanCheckbox id="checkbox" value="#{prop.value}" rendered="#{prop.booleanType}" />
 

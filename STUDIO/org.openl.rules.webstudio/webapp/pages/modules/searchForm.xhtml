@@ -152,7 +152,7 @@
                             <td style="width: 110px">#{prop.displayName}</td>
                             <td>
                                 <input type="hidden" name="propName" value="#{prop.name}" />
-                                <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
+                                <rich:calendar value="#{prop.value}" datePattern="#{prop.format}" defaultTime="00:00"
                                     rendered="#{prop.dateType}" inputStyle="width:100px" />
                                 <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.booleanType}" />
                                 <oh:multiselect items="#{prop.enumArrayItems}" selected="#{prop.enumArrayValue}"
