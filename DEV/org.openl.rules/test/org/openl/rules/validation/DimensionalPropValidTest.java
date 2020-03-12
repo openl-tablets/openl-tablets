@@ -1,6 +1,6 @@
 package org.openl.rules.validation;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
@@ -18,7 +18,7 @@ public class DimensionalPropValidTest extends BaseOpenlBuilderHelper {
         // number of tsns consider to be 6 tables defined in rule source file.
         // and 2 extra tables generated for dimensional properties for overriden
         // tables.
-        assertTrue(6 == getTableSyntaxNodes().length);
+        assertEquals(6, getTableSyntaxNodes().length);
     }
 
 }
