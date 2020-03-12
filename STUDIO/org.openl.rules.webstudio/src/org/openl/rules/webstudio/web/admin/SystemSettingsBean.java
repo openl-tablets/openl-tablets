@@ -255,12 +255,6 @@ public class SystemSettingsBean {
                 public void onDelete(String configName) {
                     deploymentManager.removeRepository(configName);
                 }
-
-                @Override
-                public void onRename(String oldConfigName, String newConfigName) {
-                    deploymentManager.removeRepository(oldConfigName);
-                    deploymentManager.addRepository(newConfigName);
-                }
             });
 
             saveSystemConfig();

@@ -16,6 +16,7 @@ public abstract class RepositorySettings {
     private final String DEFAULT_COMMENT_ERASE;
     private final String DEFAULT_COMMENT_COPIED_FROM;
     private final String DEFAULT_COMMENT_RESTORED_FROM;
+    private final String BASE_PATH;
 
     private boolean includeVersionInDeploymentName;
     private String commentValidationPattern;
@@ -28,6 +29,8 @@ public abstract class RepositorySettings {
     private String defaultCommentErase;
     private String defaultCommentCopiedFrom;
     private String defaultCommentRestoredFrom;
+
+    private String basePath;
 
     private boolean useCustomComments;
 
@@ -44,6 +47,7 @@ public abstract class RepositorySettings {
         DEFAULT_COMMENT_ERASE = configPrefix + ".comment-template.user-message.default.erase";
         DEFAULT_COMMENT_COPIED_FROM = configPrefix + ".comment-template.user-message.default.copied-from";
         DEFAULT_COMMENT_RESTORED_FROM = configPrefix + ".comment-template.user-message.default.restored-from";
+        BASE_PATH = configPrefix + ".base.path";
 
         load(propertyResolver);
     }
@@ -144,6 +148,14 @@ public abstract class RepositorySettings {
         this.defaultCommentRestoredFrom = defaultCommentRestoredFrom;
     }
 
+    public String getBasePath() {
+        return basePath;
+    }
+
+    public void setBasePath(String basePath) {
+        this.basePath = basePath;
+    }
+
     private void load(PropertiesHolder properties) {
         includeVersionInDeploymentName = Boolean.parseBoolean(properties.getProperty(VERSION_IN_DEPLOYMENT_NAME));
 
@@ -158,11 +170,13 @@ public abstract class RepositorySettings {
         defaultCommentErase = properties.getProperty(DEFAULT_COMMENT_ERASE);
         defaultCommentCopiedFrom = properties.getProperty(DEFAULT_COMMENT_COPIED_FROM);
         defaultCommentRestoredFrom = properties.getProperty(DEFAULT_COMMENT_RESTORED_FROM);
+
+        basePath = properties.getProperty(BASE_PATH);
     }
 
     protected void store(PropertiesHolder propertiesHolder) {
         propertiesHolder.setProperty(VERSION_IN_DEPLOYMENT_NAME, includeVersionInDeploymentName);
-
+        propertiesHolder.setProperty(BASE_PATH, basePath);
         propertiesHolder.setProperty(USE_CUSTOM_COMMENTS, useCustomComments);
         if (useCustomComments) {
             propertiesHolder.setProperty(COMMENT_VALIDATION_PATTERN, commentValidationPattern);
@@ -202,7 +216,8 @@ public abstract class RepositorySettings {
             DEFAULT_COMMENT_RESTORE,
             DEFAULT_COMMENT_ERASE,
             DEFAULT_COMMENT_COPIED_FROM,
-            DEFAULT_COMMENT_RESTORED_FROM);
+            DEFAULT_COMMENT_RESTORED_FROM,
+            BASE_PATH);
         load(properties);
     }
 
@@ -235,6 +250,7 @@ public abstract class RepositorySettings {
         setDefaultCommentErase(other.getDefaultCommentErase());
         setDefaultCommentCopiedFrom(other.getDefaultCommentCopiedFrom());
         setDefaultCommentRestoredFrom(other.getDefaultCommentRestoredFrom());
+        setBasePath(other.getBasePath());
     }
 
     public RepositorySettingsValidators getValidators() {
