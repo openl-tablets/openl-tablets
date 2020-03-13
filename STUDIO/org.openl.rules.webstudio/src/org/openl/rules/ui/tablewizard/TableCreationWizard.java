@@ -32,8 +32,8 @@ import org.openl.rules.ui.BaseWizard;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
+import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.spring.env.PropertyResolverProvider;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -259,7 +259,7 @@ public abstract class TableCreationWizard extends BaseWizard {
     }
 
     protected Map<String, Object> buildSystemProperties() {
-        String userMode = PropertyResolverProvider.getProperty("user.mode");
+        String userMode = Props.text("user.mode");
         Map<String, Object> result = new LinkedHashMap<>();
 
         List<TablePropertyDefinition> systemPropDefinitions = TablePropertyDefinitionUtils.getSystemProperties();

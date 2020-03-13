@@ -169,6 +169,22 @@ public class MergeConflictBean {
         return mergeConflict == null ? null : mergeConflict.getException().getBaseCommit();
     }
 
+    public String getYourBranch() {
+        MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
+        if (mergeConflict == null) {
+            return null;
+        }
+        return mergeConflict.isExportOperation() ? mergeConflict.getMergeBranchFrom() : mergeConflict.getMergeBranchTo();
+    }
+
+    public String getTheirBranch() {
+        MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
+        if (mergeConflict == null) {
+            return null;
+        }
+        return mergeConflict.isExportOperation() ? mergeConflict.getMergeBranchTo() : mergeConflict.getMergeBranchFrom();
+    }
+
     public String getMergeMessage() {
         if (!mergeMessageModified) {
             mergeMessage = generateMergeMessage();
@@ -491,6 +507,9 @@ public class MergeConflictBean {
                     "Merge with commit " + exception.getTheirCommit() + "\nConflicts:");
                 ArrayList<String> conflicts = new ArrayList<>(exception.getConflictedFiles());
                 conflicts.sort(String.CASE_INSENSITIVE_ORDER);
+                boolean merging = mergeConflict.isMerging();
+                String yourBranch = getYourBranch();
+                String theirBranch = getTheirBranch();
                 for (String file : conflicts) {
                     ConflictResolution resolution = conflictResolutions.get(file);
 
@@ -502,7 +521,18 @@ public class MergeConflictBean {
                     if (resolution != null) {
                         ResolutionType resolutionType = resolution.getResolutionType();
                         if (resolutionType != ResolutionType.UNRESOLVED) {
-                            messageBuilder.append(" (").append(resolutionType.name().toLowerCase()).append(')');
+                            String chosen = resolutionType.name().toLowerCase();
+                            if (merging) {
+                                switch (resolutionType) {
+                                    case YOURS:
+                                        chosen = yourBranch;
+                                        break;
+                                    case THEIRS:
+                                        chosen = theirBranch;
+                                        break;
+                                }
+                            }
+                            messageBuilder.append(" (").append(chosen).append(')');
                         }
                     }
                 }

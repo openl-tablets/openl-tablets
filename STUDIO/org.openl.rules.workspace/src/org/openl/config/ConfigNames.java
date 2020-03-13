@@ -12,7 +12,8 @@ import java.util.Set;
 public class ConfigNames {
     public static final String DEPLOY_CONFIG = "deploy-config";
     public static final String DESIGN_CONFIG = "design";
+    public static final String PRODUCTION = "production";
 
     public static final Set<String> DEFAULT_CONFIGS = Collections
-        .unmodifiableSet(new HashSet<>(Arrays.asList(DEPLOY_CONFIG, DESIGN_CONFIG)));
+        .unmodifiableSet(new HashSet<>(Arrays.asList(DEPLOY_CONFIG, DESIGN_CONFIG,PRODUCTION)));
 }
