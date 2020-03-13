@@ -401,7 +401,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             return null;
         }
         ConditionToEvaluatorHolder firstPair = evaluators[0];
-        if (!firstPair.canIndex()) {
+        if (!firstPair.isIndexed()) {
             return null;
         }
         IRuleIndex indexRoot = firstPair.makeIndex(info.makeRuleIterator());
@@ -415,7 +415,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         }
 
         ConditionToEvaluatorHolder pair = evaluators[condN];
-        if (!pair.canIndex()) {
+        if (!pair.isIndexed()) {
             return;
         }
 
@@ -446,7 +446,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     @Override
     public void cleanParamValuesForIndexedConditions() {
         for (ConditionToEvaluatorHolder eval : evaluators) {
-            if (eval.canIndex()) {
+            if (eval.isIndexed()) {
                 if (!isDependencyOnConditionExists(eval.getCondition())) {
                     eval.getCondition().clearParamValues();
                 }
@@ -552,7 +552,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             this.evaluator = evaluator;
         }
 
-        public boolean canIndex() {
+        public boolean isIndexed() {
             return evaluator.isIndexed() && !condition.hasFormulas();
         }
 
@@ -560,19 +560,15 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             return evaluator.makeIndex(condition, it);
         }
 
-        public boolean isIndexed() {
-            return evaluator.isIndexed();
-        }
-
         @Override
         public int compareTo(ConditionToEvaluatorHolder o) {
-            if (!this.canIndex() && !o.canIndex()) {
+            if (!this.isIndexed() && !o.isIndexed()) {
                 return 0;
             }
-            if (this.canIndex() && !o.canIndex()) {
+            if (this.isIndexed() && !o.isIndexed()) {
                 return -1;
             }
-            if (!this.canIndex() && o.canIndex()) {
+            if (!this.isIndexed() && o.isIndexed()) {
                 return 1;
             }
             if (this.isEqualsIndex() && o.isEqualsIndex()) {
