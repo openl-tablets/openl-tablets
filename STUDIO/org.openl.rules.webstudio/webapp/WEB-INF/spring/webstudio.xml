@@ -5,6 +5,8 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd"
        default-autowire="no">
 
+    <bean class="org.openl.rules.webstudio.web.Props"/>
+
     <!-- Either webstudio-beans.xml or installer-beans.xml. Determined in StartupListener -->
     <import resource="${webstudio.mode}-beans.xml" />
 
