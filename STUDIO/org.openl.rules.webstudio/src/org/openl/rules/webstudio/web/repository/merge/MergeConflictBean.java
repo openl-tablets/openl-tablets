@@ -339,9 +339,6 @@ public class MergeConflictBean {
             String branch = mergeOperation ? mergeConflict.getMergeBranchTo() : project.getBranch();
             updateRulesXmlFiles(modulesToAppend, branch);
 
-            if (mergeOperation) {
-                project.setBranch(mergeConflict.getMergeBranchTo());
-            }
             if (opened) {
                 if (project.isDeleted()) {
                     project.close();
