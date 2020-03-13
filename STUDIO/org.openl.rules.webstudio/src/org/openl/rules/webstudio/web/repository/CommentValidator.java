@@ -2,8 +2,8 @@ package org.openl.rules.webstudio.web.repository;
 
 import java.util.regex.Pattern;
 
+import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.spring.env.PropertyResolverProvider;
 import org.openl.util.StringUtils;
 
 public class CommentValidator {
@@ -28,14 +28,12 @@ public class CommentValidator {
     }
 
     public static CommentValidator forDesignRepo() {
-        return new CommentValidator(
-            PropertyResolverProvider.getProperty("repository.design.comment-validation-pattern"),
-            PropertyResolverProvider.getProperty("repository.design.invalid-comment-message"));
+        return new CommentValidator(Props.text("repository.design.comment-validation-pattern"),
+            Props.text("repository.design.invalid-comment-message"));
     }
 
     static CommentValidator forDeployConfigRepo() {
-        return new CommentValidator(
-            PropertyResolverProvider.getProperty("repository.deploy-config.comment-validation-pattern"),
-            PropertyResolverProvider.getProperty("repository.deploy-config.invalid-comment-message"));
+        return new CommentValidator(Props.text("repository.deploy-config.comment-validation-pattern"),
+            Props.text("repository.deploy-config.invalid-comment-message"));
     }
 }

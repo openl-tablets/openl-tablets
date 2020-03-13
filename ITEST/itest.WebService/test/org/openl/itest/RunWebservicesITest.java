@@ -13,7 +13,7 @@ public class RunWebservicesITest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = JettyServer.start();
+        server = JettyServer.startSharingClassLoader();
         client = server.client();
     }
 
@@ -34,7 +34,8 @@ public class RunWebservicesITest {
 
     @Test
     public void testSimple1_invoke_with_Variations() {
-        client.post("/REST/deployment1/simple1/test1", "/simple1_invoke_test.req.json", "/simple1_invoke_test.resp.json");
+        client
+            .post("/REST/deployment1/simple1/test1", "/simple1_invoke_test.req.json", "/simple1_invoke_test.resp.json");
     }
 
     @Test
@@ -76,5 +77,12 @@ public class RunWebservicesITest {
     @Test
     public void testSwaggerSchemaSimple5() {
         client.get("/REST/deployment5/simple5/swagger.json", "/simple5_swagger.resp.json");
+    }
+
+    @Test
+    public void EPBDS_9500() {
+        client.post("/REST/EPBDS-9500/EPBDS-9500/myRules",
+            "/EPBDS-9500/EPBDS-9500_myRules.req.txt",
+            "/EPBDS-9500/EPBDS-9500_myRules.resp.txt");
     }
 }

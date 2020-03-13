@@ -148,17 +148,41 @@ public class MergeConflictBean {
 
     public String getYourCommit() {
         MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
-        return mergeConflict == null ? null : mergeConflict.getException().getYourCommit();
+        if (mergeConflict == null) {
+            return null;
+        }
+        return mergeConflict.isExportOperation() ? mergeConflict.getException().getTheirCommit()
+                                                 : mergeConflict.getException().getYourCommit();
     }
 
     public String getTheirCommit() {
         MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
-        return mergeConflict == null ? null : mergeConflict.getException().getTheirCommit();
+        if (mergeConflict == null) {
+            return null;
+        }
+        return mergeConflict.isExportOperation() ? mergeConflict.getException().getYourCommit()
+                                                 : mergeConflict.getException().getTheirCommit();
     }
 
     public String getBaseCommit() {
         MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
         return mergeConflict == null ? null : mergeConflict.getException().getBaseCommit();
+    }
+
+    public String getYourBranch() {
+        MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
+        if (mergeConflict == null) {
+            return null;
+        }
+        return mergeConflict.isExportOperation() ? mergeConflict.getMergeBranchFrom() : mergeConflict.getMergeBranchTo();
+    }
+
+    public String getTheirBranch() {
+        MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
+        if (mergeConflict == null) {
+            return null;
+        }
+        return mergeConflict.isExportOperation() ? mergeConflict.getMergeBranchTo() : mergeConflict.getMergeBranchFrom();
     }
 
     public String getMergeMessage() {
@@ -275,7 +299,7 @@ public class MergeConflictBean {
                 switch (conflictResolution.getResolutionType()) {
                     case YOURS:
                         if (mergeOperation) {
-                            file = designRepository.readHistory(name, mergeConflict.getException().getYourCommit());
+                            file = designRepository.readHistory(name, getYourCommit());
                         } else {
                             String localName = name.substring(rulesLocation.length());
                             file = localRepository.read(localName);
@@ -284,7 +308,7 @@ public class MergeConflictBean {
                         resolvedFiles.add(new FileItem(name, stream));
                         break;
                     case THEIRS:
-                        file = designRepository.readHistory(name, mergeConflict.getException().getTheirCommit());
+                        file = designRepository.readHistory(name, getTheirCommit());
                         stream = file == null ? null : file.getStream();
                         resolvedFiles.add(new FileItem(name, stream));
                         break;
@@ -305,7 +329,9 @@ public class MergeConflictBean {
                 .getTheirCommit(), resolvedFiles, mergeMessage);
             if (mergeOperation) {
                 ((BranchRepository) designRepository).forBranch(mergeConflict.getMergeBranchTo())
-                    .merge(mergeConflict.getMergeBranchFrom(), userWorkspace.getUser().getUserId(), conflictResolveData);
+                    .merge(mergeConflict.getMergeBranchFrom(),
+                        userWorkspace.getUser().getUserId(),
+                        conflictResolveData);
             } else {
                 project.save(conflictResolveData);
             }
@@ -313,9 +339,6 @@ public class MergeConflictBean {
             String branch = mergeOperation ? mergeConflict.getMergeBranchTo() : project.getBranch();
             updateRulesXmlFiles(modulesToAppend, branch);
 
-            if (mergeOperation) {
-                project.setBranch(mergeConflict.getMergeBranchTo());
-            }
             if (opened) {
                 if (project.isDeleted()) {
                     project.close();
@@ -367,8 +390,8 @@ public class MergeConflictBean {
     }
 
     private Map<String, List<Module>> findModulesToAppend(MergeConflictInfo mergeConflict,
-        String rulesLocation,
-        List<FileItem> resolvedFiles) throws WorkspaceException, IOException {
+            String rulesLocation,
+            List<FileItem> resolvedFiles) throws WorkspaceException, IOException {
         Map<String, List<Module>> modulesToAppend = new HashMap<>();
         for (FileItem resolvedFile : resolvedFiles) {
             String name = resolvedFile.getData().getName();
@@ -390,14 +413,14 @@ public class MergeConflictBean {
 
                     Module module;
 
-                    FileItem fileItem = repository.readHistory(rulesXmlFile, mergeConflict.getException().getTheirCommit());
+                    FileItem fileItem = repository.readHistory(rulesXmlFile, getTheirCommit());
                     module = getModule(serializer, fileItem, moduleInternalPath);
                     if (module == null) {
                         if (mergeConflict.isMerging()) {
-                            fileItem = repository.readHistory(rulesXmlFile,
-                                mergeConflict.getException().getYourCommit());
+                            fileItem = repository.readHistory(rulesXmlFile, getYourCommit());
                         } else {
-                            String localName = name.startsWith(rulesLocation) ? name.substring(rulesLocation.length()) : name;
+                            String localName = name.startsWith(rulesLocation) ? name.substring(rulesLocation.length())
+                                                                              : name;
                             fileItem = getUserWorkspace().getLocalWorkspace().getRepository().read(localName);
                         }
                         module = getModule(serializer, fileItem, moduleInternalPath);
@@ -413,14 +436,12 @@ public class MergeConflictBean {
         return modulesToAppend;
     }
 
-    private void updateRulesXmlFiles(Map<String, List<Module>> modulesToAppend, String branch) throws
-                                                                                               WorkspaceException,
-                                                                                               IOException {
+    private void updateRulesXmlFiles(Map<String, List<Module>> modulesToAppend,
+            String branch) throws WorkspaceException, IOException {
         // Update rules.xml files if needed after merge was successful.
         if (!modulesToAppend.isEmpty()) {
             Repository repository = getUserWorkspace().getDesignTimeRepository().getRepository();
-            IProjectDescriptorSerializer serializer = WebStudioUtils
-                .getBean(ProjectDescriptorSerializerFactory.class)
+            IProjectDescriptorSerializer serializer = WebStudioUtils.getBean(ProjectDescriptorSerializerFactory.class)
                 .getDefaultSerializer();
 
             List<FileItem> files = new ArrayList<>();
@@ -431,7 +452,9 @@ public class MergeConflictBean {
                 if (fileItem != null) {
                     ProjectDescriptor descriptor = serializer.deserialize(fileItem.getStream());
                     Map<String, Module> modules = new LinkedHashMap<>();
-                    modules.putAll(descriptor.getModules().stream().collect(Collectors.toMap(m -> m.getRulesRootPath().getPath(), m -> m)));
+                    modules.putAll(descriptor.getModules()
+                        .stream()
+                        .collect(Collectors.toMap(m -> m.getRulesRootPath().getPath(), m -> m)));
                     for (Module module : entry.getValue()) {
                         String path = module.getRulesRootPath().getPath();
                         // After merge there is possibility that there is no need to add a module.
@@ -455,7 +478,9 @@ public class MergeConflictBean {
         }
     }
 
-    private Module getModule(IProjectDescriptorSerializer serializer, FileItem fileItem, String moduleInternalPath) throws IOException {
+    private Module getModule(IProjectDescriptorSerializer serializer,
+            FileItem fileItem,
+            String moduleInternalPath) throws IOException {
         try (InputStream stream = fileItem.getStream()) {
             ProjectDescriptor descriptor = serializer.deserialize(stream);
             for (Module module : descriptor.getModules()) {
@@ -479,6 +504,9 @@ public class MergeConflictBean {
                     "Merge with commit " + exception.getTheirCommit() + "\nConflicts:");
                 ArrayList<String> conflicts = new ArrayList<>(exception.getConflictedFiles());
                 conflicts.sort(String.CASE_INSENSITIVE_ORDER);
+                boolean merging = mergeConflict.isMerging();
+                String yourBranch = getYourBranch();
+                String theirBranch = getTheirBranch();
                 for (String file : conflicts) {
                     ConflictResolution resolution = conflictResolutions.get(file);
 
@@ -490,7 +518,18 @@ public class MergeConflictBean {
                     if (resolution != null) {
                         ResolutionType resolutionType = resolution.getResolutionType();
                         if (resolutionType != ResolutionType.UNRESOLVED) {
-                            messageBuilder.append(" (").append(resolutionType.name().toLowerCase()).append(')');
+                            String chosen = resolutionType.name().toLowerCase();
+                            if (merging) {
+                                switch (resolutionType) {
+                                    case YOURS:
+                                        chosen = yourBranch;
+                                        break;
+                                    case THEIRS:
+                                        chosen = theirBranch;
+                                        break;
+                                }
+                            }
+                            messageBuilder.append(" (").append(chosen).append(')');
                         }
                     }
                 }
@@ -546,9 +585,9 @@ public class MergeConflictBean {
             return false;
         }
 
-        boolean merging = isMerging();
+        boolean merging = mergeConflict.isMerging();
         if (merging) {
-            return hasRepositoryFile(conflictedFile, mergeConflict.getException().getYourCommit());
+            return hasRepositoryFile(conflictedFile, getYourCommit());
         } else {
             return hasLocalFile(conflictedFile);
         }
@@ -565,7 +604,7 @@ public class MergeConflictBean {
             return false;
         }
 
-        return hasRepositoryFile(conflictedFile, mergeConflict.getException().getTheirCommit());
+        return hasRepositoryFile(conflictedFile, getTheirCommit());
     }
 
     public boolean hasBaseFile(String conflictedFile) {

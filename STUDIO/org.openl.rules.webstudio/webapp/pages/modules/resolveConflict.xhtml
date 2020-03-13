@@ -36,10 +36,12 @@
         <h:panelGroup id="modalResolveConflictsData">
           <p>
             <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-              <h:outputText value="Your version:"/>
+              <h:outputText value="Your version:" title="#{mergeConflictBean.yourBranch}" rendered="#{mergeConflictBean.merging}"/>
+              <h:outputText value="Your version:" rendered="#{not mergeConflictBean.merging}"/>
               <h:outputText value="#{mergeConflictBean.yourCommit}"/>
 
-              <h:outputText value="Their version:"/>
+              <h:outputText value="Their version:" title="#{mergeConflictBean.theirBranch}" rendered="#{mergeConflictBean.merging}"/>
+              <h:outputText value="Their version:" rendered="#{not mergeConflictBean.merging}"/>
               <h:outputText value="#{mergeConflictBean.theirCommit}"/>
 
               <h:outputText value="Base version:"/>

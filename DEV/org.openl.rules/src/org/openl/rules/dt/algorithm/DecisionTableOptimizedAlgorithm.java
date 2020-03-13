@@ -132,7 +132,7 @@ import org.openl.vm.Tracer;
  * <p/>
  * <code>driver.type == type</code>
  * <p/>
- *
+ * <p>
  * where <code>driver.type</code> is tested value and <code>type</code> is rule condition parameter against which the
  * tested value is being checked. We could parse the code and figure it out automatically - but we decided to simplify
  * our task by putting a bit more responsibility (and control too) into developer's hands. If the condition expression
@@ -183,7 +183,7 @@ import org.openl.vm.Tracer;
  *
  * </tbody>
  * </table>
- *
+ * <p>
  * The OpenL Tablets Decision Table Optimizer will automatically recognize these conditions and create indexes for
  * them.<br/>
  * The advantages of the suggested approach are summarized here:
@@ -401,7 +401,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             return null;
         }
         ConditionToEvaluatorHolder firstPair = evaluators[0];
-        if (!firstPair.canIndex()) {
+        if (!firstPair.isIndexed()) {
             return null;
         }
         IRuleIndex indexRoot = firstPair.makeIndex(info.makeRuleIterator());
@@ -415,7 +415,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         }
 
         ConditionToEvaluatorHolder pair = evaluators[condN];
-        if (!pair.canIndex()) {
+        if (!pair.isIndexed()) {
             return;
         }
 
@@ -439,15 +439,15 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
     /**
      * Clears condition's param values.
-     *
+     * <p>
      * Memory optimization: clear condition values because this values will be used in index(only if it condition is not
      * used).
      */
     @Override
-    public void removeParamValuesForIndexedConditions() {
+    public void cleanParamValuesForIndexedConditions() {
         for (ConditionToEvaluatorHolder eval : evaluators) {
             if (eval.isIndexed()) {
-                if (!isDependecyOnConditionExists(eval.getCondition())) {
+                if (!isDependencyOnConditionExists(eval.getCondition())) {
                     eval.getCondition().clearParamValues();
                 }
             }
@@ -456,7 +456,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         dependencies = null;
     }
 
-    private boolean isDependecyOnConditionExists(ICondition condition) {
+    private boolean isDependencyOnConditionExists(ICondition condition) {
         for (IOpenField field : dependencies.getFieldsMap().values()) {
             if (field instanceof ConditionOrActionParameterField && ((ConditionOrActionParameterField) field)
                 .getConditionOrAction() == condition) {
@@ -468,14 +468,14 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
     /**
      * This method produces the iterator over the set of rules in DT. It has to retain the order of the rules.
-     *
+     * <p>
      * An optimized algorithm has 2 distinct steps:
-     *
+     * <p>
      * 1) Create initial discriminate rules set using indexing in initial conditions.
-     *
+     * <p>
      * 2) Iterate over the initial set using remaining conditions as selectors; not-optimized algorithm has the whole
      * rules set as initial.
-     *
+     * <p>
      * Performance. From the algorithm definition it is clear, that step 1 of algorithm is performed with constant or
      * near constant speed with regard to the number of the rules. The performance of the part 2 is largely dependent
      * the size of the resulting rules set. The order of initial indexed conditions does not seem to affect performance
@@ -552,7 +552,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             this.evaluator = evaluator;
         }
 
-        public boolean canIndex() {
+        public boolean isIndexed() {
             return evaluator.isIndexed() && !condition.hasFormulas();
         }
 
@@ -560,12 +560,17 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             return evaluator.makeIndex(condition, it);
         }
 
-        public boolean isIndexed() {
-            return evaluator.isIndexed();
-        }
-
         @Override
         public int compareTo(ConditionToEvaluatorHolder o) {
+            if (!this.isIndexed() && !o.isIndexed()) {
+                return 0;
+            }
+            if (this.isIndexed() && !o.isIndexed()) {
+                return -1;
+            }
+            if (!this.isIndexed() && o.isIndexed()) {
+                return 1;
+            }
             if (this.isEqualsIndex() && o.isEqualsIndex()) {
                 return Integer.compare(this.getUniqueKeysSize(), o.getUniqueKeysSize());
             }

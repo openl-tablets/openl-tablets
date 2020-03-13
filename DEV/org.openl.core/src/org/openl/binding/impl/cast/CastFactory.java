@@ -15,7 +15,6 @@ import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
 import org.openl.cache.GenericKey;
 import org.openl.domain.IDomain;
 import org.openl.ie.constrainer.ConstrainerObject;
-import org.openl.ie.constrainer.Domain;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -106,9 +105,9 @@ public class CastFactory implements ICastFactory {
     }
 
     public static IOpenClass findClosestClass(IOpenClass openClass1,
-                                              IOpenClass openClass2,
-                                              ICastFactory casts,
-                                              Iterable<IOpenMethod> methods) {
+            IOpenClass openClass2,
+            ICastFactory casts,
+            Iterable<IOpenMethod> methods) {
         if (NullOpenClass.the.equals(openClass1)) {
             return getWrapperIfPrimitive(openClass2);
         }
@@ -116,7 +115,7 @@ public class CastFactory implements ICastFactory {
             return getWrapperIfPrimitive(openClass1);
         }
 
-        //Use java classes only because wa can't find cast method with OpenL types
+        // Use java classes only because wa can't find cast method with OpenL types
         openClass1 = JavaOpenClass.getOpenClass(openClass1.getInstanceClass());
         openClass2 = JavaOpenClass.getOpenClass(openClass2.getInstanceClass());
 
@@ -171,14 +170,14 @@ public class CastFactory implements ICastFactory {
     }
 
     private static void checkAndAddToCandidates(IOpenMethod method,
-                                                IOpenClass openClass,
-                                                Set<IOpenClass> openClassCandidates) {
+            IOpenClass openClass,
+            Set<IOpenClass> openClassCandidates) {
         if (method.getSignature().getParameterType(0).equals(openClass)) {
             addClassToCandidates(method.getSignature().getParameterType(1), openClassCandidates);
         } else {
             if (method.getSignature().getParameterType(0).getInstanceClass().isPrimitive()) {
                 IOpenClass t = JavaOpenClass.getOpenClass(
-                        ClassUtils.primitiveToWrapper(method.getSignature().getParameterType(0).getInstanceClass()));
+                    ClassUtils.primitiveToWrapper(method.getSignature().getParameterType(0).getInstanceClass()));
                 if (t.equals(openClass)) {
                     addClassToCandidates(method.getSignature().getParameterType(1), openClassCandidates);
                 }
@@ -218,7 +217,7 @@ public class CastFactory implements ICastFactory {
                         } else if (distance == backDistance) {
                             // We have a collision.
                             String message = "Cannot find closest cast: have two candidate classes with same cast distance: " + ret
-                                    .getName() + " and " + openClass.getName();
+                                .getName() + " and " + openClass.getName();
                             throw new IllegalStateException(message);
                         } else {
                             // Previous candidate is narrower. Keep it.
@@ -237,7 +236,7 @@ public class CastFactory implements ICastFactory {
             if (newCandidates.size() == openClassCandidates.size()) {
                 // Cannot filter out classes to choose a closest. Prevent infinite recursion.
                 String message = "Cannot find closest cast: have several candidate classes not convertible between each over: " + Arrays
-                        .toString(newCandidates.toArray());
+                    .toString(newCandidates.toArray());
                 throw new IllegalStateException(message);
             }
 
@@ -278,7 +277,7 @@ public class CastFactory implements ICastFactory {
      * Gets cast operation for given types. This is method is using internal cache for cast operations.
      *
      * @param from from type
-     * @param to   to type
+     * @param to to type
      * @return cast operation if it have been found; null - otherwise
      */
     @Override
@@ -336,7 +335,7 @@ public class CastFactory implements ICastFactory {
 
         typeCast = findAliasCast(from, to);
         if (typeCast == null && from instanceof DomainOpenClass && to instanceof DomainOpenClass && from != to) {
-            return null;
+            return findOneElementArrayCast(from, to);
         }
 
         IOpenCast javaCast = findJavaCast(from, to);
@@ -446,7 +445,7 @@ public class CastFactory implements ICastFactory {
      * <code>null</code> will be returned.
      *
      * @param from from type
-     * @param to   to type
+     * @param to to type
      * @return cast operation if conversion is found; null - otherwise
      */
     private IOpenCast findJavaCast(IOpenClass from, IOpenClass to) {
@@ -502,7 +501,7 @@ public class CastFactory implements ICastFactory {
      * Finds appropriate auto boxing (primitive to wrapper object) cast operation.
      *
      * @param from primitive type
-     * @param to   wrapper type
+     * @param to wrapper type
      * @return auto boxing cast operation if conversion is found; null - otherwise
      */
     private IOpenCast findBoxingCast(IOpenClass from, IOpenClass to) {
@@ -534,7 +533,7 @@ public class CastFactory implements ICastFactory {
      * Finds appropriate unboxing (wrapper object to primitive) cast operation.
      *
      * @param from wrapper type
-     * @param to   primitive type
+     * @param to primitive type
      * @return unboxing cast operation if conversion is found; null - otherwise
      */
     private IOpenCast findUnBoxingCast(IOpenClass from, IOpenClass to) {
@@ -562,32 +561,34 @@ public class CastFactory implements ICastFactory {
      * Finds cast operation for alias types. If both types are not alias types <code>null</code> will be returned.
      *
      * @param from from type
-     * @param to   to type
+     * @param to to type
      * @return alias cast operation if conversion is found; null - otherwise
      */
     private IOpenCast findAliasCast(IOpenClass from, IOpenClass to) {
-        if (!from.isArray() && (from instanceof DomainOpenClass || to instanceof DomainOpenClass)) {
+        if (!from.isArray() && !to.isArray() && (from instanceof DomainOpenClass || to instanceof DomainOpenClass)) {
             if (from instanceof DomainOpenClass && to instanceof DomainOpenClass && from != to) {
                 DomainOpenClass fromDomainOpenClass = (DomainOpenClass) from;
                 DomainOpenClass toDomainOpenClass = (DomainOpenClass) to;
                 IOpenCast openCast = getCast(fromDomainOpenClass.getBaseClass(), toDomainOpenClass.getBaseClass());
                 if (openCast != null) {
-                    if (openCast.isImplicit() && isFromValuesIncludedToValues(fromDomainOpenClass, toDomainOpenClass, openCast)) {
-                        return openCast;
+                    if (openCast.isImplicit() && isFromValuesIncludedToValues(fromDomainOpenClass,
+                        toDomainOpenClass,
+                        openCast)) {
+                        return new AliasToAliasOpenCast(openCast);
                     }
                     if (isFromValuesIntersectedWithToValues(fromDomainOpenClass, toDomainOpenClass, openCast)) {
-                        return openCast;
+                        return new AliasToAliasOpenCast(openCast, false);
                     }
                 }
                 return null;
             }
             if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass) && to
-                    .equals(((DomainOpenClass) from).getBaseClass())) {
+                .equals(((DomainOpenClass) from).getBaseClass())) {
                 return AliasToTypeCast.getInstance();
             }
 
             if (!(from instanceof DomainOpenClass) && to instanceof DomainOpenClass && from
-                    .equals(((DomainOpenClass) to).getBaseClass())) {
+                .equals(((DomainOpenClass) to).getBaseClass())) {
                 return new TypeToAliasCast(to);
             }
 
@@ -642,8 +643,8 @@ public class CastFactory implements ICastFactory {
     /**
      * Finds cast operation using {@link IMethodFactory} object.
      *
-     * @param from          from type
-     * @param to            to type
+     * @param from from type
+     * @param to to type
      * @param methodFactory {@link IMethodFactory} object
      * @return cast operation
      */
@@ -673,8 +674,8 @@ public class CastFactory implements ICastFactory {
     /**
      * Finds cast operation using {@link IMethodFactory} object.
      *
-     * @param from          from type
-     * @param to            to type
+     * @param from from type
+     * @param to to type
      * @param methodFactory {@link IMethodFactory} object
      * @return cast operation
      */
@@ -708,7 +709,7 @@ public class CastFactory implements ICastFactory {
 
         try {
             // Try to find matching auto cast method
-            castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[]{from, to});
+            castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] { from, to });
 
             if (castCaller == null) {
                 // If from parameter is wrapper for primitive type try to find
@@ -729,7 +730,7 @@ public class CastFactory implements ICastFactory {
                     IOpenClass openClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                     fromOpenClass = openClassFrom;
                     toOpenClass = to;
-                    castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[]{openClassFrom, to});
+                    castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] { openClassFrom, to });
                 }
             }
 
@@ -750,7 +751,7 @@ public class CastFactory implements ICastFactory {
                 //
                 if (primitiveClassTo != null) {
                     IOpenClass openClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
-                    castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[]{from, openClassTo});
+                    castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] { from, openClassTo });
                     fromOpenClass = from;
                     toOpenClass = openClassTo;
                 }
@@ -762,7 +763,7 @@ public class CastFactory implements ICastFactory {
                 fromOpenClass = openClassFrom;
                 toOpenClass = openClassTo;
                 castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME,
-                        new IOpenClass[]{openClassFrom, openClassTo});
+                    new IOpenClass[] { openClassFrom, openClassTo });
             }
         } catch (AmbiguousMethodException ex) {
             // Ignore exception.
@@ -775,7 +776,7 @@ public class CastFactory implements ICastFactory {
         if (castCaller == null) {
             auto = false;
             try {
-                castCaller = methodFactory.getMethod(CAST_METHOD_NAME, new IOpenClass[]{from, to});
+                castCaller = methodFactory.getMethod(CAST_METHOD_NAME, new IOpenClass[] { from, to });
                 if (from.getInstanceClass().isPrimitive() && !to.getInstanceClass().isPrimitive()) {
                     distance = PRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
                 } else if (!from.getInstanceClass().isPrimitive() && to.getInstanceClass().isPrimitive()) {
@@ -790,12 +791,12 @@ public class CastFactory implements ICastFactory {
                     IOpenClass openClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                     fromOpenClass = openClassFrom;
                     toOpenClass = to;
-                    castCaller = methodFactory.getMethod(CAST_METHOD_NAME, new IOpenClass[]{openClassFrom, to});
+                    castCaller = methodFactory.getMethod(CAST_METHOD_NAME, new IOpenClass[] { openClassFrom, to });
                 }
 
                 if (castCaller == null && primitiveClassTo != null) {
                     IOpenClass openClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
-                    castCaller = methodFactory.getMethod(CAST_METHOD_NAME, new IOpenClass[]{from, openClassTo});
+                    castCaller = methodFactory.getMethod(CAST_METHOD_NAME, new IOpenClass[] { from, openClassTo });
                     fromOpenClass = from;
                     toOpenClass = openClassTo;
                 }
@@ -806,7 +807,7 @@ public class CastFactory implements ICastFactory {
                     fromOpenClass = openClassFrom;
                     toOpenClass = openClassTo;
                     castCaller = methodFactory.getMethod(CAST_METHOD_NAME,
-                            new IOpenClass[]{openClassFrom, openClassTo});
+                        new IOpenClass[] { openClassFrom, openClassTo });
                 }
 
             } catch (AmbiguousMethodException ex) {
@@ -823,13 +824,13 @@ public class CastFactory implements ICastFactory {
 
         try {
             distanceCaller = methodFactory.getMethod(DISTANCE_METHOD_NAME,
-                    new IOpenClass[]{fromOpenClass, toOpenClass});
+                new IOpenClass[] { fromOpenClass, toOpenClass });
         } catch (AmbiguousMethodException ignored) {
         }
 
         if (distanceCaller != null) {
             distance = (Integer) distanceCaller
-                    .invoke(null, new Object[]{fromOpenClass.nullObject(), toOpenClass.nullObject()}, null);
+                .invoke(null, new Object[] { fromOpenClass.nullObject(), toOpenClass.nullObject() }, null);
         }
 
         return new MethodBasedCast(castCaller, auto, distance, to, toOpenClass.nullObject());
@@ -850,7 +851,7 @@ public class CastFactory implements ICastFactory {
      * conversion from SC to TC.
      *
      * @param from from type
-     * @param to   to type
+     * @param to to type
      * @return <code>true</code> is downcast operation is allowed for given types; <code>false</code> - otherwise
      * @link http://java.sun.com/docs/books/jls/second_edition/html/conversions.doc .html
      */

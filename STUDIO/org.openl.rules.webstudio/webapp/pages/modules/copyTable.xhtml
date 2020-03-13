@@ -62,7 +62,7 @@
                                     </td>
                                     <td>
                                         <rich:calendar value="#{prop.value}" datePattern="#{prop.format}" onchange="updateCopyButtonState();"
-                                            rendered="#{prop.dateType}" id="calendar"/>
+                                            rendered="#{prop.dateType}" id="calendar" defaultTime="00:00"/>
 
                                         <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.booleanType}" id="bool-type"/>
 

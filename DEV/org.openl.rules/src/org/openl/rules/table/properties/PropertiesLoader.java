@@ -54,7 +54,7 @@ public class PropertiesLoader {
         DataNodeBinder dataNodeBinder = new DataNodeBinder();
 
         ITable propertyTable = module.getDataBase().registerTable(propertySectionName, tableSyntaxNode);
-        IOpenClass propetiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
+        IOpenClass propertiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
         ILogicalTable propertiesSection = PropertiesHelper.getPropertiesTableSection(tableSyntaxNode.getTable());
 
         if (propertiesSection != null) {
@@ -62,7 +62,7 @@ public class PropertiesLoader {
                 propertyTable,
                 propertiesSection,
                 propertySectionName,
-                propetiesClass,
+                propertiesClass,
                 bindingContext,
                 openl,
                 false);

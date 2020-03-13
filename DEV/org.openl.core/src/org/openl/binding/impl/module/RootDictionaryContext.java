@@ -3,7 +3,6 @@ package org.openl.binding.impl.module;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.AmbiguousVarException;
@@ -76,8 +75,7 @@ public class RootDictionaryContext implements VariableInContextFinder {
 
     protected int maxDepthLevel;
 
-    protected Map<String, List<IOpenField>> fields = new HashMap<>();
-    private Map<String, IOpenClass> fieldTypes = new HashMap<>();
+    protected HashMap<String, List<IOpenField>> fields = new HashMap<>();
 
     public RootDictionaryContext(IOpenField[] roots, int maxDepthLevel) {
         this.roots = roots;
@@ -86,8 +84,7 @@ public class RootDictionaryContext implements VariableInContextFinder {
     }
 
     private void add(ContextField contextField) {
-        IOpenClass fieldType = contextField.getField().getType();
-        fieldTypes.put(fieldType.getName(), fieldType);
+
         String name = contextField.getName().toLowerCase();
         List<IOpenField> ff = fields.get(name);
 
@@ -111,10 +108,6 @@ public class RootDictionaryContext implements VariableInContextFinder {
     }
 
     public IOpenField findField(String name) throws AmbiguousVarException {
-        IOpenClass fieldType = fieldTypes.get(name);
-        if (fieldType != null) {
-            return null;
-        }
         name = name.toLowerCase();
         List<IOpenField> ff = fields.get(name);
         if (ff == null) {
