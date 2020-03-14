@@ -161,7 +161,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return classLoader;
     }
 
-    public ClassLoader getClassGenerationClassLoader() {
+    public OpenLBundleClassLoader getClassGenerationClassLoader() {
         return classGenerationClassLoader;
     }
 

@@ -309,6 +309,6 @@ public class HttpClient {
     }
 
     private static void failDiff(JsonNode expectedJson, JsonNode actualJson, String path) {
-        assertEquals("Path: \\" + path, actualJson, expectedJson);
+        assertEquals("Path: \\" + path, expectedJson, actualJson);
     }
 }

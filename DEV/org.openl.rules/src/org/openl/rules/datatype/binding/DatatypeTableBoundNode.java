@@ -179,14 +179,14 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 log.debug("Bean {} is using previously loaded", beanName);
             } catch (ClassNotFoundException e) {
                 try {
-                    byte[] byteCode = createBeanForDatatype(fields);
+                    byte[] byteCode = buildByteCodeForDatatype(fields);
                     beanClass = ClassUtils.defineClass(beanName, byteCode, classLoader);
                     dataType.setBytecode(byteCode);
-                    log.debug("bean {} is using generated at runtime", beanName);
-                } catch (ByteCodeGenerationException genE) {
+                    log.debug("Bean {} is using generated at runtime", beanName);
+                } catch (ByteCodeGenerationException e1) {
                     throw SyntaxNodeExceptionUtils.createError(
-                        String.format("Cannot generate a class for datatype '%s'. %s", beanName, genE.getMessage()),
-                        genE,
+                        String.format("Cannot generate a class for datatype '%s'. %s", beanName, e1.getMessage()),
+                        e1,
                         tableSyntaxNode);
                 } catch (Exception e2) {
                     throw SyntaxNodeExceptionUtils.createError(
@@ -216,7 +216,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
      * @param fields fields for bean class
      * @return Class descriptor of generated bean class.
      */
-    private byte[] createBeanForDatatype(Map<String, FieldDescription> fields) {
+    private byte[] buildByteCodeForDatatype(Map<String, FieldDescription> fields) {
         String beanName = dataType.getJavaName();
         IOpenClass superOpenClass = dataType.getSuperClass();
         JavaBeanClassBuilder beanBuilder = new JavaBeanClassBuilder(beanName);
