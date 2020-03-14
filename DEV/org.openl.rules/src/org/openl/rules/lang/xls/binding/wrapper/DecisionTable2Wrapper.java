@@ -41,10 +41,10 @@ public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodW
     public DecisionTable2Wrapper(XlsModuleOpenClass xlsModuleOpenClass,
             DecisionTable delegate,
             ContextPropertiesInjector contextPropertiesInjector) {
-        this.delegate = Objects.requireNonNull(delegate, "delegate can not be null");
-        this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass can not be null");
+        this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
+        this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = Objects.requireNonNull(contextPropertiesInjector,
-            "contextPropertiesInjector can not be null");
+            "contextPropertiesInjector cannot be null");
         IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
         this.type = type != null ? type : delegate.getType();
         this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);

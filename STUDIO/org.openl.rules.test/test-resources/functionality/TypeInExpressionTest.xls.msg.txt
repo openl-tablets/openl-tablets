@@ -1,1 +1,1 @@
-ERROR: Can not execute expression with only type definition 'Double'.
+ERROR: Cannot execute expression with only type definition 'Double'.

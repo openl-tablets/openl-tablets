@@ -70,8 +70,8 @@ public final class RuleServiceInstantiationFactoryHelper {
                 Collection<Method> methodsToRemove) {
             super(Opcodes.ASM5, visitor);
             this.methodsWithReturnTypeNeedsChange = Objects.requireNonNull(methodsWithReturnTypeNeedsChange,
-                "methodsWithReturnTypeNeedsChange can not be null");
-            this.methodsToRemove = Objects.requireNonNull(methodsToRemove, "methodsToRemove can not be null");
+                "methodsWithReturnTypeNeedsChange cannot be null");
+            this.methodsToRemove = Objects.requireNonNull(methodsToRemove, "methodsToRemove cannot be null");
         }
 
         @Override
@@ -141,9 +141,9 @@ public final class RuleServiceInstantiationFactoryHelper {
             boolean removeServiceExtraMethods,
             boolean toServiceClass,
             ClassLoader classLoader) {
-        Objects.requireNonNull(serviceClass, "serviceClass can not be null");
+        Objects.requireNonNull(serviceClass, "serviceClass cannot be null");
         if (toServiceClass) {
-            Objects.requireNonNull(serviceTarget, "serviceTarget can not be null");
+            Objects.requireNonNull(serviceTarget, "serviceTarget cannot be null");
         }
 
         Map<Method, Pair<Class<?>, Boolean>> methodsWithReturnTypeNeedsChange = getMethodsWithReturnTypeNeedsChange(

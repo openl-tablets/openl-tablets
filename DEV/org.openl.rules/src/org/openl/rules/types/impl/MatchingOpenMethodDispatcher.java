@@ -58,9 +58,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     public MatchingOpenMethodDispatcher(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {
         super();
-        Objects.requireNonNull(method, "method can not be null");
+        Objects.requireNonNull(method, "method cannot be null");
         decorate(method);
-        this.moduleOpenClass = Objects.requireNonNull(moduleOpenClass, "moduleOpenClass can not be null");
+        this.moduleOpenClass = Objects.requireNonNull(moduleOpenClass, "moduleOpenClass cannot be null");
         IOpenClass type = moduleOpenClass.findType(method.getType().getName());
         this.type = type != null ? type : method.getType();
     }

@@ -214,14 +214,14 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         IOpenSourceCodeModule source = methodNode.getSyntaxNode().getModule();
 
         if (StringUtils.isEmpty(source.getCode())) {
-            throw SyntaxNodeExceptionUtils.createError("Can not execute empty expression.", source);
+            throw SyntaxNodeExceptionUtils.createError("Cannot execute empty expression.", source);
         }
 
         // tested in TypeInExpressionTest
         //
         IBoundNode[] children = methodNode.getChildren();
         if (children != null && children.length == 1 && children[0].getChildren()[0] instanceof TypeBoundNode) {
-            String message = String.format("Can not execute expression with only type definition '%s'.",
+            String message = String.format("Cannot execute expression with only type definition '%s'.",
                 source.getCode());
             throw SyntaxNodeExceptionUtils.createError(message, source);
         }
