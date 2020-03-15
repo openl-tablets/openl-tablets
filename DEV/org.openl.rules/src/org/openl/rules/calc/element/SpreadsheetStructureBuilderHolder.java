@@ -9,7 +9,7 @@ public class SpreadsheetStructureBuilderHolder {
     SpreadsheetStructureBuilder spreadsheetStructureBuilder;
 
     public SpreadsheetStructureBuilderHolder(SpreadsheetStructureBuilder spreadsheetStructureBuilder) {
-        this.spreadsheetStructureBuilder = Objects.requireNonNull(spreadsheetStructureBuilder, "spreadsheetStructureBuilder can not be null");
+        this.spreadsheetStructureBuilder = Objects.requireNonNull(spreadsheetStructureBuilder, "spreadsheetStructureBuilder cannot be null");
     }
 
     public SpreadsheetStructureBuilder getSpreadsheetStructureBuilder() {

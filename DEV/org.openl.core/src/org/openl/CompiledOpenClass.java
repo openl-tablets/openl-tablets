@@ -27,7 +27,7 @@ public class CompiledOpenClass {
     private ClassLoader classLoader;
 
     public CompiledOpenClass(IOpenClass openClass, Collection<OpenLMessage> messages) {
-        this.openClass = Objects.requireNonNull(openClass, "openClass can not be null");
+        this.openClass = Objects.requireNonNull(openClass, "openClass cannot be null");
         if (messages == null) {
             this.messages = Collections.emptyList();
         } else {

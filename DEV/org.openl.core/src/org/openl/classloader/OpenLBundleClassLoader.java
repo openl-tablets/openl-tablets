@@ -2,7 +2,15 @@ package org.openl.classloader;
 
 import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.openl.util.ClassUtils;
 
 /**
  * ClassLoader that have bundle classLoaders. When loading any class, at first tries to find it in bundle classLoaders
@@ -11,6 +19,8 @@ import java.util.*;
 public class OpenLBundleClassLoader extends OpenLClassLoader {
 
     private Set<ClassLoader> bundleClassLoaders = new LinkedHashSet<>();
+
+    private Map<String, byte[]> generatedClasses = new ConcurrentHashMap<>();
 
     public OpenLBundleClassLoader(ClassLoader parent) {
         super(new URL[0], parent);
@@ -35,6 +45,14 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
         bundleClassLoaders.add(classLoader);
     }
 
+    public void addGeneratedClass(String name, byte[] byteCode) {
+        if (generatedClasses.putIfAbsent(name, byteCode) != null) {
+            throw new OpenLGeneratedClassAlreadyDefinedException(
+                String.format("Byte code for class '%s' is already defined.", name));
+        }
+
+    }
+
     public boolean containsClassLoader(ClassLoader classLoader) {
         if (bundleClassLoaders.contains(classLoader)) {
             return true;
@@ -52,9 +70,21 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
 
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
-        Set<ClassLoader> c = Collections.newSetFromMap(new IdentityHashMap<ClassLoader, Boolean>());
+        Set<ClassLoader> c = Collections.newSetFromMap(new IdentityHashMap<>());
         c.add(this);
-        return loadClass(name, c);
+        try {
+            return loadClass(name, c);
+        } catch (ClassNotFoundException e) {
+            byte[] byteCode = generatedClasses.get(name);
+            if (byteCode != null) {
+                try {
+                    return ClassUtils.defineClass(name, byteCode, this);
+                } catch (Exception e1) {
+                    throw e;
+                }
+            }
+            throw e;
+        }
     }
 
     protected Class<?> loadClass(String name, Set<ClassLoader> c) throws ClassNotFoundException {
@@ -95,7 +125,7 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
                 if (clazz != null) {
                     return clazz;
                 }
-            } catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException ignored) {
             }
         }
 

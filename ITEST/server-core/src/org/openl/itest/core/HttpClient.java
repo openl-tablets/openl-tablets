@@ -277,7 +277,8 @@ public class HttpClient {
     private void compareJsonObjects(JsonNode expectedJson, JsonNode actualJson, String path) {
         if (Objects.equals(expectedJson, actualJson)) {
             return;
-        } else if (expectedJson == null || actualJson == null) {
+        }
+        if (expectedJson == null || actualJson == null) {
             failDiff(expectedJson, actualJson, path);
         } else if (expectedJson.isTextual()) {
             // try to compare by a pattern
@@ -309,6 +310,6 @@ public class HttpClient {
     }
 
     private static void failDiff(JsonNode expectedJson, JsonNode actualJson, String path) {
-        assertEquals("Path: \\" + path, actualJson, expectedJson);
+        assertEquals("Path: \\" + path, expectedJson, actualJson);
     }
 }

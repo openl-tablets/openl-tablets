@@ -30,10 +30,10 @@ public class CompositeMethodWrapper extends CompositeMethod implements IOpenMeth
             CompositeMethod delegate,
             ContextPropertiesInjector contextPropertiesInjector) {
         super(null, null);
-        this.delegate = Objects.requireNonNull(delegate, "delegate can not be null");
-        this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass can not be null");
+        this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
+        this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = Objects.requireNonNull(contextPropertiesInjector,
-            "contextPropertiesInjector can not be null");
+            "contextPropertiesInjector cannot be null");
         IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
         this.type = type != null ? type : delegate.getType();
         this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);

@@ -37,8 +37,8 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
         private volatile CastFactory factory = null;
 
         public JavaCastComponent(String libraryClassName, String className) {
-            this.libraryClassName = Objects.requireNonNull(libraryClassName, "className can not be null");
-            this.className = Objects.requireNonNull(className, "className can not be null");
+            this.libraryClassName = Objects.requireNonNull(libraryClassName, "className cannot be null");
+            this.className = Objects.requireNonNull(className, "className cannot be null");
         }
 
         CastFactory getCastFactory(IConfigurableResourceContext cxt) {

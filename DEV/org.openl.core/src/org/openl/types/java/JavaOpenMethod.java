@@ -30,7 +30,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
     private final IOpenClass declaringClass;
 
     public JavaOpenMethod(Method method) {
-        this.method = Objects.requireNonNull(method, "method can not be null");
+        this.method = Objects.requireNonNull(method, "method cannot be null");
         this.parameterTypes = JavaOpenClass.getOpenClasses(method.getParameterTypes());
         this.declaringClass = JavaOpenClass.getOpenClass(method.getDeclaringClass());
     }

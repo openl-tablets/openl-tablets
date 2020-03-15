@@ -29,7 +29,7 @@ public class StaticClassLibrary implements IOpenLibrary {
     private final IOpenClass openClass;
 
     public StaticClassLibrary(IOpenClass openClass) {
-        this.openClass = Objects.requireNonNull(openClass, "openClass can not be null");
+        this.openClass = Objects.requireNonNull(openClass, "openClass cannot be null");
     }
 
     /*

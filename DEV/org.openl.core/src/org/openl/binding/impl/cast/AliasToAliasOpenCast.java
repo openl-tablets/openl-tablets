@@ -8,12 +8,12 @@ public class AliasToAliasOpenCast implements IOpenCast {
     private boolean implicit;
 
     public AliasToAliasOpenCast(IOpenCast openCast) {
-        this.openCast = Objects.requireNonNull(openCast, "openCast can not be null");
+        this.openCast = Objects.requireNonNull(openCast, "openCast cannot be null");
         this.implicit = openCast.isImplicit();
     }
 
     public AliasToAliasOpenCast(IOpenCast openCast, boolean implicit) {
-        this.openCast = Objects.requireNonNull(openCast, "openCast can not be null");
+        this.openCast = Objects.requireNonNull(openCast, "openCast cannot be null");
         this.implicit = implicit;
     }
 

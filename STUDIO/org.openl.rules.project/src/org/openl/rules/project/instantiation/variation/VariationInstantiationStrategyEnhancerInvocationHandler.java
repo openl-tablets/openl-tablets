@@ -43,9 +43,9 @@ class VariationInstantiationStrategyEnhancerInvocationHandler extends AbstractOp
 
     VariationInstantiationStrategyEnhancerInvocationHandler(Map<Method, Method> methodsMap,
             Object serviceClassInstance) {
-        this.methodsMap = Objects.requireNonNull(methodsMap, "methodMap can not be null");
+        this.methodsMap = Objects.requireNonNull(methodsMap, "methodMap cannot be null");
         this.serviceClassInstance = Objects.requireNonNull(serviceClassInstance,
-            "serviceClassInstance can not be null");
+            "serviceClassInstance cannot be null");
     }
 
     @Override
