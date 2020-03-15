@@ -79,7 +79,7 @@ public class RuleServiceImpl implements RuleService {
                 }
                 OpenClassUtil.releaseClassLoader(classloader);
             }
-            log.info("Service '{}' was undeployed succesfully.", service.getName());
+            log.info("Service '{}' was undeployed successfully.", service.getName());
         } finally {
             OpenLServiceHolder.getInstance().remove();
         }
@@ -134,7 +134,7 @@ public class RuleServiceImpl implements RuleService {
             }
             serviceDescriptionMap.put(serviceDescription.getName(), serviceDescription);
             ruleServiceManager.deploy(newService);
-            log.info("Service '{}' has been deployed succesfully.", serviceDescription.getName());
+            log.info("Service '{}' has been deployed successfully.", serviceDescription.getName());
         } catch (RuleServiceInstantiationException e) {
             throw new RuleServiceDeployException("Failed on deploy a service.", e);
         } finally {

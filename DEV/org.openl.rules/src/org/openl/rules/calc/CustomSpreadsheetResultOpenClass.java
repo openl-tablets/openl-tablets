@@ -410,8 +410,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             }
                         }
                         spreadsheetResultSetters = sprSetters.toArray(new SpreadsheetResultSetter[] {});
-                    } catch (Exception e) {
-                        throw new IllegalStateException(e);
+                    } catch (Exception | LinkageError e) {
+                        throw new IllegalStateException(
+                            String.format("Failed to create bean class for '%s' spreadsheet result.", getName()),
+                            e);
                     }
                 }
             }
@@ -539,7 +541,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         if (csroc != null) {
                             fieldClsName = csroc.getBeanClassName();
                             // Loads field bean class to the same class loader
-                            csroc.getBeanClass();
+                            csroc.generateBeanClass();
                         } else {
                             fieldClsName = Object.class.getName();
                         }
