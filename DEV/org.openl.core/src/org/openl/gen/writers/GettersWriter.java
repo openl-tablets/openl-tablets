@@ -88,7 +88,7 @@ public class GettersWriter extends MethodWriter {
                 }
                 av.visit("type", Type.getType(useType));
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         av.visitEnd();
 

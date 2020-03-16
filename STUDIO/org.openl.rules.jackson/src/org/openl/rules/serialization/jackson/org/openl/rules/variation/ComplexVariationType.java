@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  *
  * @author Marat Kamalov
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public class ComplexVariationType {
     public ComplexVariationType(@JsonProperty("variationID") String variationID,
             @JsonProperty("variations") Variation... variations) {
