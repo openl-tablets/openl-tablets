@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  *
  * @author Marat Kamalov
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public class JXPathVariationType {
     public JXPathVariationType(@JsonProperty("variationID") String variationID,
             @JsonProperty("updatedArgumentIndex") int updatedArgumentIndex,
