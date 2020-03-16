@@ -1,5 +1,6 @@
 package org.openl.types.impl;
 
+import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -121,10 +122,8 @@ public class OpenMethodHeader implements IOpenMethodHeader {
 
     @Override
     public String toString() {
-        StringBuilder buf = new StringBuilder(100);
-        buf.append(getType().getName()).append(' ');
-        MethodUtil.printMethod(this, buf);
-        return buf.toString();
+        return (getType() != null ? getType().getName() : "null") + ' ' + MethodUtil.printSignature(this,
+            INamedThing.SHORT);
     }
 
 }

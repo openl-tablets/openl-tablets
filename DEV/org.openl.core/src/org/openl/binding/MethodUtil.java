@@ -30,7 +30,7 @@ public final class MethodUtil {
     }
 
     public static String printType(IOpenClass type) {
-        return type.getDisplayName(INamedThing.SHORT);
+        return type != null ? type.getDisplayName(INamedThing.SHORT) : "null";
     }
 
     public static StringBuilder printMethod(IOpenMethodHeader method, StringBuilder buf) {

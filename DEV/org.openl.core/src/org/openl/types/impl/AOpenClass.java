@@ -91,7 +91,7 @@ public abstract class AOpenClass implements IOpenClass {
                 return arrayType;
             }
         }
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("Expected positive number for array dimension");
     }
 
     @Override
