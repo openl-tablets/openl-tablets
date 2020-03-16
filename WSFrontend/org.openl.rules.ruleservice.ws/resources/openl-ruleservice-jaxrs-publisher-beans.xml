@@ -45,8 +45,8 @@
         <property name="polymorphicTypeValidation" value="true"/>
     </bean>
 
-    <bean id="jaxrsJacksonObjectMapper" factory-bean="jaxrsJacksonDatabindingFactoryBean"
-          factory-method="createJacksonObjectMapper" scope="prototype">
+    <bean id="jaxrsJacksonObjectMapper" class="org.openl.rules.ruleservice.databinding.ServiceJacksonObjectMapperFactoryBean" scope="prototype">
+        <property name="jacksonObjectMapperFactoryBean" ref="jaxrsJacksonDatabindingFactoryBean"/>
     </bean>
 
     <bean id="jaxrsTextPlainDateMessageBodyWriter" class="org.openl.rules.ruleservice.databinding.TextPlainDateMessageBodyWriter"/>
