@@ -69,8 +69,6 @@ public class BranchesBean {
     }
 
     public List<SelectItem> getBranchesToMerge() {
-        List<SelectItem> result = new ArrayList<>();
-
         RulesProject project = getProject(currentProjectName);
         if (project != null) {
             Repository repository = project.getDesignRepository();
@@ -84,23 +82,7 @@ public class BranchesBean {
                             projectBranchesList.add(new SelectItem(projectBranch, projectBranch));
                         }
                     }
-                    if (!projectBranchesList.isEmpty()) {
-                        SelectItemGroup projectBranchesGroup = new SelectItemGroup("Project branches");
-                        projectBranchesGroup.setSelectItems(projectBranchesList.toArray(new SelectItem[0]));
-                        result.add(projectBranchesGroup);
-                    }
-
-                    List<SelectItem> otherBranchesList = new ArrayList<>();
-                    for (String b : ((BranchRepository) repository).getBranches(null)) {
-                        if (!b.equals(currentBranch) && !projectBranches.contains(b)) {
-                            otherBranchesList.add(new SelectItem(b, b));
-                        }
-                    }
-                    if (!otherBranchesList.isEmpty()) {
-                        SelectItemGroup otherBranchesGroup = new SelectItemGroup("Other branches");
-                        otherBranchesGroup.setSelectItems(otherBranchesList.toArray(new SelectItem[0]));
-                        result.add(otherBranchesGroup);
-                    }
+                    return projectBranchesList;
                 } catch (IOException e) {
                     log.error(e.getMessage(), e);
                     return Collections.emptyList();
@@ -108,7 +90,7 @@ public class BranchesBean {
             }
         }
 
-        return result;
+        return Collections.emptyList();
     }
 
     public void mergeImport() {
@@ -239,13 +221,10 @@ public class BranchesBean {
             boolean existInCombobox = false;
             List<SelectItem> branchesToMerge = getBranchesToMerge();
 
-            comboSearch:
             for (SelectItem item : branchesToMerge) {
-                for (SelectItem selectItem : ((SelectItemGroup) item).getSelectItems()) {
-                    if (branchToMerge.equals(selectItem.getValue())) {
-                        existInCombobox = true;
-                        break comboSearch;
-                    }
+                if (branchToMerge.equals(item.getValue())) {
+                    existInCombobox = true;
+                    break;
                 }
             }
 
