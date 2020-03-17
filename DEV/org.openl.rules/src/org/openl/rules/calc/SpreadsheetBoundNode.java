@@ -31,6 +31,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ClassUtils;
 
 // TODO: refactor
 // Extract all the binding and build code to the SpreadsheetBinder
@@ -184,13 +185,12 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
                         StringBuilder sb = new StringBuilder();
                         if (columnsForResultModelCount == 1) {
-                            sb.append(spreadsheet.getRowNamesForResultModel()[i]);
+                            sb.append(ClassUtils.decapitalize(spreadsheet.getRowNamesForResultModel()[i]));
                         } else if (rowsForResultModelCount == 1) {
-                            sb.append(spreadsheet.getColumnNamesForResultModel()[j]);
+                            sb.append(ClassUtils.decapitalize(spreadsheet.getColumnNamesForResultModel()[j]));
                         } else {
-                            sb.append(spreadsheet.getColumnNamesForResultModel()[j]);
-                            sb.append("_");
-                            sb.append(spreadsheet.getRowNamesForResultModel()[i]);
+                            sb.append(ClassUtils.decapitalize(spreadsheet.getColumnNamesForResultModel()[j]));
+                            sb.append(ClassUtils.capitalize(spreadsheet.getRowNamesForResultModel()[i]));
                         }
                         String fName = sb.toString();
                         if (StringUtils.isBlank(fName)) {
