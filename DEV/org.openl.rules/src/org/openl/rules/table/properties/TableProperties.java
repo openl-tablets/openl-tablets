@@ -77,6 +77,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     // <<< INSERT >>>
+
     @Override
     public java.lang.String getName() {
         return (java.lang.String) getPropertyValue("name");

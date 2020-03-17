@@ -4,7 +4,7 @@
             public String getOperationName() {
                 return "$priorityRuleWrapper.operationName";
             }
-            
+
             @Override
             public $priorityRuleWrapper.propertyType getProprtyValue(ITableProperties properties) {
                 return properties.get$tool.formatAccessorName($priorityRuleWrapper.propertyName)();

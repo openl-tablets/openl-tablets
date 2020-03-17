@@ -1,4 +1,5 @@
 #foreach( $contextPropertyDefinition in $contextPropertyDefinitions )
+
     @Override
     public $tool.getTypeName($contextPropertyDefinition.Type.InstanceClass) get$tool.formatAccessorName($contextPropertyDefinition.Name)() {
         if (super.get$tool.formatAccessorName($contextPropertyDefinition.Name)() == null) {

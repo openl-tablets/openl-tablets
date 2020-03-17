@@ -32,10 +32,10 @@ public class JavaCodeGen implements ICodeGen {
     public static final String STATIC = "static";
     public static final String CLASS = "class";
 
-    public static final String END_OF_EXPR = ";\n";
-    public static final String START_MULTILINE_COMMENT = "/*\n";
+    public static final String END_OF_EXPR = ";\r\n";
+    public static final String START_MULTILINE_COMMENT = "/*\r\n";
     public static final String MULTILINE_COMMENT = " * ";
-    public static final String END_MULTILINE_COMMENT = " */\n";
+    public static final String END_MULTILINE_COMMENT = " */\r\n";
     public static final String START_SINGLELINE_COMMENT = " // ";
     public static final String ASSIGN_OP = "=";
     public static final String CHAIN_OP = ".";
@@ -308,7 +308,7 @@ public class JavaCodeGen implements ICodeGen {
     public StringBuilder startLine(StringBuilder sb, int genlevel) {
 
         for (int i = 0; i < genlevel; i++) {
-            sb.append('\t');
+            sb.append("    ");
         }
 
         return sb;
@@ -502,7 +502,7 @@ public class JavaCodeGen implements ICodeGen {
 
     @Override
     public StringBuilder genLiteralLevelInheritance(InheritanceLevel value, StringBuilder sb) {
-        return sb.append(InheritanceLevel.class.getSimpleName()).append(".").append(value.name());
+        return sb.append(' ').append(InheritanceLevel.class.getSimpleName()).append(".").append(value.name()).append(' ');
     }
 
     @Override
