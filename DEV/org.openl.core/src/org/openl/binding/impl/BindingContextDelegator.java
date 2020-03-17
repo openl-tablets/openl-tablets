@@ -88,6 +88,9 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     @Override
     public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
         IOpenClass openClass = delegate.findClosestClass(openClass1, openClass2);
+        if (openClass == null) {
+            return null;
+        }
         int dim = 0;
         while (openClass.isArray()) {
             openClass = openClass.getComponentClass();

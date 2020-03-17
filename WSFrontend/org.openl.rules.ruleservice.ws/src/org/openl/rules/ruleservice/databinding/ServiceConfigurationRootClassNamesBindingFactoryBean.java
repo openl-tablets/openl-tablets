@@ -69,7 +69,7 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
         }
     }
 
-    private Set<String> fromOpenLService() throws ServiceConfigurationException, RuleServiceInstantiationException {
+    private Set<String> fromOpenLService() throws ServiceConfigurationException {
         OpenLService openLService = getOpenLService();
 
         boolean found = false;
@@ -93,6 +93,13 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
                             }
                         }
                     }
+                }
+                if (openLService.getOpenClass() instanceof XlsModuleOpenClass) {
+                    ret.add(((XlsModuleOpenClass) openLService.getOpenClass())
+                        .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                        .toCustomSpreadsheetResultOpenClass()
+                        .getBeanClass()
+                        .getName());
                 }
             }
         } catch (RuleServiceInstantiationException e) {

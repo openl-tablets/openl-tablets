@@ -29,6 +29,7 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetBoundNode;
+import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
@@ -95,6 +96,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private String csrBeansPackage;
 
+    private SpreadsheetResultOpenClass spreadsheetResultOpenClass;
+
     public RulesModuleBindingContext getRulesModuleBindingContext() {
         return rulesModuleBindingContext;
     }
@@ -118,14 +121,13 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         this.dispatchingValidationEnabled = OpenLSystemProperties
             .isDispatchingValidationEnabled(bindingContext.getExternalParams());
         this.classLoader = classLoader;
-
         this.classGenerationClassLoader = new OpenLBundleClassLoader(null);
         this.classGenerationClassLoader.addClassLoader(classLoader);
-
         this.csrBeansPackage = getCsrBeansPackage(bindingContext);
-
         this.rulesModuleBindingContext = new RulesModuleBindingContext(bindingContext, this);
-
+        if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams())) {
+            this.spreadsheetResultOpenClass = new SpreadsheetResultOpenClass(this);
+        }
         if (usingModules != null) {
             setDependencies(usingModules);
             initDependencies();
@@ -281,6 +283,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 xlsModuleSyntaxNode.addImport(value);
             }
         }
+    }
+
+    public SpreadsheetResultOpenClass getSpreadsheetResultOpenClassWithResolvedFieldTypes() {
+        return spreadsheetResultOpenClass;
     }
 
     private void addDataTables(CompiledOpenClass dependency) {

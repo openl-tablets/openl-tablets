@@ -63,8 +63,6 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     private boolean ignoreCustomSpreadsheetResultCompilation = false;
 
-    private SpreadsheetResultOpenClass moduleSpreadsheetResultOpenClass;
-
     public RulesModuleBindingContext(IBindingContext delegate, XlsModuleOpenClass module) {
         super(delegate, module);
         internalMethods = new ArrayList<>();
@@ -73,13 +71,6 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         internalMethods.add(new RestoreRuntimeContextMethod());
         internalMethods.add(new SetRuntimeContextMethod());
         internalMethods.add(new ModifyRuntimeContextMethod());
-    }
-
-    public SpreadsheetResultOpenClass getSpreadsheetResultOpenClassWithFieldTypesResolving() {
-        if (moduleSpreadsheetResultOpenClass == null) {
-            this.moduleSpreadsheetResultOpenClass = new SpreadsheetResultOpenClass(this, getModule());
-        }
-        return moduleSpreadsheetResultOpenClass;
     }
 
     /**
@@ -211,7 +202,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         IOpenClass ret = super.findType(namespace, typeName);
         if (OpenLSystemProperties
             .isCustomSpreadsheetTypesSupported(getExternalParams()) && ret instanceof SpreadsheetResultOpenClass) {
-            return getSpreadsheetResultOpenClassWithFieldTypesResolving();
+            return getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes();
         } else {
             return ret;
         }

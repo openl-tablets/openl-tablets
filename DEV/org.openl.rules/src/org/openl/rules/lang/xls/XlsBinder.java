@@ -616,10 +616,10 @@ public class XlsBinder implements IOpenBinder {
                 if (child instanceof SpreadsheetBoundNode) {
                     SpreadsheetBoundNode spreadsheetBoundNode = (SpreadsheetBoundNode) child;
                     spreadsheetBoundNode.getSpreadsheet()
-                            .getSpreadsheetType()
-                            .getFields()
-                            .values()
-                            .forEach(IOpenField::getType);
+                        .getSpreadsheetType()
+                        .getFields()
+                        .values()
+                        .forEach(IOpenField::getType);
                 }
             }
             for (IOpenClass openClass : module.getTypes()) {
@@ -631,6 +631,11 @@ public class XlsBinder implements IOpenBinder {
                     }
                 }
             }
+            module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                .toCustomSpreadsheetResultOpenClass()
+                .getFields()
+                .values()
+                .forEach(IOpenField::getType);
         }
 
         if (rulesModuleBindingContext.isExecutionMode()) {

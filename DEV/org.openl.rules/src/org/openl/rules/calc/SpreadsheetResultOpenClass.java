@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Stack;
 
-import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
@@ -17,22 +16,22 @@ import org.openl.vm.IRuntimeEnv;
 
 //Dont extend this class
 public final class SpreadsheetResultOpenClass extends JavaOpenClass {
-    private final IOpenField RESOLVING_IN_PROGRESS = new SpreadsheetResultField(this, "IN_PROGRESS", JavaOpenClass.OBJECT);
+    private final IOpenField RESOLVING_IN_PROGRESS = new SpreadsheetResultField(this,
+        "IN_PROGRESS",
+        JavaOpenClass.OBJECT);
 
     private XlsModuleOpenClass module;
-    private RulesModuleBindingContext rulesModuleBindingContext;
     private Map<String, IOpenField> strictMatchCache = new HashMap<>();
     private Map<String, IOpenField> noStrictMatchCache = new HashMap<>();
+    private volatile CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
 
     public SpreadsheetResultOpenClass(Class<?> type) {
         super(type);
     }
 
-    public SpreadsheetResultOpenClass(RulesModuleBindingContext rulesModuleBindingContext, XlsModuleOpenClass module) {
+    public SpreadsheetResultOpenClass(XlsModuleOpenClass module) {
         super(SpreadsheetResult.class);
         this.module = Objects.requireNonNull(module, "module can not be null");
-        this.rulesModuleBindingContext = Objects.requireNonNull(rulesModuleBindingContext,
-            "rulesModuleBindingContext can not be null");
     }
 
     @Override
@@ -46,6 +45,9 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
         }
         if (openField != null && openField != RESOLVING_IN_PROGRESS) {
             return openField;
+        }
+        if (module.getRulesModuleBindingContext() == null) {
+            return null;
         }
         if (openField == RESOLVING_IN_PROGRESS) {
             openField = new SpreadsheetResultField(this, fieldName, JavaOpenClass.OBJECT);
@@ -74,8 +76,8 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                                     SpreadsheetStructureBuilder.preventCellsLoopingOnThis.set(new Stack<>());
                                 }
                                 SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().push(new HashMap<>());
-                                rulesModuleBindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
-                                    openClass.getName());
+                                module.getRulesModuleBindingContext()
+                                    .findType(ISyntaxConstants.THIS_NAMESPACE, openClass.getName());
                             } finally {
                                 SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().pop();
                                 if (g) {
@@ -129,6 +131,31 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
         return openField;
     }
 
+    public CustomSpreadsheetResultOpenClass toCustomSpreadsheetResultOpenClass() {
+        if (this.customSpreadsheetResultOpenClass == null) {
+            synchronized (this) {
+                if (this.customSpreadsheetResultOpenClass == null) {
+                    // HERE
+                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
+                        "SpreadsheetResult",
+                        this.module,
+                        null);
+                    for (IOpenClass openClass : module.getTypes()) {
+                        if (openClass instanceof CustomSpreadsheetResultOpenClass && this.customSpreadsheetResultOpenClass == null) {
+                            CustomSpreadsheetResultOpenClass csrop = (CustomSpreadsheetResultOpenClass) openClass;
+                            customSpreadsheetResultOpenClass.extendWith(csrop);
+                            csrop.generateBeanClass();
+                        }
+                    }
+                    if (this.customSpreadsheetResultOpenClass == null) {
+                        this.customSpreadsheetResultOpenClass = customSpreadsheetResultOpenClass;
+                    }
+                }
+            }
+        }
+        return this.customSpreadsheetResultOpenClass;
+    }
+
     @Override
     public IAggregateInfo getAggregateInfo() {
         if (module == null) {
@@ -143,4 +170,5 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
         // Only used for tests
         return new StubSpreadSheetResult();
     }
+
 }

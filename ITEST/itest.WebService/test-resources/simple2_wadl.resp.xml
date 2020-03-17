@@ -329,25 +329,37 @@
         <xs:element name="SprTwoTwo2" type="tns:SprTwoTwo2"/>
         <xs:element name="SprWithEmptyColumn" type="tns:SprWithEmptyColumn"/>
         <xs:element name="SprWithEmptyRow" type="tns:SprWithEmptyRow"/>
-        <xs:complexType name="SprIfNode">
+        <xs:element name="SpreadsheetResult" type="tns:SpreadsheetResult"/>
+        <xs:complexType name="SprOneColumn">
             <xs:sequence>
-                <xs:element minOccurs="0" name="step1" type="xs:anyType"/>
-            </xs:sequence>
-        </xs:complexType>
-        <xs:complexType name="SprOneOne">
-            <xs:sequence>
-                <xs:element minOccurs="0" name="step1" type="xs:int"/>
-            </xs:sequence>
-        </xs:complexType>
-        <xs:complexType name="SprTwoTwo1">
-            <xs:sequence>
-                <xs:element minOccurs="0" name="step1" type="xs:int"/>
-            </xs:sequence>
-        </xs:complexType>
-        <xs:complexType name="SprWithEmptyColumn">
-            <xs:sequence>
-                <xs:element minOccurs="0" name="_" type="xs:int"/>
                 <xs:element minOccurs="0" name="values" type="xs:int"/>
+                <xs:element minOccurs="0" name="moreValues" type="xs:int"/>
+                <xs:element minOccurs="0" name="values1" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+        <xs:complexType name="SpreadsheetResult">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="valuesStep1" type="xs:anyType"/>
+                <xs:element minOccurs="0" name="moreValuesStep1" type="xs:int"/>
+                <xs:element minOccurs="0" name="formulaStep1" type="xs:int"/>
+                <xs:element minOccurs="0" name="Step1" type="xs:int"/>
+                <xs:element minOccurs="0" name="valuesStep2" type="xs:int"/>
+                <xs:element minOccurs="0" name="moreValuesStep2" type="xs:int"/>
+                <xs:element minOccurs="0" name="values1Step2" type="xs:int"/>
+                <xs:element minOccurs="0" name="formulaStep2" type="xs:int"/>
+                <xs:element minOccurs="0" name="values2Step3" type="xs:int"/>
+                <xs:element minOccurs="0" name="formula2Step3" type="xs:int"/>
+                <xs:element minOccurs="0" name="step1Values" type="xs:int"/>
+                <xs:element minOccurs="0" name="step2Values" type="xs:int"/>
+                <xs:element minOccurs="0" name="step1MoreValues" type="xs:int"/>
+                <xs:element minOccurs="0" name="step2MoreValues" type="xs:int"/>
+                <xs:element minOccurs="0" name="step2Values1" type="xs:int"/>
+                <xs:element minOccurs="0" name="values2Step4" type="xs:int"/>
+                <xs:element minOccurs="0" name="formula2Step4" type="xs:int"/>
+                <xs:element minOccurs="0" name="values" type="xs:int"/>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="rowNames" type="xs:string"/>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="columnNames" type="xs:string"/>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="fieldNames" type="ns1:stringArray"/>
             </xs:sequence>
         </xs:complexType>
         <xs:complexType name="SprTwoTwo2">
@@ -361,6 +373,11 @@
                 <xs:element maxOccurs="unbounded" minOccurs="0" name="fieldNames" type="ns1:stringArray"/>
             </xs:sequence>
         </xs:complexType>
+        <xs:complexType name="SprIfNode">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="step1" type="xs:anyType"/>
+            </xs:sequence>
+        </xs:complexType>
         <xs:complexType name="SprOneRow">
             <xs:sequence>
                 <xs:element minOccurs="0" name="values" type="xs:int"/>
@@ -368,16 +385,34 @@
                 <xs:element minOccurs="0" name="values1" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
+        <xs:complexType name="SprTwoTwo1">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="step1" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+        <xs:complexType name="SprOneOne">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="step1" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+        <xs:complexType name="Calc">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="step1" type="tns:SprOneRow"/>
+            </xs:sequence>
+        </xs:complexType>
+        <xs:complexType name="SprWithEmptyRow">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="_" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
         <xs:complexType name="SprOneOneNoAsterisk">
             <xs:sequence>
                 <xs:element minOccurs="0" name="step1" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
-        <xs:complexType name="SprOneColumn">
+        <xs:complexType name="HiddenCalc">
             <xs:sequence>
-                <xs:element minOccurs="0" name="values" type="xs:int"/>
-                <xs:element minOccurs="0" name="moreValues" type="xs:int"/>
-                <xs:element minOccurs="0" name="values1" type="xs:int"/>
+                <xs:element minOccurs="0" name="step1" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
         <xs:complexType name="SprTwoTwo">
@@ -392,19 +427,10 @@
                 <xs:element minOccurs="0" name="formula2Step4" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
-        <xs:complexType name="Calc">
-            <xs:sequence>
-                <xs:element minOccurs="0" name="step1" type="tns:SprOneRow"/>
-            </xs:sequence>
-        </xs:complexType>
-        <xs:complexType name="HiddenCalc">
-            <xs:sequence>
-                <xs:element minOccurs="0" name="step1" type="xs:string"/>
-            </xs:sequence>
-        </xs:complexType>
-        <xs:complexType name="SprWithEmptyRow">
+        <xs:complexType name="SprWithEmptyColumn">
             <xs:sequence>
                 <xs:element minOccurs="0" name="_" type="xs:int"/>
+                <xs:element minOccurs="0" name="values" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
     </xs:schema>
@@ -416,12 +442,6 @@
         <xs:element name="DtRetSpr3Request" type="tns:DtRetSpr3Request"/>
         <xs:element name="DtRetSprRequest" type="tns:DtRetSprRequest"/>
         <xs:element name="SprIfNodeRequest" type="tns:SprIfNodeRequest"/>
-        <xs:complexType name="DtRetSprRequest">
-            <xs:sequence>
-                <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
-                <xs:element minOccurs="0" name="v" type="xs:int"/>
-            </xs:sequence>
-        </xs:complexType>
         <xs:complexType name="DtRetSpr3Request">
             <xs:sequence>
                 <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
@@ -444,6 +464,12 @@
             <xs:sequence>
                 <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
                 <xs:element minOccurs="0" name="myVar" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+        <xs:complexType name="DtRetSprRequest">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
+                <xs:element minOccurs="0" name="v" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
     </xs:schema>
