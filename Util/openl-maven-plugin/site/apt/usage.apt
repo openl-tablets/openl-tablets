@@ -8,7 +8,7 @@ Usage
 
 * Directory Structure
 
-  Take into account that OpenL Maven Plugin expects the following directory structure:
+  OpenL Tablets Maven plugin expects the following directory structure:
 
 +--------------------------------------
 |- your-project/                   Project root folder
@@ -30,15 +30,16 @@ Usage
 | | | | | |- TemplateRules.xls     File with rules
 +--------------------------------------
 
-  Note that OpenL-related resources are located in the <<<src/main/openl>>> directory.
-  But it can be changed to fit user's needs by changing the <<<sourceDirectory>>> parameter in maven plugin configuration.
+  Note that OpenL Tablets-related resources are located in the <<<src/main/openl>>> directory.
+  It can be changed to fit user needs by modifying the <<<sourceDirectory>>> parameter in Maven plugin configuration.
 
-  <<Note:>> It is not recommended to put OpenL-related resources to the <<<src/main/resources>>> folder. In this case, OpenL resources
-  will be inside the JAR file alongside with the compiled Java classes - most probably not what was expected to do in production.
+  <<Note:>> It is not recommended to put OpenL Tablets-related resources to the <<<src/main/resources>>> folder.
+  In this case, OpenL Tablets resources will be inside the JAR file alongside with the compiled Java classes, which
+  most probably is not what is expected in production.
 
-* Integration of openl-maven-plugin in the Maven lifecycle
+* Integrating openl-maven-plugin in the Maven Lifecycle
 
-  The simplest way to create OpenL artifact:
+  The simplest way to create an OpenL Tablets artifact is as follows:
 
 +--------------------------------------
 <packaging>openl</packaging>
@@ -59,17 +60,17 @@ Usage
 </build>
 +--------------------------------------
 
-  In this case, the OpenL project will be processed trough Maven lifecycle:
+  In this case, the OpenL project is processed through Maven lifecycle as follows:
 
-      * Java compilation at 'compile' phase.
+      * Java compilation happens at the 'compile' phase.
 
-      * OpenL rules validation at 'compile' phase.
+      * OpenL Tablets rules are validated at the 'compile' phase.
 
-      * Running OpenL tests at 'test' phase.
+      * OpenL Tablets tests are run at the 'test' phase.
 
-      * Creating ZIP archive and register it as Maven artifact at 'package' phase.
+      * ZIP archive is created and registered as a Maven artifact at the 'package' phase.
 
-* Configure Interface and domain Classes generation
+* Configuring Interface and Generating Domain Classes
 
   The simplest way to generate interface for rules defined in the TemplateRules.xls file:
 
@@ -101,15 +102,16 @@ Usage
 
   In this case, classes are generated on each Maven run during the generate-sources phase.
 
-  To invoke class generation manually, remove the <<<executions>>> node and run in the console when needed:
+  To invoke class generation manually, remove the <<<executions>>> node
+  and run the following command in the console when needed:
 
 ---
   mvn openl:generate
 --- 
 
-  More configuration options can be found on the {{{./generate-mojo.html}openl:generate}} goal page.
+  For more information on configuration options, see {{{./generate-mojo.html}openl:generate}}.
 
-* Configure OpenL Project Compilation and Validation
+* Configuring OpenL Tablets Project Compilation and Validation
 
 +--------------------------------------
 <build>
@@ -134,11 +136,11 @@ Usage
 </build>
 +--------------------------------------
 
-  More configuration options can be found on the {{{./compile-mojo.html}openl:compile}} goal page.
+  For more information on configuration options, see {{{./compile-mojo.html}openl:compile}}.
 
-* Configure OpenL Project Testing
+* Configuring OpenL Tablets Project Testing
 
-  The simplest way to invoke OpenL Tablets Test:
+  The simplest way to invoke OpenL Tablets tests is as follows:
 
 +--------------------------------------
 <build>
@@ -163,4 +165,4 @@ Usage
 </build>
 +--------------------------------------
 
-  More configuration options can be found on the {{{./test-mojo.html}openl:test}} goal page.
+  For more information on configuration options, see {{{./test-mojo.html}openl:test}}.

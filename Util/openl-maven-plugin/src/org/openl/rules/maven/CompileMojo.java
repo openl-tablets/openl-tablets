@@ -19,7 +19,7 @@ import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.types.IOpenClass;
 
 /**
- * Compile and validate OpenL project
+ * Compiles and validates an OpenL project.
  *
  * @author Yury Molchan
  */
@@ -27,7 +27,7 @@ import org.openl.types.IOpenClass;
 public final class CompileMojo extends BaseOpenLMojo {
 
     /**
-     * If you want to override some parameters, define them here.
+     * Additional options for compilation defined externally, such as external dependencies and overridden system properties.
      */
     @Parameter
     private Map<String, Object> externalParameters;

@@ -21,8 +21,8 @@ abstract class BaseOpenLMojo extends AbstractMojo {
     protected static final String OPENL_ARTIFACT_TYPE = "zip";
 
     /**
-     * Folder that contains all OpenL-related resources (OpenL rules, project descriptor etc.). For example:
-     * "${project.basedir}/src/main/openl".
+     * Folder that contains all OpenL Tablets-related resources such as rules and project descriptor, for example,
+     * ${project.basedir}/src/main/openl.
      *
      * @since 5.19.0
      */
