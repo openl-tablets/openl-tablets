@@ -9,7 +9,7 @@ public enum $enumName {
 
     private final String displayName;
 
-    private $enumName (String displayName) {
+    private $enumName(String displayName) {
         this.displayName = displayName;
     }
 
@@ -25,6 +25,6 @@ public enum $enumName {
             }
         }
 
-        throw new IllegalArgumentException("No constant with displayName '" + displayName + "' is found.");
+        throw new IllegalArgumentException(String.format("No constant with displayName '%s' is found.", displayName));
     }
 }

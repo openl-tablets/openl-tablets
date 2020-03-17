@@ -484,7 +484,7 @@ public class CastFactory implements ICastFactory {
             return typeCast;
         }
 
-        if (isAllowJavaDownСast(fromClass, toClass)) {
+        if (isAllowJavaDownCast(from, to)) {
             return new JavaDownCast(to, getGlobalCastFactory());
         }
 
@@ -855,17 +855,20 @@ public class CastFactory implements ICastFactory {
      * @return <code>true</code> is downcast operation is allowed for given types; <code>false</code> - otherwise
      * @link http://java.sun.com/docs/books/jls/second_edition/html/conversions.doc .html
      */
-    private boolean isAllowJavaDownСast(Class<?> from, Class<?> to) {
+    private boolean isAllowJavaDownCast(IOpenClass from, IOpenClass to) {
 
         if (from.isAssignableFrom(to)) {
             return true;
         }
 
-        if (!from.isPrimitive() && !Modifier.isFinal(from.getModifiers()) && to.isInterface()) {
+        Class<?> fromClass = from.getInstanceClass();
+        Class<?> toClass = to.getInstanceClass();
+
+        if (!fromClass.isPrimitive() && !Modifier.isFinal(fromClass.getModifiers()) && to.isInterface()) {
             return true;
         }
 
-        return !to.isPrimitive() && !Modifier.isFinal(to.getModifiers()) && from.isInterface();
+        return !toClass.isPrimitive() && !Modifier.isFinal(toClass.getModifiers()) && from.isInterface();
 
     }
 

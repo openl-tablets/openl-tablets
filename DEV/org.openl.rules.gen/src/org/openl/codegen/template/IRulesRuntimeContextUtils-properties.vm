@@ -1,14 +1,3 @@
 #foreach( $contextPropertyDefinition in $contextPropertyDefinitions )
-        Object $contextPropertyDefinition.Name = execution.getVariable("$contextPropertyDefinition.Name");
-        if ($contextPropertyDefinition.Name != null) {
-            if ($contextPropertyDefinition.Name instanceof $tool.getTypeName($contextPropertyDefinition.Type.InstanceClass)) {
-                defaultRulesRuntimeContext.setValue("$contextPropertyDefinition.Name", $contextPropertyDefinition.Name);
-            } else {
-                IOpenCast opencast = convertor.getConvertor($tool.getTypeName($contextPropertyDefinition.Type.InstanceClass) .class, ($contextPropertyDefinition.Name).getClass());
-                if (opencast != null) {
-                    Object o = opencast.convert($contextPropertyDefinition.Name);
-                    defaultRulesRuntimeContext.setValue("$contextPropertyDefinition.Name", o);
-                }
-            }
-        }
+        populate(context, execution, "$contextPropertyDefinition.Name", ${tool.getTypeName($contextPropertyDefinition.Type.InstanceClass)}.class);
 #end
