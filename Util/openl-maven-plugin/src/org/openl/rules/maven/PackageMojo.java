@@ -31,7 +31,7 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * Package an OpenL project in ZIP archive.
+ * Packages an OpenL Tablets project in a ZIP archive.
  *
  * @author Yury Molchan
  * @since 5.19.1
@@ -67,37 +67,38 @@ public final class PackageMojo extends BaseOpenLMojo {
     private String format;
 
     /**
-     * A folder to store dependencies inside the OpenL project.
+     * Folder to store dependencies inside the OpenL Tablets project.
      */
     @Parameter(defaultValue = "lib/")
     private String classpathFolder;
 
     /**
-     * Classifier to add to the artifact generated. If given, the artifact will be attached as a supplemental artifact.
-     * If not given this will create the main artifact which is the default behavior. If you try to do that a second
-     * time without using a classifier the build will fail.
+     * Classifier added as a supplemental artifact to the generated artifact. If the value is not provided, the system
+     * creates the main artifact, which is the default behavior. Upon the second attempt to create the main artifact
+     * without using a classifier, the build fails.
      */
     @Parameter
     private String classifier;
 
     /**
-     * An allowed quantity of dependencies which can be included into the ZIP archive. Usually OpenL rules require a few
-     * dependencies like: domain models (Java beans) or some utils (e.g. JSON parsing). So the quantity of required
-     * dependencies does not exceed 3 usually. In case incorrect declaring of transitive dependencies, the size of the
-     * ZIP package increases dramatically. This parameter allows to prevent such situation by failing packaging.
+     * Allowed quantity of dependencies which can be included into the ZIP archive. Usually OpenL Tablets rules require
+     * a few dependencies, such as domain models, that is, Java beans, or some utils, for example, JSON parsing.
+     * Typically, the quantity of required dependencies does not exceed 3. If transitive dependencies are declared
+     * incorrectly, the size of the ZIP package increases dramatically. This parameter allows to prevent such situation
+     * by failing packaging.
      */
     @Parameter(defaultValue = "3", required = true)
     private int dependenciesThreshold;
 
     /**
-     * Enables generation of deployed zip. This zip includes exploded main OpenL project and all depended OpenL projects
-     * which are located in separated folders inside archive.
+     * Parameter that enables deployed zip generation. This zip includes an exploded main OpenL Tablets project and all
+     * dependent OpenL Tablets projects located in separated folders inside the archive.
      */
     @Parameter(defaultValue = "false")
     private boolean deploymentPackage;
 
     /**
-     * The name of deployment archive
+     * Deployment archive name.
      */
     @Parameter(defaultValue = "${project.build.finalName}")
     private String deploymentName;

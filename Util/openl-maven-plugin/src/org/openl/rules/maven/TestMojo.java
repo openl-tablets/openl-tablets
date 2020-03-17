@@ -34,16 +34,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.testmethod.BaseTestUnit;
-import org.openl.rules.testmethod.ITestUnit;
-import org.openl.rules.testmethod.ProjectHelper;
-import org.openl.rules.testmethod.TestRunner;
-import org.openl.rules.testmethod.TestStatus;
-import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestSuiteExecutor;
-import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.testmethod.TestUnit;
-import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.ThisField;
@@ -51,7 +42,7 @@ import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 
 /**
- * Run OpenL tests
+ * Runs OpenL Tablets tests.
  *
  * @author Yury Molchan
  */
@@ -59,50 +50,53 @@ import org.openl.util.FileUtils;
 public final class TestMojo extends BaseOpenLMojo {
     private static final String FAILURE = "<<< FAILURE";
     private static final String ERROR = "<<< ERROR";
+
     /**
-     * Set this to 'true' to skip running OpenL tests.
+     * Parameter to skip running OpenL Tablets tests if it set to 'true'.
      */
     @Parameter(property = "skipTests")
     private boolean skipTests;
 
+    /**
+     * Directory containing OpenL Tablets sources to be used in testing OpenL Tablets rules.
+     */
     @Parameter(defaultValue = "${project.build.testSourceDirectory}/../openl")
     private File testSourceDirectory;
 
     /**
-     * Base directory where all reports are written to. Reports are surefire format compatible.
+     * Base directory where all reports are saved. Reports are surefire format compatible.
      */
     @Parameter(defaultValue = "${project.build.directory}/openl-test-reports")
     private File reportsDirectory;
 
     /**
-     * The file format of the test reports. For example junit4 or xlsx.
+     * File format of the test reports. Supported values: junit4 or xlsx.
      */
     @Parameter(defaultValue = "junit4")
     private ReportFormat[] reportsFormat;
 
     /**
-     * Thread count to run test cases. The parameter is as follows:
+     * Thread count to run test cases. The values are as follows:
      * <ul>
-     * <li>4 - Runs tests with 4 threads</li>
-     * <li>1.5C - 1.5 thread per cpu core</li>
-     * <li>none - Run tests sequentially (don't create threads to run tests)</li>
-     * <li>auto - Threads count will be configured automatically</li>
+     * <li>4 - Runs tests with four threads.</li>
+     * <li>1.5C - Runs tests with 1.5 thread per CPU core.</li>
+     * <li>none - Runs tests sequentially. No extra threads for running tests are created.</li>
+     * <li>auto - Automatically configures thread count.</li>
      * </ul>
-     * Default value is "auto".
      */
     @Parameter(defaultValue = "auto")
     private String threadCount;
 
     /**
-     * Compile the project in Single module mode. If true each module will be compiled in sequence and tests from that
-     * module will be run. Needed for big projects. If false all modules will be compiled at once and all tests from all
-     * modules will be run. By default false.
+     * Parameter for compiling the project in the single module mode, where each module is compiled in sequence and
+     * tests from that module are run. This parameter is beneficial for big projects. If this parameter is set to false,
+     * all modules are compiled at once and all tests from all modules are run.
      */
     @Parameter(defaultValue = "false")
     private boolean singleModuleMode;
 
     /**
-     * If you want to override some parameters, define them here.
+     * Additional options for testing defined externally.
      */
     @Parameter
     private Map<String, Object> externalParameters;

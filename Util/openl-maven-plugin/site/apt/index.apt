@@ -10,29 +10,29 @@ OpenL Maven Plugin
   Access to rules and data in Excel tables is realized through OpenL Tablets API. OpenL Tablets provides wrappers
   to developers to facilitate easier usage.
 
-  This plugin can generate interface that can be used to access the rules. This plugin also allows to validate
-  rules during compilation phase and run OpenL Tablets tests.
+  This plugin is used to generate the interface to access rules, validate rules during compilation phase,
+  and run OpenL Tablets tests.
 
 * Goals Overview
 
-  General information about the goals:
+  General information about the goals is as follows:
 
-  * {{{./generate-mojo.html}openl:generate}} Generate OpenL interface, domain classes and project descriptor.
+  * {{{./generate-mojo.html}openl:generate}} generates OpenL Tablets interface, domain classes, and project descriptor.
 
-  * {{{./compile-mojo.html}openl:compile}} Compile OpenL project.
+  * {{{./compile-mojo.html}openl:compile}} compiles the OpenL Tablets project.
 
-  * {{{./test-mojo.html}openl:test}} Run OpenL tests.
+  * {{{./test-mojo.html}openl:test}} runs OpenL Tablets tests.
 
-  * {{{./package-mojo.html}openl:package}} Package OpenL project in the Maven artifact.
+  * {{{./package-mojo.html}openl:package}} packages the OpenL Tablets project in the Maven artifact.
 
-  * {{{./help-mojo.html}openl:help}} Display help information on openl-maven-plugin.
+  * {{{./help-mojo.html}openl:help}} displays help information on openl-maven-plugin.
 
 * Usage
 
-  General instructions on how to use the Plugin Name can be found on the {{{./usage.html}usage page}}. Some of the more
-  specific cases are described in the examples provided below.
+  General instructions on how to use OpenL Maven plugin can be found on the {{{./usage.html}usage page}}.
+  This section provides examples of some of the more specific cases.
 
-  Specify the version in the project plugin configuration:
+  Specify the version in the project plugin configuration as follows:
 
 +--------------------------------------
   <project>
@@ -66,7 +66,7 @@ OpenL Maven Plugin
 
 * Examples
 
-  To acquire a better understanding of Plugin Name usage, refer to the following examples:
+  For more information on how to use OpenL Maven plugin, see to the following examples:
 
   * {{{./configuration-with-all-goals.html}Configuration with all Goals}}
 

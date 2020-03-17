@@ -1,21 +1,5 @@
 package org.openl.rules.maven;
 
-/*
- * Copyright 2001-2005 The Apache Software Foundation.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -61,7 +45,7 @@ import net.sf.cglib.core.NamingPolicy;
 import net.sf.cglib.core.Predicate;
 
 /**
- * Generate OpenL interface, domain classes, project descriptor and unit tests
+ * Generates OpenL Tablets interface, domain classes, project descriptor, and unit tests.
  */
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE)
 public final class GenerateMojo extends BaseOpenLMojo {
@@ -76,13 +60,13 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private String classesDirectory;
 
     /**
-     * An output directory of generated Java beans and OpenL java interface.
+     * Output directory of the generated Java beans and OpenL Tablets Java interface.
      */
     @Parameter(defaultValue = "${project.build.directory}/generated-sources/openl")
     private File outputDirectory;
 
     /**
-     * Comma-separated list of interfaces which are used for extending of the generated interface.
+     * Comma-separated list of interfaces used for extending the generated interface.
      *
      * @since 5.19.1
      */
@@ -90,7 +74,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private String superInterface;
 
     /**
-     * A generated Java interface from an OpenL project. If it is empty then generation will be skipped.
+     * Generated Java interface from an OpenL Tablets project. If it is empty, generation is skipped.
      *
      * @since 5.19.1
      */
@@ -98,7 +82,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private String interfaceClass;
 
     /**
-     * Add IRulesRuntimeContext arguments to the generated interface.
+     * Parameter that adds the IRulesRuntimeContext arguments to the generated interface.
      *
      * @since 5.19.1
      */
@@ -106,7 +90,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private boolean isProvideRuntimeContext;
 
     /**
-     * Add additional methods to the generated interface to support variations.
+     * Parameter that adds additional methods to the generated interface to support variations.
      *
      * @since 5.19.1
      */
@@ -114,7 +98,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private boolean isProvideVariations;
 
     /**
-     * Generate custom spreadsheet result bean classes
+     * Parameter for generating custom spreadsheet result bean classes.
      *
      * @since 5.23.0
      */
@@ -122,7 +106,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private boolean generateSpreadsheetResultBeans;
 
     /**
-     * If you want to override some parameters, define them here.
+     * Additional options for compilation defined externally, such as external dependencies and overridden system
+     * properties.
      */
     @Parameter
     private Map<String, Object> externalParameters;
@@ -142,116 +127,117 @@ public final class GenerateMojo extends BaseOpenLMojo {
      * <td>srcFile</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>*Reference to the Excel file for which an interface class must be generated.</td>
+     * <td>Reference to the Excel file for which an interface class must be generated.</td>
      * </tr>
      * <tr>
      * <td>targetClass</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>*Full name of the interface class to be generated. Optional; if missed interface not generated. OpenL Tablets
-     * WebStudio recognizes modules in projects by interface classes and uses their names in the user interface. If
-     * there are multiple wrappers with identical names, only one of them is recognized as a module in OpenL Tablets
-     * WebStudio.</td>
+     * <td>Full name of the interface class to be generated. This parameter is optional if a missed interface is not
+     * generated. OpenL Tablets WebStudio recognizes modules in projects by interface classes and uses their names in
+     * user interface. If there are multiple wrappers with identical names, only one of them is recognized as a module
+     * in OpenL Tablets WebStudio.</td>
      * </tr>
      * <tr>
      * <td>isUsedRuleXmlForGenerate</td>
      * <td>boolean (true/false)</td>
      * <td>false</td>
-     * <td>*Should system generate class and datatypes from rules.xml. If yes srcFile ignored; targetClass is
-     * required.</td>
+     * <td>Parameter to enable class and datatype generation from rules.xml. If it is set to yes, srcFile is ignored.
+     * targetClass is required for this parameter.</td>
      * </tr>
      * <tr>
      * <td>displayName</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>*End user oriented title of the file that appears in OpenL Tablets WebStudio. Default value is Excel file
-     * name without extension.</td>
+     * <td>End user-oriented title of the file that appears in OpenL Tablets WebStudio. The default value is the Excel
+     * file name without extension.</td>
      * </tr>
      * <tr>
      * <td>targetSrcDir</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>*Folder where the generated interface class must be placed. For example: "src/main/java". Default value is:
+     * <td>Folder where the generated interface class must be saved. Example: "src/main/java". Default value:
      * "${project.build.sourceDirectory}"</td>
      * </tr>
      * <tr>
      * <td>openlName</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>*OpenL configuration to be used. For OpenL Tablets, the following value must always be used: org.openl.xls.
-     * Default value is: "org.openl.xls"</td>
+     * <td>OpenL Tablets configuration to be used. For OpenL Tablets, the following value must always be used:
+     * org.openl.xls. Default value: "org.openl.xls"</td>
      * </tr>
      * <tr>
      * <td>userHome</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>*Location of user-defined resources relative to the current OpenL Tablets project. Default value is: "."</td>
+     * <td>Location of user-defined resources related to the current OpenL Tablets project. Default value: "."</td>
      * </tr>
      * <tr>
      * <td>userClassPath</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>*Reference to the folder with additional compiled classes imported by the module when the interface is
-     * generated. Default value is: null.</td>
+     * <td>Reference to the folder with additional compiled classes imported by the module when the interface is
+     * generated. Default value: null.</td>
      * </tr>
      * <tr>
      * <td>ignoreTestMethods</td>
      * <td>boolean</td>
      * <td>false</td>
-     * <td>*If true, test methods will not be added to interface class. Used only in GenerateInterface. Default value
-     * is: true.</td>
+     * <td>Parameter that denotes, if set to true, that test methods will not be added to interface class. It is used
+     * only in GenerateInterface. Default value: true.</td>
      * </tr>
      * <tr>
      * <td>generateDataType</td>
      * <td>boolean</td>
      * <td>false</td>
-     * <td>*Generate or not dataType for current task.</td>
+     * <td>Parameter that denotes whether dataType must be generated for the current task.</td>
      * </tr>
      * </table>
      * <p>
      *
-     * @deprecated Obsolete. Replaced with the smart generator. Use interfaceClass instead.
+     * @deprecated It is replaced with the smart generator. Use interfaceClass instead.
      */
     @Parameter
     @Deprecated
     private GenerateInterface[] generateInterfaces;
 
     /**
-     * If true, rules.xml will be generated if it does not exist. If false, rules.xml will not be generated. Default
-     * value is "true".
+     * If this parameter is set to true, rules.xml is generated if it does not exist. If this parameter is set to false,
+     * rules.xml is not generated.
      *
      * @see #overwriteProjectDescriptor
-     * @deprecated Obsolete. No needs to generate rules.xml from Maven.
+     * @deprecated There is no needs to generate rules.xml from Maven.
      */
     @Parameter(defaultValue = "true")
     @Deprecated
     private boolean createProjectDescriptor;
 
     /**
-     * If true, rules.xml will be overwritten on each run. If false, rules.xml generation will be skipped if it exists.
-     * Makes sense only if {@link #createProjectDescriptor} == true. Default value is "true".
+     * If it is set to true, rules.xml are overwritten on each run. If it is set to false, rules.xml generation is
+     * skipped if it exists. Using this parameter makes sense only if createProjectDescriptor == true.
      *
      * @see #createProjectDescriptor
-     * @deprecated Obsolete. No needs to generate rules.xml from Maven.
+     * @deprecated There is no needs to generate rules.xml from Maven.
      */
     @Parameter(defaultValue = "true")
     @Deprecated
     private boolean overwriteProjectDescriptor;
 
     /**
-     * Default project name in rules.xml. If omitted, the name of the first module in the project is used. Used only if
-     * createProjectDescriptor == true.
+     * This parameter identifies a default project name in rules.xml. If omitted, the name of the first module in the
+     * project is used. This parameter is used only if createProjectDescriptor == true.
      *
-     * @deprecated Obsolete. No needs to generate rules.xml from Maven.
+     * @deprecated There is no needs to generate rules.xml from Maven.
      */
     @Parameter
     @Deprecated
     private String projectName;
 
     /**
-     * Default classpath entries in rules.xml. Default value is {"."} Used only if createProjectDescriptor == true.
+     * Default classpath entries in rules.xml. Default value is {"."} It is used only if createProjectDescriptor ==
+     * true.
      *
-     * @deprecated Obsolete. No needs to generate rules.xml from Maven.
+     * @deprecated There is no needs to generate rules.xml from Maven.
      */
     @Parameter
     @Deprecated
