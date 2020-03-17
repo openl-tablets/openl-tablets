@@ -290,6 +290,9 @@ public class ClassUtils {
     }
 
     public static String capitalize(String name) {
+        if (name == null || name.length() == 0) {
+            return name;
+        }
         if (name.length() > 1 && Character.isUpperCase(name.charAt(1))) {
             return name;
         } else if (Character.isUpperCase(name.charAt(0))) {
