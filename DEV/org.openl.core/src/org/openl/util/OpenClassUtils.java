@@ -159,4 +159,13 @@ public final class OpenClassUtils {
         }
         return JavaOpenClass.OBJECT;
     }
+
+    public static IOpenClass getRootComponentClass(IOpenClass fieldType) {
+        if (!fieldType.isArray()) {
+            return fieldType;
+        }
+        // Get the component type of the array
+        //
+        return getRootComponentClass(fieldType.getComponentClass());
+    }
 }

@@ -40,20 +40,16 @@ public class MethodHeaderNodeBinder extends ANodeBinder {
 
         IMethodSignature signature = boundParametersNode.getSignature();
 
-        ILocation typeLocation = null;
-        ILocation[] paramTypeLocations = null;
-        if (!bindingContext.isExecutionMode()) {
-            ISyntaxNode syntaxNode = typeNode.getSyntaxNode();
-            while (syntaxNode.getNumberOfChildren() == 1 && !(syntaxNode instanceof IdentifierNode)) {
-                // Get type node for array
-                syntaxNode = syntaxNode.getChild(0);
-            }
-            typeLocation = syntaxNode.getSourceLocation();
+        ISyntaxNode syntaxNode = typeNode.getSyntaxNode();
+        while (syntaxNode.getNumberOfChildren() == 1 && !(syntaxNode instanceof IdentifierNode)) {
+            // Get type node for array
+            syntaxNode = syntaxNode.getChild(0);
+        }
+        ILocation typeLocation = syntaxNode.getSourceLocation();
 
-            paramTypeLocations = new ILocation[signature.getNumberOfParameters()];
-            for (int i = 0; i < signature.getNumberOfParameters(); i++) {
-                paramTypeLocations[i] = boundParametersNode.getParamTypeLocation(i);
-            }
+        ILocation[] paramTypeLocations = new ILocation[signature.getNumberOfParameters()];
+        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
+            paramTypeLocations[i] = boundParametersNode.getParamTypeLocation(i);
         }
 
         OpenMethodHeader header = new OpenMethodHeader(methodName,

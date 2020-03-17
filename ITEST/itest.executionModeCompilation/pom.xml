@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.openl.itest</groupId>
+        <artifactId>itest</artifactId>
+        <version>5.23.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>itest.executionModeCompilation</artifactId>
+    <packaging>jar</packaging>
+    <name>ITEST - Compilation in Execution Mode</name>
+    <url>https://openl-tablets.org</url>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openl.itest</groupId>
+            <artifactId>server-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
