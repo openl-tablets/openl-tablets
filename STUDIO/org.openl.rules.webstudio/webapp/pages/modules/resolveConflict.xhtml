@@ -47,9 +47,16 @@
               <h:outputText value="#{mergeConflictBean.baseCommit}"/>
 
               <h:outputText value="Comment:"/>
-              <h:inputTextarea id="comment" value="#{mergeConflictBean.mergeMessage}" styleClass="conflict-comment">
-                <f:ajax execute="@this"/>
-              </h:inputTextarea>
+              <h:panelGroup id="comment">
+                <script>
+                  //<![CDATA[
+                  if (typeof updateCommentSize === "function") updateCommentSize();
+                  //]]>
+                </script>
+                <h:inputTextarea value="#{mergeConflictBean.mergeMessage}" styleClass="conflict-comment">
+                  <f:ajax execute="@this"/>
+                </h:inputTextarea>
+              </h:panelGroup>
             </h:panelGrid>
             </p>
           <ui:repeat value="#{mergeConflictBean.conflictGroups}" var="conflictGroup">
@@ -124,7 +131,8 @@
                   <h:outputText value="Resolve"/>
                 </f:facet>
                 <h:selectOneRadio value="#{mergeConflictBean.conflictResolutions[conflict].resolutionType}"
-                                  layout="pageDirection" onchange="return uploadConflictResolution('#{conflict}', this)">
+                                  layout="pageDirection"
+                                  onchange="return onConflictResolutionChange('#{conflict}', this)">
                   <f:selectItem itemValue="YOURS" itemLabel="#{hasYourFile ? 'Use yours' : 'Delete it'}"/>
                   <f:selectItem itemValue="THEIRS" itemLabel="#{hasTheirFile ? 'Use theirs' : 'Delete it'}"/>
                   <f:selectItem itemValue="CUSTOM" itemLabel="Upload merged file"/>
@@ -175,9 +183,13 @@
   <script>
       //<![CDATA[
       var afterResolveConflict = function () {};
+      var commentWidth;
+      var commentHeight;
 
       function openResolveConflictDialog(afterResolveFunction) {
         afterResolveConflict = afterResolveFunction;
+        commentWidth = null;
+        commentHeight = null;
         refreshResolveConflictDialog();
       }
 
@@ -192,12 +204,22 @@
         }
       }
 
-      function uploadConflictResolution(conflict, resolutionElement) {
+      function onConflictResolutionChange(conflict, resolutionElement) {
+        commentWidth = $j('.conflict-comment').width()
+        commentHeight = $j('.conflict-comment').height()
+
         if (resolutionElement.value === "CUSTOM" && resolutionElement.checked) {
           setConflictAndUploadConflictResolution(conflict);
           return false;
         }
         return true;
+      }
+
+      function updateCommentSize() {
+        if (commentWidth && commentHeight) {
+          $j('.conflict-comment').width(commentWidth);
+          $j('.conflict-comment').height(commentHeight);
+        }
       }
       //]]>
   </script>
