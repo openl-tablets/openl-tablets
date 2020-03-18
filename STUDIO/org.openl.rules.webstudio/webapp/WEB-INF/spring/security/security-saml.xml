@@ -110,8 +110,15 @@
     <!-- Logger for SAML messages and events -->
     <bean id="samlLogger" class="org.springframework.security.saml.log.SAMLDefaultLogger"/>
 
+    <bean id="openlKeystoreEditor" class="org.openl.rules.webstudio.security.OpenlKeystoreEditor">
+        <constructor-arg name="keyStoreFile" value="#{environment.getProperty('security.saml.keystore-file-path')}"/>
+        <constructor-arg name="keystorePassword" value="#{environment.getProperty('security.saml.keystore-password')}"/>
+        <constructor-arg name="serverCertificate" value="#{environment.getProperty('security.saml.server-certificate')}"/>
+        <constructor-arg name="serverKeyAlias" value="#{environment.getProperty('security.saml.server-key-alias')}"/>
+    </bean>
+
     <!-- Central storage of cryptographic keys -->
-    <bean id="keyManager" class="org.springframework.security.saml.key.JKSKeyManager">
+    <bean id="keyManager" class="org.springframework.security.saml.key.JKSKeyManager" depends-on="openlKeystoreEditor">
         <constructor-arg name="storeFile" value="#{environment.getProperty('security.saml.keystore-file-path')}"/>
         <constructor-arg name="storePass" value="#{environment.getProperty('security.saml.keystore-password')}"/>
         <constructor-arg name="passwords">

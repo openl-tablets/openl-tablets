@@ -1,5 +1,36 @@
 package org.openl.rules.webstudio.web.install;
 
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
+import javax.faces.component.UIViewRoot;
+import javax.faces.context.FacesContext;
+import javax.faces.event.AjaxBehaviorEvent;
+import javax.faces.validator.ValidatorException;
+import javax.naming.directory.InvalidSearchFilterException;
+import javax.servlet.ServletContext;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flywaydb.core.api.FlywayException;
 import org.hibernate.validator.constraints.NotBlank;
@@ -16,6 +47,7 @@ import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
+import org.openl.rules.webstudio.security.KeyStoreUtils;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.GroupManagementServiceWrapper;
 import org.openl.rules.webstudio.service.UserManagementService;
@@ -40,33 +72,9 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
-import javax.faces.event.AjaxBehaviorEvent;
-import javax.faces.validator.ValidatorException;
-import javax.naming.directory.InvalidSearchFilterException;
-import javax.servlet.ServletContext;
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
 
 @ManagedBean
 @SessionScoped
@@ -327,7 +335,9 @@ public class InstallWizard {
             propertyResolver.getProperty("security.saml.context-path"),
             propertyResolver.getRequiredProperty("security.saml.max-authentication-age", Integer.class),
             propertyResolver.getRequiredProperty("security.saml.metadata-trust-check", Boolean.class),
-            propertyResolver.getRequiredProperty("security.saml.is-app-after-balancer", Boolean.class));
+            propertyResolver.getRequiredProperty("security.saml.is-app-after-balancer", Boolean.class),
+            propertyResolver.getProperty("security.saml.server-certificate"),
+            propertyResolver.getProperty("security.saml.server-key-alias"));
     }
 
     public String finish() {
@@ -356,6 +366,10 @@ public class InstallWizard {
                     properties.setProperty("security.cas.attribute.last-name", casSettings.getSecondNameAttribute());
                     properties.setProperty("security.cas.attribute.groups", casSettings.getGroupsAttribute());
                 } else if (SAML_USER_MODE.equals(userMode)) {
+                    String serverCertificate = samlSettings.getServerCertificate();
+                    if (StringUtils.isNotBlank(serverCertificate)) {
+                        importCertificateToKeystore(serverCertificate);
+                    }
                     fillDbForUserManagement();
 
                     samlSettings.setDefaultGroup(allowAccessToNewUsers ? VIEWERS_GROUP : "");
@@ -387,6 +401,8 @@ public class InstallWizard {
                         samlSettings.getMaxAuthenticationAge());
                     properties.setProperty("security.saml.metadata-trust-check", samlSettings.isMetadataTrustCheck());
                     properties.setProperty("security.saml.is-app-after-balancer", samlSettings.isAppAfterBalancer());
+                    properties.setProperty("security.saml.server-certificate", serverCertificate);
+                    properties.setProperty("security.saml.server-public-alias", samlSettings.getServerKeyAlias());
                 }
             }
 
@@ -422,6 +438,37 @@ public class InstallWizard {
             }
             return null;
         }
+    }
+
+    private void importCertificateToKeystore(String certificate) {
+        String keystorePassword = samlSettings.getKeystorePassword();
+
+        X509Certificate cert;
+        try {
+            cert = KeyStoreUtils.generateCertificate(certificate);
+        } catch (CertificateException e) {
+            throw new IllegalStateException("The entered certificate isn't valid", e);
+        }
+        File keystore;
+        KeyStore ks;
+        try {
+            keystore = ResourceUtils.getFile(samlSettings.getKeystoreFilePath());
+            ks = KeyStoreUtils.loadKeyStore(keystore, keystorePassword);
+        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
+            throw new IllegalStateException("The keystore of the application isn't valid",
+                e);
+        }
+
+        try {
+            String certificateAlias = samlSettings.getServerKeyAlias();
+            ks.setCertificateEntry(certificateAlias, cert);
+            KeyStoreUtils.saveKeyStore(keystore, ks, keystorePassword);
+        } catch (KeyStoreException | IOException | CertificateException | NoSuchAlgorithmException e) {
+            throw new IllegalStateException(
+                "The keystore of the application can't be saved",
+                e);
+        }
+
     }
 
     private void fillDbForUserManagement() {
@@ -605,17 +652,12 @@ public class InstallWizard {
             .getSubmittedValue();
         String maxAuthenticationAge = (String) ((UIInput) viewRoot.findComponent("step3Form:samlMaxAuthenticationAge"))
             .getSubmittedValue();
-        String keystoreFilePath = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreFilePath"))
-            .getSubmittedValue();
-        String keystorePassword = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystorePassword"))
-            .getSubmittedValue();
-        String keystoreSpAlias = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreSpAlias"))
-            .getSubmittedValue();
-        String keystoreSpPassword = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreSpPassword"))
-            .getSubmittedValue();
         String groupsAttribute = (String) ((UIInput) viewRoot.findComponent("step3Form:samlGroupsAttribute"))
             .getSubmittedValue();
-
+        String publicServerCert = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerCertificate"))
+            .getSubmittedValue();
+        String publicServerKeyAlias = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerPublicKeyAlias"))
+            .getSubmittedValue();
         boolean isAppAfterBalancer = (boolean) ((UIInput) viewRoot.findComponent("step3Form:samlIsAppAfterBalancer"))
             .getSubmittedValue();
         String samlScheme = (String) ((UIInput) viewRoot.findComponent("step3Form:samlScheme")).getSubmittedValue();
@@ -639,23 +681,19 @@ public class InstallWizard {
         }
 
         if (StringUtils.isBlank(maxAuthenticationAge)) {
-            throw new ValidatorException(createErrorMessage("SAML max authentication age cannot be blank"));
+            throw new ValidatorException(createErrorMessage("SAML max authentication age cannot be blank."));
         }
 
-        if (StringUtils.isBlank(keystoreFilePath)) {
-            throw new ValidatorException(createErrorMessage("Keystore path cannot be blank."));
+        if (StringUtils.isNotBlank(publicServerCert) && StringUtils.isBlank(publicServerKeyAlias)) {
+            throw new ValidatorException(createErrorMessage("SAML server key alias must be defined."));
         }
-
-        if (StringUtils.isBlank(keystorePassword)) {
-            throw new ValidatorException(createErrorMessage("Keystore password cannot be blank."));
-        }
-
-        if (StringUtils.isBlank(keystoreSpAlias)) {
-            throw new ValidatorException(createErrorMessage("Keystore SP alias cannot be blank."));
-        }
-
-        if (StringUtils.isBlank(keystoreSpPassword)) {
-            throw new ValidatorException(createErrorMessage("Keystore SP password cannot be blank."));
+        if (StringUtils.isNotBlank(publicServerCert)) {
+            try {
+                X509Certificate cert = KeyStoreUtils.generateCertificate(publicServerCert);
+                cert.checkValidity();
+            } catch (Exception e) {
+                throw new ValidatorException(createErrorMessage("Entered key is not valid."));
+            }
         }
 
         if (!groupsAreManagedInStudio && StringUtils.isBlank(groupsAttribute)) {

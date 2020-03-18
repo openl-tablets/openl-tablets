@@ -23,6 +23,8 @@ public class SAMLSettings {
     private int maxAuthenticationAge;
     private boolean metadataTrustCheck;
     private boolean isAppAfterBalancer;
+    private String serverCertificate;
+    private String serverKeyAlias;
 
     public SAMLSettings(String webStudioUrl,
             String samlServerMetadataUrl,
@@ -45,7 +47,9 @@ public class SAMLSettings {
             String contextPath,
             int maxAuthenticationAge,
             boolean metadataTrustCheck,
-            boolean isAppAfterBalancer) {
+            boolean isAppAfterBalancer,
+            String serverCertificate,
+            String serverKeyAlias) {
         this.webStudioUrl = webStudioUrl;
         this.samlServerMetadataUrl = samlServerMetadataUrl;
         this.requestTimeout = requestTimeout;
@@ -68,6 +72,8 @@ public class SAMLSettings {
         this.maxAuthenticationAge = maxAuthenticationAge;
         this.metadataTrustCheck = metadataTrustCheck;
         this.isAppAfterBalancer = isAppAfterBalancer;
+        this.serverCertificate = serverCertificate;
+        this.serverKeyAlias = serverKeyAlias;
     }
 
     public String getWebStudioUrl() {
@@ -98,37 +104,16 @@ public class SAMLSettings {
         return keystoreFilePath;
     }
 
-    public void setKeystoreFilePath(String keystoreFilePath) {
-        if (keystoreFilePath == null || keystoreFilePath.startsWith("classpath:") || keystoreFilePath
-            .startsWith("file:") || keystoreFilePath.startsWith("url:")) {
-            this.keystoreFilePath = keystoreFilePath;
-        } else {
-            this.keystoreFilePath = "file:" + keystoreFilePath;
-        }
-    }
-
     public String getKeystorePassword() {
         return keystorePassword;
-    }
-
-    public void setKeystorePassword(String keystorePassword) {
-        this.keystorePassword = keystorePassword;
     }
 
     public String getKeystoreSpAlias() {
         return keystoreSpAlias;
     }
 
-    public void setKeystoreSpAlias(String keystoreSpAlias) {
-        this.keystoreSpAlias = keystoreSpAlias;
-    }
-
     public String getKeystoreSpPassword() {
         return keystoreSpPassword;
-    }
-
-    public void setKeystoreSpPassword(String keystoreSpPassword) {
-        this.keystoreSpPassword = keystoreSpPassword;
     }
 
     public String getDefaultGroup() {
@@ -249,5 +234,21 @@ public class SAMLSettings {
 
     public void setAppAfterBalancer(boolean appAfterBalancer) {
         isAppAfterBalancer = appAfterBalancer;
+    }
+
+    public String getServerCertificate() {
+        return serverCertificate;
+    }
+
+    public void setServerCertificate(String serverCertificate) {
+        this.serverCertificate = serverCertificate;
+    }
+
+    public String getServerKeyAlias() {
+        return serverKeyAlias;
+    }
+
+    public void setServerKeyAlias(String serverKeyAlias) {
+        this.serverKeyAlias = serverKeyAlias;
     }
 }
