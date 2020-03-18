@@ -1,49 +1,51 @@
 package org.openl.rules.webstudio.web.admin;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.repository.RepositoryInstatiator;
 
 public class FolderStructureSettings {
-
-    private final String BASE_PATH;
     private final String FLAT_FOLDER_STRUCTURE;
     private final String FOLDER_CONFIG_FILE;
-    private PropertiesHolder properties;
+    private final RepositoryConfiguration configuration;
 
-    public FolderStructureSettings(String configPrefix, PropertiesHolder properties) {
-        String withPrefix = "repository." + configPrefix.toLowerCase();
-        BASE_PATH = withPrefix + ".base.path";
+    public FolderStructureSettings(RepositoryConfiguration configuration) {
+        String withPrefix = RepositoryInstatiator.REPOSITORY_PREFIX + configuration.getConfigName();
         FLAT_FOLDER_STRUCTURE = withPrefix + ".folder-structure.flat";
         FOLDER_CONFIG_FILE = withPrefix + ".folder-structure.configuration";
-        this.properties = properties;
+        this.configuration = configuration;
     }
 
     public String getBasePath() {
-        return properties.getProperty(BASE_PATH);
+        return configuration.getSettings().getBasePath();
     }
 
     public void setBasePath(String basePath) {
         String value = basePath.isEmpty() || basePath.endsWith("/") ? basePath : basePath + "/";
-        properties.setProperty(BASE_PATH, value);
+        configuration.getSettings().setBasePath(value);
     }
 
     public boolean isFlatFolderStructure() {
-        String property = properties.getProperty(FLAT_FOLDER_STRUCTURE);
-        return property == null || Boolean.valueOf(property);
+        String property = getProperties().getProperty(FLAT_FOLDER_STRUCTURE);
+        return property == null || Boolean.parseBoolean(property);
     }
 
     public void setFlatFolderStructure(boolean flatFolderStructure) {
-        properties.setProperty(FLAT_FOLDER_STRUCTURE, flatFolderStructure);
+        getProperties().setProperty(FLAT_FOLDER_STRUCTURE, flatFolderStructure);
     }
 
     public String getFolderConfigFile() {
-        return properties.getProperty(FOLDER_CONFIG_FILE);
+        return getProperties().getProperty(FOLDER_CONFIG_FILE);
     }
 
     public void setFolderConfigFile(String folderConfigFile) {
-        properties.setProperty(FOLDER_CONFIG_FILE, folderConfigFile);
+        getProperties().setProperty(FOLDER_CONFIG_FILE, folderConfigFile);
     }
 
     public FolderStructureValidators getValidators() {
         return new FolderStructureValidators();
+    }
+
+    private PropertiesHolder getProperties() {
+        return configuration.getProperties();
     }
 }
