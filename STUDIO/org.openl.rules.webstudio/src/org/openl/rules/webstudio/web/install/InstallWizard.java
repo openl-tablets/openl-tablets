@@ -656,8 +656,6 @@ public class InstallWizard {
             .getSubmittedValue();
         String publicServerCert = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerCertificate"))
             .getSubmittedValue();
-        String publicServerKeyAlias = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerPublicKeyAlias"))
-            .getSubmittedValue();
         boolean isAppAfterBalancer = (boolean) ((UIInput) viewRoot.findComponent("step3Form:samlIsAppAfterBalancer"))
             .getSubmittedValue();
         String samlScheme = (String) ((UIInput) viewRoot.findComponent("step3Form:samlScheme")).getSubmittedValue();
@@ -682,10 +680,6 @@ public class InstallWizard {
 
         if (StringUtils.isBlank(maxAuthenticationAge)) {
             throw new ValidatorException(createErrorMessage("SAML max authentication age cannot be blank."));
-        }
-
-        if (StringUtils.isNotBlank(publicServerCert) && StringUtils.isBlank(publicServerKeyAlias)) {
-            throw new ValidatorException(createErrorMessage("SAML server key alias must be defined."));
         }
         if (StringUtils.isNotBlank(publicServerCert)) {
             try {
