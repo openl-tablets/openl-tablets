@@ -543,7 +543,7 @@ public class SpreadsheetResult implements Serializable {
         }
         if (v instanceof SpreadsheetResult) {
             SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
-            if (Map.class == toType || spreadsheetResult.getCustomSpreadsheetResultOpenClass() == null) {
+            if (Map.class == toType) {
                 return spreadsheetResult.toMap(module);
             } else {
                 return spreadsheetResult.toPlain(module);

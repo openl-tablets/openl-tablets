@@ -277,8 +277,17 @@ public final class RuleServiceInstantiationFactoryHelper {
             case ORIGINAL:
                 return returnType.getInstanceClass();
             case IF_SPR_TO_PLAIN:
-                if (returnType instanceof CustomSpreadsheetResultOpenClass) {
-                    return ((CustomSpreadsheetResultOpenClass) returnType).getBeanClass();
+                IOpenClass type = returnType;
+                int dim = 0;
+                while (type.isArray()) {
+                    type = type.getComponentClass();
+                    dim++;
+                }
+                if (type instanceof CustomSpreadsheetResultOpenClass) {
+                    Class<?> t = ((CustomSpreadsheetResultOpenClass) type).getBeanClass();
+                    return dim > 0 ? Array.newInstance(t, dim).getClass() : t;
+                } else if (ClassUtils.isAssignable(type.getInstanceClass(), SpreadsheetResult.class)) {
+                    return dim > 0 ? Array.newInstance(Object.class, dim).getClass() : Object.class;
                 } else {
                     return returnType.getInstanceClass();
                 }

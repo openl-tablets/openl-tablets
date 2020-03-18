@@ -113,8 +113,15 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             ((IOpenClassAware) o).setIOpenClass(openClass);
         }
         if (o instanceof IOpenMemberAware) {
-            IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(method, serviceTarget);
-            ((IOpenMemberAware) o).setIOpenMember(openMember);
+            for (Class<?> interf : serviceTarget.getClass().getInterfaces()) {
+                try {
+                    Method m = interf.getMethod(method.getName(), method.getParameterTypes());
+                    IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, serviceTarget);
+                    ((IOpenMemberAware) o).setIOpenMember(openMember);
+                    return;
+                } catch (NoSuchMethodException ignored) {
+                }
+            }
         }
     }
 

@@ -9,6 +9,8 @@
 					<value>.+ mySpr\(\)</value>
 					<value>.+ mySpr2\(\)</value>
 					<value>.+ main\(\)</value>
+					<value>.+ arrSpreadsheetResult\(\)</value>
+					<value>.+ arrSpreadsheetResultspr1\(\)</value>
 				</includes>
 			</method-filter>
 		</module>
