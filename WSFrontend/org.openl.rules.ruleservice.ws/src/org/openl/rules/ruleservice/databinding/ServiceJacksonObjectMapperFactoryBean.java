@@ -45,7 +45,7 @@ public class ServiceJacksonObjectMapperFactoryBean extends AbstractFactoryBean<O
                 objectMapper.addMixIn(((XlsModuleOpenClass) openLService.getOpenClass())
                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                     .toCustomSpreadsheetResultOpenClass()
-                    .getBeanClass(), NonNullMixIn.class);
+                    .getBeanClass(), NonDefaultMixIn.class);
             }
         }
         return objectMapper;
