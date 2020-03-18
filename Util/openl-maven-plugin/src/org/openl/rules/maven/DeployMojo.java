@@ -16,7 +16,7 @@ import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
 /**
- * Created by dl on 6/15/17.
+ * Deploys the OpenL Tablets project to an OpenL Tablets repository.
  */
 @Mojo(name = "deploy", defaultPhase = LifecyclePhase.DEPLOY, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class DeployMojo extends BaseOpenLMojo {

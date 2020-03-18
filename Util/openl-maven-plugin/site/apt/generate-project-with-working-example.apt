@@ -1,23 +1,30 @@
  ------
- Create a Project with a Working Example of OpenL Maven Plugin Usage
+ Creating a Project with a Working Example of OpenL Maven Plugin Usage
  ------
  YYYY-MM-DD
  ------
 
-Create a Project with a Working Example of OpenL Maven Plugin Usage
+Creating a Project with a Working Example of OpenL Maven Plugin Usage
 
-  OpenL Tablets has an archetype which can be used to create a simple OpenL Rules project containing an example
-  of OpenL Maven Plugin usage. Execute the following command in the command line:
+  OpenL Tablets has an archetype which can be used to create a simple OpenL Tablets rules project containing an example
+  of OpenL Maven plugin usage. Proceed as follows:
+
+  [[1]] Execute the following command in the command line:
 
 ------------------------
   mvn archetype:generate
 ------------------------
 
-  Maven runs an archetype console wizard. Select the <<<openl-simple-project-archetype>>> menu item.
-  Follow the instructions on the screen to complete all steps of the project creation wizard.
-  After all steps are done, a new maven-based project appears on the file system.
-  It is an OpenL Rules project which has one module with simple rules.
-  To compile the project, in the command line, execute the following command from the root of the project folder:
+  Maven runs an archetype console wizard.
+
+  [[2]] Select the <<<openl-simple-project-archetype>>> menu item.
+
+  [[3]] Follow the wizard instructions to complete project creation.
+
+  When the new Maven-based project is created, it appears in the file system.
+  It is an OpenL Tablets rules project which has one module with simple rules.
+
+  [[4]] To compile the project, in the command line, execute the following command from the root of the project folder:
 
 -------------
   mvn install
@@ -25,8 +32,12 @@ Create a Project with a Working Example of OpenL Maven Plugin Usage
 
   After that, the following objects can be found the <<<target>>> folder:
 
-  [[1]] A ZIP file without suffix, for importing a project to WebStudio. For more information, see [OpenL Tablets WebStudio User Guide].
+  * A ZIP file without suffix for importing a project to OpenL Tablets WebStudio.
 
-  [[1]] A ZIP file with "-runnable" suffix, that can be executed after unpacking. It demonstrates how OpenL rules can be invoked from the Java code.
+  For more information, see [OpenL Tablets WebStudio User Guide].
 
-  [[1]] A JAR file that contains only compiled Java classes.
+  * A ZIP file with "-runnable" suffix that can be executed after unpacking.
+
+  It demonstrates how OpenL Tablets rules can be invoked from the Java code.
+
+  * A JAR file that contains only compiled Java classes.

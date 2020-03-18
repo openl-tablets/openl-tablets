@@ -41,6 +41,7 @@
         <module>itest.EPBDS-5057</module>
         <module>itest.EPBDS-8076</module>
         <module>itest.BigServiceDeploy</module>
+        <module>itest.executionModeCompilation</module>
     </modules>
 
     <dependencyManagement>
