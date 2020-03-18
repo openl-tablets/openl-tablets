@@ -199,6 +199,11 @@
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://csr.generated.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://csr.generated.openl.org">
+            <xsd:complexType name="AnySpreadsheetResult">
+                <xsd:sequence/>
+            </xsd:complexType>
+        </xsd:schema>
         <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://beans.generated.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://beans.generated.openl.org">
             <xsd:complexType name="RuleType">
                 <xsd:sequence>

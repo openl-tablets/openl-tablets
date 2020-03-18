@@ -452,7 +452,19 @@ public class SpreadsheetResult implements Serializable {
         return values;
     }
 
-    public static Object convertSpreadsheetResult(XlsModuleOpenClass module, Object v) {
+    private static Object convertSpreadsheetResult(XlsModuleOpenClass module, Object v) {
+        if (v instanceof SpreadsheetResult) {
+            SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
+            if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() == null) {
+                return convertSpreadsheetResult(module,
+                    v,
+                    module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                        .toCustomSpreadsheetResultOpenClass()
+                        .getBeanClass());
+            } else {
+                return convertSpreadsheetResult(module, v, null);
+            }
+        }
         return convertSpreadsheetResult(module, v, null);
     }
 
@@ -540,7 +552,7 @@ public class SpreadsheetResult implements Serializable {
                 Map.class) || ClassUtils.isAssignable(t, Collection.class)) {
                 Object newArray = Array.newInstance(componentType, len);
                 for (int i = 0; i < len; i++) {
-                    Array.set(newArray, i, convertSpreadsheetResult(module, Array.get(v, i)));
+                    Array.set(newArray, i, convertSpreadsheetResult(module, Array.get(v, i), componentType));
                 }
                 return newArray;
             } else {
@@ -551,18 +563,16 @@ public class SpreadsheetResult implements Serializable {
             SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
             if (Map.class == toType) {
                 return spreadsheetResult.toMap(module);
+            } else if (toType == null && spreadsheetResult
+                .getCustomSpreadsheetResultOpenClass() == null || toType != null && toType == module
+                    .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                    .toCustomSpreadsheetResultOpenClass()
+                    .getBeanClass()) {
+                return module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                    .toCustomSpreadsheetResultOpenClass()
+                    .createBean(spreadsheetResult);
             } else {
-                if (toType != null && Objects.equals(toType.getName(),
-                    module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                        .toCustomSpreadsheetResultOpenClass()
-                        .getBeanClass()
-                        .getName())) {
-                    return module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                        .toCustomSpreadsheetResultOpenClass()
-                        .createBean(spreadsheetResult);
-                } else {
-                    return spreadsheetResult.toPlain(module);
-                }
+                return spreadsheetResult.toPlain(module);
             }
         }
         return v;

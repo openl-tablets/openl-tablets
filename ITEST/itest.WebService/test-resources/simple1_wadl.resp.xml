@@ -358,6 +358,15 @@
         <xs:element name="variation" type="tns:variation"/>
         <xs:element name="variationsPack" type="tns:variationsPack"/>
         <xs:element name="variationsResult" type="tns:variationsResult"/>
+        <xs:complexType name="deepCloningVariation">
+            <xs:complexContent>
+                <xs:extension base="tns:variation">
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="delegatedVariation" type="tns:variation"/>
+                    </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
         <xs:complexType abstract="true" name="variation">
             <xs:sequence>
                 <xs:element minOccurs="0" name="variationID" type="xs:string"/>
@@ -396,15 +405,6 @@
                         <xs:element minOccurs="0" name="path" type="xs:string"/>
                         <xs:element name="updatedArgumentIndex" type="xs:int"/>
                         <xs:element minOccurs="0" name="valueToSet" type="xs:anyType"/>
-                    </xs:sequence>
-                </xs:extension>
-            </xs:complexContent>
-        </xs:complexType>
-        <xs:complexType name="deepCloningVariation">
-            <xs:complexContent>
-                <xs:extension base="tns:variation">
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="delegatedVariation" type="tns:variation"/>
                     </xs:sequence>
                 </xs:extension>
             </xs:complexContent>
@@ -449,8 +449,24 @@
         </xs:complexType>
     </xs:schema>
     <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://csr.generated.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://csr.generated.openl.org" version="1.0">
-        <xs:element name="SpreadsheetResult" type="tns:SpreadsheetResult"/>
+        <xs:element name="AnySpreadsheetResult" type="tns:AnySpreadsheetResult"/>
         <xs:element name="Test" type="tns:Test"/>
+        <xs:complexType name="AnySpreadsheetResult">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="valueR10" type="xs:double"/>
+                <xs:element minOccurs="0" name="value1R10" type="xs:double"/>
+                <xs:element minOccurs="0" name="value2R10" type="xs:string"/>
+                <xs:element minOccurs="0" name="valueR20" type="xs:double"/>
+                <xs:element minOccurs="0" name="value1R20" type="xs:double"/>
+                <xs:element minOccurs="0" name="value2R20" type="xs:string"/>
+                <xs:element minOccurs="0" name="valueR30" type="xs:double"/>
+                <xs:element minOccurs="0" name="value1R30" type="xs:double"/>
+                <xs:element minOccurs="0" name="value2R30" type="xs:string"/>
+                <xs:element minOccurs="0" name="valueR40" type="xs:double"/>
+                <xs:element minOccurs="0" name="value1R40" type="xs:double"/>
+                <xs:element minOccurs="0" name="value2R40" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
         <xs:complexType name="Test">
             <xs:sequence>
                 <xs:element minOccurs="0" name="valueR10" type="xs:double"/>
@@ -467,20 +483,11 @@
                 <xs:element minOccurs="0" name="value2R40" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
-        <xs:complexType name="SpreadsheetResult">
+    </xs:schema>
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://variation.rules.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://variation.rules.openl.org" version="1.0">
+        <xs:complexType name="error">
             <xs:sequence>
-                <xs:element minOccurs="0" name="valueR10" type="xs:double"/>
-                <xs:element minOccurs="0" name="value1R10" type="xs:double"/>
-                <xs:element minOccurs="0" name="value2R10" type="xs:string"/>
-                <xs:element minOccurs="0" name="valueR20" type="xs:double"/>
-                <xs:element minOccurs="0" name="value1R20" type="xs:double"/>
-                <xs:element minOccurs="0" name="value2R20" type="xs:string"/>
-                <xs:element minOccurs="0" name="valueR30" type="xs:double"/>
-                <xs:element minOccurs="0" name="value1R30" type="xs:double"/>
-                <xs:element minOccurs="0" name="value2R30" type="xs:string"/>
-                <xs:element minOccurs="0" name="valueR40" type="xs:double"/>
-                <xs:element minOccurs="0" name="value1R40" type="xs:double"/>
-                <xs:element minOccurs="0" name="value2R40" type="xs:string"/>
+                <xs:element minOccurs="0" name="message" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:schema>
@@ -500,13 +507,6 @@
                 <xs:element minOccurs="0" name="requestDate" type="xs:dateTime"/>
                 <xs:element minOccurs="0" name="usRegion" type="ns1:usRegionsEnum"/>
                 <xs:element minOccurs="0" name="usState" type="ns1:usStatesEnum"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:schema>
-    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://variation.rules.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://variation.rules.openl.org" version="1.0">
-        <xs:complexType name="error">
-            <xs:sequence>
-                <xs:element minOccurs="0" name="message" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:schema>

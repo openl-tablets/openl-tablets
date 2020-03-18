@@ -137,7 +137,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                 if (this.customSpreadsheetResultOpenClass == null) {
                     // HERE
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
-                        "SpreadsheetResult",
+                        "AnySpreadsheetResult",
                         this.module,
                         null);
                     for (IOpenClass openClass : module.getTypes()) {

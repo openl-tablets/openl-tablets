@@ -564,13 +564,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                                 fieldClsName = csroc.getBeanClassName();
                                 csroc.generateBeanClass();
                             } else {
-                                fieldClsName = getModule().getCsrBeansPackage() + ".SpreadsheetResult";
+                                fieldClsName = getModule().getCsrBeansPackage() + ".AnySpreadsheetResult";
                                 getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                                     .toCustomSpreadsheetResultOpenClass()
                                     .generateBeanClass();
                             }
                         } else {
-                            fieldClsName = getModule().getCsrBeansPackage() + ".SpreadsheetResult";
+                            fieldClsName = getModule().getCsrBeansPackage() + ".AnySpreadsheetResult";
                             getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                                 .toCustomSpreadsheetResultOpenClass()
                                 .generateBeanClass();
@@ -646,17 +646,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         if (name.length() > Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) {
                             name = name.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
                         }
-                    } else {
-                        throw new IllegalStateException(
-                            String.format("Prefix '%s' is required", Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX));
+                        String firstLetterUppercaseName = Character
+                            .toUpperCase(name.charAt(0)) + (name.length() > 1 ? name.substring(1) : StringUtils.EMPTY);
+                        if (getModule()
+                            .findType(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + firstLetterUppercaseName) == null) {
+                            name = firstLetterUppercaseName;
+                        }
                     }
-                    String firstLetterUppercaseName = Character
-                        .toUpperCase(name.charAt(0)) + (name.length() > 1 ? name.substring(1) : StringUtils.EMPTY);
-                    if (getModule()
-                        .findType(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + firstLetterUppercaseName) == null) {
-                        name = firstLetterUppercaseName;
-                    }
-
                     beanClassName = getModule().getCsrBeansPackage() + "." + name;
                 }
             }

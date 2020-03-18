@@ -95,11 +95,18 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
                     }
                 }
                 if (openLService.getOpenClass() instanceof XlsModuleOpenClass) {
-                    ret.add(((XlsModuleOpenClass) openLService.getOpenClass())
+                    Class<?> spreadsheetResultBeanClass = ((XlsModuleOpenClass) openLService.getOpenClass())
                         .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                         .toCustomSpreadsheetResultOpenClass()
-                        .getBeanClass()
-                        .getName());
+                        .getBeanClass();
+                    ret.add(spreadsheetResultBeanClass.getName());
+                    if (!found) {
+                        for (Method method : openLService.getServiceClass().getMethods()) {
+                            if (!found && ClassUtils.isAssignable(spreadsheetResultBeanClass, method.getReturnType())) {
+                                found = true;
+                            }
+                        }
+                    }
                 }
             }
         } catch (RuleServiceInstantiationException e) {
