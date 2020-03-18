@@ -276,7 +276,7 @@ public final class RuleServiceInstantiationFactoryHelper {
         switch (typeResolver) {
             case ORIGINAL:
                 return returnType.getInstanceClass();
-            case IF_CSR_TO_PLAIN:
+            case IF_SPR_TO_PLAIN:
                 if (returnType instanceof CustomSpreadsheetResultOpenClass) {
                     return ((CustomSpreadsheetResultOpenClass) returnType).getBeanClass();
                 } else {
