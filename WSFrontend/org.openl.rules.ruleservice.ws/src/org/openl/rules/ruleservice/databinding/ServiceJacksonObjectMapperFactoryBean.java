@@ -3,7 +3,7 @@ package org.openl.rules.ruleservice.databinding;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.OpenLServiceHolder;
-import org.openl.rules.ruleservice.databinding.jackson.NonNullMixIn;
+import org.openl.rules.ruleservice.databinding.jackson.NonDefaultMixIn;
 import org.openl.types.IOpenClass;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
@@ -37,7 +37,7 @@ public class ServiceJacksonObjectMapperFactoryBean extends AbstractFactoryBean<O
             for (IOpenClass openClass : openLService.getOpenClass().getTypes()) {
                 if (openClass instanceof CustomSpreadsheetResultOpenClass) {
                     objectMapper.addMixIn(((CustomSpreadsheetResultOpenClass) openClass).getBeanClass(),
-                        NonNullMixIn.class);
+                        NonDefaultMixIn.class);
                 }
             }
         }
