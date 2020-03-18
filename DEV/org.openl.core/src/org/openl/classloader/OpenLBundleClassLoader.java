@@ -72,8 +72,17 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
     public Class<?> loadClass(String name) throws ClassNotFoundException {
         Set<ClassLoader> c = Collections.newSetFromMap(new IdentityHashMap<>());
         c.add(this);
+        return loadClass(name, c);
+    }
+
+    protected Class<?> loadClass(String name, Set<ClassLoader> c) throws ClassNotFoundException {
+        Class<?> clazz = findClassInBundles(name, c);
+
+        if (clazz != null) {
+            return clazz;
+        }
         try {
-            return loadClass(name, c);
+            return super.loadClass(name);
         } catch (ClassNotFoundException e) {
             byte[] byteCode = generatedClasses.get(name);
             if (byteCode != null) {
@@ -87,16 +96,6 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
         }
     }
 
-    protected Class<?> loadClass(String name, Set<ClassLoader> c) throws ClassNotFoundException {
-        Class<?> clazz = findClassInBundles(name, c);
-
-        if (clazz != null) {
-            return clazz;
-        }
-
-        return super.loadClass(name);
-    }
-
     private Class<?> findClassInBundles(String name, Set<ClassLoader> c) {
 
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
@@ -108,7 +107,7 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
                 // if current class loader contains appropriate class - it will
                 // be returned as a result
                 //
-                Class<?> clazz = null;
+                Class<?> clazz;
                 if (bundleClassLoader instanceof OpenLBundleClassLoader && bundleClassLoader.getParent() == this) {
                     OpenLBundleClassLoader sbc = (OpenLBundleClassLoader) bundleClassLoader;
                     clazz = sbc.findLoadedClass(name);

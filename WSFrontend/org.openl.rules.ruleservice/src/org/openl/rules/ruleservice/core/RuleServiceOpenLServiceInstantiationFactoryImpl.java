@@ -70,7 +70,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             if (service.getPublishers().contains(RulesDeploy.PublisherType.RMI.toString())) {
                 resolveRmiInterface(service);
             }
-            instantiateServiceBean(service, serviceTarget, service.getClassLoader());
+            instantiateServiceBean(service, serviceTarget, serviceClassLoader);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -97,10 +97,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             Object serviceTarget,
             ClassLoader classLoader) throws RuleServiceInstantiationException {
         Class<?> serviceClass = service.getServiceClass();
-
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(classLoader);
             if (!serviceClass.isInterface()) {
                 // deprecated approach with wrapper: service class is not
                 // interface
@@ -110,12 +107,10 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             ServiceInvocationAdvice serviceInvocationAdvice = new ServiceInvocationAdvice(service
                 .getOpenClass(), serviceTarget, serviceClass, classLoader, getListServiceInvocationAdviceListeners());
             Object proxyServiceBean = ASMProxyFactory
-                .newProxyInstance(oldClassLoader, serviceInvocationAdvice, serviceClass);
+                .newProxyInstance(classLoader, serviceInvocationAdvice, serviceClass);
             service.setServiceBean(proxyServiceBean);
         } catch (Exception t) {
             throw new RuleServiceRuntimeException("Failed to create a proxy for service target object.", t);
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 
