@@ -2,6 +2,7 @@ package org.openl.itest;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
@@ -49,12 +50,35 @@ public class RunWebservicesITest {
     }
 
     @Test
+    public void testSwaggerSchemaSimple3() {
+        client.get("/REST/deployment3/simple3/swagger.json", "/simple3_swagger.resp.json");
+    }
+
+    @Test
+    public void testWADLSchemaSimple3() {
+        client.get("/REST/deployment3/simple3?_wadl", "/simple3_wadl.resp.xml");
+    }
+
+    @Test
+    @Ignore
+    //Test is correct but result comparision doesn't work.
+    public void testWSDLSchemaSimple3() {
+        client.get("/deployment3/simple3?wsdl", "/simple3_wsdl.resp.xml");
+    }
+
+    @Test
     public void testSimple3_CSPR_Convert() {
         client.post("/REST/deployment3/simple3/main", "/simple3_main.req.json", "/simple3_main.resp.json");
         client.post("/REST/deployment3/simple3/mySpr", "/simple3_mySpr_a.req.json", "/simple3_mySpr_a.resp.json");
         client.post("/REST/deployment3/simple3/mySpr", "/simple3_mySpr_b.req.json", "/simple3_mySpr_b.resp.json");
         client.post("/REST/deployment3/simple3/mySpr2", "/simple3_mySpr2_a.req.json", "/simple3_mySpr2_a.resp.json");
         client.post("/REST/deployment3/simple3/mySpr2", "/simple3_mySpr2_b.req.json", "/simple3_mySpr2_b.resp.json");
+        client.post("/REST/deployment3/simple3/arrSpreadsheetResult",
+            "/simple3_main.req.json",
+            "/simple3_arrSpreadsheetResult.resp.json");
+        client.post("/REST/deployment3/simple3/arrSpreadsheetResultspr1",
+            "/simple3_main.req.json",
+            "/simple3_arrSpreadsheetResultspr1.resp.json");
     }
 
     @Test

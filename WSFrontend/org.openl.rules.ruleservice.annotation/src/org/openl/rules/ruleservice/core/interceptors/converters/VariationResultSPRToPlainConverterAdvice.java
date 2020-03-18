@@ -4,22 +4,12 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.ruleservice.core.interceptors.AbstractServiceMethodAfterReturningAdvice;
-import org.openl.rules.ruleservice.core.interceptors.IOpenClassAware;
 import org.openl.rules.variation.VariationsResult;
-import org.openl.types.IOpenClass;
 
-public class VariationResultSPRToPlainConverterAdvice extends AbstractServiceMethodAfterReturningAdvice<VariationsResult<Object>> implements IOpenClassAware {
-
-    private XlsModuleOpenClass module;
+public class VariationResultSPRToPlainConverterAdvice extends AbstractSPRToPlainConverterAdvice<VariationsResult<Object>> {
 
     @Override
-    public void setIOpenClass(IOpenClass openClass) {
-        this.module = (XlsModuleOpenClass) openClass;
-    }
-
-    @Override
+    @SuppressWarnings("unchecked")
     public VariationsResult<Object> afterReturning(Method interfaceMethod,
             Object result,
             Object... args) throws Exception {
@@ -27,7 +17,8 @@ public class VariationResultSPRToPlainConverterAdvice extends AbstractServiceMet
         VariationsResult<Object> ret = new VariationsResult<>();
 
         for (Map.Entry<String, SpreadsheetResult> entry : variationsResult.getVariationResults().entrySet()) {
-            ret.registerResult(entry.getKey(), SpreadsheetResult.convertSpreadsheetResult(module, entry.getValue()));
+            ret.registerResult(entry.getKey(),
+                SpreadsheetResult.convertSpreadsheetResult(getModule(), entry.getValue()));
         }
 
         for (Map.Entry<String, String> entry : variationsResult.getVariationFailures().entrySet()) {

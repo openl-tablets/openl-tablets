@@ -1186,12 +1186,12 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-s3</artifactId>
-                <version>1.11.744</version>
+                <version>1.11.580</version>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-core</artifactId>
-                <version>1.11.744</version>
+                <version>1.11.580</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -1202,7 +1202,7 @@
             <dependency>
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit</artifactId>
-                <version>5.7.0.202003110725-r</version>
+                <version>5.6.0.201912101111-r</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -1227,6 +1227,15 @@
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpg-jdk15on</artifactId>
                 <version>${org.bouncycastle.version}</version>
+            </dependency>
+
+            <!-- httpclient is required for aws-java-sdk-core and jgit, so we must synchronize it's version for both libraries.
+                    But jgit since version 5.1.0 doesn't have dependency on httpclient. Remove explicit dependency
+                    on httpclient when upgrade jgit to the latest version. -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.9</version>
             </dependency>
             <!-- HikariCP - A high-performance JDBC connection pool. -->
             <dependency>
@@ -1335,7 +1344,7 @@
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
-                <version>1.26</version>
+                <version>1.25</version>
             </dependency>
             <!--Activity -->
             <dependency>
