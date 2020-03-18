@@ -8,7 +8,6 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
-import javax.faces.model.SelectItemGroup;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
@@ -231,7 +230,7 @@ public class BranchesBean {
             if (!existInCombobox) {
                 // Base branch can't be selected. Use a first available branch.
                 if (!branchesToMerge.isEmpty()) {
-                    branchToMerge = (String) ((SelectItemGroup) branchesToMerge.get(0)).getSelectItems()[0].getValue();
+                    branchToMerge = (String) (branchesToMerge.get(0).getValue());
                 }
             }
         }

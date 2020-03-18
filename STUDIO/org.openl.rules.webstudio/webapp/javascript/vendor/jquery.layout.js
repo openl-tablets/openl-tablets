@@ -475,7 +475,7 @@ $.fn.layout = function (opts) {
 	,	visible: { visibility: "visible" }
 	//	layout element settings
 	,	zIndex: { // set z-index values here
-			pane_normal:	1		// normal z-index for panes
+			pane_normal:	'auto'		// normal z-index for panes
 		,	resizer_normal:	2		// normal z-index for resizer-bars
 		,	iframe_mask:	2		// overlay div used to mask pane(s) during resizing
 		,	pane_sliding:	100		// applied to *BOTH* the pane and its resizer when a pane is 'slid open'
@@ -3801,7 +3801,7 @@ debugData( test, pane );
 		}
 
 		var
-			newCSS	= { zIndex: (_c.zIndex.pane_normal + 2) }
+			newCSS	= { zIndex: ((_c.zIndex.pane_normal === 'auto' ? 0 : _c.zIndex.pane_normal) + 2) }
 		,	curCSS	= {}
 		,	of		= $P.css("overflow")
 		,	ofX		= $P.css("overflowX")
