@@ -298,34 +298,17 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><label class="required">Keystore path:</label></td>
+                                    <td><label>SAML remote server public key alias:</label></td>
                                     <td>
-                                        <h:inputText id="samlKeystoreFilePath"
-                                                     value="#{installWizard.samlSettings.keystoreFilePath}" size="40"/>
+                                        <h:inputText id="samlServerPublicKeyAlias"
+                                                     value="#{installWizard.samlSettings.serverKeyAlias}"
+                                                     size="40"/>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><label class="required">Keystore password:</label></td>
-                                    <td>
-                                        <h:inputSecret id="samlKeystorePassword"
-                                                       value="#{installWizard.samlSettings.keystorePassword}" size="40"
-                                                       redisplay="true"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><label class="required">Keystore SP alias:</label></td>
-                                    <td>
-                                        <h:inputText id="samlKeystoreSpAlias"
-                                                     value="#{installWizard.samlSettings.keystoreSpAlias}" size="40"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><label class="required">Keystore SP password:</label></td>
-                                    <td>
-                                        <h:inputSecret id="samlKeystoreSpPassword"
-                                                       value="#{installWizard.samlSettings.keystoreSpPassword}"
-                                                       size="40" redisplay="true"/>
-                                    </td>
+                                    <td><label>SAML remote server X509 certificate (PEM base64 encoded format):</label></td>
+                                    <td><h:inputTextarea style="width:225px; height: 200px;" id="samlServerCertificate"
+                                                         value="#{installWizard.samlSettings.serverCertificate}"/></td>
                                 </tr>
                                 <tr>
                                     <td><label>Authentication Contexts:</label></td>
@@ -385,14 +368,17 @@
                                     </td>
                                 </tr>
                                 <tr class="samlSchemeTd">
-                                    <td><label class="required">Scheme of load balancer server(http or https):</label></td>
+                                    <td><label class="required">Scheme of load balancer server(http or https):</label>
+                                    </td>
                                     <td>
                                         <h:inputText id="samlScheme"
                                                      value="#{installWizard.samlSettings.samlScheme}" size="40"/>
                                     </td>
                                 </tr>
                                 <tr class="samlServerNameTd">
-                                    <td><label class="required">Server name of load balancer server(e.g. app.abcd.com):</label></td>
+                                    <td><label
+                                            class="required">Server name of load balancer server(e.g. app.abcd.com):</label>
+                                    </td>
                                     <td>
                                         <h:inputText id="samlServerName"
                                                      value="#{installWizard.samlSettings.samlServerName}"

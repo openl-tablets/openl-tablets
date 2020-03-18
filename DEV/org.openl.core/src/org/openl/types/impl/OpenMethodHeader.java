@@ -14,17 +14,13 @@ import org.openl.util.text.ILocation;
  */
 public class OpenMethodHeader implements IOpenMethodHeader {
 
-    protected IMethodSignature signature;
-    protected IOpenClass declaringClass;
-    protected IOpenClass typeClass;
+    private final String name;
+    private final IMethodSignature signature;
+    private IOpenClass declaringClass;
+    private IOpenClass typeClass;
 
-    protected String name;
-    protected boolean isStatic;
-
-    protected IMemberMetaInfo info;
-
-    protected ILocation typeLocation;
-    protected ILocation[] paramTypeLocations;
+    private ILocation typeLocation;
+    private ILocation[] paramTypeLocations;
 
     public OpenMethodHeader(String name,
             IOpenClass typeClass,
@@ -66,7 +62,7 @@ public class OpenMethodHeader implements IOpenMethodHeader {
      */
     @Override
     public IMemberMetaInfo getInfo() {
-        return info;
+        return null;
     }
 
     /*
@@ -101,7 +97,7 @@ public class OpenMethodHeader implements IOpenMethodHeader {
      */
     @Override
     public boolean isStatic() {
-        return isStatic;
+        return false;
     }
 
     public void setDeclaringClass(IOpenClass declaringClass) {
@@ -126,4 +122,11 @@ public class OpenMethodHeader implements IOpenMethodHeader {
             INamedThing.SHORT);
     }
 
+    public void setTypeLocation(ILocation typeLocation) {
+        this.typeLocation = typeLocation;
+    }
+
+    public void setParamTypeLocations(ILocation[] paramTypeLocations) {
+        this.paramTypeLocations = paramTypeLocations;
+    }
 }

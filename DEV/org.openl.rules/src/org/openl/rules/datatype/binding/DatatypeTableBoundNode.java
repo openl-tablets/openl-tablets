@@ -55,6 +55,7 @@ import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.MessageUtils;
+import org.openl.util.OpenClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
@@ -101,15 +102,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         this.parentClassIdentifier = parentClassIdentifier;
         this.parentClassName = parentClassIdentifier != null ? parentClassIdentifier.getIdentifier() : null;
         this.moduleOpenClass = moduleOpenClass;
-    }
-
-    public static IOpenClass getRootComponentClass(IOpenClass fieldType) {
-        if (!fieldType.isArray()) {
-            return fieldType;
-        }
-        // Get the component type of the array
-        //
-        return getRootComponentClass(fieldType.getComponentClass());
     }
 
     public static GridCellSourceCodeModule getCellSource(ILogicalTable row, IBindingContext cxt, int columnIndex) {
@@ -352,7 +344,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 fieldType,
                 fieldNameCellParsed.getValue());
 
-            if (!isRecursiveField(field) && getRootComponentClass(field.getType()).getInstanceClass() == null) {
+            if (!isRecursiveField(field) && OpenClassUtils.getRootComponentClass(field.getType()).getInstanceClass() == null) {
                 // For example type A depends on B and B depends on A. At this
                 // point B is not generated yet.
                 // TODO Implement circular datatype dependencies support like in
@@ -360,7 +352,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 GridCellSourceCodeModule cellSource = getCellSource(row, bindingContext, 0);
                 TextInterval location = LocationUtils.createTextInterval(cellSource.getCode());
 
-                String message = "Type " + getRootComponentClass(field.getType()).getName() + " is not generated yet";
+                String message = "Type " + OpenClassUtils.getRootComponentClass(field.getType()).getName() + " is not generated yet";
                 throw SyntaxNodeExceptionUtils.createError(message, null, location, cellSource);
             }
 
@@ -520,7 +512,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
      * @return true if the type of the field is equal to the given datatype
      */
     private boolean isRecursiveField(IOpenField field) {
-        IOpenClass fieldType = getRootComponentClass(field.getType());
+        IOpenClass fieldType = OpenClassUtils.getRootComponentClass(field.getType());
         return fieldType.getName().equals(dataType.getName());
     }
 
