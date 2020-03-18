@@ -373,9 +373,9 @@
                 <xs:element maxOccurs="unbounded" minOccurs="0" name="fieldNames" type="ns1:stringArray"/>
             </xs:sequence>
         </xs:complexType>
-        <xs:complexType name="SprIfNode">
+        <xs:complexType name="SprOneOne">
             <xs:sequence>
-                <xs:element minOccurs="0" name="step1" type="xs:anyType"/>
+                <xs:element minOccurs="0" name="step1" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
         <xs:complexType name="SprOneRow">
@@ -390,9 +390,9 @@
                 <xs:element minOccurs="0" name="step1" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
-        <xs:complexType name="SprOneOne">
+        <xs:complexType name="SprIfNode">
             <xs:sequence>
-                <xs:element minOccurs="0" name="step1" type="xs:int"/>
+                <xs:element minOccurs="0" name="step1" type="tns:SpreadsheetResult"/>
             </xs:sequence>
         </xs:complexType>
         <xs:complexType name="Calc">
@@ -442,7 +442,7 @@
         <xs:element name="DtRetSpr3Request" type="tns:DtRetSpr3Request"/>
         <xs:element name="DtRetSprRequest" type="tns:DtRetSprRequest"/>
         <xs:element name="SprIfNodeRequest" type="tns:SprIfNodeRequest"/>
-        <xs:complexType name="DtRetSpr3Request">
+        <xs:complexType name="DtRetSpr2Request">
             <xs:sequence>
                 <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
                 <xs:element maxOccurs="unbounded" minOccurs="0" name="v" nillable="true" type="xs:int"/>
@@ -454,10 +454,10 @@
                 <xs:element minOccurs="0" name="a" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
-        <xs:complexType name="DtRetSpr2Request">
+        <xs:complexType name="DtRetSprRequest">
             <xs:sequence>
                 <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
-                <xs:element maxOccurs="unbounded" minOccurs="0" name="v" nillable="true" type="xs:int"/>
+                <xs:element minOccurs="0" name="v" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
         <xs:complexType name="SprIfNodeRequest">
@@ -466,10 +466,10 @@
                 <xs:element minOccurs="0" name="myVar" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
-        <xs:complexType name="DtRetSprRequest">
+        <xs:complexType name="DtRetSpr3Request">
             <xs:sequence>
                 <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
-                <xs:element minOccurs="0" name="v" type="xs:int"/>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="v" nillable="true" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
     </xs:schema>

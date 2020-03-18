@@ -564,7 +564,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                                 fieldClsName = csroc.getBeanClassName();
                                 csroc.generateBeanClass();
                             } else {
-                                fieldClsName = Object.class.getName();
+                                fieldClsName = getModule().getCsrBeansPackage() + ".SpreadsheetResult";
+                                getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                                    .toCustomSpreadsheetResultOpenClass()
+                                    .generateBeanClass();
                             }
                         } else {
                             fieldClsName = getModule().getCsrBeansPackage() + ".SpreadsheetResult";
