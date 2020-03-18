@@ -182,11 +182,11 @@ public class SystemSettingsBean {
     }
 
     public FolderStructureSettings getDesignFolderStructure() {
-        return new FolderStructureSettings(ConfigNames.DESIGN_CONFIG, properties);
+        return new FolderStructureSettings(designRepositoryConfiguration);
     }
 
     public FolderStructureSettings getDeployConfigFolderStructure() {
-        return new FolderStructureSettings(ConfigNames.DEPLOY_CONFIG, properties);
+        return new FolderStructureSettings(deployConfigRepositoryConfiguration);
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
