@@ -127,6 +127,7 @@ public interface ITableProperties {
     boolean isPropertiesEmpty();
 
     // <<< INSERT >>>
+
     java.lang.String getName();
 
     void setName(java.lang.String name);

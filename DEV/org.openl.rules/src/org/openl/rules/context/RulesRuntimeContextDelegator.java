@@ -50,6 +50,7 @@ public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
     }
 
     // <<< INSERT >>>
+
     @Override
     public java.util.Date getCurrentDate() {
         if (super.getCurrentDate() == null) {

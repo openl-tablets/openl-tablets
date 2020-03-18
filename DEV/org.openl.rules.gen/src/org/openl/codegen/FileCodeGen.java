@@ -66,7 +66,7 @@ public class FileCodeGen {
                     String endTag = endInsert.peek();
                     if (line.contains(endTag)) {
                         cga.processEndInsertTag(line, sb);
-                        sb.append(line.trim()).append("\r\n");
+                        sb.append(line).append("\r\n");
                         endInsert.pop();
                     }
                     continue;
