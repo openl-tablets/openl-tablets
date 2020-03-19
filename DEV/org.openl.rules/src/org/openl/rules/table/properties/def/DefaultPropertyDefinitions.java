@@ -67,7 +67,7 @@ public final class DefaultPropertyDefinitions {
         definitions[3].setDescription("Date of the table creation in OpenL Tablets WebStudio");
         definitions[3].setDimensional(false);
         definitions[3].setDisplayName("Created On");
-        definitions[3].setFormat("MM/dd/yyyy");
+        definitions[3].setFormat("MM/dd/yyyy hh:mm a");
         definitions[3].setGroup("Info");
         definitions[3].setInheritanceLevel(new InheritanceLevel[] { InheritanceLevel.TABLE });
         definitions[3].setName("createdOn");
@@ -96,7 +96,7 @@ public final class DefaultPropertyDefinitions {
         definitions[5].setDescription("The date of the last table modification in OpenL Tablets WebStudio");
         definitions[5].setDimensional(false);
         definitions[5].setDisplayName("Modified On");
-        definitions[5].setFormat("MM/dd/yyyy");
+        definitions[5].setFormat("MM/dd/yyyy hh:mm a");
         definitions[5].setGroup("Info");
         definitions[5].setInheritanceLevel(new InheritanceLevel[] { InheritanceLevel.TABLE });
         definitions[5].setName("modifiedOn");
@@ -137,7 +137,7 @@ public final class DefaultPropertyDefinitions {
         definitions[8].setDisplayName("Effective Date");
         definitions[8].setExpression(
             new org.openl.rules.table.properties.expressions.match.MatchingExpression("le(currentDate)"));
-        definitions[8].setFormat("MM/dd/yyyy");
+        definitions[8].setFormat("MM/dd/yyyy hh:mm a");
         definitions[8].setGroup("Business Dimension");
         definitions[8].setInheritanceLevel(
             new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
@@ -159,7 +159,7 @@ public final class DefaultPropertyDefinitions {
         definitions[9].setDisplayName("Expiration Date");
         definitions[9].setExpression(
             new org.openl.rules.table.properties.expressions.match.MatchingExpression("ge(currentDate)"));
-        definitions[9].setFormat("MM/dd/yyyy");
+        definitions[9].setFormat("MM/dd/yyyy hh:mm a");
         definitions[9].setGroup("Business Dimension");
         definitions[9].setInheritanceLevel(
             new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
@@ -181,7 +181,7 @@ public final class DefaultPropertyDefinitions {
         definitions[10].setDisplayName("Start Request Date");
         definitions[10].setExpression(
             new org.openl.rules.table.properties.expressions.match.MatchingExpression("le(requestDate)"));
-        definitions[10].setFormat("MM/dd/yyyy");
+        definitions[10].setFormat("MM/dd/yyyy hh:mm a");
         definitions[10].setGroup("Business Dimension");
         definitions[10].setInheritanceLevel(
             new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
@@ -203,7 +203,7 @@ public final class DefaultPropertyDefinitions {
         definitions[11].setDisplayName("End Request Date");
         definitions[11].setExpression(
             new org.openl.rules.table.properties.expressions.match.MatchingExpression("ge(requestDate)"));
-        definitions[11].setFormat("MM/dd/yyyy");
+        definitions[11].setFormat("MM/dd/yyyy hh:mm a");
         definitions[11].setGroup("Business Dimension");
         definitions[11].setInheritanceLevel(
             new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
