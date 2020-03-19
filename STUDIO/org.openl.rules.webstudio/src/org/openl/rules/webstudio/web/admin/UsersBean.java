@@ -1,6 +1,13 @@
 package org.openl.rules.webstudio.web.admin;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -15,7 +22,11 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.openl.rules.security.*;
+import org.openl.rules.security.Group;
+import org.openl.rules.security.Privilege;
+import org.openl.rules.security.Privileges;
+import org.openl.rules.security.SimpleUser;
+import org.openl.rules.security.User;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.util.StringUtils;
@@ -92,15 +103,15 @@ public class UsersBean {
     }
 
     public String getGroups(Object objUser) {
-        List<String> groups = new ArrayList<>();
         @SuppressWarnings("unchecked")
         Collection<Privilege> authorities = (Collection<Privilege>) ((User) objUser).getAuthorities();
+        StringJoiner joiner = new StringJoiner(",", "[", "]");
         for (Privilege authority : authorities) {
             if (authority instanceof Group) {
-                groups.add(authority.getName());
+                joiner.add("\"" + authority.getName() + "\"");
             }
         }
-        return "[" + String.join("\", \"", groups) + "]";
+        return joiner.toString();
     }
 
     public String getOnlyAdminGroups(Object objUser) {
@@ -110,19 +121,18 @@ public class UsersBean {
 
         String adminPrivilege = Privileges.ADMIN.name();
 
-        List<String> groups = new ArrayList<>();
         @SuppressWarnings("unchecked")
         Collection<Privilege> authorities = (Collection<Privilege>) ((User) objUser).getAuthorities();
+        StringJoiner joiner = new StringJoiner(",", "[", "]");
         for (Privilege authority : authorities) {
             if (authority instanceof Group) {
                 Group group = (Group) authority;
                 if (group.hasPrivilege(adminPrivilege)) {
-                    groups.add(group.getAuthority());
+                    joiner.add("\"" + group.getAuthority() + "\"");
                 }
             }
         }
-
-        return "[" + String.join("\", \"", groups) + "]";
+        return joiner.toString();
     }
 
     private List<Privilege> getSelectedGroups() {
