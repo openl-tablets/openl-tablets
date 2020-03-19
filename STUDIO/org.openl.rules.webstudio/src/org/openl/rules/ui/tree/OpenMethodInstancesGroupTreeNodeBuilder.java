@@ -1,5 +1,6 @@
 package org.openl.rules.ui.tree;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -9,6 +10,7 @@ import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeKey;
 import org.openl.rules.ui.IProjectTypes;
+import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodKey;
 import org.openl.util.StringUtils;
@@ -29,7 +31,7 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
 
         TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;
 
-        return TableSyntaxNodeUtils.getTableDisplayValue(tableSyntaxNode, i);
+        return TableSyntaxNodeUtils.getTableDisplayValue(tableSyntaxNode, i, WebStudioFormats.getInstance());
     }
 
     /**
@@ -83,9 +85,7 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
                 // element (folder); otherwise - method is unique and additional
                 // element will not be created.
                 // author: Alexey Gamanovich
-                if (methodOverloads != null && methodOverloads.size() > 1) {
-                    return true;
-                }
+                return methodOverloads != null && methodOverloads.size() > 1;
             }
         }
         return false;
@@ -125,9 +125,7 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
             Object nodeObject = makeObject(tableSyntaxNode);
 
             String[] displayNames = new String[3];
-            for (int k = 0; k < displayNames.length; k++) {
-                displayNames[k] = folderName + keyString;
-            }
+            Arrays.fill(displayNames, folderName + keyString);
             return new NodeKey(getWeight(nodeObject), displayNames);
         }
 
