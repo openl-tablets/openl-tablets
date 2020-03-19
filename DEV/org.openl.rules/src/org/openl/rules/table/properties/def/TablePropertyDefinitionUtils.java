@@ -1,12 +1,6 @@
 package org.openl.rules.table.properties.def;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.rules.convertor.IString2DataConvertor;
@@ -254,19 +248,6 @@ public final class TablePropertyDefinitionUtils {
         TablePropertyDefinition propDefinition = getPropertyByName(name);
         if (propDefinition != null) {
             return propDefinition.getType().getInstanceClass();
-        }
-        return null;
-    }
-
-    public static String getDateFormat(String propName, Object propValue) {
-        // Check whether the date contains a time other than the default
-        if (new SimpleDateFormat("HH:mm").format(propValue).equals("00:00")) {
-            return DefaultPropertyDefinitions.SHORT_PROP_DATE_FORMAT;
-        } else {
-            TablePropertyDefinition property = getPropertyByName(propName);
-            if (property != null) {
-                return property.getFormat();
-            }
         }
         return null;
     }

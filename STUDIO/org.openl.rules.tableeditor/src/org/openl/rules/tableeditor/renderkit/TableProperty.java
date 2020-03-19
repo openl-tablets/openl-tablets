@@ -11,7 +11,6 @@ import javax.faces.model.SelectItem;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.util.EnumUtils;
@@ -142,6 +141,8 @@ public class TableProperty {
     /**
      * This method must be used for all the cases when you need to display property on UI. It converts its value from
      * any type to string.
+     *
+     * @return
      */
     public String getDisplayValue() {
         return getStringValue();
@@ -150,11 +151,7 @@ public class TableProperty {
     public String getStringValue() {
         String result = StringUtils.EMPTY;
         if (value != null) {
-            String format = getFormat();
-            if (value instanceof Date) {
-                format = TablePropertyDefinitionUtils.getDateFormat(getName(), getValue());
-            }
-            result = FormattersManager.getFormatter(type, format).format(value);
+            result = FormattersManager.getFormatter(type, getFormat()).format(value);
         }
         return result;
     }
