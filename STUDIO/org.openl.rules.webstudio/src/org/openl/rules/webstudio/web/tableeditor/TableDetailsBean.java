@@ -1,15 +1,7 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -30,6 +22,7 @@ import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
+import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.springframework.core.env.PropertyResolver;
@@ -96,7 +89,7 @@ public class TableDetailsBean {
                             .containsKey(propDefinition.getName()))) {
                 InheritanceLevel inheritanceLevel = props.getPropertyLevelDefinedOn(propDefinition.getName());
 
-                TableProperty prop = new TableProperty(propDefinition);
+                TableProperty prop = new TableProperty(propDefinition, WebStudioFormats.getInstance());
                 prop.setValue(value);
                 prop.setInheritanceLevel(inheritanceLevel);
                 if (InheritanceLevel.MODULE.equals(inheritanceLevel) || InheritanceLevel.CATEGORY
@@ -200,7 +193,7 @@ public class TableDetailsBean {
 
             if (!items.isEmpty()) {
                 SelectItemGroup itemGroup = new SelectItemGroup(entry.getKey());
-                itemGroup.setSelectItems(items.toArray(new SelectItem[items.size()]));
+                itemGroup.setSelectItems(items.toArray(new SelectItem[0]));
                 propertiesToAdd.add(itemGroup);
             }
         }
@@ -218,7 +211,7 @@ public class TableDetailsBean {
 
     public void addNew() {
         TablePropertyDefinition propDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyToAdd);
-        storeProperty(new TableProperty(propDefinition));
+        storeProperty(new TableProperty(Objects.requireNonNull(propDefinition), WebStudioFormats.getInstance()));
         propsToRemove.remove(propertyToAdd);
     }
 
@@ -300,6 +293,8 @@ public class TableDetailsBean {
         }
 
         table.getGridTable().stopEditing();
-        WebStudioUtils.getExternalContext().getSessionMap().remove(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
+        WebStudioUtils.getExternalContext()
+            .getSessionMap()
+            .remove(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
     }
 }
