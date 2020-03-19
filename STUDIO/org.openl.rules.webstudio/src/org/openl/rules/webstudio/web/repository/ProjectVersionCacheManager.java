@@ -54,8 +54,8 @@ public class ProjectVersionCacheManager {
             String md5 = calculateProjectMD5(designProject);
             String versionName = designProject.getVersion().getVersionName();
 
-            String hash = h2CacheDB.checkHash(md5);
-            if (hash != null) {
+            String storedVersionName = h2CacheDB.checkHash(md5);
+            if (version.getVersionName().equals(storedVersionName)) {
                 break;
             }
             h2CacheDB.insert(project.getName(), versionName, md5);
