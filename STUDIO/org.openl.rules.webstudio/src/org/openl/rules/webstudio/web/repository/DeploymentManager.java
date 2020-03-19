@@ -17,6 +17,7 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeployUtils;
@@ -225,10 +226,20 @@ public class DeploymentManager implements InitializingBean {
         return null;
     }
 
-    private ProductionRepositoryFactoryProxy repositoryFactoryProxy;
+    //TODO make private
+    public ProductionRepositoryFactoryProxy repositoryFactoryProxy;
 
     public void setRepositoryFactoryProxy(ProductionRepositoryFactoryProxy repositoryFactoryProxy) {
         this.repositoryFactoryProxy = repositoryFactoryProxy;
+    }
+
+    public Repository getDeployRepo(String repositoryConfigName){
+        try {
+            return repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
+        } catch (RRepositoryException e) {
+            System.out.println();
+            return null;
+        }
     }
 
     public void setInitialProductionRepositoryConfigNames(String[] initialProductionRepositoryConfigNames) {
