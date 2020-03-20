@@ -119,10 +119,6 @@ public abstract class WebStudioUtils {
         return appContext.getBean(name, clazz);
     }
 
-    public static String getApplicationName(ServletContext context) {
-        return PropertySourcesLoader.normalizeAppName(context.getContextPath());
-    }
-
     @Deprecated
     public static Object getBackingBean(String beanName) {
         // workaround. Needs to find other architecture solution

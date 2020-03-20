@@ -13,6 +13,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -154,8 +155,10 @@ public class InstallWizard {
         return PAGE_PREFIX + step + PAGE_POSTFIX;
     }
 
-    public String reconfigure() {
-        PreferencesManager.INSTANCE.setInstallerMode(getAppName());
+    public String reconfigure() throws IOException {
+        HashMap<String, String> props = new HashMap<>();
+        props.put("webstudio.configured", "false");
+        DynamicPropertySource.get().save(props);
         ReloadableDelegatingFilter
             .reloadApplicationContext((ServletContext) WebStudioUtils.getExternalContext().getContext());
         return next();
@@ -414,9 +417,8 @@ public class InstallWizard {
             if (!isUseDesignRepo()) {
                 deployConfigRepositoryConfiguration.commit();
             }
+            properties.setProperty("webstudio.configured", true);
             DynamicPropertySource.get().save(properties.getConfig());
-
-            PreferencesManager.INSTANCE.webStudioConfigured(getAppName());
 
             destroyRepositoryObjects();
             destroyDbContext();
