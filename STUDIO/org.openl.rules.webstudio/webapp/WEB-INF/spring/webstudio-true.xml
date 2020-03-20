@@ -101,7 +101,7 @@
     </bean>
 
     <bean name="zipCharsetDetector" class="org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector">
+        <constructor-arg name="charsetNames" value="${zip.charsets.support}" />
         <constructor-arg name="zipFilter" ref="zipFilter"/>
-        <constructor-arg ref="environment"/>
     </bean>
 </beans>

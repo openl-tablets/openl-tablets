@@ -12,14 +12,12 @@ import org.openl.rules.project.xml.v5_13.XmlProjectDescriptorSerializer_v5_13;
 import org.openl.rules.project.xml.v5_16.XmlProjectDescriptorSerializer_v5_16;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
-import org.springframework.core.env.PropertyResolver;
 
 public class ProjectDescriptorSerializerFactory {
     private final SupportedVersionSerializer supportedVersionSerializer;
 
-    public ProjectDescriptorSerializerFactory(PropertyResolver propertyResolver) {
-        this.supportedVersionSerializer = new SupportedVersionSerializer(
-            propertyResolver.getProperty("default.openl.compatibility.version"));
+    public ProjectDescriptorSerializerFactory(String defaultVersion) {
+        this.supportedVersionSerializer = new SupportedVersionSerializer(defaultVersion);
     }
 
     public IProjectDescriptorSerializer getDefaultSerializer() {
