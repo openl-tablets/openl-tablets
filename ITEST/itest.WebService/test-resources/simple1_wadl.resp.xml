@@ -1,4 +1,4 @@
-<application xmlns="http://wadl.dev.java.net/2009/02" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:prefix3="http://csr.generated.openl.org" xmlns:prefix2="http://variation.rules.openl.org" xmlns:prefix1="http://jaxrs.openl.org"><grammars><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://convertor2.result.calculation.rules.openl.org" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://convertor2.result.calculation.rules.openl.org" version="1.0">
+<application xmlns="http://wadl.dev.java.net/2009/02" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:prefix3="http://spreadsheetresults.generated.openl.org" xmlns:prefix2="http://variation.rules.openl.org" xmlns:prefix1="http://jaxrs.openl.org"><grammars><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://convertor2.result.calculation.rules.openl.org" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://convertor2.result.calculation.rules.openl.org" version="1.0">
     <xs:element name="calculationStep" type="tns:calculationStep"/>
     <xs:element name="codeStep" type="tns:codeStep"/>
     <xs:element name="compoundStep" type="tns:compoundStep"/>
@@ -39,6 +39,105 @@
         </xs:complexContent>
     </xs:complexType>
 </xs:schema>
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://variation.rules.openl.org" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://variation.rules.openl.org" version="1.0">
+        <xs:element name="argumentReplacementVariation" type="tns:argumentReplacementVariation"/>
+        <xs:element name="complexVariation" type="tns:complexVariation"/>
+        <xs:element name="deepCloningVariation" type="tns:deepCloningVariation"/>
+        <xs:element name="jxPathVariation" type="tns:jxPathVariation"/>
+        <xs:element name="noVariation" type="tns:noVariation"/>
+        <xs:element name="variation" type="tns:variation"/>
+        <xs:element name="variationsPack" type="tns:variationsPack"/>
+        <xs:element name="variationsResult" type="tns:variationsResult"/>
+        <xs:complexType name="noVariation">
+            <xs:complexContent>
+                <xs:extension base="tns:variation">
+                    <xs:sequence/>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+        <xs:complexType abstract="true" name="variation">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="variationID" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+        <xs:complexType name="argumentReplacementVariation">
+            <xs:complexContent>
+                <xs:extension base="tns:variation">
+                    <xs:sequence>
+                        <xs:element name="updatedArgumentIndex" type="xs:int"/>
+                        <xs:element minOccurs="0" name="valueToSet" type="xs:anyType"/>
+                    </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+        <xs:complexType name="complexVariation">
+            <xs:complexContent>
+                <xs:extension base="tns:variation">
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="variations" nillable="true" type="tns:variation"/>
+                    </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+        <xs:complexType name="jxPathVariation">
+            <xs:complexContent>
+                <xs:extension base="tns:variation">
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="path" type="xs:string"/>
+                        <xs:element name="updatedArgumentIndex" type="xs:int"/>
+                        <xs:element minOccurs="0" name="valueToSet" type="xs:anyType"/>
+                    </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+        <xs:complexType name="deepCloningVariation">
+            <xs:complexContent>
+                <xs:extension base="tns:variation">
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="delegatedVariation" type="tns:variation"/>
+                    </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+        <xs:complexType final="extension restriction" name="variationsPack">
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="variations" nillable="true" type="tns:variation"/>
+            </xs:sequence>
+        </xs:complexType>
+        <xs:complexType name="variationsResult">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="data" type="xs:base64Binary"/>
+                <xs:element name="variationFailures">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element maxOccurs="unbounded" minOccurs="0" name="entry">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element minOccurs="0" name="key" type="xs:string"/>
+                                        <xs:element minOccurs="0" name="value" type="xs:string"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="variationResults">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element maxOccurs="unbounded" minOccurs="0" name="entry">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element minOccurs="0" name="key" type="xs:string"/>
+                                        <xs:element minOccurs="0" name="value" type="xs:anyType"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:schema>
     <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://enumeration.rules.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://enumeration.rules.openl.org" version="1.0">
         <xs:simpleType name="caProvincesEnum">
             <xs:restriction base="xs:string">
@@ -349,124 +448,6 @@
             </xs:restriction>
         </xs:simpleType>
     </xs:schema>
-    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://variation.rules.openl.org" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://variation.rules.openl.org" version="1.0">
-        <xs:element name="argumentReplacementVariation" type="tns:argumentReplacementVariation"/>
-        <xs:element name="complexVariation" type="tns:complexVariation"/>
-        <xs:element name="deepCloningVariation" type="tns:deepCloningVariation"/>
-        <xs:element name="jxPathVariation" type="tns:jxPathVariation"/>
-        <xs:element name="noVariation" type="tns:noVariation"/>
-        <xs:element name="variation" type="tns:variation"/>
-        <xs:element name="variationsPack" type="tns:variationsPack"/>
-        <xs:element name="variationsResult" type="tns:variationsResult"/>
-        <xs:complexType name="noVariation">
-            <xs:complexContent>
-                <xs:extension base="tns:variation">
-                    <xs:sequence/>
-                </xs:extension>
-            </xs:complexContent>
-        </xs:complexType>
-        <xs:complexType abstract="true" name="variation">
-            <xs:sequence>
-                <xs:element minOccurs="0" name="variationID" type="xs:string"/>
-            </xs:sequence>
-        </xs:complexType>
-        <xs:complexType name="argumentReplacementVariation">
-            <xs:complexContent>
-                <xs:extension base="tns:variation">
-                    <xs:sequence>
-                        <xs:element name="updatedArgumentIndex" type="xs:int"/>
-                        <xs:element minOccurs="0" name="valueToSet" type="xs:anyType"/>
-                    </xs:sequence>
-                </xs:extension>
-            </xs:complexContent>
-        </xs:complexType>
-        <xs:complexType name="complexVariation">
-            <xs:complexContent>
-                <xs:extension base="tns:variation">
-                    <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="variations" nillable="true" type="tns:variation"/>
-                    </xs:sequence>
-                </xs:extension>
-            </xs:complexContent>
-        </xs:complexType>
-        <xs:complexType name="jxPathVariation">
-            <xs:complexContent>
-                <xs:extension base="tns:variation">
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="path" type="xs:string"/>
-                        <xs:element name="updatedArgumentIndex" type="xs:int"/>
-                        <xs:element minOccurs="0" name="valueToSet" type="xs:anyType"/>
-                    </xs:sequence>
-                </xs:extension>
-            </xs:complexContent>
-        </xs:complexType>
-        <xs:complexType name="deepCloningVariation">
-            <xs:complexContent>
-                <xs:extension base="tns:variation">
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="delegatedVariation" type="tns:variation"/>
-                    </xs:sequence>
-                </xs:extension>
-            </xs:complexContent>
-        </xs:complexType>
-        <xs:complexType final="extension restriction" name="variationsPack">
-            <xs:sequence>
-                <xs:element maxOccurs="unbounded" minOccurs="0" name="variations" nillable="true" type="tns:variation"/>
-            </xs:sequence>
-        </xs:complexType>
-        <xs:complexType name="variationsResult">
-            <xs:sequence>
-                <xs:element minOccurs="0" name="data" type="xs:base64Binary"/>
-                <xs:element name="variationFailures">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="entry">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element minOccurs="0" name="key" type="xs:string"/>
-                                        <xs:element minOccurs="0" name="value" type="xs:string"/>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element name="variationResults">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="entry">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element minOccurs="0" name="key" type="xs:string"/>
-                                        <xs:element minOccurs="0" name="value" type="xs:anyType"/>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:schema>
-    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://csr.generated.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://csr.generated.openl.org" version="1.0">
-        <xs:element name="Test" type="tns:Test"/>
-        <xs:complexType name="Test">
-            <xs:sequence>
-                <xs:element minOccurs="0" name="valueR10" type="xs:double"/>
-                <xs:element minOccurs="0" name="value1R10" type="xs:double"/>
-                <xs:element minOccurs="0" name="value2R10" type="xs:string"/>
-                <xs:element minOccurs="0" name="valueR20" type="xs:double"/>
-                <xs:element minOccurs="0" name="value1R20" type="xs:double"/>
-                <xs:element minOccurs="0" name="value2R20" type="xs:string"/>
-                <xs:element minOccurs="0" name="valueR30" type="xs:double"/>
-                <xs:element minOccurs="0" name="value1R30" type="xs:double"/>
-                <xs:element minOccurs="0" name="value2R30" type="xs:string"/>
-                <xs:element minOccurs="0" name="valueR40" type="xs:double"/>
-                <xs:element minOccurs="0" name="value1R40" type="xs:double"/>
-                <xs:element minOccurs="0" name="value2R40" type="xs:string"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:schema>
     <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://context.rules.openl.org" xmlns:ns1="http://enumeration.rules.openl.org" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://context.rules.openl.org" version="1.0">
         <xs:import namespace="http://enumeration.rules.openl.org"/>
         <xs:complexType name="defaultRulesRuntimeContext">
@@ -490,6 +471,25 @@
         <xs:complexType name="error">
             <xs:sequence>
                 <xs:element minOccurs="0" name="message" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:schema>
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://spreadsheetresults.generated.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://spreadsheetresults.generated.openl.org" version="1.0">
+        <xs:element name="Test" type="tns:Test"/>
+        <xs:complexType name="Test">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="valueR10" type="xs:double"/>
+                <xs:element minOccurs="0" name="value1R10" type="xs:double"/>
+                <xs:element minOccurs="0" name="value2R10" type="xs:string"/>
+                <xs:element minOccurs="0" name="valueR20" type="xs:double"/>
+                <xs:element minOccurs="0" name="value1R20" type="xs:double"/>
+                <xs:element minOccurs="0" name="value2R20" type="xs:string"/>
+                <xs:element minOccurs="0" name="valueR30" type="xs:double"/>
+                <xs:element minOccurs="0" name="value1R30" type="xs:double"/>
+                <xs:element minOccurs="0" name="value2R30" type="xs:string"/>
+                <xs:element minOccurs="0" name="valueR40" type="xs:double"/>
+                <xs:element minOccurs="0" name="value1R40" type="xs:double"/>
+                <xs:element minOccurs="0" name="value2R40" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:schema>
