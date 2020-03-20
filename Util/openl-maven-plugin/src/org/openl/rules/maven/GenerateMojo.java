@@ -451,7 +451,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
                 if (openClass instanceof DatatypeOpenClass) {
                     Class<?> datatypeClass = openClass.getInstanceClass();
                     String dataType = datatypeClass.getName();
-                    info("Java Bean: " + dataType);
+                    info("Java Bean for Datatype: " + dataType);
                     decompiler.decompile(dataType, ((DatatypeOpenClass) openClass).getBytecode());
                 }
             }
@@ -466,7 +466,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
                 if (openClass instanceof CustomSpreadsheetResultOpenClass) {
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
                     Class<?> cls = customSpreadsheetResultOpenClass.getBeanClass();
-                    info("CSR Bean: " + cls.getName());
+                    info("Java Bean for Spreadsheet Result: " + cls.getName());
                     decompiler.decompile(cls.getName(), customSpreadsheetResultOpenClass.getBeanClassByteCode());
                 }
             }

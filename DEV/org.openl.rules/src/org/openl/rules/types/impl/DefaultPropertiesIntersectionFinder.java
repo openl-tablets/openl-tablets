@@ -10,7 +10,7 @@ public class DefaultPropertiesIntersectionFinder {
     private Map<String, IntersectionConstraint<?>> constraints = new HashMap<>();
 
     public DefaultPropertiesIntersectionFinder() {
-        initilaize();
+        initialize();
     }
 
     public IntersectionType match(String propName, ITableProperties props1, ITableProperties props2) {
@@ -23,7 +23,7 @@ public class DefaultPropertiesIntersectionFinder {
         return mc.match(props1, props2);
     }
 
-    protected void initilaize() {
+    protected void initialize() {
         // <<< INSERT >>>
         constraints.put("caRegions", new IntersectionConstraint<org.openl.rules.enumeration.CaRegionsEnum[]>() {
 

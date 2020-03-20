@@ -101,7 +101,7 @@ public class TableDetailsBean {
                 prop.setInheritanceLevel(inheritanceLevel);
                 if (InheritanceLevel.MODULE.equals(inheritanceLevel) || InheritanceLevel.CATEGORY
                     .equals(inheritanceLevel)) {
-                    prop.setInheritedTableId(getProprtiesTableId(inheritanceLevel, props));
+                    prop.setInheritedTableId(getPropertiesTableId(inheritanceLevel, props));
                 }
 
                 storeProperty(prop);
@@ -153,7 +153,7 @@ public class TableDetailsBean {
         return editable;
     }
 
-    private String getProprtiesTableId(InheritanceLevel inheritanceLevel, ITableProperties props) {
+    private String getPropertiesTableId(InheritanceLevel inheritanceLevel, ITableProperties props) {
         TableSyntaxNode propertiesTableSyntaxNode = props.getInheritedPropertiesTableSyntaxNode(inheritanceLevel);
         if (propertiesTableSyntaxNode != null) {
             return propertiesTableSyntaxNode.getId();
@@ -200,7 +200,7 @@ public class TableDetailsBean {
 
             if (!items.isEmpty()) {
                 SelectItemGroup itemGroup = new SelectItemGroup(entry.getKey());
-                itemGroup.setSelectItems(items.toArray(new SelectItem[items.size()]));
+                itemGroup.setSelectItems(items.toArray(new SelectItem[0]));
                 propertiesToAdd.add(itemGroup);
             }
         }

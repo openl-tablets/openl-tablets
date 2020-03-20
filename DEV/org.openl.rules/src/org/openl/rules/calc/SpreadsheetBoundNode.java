@@ -37,8 +37,6 @@ import org.openl.util.ClassUtils;
 // Extract all the binding and build code to the SpreadsheetBinder
 public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBoundNode {
 
-    public static final String CSR_BEANS_PACKAGE = "csr-beans-package";
-
     private SpreadsheetStructureBuilder structureBuilder;
     private SpreadsheetComponentsBuilder componentsBuilder;
     private SpreadsheetOpenClass spreadsheetOpenClass;
@@ -76,7 +74,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
             spreadsheet.getRowTitles(),
             spreadsheet.getColumnTitles(),
             getModule(),
-            spreadsheet.isDetailedPlainModel());
+            spreadsheet.isDetailedPlainModel(),
+            spreadsheet.getSyntaxNode().getTableProperties().getSpreadsheetResultPackage());
 
         customSpreadsheetResultOpenClass
             .setMetaInfo(new TableMetaInfo("Spreadsheet", spreadsheet.getName(), spreadsheet.getSourceUrl()));

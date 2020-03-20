@@ -1,10 +1,10 @@
 try {
-    assert new File(basedir, 'target/classes/org/openl/generated/csrbeans/MySpr2.class').exists()
-    assert new File(basedir, 'target/classes/org/openl/generated/csrbeans/Spr.class').exists()
-    assert new File(basedir, 'target/classes/org/openl/generated/csrbeans/Main.class').exists()
-    assert new File(basedir, 'target/classes/org/openl/generated/csrbeans/MySpr.class').exists()
-    assert new File(basedir, 'target/classes/org/openl/generated/csrbeans/Spr1.class').exists()
-    assert new File(basedir, 'target/classes/org/openl/generated/csrbeans/RunMain.class').exists()
+    assert new File(basedir, 'target/classes/org/openl/generated/outputmodel/MySpr2.class').exists()
+    assert new File(basedir, 'target/classes/org/openl/generated/outputmodel/Spr.class').exists()
+    assert new File(basedir, 'target/classes/org/openl/generated/outputmodel/Main.class').exists()
+    assert new File(basedir, 'target/classes/org/openl/generated/outputmodel/MySpr.class').exists()
+    assert new File(basedir, 'target/classes/org/openl/generated/outputmodel/Spr1.class').exists()
+    assert new File(basedir, 'target/classes/org/openl/generated/outputmodel/RunMain.class').exists()
 
     assert new File(basedir, 'target/openl-gen-csr-beans-0.0.0.zip').exists()
 
