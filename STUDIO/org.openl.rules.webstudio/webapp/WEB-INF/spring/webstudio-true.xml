@@ -8,14 +8,11 @@
     default-autowire="no">
 
     <context:property-placeholder/>
-
-    <import resource="system-config-beans.xml" />
-    <import resource="repository-beans.xml" />
-    <import resource="security-beans.xml" />
+    <context:component-scan base-package="org.openl.rules.webstudio, org.openl.rules.rest"/>
+    <import resource="*-beans.xml" />
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
 
     <bean id="currentUserInfo" class="org.openl.rules.webstudio.security.CurrentUserInfo" />
-
-    <bean id="versionProperties" class="org.openl.info.OpenLVersion" />
 
     <bean id="excludedFolders" class="java.util.LinkedHashSet">
     <constructor-arg>
@@ -76,9 +73,6 @@
     </constructor-arg>
     </bean>
 
-    <context:component-scan base-package="org.openl.rules.webstudio, org.openl.rules.rest"/>
-
-    <import resource="classpath:META-INF/cxf/cxf.xml" />
     <bean class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean" init-method="create">
         <property name="address" value=""/>
         <property name="serviceBeans">
