@@ -399,6 +399,17 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     @Override
+    public java.lang.String getSpreadsheetResultPackage() {
+        return (java.lang.String) getPropertyValue("spreadsheetResultPackage");
+    }
+
+    @Override
+    public void setSpreadsheetResultPackage(java.lang.String spreadsheetResultPackage) {
+        setFieldValue("spreadsheetResultPackage", spreadsheetResultPackage);
+        reset();
+    }
+
+    @Override
     public java.lang.String getDatatypePackage() {
         return (java.lang.String) getPropertyValue("datatypePackage");
     }
@@ -635,10 +646,10 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         Map<String, Object> tableAndCategoryProp = mergeLevelProperties(super.getFieldValues(), categoryProperties);
         Map<String, Object> tableAndCategoryAndModuleProp = mergeLevelProperties(tableAndCategoryProp,
             moduleProperties);
-        Map<String, Object> tableAndCategoryAndModuleAndExteranlProp = mergeLevelProperties(
+        Map<String, Object> tableAndCategoryAndModuleAndExternalProp = mergeLevelProperties(
             tableAndCategoryAndModuleProp,
             externalModuleProperties);
-        Map<String, Object> allTableProperties = mergeLevelProperties(tableAndCategoryAndModuleAndExteranlProp,
+        Map<String, Object> allTableProperties = mergeLevelProperties(tableAndCategoryAndModuleAndExternalProp,
             defaultProperties);
         allProperties = Collections.unmodifiableMap(allTableProperties);
         return allProperties;

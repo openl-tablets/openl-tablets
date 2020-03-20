@@ -34,7 +34,6 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
     private static final String METHOD_FILTER_TAG = "method-filter";
     private static final String DEPENDENCY_TAG = "dependency";
     private static final String PROPERTIES_FILE_NAME_PATTERN = "properties-file-name-pattern";
-    private static final String CSR_BEANS_PACKAGE = "csr-beans-package";
     private static final String PROPERTIES_FILE_NAME_PROCESSOR = "properties-file-name-processor";
 
     private final XStream xstream;
@@ -82,7 +81,6 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         xstream.aliasType(PROPERTY_TAG, Property.class);
         xstream.aliasField(PROPERTIES_FILE_NAME_PATTERN, ProjectDescriptor.class, "propertiesFileNamePattern");
         xstream.aliasField(PROPERTIES_FILE_NAME_PROCESSOR, ProjectDescriptor.class, "propertiesFileNameProcessor");
-        xstream.aliasField(CSR_BEANS_PACKAGE, ProjectDescriptor.class, "csrBeansPackage");
         xstream.addDefaultImplementation(HashSet.class, Collection.class);
         xstream.alias("value", String.class);
 

@@ -244,6 +244,10 @@ public interface ITableProperties {
 
     void setScope(java.lang.String scope);
 
+    java.lang.String getSpreadsheetResultPackage();
+
+    void setSpreadsheetResultPackage(java.lang.String spreadsheetResultPackage);
+
     java.lang.String getDatatypePackage();
 
     void setDatatypePackage(java.lang.String datatypePackage);
