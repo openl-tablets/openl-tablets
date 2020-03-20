@@ -399,17 +399,6 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     @Override
-    public java.lang.String getSpreadsheetResultPackage() {
-        return (java.lang.String) getPropertyValue("spreadsheetResultPackage");
-    }
-
-    @Override
-    public void setSpreadsheetResultPackage(java.lang.String spreadsheetResultPackage) {
-        setFieldValue("spreadsheetResultPackage", spreadsheetResultPackage);
-        reset();
-    }
-
-    @Override
     public java.lang.String getDatatypePackage() {
         return (java.lang.String) getPropertyValue("datatypePackage");
     }
@@ -417,6 +406,17 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     @Override
     public void setDatatypePackage(java.lang.String datatypePackage) {
         setFieldValue("datatypePackage", datatypePackage);
+        reset();
+    }
+
+    @Override
+    public java.lang.String getSpreadsheetResultPackage() {
+        return (java.lang.String) getPropertyValue("spreadsheetResultPackage");
+    }
+
+    @Override
+    public void setSpreadsheetResultPackage(java.lang.String spreadsheetResultPackage) {
+        setFieldValue("spreadsheetResultPackage", spreadsheetResultPackage);
         reset();
     }
 
