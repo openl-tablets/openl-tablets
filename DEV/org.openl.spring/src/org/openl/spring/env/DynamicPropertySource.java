@@ -34,6 +34,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         super(PROPS_NAME);
         this.resolver = resolver;
         this.appName = appName;
+        ConfigLog.LOG.info("+        Add: '{}'", getFile());
     }
 
     @Override
