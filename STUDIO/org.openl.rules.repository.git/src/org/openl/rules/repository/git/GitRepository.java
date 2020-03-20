@@ -2151,6 +2151,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         if (uriOrPath == null) {
             return null;
         }
+        if (uriOrPath.startsWith("/") || uriOrPath.startsWith("\\")) {
+            // Absolute path
+            return new File(uriOrPath).toURI();
+        }
         try {
             return new URI(uriOrPath);
         } catch (URISyntaxException e) {
