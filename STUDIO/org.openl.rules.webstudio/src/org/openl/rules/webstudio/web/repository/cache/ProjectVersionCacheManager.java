@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.repository;
+package org.openl.rules.webstudio.web.repository.cache;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,7 +14,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.repository.api.Listener;
-import org.openl.rules.repository.db.H2CacheDB;
+import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,6 @@ public class ProjectVersionCacheManager {
                 break;
             }
             h2CacheDB.insert(project.getName(), versionName, md5);
-
         }
     }
 

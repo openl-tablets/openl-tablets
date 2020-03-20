@@ -1,4 +1,4 @@
-package org.openl.rules.repository.db;
+package org.openl.util.db;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -7,11 +7,11 @@ import java.sql.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class SqlDB {
+public class SqlDBUtils {
 
-    private final Logger log = LoggerFactory.getLogger(SqlDB.class);
+    private static final Logger log = LoggerFactory.getLogger(SqlDBUtils.class);
 
-    protected void safeClose(ResultSet rs) {
+    public static void safeClose(ResultSet rs) {
         if (rs != null) {
             try {
                 rs.close();
@@ -21,7 +21,7 @@ public abstract class SqlDB {
         }
     }
 
-    protected void safeClose(Connection connection) {
+    public static void safeClose(Connection connection) {
         if (connection != null) {
             try {
                 if (!connection.getAutoCommit()) {
@@ -38,7 +38,7 @@ public abstract class SqlDB {
         }
     }
 
-    protected void safeClose(Statement st) {
+    public static void safeClose(Statement st) {
         if (st != null) {
             try {
                 st.close();
@@ -47,5 +47,4 @@ public abstract class SqlDB {
             }
         }
     }
-
 }

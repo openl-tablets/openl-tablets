@@ -1,4 +1,4 @@
-package org.openl.rules.repository.db;
+package org.openl.rules.webstudio.web.repository.cache;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -7,10 +7,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.openl.util.db.SqlDBUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class H2CacheDB extends SqlDB {
+public class H2CacheDB {
 
     private final Logger log = LoggerFactory.getLogger(H2CacheDB.class);
 
@@ -48,9 +49,9 @@ public class H2CacheDB extends SqlDB {
         } catch (Exception e) {
             throw new IOException(e);
         } finally {
-            safeClose(rs);
-            safeClose(selectPreparedStatement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(rs);
+            SqlDBUtils.safeClose(selectPreparedStatement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -71,8 +72,8 @@ public class H2CacheDB extends SqlDB {
         } catch (Exception e) {
             throw new IOException(e);
         } finally {
-            safeClose(insertPreparedStatement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(insertPreparedStatement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -97,9 +98,9 @@ public class H2CacheDB extends SqlDB {
         } catch (Exception e) {
             throw new IOException(e);
         } finally {
-            safeClose(rs);
-            safeClose(selectPreparedStatement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(rs);
+            SqlDBUtils.safeClose(selectPreparedStatement);
+            SqlDBUtils.safeClose(connection);
         }
         return count == 0;
     }
@@ -117,8 +118,8 @@ public class H2CacheDB extends SqlDB {
         } catch (Exception e) {
             throw new IOException(e);
         } finally {
-            safeClose(createPreparedStatement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(createPreparedStatement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 

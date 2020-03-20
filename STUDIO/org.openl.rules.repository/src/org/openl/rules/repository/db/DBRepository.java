@@ -26,10 +26,11 @@ import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.db.JDBCDriverRegister;
+import org.openl.util.db.SqlDBUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class DBRepository extends SqlDB implements Repository, Closeable, RRepositoryFactory {
+public abstract class DBRepository implements Repository, Closeable, RRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(DBRepository.class);
 
     private Settings settings;
@@ -59,9 +60,9 @@ public abstract class DBRepository extends SqlDB implements Repository, Closeabl
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(rs);
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(rs);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -93,9 +94,9 @@ public abstract class DBRepository extends SqlDB implements Repository, Closeabl
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(rs);
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(rs);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -118,7 +119,7 @@ public abstract class DBRepository extends SqlDB implements Repository, Closeabl
                     statement = createInsertFileStatement(connection, data, fileItem.getStream());
                     statement.executeUpdate();
                 } finally {
-                    safeClose(statement);
+                    SqlDBUtils.safeClose(statement);
                 }
                 data.setVersion(null);
                 result.add(data);
@@ -128,7 +129,7 @@ public abstract class DBRepository extends SqlDB implements Repository, Closeabl
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(connection);
+            SqlDBUtils.safeClose(connection);
         }
         return result;
     }
@@ -175,8 +176,8 @@ public abstract class DBRepository extends SqlDB implements Repository, Closeabl
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -211,9 +212,9 @@ public abstract class DBRepository extends SqlDB implements Repository, Closeabl
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(rs);
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(rs);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -246,9 +247,9 @@ public abstract class DBRepository extends SqlDB implements Repository, Closeabl
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(rs);
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(rs);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -276,8 +277,8 @@ public abstract class DBRepository extends SqlDB implements Repository, Closeabl
                 log.error(e.getMessage(), e);
                 throw new IOException(e.getMessage(), e);
             } finally {
-                safeClose(statement);
-                safeClose(connection);
+                SqlDBUtils.safeClose(statement);
+                SqlDBUtils.safeClose(connection);
             }
         } else {
             Connection connection = null;
@@ -299,8 +300,8 @@ public abstract class DBRepository extends SqlDB implements Repository, Closeabl
                 log.error(e.getMessage(), e);
                 throw new IOException(e.getMessage(), e);
             } finally {
-                safeClose(statement);
-                safeClose(connection);
+                SqlDBUtils.safeClose(statement);
+                SqlDBUtils.safeClose(connection);
             }
         }
     }
@@ -329,8 +330,8 @@ public abstract class DBRepository extends SqlDB implements Repository, Closeabl
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -363,9 +364,9 @@ public abstract class DBRepository extends SqlDB implements Repository, Closeabl
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(rs);
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(rs);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -392,9 +393,9 @@ public abstract class DBRepository extends SqlDB implements Repository, Closeabl
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(rs);
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(rs);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -458,8 +459,8 @@ public abstract class DBRepository extends SqlDB implements Repository, Closeabl
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -508,7 +509,7 @@ public abstract class DBRepository extends SqlDB implements Repository, Closeabl
             log.info("Database code    : {}-v{}.{}", databaseCode, majorVersion, minorVersion);
             settings = new Settings(databaseCode, majorVersion, minorVersion);
         } finally {
-            safeClose(connection);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -546,8 +547,8 @@ public abstract class DBRepository extends SqlDB implements Repository, Closeabl
             if (autoCommit != null) {
                 connection.setAutoCommit(autoCommit);
             }
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -583,9 +584,9 @@ public abstract class DBRepository extends SqlDB implements Repository, Closeabl
         } catch (Exception e) {
             return e;
         } finally {
-            safeClose(rs);
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(rs);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
         return changeSet;
     }

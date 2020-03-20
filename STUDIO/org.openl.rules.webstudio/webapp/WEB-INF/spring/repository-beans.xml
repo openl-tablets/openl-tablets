@@ -45,10 +45,10 @@
         <constructor-arg name="prefix" value="deploy-config."/>
     </bean>
 
-    <bean id="h2CacheDB" class="org.openl.rules.repository.db.H2CacheDB">
+    <bean id="h2CacheDB" class="org.openl.rules.webstudio.web.repository.cache.H2CacheDB">
     </bean>
 
-    <bean id="projectVersionCacheManager" class="org.openl.rules.webstudio.web.repository.ProjectVersionCacheManager">
+    <bean id="projectVersionCacheManager" class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager">
         <property name="designRepository" ref="designTimeRepository"/>
         <property name="deploymentManager" ref="deploymentManager"/>
         <property name="H2CacheDB" ref="h2CacheDB"/>
