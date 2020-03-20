@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class H2CacheDB {
+public class H2CacheDB extends SqlDB {
 
     private final Logger log = LoggerFactory.getLogger(H2CacheDB.class);
 
@@ -28,13 +28,15 @@ public class H2CacheDB {
 
     public String checkHash(String hash) throws IOException {
         ensureCacheIsExist();
-        Connection connection = getDBConnection();
+        Connection connection = null;
+        ResultSet rs = null;
+        PreparedStatement selectPreparedStatement = null;
         try {
-            PreparedStatement selectPreparedStatement = connection.prepareStatement(SELECT_QUERY);
-            ;
+            connection = getDBConnection();
+            selectPreparedStatement = connection.prepareStatement(SELECT_QUERY);
             selectPreparedStatement.setString(1, hash);
             connection.setAutoCommit(false);
-            ResultSet rs = selectPreparedStatement.executeQuery();
+            rs = selectPreparedStatement.executeQuery();
             selectPreparedStatement = connection.prepareStatement(SELECT_QUERY);
             String version = null;
             while (rs.next()) {
@@ -46,16 +48,20 @@ public class H2CacheDB {
         } catch (Exception e) {
             throw new IOException(e);
         } finally {
+            safeClose(rs);
+            safeClose(selectPreparedStatement);
             safeClose(connection);
         }
     }
 
     public void insert(String projectName, String version, String hash) throws IOException {
         ensureCacheIsExist();
-        Connection connection = getDBConnection();
+        Connection connection = null;
+        PreparedStatement insertPreparedStatement = null;
         try {
+            connection = getDBConnection();
             connection.setAutoCommit(false);
-            PreparedStatement insertPreparedStatement = connection.prepareStatement(INSERT_QUERY);
+            insertPreparedStatement = connection.prepareStatement(INSERT_QUERY);
             insertPreparedStatement.setString(1, projectName);
             insertPreparedStatement.setString(2, version);
             insertPreparedStatement.setString(3, hash);
@@ -65,6 +71,7 @@ public class H2CacheDB {
         } catch (Exception e) {
             throw new IOException(e);
         } finally {
+            safeClose(insertPreparedStatement);
             safeClose(connection);
         }
     }
@@ -72,13 +79,15 @@ public class H2CacheDB {
     public boolean isCacheEmpty() throws IOException {
         ensureCacheIsExist();
         int count = 0;
-        Connection connection = getDBConnection();
+        Connection connection = null;
+        PreparedStatement selectPreparedStatement = null;
+        ResultSet rs = null;
 
         try {
+            connection = getDBConnection();
             connection.setAutoCommit(false);
-
-            PreparedStatement selectPreparedStatement = connection.prepareStatement(SELECT_COUNT_QUERY);
-            ResultSet rs = selectPreparedStatement.executeQuery();
+            selectPreparedStatement = connection.prepareStatement(SELECT_COUNT_QUERY);
+            rs = selectPreparedStatement.executeQuery();
             while (rs.next()) {
                 count = rs.getInt(1);
             }
@@ -88,22 +97,27 @@ public class H2CacheDB {
         } catch (Exception e) {
             throw new IOException(e);
         } finally {
+            safeClose(rs);
+            safeClose(selectPreparedStatement);
             safeClose(connection);
         }
         return count == 0;
     }
 
     private void ensureCacheIsExist() throws IOException {
-        Connection connection = getDBConnection();
+        Connection connection = null;
+        PreparedStatement createPreparedStatement = null;
         try {
+            connection = getDBConnection();
             connection.setAutoCommit(false);
-            PreparedStatement createPreparedStatement = connection.prepareStatement(CREATE_QUERY);
+            createPreparedStatement = connection.prepareStatement(CREATE_QUERY);
             createPreparedStatement.executeUpdate();
             createPreparedStatement.close();
             connection.commit();
         } catch (Exception e) {
             throw new IOException(e);
         } finally {
+            safeClose(createPreparedStatement);
             safeClose(connection);
         }
     }
@@ -122,15 +136,4 @@ public class H2CacheDB {
             throw new IOException(e);
         }
     }
-
-    protected void safeClose(Connection connection) {
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (Exception e) {
-                log.warn("Unexpected sql failure", e);
-            }
-        }
-    }
-
 }
