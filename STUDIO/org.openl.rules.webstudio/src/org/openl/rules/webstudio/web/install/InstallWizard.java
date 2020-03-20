@@ -454,8 +454,7 @@ public class InstallWizard {
             keystore = ResourceUtils.getFile(samlSettings.getKeystoreFilePath());
             ks = KeyStoreUtils.loadKeyStore(keystore, keystorePassword);
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
-            throw new IllegalStateException("The keystore of the application isn't valid",
-                e);
+            throw new IllegalStateException("The keystore of the application isn't valid", e);
         }
 
         try {
@@ -463,9 +462,7 @@ public class InstallWizard {
             ks.setCertificateEntry(certificateAlias, cert);
             KeyStoreUtils.saveKeyStore(keystore, ks, keystorePassword);
         } catch (KeyStoreException | IOException | CertificateException | NoSuchAlgorithmException e) {
-            throw new IllegalStateException(
-                "The keystore of the application can't be saved",
-                e);
+            throw new IllegalStateException("The keystore of the application can't be saved", e);
         }
 
     }
@@ -680,12 +677,15 @@ public class InstallWizard {
         if (StringUtils.isBlank(maxAuthenticationAge)) {
             throw new ValidatorException(createErrorMessage("SAML max authentication age cannot be blank."));
         }
-        if (StringUtils.isNotBlank(publicServerCert)) {
+
+        if (StringUtils.isBlank(publicServerCert)) {
+            throw new ValidatorException(createErrorMessage("SAML server certificate cannot be blank"));
+        } else {
             try {
                 X509Certificate cert = KeyStoreUtils.generateCertificate(publicServerCert);
                 cert.checkValidity();
             } catch (Exception e) {
-                throw new ValidatorException(createErrorMessage("Entered key is not valid."));
+                throw new ValidatorException(createErrorMessage("Entered SAML server certificate is not valid."));
             }
         }
 
