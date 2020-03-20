@@ -66,7 +66,6 @@ import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.rules.webstudio.util.PreferencesManager;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
@@ -89,6 +88,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
+import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -2132,7 +2132,7 @@ public class RepositoryTreeController {
     @PostConstruct
     public void init() {
         customTemplatesResolver = new CustomTemplatesResolver(
-            propertyResolver.getProperty(PreferencesManager.WEBSTUDIO_WORKING_DIR_KEY));
+            propertyResolver.getProperty(DynamicPropertySource.OPENL_HOME));
         this.projectUseCustomComment = Boolean
             .parseBoolean(propertyResolver.getProperty("repository.design.comment-template.use-custom-comments"));
         designCommentValidator = CommentValidator.forDesignRepo();

@@ -53,14 +53,16 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
     public void loadEnvironment(ConfigurableEnvironment env, ApplicationContext appContext) {
         MutablePropertySources propertySources = env.getPropertySources();
         PropertySourcesPropertyResolver props = new PropertySourcesPropertyResolver(propertySources);
-        String[] profiles = env == null ? null : env.getActiveProfiles();
-        String appName = getAppName(appContext);
+        String[] profiles = env.getActiveProfiles();
+        String appName = normalizeAppName(appContext.getApplicationName());
 
         ConfigLog.LOG.info("Loading default properties...");
         propertySources.addLast(new DefaultPropertySource());
 
         ConfigLog.LOG.info("Loading preference properties...");
-        propertySources.addBefore(DefaultPropertySource.PROPS_NAME, new PreferencePropertySource(appName));
+        PreferencePropertySource preferencePropertySource = new PreferencePropertySource(appName);
+        PreferencePropertySource.THE = preferencePropertySource;
+        propertySources.addBefore(DefaultPropertySource.PROPS_NAME, preferencePropertySource);
 
         ConfigLog.LOG.info("Loading application properties...");
         propertySources.addBefore(PreferencePropertySource.PROPS_NAME,
@@ -72,11 +74,7 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         propertySources.addBefore(ApplicationPropertySource.PROPS_NAME, propertySource);
     }
 
-    public static String getAppName(ApplicationContext appContext) {
-        return normalizeAppName(appContext.getApplicationName());
-    }
-
-    public static String normalizeAppName(String appName) {
+    private static String normalizeAppName(String appName) {
         if (appName.isEmpty()) {
             return "";
         }
