@@ -88,7 +88,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         this.fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames);
         this.module = module;
         this.detailedPlainModel = detailedPlainModel;
-        this.packageName = Objects.requireNonNull(packageName, "spreadsheetResultPackage cannot be null");
+        this.packageName = Objects.requireNonNull(packageName, "packageName cannot be null");
     }
 
     public CustomSpreadsheetResultOpenClass(String name, XlsModuleOpenClass module, String packageName) {
