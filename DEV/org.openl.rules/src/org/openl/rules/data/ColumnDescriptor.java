@@ -200,7 +200,7 @@ public class ColumnDescriptor {
              * processed during prepDaring column descriptor. See {@link
              * DataTableBindHelper#makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type, OpenL
              * openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow, boolean
-             * hasColumnTytleRow)}
+             * hasColumnTitleRow)}
              */
             return literal;
         }
@@ -274,7 +274,7 @@ public class ColumnDescriptor {
                 }
             } else {
                 res = getSingleValue(logicalTable, toolAdapter, paramType);
-                isSame = isSameSingleValue(res, prevRes);
+                isSame = isSameSingleValueAllowsNull(res, prevRes);
                 datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(isSame);
             }
             if (isSame) {
@@ -313,8 +313,11 @@ public class ColumnDescriptor {
     }
 
     private boolean isSameSingleValue(Object res, Object prevRes) {
-        return prevRes == null && res == null || prevRes != null && prevRes
-            .equals(res) || prevRes != PREV_RES_EMPTY && res == null;
+        return isSameSingleValueAllowsNull(res, prevRes) || prevRes != PREV_RES_EMPTY && res == null;
+    }
+
+    private boolean isSameSingleValueAllowsNull(Object res, Object prevRes) {
+        return prevRes == null && res == null || prevRes != null && prevRes.equals(res);
     }
 
     public boolean isReference() {

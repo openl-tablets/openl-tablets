@@ -6,6 +6,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.ui.IProjectTypes;
+import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.util.StringUtils;
 
 /**
@@ -22,7 +23,7 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
     @Override
     public String[] getDisplayValue(Object nodeObject, int i) {
         TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;
-        return TableSyntaxNodeUtils.getTableDisplayValue(tableSyntaxNode, i);
+        return TableSyntaxNodeUtils.getTableDisplayValue(tableSyntaxNode, i, WebStudioFormats.getInstance());
     }
 
     @Override

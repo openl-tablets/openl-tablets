@@ -49,6 +49,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
      *
      * @param downLevelProperties properties that are on the down level.
      * @param upLevelProperties properties that are on the up level.
+     * @return
      */
     private Map<String, Object> mergeLevelProperties(Map<String, Object> downLevelProperties,
             Map<String, Object> upLevelProperties) {
@@ -409,6 +410,17 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     @Override
+    public java.lang.String getSpreadsheetResultPackage() {
+        return (java.lang.String) getPropertyValue("spreadsheetResultPackage");
+    }
+
+    @Override
+    public void setSpreadsheetResultPackage(java.lang.String spreadsheetResultPackage) {
+        setFieldValue("spreadsheetResultPackage", spreadsheetResultPackage);
+        reset();
+    }
+
+    @Override
     public java.lang.Boolean getCacheable() {
         return (java.lang.Boolean) getPropertyValue("cacheable");
     }
@@ -514,7 +526,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         Object propValue = getPropertyValue(key);
         if (propValue != null) {
             if (propValue instanceof Date) {
-                String format = TablePropertyDefinitionUtils.getDateFormat(key, propValue);
+                String format = TablePropertyDefinitionUtils.getPropertyByName(key).getFormat();
                 if (format != null) {
                     SimpleDateFormat dateFormat = new SimpleDateFormat(format);
                     result = dateFormat.format((Date) propValue);
@@ -634,10 +646,10 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         Map<String, Object> tableAndCategoryProp = mergeLevelProperties(super.getFieldValues(), categoryProperties);
         Map<String, Object> tableAndCategoryAndModuleProp = mergeLevelProperties(tableAndCategoryProp,
             moduleProperties);
-        Map<String, Object> tableAndCategoryAndModuleAndExteranlProp = mergeLevelProperties(
+        Map<String, Object> tableAndCategoryAndModuleAndExternalProp = mergeLevelProperties(
             tableAndCategoryAndModuleProp,
             externalModuleProperties);
-        Map<String, Object> allTableProperties = mergeLevelProperties(tableAndCategoryAndModuleAndExteranlProp,
+        Map<String, Object> allTableProperties = mergeLevelProperties(tableAndCategoryAndModuleAndExternalProp,
             defaultProperties);
         allProperties = Collections.unmodifiableMap(allTableProperties);
         return allProperties;

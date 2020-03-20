@@ -13,6 +13,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -51,7 +52,6 @@ import org.openl.rules.webstudio.security.KeyStoreUtils;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.GroupManagementServiceWrapper;
 import org.openl.rules.webstudio.service.UserManagementService;
-import org.openl.rules.webstudio.util.PreferencesManager;
 import org.openl.rules.webstudio.web.admin.ConnectionProductionRepoController;
 import org.openl.rules.webstudio.web.admin.FolderStructureSettings;
 import org.openl.rules.webstudio.web.admin.ProductionRepositoryEditor;
@@ -62,7 +62,6 @@ import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.spring.env.DynamicPropertySource;
-import org.openl.spring.env.PropertySourcesLoader;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.db.JDBCDriverRegister;
@@ -73,7 +72,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
 import org.springframework.util.ResourceUtils;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
 @ManagedBean
@@ -154,8 +152,10 @@ public class InstallWizard {
         return PAGE_PREFIX + step + PAGE_POSTFIX;
     }
 
-    public String reconfigure() {
-        PreferencesManager.INSTANCE.setInstallerMode(getAppName());
+    public String reconfigure() throws IOException {
+        HashMap<String, String> props = new HashMap<>();
+        props.put("webstudio.configured", "false");
+        DynamicPropertySource.get().save(props);
         ReloadableDelegatingFilter
             .reloadApplicationContext((ServletContext) WebStudioUtils.getExternalContext().getContext());
         return next();
@@ -414,9 +414,8 @@ public class InstallWizard {
             if (!isUseDesignRepo()) {
                 deployConfigRepositoryConfiguration.commit();
             }
+            properties.setProperty("webstudio.configured", true);
             DynamicPropertySource.get().save(properties.getConfig());
-
-            PreferencesManager.INSTANCE.webStudioConfigured(getAppName());
 
             destroyRepositoryObjects();
             destroyDbContext();
@@ -455,8 +454,7 @@ public class InstallWizard {
             keystore = ResourceUtils.getFile(samlSettings.getKeystoreFilePath());
             ks = KeyStoreUtils.loadKeyStore(keystore, keystorePassword);
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
-            throw new IllegalStateException("The keystore of the application isn't valid",
-                e);
+            throw new IllegalStateException("The keystore of the application isn't valid", e);
         }
 
         try {
@@ -464,9 +462,7 @@ public class InstallWizard {
             ks.setCertificateEntry(certificateAlias, cert);
             KeyStoreUtils.saveKeyStore(keystore, ks, keystorePassword);
         } catch (KeyStoreException | IOException | CertificateException | NoSuchAlgorithmException e) {
-            throw new IllegalStateException(
-                "The keystore of the application can't be saved",
-                e);
+            throw new IllegalStateException("The keystore of the application can't be saved", e);
         }
 
     }
@@ -681,12 +677,15 @@ public class InstallWizard {
         if (StringUtils.isBlank(maxAuthenticationAge)) {
             throw new ValidatorException(createErrorMessage("SAML max authentication age cannot be blank."));
         }
-        if (StringUtils.isNotBlank(publicServerCert)) {
+
+        if (StringUtils.isBlank(publicServerCert)) {
+            throw new ValidatorException(createErrorMessage("SAML server certificate cannot be blank"));
+        } else {
             try {
                 X509Certificate cert = KeyStoreUtils.generateCertificate(publicServerCert);
                 cert.checkValidity();
             } catch (Exception e) {
-                throw new ValidatorException(createErrorMessage("Entered key is not valid."));
+                throw new ValidatorException(createErrorMessage("Entered SAML server certificate is not valid."));
             }
         }
 
@@ -890,18 +889,13 @@ public class InstallWizard {
         this.workingDir = workingDir;
 
         // Other configurations depend on this property
-        PreferencesManager.INSTANCE.setWebStudioHomeDir(getAppName(), this.workingDir);
+        DynamicPropertySource.get().setOpenLHomeDir(this.workingDir);
 
         String newWorkingDir = propertyResolver.getProperty(DynamicPropertySource.OPENL_HOME);
         if (!workingDir.equals(newWorkingDir)) {
             log.warn("Expected working dir {} but WebStudio sees it as {}", workingDir, newWorkingDir);
             throw new IllegalStateException("WebStudio sees working dir as " + newWorkingDir);
         }
-    }
-
-    private String getAppName() {
-        return PropertySourcesLoader.getAppName(WebApplicationContextUtils
-            .getRequiredWebApplicationContext((ServletContext) WebStudioUtils.getExternalContext().getContext()));
     }
 
     public String getGroupsAreManagedInStudio() {

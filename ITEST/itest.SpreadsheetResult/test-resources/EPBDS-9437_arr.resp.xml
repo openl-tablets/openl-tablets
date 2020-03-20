@@ -1,0 +1,14 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:EPBDS_9437Response xmlns:ns1="http://DefaultNamespace">
+            <ns1:return xmlns:ns2="http://spreadsheetresults.generated.openl.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:EPBDS_9437">
+                <ns2:driver_Forms>
+                    <ns3:anyType xmlns:ns3="http://cxf.apache.org/arrays" xsi:type="ns2:Tiktak">
+                        <ns2:INT>100</ns2:INT>
+                        <ns2:string>Hey!</ns2:string>
+                    </ns3:anyType>
+                </ns2:driver_Forms>
+            </ns1:return>
+        </ns1:EPBDS_9437Response>
+    </soap:Body>
+</soap:Envelope>

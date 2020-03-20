@@ -10,8 +10,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openl.rules.webstudio.util.PreferencesManager;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.webstudio.web.Props;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.filter.GenericFilterBean;
@@ -38,8 +37,8 @@ public class InstallerFilter extends GenericFilterBean {
             FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
 
-        String appName = WebStudioUtils.getApplicationName(getServletContext());
-        boolean configured = PreferencesManager.INSTANCE.isAppConfigured(appName);
+        boolean configured = Props.bool("webstudio.configured");
+
 
         if (wizardRoot != null && !configured && request.getRequestURL().indexOf(wizardRoot) < 0) {
             HttpServletResponse response = (HttpServletResponse) servletResponse;

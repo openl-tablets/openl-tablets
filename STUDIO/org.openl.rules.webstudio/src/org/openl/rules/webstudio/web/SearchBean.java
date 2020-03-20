@@ -9,7 +9,6 @@ import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.model.SelectItem;
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -19,6 +18,7 @@ import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.ISelector;
@@ -58,7 +58,7 @@ public class SearchBean {
     public SearchBean() {
         initProperties();
 
-        if (((HttpServletRequest) (ServletRequest) WebStudioUtils.getExternalContext().getRequest()).getRequestURI().contains("search.xhtml")) {
+        if (((HttpServletRequest) WebStudioUtils.getExternalContext().getRequest()).getRequestURI().contains("search.xhtml")) {
             initSearchQuery();
             search();
         }
@@ -97,7 +97,7 @@ public class SearchBean {
 
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             if (propDefinition.getDeprecation() == null) {
-                TableProperty prop = new TableProperty(propDefinition);
+                TableProperty prop = new TableProperty(propDefinition, WebStudioFormats.getInstance());
                 properties.add(prop);
             }
         }

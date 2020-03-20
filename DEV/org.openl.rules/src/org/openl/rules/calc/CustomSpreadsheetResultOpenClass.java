@@ -15,7 +15,6 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -49,10 +48,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     private boolean detailedPlainModel;
     private boolean ignoreCompilation = false;
 
-    private ILogicalTable logicalTable;
-
     private byte[] beanClassByteCode;
     private volatile String beanClassName;
+    private final String packageName;
     volatile Map<String, List<IOpenField>> beanFieldsMap;
     private String[] sprStructureFieldNames;
     private volatile boolean initializing;
@@ -65,7 +63,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             String[] rowTitles,
             String[] columnTitles,
             XlsModuleOpenClass module,
-            boolean detailedPlainModel) {
+            boolean detailedPlainModel,
+            String packageName) {
         super(name, SpreadsheetResult.class);
         this.rowNames = Objects.requireNonNull(rowNames);
         this.columnNames = Objects.requireNonNull(columnNames);
@@ -88,9 +87,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         this.fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames);
         this.module = module;
         this.detailedPlainModel = detailedPlainModel;
+        this.packageName = Objects.requireNonNull(packageName, "spreadsheetResultPackage cannot be null");
     }
 
-    public CustomSpreadsheetResultOpenClass(String name, XlsModuleOpenClass module, ILogicalTable logicalTable) {
+    public CustomSpreadsheetResultOpenClass(String name, XlsModuleOpenClass module, String packageName) {
         this(name,
             EMPTY_STRING_ARRAY,
             EMPTY_STRING_ARRAY,
@@ -99,10 +99,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             EMPTY_STRING_ARRAY,
             EMPTY_STRING_ARRAY,
             module,
-            false);
+            false,
+            packageName);
         this.simpleRefBeanByRow = true;
         this.simpleRefBeanByColumn = true;
-        this.logicalTable = logicalTable;
     }
 
     @Override
@@ -129,6 +129,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     @Override
     public IAggregateInfo getAggregateInfo() {
         return DynamicArrayAggregateInfo.aggregateInfo;
+    }
+
+    @Override
+    public String getPackageName() {
+        return packageName;
     }
 
     public byte[] getBeanClassByteCode() {
@@ -342,27 +347,25 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             rowTitles,
             columnTitles,
             module,
-            detailedPlainModel);
+            detailedPlainModel,
+            packageName);
         for (IOpenField field : getFields().values()) {
             if (isCustomSpreadsheetResultField(field)) {
                 type.addField(field);
             }
         }
         type.setMetaInfo(getMetaInfo());
-        type.logicalTable = this.logicalTable;
         return type;
     }
 
     @Override
     public Object newInstance(IRuntimeEnv env) {
-        SpreadsheetResult spr = new SpreadsheetResult(new Object[rowNames.length][columnNames.length],
+        return new SpreadsheetResult(new Object[rowNames.length][columnNames.length],
             rowNames,
             columnNames,
             rowNamesForResultModel,
             columnNamesForResultModel,
             fieldsCoordinates);
-        spr.setLogicalTable(logicalTable);
-        return spr;
     }
 
     public Object createBean(SpreadsheetResult spreadsheetResult) {
@@ -653,7 +656,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             name = firstLetterUppercaseName;
                         }
                     }
-                    beanClassName = getModule().getCsrBeansPackage() + "." + name;
+                    beanClassName = packageName + "." + name;
                 }
             }
         }

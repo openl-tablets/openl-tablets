@@ -10,6 +10,8 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Properties;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 import org.openl.util.StringUtils;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -32,6 +34,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         super(PROPS_NAME);
         this.resolver = resolver;
         this.appName = appName;
+        ConfigLog.LOG.info("+        Add: '{}'", getFile());
     }
 
     @Override
@@ -77,6 +80,18 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
 
     public static DynamicPropertySource get() {
         return THE;
+    }
+
+    public void setOpenLHomeDir(String workingDir) {
+        Preferences node = PreferencePropertySource.THE.getSource();
+        node.put(DynamicPropertySource.OPENL_HOME, workingDir);
+        try {
+            // guard against loss in case of abnormal termination of the VM
+            // in case of normal VM termination, the flush method is not required
+            node.flush();
+        } catch (BackingStoreException e) {
+            ConfigLog.LOG.error("Cannot save preferences value", e);
+        }
     }
 
     public void save(Map<String, String> config) throws IOException {

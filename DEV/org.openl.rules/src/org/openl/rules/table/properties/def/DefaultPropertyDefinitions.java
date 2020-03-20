@@ -12,17 +12,14 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
  *
  */
 public final class DefaultPropertyDefinitions {
-
     private static final TablePropertyDefinition[] definitions;
-    public static final String DEFAULT_PROP_DATE_FORMAT = "MM/dd/yyyy hh:mm a";
-    public static final String SHORT_PROP_DATE_FORMAT = "MM/dd/yyyy";
 
     private DefaultPropertyDefinitions() {
     }
 
     static {
         // <<< INSERT TablePropertiesDefinition >>>
-        definitions = new TablePropertyDefinition[38];
+        definitions = new TablePropertyDefinition[39];
         definitions[0] = new TablePropertyDefinition();
         definitions[0].setConstraints(new org.openl.rules.table.constraints.Constraints("unique in:module"));
         definitions[0].setDeprecation("removed");
@@ -70,7 +67,7 @@ public final class DefaultPropertyDefinitions {
         definitions[3].setDescription("Date of the table creation in OpenL Tablets WebStudio");
         definitions[3].setDimensional(false);
         definitions[3].setDisplayName("Created On");
-        definitions[3].setFormat(DEFAULT_PROP_DATE_FORMAT);
+        definitions[3].setFormat("MM/dd/yyyy hh:mm a");
         definitions[3].setGroup("Info");
         definitions[3].setInheritanceLevel(new InheritanceLevel[] { InheritanceLevel.TABLE });
         definitions[3].setName("createdOn");
@@ -99,7 +96,7 @@ public final class DefaultPropertyDefinitions {
         definitions[5].setDescription("The date of the last table modification in OpenL Tablets WebStudio");
         definitions[5].setDimensional(false);
         definitions[5].setDisplayName("Modified On");
-        definitions[5].setFormat(DEFAULT_PROP_DATE_FORMAT);
+        definitions[5].setFormat("MM/dd/yyyy hh:mm a");
         definitions[5].setGroup("Info");
         definitions[5].setInheritanceLevel(new InheritanceLevel[] { InheritanceLevel.TABLE });
         definitions[5].setName("modifiedOn");
@@ -140,7 +137,7 @@ public final class DefaultPropertyDefinitions {
         definitions[8].setDisplayName("Effective Date");
         definitions[8].setExpression(
             new org.openl.rules.table.properties.expressions.match.MatchingExpression("le(currentDate)"));
-        definitions[8].setFormat(DEFAULT_PROP_DATE_FORMAT);
+        definitions[8].setFormat("MM/dd/yyyy hh:mm a");
         definitions[8].setGroup("Business Dimension");
         definitions[8].setInheritanceLevel(
             new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
@@ -162,7 +159,7 @@ public final class DefaultPropertyDefinitions {
         definitions[9].setDisplayName("Expiration Date");
         definitions[9].setExpression(
             new org.openl.rules.table.properties.expressions.match.MatchingExpression("ge(currentDate)"));
-        definitions[9].setFormat(DEFAULT_PROP_DATE_FORMAT);
+        definitions[9].setFormat("MM/dd/yyyy hh:mm a");
         definitions[9].setGroup("Business Dimension");
         definitions[9].setInheritanceLevel(
             new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
@@ -184,7 +181,7 @@ public final class DefaultPropertyDefinitions {
         definitions[10].setDisplayName("Start Request Date");
         definitions[10].setExpression(
             new org.openl.rules.table.properties.expressions.match.MatchingExpression("le(requestDate)"));
-        definitions[10].setFormat(DEFAULT_PROP_DATE_FORMAT);
+        definitions[10].setFormat("MM/dd/yyyy hh:mm a");
         definitions[10].setGroup("Business Dimension");
         definitions[10].setInheritanceLevel(
             new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
@@ -206,7 +203,7 @@ public final class DefaultPropertyDefinitions {
         definitions[11].setDisplayName("End Request Date");
         definitions[11].setExpression(
             new org.openl.rules.table.properties.expressions.match.MatchingExpression("ge(requestDate)"));
-        definitions[11].setFormat(DEFAULT_PROP_DATE_FORMAT);
+        definitions[11].setFormat("MM/dd/yyyy hh:mm a");
         definitions[11].setGroup("Business Dimension");
         definitions[11].setInheritanceLevel(
             new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
@@ -571,33 +568,28 @@ public final class DefaultPropertyDefinitions {
         definitions[29].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_DATATYPE, XlsNodeTypes.XLS_PROPERTIES });
         definitions[29].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
         definitions[30] = new TablePropertyDefinition();
-        definitions[30].setDescription(
-            "Defines whether or not to use cache while recalculating the table for a variatio" + "n, depending on the rule input");
+        definitions[30].setConstraints(new org.openl.rules.table.constraints.Constraints(
+            "regexp:([a-zA-Z_]{1}[a-zA-Z0-9_]*(\\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)"));
+        definitions[30].setDefaultValue("org.openl.generated.spreadsheetresults");
+        definitions[30].setDescription("The name of the package for spreadsheet result beans generation");
         definitions[30].setDimensional(false);
-        definitions[30].setDisplayName("Cacheable");
+        definitions[30].setDisplayName("Spreadsheet Result Package");
         definitions[30].setGroup("Dev");
-        definitions[30].setInheritanceLevel(
-            new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
-        definitions[30].setName("cacheable");
+        definitions[30].setInheritanceLevel(new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.TABLE });
+        definitions[30].setName("spreadsheetResultPackage");
         definitions[30].setPrimaryKey(false);
         definitions[30].setSystem(false);
-        definitions[30].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_DT,
-                XlsNodeTypes.XLS_SPREADSHEET,
-                XlsNodeTypes.XLS_TBASIC,
-                XlsNodeTypes.XLS_COLUMN_MATCH,
-                XlsNodeTypes.XLS_METHOD,
-                XlsNodeTypes.XLS_PROPERTIES });
-        definitions[30].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
+        definitions[30].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_PROPERTIES });
+        definitions[30].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
         definitions[31] = new TablePropertyDefinition();
-        definitions[31].setConstraints(new org.openl.rules.table.constraints.Constraints("data: recalculate"));
         definitions[31].setDescription(
-            "The way of recalculation of the table for a variation - slightly varied input pa" + "rameter(s)");
+            "Defines whether or not to use cache while recalculating the table for a variatio" + "n, depending on the rule input");
         definitions[31].setDimensional(false);
-        definitions[31].setDisplayName("Recalculate");
+        definitions[31].setDisplayName("Cacheable");
         definitions[31].setGroup("Dev");
         definitions[31].setInheritanceLevel(
             new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
-        definitions[31].setName("recalculate");
+        definitions[31].setName("cacheable");
         definitions[31].setPrimaryKey(false);
         definitions[31].setSystem(false);
         definitions[31].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_DT,
@@ -606,44 +598,49 @@ public final class DefaultPropertyDefinitions {
                 XlsNodeTypes.XLS_COLUMN_MATCH,
                 XlsNodeTypes.XLS_METHOD,
                 XlsNodeTypes.XLS_PROPERTIES });
-        definitions[31].setType(
-            org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.RecalculateEnum.class));
+        definitions[31].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
         definitions[32] = new TablePropertyDefinition();
-        definitions[32].setConstraints(new org.openl.rules.table.constraints.Constraints("regexp:(-?[0-9]+)"));
-        definitions[32].setDescription("Precision of comparing the returned results with the expected ones");
+        definitions[32].setConstraints(new org.openl.rules.table.constraints.Constraints("data: recalculate"));
+        definitions[32].setDescription(
+            "The way of recalculation of the table for a variation - slightly varied input pa" + "rameter(s)");
         definitions[32].setDimensional(false);
-        definitions[32].setDisplayName("Precision");
+        definitions[32].setDisplayName("Recalculate");
         definitions[32].setGroup("Dev");
         definitions[32].setInheritanceLevel(
             new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
-        definitions[32].setName("precision");
+        definitions[32].setName("recalculate");
         definitions[32].setPrimaryKey(false);
         definitions[32].setSystem(false);
-        definitions[32].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_TEST_METHOD, XlsNodeTypes.XLS_PROPERTIES });
-        definitions[32].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
+        definitions[32].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_DT,
+                XlsNodeTypes.XLS_SPREADSHEET,
+                XlsNodeTypes.XLS_TBASIC,
+                XlsNodeTypes.XLS_COLUMN_MATCH,
+                XlsNodeTypes.XLS_METHOD,
+                XlsNodeTypes.XLS_PROPERTIES });
+        definitions[32].setType(
+            org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.RecalculateEnum.class));
         definitions[33] = new TablePropertyDefinition();
-        definitions[33].setDefaultValue("false");
-        definitions[33].setDescription("Controls generation additional fields in an plain model for the Spreadsheet.");
+        definitions[33].setConstraints(new org.openl.rules.table.constraints.Constraints("regexp:(-?[0-9]+)"));
+        definitions[33].setDescription("Precision of comparing the returned results with the expected ones");
         definitions[33].setDimensional(false);
-        definitions[33].setDisplayName("Detaled Plain Model");
+        definitions[33].setDisplayName("Precision");
         definitions[33].setGroup("Dev");
         definitions[33].setInheritanceLevel(
             new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
-        definitions[33].setName("detailedPlainModel");
+        definitions[33].setName("precision");
         definitions[33].setPrimaryKey(false);
-        definitions[33].setSecurityFilter("no");
         definitions[33].setSystem(false);
-        definitions[33].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_PROPERTIES });
-        definitions[33].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
+        definitions[33].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_TEST_METHOD, XlsNodeTypes.XLS_PROPERTIES });
+        definitions[33].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
         definitions[34] = new TablePropertyDefinition();
-        definitions[34].setDefaultValue("true");
-        definitions[34].setDescription("Controls new Spreadsheet Auto Type Discovery feature.");
+        definitions[34].setDefaultValue("false");
+        definitions[34].setDescription("Controls generation additional fields in an plain model for the Spreadsheet.");
         definitions[34].setDimensional(false);
-        definitions[34].setDisplayName("Auto Type Discovery");
+        definitions[34].setDisplayName("Detaled Plain Model");
         definitions[34].setGroup("Dev");
         definitions[34].setInheritanceLevel(
             new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
-        definitions[34].setName("autoType");
+        definitions[34].setName("detailedPlainModel");
         definitions[34].setPrimaryKey(false);
         definitions[34].setSecurityFilter("no");
         definitions[34].setSystem(false);
@@ -651,53 +648,44 @@ public final class DefaultPropertyDefinitions {
         definitions[34].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
         definitions[35] = new TablePropertyDefinition();
         definitions[35].setDefaultValue("true");
-        definitions[35].setDescription(
-            "If true calculates all cells in the Spreadsheet, otherwise calculates only cells" + " these are requred for a result. By default = true.");
+        definitions[35].setDescription("Controls new Spreadsheet Auto Type Discovery feature.");
         definitions[35].setDimensional(false);
-        definitions[35].setDisplayName("Calculate All Cells");
+        definitions[35].setDisplayName("Auto Type Discovery");
         definitions[35].setGroup("Dev");
         definitions[35].setInheritanceLevel(
             new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
-        definitions[35].setName("calculateAllCells");
+        definitions[35].setName("autoType");
         definitions[35].setPrimaryKey(false);
         definitions[35].setSecurityFilter("no");
         definitions[35].setSystem(false);
         definitions[35].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_PROPERTIES });
         definitions[35].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
         definitions[36] = new TablePropertyDefinition();
-        definitions[36].setDefaultValue("false");
-        definitions[36].setDescription("Controls parallel execution feature. By default = false.");
+        definitions[36].setDefaultValue("true");
+        definitions[36].setDescription(
+            "If true calculates all cells in the Spreadsheet, otherwise calculates only cells" + " these are requred for a result. By default = true.");
         definitions[36].setDimensional(false);
-        definitions[36].setDisplayName("Concurrent Execution");
+        definitions[36].setDisplayName("Calculate All Cells");
         definitions[36].setGroup("Dev");
         definitions[36].setInheritanceLevel(
             new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
-        definitions[36].setName("parallel");
+        definitions[36].setName("calculateAllCells");
         definitions[36].setPrimaryKey(false);
         definitions[36].setSecurityFilter("no");
         definitions[36].setSystem(false);
-        definitions[36].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_DT,
-                XlsNodeTypes.XLS_SPREADSHEET,
-                XlsNodeTypes.XLS_TBASIC,
-                XlsNodeTypes.XLS_COLUMN_MATCH,
-                XlsNodeTypes.XLS_METHOD,
-                XlsNodeTypes.XLS_PROPERTIES });
+        definitions[36].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_PROPERTIES });
         definitions[36].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
         definitions[37] = new TablePropertyDefinition();
-        definitions[37]
-            .setConstraints(new org.openl.rules.table.constraints.Constraints("list: Defined by method getNature()"));
-        definitions[37].setDescription("Nature (type) for which this table works and should be used");
-        definitions[37].setDimensional(true);
-        definitions[37].setDisplayName("Nature");
-        definitions[37]
-            .setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("eq(nature)"));
-        definitions[37].setGroup("Business Dimension");
+        definitions[37].setDefaultValue("false");
+        definitions[37].setDescription("Controls parallel execution feature. By default = false.");
+        definitions[37].setDimensional(false);
+        definitions[37].setDisplayName("Concurrent Execution");
+        definitions[37].setGroup("Dev");
         definitions[37].setInheritanceLevel(
             new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
-        definitions[37].setName("nature");
+        definitions[37].setName("parallel");
         definitions[37].setPrimaryKey(false);
-        definitions[37]
-            .setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+        definitions[37].setSecurityFilter("no");
         definitions[37].setSystem(false);
         definitions[37].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_DT,
                 XlsNodeTypes.XLS_SPREADSHEET,
@@ -705,7 +693,30 @@ public final class DefaultPropertyDefinitions {
                 XlsNodeTypes.XLS_COLUMN_MATCH,
                 XlsNodeTypes.XLS_METHOD,
                 XlsNodeTypes.XLS_PROPERTIES });
-        definitions[37].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
+        definitions[37].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
+        definitions[38] = new TablePropertyDefinition();
+        definitions[38]
+            .setConstraints(new org.openl.rules.table.constraints.Constraints("list: Defined by method getNature()"));
+        definitions[38].setDescription("Nature (type) for which this table works and should be used");
+        definitions[38].setDimensional(true);
+        definitions[38].setDisplayName("Nature");
+        definitions[38]
+            .setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("eq(nature)"));
+        definitions[38].setGroup("Business Dimension");
+        definitions[38].setInheritanceLevel(
+            new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
+        definitions[38].setName("nature");
+        definitions[38].setPrimaryKey(false);
+        definitions[38]
+            .setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+        definitions[38].setSystem(false);
+        definitions[38].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_DT,
+                XlsNodeTypes.XLS_SPREADSHEET,
+                XlsNodeTypes.XLS_TBASIC,
+                XlsNodeTypes.XLS_COLUMN_MATCH,
+                XlsNodeTypes.XLS_METHOD,
+                XlsNodeTypes.XLS_PROPERTIES });
+        definitions[38].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
         // <<< END INSERT TablePropertiesDefinition >>>
     }
 

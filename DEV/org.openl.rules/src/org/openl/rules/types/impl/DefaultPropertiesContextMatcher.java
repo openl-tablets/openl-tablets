@@ -11,7 +11,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
     private Map<String, MatchingConstraint<?, ?>> constraints = new HashMap<>();
 
     public DefaultPropertiesContextMatcher() {
-        initilaize();
+        initialize();
     }
 
     @Override
@@ -19,7 +19,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
         MatchingConstraint<?, ?> mc = constraints.get(propName);
 
         if (mc == null) {
-            throw new RuntimeException("Unexpectedly could not find a constarint for the property: " + propName);
+            throw new RuntimeException("Unexpectedly could not find a constraint for the property: " + propName);
         }
         return mc.match(props, context);
     }
@@ -29,7 +29,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
         constraints.put(propertyName, ctr);
     }
 
-    protected void initilaize() {
+    protected void initialize() {
         // <<< INSERT >>>
         constraints.put("effectiveDate", new MatchingConstraint<java.util.Date, java.util.Date>() {
 

@@ -1,5 +1,9 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenlNotCheckedException;
@@ -10,11 +14,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
-
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
 
 class ContextPropertiesInjector {
 
@@ -102,13 +101,11 @@ class ContextPropertiesInjector {
                 if (rulesRuntimeContext == null) {
                     IRulesRuntimeContext currentRuntimeContext = (IRulesRuntimeContext) simpleRulesRuntimeEnv
                         .getContext();
-                    if (!Objects.equals(value, currentRuntimeContext.getValue(field.getContextProperty()))) {
-                        try {
-                            rulesRuntimeContext = (IRulesRuntimeContext) currentRuntimeContext.clone();
-                            rulesRuntimeContext.setValue(field.getContextProperty(), value);
-                        } catch (CloneNotSupportedException e) {
-                            throw new OpenlNotCheckedException(e);
-                        }
+                    try {
+                        rulesRuntimeContext = (IRulesRuntimeContext) currentRuntimeContext.clone();
+                        rulesRuntimeContext.setValue(field.getContextProperty(), value);
+                    } catch (CloneNotSupportedException e) {
+                        throw new OpenlNotCheckedException(e);
                     }
                 } else {
                     rulesRuntimeContext.setValue(field.getContextProperty(), value);

@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.IDependencyManager;
-import org.openl.rules.calc.SpreadsheetBoundNode;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 
@@ -63,7 +62,6 @@ public abstract class SingleModuleInstantiationStrategy extends CommonRulesInsta
 
     protected Map<String, Object> prepareExternalParameters() {
         Map<String, Object> externalProperties = new HashMap<>();
-        externalProperties.put(SpreadsheetBoundNode.CSR_BEANS_PACKAGE, module.getProject().getCsrBeansPackage());
         if (getModule().getProperties() != null) {
             externalProperties.putAll(getModule().getProperties());
         }

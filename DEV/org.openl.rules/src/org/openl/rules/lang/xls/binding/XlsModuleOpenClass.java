@@ -28,7 +28,6 @@ import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
-import org.openl.rules.calc.SpreadsheetBoundNode;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.data.IDataBase;
@@ -59,7 +58,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
-import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,8 +92,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private XlsDefinitions xlsDefinitions = new XlsDefinitions();
 
-    private String csrBeansPackage;
-
     private SpreadsheetResultOpenClass spreadsheetResultOpenClass;
 
     public RulesModuleBindingContext getRulesModuleBindingContext() {
@@ -123,7 +119,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         this.classLoader = classLoader;
         this.classGenerationClassLoader = new OpenLBundleClassLoader(null);
         this.classGenerationClassLoader.addClassLoader(classLoader);
-        this.csrBeansPackage = getCsrBeansPackage(bindingContext);
         this.rulesModuleBindingContext = new RulesModuleBindingContext(bindingContext, this);
         if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams())) {
             this.spreadsheetResultOpenClass = new SpreadsheetResultOpenClass(this);
@@ -133,26 +128,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             initDependencies();
         }
         initImports(metaInfo.getXlsModuleNode());
-    }
-
-    private String getCsrBeansPackage(IBindingContext bindingContext) {
-        if (bindingContext.getExternalParams().get(SpreadsheetBoundNode.CSR_BEANS_PACKAGE) instanceof String) {
-            String packageName = (String) bindingContext.getExternalParams()
-                .get(SpreadsheetBoundNode.CSR_BEANS_PACKAGE);
-            if (ClassUtils.isValidPackageName(packageName)) {
-                return packageName;
-            } else if (log.isWarnEnabled()) {
-                log.warn(
-                    "Invalid package name '{}' is defined for generated custom spreadsheet result beans for module '{}'. Default value 'org.openl.generated.csr' is used.",
-                    packageName,
-                    getName());
-            }
-        }
-        return "org.openl.generated.csr";
-    }
-
-    public String getCsrBeansPackage() {
-        return csrBeansPackage;
     }
 
     public boolean isUseDecisionTableDispatcher() {

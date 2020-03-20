@@ -176,7 +176,7 @@ public class XlsBinder implements IOpenBinder {
 
         XlsModuleSyntaxNode moduleNode = (XlsModuleSyntaxNode) parsedCode.getTopNode();
 
-        OpenL openl = null;
+        OpenL openl;
         List<SyntaxNodeException> exceptions = new ArrayList<>();
         try {
             openl = makeOpenL(moduleNode, exceptions);
@@ -537,8 +537,7 @@ public class XlsBinder implements IOpenBinder {
                     if (rulesModuleBindingContext.getModule().findType(sprResTypeName) == null) {
                         CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
                             sprResTypeName,
-                            rulesModuleBindingContext.getModule(),
-                            rulesModuleBindingContext.isExecutionMode() ? null : tableSyntaxNode.getTableBody());
+                            rulesModuleBindingContext.getModule(), tableSyntaxNode.getTableProperties().getSpreadsheetResultPackage());
                         customSpreadsheetResultOpenClasses.add(customSpreadsheetResultOpenClass);
                     }
                 }

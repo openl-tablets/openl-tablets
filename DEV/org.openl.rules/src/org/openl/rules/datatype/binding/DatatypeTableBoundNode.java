@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -344,7 +345,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 fieldType,
                 fieldNameCellParsed.getValue());
 
-            if (!isRecursiveField(field) && OpenClassUtils.getRootComponentClass(field.getType()).getInstanceClass() == null) {
+            if (!isRecursiveField(field) && OpenClassUtils.getRootComponentClass(field.getType())
+                .getInstanceClass() == null) {
                 // For example type A depends on B and B depends on A. At this
                 // point B is not generated yet.
                 // TODO Implement circular datatype dependencies support like in
@@ -352,7 +354,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 GridCellSourceCodeModule cellSource = getCellSource(row, bindingContext, 0);
                 TextInterval location = LocationUtils.createTextInterval(cellSource.getCode());
 
-                String message = "Type " + OpenClassUtils.getRootComponentClass(field.getType()).getName() + " is not generated yet";
+                String message = "Type " + OpenClassUtils.getRootComponentClass(field.getType())
+                    .getName() + " is not generated yet";
                 throw SyntaxNodeExceptionUtils.createError(message, null, location, cellSource);
             }
 
@@ -412,7 +415,10 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                             String.join(", ", DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.keySet())),
                         getCellSource(row, bindingContext, 1));
                 }
-                if (fields.values().stream().anyMatch(f -> f.getContextPropertyName().equals(contextPropertyName))) {
+                if (fields.values()
+                    .stream()
+                    .filter(x -> Objects.nonNull(x.getContextPropertyName()))
+                    .anyMatch(f -> f.getContextPropertyName().equals(contextPropertyName))) {
                     throw SyntaxNodeExceptionUtils.createError(
                         String.format("Multiple fields refer to the same context property '%s'.", contextPropertyName),
                         getCellSource(row, bindingContext, 1));
