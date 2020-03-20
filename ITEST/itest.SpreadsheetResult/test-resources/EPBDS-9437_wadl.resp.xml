@@ -1,0 +1,69 @@
+<application xmlns="http://wadl.dev.java.net/2009/02" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+             xmlns:prefix2="http://jaxrs.openl.org" xmlns:prefix1="http://csr.generated.openl.org">
+    <grammars>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://csr.generated.openl.org"
+                   attributeFormDefault="unqualified" elementFormDefault="unqualified"
+                   targetNamespace="http://csr.generated.openl.org" version="1.0">
+            <xs:element name="EPBDS_9437" type="tns:EPBDS_9437"/>
+            <xs:element name="Tiktak" type="tns:Tiktak"/>
+            <xs:complexType name="Tiktak">
+                <xs:sequence>
+                    <xs:element name="INT" type="xs:int"/>
+                    <xs:element minOccurs="0" name="string" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="EPBDS_9437">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="driver_Forms" type="xs:anyType"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://jaxrs.openl.org"
+                   attributeFormDefault="unqualified" elementFormDefault="unqualified"
+                   targetNamespace="http://jaxrs.openl.org" version="1.0">
+            <xs:element name="TiktakRequest" type="tns:TiktakRequest"/>
+            <xs:complexType name="TiktakRequest">
+                <xs:sequence>
+                    <xs:element name="i" type="xs:int"/>
+                    <xs:element minOccurs="0" name="j" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+    </grammars>
+    <resources base="http://localhost:#####/REST/EPBDS-9437">
+        <resource path="/">
+            <resource path="EPBDS_9437">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="text/plain">
+                            <param name="request" style="plain" type="xs:int"/>
+                        </representation>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json" element="prefix1:EPBDS_9437"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="tiktak">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json" element="prefix2:TiktakRequest"/>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json" element="prefix1:Tiktak"/>
+                    </response>
+                </method>
+            </resource>
+        </resource>
+        <resource path="/swagger.{type:json|yaml}">
+            <param name="type" style="template" type="xs:string"/>
+            <method name="GET">
+                <request></request>
+                <response>
+                    <representation mediaType="application/json"/>
+                    <representation mediaType="application/yaml"/>
+                </response>
+            </method>
+        </resource>
+    </resources>
+</application>

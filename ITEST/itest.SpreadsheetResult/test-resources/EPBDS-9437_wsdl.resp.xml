@@ -1,0 +1,154 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:tns="http://DefaultNamespace" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="EPBDS-9437"
+                  targetNamespace="http://DefaultNamespace">
+    <wsdl:types>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://cxf.apache.org/arrays"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://cxf.apache.org/arrays">
+            <xsd:complexType name="ArrayOfAnyType">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="anyType" nillable="true" type="xsd:anyType"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="ArrayOfArrayOfAnyType">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfAnyType" nillable="true"
+                                 type="tns:ArrayOfAnyType"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://DefaultNamespace"
+                    xmlns:ns0="http://csr.generated.openl.org" attributeFormDefault="qualified"
+                    elementFormDefault="qualified" targetNamespace="http://DefaultNamespace">
+            <xsd:import namespace="http://csr.generated.openl.org"/>
+            <xsd:complexType name="ArrayOfString">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="string" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="tiktak" type="tns:tiktak"/>
+            <xsd:complexType name="tiktak">
+                <xsd:sequence>
+                    <xsd:element name="i" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="j" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="tiktakResponse" type="tns:tiktakResponse"/>
+            <xsd:complexType name="tiktakResponse">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" type="ns0:Tiktak"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="EPBDS_9437" type="tns:EPBDS_9437"/>
+            <xsd:complexType name="EPBDS_9437">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="driver" nillable="true" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="EPBDS_9437Response" type="tns:EPBDS_9437Response"/>
+            <xsd:complexType name="EPBDS_9437Response">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" type="ns0:EPBDS_9437"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://csr.generated.openl.org"
+                    xmlns:ns0="http://cxf.apache.org/arrays" attributeFormDefault="qualified"
+                    elementFormDefault="qualified" targetNamespace="http://csr.generated.openl.org">
+            <xsd:import namespace="http://cxf.apache.org/arrays"/>
+            <xsd:complexType name="Tiktak">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="INT" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="string" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="EPBDS_9437">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="driver_Forms" type="ns0:ArrayOfAnyType"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://table.rules.openl.org"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://table.rules.openl.org">
+            <xsd:complexType name="Point">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="column" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="row" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://calc.rules.openl.org"
+                    xmlns:ns1="http://cxf.apache.org/arrays" xmlns:ns0="http://DefaultNamespace"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://calc.rules.openl.org">
+            <xsd:import namespace="http://DefaultNamespace"/>
+            <xsd:import namespace="http://cxf.apache.org/arrays"/>
+            <xsd:complexType name="SpreadsheetResult">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="columnNames" nillable="true" type="ns0:ArrayOfString"/>
+                    <xsd:element minOccurs="0" name="results" nillable="true" type="ns1:ArrayOfArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="rowNames" nillable="true" type="ns0:ArrayOfString"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+    </wsdl:types>
+    <wsdl:message name="tiktak">
+        <wsdl:part element="tns:tiktak" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="tiktakResponse">
+        <wsdl:part element="tns:tiktakResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="EPBDS_9437Response">
+        <wsdl:part element="tns:EPBDS_9437Response" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="EPBDS_9437">
+        <wsdl:part element="tns:EPBDS_9437" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:portType name="EPBDS-9437PortType">
+        <wsdl:operation name="tiktak">
+            <wsdl:input message="tns:tiktak" name="tiktak">
+            </wsdl:input>
+            <wsdl:output message="tns:tiktakResponse" name="tiktakResponse">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="EPBDS_9437">
+            <wsdl:input message="tns:EPBDS_9437" name="EPBDS_9437">
+            </wsdl:input>
+            <wsdl:output message="tns:EPBDS_9437Response" name="EPBDS_9437Response">
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="EPBDS-9437SoapBinding" type="tns:EPBDS-9437PortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="tiktak">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="tiktak">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="tiktakResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="EPBDS_9437">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="EPBDS_9437">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="EPBDS_9437Response">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="EPBDS-9437">
+        <wsdl:port binding="tns:EPBDS-9437SoapBinding" name="EPBDS-9437PortType">
+            <soap:address location="http://localhost:#####/EPBDS-9437"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
