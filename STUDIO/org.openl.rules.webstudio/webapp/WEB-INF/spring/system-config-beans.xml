@@ -7,11 +7,11 @@
 
     <bean id="projectDescriptorSerializerFactory"
           class="org.openl.rules.project.xml.ProjectDescriptorSerializerFactory">
-        <constructor-arg name="propertyResolver" ref="environment"/>
+        <constructor-arg name="defaultVersion" value="${openl.compatibility.version}"/>
     </bean>
 
     <bean id="rulesDeploySerializerFactory" class="org.openl.rules.project.xml.RulesDeploySerializerFactory">
-        <constructor-arg name="propertyResolver" ref="environment"/>
+        <constructor-arg name="defaultVersion" value="${openl.compatibility.version}"/>
     </bean>
 
 </beans>

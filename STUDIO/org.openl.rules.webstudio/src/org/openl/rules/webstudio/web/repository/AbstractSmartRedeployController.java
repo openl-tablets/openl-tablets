@@ -196,8 +196,12 @@ public abstract class AbstractSmartRedeployController {
                     // overwrite settings
                     checker.addProject(project);
                     if (checker.check()) {
-                        item.setMessages("Can be updated to " + project.getVersion()
-                            .getVersionName() + " from " + descrVersion.getVersionName() + " and then deployed");
+                        String to = RepositoryTreeController.getDescriptiveVersion(project.getVersion());
+                        String from = RepositoryTreeController
+                            .getDescriptiveVersion(userWorkspace.getDesignTimeRepository()
+                                .getProject(projectDescriptor.getProjectName(), descrVersion)
+                                .getVersion());
+                        item.setMessages("Can be updated to '" + to + "' from '" + from + "' and then deployed");
                     } else {
                         item.setMessages(
                             "Project version will be updated. Dependent projects should be added to deploy configuration.");

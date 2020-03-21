@@ -2,7 +2,8 @@ package org.openl.rules.data;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.TestUtils;
@@ -15,9 +16,17 @@ import org.openl.rules.testmethod.TestUnitsResults;
 public class DataTableArrayTest {
     private static final String FILE_NAME = "test/rules/testmethod/TestDataAccessFieldTest.xlsx";
 
-    @Before
-    public void before() {
+    private static String csr;
+
+    @BeforeClass
+    public static void before() {
+        csr = System.getProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, "");
         System.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, "true");
+    }
+
+    @AfterClass
+    public static void after() {
+        System.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, csr);
     }
 
     @Test

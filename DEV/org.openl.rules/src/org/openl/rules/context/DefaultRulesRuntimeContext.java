@@ -74,16 +74,16 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
                 out.print(label);
                 out.print(" = ");
             }
-            out.println("null");
+            out.print("null\r\n");
             return;
         }
         if (label != null) {
             out.print(label);
-            out.println(" = ");
+            out.print(" = \r\n");
         }
 
         printIndent(out, lineage.size());
-        out.println("{");
+        out.print("{\r\n");
 
         lineage.push(map);
 
@@ -105,14 +105,14 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
                     out.print("(ancestor[?] Map)");
                 }
 
-                out.println();
+                out.print("\r\n");
             }
         }
 
         lineage.pop();
 
         printIndent(out, lineage.size());
-        out.println("}");
+        out.print("}\r\n");
     }
 
     /**
