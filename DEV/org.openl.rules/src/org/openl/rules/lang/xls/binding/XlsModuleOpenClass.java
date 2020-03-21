@@ -58,8 +58,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.rits.cloning.Cloner;
 
@@ -68,8 +66,6 @@ import com.rits.cloning.Cloner;
  *
  */
 public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableModuleOpenClass {
-
-    private final Logger log = LoggerFactory.getLogger(XlsModuleOpenClass.class);
 
     private IDataBase dataBase;
 
@@ -90,6 +86,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private RulesModuleBindingContext rulesModuleBindingContext;
 
     private XlsDefinitions xlsDefinitions = new XlsDefinitions();
+
+    private String spreadsheetResultPackage;
 
     public RulesModuleBindingContext getRulesModuleBindingContext() {
         return rulesModuleBindingContext;
@@ -125,6 +123,18 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             initDependencies();
         }
         initImports(metaInfo.getXlsModuleNode());
+    }
+
+    public String getSpreadsheetResultPackage() {
+        if (spreadsheetResultPackage == null) {
+            spreadsheetResultPackage = TablePropertyDefinitionUtils
+                .getDefaultValueForProperty("spreadsheetResultPackage");
+        }
+        return spreadsheetResultPackage;
+    }
+
+    public void setSpreadsheetResultPackage(String spreadsheetResultPackage) {
+        this.spreadsheetResultPackage = spreadsheetResultPackage;
     }
 
     public boolean isUseDecisionTableDispatcher() {
@@ -192,6 +202,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
             addXlsDefinitions(dependency);
 
+            addSpreadsheetResultPackage(dependency);
+
             addMethods(dependency);
             // Populate current module fields with data from dependent modules.
             // Requered
@@ -204,6 +216,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         for (IOpenClass type : getTypes()) {
             if (type instanceof CustomSpreadsheetResultOpenClass) {
                 ((CustomSpreadsheetResultOpenClass) type).fixCSRFields();
+            }
+        }
+    }
+
+    protected void addSpreadsheetResultPackage(CompiledDependency dependency) {
+        IOpenClass openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
+        if (openClass instanceof XlsModuleOpenClass) {
+            XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
+            if (spreadsheetResultPackage == null || Objects.equals(spreadsheetResultPackage,
+                TablePropertyDefinitionUtils.getDefaultValueForProperty(
+                    "spreadsheetResultPackage")) || xlsModuleOpenClass.spreadsheetResultPackage != null && spreadsheetResultPackage
+                        .compareTo(xlsModuleOpenClass.spreadsheetResultPackage) > 0) {
+                spreadsheetResultPackage = xlsModuleOpenClass.spreadsheetResultPackage;
             }
         }
     }

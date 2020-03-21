@@ -51,7 +51,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
     private byte[] beanClassByteCode;
     private volatile String beanClassName;
-    private final String packageName;
     volatile Map<String, List<IOpenField>> beanFieldsMap;
     private String[] sprStructureFieldNames;
     private volatile boolean initializing;
@@ -64,8 +63,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             String[] rowTitles,
             String[] columnTitles,
             XlsModuleOpenClass module,
-            boolean detailedPlainModel,
-            String packageName) {
+            boolean detailedPlainModel) {
         super(name, SpreadsheetResult.class);
         this.rowNames = Objects.requireNonNull(rowNames);
         this.columnNames = Objects.requireNonNull(columnNames);
@@ -88,10 +86,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         this.fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames);
         this.module = module;
         this.detailedPlainModel = detailedPlainModel;
-        this.packageName = Objects.requireNonNull(packageName, "packageName cannot be null");
     }
 
-    public CustomSpreadsheetResultOpenClass(String name, XlsModuleOpenClass module, String packageName) {
+    public CustomSpreadsheetResultOpenClass(String name, XlsModuleOpenClass module) {
         this(name,
             EMPTY_STRING_ARRAY,
             EMPTY_STRING_ARRAY,
@@ -100,8 +97,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             EMPTY_STRING_ARRAY,
             EMPTY_STRING_ARRAY,
             module,
-            false,
-            packageName);
+            false);
         this.simpleRefBeanByRow = true;
         this.simpleRefBeanByColumn = true;
     }
@@ -132,13 +128,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return DynamicArrayAggregateInfo.aggregateInfo;
     }
 
-    @Override
-    public String getPackageName() {
-        return packageName;
-    }
-
     public byte[] getBeanClassByteCode() {
         return beanClassByteCode.clone();
+    }
+
+    @Override
+    public String getPackageName() {
+        return getModule().getSpreadsheetResultPackage();
     }
 
     @Override
@@ -342,8 +338,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             rowTitles,
             columnTitles,
             module,
-            detailedPlainModel,
-            packageName);
+            detailedPlainModel);
         for (IOpenField field : getFields().values()) {
             if (isCustomSpreadsheetResultField(field)) {
                 type.addField(field);
@@ -646,7 +641,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         name = firstLetterUppercaseName;
                     }
 
-                    beanClassName = packageName + "." + name;
+                    beanClassName = getPackageName() + "." + name;
                 }
             }
         }

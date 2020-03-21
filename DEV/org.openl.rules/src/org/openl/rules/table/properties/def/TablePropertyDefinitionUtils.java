@@ -67,7 +67,7 @@ public final class TablePropertyDefinitionUtils {
                 names.add(definition.getName());
             }
 
-            dimensionalTablePropertiesNames = names.toArray(new String[names.size()]);
+            dimensionalTablePropertiesNames = names.toArray(new String[0]);
         }
         return dimensionalTablePropertiesNames;
     }
@@ -108,6 +108,14 @@ public final class TablePropertyDefinitionUtils {
             }
         }
         return null;
+    }
+
+    public static String getDefaultValueForProperty(String propertyName) {
+        return Arrays.stream(DefaultPropertyDefinitions.getDefaultDefinitions())
+            .filter(e -> Objects.equals(e.getName(), propertyName))
+            .map(TablePropertyDefinition::getDefaultValue)
+            .findFirst()
+            .orElse(null);
     }
 
     /**
@@ -214,7 +222,7 @@ public final class TablePropertyDefinitionUtils {
             }
         }
 
-        return resultDefinitions.toArray(new TablePropertyDefinition[resultDefinitions.size()]);
+        return resultDefinitions.toArray(new TablePropertyDefinition[0]);
     }
 
     public static Map<String, List<TablePropertyDefinition>> groupProperties(TablePropertyDefinition[] properties) {
