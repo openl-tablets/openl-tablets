@@ -222,12 +222,10 @@ public class TestDoubleValue {
 
         value1 = new DoubleValue(111.41885);
         assertEquals("111.4189", DoubleValue.round(value1, 4).toString());
-        System.out.println(value1.doubleValue());
 
         value1 = new DoubleValue(326.47365);
 
         assertEquals("326.4737", DoubleValue.round(value1, 4).toString());
-        System.out.println(value1.doubleValue());
 
         // value1 = new DoubleValue(0.7 * 0.75);
         // assertEquals("0.53", DoubleValue.round(value1, 2).toString());

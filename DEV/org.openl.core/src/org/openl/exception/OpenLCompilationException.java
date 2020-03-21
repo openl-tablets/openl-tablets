@@ -118,7 +118,7 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
             message = error.getMessage();
         }
 
-        writer.println("Error: " + message);
+        writer.print("Error: " + message + "\r\n");
 
         SourceCodeURLTool.printCodeAndError(error.getLocation(), error.getSourceCode(), writer);
         SourceCodeURLTool.printSourceLocation(error.getSourceLocation(), writer);
