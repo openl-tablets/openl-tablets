@@ -6,6 +6,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.meta.DoubleValue;
@@ -24,9 +26,21 @@ public class RulesPrioritySortingTest {
         DoubleValue driverRiskScoreNoOverloadTest(String driverRisk);
     }
 
+    private static String csr;
+
+    @BeforeClass
+    public static void before() {
+        csr = System.getProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, "");
+        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
+    }
+
+    @AfterClass
+    public static void after() {
+        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, csr);
+    }
+
     @Test
     public void testStartRequestDate() throws Exception {
-        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
         ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
         IRulesRuntimeContext context = instance.getRuntimeContext();
 
@@ -59,7 +73,6 @@ public class RulesPrioritySortingTest {
 
     @Test
     public void testEndRequestDate() throws Exception {
-        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
         ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
         IRulesRuntimeContext context = instance.getRuntimeContext();
 
@@ -80,7 +93,6 @@ public class RulesPrioritySortingTest {
 
     @Test
     public void testFilledPropertiesSorting() throws Exception {
-        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
         ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
         IRulesRuntimeContext context = instance.getRuntimeContext();
 

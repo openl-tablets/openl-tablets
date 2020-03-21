@@ -121,8 +121,8 @@ public final class SourceCodeURLTool implements SourceCodeURLConstants {
         TextInfo info = new TextInfo(src);
         String[] lines = NEW_LINE.split(src);
 
-        pw.println("Openl Code Fragment:");
-        pw.println("=======================");
+        pw.print("Openl Code Fragment:\r\n");
+        pw.print("=======================\r\n");
 
         int line1 = location.getStart().getLine(info);
         int column1 = location.getStart().getColumn(info, 1);
@@ -136,7 +136,8 @@ public final class SourceCodeURLTool implements SourceCodeURLConstants {
 
         for (int i = start; i < end; ++i) {
             String line = lines[i].replace('\t', ' ');
-            pw.println(line);
+            pw.print(line);
+            pw.print("\r\n");
             if (i == line1) {
                 for (int i2 = 0; i2 < column1; i2++) {
                     pw.print(' ');
@@ -146,16 +147,17 @@ public final class SourceCodeURLTool implements SourceCodeURLConstants {
                 for (int i3 = 0; i3 < col2 - column1; i3++) {
                     pw.print('^');
                 }
-                pw.println();
+                pw.print("\r\n");
             }
         }
-        pw.println("=======================");
+        pw.print("=======================\r\n");
 
     }
 
     static public void printSourceLocation(String sourceLocation, PrintWriter pw) {
         if (!StringUtils.isEmpty(sourceLocation)) {
-            pw.println(SourceCodeURLConstants.AT_PREFIX + sourceLocation);
+            pw.print(SourceCodeURLConstants.AT_PREFIX + sourceLocation);
+            pw.print("\r\n");
         }
     }
 

@@ -18,6 +18,15 @@ public class RedirectFilter implements Filter {
 
     private String redirectPage;
 
+    public void setRedirectPage(String redirectPage) {
+        this.redirectPage = redirectPage;
+    }
+
+    @Override
+    public void init(FilterConfig filterConfig) {
+        setRedirectPage(filterConfig.getInitParameter("redirectPage"));
+    }
+
     @Override
     public void doFilter(ServletRequest servletRequest,
             ServletResponse servletResponse,
@@ -31,10 +40,5 @@ public class RedirectFilter implements Filter {
 
     @Override
     public void destroy() {
-    }
-
-    @Override
-    public void init(FilterConfig filterConfig) {
-        redirectPage = filterConfig.getInitParameter("redirectPage");
     }
 }
