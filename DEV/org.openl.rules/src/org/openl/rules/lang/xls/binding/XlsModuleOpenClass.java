@@ -88,6 +88,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private XlsDefinitions xlsDefinitions = new XlsDefinitions();
 
+    private SpreadsheetResultOpenClass spreadsheetResultOpenClass;
+
     private String spreadsheetResultPackage;
 
     public RulesModuleBindingContext getRulesModuleBindingContext() {
@@ -113,10 +115,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         this.dispatchingValidationEnabled = OpenLSystemProperties
             .isDispatchingValidationEnabled(bindingContext.getExternalParams());
         this.classLoader = classLoader;
-
         this.classGenerationClassLoader = new OpenLBundleClassLoader(null);
         this.classGenerationClassLoader.addClassLoader(classLoader);
-
         this.rulesModuleBindingContext = new RulesModuleBindingContext(bindingContext, this);
         if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams())) {
             this.spreadsheetResultOpenClass = new SpreadsheetResultOpenClass(this);

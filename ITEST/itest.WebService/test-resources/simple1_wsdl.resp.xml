@@ -7,17 +7,6 @@
         </xsd:schema>
         <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://variation.rules.openl.org" xmlns:ns0="http://DefaultNamespace" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://variation.rules.openl.org">
             <xsd:import namespace="http://DefaultNamespace"/>
-            <xsd:complexType name="DeepCloningVariation">
-                <xsd:complexContent>
-                    <xsd:extension base="tns:Variation">
-                        <xsd:sequence>
-                            <xsd:element minOccurs="0" name="delegatedVariation" nillable="true" type="tns:Variation"/>
-                            <xsd:any maxOccurs="unbounded" minOccurs="0"/>
-                        </xsd:sequence>
-                    </xsd:extension>
-                </xsd:complexContent>
-                <xsd:anyAttribute/>
-            </xsd:complexType>
             <xsd:complexType name="ArgumentReplacementVariation">
                 <xsd:complexContent>
                     <xsd:extension base="tns:Variation">
@@ -30,23 +19,11 @@
                 </xsd:complexContent>
                 <xsd:anyAttribute/>
             </xsd:complexType>
-            <xsd:complexType name="ArrayOfVariation">
-                <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="Variation" nillable="true" type="tns:Variation"/>
-                </xsd:sequence>
-            </xsd:complexType>
-            <xsd:complexType name="NoVariation">
-                <xsd:complexContent>
-                    <xsd:extension base="tns:Variation">
-                        <xsd:sequence/>
-                    </xsd:extension>
-                </xsd:complexContent>
-            </xsd:complexType>
-            <xsd:complexType name="ComplexVariation">
+            <xsd:complexType name="DeepCloningVariation">
                 <xsd:complexContent>
                     <xsd:extension base="tns:Variation">
                         <xsd:sequence>
-                            <xsd:element minOccurs="0" name="variations" nillable="true" type="tns:ArrayOfVariation"/>
+                            <xsd:element minOccurs="0" name="delegatedVariation" nillable="true" type="tns:Variation"/>
                             <xsd:any maxOccurs="unbounded" minOccurs="0"/>
                         </xsd:sequence>
                     </xsd:extension>
@@ -71,6 +48,23 @@
                 </xsd:complexContent>
                 <xsd:anyAttribute/>
             </xsd:complexType>
+            <xsd:complexType name="ArrayOfVariation">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="Variation" nillable="true" type="tns:Variation"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="NoVariation">
+                <xsd:complexContent>
+                    <xsd:extension base="tns:Variation">
+                        <xsd:sequence/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+            <xsd:complexType name="VariationsPack">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="variations" nillable="true" type="tns:ArrayOfVariation"/>
+                </xsd:sequence>
+            </xsd:complexType>
             <xsd:complexType name="VariationsResult">
                 <xsd:sequence>
                     <xsd:element minOccurs="0" name="data" nillable="true" type="xsd:base64Binary"/>
@@ -78,9 +72,49 @@
                     <xsd:element minOccurs="0" name="variationResults" nillable="true" type="ns0:string2anyTypeMap"/>
                 </xsd:sequence>
             </xsd:complexType>
-            <xsd:complexType name="VariationsPack">
+            <xsd:complexType name="ComplexVariation">
+                <xsd:complexContent>
+                    <xsd:extension base="tns:Variation">
+                        <xsd:sequence>
+                            <xsd:element minOccurs="0" name="variations" nillable="true" type="tns:ArrayOfVariation"/>
+                            <xsd:any maxOccurs="unbounded" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+                <xsd:anyAttribute/>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://spreadsheetresults.generated.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://spreadsheetresults.generated.openl.org">
+            <xsd:complexType name="AnySpreadsheetResult">
                 <xsd:sequence>
-                    <xsd:element minOccurs="0" name="variations" nillable="true" type="tns:ArrayOfVariation"/>
+                    <xsd:element minOccurs="0" name="value1R10" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="value1R20" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="value1R30" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="value1R40" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="value2R10" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="value2R20" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="value2R30" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="value2R40" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="valueR10" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="valueR20" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="valueR30" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="valueR40" type="xsd:double"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="Test">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="value1R10" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="value1R20" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="value1R30" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="value1R40" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="value2R10" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="value2R20" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="value2R30" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="value2R40" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="valueR10" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="valueR20" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="valueR30" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="valueR40" type="xsd:double"/>
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
@@ -96,9 +130,9 @@
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://DefaultNamespace" xmlns:ns2="http://variation.rules.openl.org" xmlns:ns1="http://csr.generated.openl.org" xmlns:ns0="http://context.rules.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://DefaultNamespace">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://DefaultNamespace" xmlns:ns2="http://variation.rules.openl.org" xmlns:ns1="http://spreadsheetresults.generated.openl.org" xmlns:ns0="http://context.rules.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://DefaultNamespace">
             <xsd:import namespace="http://context.rules.openl.org"/>
-            <xsd:import namespace="http://csr.generated.openl.org"/>
+            <xsd:import namespace="http://spreadsheetresults.generated.openl.org"/>
             <xsd:import namespace="http://variation.rules.openl.org"/>
             <xsd:complexType name="string2stringMap">
                 <xsd:sequence>
@@ -184,40 +218,6 @@
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://csr.generated.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://csr.generated.openl.org">
-            <xsd:complexType name="Test">
-                <xsd:sequence>
-                    <xsd:element minOccurs="0" name="value1R10" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="value1R20" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="value1R30" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="value1R40" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="value2R10" type="xsd:string"/>
-                    <xsd:element minOccurs="0" name="value2R20" type="xsd:string"/>
-                    <xsd:element minOccurs="0" name="value2R30" type="xsd:string"/>
-                    <xsd:element minOccurs="0" name="value2R40" type="xsd:string"/>
-                    <xsd:element minOccurs="0" name="valueR10" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="valueR20" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="valueR30" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="valueR40" type="xsd:double"/>
-                </xsd:sequence>
-            </xsd:complexType>
-            <xsd:complexType name="AnySpreadsheetResult">
-                <xsd:sequence>
-                    <xsd:element minOccurs="0" name="value1R10" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="value1R20" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="value1R30" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="value1R40" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="value2R10" type="xsd:string"/>
-                    <xsd:element minOccurs="0" name="value2R20" type="xsd:string"/>
-                    <xsd:element minOccurs="0" name="value2R30" type="xsd:string"/>
-                    <xsd:element minOccurs="0" name="value2R40" type="xsd:string"/>
-                    <xsd:element minOccurs="0" name="valueR10" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="valueR20" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="valueR30" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="valueR40" type="xsd:double"/>
-                </xsd:sequence>
-            </xsd:complexType>
-        </xsd:schema>
         <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://itest.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://itest.openl.org">
             <xsd:complexType name="Error">
                 <xsd:sequence>
@@ -226,140 +226,6 @@
             </xsd:complexType>
         </xsd:schema>
         <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://enumeration.rules.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://enumeration.rules.openl.org">
-            <xsd:simpleType name="LanguagesEnum">
-                <xsd:restriction base="xsd:string">
-                    <xsd:enumeration value="ALB"/>
-                    <xsd:enumeration value="ARA"/>
-                    <xsd:enumeration value="BEL"/>
-                    <xsd:enumeration value="BUL"/>
-                    <xsd:enumeration value="CAT"/>
-                    <xsd:enumeration value="CHI"/>
-                    <xsd:enumeration value="SCR"/>
-                    <xsd:enumeration value="CZE"/>
-                    <xsd:enumeration value="DAN"/>
-                    <xsd:enumeration value="DUT"/>
-                    <xsd:enumeration value="ENG"/>
-                    <xsd:enumeration value="FIN"/>
-                    <xsd:enumeration value="FRE"/>
-                    <xsd:enumeration value="GER"/>
-                    <xsd:enumeration value="GRE"/>
-                    <xsd:enumeration value="HEB"/>
-                    <xsd:enumeration value="HIN"/>
-                    <xsd:enumeration value="HUN"/>
-                    <xsd:enumeration value="IND"/>
-                    <xsd:enumeration value="GLE"/>
-                    <xsd:enumeration value="ITA"/>
-                    <xsd:enumeration value="JPN"/>
-                    <xsd:enumeration value="LAV"/>
-                    <xsd:enumeration value="LIT"/>
-                    <xsd:enumeration value="MAC"/>
-                    <xsd:enumeration value="MAY"/>
-                    <xsd:enumeration value="MLT"/>
-                    <xsd:enumeration value="NOR"/>
-                    <xsd:enumeration value="POL"/>
-                    <xsd:enumeration value="POR"/>
-                    <xsd:enumeration value="RUM"/>
-                    <xsd:enumeration value="RUS"/>
-                    <xsd:enumeration value="SCC"/>
-                    <xsd:enumeration value="SLO"/>
-                    <xsd:enumeration value="SPA"/>
-                    <xsd:enumeration value="THA"/>
-                    <xsd:enumeration value="TUR"/>
-                    <xsd:enumeration value="UKR"/>
-                    <xsd:enumeration value="VIE"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="CurrenciesEnum">
-                <xsd:restriction base="xsd:string">
-                    <xsd:enumeration value="ALL"/>
-                    <xsd:enumeration value="DZD"/>
-                    <xsd:enumeration value="ARS"/>
-                    <xsd:enumeration value="AUD"/>
-                    <xsd:enumeration value="BHD"/>
-                    <xsd:enumeration value="BYR"/>
-                    <xsd:enumeration value="BOB"/>
-                    <xsd:enumeration value="BAM"/>
-                    <xsd:enumeration value="BRL"/>
-                    <xsd:enumeration value="CAD"/>
-                    <xsd:enumeration value="CLP"/>
-                    <xsd:enumeration value="CNY"/>
-                    <xsd:enumeration value="COP"/>
-                    <xsd:enumeration value="CRC"/>
-                    <xsd:enumeration value="HRK"/>
-                    <xsd:enumeration value="CZK"/>
-                    <xsd:enumeration value="DKK"/>
-                    <xsd:enumeration value="DOP"/>
-                    <xsd:enumeration value="EGP"/>
-                    <xsd:enumeration value="EUR"/>
-                    <xsd:enumeration value="GTQ"/>
-                    <xsd:enumeration value="HNL"/>
-                    <xsd:enumeration value="HKD"/>
-                    <xsd:enumeration value="HUF"/>
-                    <xsd:enumeration value="ISK"/>
-                    <xsd:enumeration value="INR"/>
-                    <xsd:enumeration value="IDR"/>
-                    <xsd:enumeration value="IQD"/>
-                    <xsd:enumeration value="ILS"/>
-                    <xsd:enumeration value="JPY"/>
-                    <xsd:enumeration value="JOD"/>
-                    <xsd:enumeration value="KWD"/>
-                    <xsd:enumeration value="LVL"/>
-                    <xsd:enumeration value="LBP"/>
-                    <xsd:enumeration value="LTL"/>
-                    <xsd:enumeration value="MKD"/>
-                    <xsd:enumeration value="MYR"/>
-                    <xsd:enumeration value="MXN"/>
-                    <xsd:enumeration value="MAD"/>
-                    <xsd:enumeration value="NZD"/>
-                    <xsd:enumeration value="NIO"/>
-                    <xsd:enumeration value="NOK"/>
-                    <xsd:enumeration value="OMR"/>
-                    <xsd:enumeration value="PAB"/>
-                    <xsd:enumeration value="PYG"/>
-                    <xsd:enumeration value="PEN"/>
-                    <xsd:enumeration value="PHP"/>
-                    <xsd:enumeration value="PLN"/>
-                    <xsd:enumeration value="QAR"/>
-                    <xsd:enumeration value="RON"/>
-                    <xsd:enumeration value="RUB"/>
-                    <xsd:enumeration value="SAR"/>
-                    <xsd:enumeration value="RSD"/>
-                    <xsd:enumeration value="SGD"/>
-                    <xsd:enumeration value="ZAR"/>
-                    <xsd:enumeration value="SDG"/>
-                    <xsd:enumeration value="SEK"/>
-                    <xsd:enumeration value="CHF"/>
-                    <xsd:enumeration value="SYP"/>
-                    <xsd:enumeration value="TWD"/>
-                    <xsd:enumeration value="TND"/>
-                    <xsd:enumeration value="TRY"/>
-                    <xsd:enumeration value="UAH"/>
-                    <xsd:enumeration value="AED"/>
-                    <xsd:enumeration value="GBP"/>
-                    <xsd:enumeration value="USD"/>
-                    <xsd:enumeration value="UYU"/>
-                    <xsd:enumeration value="VEF"/>
-                    <xsd:enumeration value="VND"/>
-                    <xsd:enumeration value="YER"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="UsRegionsEnum">
-                <xsd:restriction base="xsd:string">
-                    <xsd:enumeration value="MW"/>
-                    <xsd:enumeration value="NE"/>
-                    <xsd:enumeration value="SE"/>
-                    <xsd:enumeration value="SW"/>
-                    <xsd:enumeration value="W"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="RegionsEnum">
-                <xsd:restriction base="xsd:string">
-                    <xsd:enumeration value="NCSA"/>
-                    <xsd:enumeration value="EU"/>
-                    <xsd:enumeration value="EMEA"/>
-                    <xsd:enumeration value="APJ"/>
-                </xsd:restriction>
-            </xsd:simpleType>
             <xsd:simpleType name="CaProvincesEnum">
                 <xsd:restriction base="xsd:string">
                     <xsd:enumeration value="AB"/>
@@ -375,6 +241,15 @@
                     <xsd:enumeration value="NL"/>
                     <xsd:enumeration value="YT"/>
                     <xsd:enumeration value="NT"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+            <xsd:simpleType name="UsRegionsEnum">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="MW"/>
+                    <xsd:enumeration value="NE"/>
+                    <xsd:enumeration value="SE"/>
+                    <xsd:enumeration value="SW"/>
+                    <xsd:enumeration value="W"/>
                 </xsd:restriction>
             </xsd:simpleType>
             <xsd:simpleType name="UsStatesEnum">
@@ -534,6 +409,131 @@
                     <xsd:enumeration value="YE"/>
                 </xsd:restriction>
             </xsd:simpleType>
+            <xsd:simpleType name="RegionsEnum">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="NCSA"/>
+                    <xsd:enumeration value="EU"/>
+                    <xsd:enumeration value="EMEA"/>
+                    <xsd:enumeration value="APJ"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+            <xsd:simpleType name="CurrenciesEnum">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="ALL"/>
+                    <xsd:enumeration value="DZD"/>
+                    <xsd:enumeration value="ARS"/>
+                    <xsd:enumeration value="AUD"/>
+                    <xsd:enumeration value="BHD"/>
+                    <xsd:enumeration value="BYR"/>
+                    <xsd:enumeration value="BOB"/>
+                    <xsd:enumeration value="BAM"/>
+                    <xsd:enumeration value="BRL"/>
+                    <xsd:enumeration value="CAD"/>
+                    <xsd:enumeration value="CLP"/>
+                    <xsd:enumeration value="CNY"/>
+                    <xsd:enumeration value="COP"/>
+                    <xsd:enumeration value="CRC"/>
+                    <xsd:enumeration value="HRK"/>
+                    <xsd:enumeration value="CZK"/>
+                    <xsd:enumeration value="DKK"/>
+                    <xsd:enumeration value="DOP"/>
+                    <xsd:enumeration value="EGP"/>
+                    <xsd:enumeration value="EUR"/>
+                    <xsd:enumeration value="GTQ"/>
+                    <xsd:enumeration value="HNL"/>
+                    <xsd:enumeration value="HKD"/>
+                    <xsd:enumeration value="HUF"/>
+                    <xsd:enumeration value="ISK"/>
+                    <xsd:enumeration value="INR"/>
+                    <xsd:enumeration value="IDR"/>
+                    <xsd:enumeration value="IQD"/>
+                    <xsd:enumeration value="ILS"/>
+                    <xsd:enumeration value="JPY"/>
+                    <xsd:enumeration value="JOD"/>
+                    <xsd:enumeration value="KWD"/>
+                    <xsd:enumeration value="LVL"/>
+                    <xsd:enumeration value="LBP"/>
+                    <xsd:enumeration value="LTL"/>
+                    <xsd:enumeration value="MKD"/>
+                    <xsd:enumeration value="MYR"/>
+                    <xsd:enumeration value="MXN"/>
+                    <xsd:enumeration value="MAD"/>
+                    <xsd:enumeration value="NZD"/>
+                    <xsd:enumeration value="NIO"/>
+                    <xsd:enumeration value="NOK"/>
+                    <xsd:enumeration value="OMR"/>
+                    <xsd:enumeration value="PAB"/>
+                    <xsd:enumeration value="PYG"/>
+                    <xsd:enumeration value="PEN"/>
+                    <xsd:enumeration value="PHP"/>
+                    <xsd:enumeration value="PLN"/>
+                    <xsd:enumeration value="QAR"/>
+                    <xsd:enumeration value="RON"/>
+                    <xsd:enumeration value="RUB"/>
+                    <xsd:enumeration value="SAR"/>
+                    <xsd:enumeration value="RSD"/>
+                    <xsd:enumeration value="SGD"/>
+                    <xsd:enumeration value="ZAR"/>
+                    <xsd:enumeration value="SDG"/>
+                    <xsd:enumeration value="SEK"/>
+                    <xsd:enumeration value="CHF"/>
+                    <xsd:enumeration value="SYP"/>
+                    <xsd:enumeration value="TWD"/>
+                    <xsd:enumeration value="TND"/>
+                    <xsd:enumeration value="TRY"/>
+                    <xsd:enumeration value="UAH"/>
+                    <xsd:enumeration value="AED"/>
+                    <xsd:enumeration value="GBP"/>
+                    <xsd:enumeration value="USD"/>
+                    <xsd:enumeration value="UYU"/>
+                    <xsd:enumeration value="VEF"/>
+                    <xsd:enumeration value="VND"/>
+                    <xsd:enumeration value="YER"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+            <xsd:simpleType name="LanguagesEnum">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="ALB"/>
+                    <xsd:enumeration value="ARA"/>
+                    <xsd:enumeration value="BEL"/>
+                    <xsd:enumeration value="BUL"/>
+                    <xsd:enumeration value="CAT"/>
+                    <xsd:enumeration value="CHI"/>
+                    <xsd:enumeration value="SCR"/>
+                    <xsd:enumeration value="CZE"/>
+                    <xsd:enumeration value="DAN"/>
+                    <xsd:enumeration value="DUT"/>
+                    <xsd:enumeration value="ENG"/>
+                    <xsd:enumeration value="FIN"/>
+                    <xsd:enumeration value="FRE"/>
+                    <xsd:enumeration value="GER"/>
+                    <xsd:enumeration value="GRE"/>
+                    <xsd:enumeration value="HEB"/>
+                    <xsd:enumeration value="HIN"/>
+                    <xsd:enumeration value="HUN"/>
+                    <xsd:enumeration value="IND"/>
+                    <xsd:enumeration value="GLE"/>
+                    <xsd:enumeration value="ITA"/>
+                    <xsd:enumeration value="JPN"/>
+                    <xsd:enumeration value="LAV"/>
+                    <xsd:enumeration value="LIT"/>
+                    <xsd:enumeration value="MAC"/>
+                    <xsd:enumeration value="MAY"/>
+                    <xsd:enumeration value="MLT"/>
+                    <xsd:enumeration value="NOR"/>
+                    <xsd:enumeration value="POL"/>
+                    <xsd:enumeration value="POR"/>
+                    <xsd:enumeration value="RUM"/>
+                    <xsd:enumeration value="RUS"/>
+                    <xsd:enumeration value="SCC"/>
+                    <xsd:enumeration value="SLO"/>
+                    <xsd:enumeration value="SPA"/>
+                    <xsd:enumeration value="THA"/>
+                    <xsd:enumeration value="TUR"/>
+                    <xsd:enumeration value="UKR"/>
+                    <xsd:enumeration value="VIE"/>
+                </xsd:restriction>
+            </xsd:simpleType>
         </xsd:schema>
         <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://table.rules.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://table.rules.openl.org">
             <xsd:complexType name="Point">
@@ -555,16 +555,6 @@
             </xsd:complexType>
         </xsd:schema>
         <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://convertor2.result.calculation.rules.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://convertor2.result.calculation.rules.openl.org">
-            <xsd:complexType name="CodeStep">
-                <xsd:complexContent>
-                    <xsd:extension base="tns:CalculationStep">
-                        <xsd:sequence>
-                            <xsd:element minOccurs="0" name="code" nillable="true" type="xsd:string"/>
-                            <xsd:element minOccurs="0" name="value" nillable="true" type="xsd:double"/>
-                        </xsd:sequence>
-                    </xsd:extension>
-                </xsd:complexContent>
-            </xsd:complexType>
             <xsd:complexType name="CalculationStep">
                 <xsd:sequence>
                     <xsd:element minOccurs="0" name="formula" nillable="true" type="xsd:double"/>
@@ -586,6 +576,16 @@
                         <xsd:sequence>
                             <xsd:element minOccurs="0" name="id" nillable="true" type="xsd:string"/>
                             <xsd:element minOccurs="0" name="steps" nillable="true" type="tns:ArrayOfCalculationStep"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+            <xsd:complexType name="CodeStep">
+                <xsd:complexContent>
+                    <xsd:extension base="tns:CalculationStep">
+                        <xsd:sequence>
+                            <xsd:element minOccurs="0" name="code" nillable="true" type="xsd:string"/>
+                            <xsd:element minOccurs="0" name="value" nillable="true" type="xsd:double"/>
                         </xsd:sequence>
                     </xsd:extension>
                 </xsd:complexContent>

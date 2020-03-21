@@ -1,4 +1,4 @@
-<application xmlns="http://wadl.dev.java.net/2009/02" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:prefix2="http://csr.generated.openl.org" xmlns:prefix1="http://jaxrs.openl.org"><grammars><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://enumeration.rules.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://enumeration.rules.openl.org" version="1.0">
+<application xmlns="http://wadl.dev.java.net/2009/02" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:prefix2="http://spreadsheetresults.generated.openl.org" xmlns:prefix1="http://jaxrs.openl.org"><grammars><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://enumeration.rules.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://enumeration.rules.openl.org" version="1.0">
     <xs:simpleType name="caProvincesEnum">
         <xs:restriction base="xs:string">
             <xs:enumeration value="AB"/>
@@ -308,14 +308,7 @@
         </xs:restriction>
     </xs:simpleType>
 </xs:schema>
-    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jaxrs.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://jaxrs.openl.org" version="1.0">
-        <xs:complexType name="error">
-            <xs:sequence>
-                <xs:element minOccurs="0" name="message" type="xs:string"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:schema>
-    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://jaxb.dev.java.net/array" xmlns:tns="http://csr.generated.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://csr.generated.openl.org" version="1.0">
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://jaxb.dev.java.net/array" xmlns:tns="http://spreadsheetresults.generated.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://spreadsheetresults.generated.openl.org" version="1.0">
         <xs:import namespace="http://jaxb.dev.java.net/array"/>
         <xs:element name="AnySpreadsheetResult" type="tns:AnySpreadsheetResult"/>
         <xs:element name="Calc" type="tns:Calc"/>
@@ -330,20 +323,6 @@
         <xs:element name="SprTwoTwo2" type="tns:SprTwoTwo2"/>
         <xs:element name="SprWithEmptyColumn" type="tns:SprWithEmptyColumn"/>
         <xs:element name="SprWithEmptyRow" type="tns:SprWithEmptyRow"/>
-        <xs:complexType name="SprOneRow">
-            <xs:sequence>
-                <xs:element minOccurs="0" name="values" type="xs:int"/>
-                <xs:element minOccurs="0" name="moreValues" type="xs:int"/>
-                <xs:element minOccurs="0" name="values1" type="xs:int"/>
-            </xs:sequence>
-        </xs:complexType>
-        <xs:complexType name="SprOneColumn">
-            <xs:sequence>
-                <xs:element minOccurs="0" name="values" type="xs:int"/>
-                <xs:element minOccurs="0" name="moreValues" type="xs:int"/>
-                <xs:element minOccurs="0" name="values1" type="xs:int"/>
-            </xs:sequence>
-        </xs:complexType>
         <xs:complexType name="AnySpreadsheetResult">
             <xs:sequence>
                 <xs:element minOccurs="0" name="valuesStep1" type="xs:anyType"/>
@@ -369,19 +348,15 @@
                 <xs:element maxOccurs="unbounded" minOccurs="0" name="fieldNames" type="ns1:stringArray"/>
             </xs:sequence>
         </xs:complexType>
-        <xs:complexType name="SprWithEmptyRow">
+        <xs:complexType name="SprTwoTwo2">
             <xs:sequence>
-                <xs:element minOccurs="0" name="_" type="xs:int"/>
-            </xs:sequence>
-        </xs:complexType>
-        <xs:complexType name="HiddenCalc">
-            <xs:sequence>
-                <xs:element minOccurs="0" name="step1" type="xs:string"/>
-            </xs:sequence>
-        </xs:complexType>
-        <xs:complexType name="SprIfNode">
-            <xs:sequence>
-                <xs:element minOccurs="0" name="step1" type="tns:AnySpreadsheetResult"/>
+                <xs:element minOccurs="0" name="valuesStep1" type="xs:int"/>
+                <xs:element minOccurs="0" name="formulaStep1" type="xs:int"/>
+                <xs:element minOccurs="0" name="valuesStep2" type="xs:int"/>
+                <xs:element minOccurs="0" name="formulaStep2" type="xs:int"/>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="rowNames" type="xs:string"/>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="columnNames" type="xs:string"/>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="fieldNames" type="ns1:stringArray"/>
             </xs:sequence>
         </xs:complexType>
         <xs:complexType name="SprOneOne">
@@ -389,9 +364,11 @@
                 <xs:element minOccurs="0" name="step1" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
-        <xs:complexType name="SprTwoTwo1">
+        <xs:complexType name="SprOneColumn">
             <xs:sequence>
-                <xs:element minOccurs="0" name="step1" type="xs:int"/>
+                <xs:element minOccurs="0" name="values" type="xs:int"/>
+                <xs:element minOccurs="0" name="moreValues" type="xs:int"/>
+                <xs:element minOccurs="0" name="values1" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
         <xs:complexType name="SprTwoTwo">
@@ -406,10 +383,32 @@
                 <xs:element minOccurs="0" name="formula2Step4" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
+        <xs:complexType name="SprWithEmptyRow">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="_" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+        <xs:complexType name="SprOneOneNoAsterisk">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="step1" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
         <xs:complexType name="SprWithEmptyColumn">
             <xs:sequence>
                 <xs:element minOccurs="0" name="_" type="xs:int"/>
                 <xs:element minOccurs="0" name="values" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+        <xs:complexType name="SprOneRow">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="values" type="xs:int"/>
+                <xs:element minOccurs="0" name="moreValues" type="xs:int"/>
+                <xs:element minOccurs="0" name="values1" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+        <xs:complexType name="HiddenCalc">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="step1" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
         <xs:complexType name="Calc">
@@ -417,20 +416,28 @@
                 <xs:element minOccurs="0" name="step1" type="tns:SprOneRow"/>
             </xs:sequence>
         </xs:complexType>
-        <xs:complexType name="SprTwoTwo2">
+        <xs:complexType name="SprIfNode">
             <xs:sequence>
-                <xs:element minOccurs="0" name="valuesStep1" type="xs:int"/>
-                <xs:element minOccurs="0" name="formulaStep1" type="xs:int"/>
-                <xs:element minOccurs="0" name="valuesStep2" type="xs:int"/>
-                <xs:element minOccurs="0" name="formulaStep2" type="xs:int"/>
-                <xs:element maxOccurs="unbounded" minOccurs="0" name="rowNames" type="xs:string"/>
-                <xs:element maxOccurs="unbounded" minOccurs="0" name="columnNames" type="xs:string"/>
-                <xs:element maxOccurs="unbounded" minOccurs="0" name="fieldNames" type="ns1:stringArray"/>
+                <xs:element minOccurs="0" name="step1" type="tns:AnySpreadsheetResult"/>
             </xs:sequence>
         </xs:complexType>
-        <xs:complexType name="SprOneOneNoAsterisk">
+        <xs:complexType name="SprTwoTwo1">
             <xs:sequence>
                 <xs:element minOccurs="0" name="step1" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:schema>
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://spreadsheetresults.generated.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://spreadsheetresults.generated.openl.org" version="1.0">
+        <xs:complexType name="error">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="message" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:schema>
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jaxb.dev.java.net/array" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://jaxb.dev.java.net/array" version="1.0">
+        <xs:complexType final="#all" name="stringArray">
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:schema>
@@ -442,6 +449,18 @@
         <xs:element name="DtRetSpr3Request" type="tns:DtRetSpr3Request"/>
         <xs:element name="DtRetSprRequest" type="tns:DtRetSprRequest"/>
         <xs:element name="SprIfNodeRequest" type="tns:SprIfNodeRequest"/>
+        <xs:complexType name="DtRetSpr2Request">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="v" nillable="true" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+        <xs:complexType name="SprIfNodeRequest">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
+                <xs:element minOccurs="0" name="myVar" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
         <xs:complexType name="CalcRequest">
             <xs:sequence>
                 <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
@@ -454,29 +473,10 @@
                 <xs:element maxOccurs="unbounded" minOccurs="0" name="v" nillable="true" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
-        <xs:complexType name="SprIfNodeRequest">
-            <xs:sequence>
-                <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
-                <xs:element minOccurs="0" name="myVar" type="xs:int"/>
-            </xs:sequence>
-        </xs:complexType>
         <xs:complexType name="DtRetSprRequest">
             <xs:sequence>
                 <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
                 <xs:element minOccurs="0" name="v" type="xs:int"/>
-            </xs:sequence>
-        </xs:complexType>
-        <xs:complexType name="DtRetSpr2Request">
-            <xs:sequence>
-                <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
-                <xs:element maxOccurs="unbounded" minOccurs="0" name="v" nillable="true" type="xs:int"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:schema>
-    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jaxb.dev.java.net/array" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://jaxb.dev.java.net/array" version="1.0">
-        <xs:complexType final="#all" name="stringArray">
-            <xs:sequence>
-                <xs:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:schema>
