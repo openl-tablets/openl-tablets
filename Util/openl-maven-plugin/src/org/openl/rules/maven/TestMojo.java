@@ -149,14 +149,15 @@ public final class TestMojo extends BaseOpenLMojo {
 
         String path = sourcePath;
 
-        if (testSourceDirectory.isDirectory() && !CollectionUtils.isEmpty(testSourceDirectory.list())) {
+        File testDir = testSourceDirectory.getCanonicalFile();
+        if (testDir.isDirectory() && !CollectionUtils.isEmpty(testDir.list())) {
             File destination = new File(workspaceFolder, project.getArtifactId());
             debug("Destination path: ", destination.getPath());
 
             info("Copying main OpenL sources to workspace...");
             FileUtils.copy(new File(sourcePath), destination);
             info("Copying test OpenL sources to workspace...");
-            FileUtils.copy(testSourceDirectory, destination);
+            FileUtils.copy(testDir, destination);
 
             try {
                 path = destination.getCanonicalPath();
