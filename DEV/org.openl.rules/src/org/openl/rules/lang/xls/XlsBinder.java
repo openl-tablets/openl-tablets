@@ -537,7 +537,7 @@ public class XlsBinder implements IOpenBinder {
                     if (rulesModuleBindingContext.getModule().findType(sprResTypeName) == null) {
                         CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
                             sprResTypeName,
-                            rulesModuleBindingContext.getModule(), tableSyntaxNode.getTableProperties().getSpreadsheetResultPackage());
+                            rulesModuleBindingContext.getModule());
                         customSpreadsheetResultOpenClasses.add(customSpreadsheetResultOpenClass);
                     }
                 }
