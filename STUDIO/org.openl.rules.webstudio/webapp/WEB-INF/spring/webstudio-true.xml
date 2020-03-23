@@ -9,7 +9,9 @@
 
     <context:property-placeholder/>
     <context:component-scan base-package="org.openl.rules.webstudio, org.openl.rules.rest"/>
-    <import resource="*-beans.xml" />
+    <import resource="system-config-beans.xml" />
+    <import resource="repository-beans.xml" />
+    <import resource="security-beans.xml" />
     <import resource="classpath:META-INF/cxf/cxf.xml" />
 
     <bean id="currentUserInfo" class="org.openl.rules.webstudio.security.CurrentUserInfo" />
