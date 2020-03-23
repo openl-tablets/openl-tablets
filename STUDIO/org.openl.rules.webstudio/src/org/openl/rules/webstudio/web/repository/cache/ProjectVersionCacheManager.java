@@ -27,20 +27,20 @@ public class ProjectVersionCacheManager {
 
     private DeploymentManager deploymentManager;
 
-    private H2CacheDB h2CacheDB;
+    private ProjectVersionCacheDB projectVersionCacheDB;
 
     public String checkDeployedProject(AProject project) throws IOException {
 
-        if (h2CacheDB.isCacheEmpty()) {
-            recalculateAllCache(H2CacheDB.RepoType.DESIGN);
+        if (projectVersionCacheDB.isCacheEmpty()) {
+            recalculateAllCache(ProjectVersionCacheDB.RepoType.DESIGN);
         }
 
-        String md5 = getProjectMD5(project, H2CacheDB.RepoType.DEPLOY);
+        String md5 = getProjectMD5(project, ProjectVersionCacheDB.RepoType.DEPLOY);
 
-        return h2CacheDB.getVersion(project.getName(), md5, H2CacheDB.RepoType.DESIGN);
+        return projectVersionCacheDB.getVersion(project.getName(), md5, ProjectVersionCacheDB.RepoType.DESIGN);
     }
 
-    public void cacheProject(AProject project, H2CacheDB.RepoType repoType) throws IOException {
+    public void cacheProject(AProject project, ProjectVersionCacheDB.RepoType repoType) throws IOException {
         List<ProjectVersion> versions = project.getVersions();
         // TODO
         List<ProjectVersion> sortedVersions = versions.stream().sorted(new Comparator<ProjectVersion>() {
@@ -54,23 +54,24 @@ public class ProjectVersionCacheManager {
             String md5 = getProjectMD5(designProject, repoType);
             String versionName = designProject.getVersion().getVersionName();
 
-            String storedVersionName = h2CacheDB.getVersion(project.getName(), md5, H2CacheDB.RepoType.DESIGN);
+            String storedVersionName = projectVersionCacheDB
+                .getVersion(project.getName(), md5, ProjectVersionCacheDB.RepoType.DESIGN);
             if (version.getVersionName().equals(storedVersionName)) {
                 break;
             }
-            h2CacheDB.insert(project.getName(), versionName, md5, H2CacheDB.RepoType.DESIGN);
+            projectVersionCacheDB.insertProject(project.getName(), versionName, md5, ProjectVersionCacheDB.RepoType.DESIGN);
         }
     }
 
-    public void recalculateAllCache(H2CacheDB.RepoType repoType) throws IOException {
+    public void recalculateAllCache(ProjectVersionCacheDB.RepoType repoType) throws IOException {
         Collection<? extends AProject> projects = designRepository.getProjects();
         for (AProject project : projects) {
             cacheProject(project, repoType);
         }
     }
 
-    public String getProjectMD5(AProject wsProject, H2CacheDB.RepoType repoType) throws IOException {
-        String hash = h2CacheDB.getHash(wsProject.getName(), wsProject.getVersion().getVersionName(), repoType);
+    public String getProjectMD5(AProject wsProject, ProjectVersionCacheDB.RepoType repoType) throws IOException {
+        String hash = projectVersionCacheDB.getHash(wsProject.getName(), wsProject.getVersion().getVersionName(), repoType);
         if (hash != null) {
             return hash;
         }
@@ -89,7 +90,7 @@ public class ProjectVersionCacheManager {
             System.out.println("!");
         }
         hash = DigestUtils.md5Hex(md5Builder.toString());
-        h2CacheDB.insert(wsProject.getName(), wsProject.getVersion().getVersionName(), hash, repoType);
+        projectVersionCacheDB.insertProject(wsProject.getName(), wsProject.getVersion().getVersionName(), hash, repoType);
         return hash;
     }
 
@@ -99,7 +100,7 @@ public class ProjectVersionCacheManager {
             @Override
             public void onChange() {
                 try {
-                    recalculateAllCache(H2CacheDB.RepoType.DESIGN);
+                    recalculateAllCache(ProjectVersionCacheDB.RepoType.DESIGN);
                 } catch (IOException e) {
                     log.error("Error during project caching", e);
                 }
@@ -112,7 +113,7 @@ public class ProjectVersionCacheManager {
         this.deploymentManager = deploymentManager;
     }
 
-    public void setH2CacheDB(H2CacheDB h2CacheDB) {
-        this.h2CacheDB = h2CacheDB;
+    public void setProjectVersionCacheDB(ProjectVersionCacheDB projectVersionCacheDB) {
+        this.projectVersionCacheDB = projectVersionCacheDB;
     }
 }
