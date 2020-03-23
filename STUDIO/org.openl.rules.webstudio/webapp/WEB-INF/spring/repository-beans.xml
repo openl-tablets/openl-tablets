@@ -51,7 +51,6 @@
 
     <bean id="projectVersionCacheManager" class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager">
         <property name="designRepository" ref="designTimeRepository"/>
-        <property name="deploymentManager" ref="deploymentManager"/>
         <property name="ProjectVersionCacheDB" ref="projectVersionCacheDB"/>
     </bean>
 

@@ -28,11 +28,11 @@ public class ProjectVersionCacheDB extends H2CacheDB {
     }
 
     public String getHash(String name, String version, RepoType repoType) throws IOException {
-        return getProjectData(name, version, repoType, HASH_FIELD);
+        return getProjectData(name, version, repoType, HASH_FIELD, SELECT_HASH_QUERY);
     }
 
     public String getVersion(String name, String hash, RepoType repoType) throws IOException {
-        return getProjectData(name, hash, repoType, VERSION_FIELD);
+        return getProjectData(name, hash, repoType, VERSION_FIELD, SELECT_VERSION_QUERY);
     }
 
     public void insertProject(String projectName, String version, String hash, RepoType repoType) throws IOException {
@@ -104,14 +104,14 @@ public class ProjectVersionCacheDB extends H2CacheDB {
         }
     }
 
-    private String getProjectData(String name, String hash, RepoType repoType, String versionField) throws IOException {
+    private String getProjectData(String name, String hash, RepoType repoType, String versionField, String query) throws IOException {
         ensureCacheIsExist();
         Connection connection = null;
         ResultSet rs = null;
         PreparedStatement selectPreparedStatement = null;
         try {
             connection = getDBConnection();
-            selectPreparedStatement = connection.prepareStatement(SELECT_VERSION_QUERY);
+            selectPreparedStatement = connection.prepareStatement(query);
             selectPreparedStatement.setString(1, name);
             selectPreparedStatement.setString(2, hash);
             selectPreparedStatement.setString(3, repoType.name());

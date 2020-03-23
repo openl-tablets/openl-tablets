@@ -24,6 +24,7 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
@@ -107,7 +108,12 @@ public abstract class AbstractSmartRedeployController {
     }
 
     private String getLastDeployedVersion(AProject wsProject, String deployConfigName) throws IOException {
-        Repository deployRepo = deploymentManager.getDeployRepo(repositoryConfigName);
+        Repository deployRepo = null;
+        try {
+            deployRepo = deploymentManager.getDeployRepository(repositoryConfigName);
+        } catch (RRepositoryException e) {
+           throw new IOException(e);
+        }
         boolean folderStructure;
 
         if (deployRepo.supports().folders()) {
@@ -123,7 +129,7 @@ public abstract class AbstractSmartRedeployController {
             null,
             folderStructure);
         AProject deployedProject = deployment.getProject(wsProject.getName());
-        return deployedProject != null ? projectVersionCacheManager.checkDeployedProject(deployedProject) : null;
+        return deployedProject != null ? projectVersionCacheManager.getDeployedProjectVersion(deployedProject) : null;
     }
 
     private List<DeploymentProjectItem> getItems4Project(AProject project, String repositoryConfigName) {
