@@ -13,39 +13,55 @@ import org.slf4j.LoggerFactory;
 
 public class H2CacheDB {
 
+    public enum RepoType {
+        DESIGN,
+        DEPLOY
+    }
+
     private final Logger log = LoggerFactory.getLogger(H2CacheDB.class);
 
     private static final String DB_DRIVER = "org.h2.Driver";
-    private static final String DB_CONNECTION = "jdbc:h2:~/test2";
-    private static final String DB_USER = "";
-    private static final String DB_PASSWORD = "";
+    private static final String DB_CONNECTION = "jdbc:h2:";
+    private static final String CACHE_NAME = "/cache/hashProjectCache";
+    private String openLHome = "";
 
-    private static final String CREATE_QUERY = "CREATE TABLE IF NOT EXISTS VERSION_HASHES(project_name varchar(255),version varchar(255), hash varchar(255))";
-    private static final String SELECT_QUERY = "select version from VERSION_HASHES WHERE hash=?";
-    private static final String INSERT_QUERY = "INSERT INTO VERSION_HASHES" + "(project_name, version, hash) values" + "(?,?,?)";
+    private static final String CREATE_QUERY = "CREATE TABLE IF NOT EXISTS VERSION_HASHES(project_name varchar(255),version varchar(255), hash varchar(255), repository varchar(255))";
+    private static final String SELECT_VERSION_QUERY = "select version from VERSION_HASHES WHERE project_name=? and hash=? and repository=?";
+    private static final String SELECT_HASH_QUERY = "select hash from VERSION_HASHES WHERE project_name=? and version=? and repository=?";
+    private static final String INSERT_QUERY = "INSERT INTO VERSION_HASHES" + "(project_name, version, hash, repository) values" + "(?,?,?,?)";
     private static final String SELECT_COUNT_QUERY = "select COUNT(*) from VERSION_HASHES";
 
     private static final String VERSION_FIELD = "version";
+    private static final String HASH_FIELD = "hash";
 
-    public String checkHash(String hash) throws IOException {
+    public String getHash(String name, String version, RepoType repoType) throws IOException {
+        return getProjectData(name, version, repoType, SELECT_HASH_QUERY, HASH_FIELD);
+    }
+
+    public String getVersion(String name, String hash, RepoType repoType) throws IOException {
+        return getProjectData(name, hash, repoType, SELECT_VERSION_QUERY, VERSION_FIELD);
+    }
+
+    private String getProjectData(String name, String param, RepoType repoType, String selectQuery, String field) throws IOException {
         ensureCacheIsExist();
         Connection connection = null;
         ResultSet rs = null;
         PreparedStatement selectPreparedStatement = null;
         try {
             connection = getDBConnection();
-            selectPreparedStatement = connection.prepareStatement(SELECT_QUERY);
-            selectPreparedStatement.setString(1, hash);
+            selectPreparedStatement = connection.prepareStatement(selectQuery);
+            selectPreparedStatement.setString(1, name);
+            selectPreparedStatement.setString(2, param);
+            selectPreparedStatement.setString(3, repoType.name());
             connection.setAutoCommit(false);
             rs = selectPreparedStatement.executeQuery();
-            selectPreparedStatement = connection.prepareStatement(SELECT_QUERY);
-            String version = null;
+            String result = null;
             while (rs.next()) {
-                version = rs.getString(VERSION_FIELD);
+                result = rs.getString(field);
             }
             selectPreparedStatement.close();
             connection.commit();
-            return version;
+            return result;
         } catch (Exception e) {
             throw new IOException(e);
         } finally {
@@ -55,7 +71,7 @@ public class H2CacheDB {
         }
     }
 
-    public void insert(String projectName, String version, String hash) throws IOException {
+    public void insert(String projectName, String version, String hash, RepoType repoType) throws IOException {
         ensureCacheIsExist();
         Connection connection = null;
         PreparedStatement insertPreparedStatement = null;
@@ -66,6 +82,7 @@ public class H2CacheDB {
             insertPreparedStatement.setString(1, projectName);
             insertPreparedStatement.setString(2, version);
             insertPreparedStatement.setString(3, hash);
+            insertPreparedStatement.setString(4, repoType.name());
             insertPreparedStatement.executeUpdate();
             insertPreparedStatement.close();
             connection.commit();
@@ -131,10 +148,14 @@ public class H2CacheDB {
             throw new IOException(e);
         }
         try {
-            dbConnection = DriverManager.getConnection(DB_CONNECTION, DB_USER, DB_PASSWORD);
+            dbConnection = DriverManager.getConnection(DB_CONNECTION + openLHome + CACHE_NAME, "", "");
             return dbConnection;
         } catch (SQLException e) {
             throw new IOException(e);
         }
+    }
+
+    public void setOpenLHome(String openLHome) {
+        this.openLHome = openLHome;
     }
 }

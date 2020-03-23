@@ -29,18 +29,18 @@ public class ProjectVersionCacheManager {
 
     private H2CacheDB h2CacheDB;
 
-    public String checkProject(AProject project) throws IOException {
+    public String checkDeployedProject(AProject project) throws IOException {
 
         if (h2CacheDB.isCacheEmpty()) {
-            recalculateAllCache();
+            recalculateAllCache(H2CacheDB.RepoType.DESIGN);
         }
 
-        String md5 = calculateProjectMD5(project);
+        String md5 = getProjectMD5(project, H2CacheDB.RepoType.DEPLOY);
 
-        return h2CacheDB.checkHash(md5);
+        return h2CacheDB.getVersion(project.getName(), md5, H2CacheDB.RepoType.DESIGN);
     }
 
-    public void cacheProject(AProject project) throws IOException {
+    public void cacheProject(AProject project, H2CacheDB.RepoType repoType) throws IOException {
         List<ProjectVersion> versions = project.getVersions();
         // TODO
         List<ProjectVersion> sortedVersions = versions.stream().sorted(new Comparator<ProjectVersion>() {
@@ -51,31 +51,29 @@ public class ProjectVersionCacheManager {
         }).collect(Collectors.toList());
         for (ProjectVersion version : sortedVersions) {
             AProject designProject = designRepository.getProject(project.getName(), version);
-            String md5 = calculateProjectMD5(designProject);
+            String md5 = getProjectMD5(designProject, repoType);
             String versionName = designProject.getVersion().getVersionName();
 
-            String storedVersionName = h2CacheDB.checkHash(md5);
+            String storedVersionName = h2CacheDB.getVersion(project.getName(), md5, H2CacheDB.RepoType.DESIGN);
             if (version.getVersionName().equals(storedVersionName)) {
                 break;
             }
-            h2CacheDB.insert(project.getName(), versionName, md5);
+            h2CacheDB.insert(project.getName(), versionName, md5, H2CacheDB.RepoType.DESIGN);
         }
     }
 
-    public void cacheProjectVersion(AProject designProject) throws IOException {
-        String md5 = calculateProjectMD5(designProject);
-        String versionName = designProject.getVersion().getVersionName();
-        h2CacheDB.insert(designProject.getName(), versionName, md5);
-    }
-
-    public void recalculateAllCache() throws IOException {
+    public void recalculateAllCache(H2CacheDB.RepoType repoType) throws IOException {
         Collection<? extends AProject> projects = designRepository.getProjects();
         for (AProject project : projects) {
-            cacheProject(project);
+            cacheProject(project, repoType);
         }
     }
 
-    public String calculateProjectMD5(AProject wsProject) throws IOException {
+    public String getProjectMD5(AProject wsProject, H2CacheDB.RepoType repoType) throws IOException {
+        String hash = h2CacheDB.getHash(wsProject.getName(), wsProject.getVersion().getVersionName(), repoType);
+        if (hash != null) {
+            return hash;
+        }
         StringBuilder md5Builder = new StringBuilder();
         try {
             for (AProjectArtefact artefact : wsProject.getArtefacts()) {
@@ -90,7 +88,9 @@ public class ProjectVersionCacheManager {
         } catch (NullPointerException | ProjectException e) {
             System.out.println("!");
         }
-        return DigestUtils.md5Hex(md5Builder.toString());
+        hash = DigestUtils.md5Hex(md5Builder.toString());
+        h2CacheDB.insert(wsProject.getName(), wsProject.getVersion().getVersionName(), hash, repoType);
+        return hash;
     }
 
     public void setDesignRepository(DesignTimeRepository designRepository) {
@@ -99,7 +99,7 @@ public class ProjectVersionCacheManager {
             @Override
             public void onChange() {
                 try {
-                    recalculateAllCache();
+                    recalculateAllCache(H2CacheDB.RepoType.DESIGN);
                 } catch (IOException e) {
                     log.error("Error during project caching", e);
                 }

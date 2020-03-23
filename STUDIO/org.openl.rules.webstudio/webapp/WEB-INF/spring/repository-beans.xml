@@ -46,6 +46,7 @@
     </bean>
 
     <bean id="h2CacheDB" class="org.openl.rules.webstudio.web.repository.cache.H2CacheDB">
+        <property name="openLHome" value="${openl.home}"/>
     </bean>
 
     <bean id="projectVersionCacheManager" class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager">
