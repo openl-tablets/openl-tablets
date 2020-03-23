@@ -7,6 +7,7 @@ import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -85,7 +86,11 @@ public final class CastToWiderType {
                     }
                 }
             }
-
+            if (type1 instanceof DomainOpenClass || type2 instanceof DomainOpenClass) {
+                return create(castFactory,
+                    JavaOpenClass.getOpenClass(type1.getInstanceClass()),
+                    JavaOpenClass.getOpenClass(type2.getInstanceClass()));
+            }
             return new CastToWiderType(type1, null, null);
         }
 
