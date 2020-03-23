@@ -5,11 +5,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public abstract class H2CacheDB {
+public class H2CacheDB {
 
     private static final String DB_DRIVER = "org.h2.Driver";
     private static final String DB_CONNECTION = "jdbc:h2:";
     private static final String CACHE_FOLDER = "/cache/";
+
     private String openLHome = "";
     private String cacheName = "";
 

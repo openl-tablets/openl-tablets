@@ -51,7 +51,7 @@ public class ProjectVersionCacheManager {
         }).collect(Collectors.toList());
         for (ProjectVersion version : sortedVersions) {
             AProject designProject = designRepository.getProject(project.getName(), version);
-            String md5 = getProjectMD5(designProject, repoType);
+            String md5 = computeMD5(designProject);
             String versionName = designProject.getVersion().getVersionName();
 
             String storedVersionName = projectVersionCacheDB
@@ -59,7 +59,8 @@ public class ProjectVersionCacheManager {
             if (version.getVersionName().equals(storedVersionName)) {
                 break;
             }
-            projectVersionCacheDB.insertProject(project.getName(), versionName, md5, ProjectVersionCacheDB.RepoType.DESIGN);
+            projectVersionCacheDB
+                .insertProject(project.getName(), versionName, md5, ProjectVersionCacheDB.RepoType.DESIGN);
         }
     }
 
@@ -71,26 +72,14 @@ public class ProjectVersionCacheManager {
     }
 
     public String getProjectMD5(AProject wsProject, ProjectVersionCacheDB.RepoType repoType) throws IOException {
-        String hash = projectVersionCacheDB.getHash(wsProject.getName(), wsProject.getVersion().getVersionName(), repoType);
+        String hash = projectVersionCacheDB
+            .getHash(wsProject.getName(), wsProject.getVersion().getVersionName(), repoType);
         if (hash != null) {
             return hash;
         }
-        StringBuilder md5Builder = new StringBuilder();
-        try {
-            for (AProjectArtefact artefact : wsProject.getArtefacts()) {
-                if (artefact instanceof AProjectResource) {
-                    InputStream content = ((AProjectResource) artefact).getContent();
-                    md5Builder.append(DigestUtils.md5Hex(content));
-                    md5Builder.append(DigestUtils.md5Hex(artefact.getName()));
-                } else {
-                    System.out.println("TODO REMOVE");
-                }
-            }
-        } catch (NullPointerException | ProjectException e) {
-            System.out.println("!");
-        }
-        hash = DigestUtils.md5Hex(md5Builder.toString());
-        projectVersionCacheDB.insertProject(wsProject.getName(), wsProject.getVersion().getVersionName(), hash, repoType);
+        hash = computeMD5(wsProject);
+        projectVersionCacheDB
+            .insertProject(wsProject.getName(), wsProject.getVersion().getVersionName(), hash, repoType);
         return hash;
     }
 
@@ -107,6 +96,24 @@ public class ProjectVersionCacheManager {
             }
         };
         this.designRepository.getRepository().setListener(listener);
+    }
+
+    private String computeMD5(AProject wsProject) throws IOException {
+        StringBuilder md5Builder = new StringBuilder();
+        try {
+            for (AProjectArtefact artefact : wsProject.getArtefacts()) {
+                if (artefact instanceof AProjectResource) {
+                    InputStream content = ((AProjectResource) artefact).getContent();
+                    md5Builder.append(DigestUtils.md5Hex(content));
+                    md5Builder.append(DigestUtils.md5Hex(artefact.getName()));
+                } else {
+                    System.out.println("TODO REMOVE");
+                }
+            }
+        } catch (NullPointerException | ProjectException e) {
+            System.out.println("!");
+        }
+        return DigestUtils.md5Hex(md5Builder.toString());
     }
 
     public void setDeploymentManager(DeploymentManager deploymentManager) {
