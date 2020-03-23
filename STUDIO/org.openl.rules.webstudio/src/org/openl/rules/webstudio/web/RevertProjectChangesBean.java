@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,17 +11,16 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.diff.UploadExcelDiffController;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.source.SourceHistoryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.PropertyResolver;
 
 /**
  * @author Andrei Astrouski
@@ -33,9 +31,6 @@ public class RevertProjectChangesBean {
 
     private final Logger log = LoggerFactory.getLogger(RevertProjectChangesBean.class);
 
-    @ManagedProperty("#{environment}")
-    private PropertyResolver propertyResolver;
-
     public RevertProjectChangesBean() {
     }
 
@@ -44,9 +39,8 @@ public class RevertProjectChangesBean {
         String[] sourceNames = getSources();
         List<File> historyListFiles = model.getHistoryManager().get(sourceNames);
 
-        String dateModifiedPattern = propertyResolver.getProperty("data.format.datetime");
         Map<String, List<ProjectHistoryItem>> sourceNameHistoryMap = historyListFiles.stream().map(f -> {
-            String modifiedOnStr = new SimpleDateFormat(dateModifiedPattern).format(new Date(f.lastModified()));
+            String modifiedOnStr = WebStudioFormats.getInstance().formatDateTime(new Date(f.lastModified()));
             return new ProjectHistoryItem(f.lastModified(), modifiedOnStr, f.getName());
         }).collect(Collectors.groupingBy(ProjectHistoryItem::getSourceName));
 
@@ -128,9 +122,5 @@ public class RevertProjectChangesBean {
         }
 
         return versionsToCompare;
-    }
-
-    public void setPropertyResolver(PropertyResolver propertyResolver) {
-        this.propertyResolver = propertyResolver;
     }
 }

@@ -7,20 +7,20 @@
         http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security-5.2.xsd"
        default-autowire="no">
 
-    <bean id="versionProperties" class="org.openl.info.OpenLVersion" />
-
-    <bean id="installerFilter" class="org.openl.rules.webstudio.filter.InstallerFilter">
-        <constructor-arg name="wizardRoot" value="/faces/pages/modules/install/"/>
+    <bean id="installerPage" class="org.openl.rules.webstudio.filter.RedirectFilter">
+        <property name="redirectPage" value="/faces/pages/modules/install/index.xhtml"/>
     </bean>
+
     <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
         <security:filter-chain-map request-matcher="ant">
-            <security:filter-chain pattern="/favicon.ico" filters="none" />
-            <security:filter-chain pattern="/css/**" filters="none" />
-            <security:filter-chain pattern="/images/**" filters="none" />
-            <security:filter-chain pattern="/javascript/**" filters="none" />
-            <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none" />
-            <security:filter-chain pattern="/faces/rfRes/**" filters="none" />
-            <security:filter-chain pattern="/**" filters="installerFilter"/>
+            <security:filter-chain pattern="/favicon.ico" filters="none"/>
+            <security:filter-chain pattern="/css/**" filters="none"/>
+            <security:filter-chain pattern="/images/**" filters="none"/>
+            <security:filter-chain pattern="/javascript/**" filters="none"/>
+            <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none"/>
+            <security:filter-chain pattern="/faces/rfRes/**" filters="none"/>
+            <security:filter-chain pattern="/faces/pages/modules/install/**" filters="none"/>
+            <security:filter-chain pattern="/**" filters="installerPage"/>
         </security:filter-chain-map>
     </bean>
 

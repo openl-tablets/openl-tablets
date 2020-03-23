@@ -35,13 +35,15 @@ public class OpenLErrorMessage extends OpenLMessage {
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
 
-        printWriter.println(super.toString());
+        printWriter.print(super.toString());
+        printWriter.print("\r\n");
+
 
         if (getError() != null) {
             String url = getError().getSourceLocation();
 
             if (StringUtils.isNotEmpty(url)) {
-                printWriter.println(SourceCodeURLConstants.AT_PREFIX + url);
+                printWriter.print(SourceCodeURLConstants.AT_PREFIX + url + "\r\n");
             }
             if (getError().getCause() != null && getError().getLocation() == null) {
                 getError().getCause().printStackTrace(printWriter);

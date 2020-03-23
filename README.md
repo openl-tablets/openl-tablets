@@ -1,3 +1,5 @@
+![Java CI with Maven](https://github.com/openl-tablets/openl-tablets/workflows/Java%20CI%20with%20Maven/badge.svg)
+
 # Easy Business Rules
 
 **OpenL Tablets** targets the infamous gap between business requirements (rules and policies) and software implementation.

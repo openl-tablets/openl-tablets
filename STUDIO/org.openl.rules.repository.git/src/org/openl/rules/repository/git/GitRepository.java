@@ -1,8 +1,10 @@
 package org.openl.rules.repository.git;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -2152,8 +2154,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             return null;
         }
         try {
-            return new URI(uriOrPath);
-        } catch (URISyntaxException e) {
+            return new URL(uriOrPath).toURI();
+        } catch (URISyntaxException | MalformedURLException e) {
             // uri can be a folder path. It's not valid URI but git accepts paths too.
             return new File(uriOrPath).toURI();
         }

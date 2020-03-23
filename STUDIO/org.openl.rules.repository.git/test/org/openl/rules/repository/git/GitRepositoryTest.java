@@ -920,7 +920,7 @@ public class GitRepositoryTest {
     @Test
     public void testIsValidBranchName() {
         assertTrue(repo.isValidBranchName("123"));
-        assertFalse(repo.isValidBranchName("COM1/NUL"));
+        assertFalse(repo.isValidBranchName("[~COM1/NUL]"));
     }
 
     @Test

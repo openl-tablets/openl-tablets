@@ -5,6 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd"
        default-autowire="no">
 
+    <bean id="versionProperties" class="org.openl.info.OpenLVersion" />
     <bean class="org.openl.rules.webstudio.web.Props"/>
 
     <!-- Either webstudio-true.xml or webstudio-false.xml. -->
