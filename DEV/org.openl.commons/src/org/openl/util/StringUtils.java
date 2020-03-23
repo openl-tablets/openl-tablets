@@ -114,7 +114,7 @@ public class StringUtils {
         if (match) {
             list.add(str.substring(start, end));
         }
-        return list.toArray(new String[list.size()]);
+        return list.toArray(new String[0]);
     }
 
     /**
@@ -145,7 +145,7 @@ public class StringUtils {
         if (values == null) {
             return null;
         }
-        return Arrays.asList(values).stream().map(String::valueOf).collect(Collectors.joining(separator));
+        return Arrays.stream(values).map(String::valueOf).collect(Collectors.joining(separator));
     }
 
     /**
@@ -391,9 +391,7 @@ public class StringUtils {
             return str;
         }
 
-        return new StringBuilder(str.length()).append(Character.toTitleCase(firstChar))
-            .append(str, 1, str.length())
-            .toString();
+        return Character.toTitleCase(firstChar) + str.substring(1);
     }
 
     /**
@@ -430,7 +428,7 @@ public class StringUtils {
             return str;
         }
 
-        return new StringBuilder(strLen).append(Character.toLowerCase(firstChar)).append(str.substring(1)).toString();
+        return Character.toLowerCase(firstChar) + str.substring(1);
     }
 
     /**
