@@ -15,6 +15,7 @@ import javax.faces.bean.ManagedProperty;
 
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -112,7 +113,7 @@ public abstract class AbstractSmartRedeployController {
         try {
             deployRepo = deploymentManager.getDeployRepository(repositoryConfigName);
         } catch (RRepositoryException e) {
-           throw new IOException(e);
+            throw new IOException(e);
         }
         boolean folderStructure;
 
@@ -232,8 +233,12 @@ public abstract class AbstractSmartRedeployController {
                     // overwrite settings
                     checker.addProject(project);
                     if (checker.check()) {
-                        item.setMessages("Can be updated to " + project.getVersion()
-                            .getVersionName() + " from " + lastDeployedVersion + " and then deployed");
+                        String to = RepositoryTreeController.getDescriptiveVersion(project.getVersion());
+                        String from = RepositoryTreeController
+                            .getDescriptiveVersion(userWorkspace.getDesignTimeRepository()
+                                .getProject(projectDescriptor.getProjectName(), new CommonVersionImpl(lastDeployedVersion))
+                                .getVersion());
+                        item.setMessages("Can be updated to '" + to + "' from '" + from + "' and then deployed");
                     } else {
                         item.setMessages(
                             "Project version will be updated. Dependent projects should be added to deploy configuration.");
