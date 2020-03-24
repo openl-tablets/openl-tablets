@@ -3,7 +3,6 @@ package org.openl.gen.writers;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 
 public class ISO8601DateFormater {
     private static final String ISO8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
@@ -17,7 +16,6 @@ public class ISO8601DateFormater {
         } else {
             dateFormat = new SimpleDateFormat(ISO8601_SHORT_DATE_FORMAT, Locale.US);
         }
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         return dateFormat.format(date);
     }
 }

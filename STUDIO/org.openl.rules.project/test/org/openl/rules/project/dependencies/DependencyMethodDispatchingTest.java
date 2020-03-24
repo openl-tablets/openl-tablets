@@ -21,8 +21,8 @@ public class DependencyMethodDispatchingTest {
      * method exception will be thrown at runtime.
      */
     @Test
-    public void testAmbigiousMethodException() throws Exception {
-        // AmbigiousMethodException can be retrieved in only the dispatching
+    public void testAmbiguousMethodException() throws Exception {
+        // AmbiguousMethodException can be retrieved in only the dispatching
         // mode based on methods selecting in java code
 
         ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder()
@@ -30,16 +30,11 @@ public class DependencyMethodDispatchingTest {
             .build();
         factory.getCompiledOpenClass();
         Class<?> interfaceClass = factory.getInterfaceClass();
-        Method method = null;
-        try {
-            method = interfaceClass.getMethod("hello1", int.class);
-        } catch (Throwable e1) {
-            fail("Method should exist.");
-        }
+        Method method = interfaceClass.getMethod("hello1", int.class);
 
         try {
             method.invoke(factory.newInstance(), 10);
-            fail("We are waiting for OpenlRuntimeException");
+            fail("Expected OpenlRuntimeException");
         } catch (Exception e) {
             assertTrue(e.getCause().getMessage().contains(AMBIGUOUS_METHOD_MESSAGE));
         }
@@ -51,27 +46,16 @@ public class DependencyMethodDispatchingTest {
      * work. As it was compiled separately, and know nothing about the overloaded table in main module.
      */
     @Test
-    public void testMethodDispatching() {
+    public void testMethodDispatching() throws Exception {
 
         ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder().setProvideRuntimeContext(true)
             .setProject("test-resources/dependencies/testMethodDispatching1")
             .build();
+        factory.getCompiledOpenClass();
 
-        Class<?> interfaceClass = null;
-        try {
-            factory.getCompiledOpenClass();
-            interfaceClass = factory.getInterfaceClass();
-        } catch (Exception e2) {
-            fail("Should instantiate");
-        }
-        Method method = null;
-        try {
-            // get the method from dependency module for invoke
-            //
-            method = interfaceClass.getMethod("start", IRulesRuntimeContext.class);
-        } catch (Throwable e1) {
-            fail("Method should exist.");
-        }
+        Class<?> interfaceClass = factory.getInterfaceClass();
+
+        Method method = interfaceClass.getMethod("start", IRulesRuntimeContext.class);
 
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
 
@@ -79,13 +63,7 @@ public class DependencyMethodDispatchingTest {
         //
         context.setUsState(UsStatesEnum.AZ);
 
-        try {
-            // check that method from dependency will be invoked
-            //
-            assertEquals(2, method.invoke(factory.newInstance(), context));
-        } catch (Exception e) {
-            fail("We should get the right result");
-        }
+        assertEquals(2, method.invoke(factory.newInstance(), context));
     }
 
 }

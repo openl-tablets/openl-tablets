@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.common.VersionInfo;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.IProjectDescriptorSerializer;
@@ -62,13 +63,11 @@ import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.WizardUtils;
+import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.rules.webstudio.util.PreferencesManager;
-import org.openl.rules.webstudio.web.Props;
-import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
@@ -89,6 +88,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
+import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -1316,11 +1316,13 @@ public class RepositoryTreeController {
         return selectItems.toArray(new SelectItem[0]);
     }
 
-    private String getDescriptiveVersion(ProjectVersion version) {
-        String dateModifiedPattern = Props.text(AdministrationSettings.DATETIME_PATTERN);
-        String modifiedOnStr = new SimpleDateFormat(dateModifiedPattern).format(version.getVersionInfo().getCreatedAt());
-
-        return version.getVersionInfo().getCreatedBy() + ": " + modifiedOnStr;
+    static String getDescriptiveVersion(ProjectVersion version) {
+        VersionInfo versionInfo = version.getVersionInfo();
+        if (versionInfo == null) {
+            return "Version not found";
+        }
+        String modifiedOnStr = WebStudioFormats.getInstance().formatDateTime(versionInfo.getCreatedAt());
+        return versionInfo.getCreatedBy() + ": " + modifiedOnStr;
     }
 
     public String getUploadFrom() {
@@ -2132,7 +2134,7 @@ public class RepositoryTreeController {
     @PostConstruct
     public void init() {
         customTemplatesResolver = new CustomTemplatesResolver(
-            propertyResolver.getProperty(PreferencesManager.WEBSTUDIO_WORKING_DIR_KEY));
+            propertyResolver.getProperty(DynamicPropertySource.OPENL_HOME));
         this.projectUseCustomComment = Boolean
             .parseBoolean(propertyResolver.getProperty("repository.design.comment-template.use-custom-comments"));
         designCommentValidator = CommentValidator.forDesignRepo();

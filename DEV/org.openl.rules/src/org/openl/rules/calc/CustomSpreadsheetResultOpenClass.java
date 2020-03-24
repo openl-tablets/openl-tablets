@@ -137,6 +137,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     }
 
     @Override
+    public String getPackageName() {
+        return getModule().getSpreadsheetResultPackage();
+    }
+
+    @Override
     public synchronized Iterable<IOpenClass> superClasses() {
         if (superClasses == null) {
             Class<?>[] interfaces = SpreadsheetResult.class.getInterfaces();
@@ -346,6 +351,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         type.setMetaInfo(getMetaInfo());
         type.logicalTable = this.logicalTable;
         return type;
+    }
+
+    public ILogicalTable getLogicalTable() {
+        return logicalTable;
     }
 
     @Override
@@ -643,7 +652,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         name = firstLetterUppercaseName;
                     }
 
-                    beanClassName = getModule().getCsrBeansPackage() + "." + name;
+                    beanClassName = getPackageName() + "." + name;
                 }
             }
         }

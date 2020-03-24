@@ -10,6 +10,7 @@ import javax.faces.model.SelectItem;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
+import org.openl.rules.webstudio.WebStudioFormats;
 
 /**
  * Bean that handles property selection (in "copy table", "create new property table").
@@ -92,10 +93,11 @@ public class PropertiesBean {
         TablePropertyDefinition propDefinition = getPropByName(propNameToAdd);
         Class<?> propType = propDefinition.getType() == null ? String.class
                                                              : propDefinition.getType().getInstanceClass();
-        properties.add(new TableProperty.TablePropertyBuilder(propDefinition.getName(), propType)
-            .displayName(propDefinition.getDisplayName())
-            .format(propDefinition.getFormat())
-            .build());
+        properties.add(
+            new TableProperty.TablePropertyBuilder(propDefinition.getName(), propType, WebStudioFormats.getInstance())
+                .displayName(propDefinition.getDisplayName())
+                .format(propDefinition.getFormat())
+                .build());
         possibleToAddProps.remove(propNameToAdd);
     }
 

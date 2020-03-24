@@ -87,7 +87,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
         StringWriter messageWriter = new StringWriter();
         PrintWriter pw = new PrintWriter(messageWriter);
         if (location != null) {
-            pw.println(super.getMessage());
+            pw.print(super.getMessage() + "\r\n");
             SourceCodeURLTool.printCodeAndError(getLocation(), getSourceCode(), pw);
             SourceCodeURLTool.printSourceLocation(getSourceLocation(), pw);
         } else {
@@ -135,7 +135,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
             rootCause = getCause();
         }
 
-        writer.println(rootCause.getClass().getName() + ": " + rootCause.getMessage());
+        writer.print(rootCause.getClass().getName() + ": " + rootCause.getMessage() + "\r\n");
 
         if (getLocation() != null) {
             SourceCodeURLTool.printCodeAndError(getLocation(), getSourceCode(), writer);

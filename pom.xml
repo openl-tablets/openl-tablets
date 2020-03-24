@@ -103,7 +103,7 @@
         <elasticsearch-cluster-runner.version>6.8.1.0</elasticsearch-cluster-runner.version>
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
-        <surefire.argLine>-Xms8m -Xmx40m</surefire.argLine>
+        <surefire.argLine>-Xms8m -Xmx41m</surefire.argLine>
         <invoker.mavenOpts>-Xms16m -Xmx40m</invoker.mavenOpts>
         <invoker.timeoutInSeconds>30</invoker.timeoutInSeconds>
         <openl.home>${project.build.directory}/openl-test</openl.home>
@@ -1186,12 +1186,12 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-s3</artifactId>
-                <version>1.11.580</version>
+                <version>1.11.744</version>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-core</artifactId>
-                <version>1.11.580</version>
+                <version>1.11.744</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -1202,7 +1202,7 @@
             <dependency>
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit</artifactId>
-                <version>5.6.0.201912101111-r</version>
+                <version>5.7.0.202003110725-r</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -1344,7 +1344,7 @@
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
-                <version>1.25</version>
+                <version>1.26</version>
             </dependency>
             <!--Activity -->
             <dependency>

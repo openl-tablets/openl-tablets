@@ -41,13 +41,13 @@ public class PropertiesTableInExecutionModeTest {
             assertNotNull(tableProperties);
 
             Map<String, Object> moduleProperties = tableProperties.getModuleProperties();
-            assertTrue(moduleProperties.size() == 3);
+            assertEquals(3, moduleProperties.size());
             assertEquals(InheritanceLevel.MODULE.getDisplayName(), moduleProperties.get("scope"));
             assertEquals("Any phase", moduleProperties.get("buildPhase"));
             assertEquals(ValidateDTEnum.ON, moduleProperties.get("validateDT"));
 
             Map<String, Object> categoryProperties = tableProperties.getCategoryProperties();
-            assertTrue(categoryProperties.size() == 4);
+            assertEquals(4, categoryProperties.size());
             assertEquals(InheritanceLevel.CATEGORY.getDisplayName(), categoryProperties.get("scope"));
             assertEquals("newLob", ((String[]) categoryProperties.get("lob"))[0]);
             assertEquals(UsRegionsEnum.SE.name(), ((UsRegionsEnum[]) categoryProperties.get("usregion"))[0].name());
@@ -65,7 +65,7 @@ public class PropertiesTableInExecutionModeTest {
     }
 
     @Test
-    public void testFielsInOpenClass() {
+    public void testFieldsInOpenClass() {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(SRC);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();

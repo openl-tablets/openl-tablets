@@ -32,12 +32,12 @@ public class CompositeOpenlException extends CompositeSyntaxNodeException {
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
 
-        printWriter.println("+++There are " + errorMessages.size() + " exceptions");
+        printWriter.print("+++There are " + errorMessages.size() + " exceptions\r\n");
 
         for (OpenLMessage message : errorMessages) {
-            printWriter.println(message);
+            printWriter.print(message);
             printWriter
-                .println("-------------------------------------------------------------------------------------");
+                .print("\r\n-------------------------------------------------------------------------------------\r\n");
         }
 
         printWriter.close();

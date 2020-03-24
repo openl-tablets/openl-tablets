@@ -1,4 +1,4 @@
-<application xmlns="http://wadl.dev.java.net/2009/02" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:prefix1="http://csr.generated.openl.org"><grammars><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://jaxb.dev.java.net/array" xmlns:tns="http://csr.generated.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://csr.generated.openl.org" version="1.0">
+<application xmlns="http://wadl.dev.java.net/2009/02" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:prefix1="http://spreadsheetresults.generated.openl.org"><grammars><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://jaxb.dev.java.net/array" xmlns:tns="http://spreadsheetresults.generated.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://spreadsheetresults.generated.openl.org" version="1.0">
     <xs:import namespace="http://jaxb.dev.java.net/array"/>
     <xs:element name="ArrSpreadsheetResult" type="tns:ArrSpreadsheetResult"/>
     <xs:element name="Main" type="tns:Main"/>
@@ -7,6 +7,54 @@
     <xs:element name="RunMain" type="tns:RunMain"/>
     <xs:element name="Spr" type="tns:Spr"/>
     <xs:element name="Spr1" type="tns:Spr1"/>
+    <xs:complexType name="Spr">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="step1" type="xs:double"/>
+            <xs:element minOccurs="0" name="step2" type="tns:Spr1"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="step3" type="xs:double"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="step4" type="tns:Spr1"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="step5" type="tns:Spr1"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="step6" type="tns:Spr1Array"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="step7" type="ns1:anyTypeArray"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="step8" type="xs:anyType"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="step9" type="xs:anyType"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="step10" type="ns1:anyTypeArray"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="step11" type="xs:anyType"/>
+            <xs:element minOccurs="0" name="step13" type="xs:anyType"/>
+            <xs:element minOccurs="0" name="step14" type="xs:anyType"/>
+            <xs:element minOccurs="0" name="step15" type="xs:anyType"/>
+            <xs:element name="step16">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="entry">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element minOccurs="0" name="key" type="xs:anyType"/>
+                                    <xs:element minOccurs="0" name="value" type="xs:anyType"/>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="step17" type="xs:anyType"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="step18" type="xs:anyType"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="step19" type="xs:anyType"/>
+            <xs:element minOccurs="0" name="step20" type="tns:Spr1"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="step21" type="tns:Spr1"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="step22" type="xs:anyType"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="step23" type="xs:anyType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="Spr1">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="step1" type="xs:double"/>
+            <xs:element minOccurs="0" name="step2" type="tns:Spr"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ArrSpreadsheetResult">
+        <xs:all/>
+    </xs:complexType>
     <xs:complexType name="RunMain">
         <xs:sequence>
             <xs:element minOccurs="0" name="step0" type="xs:double"/>
@@ -87,51 +135,6 @@
             <xs:element maxOccurs="unbounded" minOccurs="0" name="fieldNames" type="ns1:stringArray"/>
         </xs:sequence>
     </xs:complexType>
-    <xs:complexType name="Spr">
-        <xs:sequence>
-            <xs:element minOccurs="0" name="step1" type="xs:double"/>
-            <xs:element minOccurs="0" name="step2" type="tns:Spr1"/>
-            <xs:element maxOccurs="unbounded" minOccurs="0" name="step3" type="xs:double"/>
-            <xs:element maxOccurs="unbounded" minOccurs="0" name="step4" type="tns:Spr1"/>
-            <xs:element maxOccurs="unbounded" minOccurs="0" name="step5" type="tns:Spr1"/>
-            <xs:element maxOccurs="unbounded" minOccurs="0" name="step6" type="tns:Spr1Array"/>
-            <xs:element maxOccurs="unbounded" minOccurs="0" name="step7" type="ns1:anyTypeArray"/>
-            <xs:element maxOccurs="unbounded" minOccurs="0" name="step8" type="xs:anyType"/>
-            <xs:element maxOccurs="unbounded" minOccurs="0" name="step9" type="xs:anyType"/>
-            <xs:element maxOccurs="unbounded" minOccurs="0" name="step10" type="ns1:anyTypeArray"/>
-            <xs:element maxOccurs="unbounded" minOccurs="0" name="step11" type="xs:anyType"/>
-            <xs:element minOccurs="0" name="step13" type="xs:anyType"/>
-            <xs:element minOccurs="0" name="step14" type="xs:anyType"/>
-            <xs:element minOccurs="0" name="step15" type="xs:anyType"/>
-            <xs:element name="step16">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="entry">
-                            <xs:complexType>
-                                <xs:sequence>
-                                    <xs:element minOccurs="0" name="key" type="xs:anyType"/>
-                                    <xs:element minOccurs="0" name="value" type="xs:anyType"/>
-                                </xs:sequence>
-                            </xs:complexType>
-                        </xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element maxOccurs="unbounded" minOccurs="0" name="step17" type="xs:anyType"/>
-            <xs:element maxOccurs="unbounded" minOccurs="0" name="step18" type="xs:anyType"/>
-            <xs:element maxOccurs="unbounded" minOccurs="0" name="step19" type="xs:anyType"/>
-            <xs:element minOccurs="0" name="step20" type="tns:Spr1"/>
-            <xs:element maxOccurs="unbounded" minOccurs="0" name="step21" type="tns:Spr1"/>
-            <xs:element maxOccurs="unbounded" minOccurs="0" name="step22" type="xs:anyType"/>
-            <xs:element maxOccurs="unbounded" minOccurs="0" name="step23" type="xs:anyType"/>
-        </xs:sequence>
-    </xs:complexType>
-    <xs:complexType name="Spr1">
-        <xs:sequence>
-            <xs:element minOccurs="0" name="step1" type="xs:double"/>
-            <xs:element minOccurs="0" name="step2" type="tns:Spr"/>
-        </xs:sequence>
-    </xs:complexType>
     <xs:complexType name="MySpr2">
         <xs:sequence>
             <xs:element minOccurs="0" name="value3Step3" type="xs:double"/>
@@ -150,9 +153,6 @@
             <xs:element minOccurs="0" name="step2" type="xs:double"/>
         </xs:sequence>
     </xs:complexType>
-    <xs:complexType name="ArrSpreadsheetResult">
-        <xs:all/>
-    </xs:complexType>
     <xs:complexType final="#all" name="Spr1Array">
         <xs:sequence>
             <xs:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="tns:Spr1"/>
@@ -164,6 +164,13 @@
         </xs:sequence>
     </xs:complexType>
 </xs:schema>
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://spreadsheetresults.generated.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://spreadsheetresults.generated.openl.org" version="1.0">
+        <xs:complexType name="error">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="message" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:schema>
     <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jaxb.dev.java.net/array" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://jaxb.dev.java.net/array" version="1.0">
         <xs:complexType final="#all" name="anyTypeArray">
             <xs:sequence>
@@ -173,13 +180,6 @@
         <xs:complexType final="#all" name="stringArray">
             <xs:sequence>
                 <xs:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="xs:string"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:schema>
-    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jaxb.dev.java.net/array" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://jaxb.dev.java.net/array" version="1.0">
-        <xs:complexType name="error">
-            <xs:sequence>
-                <xs:element minOccurs="0" name="message" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:schema>

@@ -14,7 +14,6 @@ import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.spring.env.PropertySourcesLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.WebApplicationContext;
@@ -117,10 +116,6 @@ public abstract class WebStudioUtils {
         ServletContext servletContext = (ServletContext) getExternalContext().getContext();
         WebApplicationContext appContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
         return appContext.getBean(name, clazz);
-    }
-
-    public static String getApplicationName(ServletContext context) {
-        return PropertySourcesLoader.normalizeAppName(context.getContextPath());
     }
 
     @Deprecated

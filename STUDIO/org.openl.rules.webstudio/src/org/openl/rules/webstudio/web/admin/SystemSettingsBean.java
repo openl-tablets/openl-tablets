@@ -27,12 +27,10 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.spring.env.DynamicPropertySource;
-import org.openl.spring.env.PropertySourcesLoader;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * TODO Remove property getters/setters when migrating to EL 2.2
@@ -273,12 +271,6 @@ public class SystemSettingsBean {
         DynamicPropertySource.get().save(properties.getConfig());
 
         refreshConfig();
-    }
-
-    private String getAppName() {
-        return PropertySourcesLoader
-            .getAppName(WebApplicationContextUtils.getRequiredWebApplicationContext(
-                (ServletContext) WebStudioUtils.getExternalContext().getContext()));
     }
 
     public void restoreDefaults() {

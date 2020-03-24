@@ -176,7 +176,7 @@ public class XlsBinder implements IOpenBinder {
 
         XlsModuleSyntaxNode moduleNode = (XlsModuleSyntaxNode) parsedCode.getTopNode();
 
-        OpenL openl = null;
+        OpenL openl;
         List<SyntaxNodeException> exceptions = new ArrayList<>();
         try {
             openl = makeOpenL(moduleNode, exceptions);
@@ -616,10 +616,10 @@ public class XlsBinder implements IOpenBinder {
                 if (child instanceof SpreadsheetBoundNode) {
                     SpreadsheetBoundNode spreadsheetBoundNode = (SpreadsheetBoundNode) child;
                     spreadsheetBoundNode.getSpreadsheet()
-                            .getSpreadsheetType()
-                            .getFields()
-                            .values()
-                            .forEach(IOpenField::getType);
+                        .getSpreadsheetType()
+                        .getFields()
+                        .values()
+                        .forEach(IOpenField::getType);
                 }
             }
             for (IOpenClass openClass : module.getTypes()) {

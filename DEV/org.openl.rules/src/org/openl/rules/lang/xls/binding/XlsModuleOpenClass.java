@@ -28,7 +28,6 @@ import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
-import org.openl.rules.calc.SpreadsheetBoundNode;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
@@ -58,10 +57,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
-import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.rits.cloning.Cloner;
 
@@ -70,8 +66,6 @@ import com.rits.cloning.Cloner;
  *
  */
 public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableModuleOpenClass {
-
-    private final Logger log = LoggerFactory.getLogger(XlsModuleOpenClass.class);
 
     private IDataBase dataBase;
 
@@ -93,7 +87,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private XlsDefinitions xlsDefinitions = new XlsDefinitions();
 
-    private String csrBeansPackage;
+    private String spreadsheetResultPackage;
 
     public RulesModuleBindingContext getRulesModuleBindingContext() {
         return rulesModuleBindingContext;
@@ -122,8 +116,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         this.classGenerationClassLoader = new OpenLBundleClassLoader(null);
         this.classGenerationClassLoader.addClassLoader(classLoader);
 
-        this.csrBeansPackage = getCsrBeansPackage(bindingContext);
-
         this.rulesModuleBindingContext = new RulesModuleBindingContext(bindingContext, this);
 
         if (usingModules != null) {
@@ -133,24 +125,16 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         initImports(metaInfo.getXlsModuleNode());
     }
 
-    private String getCsrBeansPackage(IBindingContext bindingContext) {
-        if (bindingContext.getExternalParams().get(SpreadsheetBoundNode.CSR_BEANS_PACKAGE) instanceof String) {
-            String packageName = (String) bindingContext.getExternalParams()
-                .get(SpreadsheetBoundNode.CSR_BEANS_PACKAGE);
-            if (ClassUtils.isValidPackageName(packageName)) {
-                return packageName;
-            } else if (log.isWarnEnabled()) {
-                log.warn(
-                    "Invalid package name '{}' is defined for generated custom spreadsheet result beans for module '{}'. Default value 'org.openl.generated.csr' is used.",
-                    packageName,
-                    getName());
-            }
+    public String getSpreadsheetResultPackage() {
+        if (spreadsheetResultPackage == null) {
+            spreadsheetResultPackage = TablePropertyDefinitionUtils
+                .getDefaultValueForProperty("spreadsheetResultPackage");
         }
-        return "org.openl.generated.csr";
+        return spreadsheetResultPackage;
     }
 
-    public String getCsrBeansPackage() {
-        return csrBeansPackage;
+    public void setSpreadsheetResultPackage(String spreadsheetResultPackage) {
+        this.spreadsheetResultPackage = spreadsheetResultPackage;
     }
 
     public boolean isUseDecisionTableDispatcher() {
@@ -218,6 +202,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
             addXlsDefinitions(dependency);
 
+            addSpreadsheetResultPackage(dependency);
+
             addMethods(dependency);
             // Populate current module fields with data from dependent modules.
             // Requered
@@ -230,6 +216,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         for (IOpenClass type : getTypes()) {
             if (type instanceof CustomSpreadsheetResultOpenClass) {
                 ((CustomSpreadsheetResultOpenClass) type).fixCSRFields();
+            }
+        }
+    }
+
+    protected void addSpreadsheetResultPackage(CompiledDependency dependency) {
+        IOpenClass openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
+        if (openClass instanceof XlsModuleOpenClass) {
+            XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
+            if (spreadsheetResultPackage == null || Objects.equals(spreadsheetResultPackage,
+                TablePropertyDefinitionUtils.getDefaultValueForProperty(
+                    "spreadsheetResultPackage")) || xlsModuleOpenClass.spreadsheetResultPackage != null && spreadsheetResultPackage
+                        .compareTo(xlsModuleOpenClass.spreadsheetResultPackage) > 0) {
+                spreadsheetResultPackage = xlsModuleOpenClass.spreadsheetResultPackage;
             }
         }
     }

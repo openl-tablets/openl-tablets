@@ -85,7 +85,7 @@
                     <configuration>
                         <systemPropertyVariables>
                             <webservice-webapp>
-                                ..\..\WSFrontend\org.openl.rules.ruleservice.ws\target\webservice
+                                ../../WSFrontend/org.openl.rules.ruleservice.ws/target/webservice
                             </webservice-webapp>
                             <openl.config.location>file:./openl-repository/application.properties
                             </openl.config.location>

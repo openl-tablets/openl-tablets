@@ -36,6 +36,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.PropertiesBean;
 import org.openl.rules.ui.tablewizard.TableCreationWizard;
+import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.conf.Version;
@@ -54,7 +55,7 @@ public class TableCopier extends TableCreationWizard {
 
     public static final String INIT_VERSION = "0.0.1";
 
-    private IOpenLTable table = null;
+    private IOpenLTable table;
 
     /**
      * Table technical name
@@ -94,8 +95,7 @@ public class TableCopier extends TableCreationWizard {
             TablePropertyDefinition propDefinition = TablePropertyDefinitionUtils
                 .getPropertyByName(possiblePropertyName);
             if (propDefinition != null && !propDefinition.isSystem() && propDefinition.getDeprecation() == null) {
-                Object propertyValue = tableProperties.getPropertyValue(possiblePropertyName) != null ? tableProperties
-                    .getPropertyValue(possiblePropertyName) : null;
+                Object propertyValue = tableProperties.getPropertyValue(possiblePropertyName);
 
                 if (tableProperties.getTableProperties().containsKey(possiblePropertyName)) {
                     Class<?> propertyType = null;
@@ -109,7 +109,8 @@ public class TableCopier extends TableCreationWizard {
                     boolean dimensional = propDefinition.isDimensional();
 
                     TableProperty tableProperty = new TableProperty.TablePropertyBuilder(possiblePropertyName,
-                        propertyType).value(propertyValue)
+                        propertyType,
+                        WebStudioFormats.getInstance()).value(propertyValue)
                             .displayName(displayName)
                             .format(format)
                             .dimensional(dimensional)

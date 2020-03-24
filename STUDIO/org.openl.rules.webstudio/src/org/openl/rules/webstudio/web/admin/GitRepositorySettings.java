@@ -3,7 +3,7 @@ package org.openl.rules.webstudio.web.admin;
 import java.io.File;
 
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.webstudio.util.PreferencesManager;
+import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
 
 public class GitRepositorySettings extends RepositorySettings {
@@ -60,7 +60,7 @@ public class GitRepositorySettings extends RepositorySettings {
         String localPath = properties.getProperty(LOCAL_REPOSITORY_PATH);
         String defaultLocalPath = localPath != null ? localPath
                                                     : properties.getProperty(
-                                                        PreferencesManager.WEBSTUDIO_WORKING_DIR_KEY) + File.separator + type + "-repository";
+                DynamicPropertySource.OPENL_HOME) + File.separator + type + "-repository";
 
         uri = properties.getProperty(URI);
         login = properties.getProperty(LOGIN);

@@ -248,6 +248,10 @@ public interface ITableProperties {
 
     void setDatatypePackage(java.lang.String datatypePackage);
 
+    java.lang.String getSpreadsheetResultPackage();
+
+    void setSpreadsheetResultPackage(java.lang.String spreadsheetResultPackage);
+
     java.lang.Boolean getCacheable();
 
     void setCacheable(java.lang.Boolean cacheable);

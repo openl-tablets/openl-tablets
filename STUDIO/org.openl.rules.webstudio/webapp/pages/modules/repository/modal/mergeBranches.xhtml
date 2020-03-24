@@ -7,7 +7,7 @@
 
     <rich:popupPanel id="modalMergeBranches" autosized="true">
         <f:facet name="header">
-            <h:outputText value="Sync changes"/>
+            <h:outputText value="Sync updates"/>
         </f:facet>
 
         <f:facet name="controls">
@@ -34,17 +34,17 @@
 
                 <ui:param name="theirBranchMerged" value="#{branchesBean.theirBranchMerged}"/>
                 <ui:param name="yourBranchMerged" value="#{branchesBean.yourBranchMerged}"/>
-                <ui:param name="confirmExportMessage" value="There were changes in \'#{branchesBean.branchToMerge}\' after the last import action. Are you sure it won\'t impact the project and everything will work?\n'+
-'If not, please use \'Import their changes\' button and test that everything works" />
+                <ui:param name="confirmExportMessage" value="There were updates in \'#{branchesBean.branchToMerge}\' after the last \'Receive their updates\' action. Are you sure it won\'t impact the project and everything will work?\n'+
+'If not, please use \'Receive their updates\' button and test that everything works." />
 
                 <h:panelGroup id="cannotImportMessage" layout="block">
                     <h:outputText rendered="#{theirBranchMerged}"
-                                  value="Nothing to import from '#{branchesBean.branchToMerge}' into '#{branchesBean.currentBranch}'."
+                                  value="You have all their updates. Nothing to receive from '#{branchesBean.branchToMerge}'."
                                   styleClass="success"/>
                 </h:panelGroup>
                 <h:panelGroup id="cannotExportMessage" layout="block">
                     <h:outputText rendered="#{yourBranchMerged}"
-                                  value="Nothing to export from '#{branchesBean.currentBranch}' into '#{branchesBean.branchToMerge}'."
+                                  value="They have all your updates. Nothing to send to '#{branchesBean.branchToMerge}'."
                                   styleClass="success"/>
                 </h:panelGroup>
             </h:panelGroup>
@@ -52,16 +52,16 @@
             <footer>
 
                 <a4j:commandButton id="importButton"
-                                   value="Import their changes"
-                                   title="Get the latest changes from '#{branchesBean.branchToMerge}' to '#{branchesBean.currentBranch}'"
+                                   value="Receive their updates"
+                                   title="Receive the latest updates from '#{branchesBean.branchToMerge}' to '#{branchesBean.currentBranch}'"
                                    render="projectTree nodeView @form"
                                    data="#{studio.mergeConflict}"
                                    action="#{branchesBean.mergeImport}" styleClass="button-primary"
                                    disabled="#{theirBranchMerged}"
                                    oncomplete="onMergeComplete(event.data, #{!facesContext.validationFailed});"/>
                 <a4j:commandButton id="exportButton"
-                                   value="Export your changes"
-                                   title="Apply changes from '#{branchesBean.currentBranch}' to '#{branchesBean.branchToMerge}'"
+                                   value="Send your updates"
+                                   title="Send updates from '#{branchesBean.currentBranch}' to '#{branchesBean.branchToMerge}'"
                                    render="projectTree nodeView @form"
                                    data="#{studio.mergeConflict}"
                                    action="#{branchesBean.mergeExport}" styleClass="button-primary"

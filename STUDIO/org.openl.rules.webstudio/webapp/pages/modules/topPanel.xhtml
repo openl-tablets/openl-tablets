@@ -129,7 +129,7 @@
                                rendered="#{!empty rProject and rProject.openedForEditing and rProject.modified and studio.model.editable}" />
                 <h:commandLink styleClass="changes-listener" onclick="openMergeBranchesDialog('#{rProject.name}'); return false;"
                                value="Sync"
-                               title="Synchronize changes"
+                               title="Synchronize updates"
                                rendered="#{studio.canMerge}" />
                 <h:commandLink styleClass="changes-listener" onclick="openSmartRedeployDialogFromEditor('#{rProject.name}'); return false;" value="Deploy"
                                id="deployProjectButton"

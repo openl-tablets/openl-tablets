@@ -11,6 +11,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.tableeditor.renderkit.TableProperty.TablePropertyBuilder;
+import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.util.conf.Version;
 
 /**
@@ -64,7 +65,8 @@ public class VersionPropertyTableCopier extends TableCopier {
         if (versionProperty == null) {
             // Property "version" is absent in base table
             versionProperty = new TablePropertyBuilder(VERSION_PROP_NAME,
-                TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(VERSION_PROP_NAME))
+                TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(VERSION_PROP_NAME),
+                WebStudioFormats.getInstance())
                     .displayName(TablePropertyDefinitionUtils.getPropertyDisplayName(VERSION_PROP_NAME))
                     .value(getOriginalVersion().toString())
                     .build();

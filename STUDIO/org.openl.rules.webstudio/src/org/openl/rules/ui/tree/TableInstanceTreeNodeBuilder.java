@@ -4,6 +4,7 @@ import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.ui.IProjectTypes;
+import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodKey;
 
@@ -23,7 +24,8 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
 
         TableSyntaxNode tsn = (TableSyntaxNode) sorterObject;
 
-        return TableSyntaxNodeUtils.getTableDisplayValue(tsn, i, getOpenMethodGroupsDictionary());
+        return TableSyntaxNodeUtils.getTableDisplayValue(tsn, i, getOpenMethodGroupsDictionary(),
+            WebStudioFormats.getInstance());
     }
 
     /**

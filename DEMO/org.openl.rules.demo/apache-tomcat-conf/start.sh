@@ -48,7 +48,7 @@ fi
 [[ -f demo-java.policy ]] && CATALINA_OPTS="$CATALINA_OPTS -Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=$JAVA_EXTENSIONS_DIR"
 
 export JAVA_OPTS="$JAVA_OPTS $_JAVA_MEMORY"
-export CATALINA_OPTS="-DDEMO=DEMO -Dopenl.home=openl-demo -Dwebstudio.configured=true -Dws.port=8080 $CATALINA_OPTS"
+export CATALINA_OPTS="-DDEMO=DEMO -Dopenl.home=openl-demo -Dws.port=8080 $CATALINA_OPTS"
 
 echo "### Starting OpenL Tablets DEMO ..."
 echo "Memory size (gigabytes):    $memory"

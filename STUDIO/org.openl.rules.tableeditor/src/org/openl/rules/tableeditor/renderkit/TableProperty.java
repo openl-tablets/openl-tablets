@@ -9,9 +9,9 @@ import java.util.Objects;
 import javax.faces.model.SelectItem;
 
 import org.openl.rules.table.constraints.Constraints;
+import org.openl.rules.table.formatters.Formats;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.util.EnumUtils;
@@ -39,8 +39,9 @@ public class TableProperty {
     private InheritanceLevel inheritanceLevel;
     private String inheritedTableId;
     private String inheritedTableName;
+    private final Formats formats;
 
-    public TableProperty(TablePropertyDefinition propDefinition) {
+    public TableProperty(TablePropertyDefinition propDefinition, Formats formats) {
         this.name = propDefinition.getName();
         this.displayName = propDefinition.getDisplayName();
         this.type = Objects.requireNonNull(
@@ -53,6 +54,7 @@ public class TableProperty {
         this.description = propDefinition.getDescription();
         this.system = propDefinition.isSystem();
         this.dimensional = propDefinition.isDimensional();
+        this.formats = Objects.requireNonNull(formats);
     }
 
     private TableProperty(TablePropertyBuilder builder) {
@@ -69,6 +71,7 @@ public class TableProperty {
         this.dimensional = builder.dimensional;
         this.inheritanceLevel = builder.inheritanceLevel;
         this.inheritedTableId = builder.inheritedTableId;
+        this.formats = builder.formats;
     }
 
     public String getFormat() {
@@ -144,17 +147,16 @@ public class TableProperty {
      * any type to string.
      */
     public String getDisplayValue() {
+        if (value instanceof Date) {
+            return formats.formatDateOrDateTime((Date) value);
+        }
         return getStringValue();
     }
 
     public String getStringValue() {
         String result = StringUtils.EMPTY;
         if (value != null) {
-            String format = getFormat();
-            if (value instanceof Date) {
-                format = TablePropertyDefinitionUtils.getDateFormat(getName(), getValue());
-            }
-            result = FormattersManager.getFormatter(type, format).format(value);
+            result = FormattersManager.getFormatter(type, getFormat()).format(value);
         }
         return result;
     }
@@ -338,6 +340,7 @@ public class TableProperty {
         // Required parameters
         private String name;
         private Class<?> type;
+        private final Formats formats;
 
         // Optional parameters
         private String displayName;
@@ -352,9 +355,10 @@ public class TableProperty {
         private InheritanceLevel inheritanceLevel;
         private String inheritedTableId;
 
-        public TablePropertyBuilder(String name, Class<?> type) {
+        public TablePropertyBuilder(String name, Class<?> type, Formats formats) {
             this.name = name;
             this.type = type;
+            this.formats = Objects.requireNonNull(formats);
         }
 
         public TablePropertyBuilder value(Object val) {
