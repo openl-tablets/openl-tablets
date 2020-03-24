@@ -1,1 +1,17 @@
-{"results":[[100],["foo"]],"columnNames":["calc"],"rowNames":["INT","String"]}
+{
+  "results": [
+    [
+      100
+    ],
+    [
+      "foo"
+    ]
+  ],
+  "columnNames": [
+    "calc"
+  ],
+  "rowNames": [
+    "INT",
+    "String"
+  ]
+}

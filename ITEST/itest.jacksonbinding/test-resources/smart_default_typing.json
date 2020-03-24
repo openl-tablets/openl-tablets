@@ -1,1 +1,6 @@
-{"@class":"org.openl.generated.beans.Cat","name":null,"likesCream":null,"lives":0}
+{
+  "@class": "org.openl.generated.beans.Cat",
+  "name": null,
+  "likesCream": null,
+  "lives": 0
+}

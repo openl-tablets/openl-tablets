@@ -6,7 +6,7 @@
             }
 
             @Override
-            public $priorityRuleWrapper.propertyType getProprtyValue(ITableProperties properties) {
+            public $priorityRuleWrapper.propertyType getPropertyValue(ITableProperties properties) {
                 return properties.get$tool.formatAccessorName($priorityRuleWrapper.propertyName)();
             }
 

@@ -22,7 +22,7 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
             Map<String, FieldDescription> parentFields,
             String methodName) {
         super(beanName, beanFields, parentClass, parentFields, true, true);
-        this.methodName = Objects.requireNonNull(methodName);
+        this.methodName = Objects.requireNonNull(methodName, "methodName cannot be null");
     }
 
     private void addArgs(ClassWriter classWriter, Map<String, FieldDescription> beanFields) {

@@ -1,1 +1,4 @@
-{"INT":100,"string":"foo"}
+{
+  "INT": 100,
+  "string": "foo"
+}

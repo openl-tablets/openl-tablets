@@ -55,6 +55,7 @@ public class POJOByteCodeGenerator {
         this.parentFields = new LinkedHashMap<>(parentFields);
         this.beanNameWithPackage = beanName.replace('.', '/');
         this.fieldsArePublic = fieldsArePublic;
+
         Map<String, FieldDescription> allFields = new LinkedHashMap<>();
         allFields.putAll(parentFields);
         allFields.putAll(beanFields);
@@ -95,7 +96,7 @@ public class POJOByteCodeGenerator {
         return new String[] { "java/io/Serializable" };
     }
 
-    private void visitJAXBAnnotation(ClassWriter classWriter) {
+    private void visitJAXBAnnotations(ClassWriter classWriter) {
         String namespace = getNamespace(beanNameWithPackage);
         String name = beanNameWithPackage.substring(beanNameWithPackage.lastIndexOf('/') + 1);
 
@@ -138,8 +139,8 @@ public class POJOByteCodeGenerator {
         annotationVisitor.visitEnd();
     }
 
-    private static String getNamespace(String beannameWithPackage) {
-        String[] parts = beannameWithPackage.split("/");
+    private static String getNamespace(String beanNameWithPackage) {
+        String[] parts = beanNameWithPackage.split("/");
         StringBuilder builder = new StringBuilder("http://");
         for (int i = parts.length - 2; i >= 0; i--) {
             builder.append(parts[i]);
@@ -162,7 +163,9 @@ public class POJOByteCodeGenerator {
     public byte[] byteCode() {
         ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         visitClassDescription(classWriter);
-        visitJAXBAnnotation(classWriter);
+
+        visitJAXBAnnotations(classWriter);
+
         visitFields(classWriter);
 
         for (BeanByteCodeWriter writer : writers) {

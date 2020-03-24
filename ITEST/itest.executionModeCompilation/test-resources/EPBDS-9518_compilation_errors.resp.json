@@ -1,1 +1,7 @@
-["The value 'malle' is outside of valid domain 'Gender'. Valid values: [Male, Female]","Type 'Person' is defined with errors.","Type 'Person' is defined with errors.","Type 'Person' is defined with errors.","Type 'Person' is defined with errors."]
+[
+  "The value 'malle' is outside of valid domain 'Gender'. Valid values: [Male, Female]",
+  "Type 'Person' is defined with errors.",
+  "Type 'Person' is defined with errors.",
+  "Type 'Person' is defined with errors.",
+  "Type 'Person' is defined with errors."
+]

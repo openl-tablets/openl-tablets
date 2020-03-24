@@ -40,7 +40,7 @@ public final class MethodUtil {
     }
 
     public static String printSignature(IOpenMethodHeader methodHeader, final int mode) {
-        StringBuilder buf = new StringBuilder(100);
+        StringBuilder buf = new StringBuilder();
         IConvertor<IOpenClass, String> typeConverter = (e) -> e.getDisplayName(mode);
         printMethod(methodHeader, buf, typeConverter);
 

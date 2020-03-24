@@ -1,1 +1,5 @@
-{"message":"User error!","type":"USER_ERROR","details":null}
+{
+  "message": "User error!",
+  "type": "USER_ERROR",
+  "details": null
+}

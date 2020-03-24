@@ -1,1 +1,5 @@
-{"message":"Failed to load lazy method.","type":"COMPILATION","details":"***"}
+{
+  "message": "Failed to load lazy method.",
+  "type": "COMPILATION",
+  "details": "***"
+}

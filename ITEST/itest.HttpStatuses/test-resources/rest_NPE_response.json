@@ -1,1 +1,5 @@
-{"message":"Failure in the method: `java.lang.Integer`.decode(null). Cause: java.lang.NullPointerException","details":"***","type":"RULES@@@"}
+{
+  "message": "Failure in the method: `java.lang.Integer`.decode(null). Cause: java.lang.NullPointerException",
+  "details": "***",
+  "type": "RULES@@@"
+}

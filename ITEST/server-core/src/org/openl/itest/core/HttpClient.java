@@ -267,6 +267,9 @@ public class HttpClient {
         try (InputStream actual = body.getInputStream();
                 InputStream file = getClass().getResourceAsStream(responseFile)) {
             JsonNode actualNode = OBJECT_MAPPER.readTree(actual);
+            if (file == null) {
+                throw new FileNotFoundException(String.format("File '%s' not found.", responseFile));
+            }
             JsonNode expectedNode = OBJECT_MAPPER.readTree(file);
             compareJsonObjects(expectedNode, actualNode, "");
         } catch (IOException ex) {

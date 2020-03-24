@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.publish;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -14,6 +15,9 @@ import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer;
 import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
+import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerHackContainerRequestFilter;
+import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerHackContainerResponseFilter;
+import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerObjectMapperHack;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerStaticFieldsWorkaround;
 import org.openl.rules.ruleservice.storelogdata.CollectObjectSerializerInterceptor;
 import org.openl.rules.ruleservice.storelogdata.CollectOpenLServiceInterceptor;
@@ -92,15 +96,16 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         return serviceEnhancerObjectFactory;
     }
 
-    public void setServiceEnhancerObjectFactory(
-            ObjectFactory<JAXRSOpenLServiceEnhancer> serviceEnhancerObjectFactory) {
+    public void setServiceEnhancerObjectFactory(ObjectFactory<JAXRSOpenLServiceEnhancer> serviceEnhancerObjectFactory) {
         this.serviceEnhancerObjectFactory = serviceEnhancerObjectFactory;
     }
 
     @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void deploy(final OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service cannot be null");
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        SwaggerObjectMapperHack swaggerObjectMapperHack = null;
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
             JAXRSServerFactoryBean svrFactory = getServerFactoryBeanObjectFactory().getObject();
@@ -130,6 +135,11 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
             svrFactory.setResourceClasses(serviceClass);
 
+            // Swagger support
+            swaggerObjectMapperHack = new SwaggerObjectMapperHack();
+            swaggerObjectMapperHack.apply(getObjectMapper(svrFactory));
+            ((List) svrFactory.getProviders()).add(new SwaggerHackContainerRequestFilter(getObjectMapper(svrFactory)));
+            ((List) svrFactory.getProviders()).add(new SwaggerHackContainerResponseFilter());
             Swagger2Feature swagger2Feature = getSwagger2Feature(service, serviceClass);
             svrFactory.getFeatures().add(swagger2Feature);
 
@@ -148,14 +158,25 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getName()), t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
+            if (swaggerObjectMapperHack != null) {
+                try {
+                    swaggerObjectMapperHack.revert();
+                } catch (Exception e) {
+                    log.debug(e.getMessage(), e);
+                }
+            }
         }
     }
 
     private ObjectSerializer getObjectSerializer(JAXRSServerFactoryBean svrFactory) {
+        ObjectMapper objectMapper = getObjectMapper(svrFactory);
+        return objectMapper == null ? null : new JacksonObjectSerializer(objectMapper);
+    }
+
+    private ObjectMapper getObjectMapper(JAXRSServerFactoryBean svrFactory) {
         for (Object provider : svrFactory.getProviders()) {
             if (provider instanceof JacksonJsonProvider) {
-                ObjectMapper objectMapper = ((JacksonJsonProvider) provider).locateMapper(null, null);
-                return new JacksonObjectSerializer(objectMapper);
+                return ((JacksonJsonProvider) provider).locateMapper(null, null);
             }
         }
         return null;

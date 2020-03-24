@@ -1,1 +1,6 @@
-{"value1Step1":1.0,"value2Step1":2.0,"value1Step2":3.0,"value2Step2":4.0}
+{
+  "value1Step1": 1.0,
+  "value2Step1": 2.0,
+  "value1Step2": 3.0,
+  "value2Step2": 4.0
+}

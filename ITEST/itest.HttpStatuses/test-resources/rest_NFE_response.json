@@ -1,1 +1,5 @@
-{"message":"Failure in the method: `java.lang.Integer`.decode(). Cause: Zero length string","type":"RULES_RUNTIME","details":"***"}
+{
+  "message": "Failure in the method: `java.lang.Integer`.decode(). Cause: Zero length string",
+  "type": "RULES_RUNTIME",
+  "details": "***"
+}

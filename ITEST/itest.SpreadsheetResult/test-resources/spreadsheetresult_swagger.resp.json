@@ -11,7 +11,7 @@
   "paths": {
     "/tiktak": {
       "post": {
-        "summary": "Method: tiktak",
+        "summary": "Method: tiktak(int i, String j)",
         "description": "",
         "operationId": "tiktak",
         "consumes": [

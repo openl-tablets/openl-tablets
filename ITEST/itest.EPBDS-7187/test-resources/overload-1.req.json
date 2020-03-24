@@ -1,1 +1,9 @@
-{ "b" : {"I":17, "BeanBName" : {"STR" : null, "In" : 0 } }}
+{
+  "b": {
+    "I": 17,
+    "BeanBName": {
+      "STR": null,
+      "In": 0
+    }
+  }
+}

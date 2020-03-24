@@ -59,6 +59,20 @@ public class GettersWriter extends MethodWriter {
         final String format = "()" + javaType;
         methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, getterName, format, null, null);
 
+        visitJAXBAnnotations(methodVisitor, fieldName, field, javaType);
+
+        methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+        methodVisitor.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName, javaType);
+        String retClass = field.getTypeDescriptor();
+        Type type = Type.getType(retClass);
+        methodVisitor.visitInsn(type.getOpcode(Opcodes.IRETURN));
+        methodVisitor.visitMaxs(0, 0);
+    }
+
+    private void visitJAXBAnnotations(MethodVisitor methodVisitor,
+            String fieldName,
+            FieldDescription field,
+            String javaType) {
         AnnotationVisitor av = methodVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlElement;", true);
         av.visit("name", fieldName);
 
@@ -91,13 +105,6 @@ public class GettersWriter extends MethodWriter {
         } catch (Exception ignored) {
         }
         av.visitEnd();
-
-        methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-        methodVisitor.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName, javaType);
-        String retClass = field.getTypeDescriptor();
-        Type type = Type.getType(retClass);
-        methodVisitor.visitInsn(type.getOpcode(Opcodes.IRETURN));
-        methodVisitor.visitMaxs(0, 0);
     }
 
 }
