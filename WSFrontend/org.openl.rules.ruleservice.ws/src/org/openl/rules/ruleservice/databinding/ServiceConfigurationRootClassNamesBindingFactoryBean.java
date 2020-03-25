@@ -69,7 +69,7 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
         }
     }
 
-    private Set<String> fromOpenLService() throws ServiceConfigurationException, RuleServiceInstantiationException {
+    private Set<String> fromOpenLService() throws ServiceConfigurationException {
         OpenLService openLService = getOpenLService();
 
         boolean found = false;
