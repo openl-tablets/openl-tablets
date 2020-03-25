@@ -10,7 +10,7 @@ public class SwaggerInitializationBean implements InitializingBean {
 
     private synchronized static void initializeSwagger() {
         if (!swaggerInitialized) {
-            ModelConverters.getInstance().addConverter(new RulesSupportConverter());
+            ModelConverters.getInstance().addConverter(new SwaggerSupportConverter());
             swaggerInitialized = true;
         }
     }

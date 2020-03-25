@@ -131,4 +131,9 @@ public class RunWebservicesITest {
         }
         assertEquals(MAX_THREADS, counter.get());
     }
+
+    @Test
+    public void EPBDS_9519_2() {
+        client.get("/REST/EPBDS-9519_2/EPBDS-9519/swagger.json", "/EPBDS-9519/EPBDS-9519_2_swagger.resp.json");
+    }
 }

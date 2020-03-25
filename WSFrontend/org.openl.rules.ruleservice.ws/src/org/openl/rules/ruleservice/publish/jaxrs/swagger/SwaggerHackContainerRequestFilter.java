@@ -36,6 +36,7 @@ public class SwaggerHackContainerRequestFilter implements ContainerRequestFilter
             try {
                 SwaggerObjectMapperHack swaggerObjectMapperHack = new SwaggerObjectMapperHack();
                 swaggerObjectMapperHack.apply(objectMapper);
+                requestContext.setProperty("SwaggerObjectMapperHack", swaggerObjectMapperHack);
             } catch (ReflectiveOperationException e) {
                 throw new IOException("Failed to set ObjectMapper", e);
             }

@@ -17,6 +17,12 @@ public class SwaggerHackContainerResponseFilter implements ContainerResponseFilt
         if (lock instanceof ReentrantLock) {
             ReentrantLock reentrantLock = (ReentrantLock) lock;
             reentrantLock.unlock();
+            requestContext.removeProperty("SwaggerHackContainerRequestFilterLock");
+        }
+        Object swaggerObjectMapperHack = requestContext.getProperty("SwaggerObjectMapperHack");
+        if (swaggerObjectMapperHack instanceof SwaggerObjectMapperHack) {
+            ((SwaggerObjectMapperHack) swaggerObjectMapperHack).revert();
+            requestContext.removeProperty("SwaggerObjectMapperHack");
         }
     }
 }
