@@ -12,8 +12,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.webstudio.web.repository.DeploymentManager;
+import org.openl.rules.webstudio.web.repository.RepositoryTreeController;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,6 @@ public class ProjectVersionCacheManager {
         }
 
         String md5 = getProjectMD5(project, ProjectVersionCacheDB.RepoType.DEPLOY);
-
         return projectVersionCacheDB.getVersion(project.getName(), md5, ProjectVersionCacheDB.RepoType.DESIGN);
     }
 
@@ -42,15 +40,14 @@ public class ProjectVersionCacheManager {
         versions.sort((ProjectVersion pr1, ProjectVersion pr2) -> pr2.getVersionInfo()
             .getCreatedAt()
             .compareTo(pr1.getVersionInfo().getCreatedAt()));
-        for (ProjectVersion version : versions) {
-            AProject designProject = designRepository.getProject(project.getName(), version);
+        for (ProjectVersion projectVersion : versions) {
+            AProject designProject = designRepository.getProject(project.getName(), projectVersion);
             String md5 = computeMD5(designProject);
-            String versionName = designProject.getVersion().getVersionName();
             String storedVersionName = projectVersionCacheDB.getVersion(project.getName(), md5, repoType);
-            if (version.getVersionName().equals(storedVersionName)) {
+            if (projectVersion.getVersionName().equals(storedVersionName)) {
                 break;
             }
-            projectVersionCacheDB.insertProject(project.getName(), versionName, md5, repoType);
+            projectVersionCacheDB.insertProject(project.getName(), designProject.getVersion(), md5, repoType);
         }
     }
 
@@ -68,8 +65,8 @@ public class ProjectVersionCacheManager {
             return hash;
         }
         hash = computeMD5(wsProject);
-        projectVersionCacheDB
-            .insertProject(wsProject.getName(), wsProject.getVersion().getVersionName(), hash, repoType);
+
+        projectVersionCacheDB.insertProject(wsProject.getName(), wsProject.getVersion(), hash, repoType);
         return hash;
     }
 
@@ -104,5 +101,9 @@ public class ProjectVersionCacheManager {
             return null;
         }
         return DigestUtils.md5Hex(md5Builder.toString());
+    }
+
+    private String getBusinessRevision(ProjectVersion version) {
+        return RepositoryTreeController.getDescriptiveVersion(version);
     }
 }
