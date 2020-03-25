@@ -11,7 +11,6 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeController;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.slf4j.Logger;
@@ -72,8 +71,7 @@ public class ProjectVersionCacheManager {
 
     public void setDesignRepository(DesignTimeRepository designRepository) {
         this.designRepository = designRepository;
-        Repository repository = designRepository.getRepository();
-        repository.setListener(() -> {
+        designRepository.addListener(() -> {
             try {
                 recalculateAllCache(ProjectVersionCacheDB.RepoType.DESIGN);
             } catch (IOException e) {
