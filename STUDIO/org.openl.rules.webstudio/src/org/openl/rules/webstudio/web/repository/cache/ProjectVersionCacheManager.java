@@ -11,7 +11,6 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.webstudio.web.repository.RepositoryTreeController;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,16 +24,38 @@ public class ProjectVersionCacheManager {
     private ProjectVersionCacheDB projectVersionCacheDB;
 
     public String getDeployedProjectVersion(AProject project) throws IOException {
-
-        if (projectVersionCacheDB.isCacheEmpty()) {
-            recalculateAllCache(ProjectVersionCacheDB.RepoType.DESIGN);
-        }
-
+        ensureCacheIsNotEmpty();
         String md5 = getProjectMD5(project, ProjectVersionCacheDB.RepoType.DEPLOY);
         return projectVersionCacheDB.getVersion(project.getName(), md5, ProjectVersionCacheDB.RepoType.DESIGN);
     }
 
-    public void cacheProject(AProject project, ProjectVersionCacheDB.RepoType repoType) throws IOException {
+    public String getDesignBusinessVersionOfDeployedProject(AProject project) throws IOException {
+        ensureCacheIsNotEmpty();
+        String projectMD5 = getProjectMD5(project, ProjectVersionCacheDB.RepoType.DEPLOY);
+        return projectVersionCacheDB
+            .getDesignBusinessVersion(project.getName(), projectMD5, ProjectVersionCacheDB.RepoType.DESIGN);
+    }
+
+    private String getProjectMD5(AProject wsProject, ProjectVersionCacheDB.RepoType repoType) throws IOException {
+        String hash = projectVersionCacheDB
+            .getHash(wsProject.getName(), wsProject.getVersion().getVersionName(), repoType);
+        if (hash != null) {
+            return hash;
+        }
+        hash = computeMD5(wsProject);
+
+        projectVersionCacheDB.insertProject(wsProject.getName(), wsProject.getVersion(), hash, repoType);
+        return hash;
+    }
+
+    private void recalculateAllCache(ProjectVersionCacheDB.RepoType repoType) throws IOException {
+        Collection<? extends AProject> projects = designRepository.getProjects();
+        for (AProject project : projects) {
+            cacheProject(project, repoType);
+        }
+    }
+
+    private void cacheProject(AProject project, ProjectVersionCacheDB.RepoType repoType) throws IOException {
         List<ProjectVersion> versions = project.getVersions();
         versions.sort((ProjectVersion pr1, ProjectVersion pr2) -> pr2.getVersionInfo()
             .getCreatedAt()
@@ -48,40 +69,6 @@ public class ProjectVersionCacheManager {
             }
             projectVersionCacheDB.insertProject(project.getName(), designProject.getVersion(), md5, repoType);
         }
-    }
-
-    public void recalculateAllCache(ProjectVersionCacheDB.RepoType repoType) throws IOException {
-        Collection<? extends AProject> projects = designRepository.getProjects();
-        for (AProject project : projects) {
-            cacheProject(project, repoType);
-        }
-    }
-
-    public String getProjectMD5(AProject wsProject, ProjectVersionCacheDB.RepoType repoType) throws IOException {
-        String hash = projectVersionCacheDB
-            .getHash(wsProject.getName(), wsProject.getVersion().getVersionName(), repoType);
-        if (hash != null) {
-            return hash;
-        }
-        hash = computeMD5(wsProject);
-
-        projectVersionCacheDB.insertProject(wsProject.getName(), wsProject.getVersion(), hash, repoType);
-        return hash;
-    }
-
-    public void setDesignRepository(DesignTimeRepository designRepository) {
-        this.designRepository = designRepository;
-        designRepository.addListener(() -> {
-            try {
-                recalculateAllCache(ProjectVersionCacheDB.RepoType.DESIGN);
-            } catch (IOException e) {
-                log.error("Error during project caching", e);
-            }
-        });
-    }
-
-    public void setProjectVersionCacheDB(ProjectVersionCacheDB projectVersionCacheDB) {
-        this.projectVersionCacheDB = projectVersionCacheDB;
     }
 
     private String computeMD5(AProject wsProject) throws IOException {
@@ -101,7 +88,24 @@ public class ProjectVersionCacheManager {
         return DigestUtils.md5Hex(md5Builder.toString());
     }
 
-    private String getBusinessRevision(ProjectVersion version) {
-        return RepositoryTreeController.getDescriptiveVersion(version);
+    private void ensureCacheIsNotEmpty() throws IOException {
+        if (projectVersionCacheDB.isCacheEmpty()) {
+            recalculateAllCache(ProjectVersionCacheDB.RepoType.DESIGN);
+        }
+    }
+
+    public void setDesignRepository(DesignTimeRepository designRepository) {
+        this.designRepository = designRepository;
+        designRepository.addListener(() -> {
+            try {
+                recalculateAllCache(ProjectVersionCacheDB.RepoType.DESIGN);
+            } catch (IOException e) {
+                log.error("Error during project caching", e);
+            }
+        });
+    }
+
+    public void setProjectVersionCacheDB(ProjectVersionCacheDB projectVersionCacheDB) {
+        this.projectVersionCacheDB = projectVersionCacheDB;
     }
 }
