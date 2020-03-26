@@ -53,6 +53,12 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         if (getConfiguration() != null) {
             aegisDatabinding.setConfiguration(configuration);
             aegisContext.setTypeCreationOptions(configuration);
+        } else {
+            TypeCreationOptions configuration = new TypeCreationOptions();
+            configuration.setDefaultNillable(false);
+            configuration.setDefaultMinOccurs(0);
+            aegisDatabinding.setConfiguration(configuration);
+            aegisContext.setTypeCreationOptions(configuration);
         }
 
         if (getMtomUseXmime() != null) {
@@ -69,7 +75,6 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         aegisDatabinding.setOverrideTypes(rootClassNames);
         aegisContext.setRootClassNames(rootClassNames);
         aegisContext.initialize();
-
         if (getBus() != null) {
             aegisDatabinding.setBus(getBus());
         }
@@ -93,7 +98,6 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         if (getReadXsiTypes() != null) {
             aegisDatabinding.getAegisContext().setReadXsiTypes(getReadXsiTypes());
         }
-
         TypeMapping typeMapping = aegisDatabinding.getAegisContext().getTypeMapping();
         loadAegisTypeClassAndRegister(
             org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.context.RuntimeContextBeanType.class,
