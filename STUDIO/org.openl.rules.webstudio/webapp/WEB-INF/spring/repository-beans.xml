@@ -50,8 +50,8 @@
     </bean>
 
     <bean id="projectVersionCacheManager" class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager">
-        <property name="designRepository" ref="designTimeRepository"/>
         <property name="ProjectVersionCacheDB" ref="projectVersionCacheDB"/>
+        <property name="designRepository" ref="designTimeRepository"/>
     </bean>
 
 </beans>

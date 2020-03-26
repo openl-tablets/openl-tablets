@@ -48,10 +48,14 @@ public class ProjectVersionCacheManager {
         return hash;
     }
 
-    private void recalculateAllCache(ProjectVersionCacheDB.RepoType repoType) throws IOException {
+    private void recalculateAllCache(ProjectVersionCacheDB.RepoType repoType) {
         Collection<? extends AProject> projects = designRepository.getProjects();
         for (AProject project : projects) {
-            cacheProject(project, repoType);
+            try {
+                cacheProject(project, repoType);
+            } catch (IOException e) {
+                log.error("Error during project caching", e);
+            }
         }
     }
 
@@ -96,12 +100,9 @@ public class ProjectVersionCacheManager {
 
     public void setDesignRepository(DesignTimeRepository designRepository) {
         this.designRepository = designRepository;
+        recalculateAllCache(ProjectVersionCacheDB.RepoType.DESIGN);
         designRepository.addListener(() -> {
-            try {
-                recalculateAllCache(ProjectVersionCacheDB.RepoType.DESIGN);
-            } catch (IOException e) {
-                log.error("Error during project caching", e);
-            }
+            recalculateAllCache(ProjectVersionCacheDB.RepoType.DESIGN);
         });
     }
 
