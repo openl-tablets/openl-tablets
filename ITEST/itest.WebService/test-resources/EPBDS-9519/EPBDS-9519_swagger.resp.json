@@ -86,9 +86,6 @@
         },
         "bArFoO": {
           "type": "string",
-          "xml": {
-            "name": "bArFoO"
-          },
           "default": "Allo"
         }
       },

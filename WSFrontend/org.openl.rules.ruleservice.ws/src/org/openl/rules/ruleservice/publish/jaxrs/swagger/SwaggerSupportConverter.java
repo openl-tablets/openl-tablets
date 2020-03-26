@@ -91,10 +91,12 @@ public class SwaggerSupportConverter implements ModelConverter {
                             XmlAttribute xmlAttributeAnn = m.getAnnotation(XmlAttribute.class);
                             if (xmlAttributeAnn != null) {
                                 prop = prop.rename(xmlAttributeAnn.name());
+                                prop.setXml(null);
                             }
                             XmlElement xmlElementAnn = m.getAnnotation(XmlElement.class);
                             if (xmlElementAnn != null) {
                                 prop = prop.rename(xmlElementAnn.name());
+                                prop.setXml(null);
                             }
                             if (xmlElementAnn != null || xmlAttributeAnn != null) {
                                 model.getProperties().remove(m.getName());
