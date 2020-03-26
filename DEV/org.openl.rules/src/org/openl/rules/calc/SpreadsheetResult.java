@@ -21,6 +21,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.java.CustomJavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
+import org.slf4j.LoggerFactory;
 
 /**
  * Serializable bean that handles result of spreadsheet calculation.
@@ -257,6 +258,7 @@ public class SpreadsheetResult implements Serializable {
         } catch (Exception e) {
             // If it's impossible to print the table, fallback to default
             // toString() implementation
+            LoggerFactory.getLogger(getClass()).debug(e.getMessage(), e);
             return super.toString();
         }
     }
@@ -264,6 +266,9 @@ public class SpreadsheetResult implements Serializable {
     private static final ThreadLocal<Integer> DEPTH_LOCAL_THREAD = new ThreadLocal<>();
 
     private String truncateStringValue(String value) {
+        if (value == null) {
+            return "";
+        }
         if (value.length() > MAX_VALUE_LENGTH) {
             return value.substring(0, MAX_VALUE_LENGTH) + " ... TRUNCATED ...";
         } else {
