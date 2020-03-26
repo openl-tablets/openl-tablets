@@ -32,6 +32,7 @@ import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
@@ -167,6 +168,44 @@ public class MergeConflictBean {
     public String getBaseCommit() {
         MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
         return mergeConflict == null ? null : mergeConflict.getException().getBaseCommit();
+    }
+
+    public String getYourRevision() {
+        return getRevision(getYourCommit());
+    }
+
+    public String getTheirRevision() {
+        return getRevision(getTheirCommit());
+    }
+
+    public String getBaseRevision() {
+        return getRevision(getBaseCommit());
+    }
+
+    private String getRevision(String commit) {
+        MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
+        if (mergeConflict == null) {
+            return null;
+        }
+
+        try {
+            UserWorkspace userWorkspace = getUserWorkspace();
+
+            Repository designRepository = userWorkspace.getDesignTimeRepository().getRepository();
+            for (String file : mergeConflict.getException().getConflictedFiles()) {
+                FileData fileData = designRepository.checkHistory(file, commit);
+                if (fileData != null) {
+                    String modifiedOnStr = WebStudioFormats.getInstance().formatDateTime(fileData.getModifiedAt());
+                    return fileData.getAuthor() + ": " + modifiedOnStr;
+                }
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
+        // Shouldn't occur. Bit if occurred return commit;
+        log.warn("Can't find author and date for a commit {}", commit);
+        return commit;
     }
 
     public String getYourBranch() {
