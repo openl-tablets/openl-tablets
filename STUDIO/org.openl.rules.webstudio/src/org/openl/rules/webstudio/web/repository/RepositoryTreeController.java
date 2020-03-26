@@ -69,6 +69,7 @@ import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
+import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
@@ -77,6 +78,7 @@ import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResol
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.project.TemplatesResolver;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
+import org.openl.rules.webstudio.web.repository.tree.TreeProductProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
@@ -139,6 +141,9 @@ public class RepositoryTreeController {
 
     @ManagedProperty(value = "#{deployConfigRepositoryComments}")
     private Comments deployConfigRepoComments;
+
+    @ManagedProperty(value = "#{projectVersionCacheManager}")
+    private ProjectVersionCacheManager projectVersionCacheManager;
 
     private WebStudio studio = WebStudioUtils.getWebStudio(true);
 
@@ -2104,6 +2109,21 @@ public class RepositoryTreeController {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
         Comments comments = getComments(project);
         return comments.eraseProject(project == null ? activeProjectNode.getName() : project.getName());
+    }
+
+    public void setProjectVersionCacheManager(ProjectVersionCacheManager projectVersionCacheManager) {
+        this.projectVersionCacheManager = projectVersionCacheManager;
+    }
+
+    public String getBusinessVersion(TreeProductProject version) {
+        try {
+            String businessVersion = projectVersionCacheManager
+                    .getDesignBusinessVersionOfDeployedProject(version.getData().getProject());
+            return businessVersion != null ? businessVersion : version.getVersionName();
+        } catch (IOException e) {
+            log.error("Error during getting project design version", e);
+            return version.getVersionName();
+        }
     }
 
     public void setEraseProjectComment(String eraseProjectComment) {

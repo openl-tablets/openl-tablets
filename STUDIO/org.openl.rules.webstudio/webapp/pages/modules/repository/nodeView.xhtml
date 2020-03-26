@@ -153,10 +153,17 @@
                 <td class="label">
                     <h:outputText value="Revision:" />
                 </td>
-                <td>
-                    <h:outputText value="#{artefact.version.shortVersion}" styleClass="expandable"/>
-                    <h:outputText value="#{artefact.version.versionName}" styleClass="hidden"/>
-                </td>
+                <h:panelGroup rendered="#{node.type == 'prodproject' }">
+                    <td>
+                        <h:outputText value="#{repositoryTreeController.getBusinessVersion(node)}"/>
+                    </td>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{node.type == 'project' }">
+                    <td>
+                        <h:outputText value="#{artefact.version.shortVersion}" styleClass="expandable"/>
+                        <h:outputText value="#{artefact.version.versionName}" styleClass="hidden"/>
+                    </td>
+                </h:panelGroup>
             </tr>
             <tr>
                 <td class="label">
