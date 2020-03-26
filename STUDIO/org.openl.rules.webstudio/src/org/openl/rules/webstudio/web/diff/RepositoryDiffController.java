@@ -103,15 +103,16 @@ public class RepositoryDiffController extends AbstractDiffController {
 
     public List<ProjectVersion> getVersionsRepo() {
         try {
+            List<ProjectVersion> versions;
             if (designTimeRepository.getRepository().supports().branches()) {
                 Repository repository = ((BranchRepository) designTimeRepository.getRepository()).forBranch(branch);
                 String folderPath = designTimeRepository.getProject(projectUW.getName()).getFolderPath();
-                List<ProjectVersion> versions = new AProject(repository, folderPath).getVersions();
-                Collections.reverse(versions);
-                return versions;
+                versions = new AProject(repository, folderPath).getVersions();
             } else {
-                return projectUW.getVersions();
+                versions = projectUW.getVersions();
             }
+            Collections.reverse(versions);
+            return versions;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return Collections.emptyList();

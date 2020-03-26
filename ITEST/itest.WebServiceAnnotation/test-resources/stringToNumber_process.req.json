@@ -1,1 +1,4 @@
-{ "nick":"bar", "month":120}
+{
+  "nick": "bar",
+  "month": 120
+}

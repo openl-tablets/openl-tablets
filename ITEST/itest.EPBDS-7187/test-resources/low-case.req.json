@@ -1,1 +1,4 @@
-{ "number":1.0, "string":"a"}
+{
+  "number": 1.0,
+  "string": "a"
+}

@@ -1,1 +1,293 @@
-[{"id":"ab0c6b96-fe8a-4195-9006-4b627000b2ca","effectiveDate":null,"transaction":"NEW_BUSINESS","vehicles":[{"id":"61890fc0-d553-4a36-b66d-d0ee762630aa","driver":{"gender":"male","birthDate":"2019-10-16T16:09:35.807+0300"},"coverages":[{"name":"COV1","limit":null},{"name":"COV2","limit":null},{"name":"COV3","limit":null},{"name":"COV4","limit":null}]},{"id":"a6978b4e-0150-438c-b8c5-bec02e93d816","driver":{"gender":"male","birthDate":"2019-10-16T16:09:35.807+0300"},"coverages":[{"name":"COV1","limit":null},{"name":"COV2","limit":null},{"name":"COV3","limit":null},{"name":"COV4","limit":null}]}],"brandCodes":[10,20,30],"paymentMatrix":[[{"name":"ANNUAL"},{"name":"ANNUAL"},{"name":"ANNUAL"}],[{"name":"ANNUAL"},{"name":"ANNUAL"},{"name":"ANNUAL"}],[{"name":"ANNUAL"},{"name":"ANNUAL"},{"name":"ANNUAL"}]]},{"id":"661950ee-60e2-4b27-baa0-fcf02474d13b","effectiveDate":null,"transaction":"NEW_BUSINESS","vehicles":[{"id":"2e8150bf-eecc-491b-8746-eeb842f6b35a","driver":{"gender":"male","birthDate":"2019-10-16T16:09:35.807+0300"},"coverages":[{"name":"COV1","limit":null},{"name":"COV2","limit":null},{"name":"COV3","limit":null},{"name":"COV4","limit":null}]},{"id":"4d2a340f-0b49-4796-a318-c6d6e8077fd2","driver":{"gender":"male","birthDate":"2019-10-16T16:09:35.807+0300"},"coverages":[{"name":"COV1","limit":null},{"name":"COV2","limit":null},{"name":"COV3","limit":null},{"name":"COV4","limit":null}]}],"brandCodes":[10,20,30],"paymentMatrix":[[{"name":"ANNUAL"},{"name":"ANNUAL"},{"name":"ANNUAL"}],[{"name":"ANNUAL"},{"name":"ANNUAL"},{"name":"ANNUAL"}],[{"name":"ANNUAL"},{"name":"ANNUAL"},{"name":"ANNUAL"}]]},{"id":"01daf766-1765-4ea1-b76d-ac7a227d54e5","effectiveDate":null,"transaction":"NEW_BUSINESS","vehicles":[{"id":"b9e684f7-e62c-4fa6-b10d-bc2463e2af9f","driver":{"gender":"male","birthDate":"2019-10-16T16:09:35.807+0300"},"coverages":[{"name":"COV1","limit":null},{"name":"COV2","limit":null},{"name":"COV3","limit":null},{"name":"COV4","limit":null}]},{"id":"8fe15304-300b-4608-a7bf-10386d02f006","driver":{"gender":"male","birthDate":"2019-10-16T16:09:35.807+0300"},"coverages":[{"name":"COV1","limit":null},{"name":"COV2","limit":null},{"name":"COV3","limit":null},{"name":"COV4","limit":null}]}],"brandCodes":[10,20,30],"paymentMatrix":[[{"name":"ANNUAL"},{"name":"ANNUAL"},{"name":"ANNUAL"}],[{"name":"ANNUAL"},{"name":"ANNUAL"},{"name":"ANNUAL"}],[{"name":"ANNUAL"},{"name":"ANNUAL"},{"name":"ANNUAL"}]]}]
+[
+  {
+    "id": "ab0c6b96-fe8a-4195-9006-4b627000b2ca",
+    "effectiveDate": null,
+    "transaction": "NEW_BUSINESS",
+    "vehicles": [
+      {
+        "id": "61890fc0-d553-4a36-b66d-d0ee762630aa",
+        "driver": {
+          "gender": "male",
+          "birthDate": "2019-10-16T16:09:35.807+0300"
+        },
+        "coverages": [
+          {
+            "name": "COV1",
+            "limit": null
+          },
+          {
+            "name": "COV2",
+            "limit": null
+          },
+          {
+            "name": "COV3",
+            "limit": null
+          },
+          {
+            "name": "COV4",
+            "limit": null
+          }
+        ]
+      },
+      {
+        "id": "a6978b4e-0150-438c-b8c5-bec02e93d816",
+        "driver": {
+          "gender": "male",
+          "birthDate": "2019-10-16T16:09:35.807+0300"
+        },
+        "coverages": [
+          {
+            "name": "COV1",
+            "limit": null
+          },
+          {
+            "name": "COV2",
+            "limit": null
+          },
+          {
+            "name": "COV3",
+            "limit": null
+          },
+          {
+            "name": "COV4",
+            "limit": null
+          }
+        ]
+      }
+    ],
+    "brandCodes": [
+      10,
+      20,
+      30
+    ],
+    "paymentMatrix": [
+      [
+        {
+          "name": "ANNUAL"
+        },
+        {
+          "name": "ANNUAL"
+        },
+        {
+          "name": "ANNUAL"
+        }
+      ],
+      [
+        {
+          "name": "ANNUAL"
+        },
+        {
+          "name": "ANNUAL"
+        },
+        {
+          "name": "ANNUAL"
+        }
+      ],
+      [
+        {
+          "name": "ANNUAL"
+        },
+        {
+          "name": "ANNUAL"
+        },
+        {
+          "name": "ANNUAL"
+        }
+      ]
+    ]
+  },
+  {
+    "id": "661950ee-60e2-4b27-baa0-fcf02474d13b",
+    "effectiveDate": null,
+    "transaction": "NEW_BUSINESS",
+    "vehicles": [
+      {
+        "id": "2e8150bf-eecc-491b-8746-eeb842f6b35a",
+        "driver": {
+          "gender": "male",
+          "birthDate": "2019-10-16T16:09:35.807+0300"
+        },
+        "coverages": [
+          {
+            "name": "COV1",
+            "limit": null
+          },
+          {
+            "name": "COV2",
+            "limit": null
+          },
+          {
+            "name": "COV3",
+            "limit": null
+          },
+          {
+            "name": "COV4",
+            "limit": null
+          }
+        ]
+      },
+      {
+        "id": "4d2a340f-0b49-4796-a318-c6d6e8077fd2",
+        "driver": {
+          "gender": "male",
+          "birthDate": "2019-10-16T16:09:35.807+0300"
+        },
+        "coverages": [
+          {
+            "name": "COV1",
+            "limit": null
+          },
+          {
+            "name": "COV2",
+            "limit": null
+          },
+          {
+            "name": "COV3",
+            "limit": null
+          },
+          {
+            "name": "COV4",
+            "limit": null
+          }
+        ]
+      }
+    ],
+    "brandCodes": [
+      10,
+      20,
+      30
+    ],
+    "paymentMatrix": [
+      [
+        {
+          "name": "ANNUAL"
+        },
+        {
+          "name": "ANNUAL"
+        },
+        {
+          "name": "ANNUAL"
+        }
+      ],
+      [
+        {
+          "name": "ANNUAL"
+        },
+        {
+          "name": "ANNUAL"
+        },
+        {
+          "name": "ANNUAL"
+        }
+      ],
+      [
+        {
+          "name": "ANNUAL"
+        },
+        {
+          "name": "ANNUAL"
+        },
+        {
+          "name": "ANNUAL"
+        }
+      ]
+    ]
+  },
+  {
+    "id": "01daf766-1765-4ea1-b76d-ac7a227d54e5",
+    "effectiveDate": null,
+    "transaction": "NEW_BUSINESS",
+    "vehicles": [
+      {
+        "id": "b9e684f7-e62c-4fa6-b10d-bc2463e2af9f",
+        "driver": {
+          "gender": "male",
+          "birthDate": "2019-10-16T16:09:35.807+0300"
+        },
+        "coverages": [
+          {
+            "name": "COV1",
+            "limit": null
+          },
+          {
+            "name": "COV2",
+            "limit": null
+          },
+          {
+            "name": "COV3",
+            "limit": null
+          },
+          {
+            "name": "COV4",
+            "limit": null
+          }
+        ]
+      },
+      {
+        "id": "8fe15304-300b-4608-a7bf-10386d02f006",
+        "driver": {
+          "gender": "male",
+          "birthDate": "2019-10-16T16:09:35.807+0300"
+        },
+        "coverages": [
+          {
+            "name": "COV1",
+            "limit": null
+          },
+          {
+            "name": "COV2",
+            "limit": null
+          },
+          {
+            "name": "COV3",
+            "limit": null
+          },
+          {
+            "name": "COV4",
+            "limit": null
+          }
+        ]
+      }
+    ],
+    "brandCodes": [
+      10,
+      20,
+      30
+    ],
+    "paymentMatrix": [
+      [
+        {
+          "name": "ANNUAL"
+        },
+        {
+          "name": "ANNUAL"
+        },
+        {
+          "name": "ANNUAL"
+        }
+      ],
+      [
+        {
+          "name": "ANNUAL"
+        },
+        {
+          "name": "ANNUAL"
+        },
+        {
+          "name": "ANNUAL"
+        }
+      ],
+      [
+        {
+          "name": "ANNUAL"
+        },
+        {
+          "name": "ANNUAL"
+        },
+        {
+          "name": "ANNUAL"
+        }
+      ]
+    ]
+  }
+]

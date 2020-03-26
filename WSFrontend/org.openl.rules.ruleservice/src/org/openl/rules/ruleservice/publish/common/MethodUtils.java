@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.openl.binding.MethodUtil;
@@ -15,6 +16,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.annotations.Name;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.util.generation.GenUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +62,32 @@ public final class MethodUtils {
                 parameterNames[i] = "arg" + j;
             }
         }
+    }
+
+    public static IOpenMethod getRulesMethod(Method method, OpenLService service) {
+        try {
+            if (service != null && service.getOpenClass() != null) {
+                for (IOpenMethod m : service.getOpenClass().getMethods()) {
+                    if (method.getName()
+                        .equals(
+                            m.getName()) && method.getParameterCount() == m.getSignature().getNumberOfParameters()) {
+                        boolean f = true;
+                        for (int i = 0; i < m.getSignature().getNumberOfParameters(); i++) {
+                            if (!Objects.equals(method.getParameterTypes()[i],
+                                m.getSignature().getParameterType(i).getInstanceClass())) {
+                                f = false;
+                                break;
+                            }
+                        }
+                        if (f) {
+                            return m;
+                        }
+                    }
+                }
+            }
+        } catch (RuleServiceInstantiationException ignored) {
+        }
+        return null;
     }
 
     public static String[] getParameterNames(Method method, OpenLService service) {

@@ -1,5 +1,9 @@
 package org.openl.itest;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -61,7 +65,7 @@ public class RunWebservicesITest {
 
     @Test
     @Ignore
-    //Test is correct but result comparision doesn't work.
+    // Test is correct but result comparision doesn't work.
     public void testWSDLSchemaSimple3() {
         client.get("/deployment3/simple3?wsdl", "/simple3_wsdl.resp.xml");
     }
@@ -108,5 +112,38 @@ public class RunWebservicesITest {
         client.post("/REST/EPBDS-9500/EPBDS-9500/myRules",
             "/EPBDS-9500/EPBDS-9500_myRules.req.txt",
             "/EPBDS-9500/EPBDS-9500_myRules.resp.txt");
+    }
+
+    @Test
+    public void EPBDS_9519() throws InterruptedException {
+        final int MAX_THREADS = 1;
+        Thread[] threads = new Thread[MAX_THREADS];
+        AtomicInteger counter = new AtomicInteger();
+        for (int i = 0; i < MAX_THREADS; i++) {
+            threads[i] = new Thread(() -> {
+                client.get("/EPBDS-9519/EPBDS-9519/swagger.json", "/EPBDS-9519/EPBDS-9519_swagger.resp.json");
+                counter.getAndIncrement();
+            });
+            threads[i].start();
+        }
+        for (int i = 0; i < MAX_THREADS; i++) {
+            threads[i].join();
+        }
+        assertEquals(MAX_THREADS, counter.get());
+    }
+
+    @Test
+    public void EPBDS_9519_2() {
+        client.get("/REST/EPBDS-9519_2/EPBDS-9519/swagger.json", "/EPBDS-9519/EPBDS-9519_2_swagger.resp.json");
+    }
+
+    @Test
+    public void EPBDS_9519_3() {
+        client.get("/REST/EPBDS-9519_3/EPBDS-9519/swagger.json", "/EPBDS-9519/EPBDS-9519_3_swagger.resp.json");
+    }
+
+    @Test
+    public void EPBDS_9572() {
+        client.get("/REST/EPBDS-9572/EPBDS-9572/swagger.json", "/EPBDS_9572/EPBDS_9572_swagger.resp.json");
     }
 }

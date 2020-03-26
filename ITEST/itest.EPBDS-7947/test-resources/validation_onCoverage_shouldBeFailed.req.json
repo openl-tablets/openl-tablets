@@ -1,1 +1,97 @@
-{"id":"a89fecc0-eca0-41d9-a381-84ac1d4c8fd7","effectiveDate":null,"transaction":"NEW_BUSINESS","vehicles":[{"id":"0eabc024-c2c5-4bcc-a194-83dade0a37fe","driver":{"gender":"male","birthDate":"2019-10-16T16:30:21.039+0300"},"coverages":[{"name":"COV1","limit":null},{"name":"COV2","limit":null},{"name":"COV3","limit":null},{"name":"COV10","limit":null}]},{"id":"64844eff-6d52-4677-93f0-83dd3f0ca32b","driver":{"gender":"male","birthDate":"2019-10-16T16:30:21.039+0300"},"coverages":[{"name":"COV1","limit":null},{"name":"COV2","limit":null},{"name":"COV3","limit":null},{"name":"COV4","limit":null}]}],"brandCodes":[10,20,30],"paymentMatrix":[[{"name":"ANNUAL"},{"name":"ANNUAL"},{"name":"ANNUAL"}],[{"name":"ANNUAL"},{"name":"ANNUAL"},{"name":"ANNUAL"}],[{"name":"ANNUAL"},{"name":"ANNUAL"},{"name":"ANNUAL"}]]}
+{
+  "id": "a89fecc0-eca0-41d9-a381-84ac1d4c8fd7",
+  "effectiveDate": null,
+  "transaction": "NEW_BUSINESS",
+  "vehicles": [
+    {
+      "id": "0eabc024-c2c5-4bcc-a194-83dade0a37fe",
+      "driver": {
+        "gender": "male",
+        "birthDate": "2019-10-16T16:30:21.039+0300"
+      },
+      "coverages": [
+        {
+          "name": "COV1",
+          "limit": null
+        },
+        {
+          "name": "COV2",
+          "limit": null
+        },
+        {
+          "name": "COV3",
+          "limit": null
+        },
+        {
+          "name": "COV10",
+          "limit": null
+        }
+      ]
+    },
+    {
+      "id": "64844eff-6d52-4677-93f0-83dd3f0ca32b",
+      "driver": {
+        "gender": "male",
+        "birthDate": "2019-10-16T16:30:21.039+0300"
+      },
+      "coverages": [
+        {
+          "name": "COV1",
+          "limit": null
+        },
+        {
+          "name": "COV2",
+          "limit": null
+        },
+        {
+          "name": "COV3",
+          "limit": null
+        },
+        {
+          "name": "COV4",
+          "limit": null
+        }
+      ]
+    }
+  ],
+  "brandCodes": [
+    10,
+    20,
+    30
+  ],
+  "paymentMatrix": [
+    [
+      {
+        "name": "ANNUAL"
+      },
+      {
+        "name": "ANNUAL"
+      },
+      {
+        "name": "ANNUAL"
+      }
+    ],
+    [
+      {
+        "name": "ANNUAL"
+      },
+      {
+        "name": "ANNUAL"
+      },
+      {
+        "name": "ANNUAL"
+      }
+    ],
+    [
+      {
+        "name": "ANNUAL"
+      },
+      {
+        "name": "ANNUAL"
+      },
+      {
+        "name": "ANNUAL"
+      }
+    ]
+  ]
+}

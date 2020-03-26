@@ -3,12 +3,12 @@
         <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://cxf.apache.org/arrays" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://cxf.apache.org/arrays">
             <xsd:complexType name="ArrayOfAnyType">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="anyType" nillable="true" type="xsd:anyType"/>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="anyType" type="xsd:anyType"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="ArrayOfArrayOfAnyType">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfAnyType" nillable="true" type="tns:ArrayOfAnyType"/>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfAnyType" type="tns:ArrayOfAnyType"/>
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
@@ -41,14 +41,14 @@
             <xsd:import namespace="http://spreadsheetresults.generated.openl.org"/>
             <xsd:complexType name="ArrayOfString">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="string" nillable="true" type="xsd:string"/>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="string" type="xsd:string"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:element name="tiktak" type="tns:tiktak"/>
             <xsd:complexType name="tiktak">
                 <xsd:sequence>
                     <xsd:element name="i" type="xsd:int"/>
-                    <xsd:element minOccurs="0" name="j" nillable="true" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="j" type="xsd:string"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:element name="tiktakResponse" type="tns:tiktakResponse"/>
@@ -60,7 +60,7 @@
             <xsd:element name="EPBDS_9437" type="tns:EPBDS_9437"/>
             <xsd:complexType name="EPBDS_9437">
                 <xsd:sequence>
-                    <xsd:element minOccurs="0" name="driver" nillable="true" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="driver" type="xsd:int"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:element name="EPBDS_9437Response" type="tns:EPBDS_9437Response"/>
@@ -83,9 +83,9 @@
             <xsd:import namespace="http://cxf.apache.org/arrays"/>
             <xsd:complexType name="SpreadsheetResult">
                 <xsd:sequence>
-                    <xsd:element minOccurs="0" name="columnNames" nillable="true" type="ns0:ArrayOfString"/>
-                    <xsd:element minOccurs="0" name="results" nillable="true" type="ns1:ArrayOfArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="rowNames" nillable="true" type="ns0:ArrayOfString"/>
+                    <xsd:element minOccurs="0" name="columnNames" type="ns0:ArrayOfString"/>
+                    <xsd:element minOccurs="0" name="results" type="ns1:ArrayOfArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="rowNames" type="ns0:ArrayOfString"/>
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>

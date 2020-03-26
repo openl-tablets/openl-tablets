@@ -26,7 +26,8 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
 
         final CustomSpreadsheetResultOpenClass mergedCustomSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
             typeName,
-            type1.getModule());
+            type1.getModule(),
+            type1.getLogicalTable());
         mergedCustomSpreadsheetResultOpenClass.extendWith(type1);
         mergedCustomSpreadsheetResultOpenClass.extendWith(type2);
         return mergedCustomSpreadsheetResultOpenClass;

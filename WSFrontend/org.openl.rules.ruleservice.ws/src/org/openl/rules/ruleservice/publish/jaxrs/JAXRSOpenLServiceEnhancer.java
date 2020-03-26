@@ -30,11 +30,14 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.openl.base.INamedThing;
+import org.openl.binding.MethodUtil;
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.runtime.ASMProxyFactory;
+import org.openl.types.IOpenMethod;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
@@ -99,6 +102,7 @@ public final class JAXRSOpenLServiceEnhancer {
         private OpenLService service;
         private ClassLoader classLoader;
         private Map<Method, String> paths = null;
+        private Map<Method, String> nicknames = null;
         private Map<Method, String> methodRequests = null;
 
         JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
@@ -201,6 +205,37 @@ public final class JAXRSOpenLServiceEnhancer {
                 }
             }
             return cache;
+        }
+
+        String getNickName(Method method) {
+            if (nicknames == null) {
+                nicknames = new HashMap<>();
+                List<Method> methods = new ArrayList<>();
+                List<Method> methods1 = new ArrayList<>();
+                for (Method m : originalClass.getMethods()) {
+                    if (m.isAnnotationPresent(Path.class)) {
+                        methods1.add(m);
+                    } else {
+                        methods.add(m);
+                    }
+                }
+                generateNickNames(methods);
+                generateNickNames(methods1);
+            }
+            return nicknames.get(method);
+        }
+
+        private void generateNickNames(List<Method> methods) {
+            methods = MethodUtils.sort(methods);
+            for (Method m : methods) {
+                String s = m.getName();
+                int i = 1;
+                while (nicknames.containsValue(s)) {
+                    s = m.getName() + "_" + i;
+                    i++;
+                }
+                nicknames.put(m, s);
+            }
         }
 
         String getPath(Method method) {
@@ -318,7 +353,7 @@ public final class JAXRSOpenLServiceEnhancer {
                 }
             }
             addConsumerProducesMethodAnnotations(mv, returnType, originalParameterTypes, originalMethod);
-            addSwaggerMethodAnnotation(mv, originalMethod);
+            addSwaggerMethodAnnotation(mv, originalMethod, getNickName(originalMethod));
             return mv;
         }
 
@@ -423,11 +458,19 @@ public final class JAXRSOpenLServiceEnhancer {
             }
         }
 
-        private void addSwaggerMethodAnnotation(MethodVisitor mv, Method originalMethod) {
+        private void addSwaggerMethodAnnotation(MethodVisitor mv, Method originalMethod, String nickname) {
             if (!originalMethod.isAnnotationPresent(ApiOperation.class)) {
                 AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ApiOperation.class), true);
-                av.visit("value", "Method: " + originalMethod.getName());
+                IOpenMethod openMethod = MethodUtils.getRulesMethod(originalMethod, service);
+                if (openMethod != null) {
+                    av.visit("value", "Method: " + MethodUtil.printSignature(openMethod, INamedThing.SHORT));
+                } else {
+                    av.visit("value",
+                        "Method: " + MethodUtil.printMethod(originalMethod.getName(),
+                            originalMethod.getParameterTypes()));
+                }
                 av.visit("response", Type.getType(originalMethod.getReturnType()));
+                av.visit("nickname", nickname);
                 av.visitEnd();
             }
         }
@@ -469,17 +512,17 @@ public final class JAXRSOpenLServiceEnhancer {
             serviceClass,
             classLoader,
             service);
-        String enchancedClassName = serviceClass
+        String enhancedClassName = serviceClass
             .getName() + JAXRSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
         // Fix an NPE issue JAXRSUtil with no package class
         if (serviceClass.getPackage() == null) {
-            enchancedClassName = "default." + enchancedClassName;
+            enhancedClassName = "default." + enhancedClassName;
         }
-        InterfaceTransformer transformer = new InterfaceTransformer(serviceClass, enchancedClassName, false);
+        InterfaceTransformer transformer = new InterfaceTransformer(serviceClass, enhancedClassName, false);
         transformer.accept(jaxrsAnnotationEnhancerClassVisitor);
         cw.visitEnd();
 
-        Class<?> proxyInterface = ClassUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
+        Class<?> proxyInterface = ClassUtils.defineClass(enhancedClassName, cw.toByteArray(), classLoader);
         Map<Method, Method> methodMap = new HashMap<>();
         for (Method method : proxyInterface.getMethods()) {
             String methodName = method.getName();

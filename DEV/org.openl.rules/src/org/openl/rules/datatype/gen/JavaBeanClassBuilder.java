@@ -70,4 +70,5 @@ public class JavaBeanClassBuilder {
     public byte[] byteCode() {
         return new POJOByteCodeGenerator(beanName, fields, parentClass, parentFields, true, false).byteCode();
     }
+
 }

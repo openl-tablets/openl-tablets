@@ -1,1 +1,5 @@
-{"message":"MismatchedInputException: Cannot deserialize instance of `[Lorg.openl.generated.beans.Policy;` out of START_OBJECT token\n at [Source: (org.apache.cxf.transport.http.AbstractHTTPDestination$1); line: 1, column: 1]","type":"BAD_REQUEST","details":"***"}
+{
+  "message": "MismatchedInputException: Cannot deserialize instance of `[Lorg.openl.generated.beans.Policy;` out of START_OBJECT token\n at [Source: (org.apache.cxf.transport.http.AbstractHTTPDestination$1); line: 1, column: 1]",
+  "type": "BAD_REQUEST",
+  "details": "***"
+}

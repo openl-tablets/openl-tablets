@@ -32,7 +32,7 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
             }
 
             @Override
-            public java.util.Date getProprtyValue(ITableProperties properties) {
+            public java.util.Date getPropertyValue(ITableProperties properties) {
                 return properties.getStartRequestDate();
             }
 
@@ -48,7 +48,7 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
             }
 
             @Override
-            public java.util.Date getProprtyValue(ITableProperties properties) {
+            public java.util.Date getPropertyValue(ITableProperties properties) {
                 return properties.getEndRequestDate();
             }
 
@@ -64,7 +64,7 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
             }
 
             @Override
-            public org.openl.rules.enumeration.OriginsEnum getProprtyValue(ITableProperties properties) {
+            public org.openl.rules.enumeration.OriginsEnum getPropertyValue(ITableProperties properties) {
                 return properties.getOrigin();
             }
 
