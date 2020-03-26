@@ -12,19 +12,11 @@ import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tbasic.runtime.Result;
-import org.openl.rules.webstudio.web.trace.node.ATableTracerNode;
-import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
-import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
-import org.openl.rules.webstudio.web.trace.node.ITracerObject;
-import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
-import org.openl.rules.webstudio.web.trace.node.OverloadedMethodChoiceTraceObject;
-import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
-import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
-import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
-import org.openl.rules.webstudio.web.trace.node.TBasicOperationTraceObject;
-import org.openl.rules.webstudio.web.trace.node.WScoreTraceObject;
+import org.openl.rules.webstudio.web.trace.node.*;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TraceFormatter {
     static String getDisplayName(ITracerObject obj) {
@@ -59,7 +51,7 @@ public class TraceFormatter {
         Object result = mto.getResult();
         String txt = "Match: " + operation + " " + checkValue;
         if (result != null) {
-            txt += " = " + FormattersManager.format(result);
+            txt += " = " + format(result);
         }
         return txt;
     }
@@ -96,7 +88,7 @@ public class TraceFormatter {
 
         for (String fieldName : fieldValues.keySet()) {
             Object value = fieldValues.get(fieldName);
-            String formattedValue = FormattersManager.format(value);
+            String formattedValue = format(value);
             fields.append(fieldName).append(" = ").append(formattedValue).append(", ");
         }
 
@@ -143,7 +135,7 @@ public class TraceFormatter {
                 if (result instanceof Number) {
                     txt = String.valueOf(result);
                 } else {
-                    txt = FormattersManager.format(result);
+                    txt = format(result);
                 }
             }
 
@@ -166,11 +158,24 @@ public class TraceFormatter {
             IOpenClass type = method.getType();
             if (!JavaOpenClass.isVoid(type)) {
                 // append formatted result
-                buf.append(" = ").append(FormattersManager.format(attn.getResult()));
+                buf.append(" = ").append(format(attn.getResult()));
             }
         }
 
         return buf.toString();
+    }
+
+    private static String format(Object o) {
+        try {
+            return FormattersManager.format(o);
+        } catch (Throwable e) {
+            Logger log = LoggerFactory.getLogger(TraceFormatter.class);
+            log.debug(e.getMessage(), e);
+
+            return String.format("<span style=\"color: red;\">throw '%s' exception. Cannot format '%s'</span>",
+                    e.getClass().getName(),
+                    o.getClass().getName());
+        }
     }
 
 }
