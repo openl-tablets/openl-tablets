@@ -77,7 +77,7 @@ public class SwaggerSupportConverter implements ModelConverter {
         }
         if (model != null && model.getProperties() != null && t != null) {
             List<Method> methods = new ArrayList<>();
-            while (!Object.class.equals(t)) {
+            while (!Object.class.equals(t) && t != null) {
                 methods.addAll(Arrays.asList(t.getDeclaredMethods()));
                 t = t.getSuperclass();
             }
