@@ -1,6 +1,11 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.regex.Pattern;
 
 import javax.faces.application.FacesMessage;
@@ -25,6 +30,44 @@ public class SystemSettingsValidator {
 
         validateNotBlank(inputDate, "Date format");
 
+        try {
+            SimpleDateFormat format = new SimpleDateFormat(inputDate);
+
+            LocalDate dateToTest = LocalDate.of(2020, 2, 22);
+            Date date = Date.from(dateToTest.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+
+            String dateStr = format.format(date);
+            Date parsedDate = format.parse(dateStr);
+
+            WebStudioUtils.validate(parsedDate.equals(date), "format is incomplete.");
+        } catch (Exception e) {
+            String message = "Incorrect date format: " + e.getMessage();
+            WebStudioUtils.addErrorMessage(message);
+            WebStudioUtils.throwValidationError(message);
+        }
+    }
+
+    public void timeFormatValidator(FacesContext context, UIComponent toValidate, Object value) {
+        String timeFormat = (String) value;
+
+        validateNotBlank(timeFormat, "Date format");
+
+        try {
+            SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy " + timeFormat);
+
+            // Seconds aren't obligatory.
+            LocalDateTime dateTimeToTest = LocalDateTime.of(2020, 2, 22, 15, 16);
+            Date date = Date.from(dateTimeToTest.atZone(ZoneId.systemDefault()).toInstant());
+
+            String dateStr = format.format(date);
+            Date parsedDate = format.parse(dateStr);
+
+            WebStudioUtils.validate(parsedDate.equals(date), "format is incomplete.");
+        } catch (Exception e) {
+            String message = "Incorrect time format: " + e.getMessage();
+            WebStudioUtils.addErrorMessage(message);
+            WebStudioUtils.throwValidationError(message);
+        }
     }
 
     // TODO This class shouldn't depend on SystemSettingsBean
