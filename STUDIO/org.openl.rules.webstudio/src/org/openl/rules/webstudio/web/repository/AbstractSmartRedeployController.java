@@ -234,10 +234,14 @@ public abstract class AbstractSmartRedeployController {
                     checker.addProject(project);
                     if (checker.check()) {
                         String to = RepositoryTreeController.getDescriptiveVersion(project.getVersion());
-                        String from = RepositoryTreeController
-                            .getDescriptiveVersion(userWorkspace.getDesignTimeRepository()
-                                .getProject(projectDescriptor.getProjectName(), new CommonVersionImpl(lastDeployedVersion))
-                                .getVersion());
+                        String from = "undefined";
+                        if (lastDeployedVersion != null) {
+                            from = RepositoryTreeController
+                                .getDescriptiveVersion(userWorkspace.getDesignTimeRepository()
+                                    .getProject(projectDescriptor.getProjectName(),
+                                        new CommonVersionImpl(lastDeployedVersion))
+                                    .getVersion());
+                        }
                         item.setMessages("Can be updated to '" + to + "' from '" + from + "' and then deployed");
                     } else {
                         item.setMessages(

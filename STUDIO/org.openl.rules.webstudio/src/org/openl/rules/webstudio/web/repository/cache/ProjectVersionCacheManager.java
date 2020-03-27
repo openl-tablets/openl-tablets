@@ -48,31 +48,39 @@ public class ProjectVersionCacheManager {
         return hash;
     }
 
-    private void recalculateAllCache(ProjectVersionCacheDB.RepoType repoType) {
+    private void recalculateDesignRepositoryCache() {
         Collection<? extends AProject> projects = designRepository.getProjects();
         for (AProject project : projects) {
             try {
-                cacheProject(project, repoType);
+                cacheProject(project, ProjectVersionCacheDB.RepoType.DESIGN);
             } catch (IOException e) {
                 log.error("Error during project caching", e);
             }
         }
     }
 
-    private void cacheProject(AProject project, ProjectVersionCacheDB.RepoType repoType) throws IOException {
+    void cacheProject(AProject project, ProjectVersionCacheDB.RepoType repoType) throws IOException {
         List<ProjectVersion> versions = project.getVersions();
         versions.sort((ProjectVersion pr1, ProjectVersion pr2) -> pr2.getVersionInfo()
             .getCreatedAt()
             .compareTo(pr1.getVersionInfo().getCreatedAt()));
         for (ProjectVersion projectVersion : versions) {
             AProject designProject = designRepository.getProject(project.getName(), projectVersion);
-            String md5 = computeMD5(designProject);
-            String storedVersionName = projectVersionCacheDB.getVersion(project.getName(), md5, repoType);
-            if (projectVersion.getVersionName().equals(storedVersionName)) {
+            boolean cached = cacheProjectVersion(designProject, repoType);
+            if (!cached) {
                 break;
             }
-            projectVersionCacheDB.insertProject(project.getName(), designProject.getVersion(), md5, repoType);
         }
+    }
+
+    boolean cacheProjectVersion(AProject project, ProjectVersionCacheDB.RepoType repoType) throws IOException {
+        String md5 = computeMD5(project);
+        String storedVersionName = projectVersionCacheDB.getVersion(project.getName(), md5, repoType);
+        if (project.getVersion().getVersionName().equals(storedVersionName)) {
+            return false;
+        }
+        projectVersionCacheDB.insertProject(project.getName(), project.getVersion(), md5, repoType);
+        return true;
     }
 
     private String computeMD5(AProject wsProject) throws IOException {
@@ -89,20 +97,20 @@ public class ProjectVersionCacheManager {
             log.error("Error during computing hash", e);
             return null;
         }
-        return DigestUtils.md5Hex(md5Builder.toString());
+        return md5Builder.length() != 0 ? DigestUtils.md5Hex(md5Builder.toString()) : null;
     }
 
     private void ensureCacheIsNotEmpty() throws IOException {
         if (projectVersionCacheDB.isCacheEmpty()) {
-            recalculateAllCache(ProjectVersionCacheDB.RepoType.DESIGN);
+            recalculateDesignRepositoryCache();
         }
     }
 
     public void setDesignRepository(DesignTimeRepository designRepository) {
         this.designRepository = designRepository;
-        recalculateAllCache(ProjectVersionCacheDB.RepoType.DESIGN);
+        recalculateDesignRepositoryCache();
         designRepository.addListener(() -> {
-            recalculateAllCache(ProjectVersionCacheDB.RepoType.DESIGN);
+            recalculateDesignRepositoryCache();
         });
     }
 

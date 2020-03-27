@@ -19,7 +19,7 @@ public class ProjectVersionCacheDB extends H2CacheDB {
 
     private static final String CACHE_NAME = "projectsCache";
 
-    // cache fields
+    // cache table fields
     private static final String TABLE_NAME = "VERSION_HASHES";
     private static final String PROJECT_NAME = "project_name";
     private static final String VERSION = "version";
@@ -29,8 +29,8 @@ public class ProjectVersionCacheDB extends H2CacheDB {
     private static final String REPOSITORY = "repository";
 
     private static final String CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(" + PROJECT_NAME + " varchar(50)," + VERSION + " varchar(50), " + CREATED_AT + " TIMESTAMP, " + CREATED_BY + " varchar(50), " + HASH + " varchar(32), " + REPOSITORY + " varchar(6))";
-    private static final String SELECT_VERSION_QUERY = "select " + VERSION + " from " + TABLE_NAME + " WHERE " + CREATED_AT + "=(SELECT MAX(" + CREATED_AT + ") FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? and " + HASH + "=? and " + REPOSITORY + "=?)";
-    private static final String SELECT_HASH_QUERY = "select " + HASH + " from " + TABLE_NAME + " WHERE " + CREATED_AT + "=(SELECT MAX(" + CREATED_AT + ") FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? and " + VERSION + "=? and " + REPOSITORY + "=?)";
+    private static final String SELECT_VERSION_QUERY = "select " + VERSION + " from " + TABLE_NAME + " WHERE " + CREATED_AT + "=(SELECT MAX(" + CREATED_AT + ") FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? and " + HASH + "=? and " + REPOSITORY + "=?) and " + HASH + "=?";
+    private static final String SELECT_HASH_QUERY = "select " + HASH + " from " + TABLE_NAME + " WHERE " + CREATED_AT + "=(SELECT MAX(" + CREATED_AT + ") FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? and " + VERSION + "=? and " + REPOSITORY + "=?) and " + HASH + "=?";
     private static final String SELECT_DESIGN_VERSION_QUERY = "select " + CREATED_AT + ", " + CREATED_BY + " from " + TABLE_NAME + " WHERE " + CREATED_AT + "=(SELECT MAX(" + CREATED_AT + ") FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? and " + HASH + "=? and " + REPOSITORY + "=?)";
     private static final String INSERT_QUERY = "INSERT INTO " + TABLE_NAME + "" + "(" + PROJECT_NAME + ", " + VERSION + ", " + CREATED_AT + ", " + CREATED_BY + ", " + HASH + ", " + REPOSITORY + ") values" + "(?,?,?,?,?,?)";
     private static final String SELECT_COUNT_QUERY = "select COUNT(*) from " + TABLE_NAME;
@@ -169,6 +169,7 @@ public class ProjectVersionCacheDB extends H2CacheDB {
             selectPreparedStatement.setString(1, name);
             selectPreparedStatement.setString(2, field);
             selectPreparedStatement.setString(3, repoType.name());
+            selectPreparedStatement.setString(4, field);
             connection.setAutoCommit(false);
             rs = selectPreparedStatement.executeQuery();
             String version = null;

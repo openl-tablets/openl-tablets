@@ -19,14 +19,14 @@ public class H2CacheDB {
     }
 
     protected Connection getDBConnection() throws IOException {
-        Connection dbConnection = null;
         try {
             Class.forName(DB_DRIVER);
         } catch (ClassNotFoundException e) {
             throw new IOException(e);
         }
         try {
-            dbConnection = DriverManager.getConnection(DB_CONNECTION + openLHome + CACHE_FOLDER + cacheName, "", "");
+            Connection dbConnection = DriverManager
+                .getConnection(DB_CONNECTION + openLHome + CACHE_FOLDER + cacheName, "", "");
             return dbConnection;
         } catch (SQLException e) {
             throw new IOException(e);
@@ -34,6 +34,9 @@ public class H2CacheDB {
     }
 
     public void setOpenLHome(String openLHome) {
+        if (!openLHome.startsWith("./") && !openLHome.contains(":")) {
+            openLHome = "./" + openLHome;
+        }
         this.openLHome = openLHome;
     }
 }
