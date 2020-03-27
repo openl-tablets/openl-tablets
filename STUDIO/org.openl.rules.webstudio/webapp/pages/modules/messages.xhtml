@@ -32,12 +32,12 @@
         <div class="#{messageBoxClass}" style="#{messagesBean.hasStacktrace ? 'padding-bottom: 3px' : ''}">
 
             <h:panelGroup id="summary_panel" styleClass="summary-panels">
-                <h:outputText id="summary" value="#{messagesBean.summary}" style="white-space:pre;"/>
+                <h:outputText id="summary" value="#{messagesBean.summary}" style="white-space: pre-wrap;"/>
             </h:panelGroup>
             
             <h:panelGroup rendered="#{messagesBean.hasStacktrace}">
                 <h:panelGroup id="stacktrace_panel" style="display:none" styleClass="stacktrace-panels">                        
-                    <h:outputText id="stacktrace" value="#{messagesBean.stacktrace}" style="white-space:pre;"/>
+                    <h:outputText id="stacktrace" value="#{messagesBean.stacktrace}" style="white-space: pre-wrap;"/>
                 </h:panelGroup>
             </h:panelGroup>
             
