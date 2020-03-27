@@ -1544,6 +1544,11 @@
                 <artifactId>org.openl.rules.jackson</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.jackson.configuration</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- WSFrontend -->
             <dependency>
                 <groupId>org.openl.rules</groupId>

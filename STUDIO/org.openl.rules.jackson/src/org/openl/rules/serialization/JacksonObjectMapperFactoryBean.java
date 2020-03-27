@@ -12,10 +12,14 @@ package org.openl.rules.serialization;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 
+import org.openl.rules.ruleservice.databinding.annotation.BindingConfigurationUtils;
+import org.openl.rules.ruleservice.databinding.annotation.MixInClass;
+import org.openl.rules.ruleservice.databinding.annotation.MixInRulesClass;
 import org.openl.rules.serialization.jackson.Mixin;
 import org.openl.rules.serialization.jackson.org.openl.rules.variation.ArgumentReplacementVariationType;
 import org.openl.rules.serialization.jackson.org.openl.rules.variation.ComplexVariationType;
@@ -74,12 +78,13 @@ public class JacksonObjectMapperFactoryBean {
             .registerModule(new Jdk8Module())
             .registerModule(new JavaTimeModule());
 
-        AnnotationIntrospector secondaryIntropsector = new JacksonAnnotationIntrospector();
-        JaxbAnnotationIntrospector primaryIntrospector = new JaxbAnnotationIntrospector(TypeFactory.defaultInstance());
+        AnnotationIntrospector primaryIntrospector = new JacksonAnnotationIntrospector();
+        JaxbAnnotationIntrospector secondaryIntropsector = new JaxbAnnotationIntrospector(
+            TypeFactory.defaultInstance());
 
         if (serializationInclusion != null) {
             mapper.setSerializationInclusion(serializationInclusion);
-            primaryIntrospector.setNonNillableInclusion(serializationInclusion);
+            secondaryIntropsector.setNonNillableInclusion(serializationInclusion);
         }
 
         AnnotationIntrospector introspector = new AnnotationIntrospectorPair(primaryIntrospector,
@@ -97,23 +102,45 @@ public class JacksonObjectMapperFactoryBean {
             }
             if (getOverrideTypes() != null) {
                 List<Class<?>> classes = new ArrayList<>();
+                List<Class<?>> configurationClasses = new ArrayList<>();
                 for (String className : getOverrideTypes()) {
                     try {
                         Class<?> clazz = loadClass(className);
-                        classes.add(clazz);
-                        if (polymorphicTypeValidation) {
-                            basicPolymorphicTypeValidatorBuilder.allowIfBaseType(clazz);
-                            basicPolymorphicTypeValidatorBuilder.allowIfSubType(clazz);
+                        if (BindingConfigurationUtils.isConfiguration(clazz)) {
+                            configurationClasses.add(clazz);
+                        } else {
+                            classes.add(clazz);
+                            if (polymorphicTypeValidation) {
+                                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(clazz);
+                                basicPolymorphicTypeValidatorBuilder.allowIfSubType(clazz);
+                            }
                         }
                     } catch (ClassNotFoundException e) {
                         log.warn("Class '{}' is not found.", className, e);
                     }
                 }
+                for (Class<?> clazz : configurationClasses) {
+                    MixInClass mixInClass = clazz.getAnnotation(MixInClass.class);
+                    if (mixInClass != null) {
+                        Arrays.stream(mixInClass.value()).forEach(forClass -> mapper.addMixIn(forClass, clazz));
+                    }
+                    MixInRulesClass mixInRulesClass = clazz.getAnnotation(MixInRulesClass.class);
+                    if (mixInRulesClass != null) {
+                        for (String className : mixInRulesClass.value()) {
+                            try {
+                                Class<?> useForClass = loadClass(className);
+                                mapper.addMixIn(useForClass, clazz);
+                            } catch (ClassNotFoundException e) {
+                                log.warn("Class '{}' is not found.", className, e);
+                            }
+                        }
 
+                    }
+                }
                 for (Class<?> clazz : classes) {
                     for (Class<?> c : classes) {
                         if (!clazz.equals(c) && clazz.isAssignableFrom(c)) {
-                            mapper.addMixIn(clazz, Mixin.class);
+                            addMixIn(mapper, clazz, Mixin.class);
                             break;
                         }
                     }
@@ -133,12 +160,12 @@ public class JacksonObjectMapperFactoryBean {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, isFailOnUnknownProperties());
 
         if (isSupportVariations()) {
-            mapper.addMixIn(Variation.class, VariationType.class);
-            mapper.addMixIn(ArgumentReplacementVariation.class, ArgumentReplacementVariationType.class);
-            mapper.addMixIn(ComplexVariation.class, ComplexVariationType.class);
-            mapper.addMixIn(DeepCloningVariation.class, DeepCloningVariationType.class);
-            mapper.addMixIn(JXPathVariation.class, JXPathVariationType.class);
-            mapper.addMixIn(VariationsResult.class, VariationsResultType.class);
+            addMixIn(mapper, Variation.class, VariationType.class);
+            addMixIn(mapper, ArgumentReplacementVariation.class, ArgumentReplacementVariationType.class);
+            addMixIn(mapper, ComplexVariation.class, ComplexVariationType.class);
+            addMixIn(mapper, DeepCloningVariation.class, DeepCloningVariationType.class);
+            addMixIn(mapper, JXPathVariation.class, JXPathVariationType.class);
+            addMixIn(mapper, VariationsResult.class, VariationsResultType.class);
         }
 
         if (getDefaultDateFormat() == null) {
@@ -148,6 +175,12 @@ public class JacksonObjectMapperFactoryBean {
         }
 
         return mapper;
+    }
+
+    private void addMixIn(ObjectMapper mapper, Class<?> classFor, Class<?> mixIn) {
+        if (mapper.findMixInClassFor(classFor) == null) {
+            mapper.addMixIn(classFor, mixIn);
+        }
     }
 
     /**

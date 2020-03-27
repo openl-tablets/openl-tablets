@@ -36,8 +36,11 @@ public class ServiceJacksonObjectMapperFactoryBean extends AbstractFactoryBean<O
         if (openLService.getOpenClass() != null) {
             for (IOpenClass openClass : openLService.getOpenClass().getTypes()) {
                 if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-                    objectMapper.addMixIn(((CustomSpreadsheetResultOpenClass) openClass).getBeanClass(),
-                        NonDefaultMixIn.class);
+                    if (objectMapper
+                        .findMixInClassFor(((CustomSpreadsheetResultOpenClass) openClass).getBeanClass()) == null) {
+                        objectMapper.addMixIn(((CustomSpreadsheetResultOpenClass) openClass).getBeanClass(),
+                            NonDefaultMixIn.class);
+                    }
                 }
             }
         }

@@ -9,7 +9,7 @@
     <artifactId>org.openl.rules.jackson</artifactId>
     <packaging>jar</packaging>
     <name>OpenL - STUDIO - Jackson</name>
-    <description>OpenL - Jackson support</description>
+    <description>OpenL - Jackson</description>
     <url>https://openl-tablets.org</url>
     <properties>
         <license.licenseName>openl_tablets_mit</license.licenseName>
@@ -49,6 +49,10 @@
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.jackson.configuration</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
