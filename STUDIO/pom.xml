@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>5.23.1</version>
+        <version>5.23.2-SNAPSHOT</version>
     </parent>
     <artifactId>org.openl.rules.studio-pom</artifactId>
     <packaging>pom</packaging>
