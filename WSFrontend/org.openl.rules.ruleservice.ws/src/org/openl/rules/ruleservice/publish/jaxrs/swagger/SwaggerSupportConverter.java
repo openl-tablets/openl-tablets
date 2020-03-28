@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.publish.jaxrs.swagger;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,10 +13,9 @@ import java.util.stream.Collectors;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.openl.util.ClassUtils;
+import org.openl.util.JAXBUtils;
 
 import com.fasterxml.jackson.databind.JavaType;
 
@@ -28,32 +26,13 @@ import io.swagger.models.properties.Property;
 
 public class SwaggerSupportConverter implements ModelConverter {
 
-    private static Class<?> extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(Class<?> boundType) {
-        if (!boundType.isPrimitive()) {
-            XmlJavaTypeAdapter xmlJavaTypeAdapter = boundType.getAnnotation(XmlJavaTypeAdapter.class);
-            if (xmlJavaTypeAdapter != null) {
-                @SuppressWarnings("rawtypes")
-                Class<? extends XmlAdapter> xmlAdapterClass = xmlJavaTypeAdapter.value();
-                java.lang.reflect.Type type = xmlAdapterClass.getGenericSuperclass();
-                if (type instanceof ParameterizedType) {
-                    ParameterizedType parameterizedType = (ParameterizedType) type;
-                    java.lang.reflect.Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
-                    if (actualTypeArguments[0] instanceof Class) {
-                        return (Class<?>) actualTypeArguments[0];
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
     @Override
     public Model resolve(Type type, ModelConverterContext context, Iterator<ModelConverter> chain) {
         Class<?> t;
         Model model;
         if (type instanceof JavaType) {
             JavaType javaType = (JavaType) type;
-            Class<?> valueType = extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(javaType.getRawClass());
+            Class<?> valueType = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(javaType.getRawClass());
             if (valueType != null) {
                 model = context.resolve(valueType);
                 t = valueType;
@@ -63,7 +42,7 @@ public class SwaggerSupportConverter implements ModelConverter {
             }
         } else if (type instanceof Class) {
             Class<?> clazz = (Class<?>) type;
-            Class<?> valueType = extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(clazz);
+            Class<?> valueType = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(clazz);
             if (valueType != null) {
                 model = context.resolve(valueType);
                 t = valueType;
@@ -91,10 +70,12 @@ public class SwaggerSupportConverter implements ModelConverter {
                             XmlAttribute xmlAttributeAnn = m.getAnnotation(XmlAttribute.class);
                             if (xmlAttributeAnn != null) {
                                 prop = prop.rename(xmlAttributeAnn.name());
+                                prop.setXml(null);
                             }
                             XmlElement xmlElementAnn = m.getAnnotation(XmlElement.class);
                             if (xmlElementAnn != null) {
                                 prop = prop.rename(xmlElementAnn.name());
+                                prop.setXml(null);
                             }
                             if (xmlElementAnn != null || xmlAttributeAnn != null) {
                                 model.getProperties().remove(m.getName());
@@ -125,7 +106,8 @@ public class SwaggerSupportConverter implements ModelConverter {
                     return context.resolveProperty(Object.class, annotations);
                 }
             } else {
-                Class<?> valueType = extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(javaType.getRawClass());
+                Class<?> valueType = JAXBUtils
+                    .extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(javaType.getRawClass());
                 if (valueType != null) {
                     return context.resolveProperty(valueType, annotations);
                 }

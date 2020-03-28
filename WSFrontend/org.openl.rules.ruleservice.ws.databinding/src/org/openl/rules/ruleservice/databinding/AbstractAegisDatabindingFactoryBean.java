@@ -27,6 +27,7 @@ import org.apache.cxf.aegis.type.AegisType;
 import org.apache.cxf.aegis.type.TypeCreationOptions;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.ruleservice.databinding.annotation.JacksonBindingConfigurationUtils;
 import org.openl.rules.table.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +54,12 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         if (getConfiguration() != null) {
             aegisDatabinding.setConfiguration(configuration);
             aegisContext.setTypeCreationOptions(configuration);
+        } else {
+            TypeCreationOptions configuration = new TypeCreationOptions();
+            configuration.setDefaultNillable(false);
+            configuration.setDefaultMinOccurs(0);
+            aegisDatabinding.setConfiguration(configuration);
+            aegisContext.setTypeCreationOptions(configuration);
         }
 
         if (getMtomUseXmime() != null) {
@@ -65,11 +72,10 @@ public abstract class AbstractAegisDatabindingFactoryBean {
             aegisContext.setMtomEnabled(getMtomEnabled());
         }
 
-        Set<String> rootClassNames = getOverrideTypesWithDefaultOpenLTypes();
+        Set<String> rootClassNames = getPreparedOverrideTypes();
         aegisDatabinding.setOverrideTypes(rootClassNames);
         aegisContext.setRootClassNames(rootClassNames);
         aegisContext.initialize();
-
         if (getBus() != null) {
             aegisDatabinding.setBus(getBus());
         }
@@ -93,7 +99,6 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         if (getReadXsiTypes() != null) {
             aegisDatabinding.getAegisContext().setReadXsiTypes(getReadXsiTypes());
         }
-
         TypeMapping typeMapping = aegisDatabinding.getAegisContext().getTypeMapping();
         loadAegisTypeClassAndRegister(
             org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.context.RuntimeContextBeanType.class,
@@ -144,24 +149,24 @@ public abstract class AbstractAegisDatabindingFactoryBean {
     protected void loadAegisTypeClassAndRegister(String aegisTypeClassName, TypeMapping typeMapping) {
         try {
             Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(aegisTypeClassName);
-            AegisType aegisType = instatiateAegisType(clazz);
+            AegisType aegisType = instantiateAegisType(clazz);
             typeMapping.register(aegisType);
         } catch (Exception e) {
             log.warn("Aegis type '{}' registration failed.", aegisTypeClassName, e);
         }
     }
 
-    private AegisType instatiateAegisType(Class<?> clazz) throws NoSuchMethodException,
-                                                          InstantiationException,
-                                                          IllegalAccessException,
-                                                          InvocationTargetException {
+    private AegisType instantiateAegisType(Class<?> clazz) throws NoSuchMethodException,
+                                                           InstantiationException,
+                                                           IllegalAccessException,
+                                                           InvocationTargetException {
         Constructor<?> constructor = clazz.getConstructor();
         return (AegisType) constructor.newInstance();
     }
 
     protected void loadAegisTypeClassAndRegister(Class<?> aegisTypeClass, TypeMapping typeMapping) {
         try {
-            AegisType aegisType = instatiateAegisType(aegisTypeClass);
+            AegisType aegisType = instantiateAegisType(aegisTypeClass);
             typeMapping.register(aegisType);
         } catch (Exception e) {
             log.warn("Aegis type '{}' registration failed.", aegisTypeClass.getName(), e);
@@ -174,7 +179,7 @@ public abstract class AbstractAegisDatabindingFactoryBean {
             TypeMapping typeMapping) {
         try {
             Class<?> typeClazz = Thread.currentThread().getContextClassLoader().loadClass(typeClassName);
-            AegisType aegisType = instatiateAegisType(aegisTypeClass);
+            AegisType aegisType = instantiateAegisType(aegisTypeClass);
             typeMapping.register(typeClazz, qName, aegisType);
         } catch (Exception e) {
             log.warn("Type '{}' registration failed.", typeClassName, e);
@@ -186,29 +191,33 @@ public abstract class AbstractAegisDatabindingFactoryBean {
             QName qName,
             TypeMapping typeMapping) {
         try {
-            AegisType aegisType = instatiateAegisType(aegisTypeClass);
+            AegisType aegisType = instantiateAegisType(aegisTypeClass);
             typeMapping.register(typeClazz, qName, aegisType);
         } catch (Exception e) {
             log.warn("Type '{}' registration failed.", typeClazz.getName(), e);
         }
     }
 
-    private void tryToLoadClass(String className) {
+    private Class<?> tryToLoadClass(String className) {
         try {
-            Thread.currentThread().getContextClassLoader().loadClass(className);
+            return Thread.currentThread().getContextClassLoader().loadClass(className);
         } catch (ClassNotFoundException e) {
             log.warn("Class '{}' is not found.", className, e);
         }
+        return null;
     }
 
-    protected Set<String> getOverrideTypesWithDefaultOpenLTypes() {
+    protected Set<String> getPreparedOverrideTypes() {
         Set<String> overrideTypes = new HashSet<>();
         if (getOverrideTypes() != null) {
             for (String className : getOverrideTypes()) {
-                tryToLoadClass(className);
+                Class<?> clazz = tryToLoadClass(className);
+                if (!JacksonBindingConfigurationUtils.isConfiguration(clazz)) {
+                    overrideTypes.add(className);
+                }
             }
-            overrideTypes.addAll(getOverrideTypes());
         }
+
         overrideTypes.add(SpreadsheetResult.class.getName());
         overrideTypes.add(Point.class.getName());
 

@@ -201,15 +201,25 @@
         })
     }
 
+    function isNoWadlService(noWadlServices, service) {
+        for (var i = 0; i < noWadlServices.length; i++) {
+            if (noWadlServices[i] === service.name) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function renderServices(servicesResponse) {
         // The block for rendering of the available services
         var mainBlock = document.getElementById("main");
         var services = servicesResponse.services;
+        var noWadlServices = servicesResponse.noWadlServices;
         var deployerEnabled = servicesResponse.deployerEnabled;
         if (Array.isArray(services) && services.length > 0) {
             mainBlock.innerHTML = "<h2>Available services:</h2>";
             services.forEach(function (service) {
-                var html = createServiceHtml(service, deployerEnabled);
+                var html = createServiceHtml(service, isNoWadlService(noWadlServices, service), deployerEnabled);
                 var el = document.createElement("DIV");
                 el.dataset.serviceName = service.name;
                 el.dataset.serviceStatus = service.status;
@@ -300,7 +310,7 @@
     }
 
     // Creating innerHTML of one service
-    function createServiceHtml(service, deployerEnabled) {
+    function createServiceHtml(service, noWadl, deployerEnabled) {
         var html = "";
         // Name
         html += "<span class='icon collapse " + service.status.toLowerCase() + "'></span><h3>" + service.name + "</h3>";
@@ -317,7 +327,9 @@
             if (name === "WEBSERVICE") {
                 html += "<a href='" + url + "?wsdl'\>WSDL</a>";
             } else if (name === "RESTFUL") {
-                html += "<a href='" + url + "?_wadl'\>WADL</a>";
+                if (!noWadl) {
+                    html += "<a href='" + url + "?_wadl'\>WADL</a>";
+                }
                 html += "<a href='" + url + "/api-docs/index.html?url=../swagger.json'\>Swagger (UI)</a>";
                 html += "<a href='" + url + "/swagger.json'\>Swagger (JSON)</a>";
                 html += "<a href='" + url + "/swagger.yaml'\>Swagger (YAML)</a>";

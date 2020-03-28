@@ -1,11 +1,7 @@
 package org.openl.gen.writers;
 
-import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.Date;
 import java.util.Map;
 
-import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -59,8 +55,6 @@ public class GettersWriter extends MethodWriter {
         final String format = "()" + javaType;
         methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, getterName, format, null, null);
 
-        visitJAXBAnnotations(methodVisitor, fieldName, field, javaType);
-
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
         methodVisitor.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName, javaType);
         String retClass = field.getTypeDescriptor();
@@ -69,42 +63,6 @@ public class GettersWriter extends MethodWriter {
         methodVisitor.visitMaxs(0, 0);
     }
 
-    private void visitJAXBAnnotations(MethodVisitor methodVisitor,
-            String fieldName,
-            FieldDescription field,
-            String javaType) {
-        AnnotationVisitor av = methodVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlElement;", true);
-        av.visit("name", fieldName);
 
-        if (field.hasDefaultValue() && field.getTypeDescriptor().length() != 1) {
-            av.visit("nillable", true);
-        }
-        if (field.hasDefaultValue() && !field.hasDefaultKeyWord()) {
-            String defaultFieldValue = field.getDefaultValueAsString();
-            if (Boolean.class.getName().equals(field.getTypeName()) || boolean.class.getName()
-                .equals(field.getTypeName())) {
-                defaultFieldValue = String.valueOf(field.getDefaultValue());
-            } else if (field.getTypeName().equals(Date.class.getName())) {
-                Date date = (Date) field.getDefaultValue();
-                defaultFieldValue = ISO8601DateFormater.format(date);
-            }
-            av.visit("defaultValue", defaultFieldValue);
-        }
-        try {
-            String componentJavaType = javaType.replaceAll("\\[", "");
-            String clsName = Type.getType(componentJavaType).getClassName();
-            Class<?> type = Thread.currentThread().getContextClassLoader().loadClass(clsName);
-            if (type.isInterface() && !Map.class.isAssignableFrom(type) && !Collection.class.isAssignableFrom(type)) {
-                int d = javaType.length() - componentJavaType.length();
-                Class<?> useType = Object.class;
-                if (d > 0) {
-                    useType = Array.newInstance(Object.class, new int[d]).getClass();
-                }
-                av.visit("type", Type.getType(useType));
-            }
-        } catch (Exception ignored) {
-        }
-        av.visitEnd();
-    }
 
 }

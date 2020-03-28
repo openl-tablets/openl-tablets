@@ -11,12 +11,15 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher;
 import org.openl.rules.ruleservice.publish.RuleServiceManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Produces(MediaType.APPLICATION_JSON)
 public class AdminRestController {
 
     private RuleServiceManager ruleServiceManager;
+    private JAXRSRuleServicePublisher jaxrsRuleServicePublisher;
     private Map<String, Object> uiConfig;
 
     @Resource
@@ -27,6 +30,11 @@ public class AdminRestController {
     @Resource
     public void setUiConfig(Map<String, Object> uiConfig) {
         this.uiConfig = uiConfig;
+    }
+
+    @Autowired
+    public void setJaxrsRuleServicePublisher(JAXRSRuleServicePublisher jaxrsRuleServicePublisher) {
+        this.jaxrsRuleServicePublisher = jaxrsRuleServicePublisher;
     }
 
     /**
@@ -46,6 +54,7 @@ public class AdminRestController {
     public Response getServiceInfoWithSettings() {
         HashMap<String, Object> info = new HashMap<>(uiConfig);
         info.put("services", ruleServiceManager.getServicesInfo());
+        info.put("noWadlServices", jaxrsRuleServicePublisher.listNoWadlServices());
         return Response.ok(info).build();
     }
 

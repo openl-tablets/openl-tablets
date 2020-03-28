@@ -75,7 +75,9 @@ public class GenerateInterface {
         try {
             return OpenLManager.compileModuleWithErrors(openl, source, false, dependencyManager);
         } finally {
-            dependencyManager.clearOddDataForExecutionMode();
+            if (dependencyManager != null) {
+                dependencyManager.clearOddDataForExecutionMode();
+            }
         }
     }
 
@@ -542,17 +544,17 @@ public class GenerateInterface {
     }
 
     private IDependencyManager instantiateDependencyManager() {
-        IDependencyManager dependecyManager = null;
+        IDependencyManager dependencyManager = null;
         if (StringUtils.isNotBlank(dependencyManagerClass)) {
             try {
                 Class<?> depManagerClass = Class.forName(dependencyManagerClass);
                 Constructor<?> constructor = depManagerClass.getConstructor();
-                dependecyManager = (IDependencyManager) constructor.newInstance();
+                dependencyManager = (IDependencyManager) constructor.newInstance();
             } catch (Exception e) {
                 log(e, GenerateInterface.MSG_DEBUG);
             }
         }
-        return dependecyManager;
+        return dependencyManager;
     }
 
     private String getErrorMessage(Collection<OpenLMessage> errorMessages) {
