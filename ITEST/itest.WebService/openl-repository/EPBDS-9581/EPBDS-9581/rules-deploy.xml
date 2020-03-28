@@ -1,0 +1,15 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>mixins-test</serviceName>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+
+    <configuration>
+        <entry>
+            <string>rootClassNamesBinding</string>
+            <string>org.example.custom.mixin.CustomerMixIn</string>
+        </entry>
+    </configuration>
+</rules-deploy>

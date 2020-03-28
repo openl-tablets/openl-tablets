@@ -24,6 +24,7 @@ import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerHackContainerReq
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerHackContainerResponseFilter;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerObjectMapperHack;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerStaticFieldsWorkaround;
+import org.openl.rules.ruleservice.publish.jaxrs.wadl.DisableWADLInterceptor;
 import org.openl.rules.ruleservice.storelogdata.CollectObjectSerializerInterceptor;
 import org.openl.rules.ruleservice.storelogdata.CollectOpenLServiceInterceptor;
 import org.openl.rules.ruleservice.storelogdata.CollectOperationResourceInfoInterceptor;
@@ -167,10 +168,12 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             extraClassesField.setAccessible(true);
             List<Class<?>> extraClasses = (List<Class<?>>) extraClassesField.get(wadlGenerator);
             boolean noWadl = extraClasses.stream().anyMatch(JacksonBindingConfigurationUtils::isConfiguration);
-            if (!noWadl) {
+            if (noWadl) {
+                svrFactory.getInInterceptors().add(new DisableWADLInterceptor());
+                svrFactory.getInFaultInterceptors().add(new DisableWADLInterceptor());
+            } else {
                 ((List) svrFactory.getProviders()).add(wadlGenerator);
             }
-
             svrFactory.setResourceProvider(serviceClass, new SingletonResourceProvider(proxyServiceBean));
             ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
             try {
