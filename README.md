@@ -1,4 +1,4 @@
-![Java CI with Maven](https://github.com/openl-tablets/openl-tablets/workflows/Java%20CI%20with%20Maven/badge.svg)
+![Build](https://github.com/openl-tablets/openl-tablets/workflows/Build/badge.svg)
 
 # Easy Business Rules
 
