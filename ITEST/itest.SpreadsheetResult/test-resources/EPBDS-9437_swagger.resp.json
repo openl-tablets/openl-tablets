@@ -9,37 +9,6 @@
   },
   "basePath": "/REST/EPBDS-9437",
   "paths": {
-    "/tiktak": {
-      "post": {
-        "summary": "Method: tiktak(int i, String j)",
-        "description": "",
-        "operationId": "tiktak",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/TiktakRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Tiktak"
-            }
-          }
-        }
-      }
-    },
     "/EPBDS_9437": {
       "post": {
         "summary": "Method: EPBDS_9437(Integer driver)",
@@ -71,9 +40,83 @@
           }
         }
       }
+    },
+    "/tiktak": {
+      "post": {
+        "summary": "Method: tiktak(int i, String j)",
+        "description": "",
+        "operationId": "tiktak",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/TiktakRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Tiktak"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
+    "AnySpreadsheetResult": {
+      "type": "object",
+      "properties": {
+        "driver_Forms": {
+          "type": "array",
+          "items": {
+            "xml": {
+              "name": "driver_Forms"
+            },
+            "$ref": "#/definitions/AnySpreadsheetResult"
+          }
+        },
+        "INT": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "string": {
+          "type": "string"
+        }
+      },
+      "xml": {
+        "name": "AnySpreadsheetResult",
+        "namespace": "http://spreadsheetresults.generated.openl.org"
+      }
+    },
+    "EPBDS_9437": {
+      "type": "object",
+      "properties": {
+        "driver_Forms": {
+          "type": "array",
+          "items": {
+            "xml": {
+              "name": "driver_Forms"
+            },
+            "$ref": "#/definitions/AnySpreadsheetResult"
+          }
+        }
+      },
+      "xml": {
+        "name": "EPBDS_9437",
+        "namespace": "http://spreadsheetresults.generated.openl.org"
+      }
+    },
     "Tiktak": {
       "type": "object",
       "properties": {
@@ -104,24 +147,6 @@
       "xml": {
         "name": "TiktakRequest",
         "namespace": "http://jaxrs.openl.org"
-      }
-    },
-    "EPBDS_9437": {
-      "type": "object",
-      "properties": {
-        "driver_Forms": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "xml": {
-              "name": "driver_Forms"
-            }
-          }
-        }
-      },
-      "xml": {
-        "name": "EPBDS_9437",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     }
   }

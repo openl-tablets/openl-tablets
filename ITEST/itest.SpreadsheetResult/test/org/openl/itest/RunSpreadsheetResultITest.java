@@ -50,7 +50,7 @@ public class RunSpreadsheetResultITest {
     }
 
     @Test
-    public void SpreadsheetResult_SOAP() throws InterruptedException {
+    public void SpreadsheetResult_SOAP() {
         client.post("/spreadsheetresult", "/spreadsheetresult_tiktak.req.xml", "/spreadsheetresult_tiktak.resp.xml");
         client.post("/EPBDS-9437", "/EPBDS-9437_tiktak.req.xml", "/EPBDS-9437_tiktak.resp.xml");
         client.post("/EPBDS-9437", "/EPBDS-9437_arr.req.xml", "/EPBDS-9437_arr.resp.xml");

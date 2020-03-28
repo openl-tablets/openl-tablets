@@ -1,7 +1,6 @@
 {
   "driver_Forms": [
     {
-      "@class": "org.openl.generated.spreadsheetresults.Tiktak",
       "INT": 100,
       "string": "Hey!"
     }

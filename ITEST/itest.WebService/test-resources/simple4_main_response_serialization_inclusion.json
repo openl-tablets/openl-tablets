@@ -98,29 +98,33 @@
     "step10": [
       [
         {
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         },
         {
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         }
       ],
       [
         {
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         },
         {
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         }
       ]
     ],
     "step11": [
       {
-        "@class": "org.openl.generated.spreadsheetresults.Spr1",
-        "step1": 1.0
+        "valueStep1": 1.0,
+        "valueStep12": false
       },
       {
-        "@class": "org.openl.generated.spreadsheetresults.Spr1",
-        "step1": 1.0
+        "valueStep1": 1.0,
+        "valueStep12": false
       }
     ],
     "step13": {
@@ -290,29 +294,33 @@
       "step10": [
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ]
       ],
       "step11": [
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         },
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         }
       ],
       "step13": {
@@ -477,29 +485,33 @@
       "step10": [
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ]
       ],
       "step11": [
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         },
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         }
       ],
       "step13": {
@@ -666,29 +678,33 @@
       "step10": [
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ]
       ],
       "step11": [
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         },
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         }
       ],
       "step13": {
@@ -853,29 +869,33 @@
       "step10": [
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ]
       ],
       "step11": [
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         },
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         }
       ],
       "step13": {
@@ -1043,29 +1063,33 @@
         "step10": [
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ],
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ]
         ],
         "step11": [
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         "step13": {
@@ -1230,29 +1254,33 @@
         "step10": [
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ],
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ]
         ],
         "step11": [
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         "step13": {
@@ -1419,29 +1447,33 @@
         "step10": [
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ],
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ]
         ],
         "step11": [
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         "step13": {
@@ -1606,29 +1638,33 @@
         "step10": [
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ],
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ]
         ],
         "step11": [
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         "step13": {
@@ -1797,29 +1833,33 @@
         "step10": [
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ],
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ]
         ],
         "step11": [
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         "step13": {
@@ -1984,29 +2024,33 @@
         "step10": [
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ],
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ]
         ],
         "step11": [
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         "step13": {
@@ -2173,29 +2217,33 @@
         "step10": [
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ],
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ]
         ],
         "step11": [
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         "step13": {
@@ -2360,29 +2408,33 @@
         "step10": [
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ],
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ]
         ],
         "step11": [
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         "step13": {
@@ -2551,29 +2603,33 @@
       "step10": [
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ]
       ],
       "step11": [
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         },
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         }
       ],
       "step13": {
@@ -2739,29 +2795,33 @@
       "step10": [
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ]
       ],
       "step11": [
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         },
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         }
       ],
       "step13": {
@@ -2931,29 +2991,33 @@
           "step10": [
             [
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               },
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               }
             ],
             [
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               },
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               }
             ]
           ],
           "step11": [
             {
-              "@class": "org.openl.generated.spreadsheetresults.Spr1",
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "@class": "org.openl.generated.spreadsheetresults.Spr1",
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ],
           "step13": {
@@ -3118,29 +3182,33 @@
           "step10": [
             [
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               },
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               }
             ],
             [
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               },
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               }
             ]
           ],
           "step11": [
             {
-              "@class": "org.openl.generated.spreadsheetresults.Spr1",
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "@class": "org.openl.generated.spreadsheetresults.Spr1",
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ],
           "step13": {
@@ -3310,29 +3378,33 @@
           "step10": [
             [
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               },
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               }
             ],
             [
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               },
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               }
             ]
           ],
           "step11": [
             {
-              "@class": "org.openl.generated.spreadsheetresults.Spr1",
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "@class": "org.openl.generated.spreadsheetresults.Spr1",
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ],
           "step13": {
@@ -3497,29 +3569,33 @@
           "step10": [
             [
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               },
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               }
             ],
             [
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               },
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               }
             ]
           ],
           "step11": [
             {
-              "@class": "org.openl.generated.spreadsheetresults.Spr1",
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "@class": "org.openl.generated.spreadsheetresults.Spr1",
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ],
           "step13": {
@@ -3592,133 +3668,14 @@
   "step10": [
     [
       {
-        "step1": 1.0,
-        "step2": {
-          "step1": 1.0
-        },
-        "step3": [
-          1.0,
-          2.0
-        ],
-        "step4": [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
-        ],
-        "step5": [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
-        ],
-        "step6": [
+        "valueStep3": [
+          "[Ljava.lang.Double;",
           [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ],
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
+            1.0,
+            2.0
           ]
         ],
-        "step7": [
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ],
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ]
-        ],
-        "step8": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          },
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
-        ],
-        "step9": [
-          [
-            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
-            [
-              {
-                "step1": 1.0
-              },
-              {
-                "step1": 1.0
-              }
-            ]
-          ],
-          [
-            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
-            [
-              {
-                "step1": 1.0
-              },
-              {
-                "step1": 1.0
-              }
-            ]
-          ]
-        ],
-        "step10": [
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ],
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ]
-        ],
-        "step11": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          },
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
-        ],
-        "step13": {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
-        },
-        "step14": [
+        "valueStep4": [
           "[Lorg.openl.generated.spreadsheetresults.Spr1;",
           [
             {
@@ -3729,7 +3686,23 @@
             }
           ]
         ],
-        "step15": [
+        "valueStep1": 1.0,
+        "valueStep2": {
+          "valueStep1": 1.0,
+          "valueStep12": false
+        },
+        "valueStep5": [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ],
+        "valueStep6": [
           "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
           [
             [
@@ -3750,162 +3723,178 @@
             ]
           ]
         ],
-        "step16": {
+        "valueStep7": [
+          "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ],
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ]
+        ],
+        "valueStep8": [
+          {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "step1": 1.0
+          },
+          {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "step1": 1.0
+          }
+        ],
+        "valueStep9": [
+          [
+            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ],
+          [
+            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ]
+        ],
+        "valueStep10": [
+          "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ],
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ]
+        ],
+        "valueStep11": [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ],
+        "valueStep13": {
+          "@class": "org.openl.generated.spreadsheetresults.Spr1",
+          "step1": 1.0
+        },
+        "valueStep14": [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ],
+        "valueStep15": [
+          "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ],
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ]
+        ],
+        "valueStep16": {
+          "@class": "java.util.HashMap",
           "key": {
             "@class": "org.openl.generated.spreadsheetresults.Spr1",
             "step1": 1.0
           }
         },
-        "step17": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
+        "valueStep17": [
+          "java.util.ArrayList",
+          [
+            {
+              "@class": "org.openl.generated.spreadsheetresults.Spr1",
+              "step1": 1.0
+            }
+          ]
         ],
-        "step18": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
+        "valueStep18": [
+          "java.util.ArrayList",
+          [
+            {
+              "@class": "org.openl.generated.spreadsheetresults.Spr1",
+              "step1": 1.0
+            }
+          ]
         ],
-        "step19": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
+        "valueStep19": [
+          "java.util.HashSet",
+          [
+            {
+              "@class": "org.openl.generated.spreadsheetresults.Spr1",
+              "step1": 1.0
+            }
+          ]
         ],
-        "step20": {
-          "step1": 1.0
-        }
+        "valueStep20": {
+          "valueStep1": 1.0,
+          "valueStep12": false
+        },
+        "valueStep12": false
       },
       {
-        "step1": 1.0,
-        "step2": {
-          "step1": 1.0
-        },
-        "step3": [
-          1.0,
-          2.0
-        ],
-        "step4": [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
-        ],
-        "step5": [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
-        ],
-        "step6": [
+        "valueStep3": [
+          "[Ljava.lang.Double;",
           [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ],
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
+            1.0,
+            2.0
           ]
         ],
-        "step7": [
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ],
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ]
-        ],
-        "step8": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          },
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
-        ],
-        "step9": [
-          [
-            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
-            [
-              {
-                "step1": 1.0
-              },
-              {
-                "step1": 1.0
-              }
-            ]
-          ],
-          [
-            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
-            [
-              {
-                "step1": 1.0
-              },
-              {
-                "step1": 1.0
-              }
-            ]
-          ]
-        ],
-        "step10": [
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ],
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ]
-        ],
-        "step11": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          },
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
-        ],
-        "step13": {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
-        },
-        "step14": [
+        "valueStep4": [
           "[Lorg.openl.generated.spreadsheetresults.Spr1;",
           [
             {
@@ -3916,7 +3905,23 @@
             }
           ]
         ],
-        "step15": [
+        "valueStep1": 1.0,
+        "valueStep2": {
+          "valueStep1": 1.0,
+          "valueStep12": false
+        },
+        "valueStep5": [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ],
+        "valueStep6": [
           "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
           [
             [
@@ -3937,164 +3942,180 @@
             ]
           ]
         ],
-        "step16": {
+        "valueStep7": [
+          "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ],
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ]
+        ],
+        "valueStep8": [
+          {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "step1": 1.0
+          },
+          {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "step1": 1.0
+          }
+        ],
+        "valueStep9": [
+          [
+            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ],
+          [
+            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ]
+        ],
+        "valueStep10": [
+          "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ],
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ]
+        ],
+        "valueStep11": [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ],
+        "valueStep13": {
+          "@class": "org.openl.generated.spreadsheetresults.Spr1",
+          "step1": 1.0
+        },
+        "valueStep14": [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ],
+        "valueStep15": [
+          "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ],
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ]
+        ],
+        "valueStep16": {
+          "@class": "java.util.HashMap",
           "key": {
             "@class": "org.openl.generated.spreadsheetresults.Spr1",
             "step1": 1.0
           }
         },
-        "step17": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
+        "valueStep17": [
+          "java.util.ArrayList",
+          [
+            {
+              "@class": "org.openl.generated.spreadsheetresults.Spr1",
+              "step1": 1.0
+            }
+          ]
         ],
-        "step18": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
+        "valueStep18": [
+          "java.util.ArrayList",
+          [
+            {
+              "@class": "org.openl.generated.spreadsheetresults.Spr1",
+              "step1": 1.0
+            }
+          ]
         ],
-        "step19": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
+        "valueStep19": [
+          "java.util.HashSet",
+          [
+            {
+              "@class": "org.openl.generated.spreadsheetresults.Spr1",
+              "step1": 1.0
+            }
+          ]
         ],
-        "step20": {
-          "step1": 1.0
-        }
+        "valueStep20": {
+          "valueStep1": 1.0,
+          "valueStep12": false
+        },
+        "valueStep12": false
       }
     ],
     [
       {
-        "step1": 1.0,
-        "step2": {
-          "step1": 1.0
-        },
-        "step3": [
-          1.0,
-          2.0
-        ],
-        "step4": [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
-        ],
-        "step5": [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
-        ],
-        "step6": [
+        "valueStep3": [
+          "[Ljava.lang.Double;",
           [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ],
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
+            1.0,
+            2.0
           ]
         ],
-        "step7": [
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ],
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ]
-        ],
-        "step8": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          },
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
-        ],
-        "step9": [
-          [
-            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
-            [
-              {
-                "step1": 1.0
-              },
-              {
-                "step1": 1.0
-              }
-            ]
-          ],
-          [
-            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
-            [
-              {
-                "step1": 1.0
-              },
-              {
-                "step1": 1.0
-              }
-            ]
-          ]
-        ],
-        "step10": [
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ],
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ]
-        ],
-        "step11": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          },
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
-        ],
-        "step13": {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
-        },
-        "step14": [
+        "valueStep4": [
           "[Lorg.openl.generated.spreadsheetresults.Spr1;",
           [
             {
@@ -4105,7 +4126,23 @@
             }
           ]
         ],
-        "step15": [
+        "valueStep1": 1.0,
+        "valueStep2": {
+          "valueStep1": 1.0,
+          "valueStep12": false
+        },
+        "valueStep5": [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ],
+        "valueStep6": [
           "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
           [
             [
@@ -4126,162 +4163,178 @@
             ]
           ]
         ],
-        "step16": {
+        "valueStep7": [
+          "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ],
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ]
+        ],
+        "valueStep8": [
+          {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "step1": 1.0
+          },
+          {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "step1": 1.0
+          }
+        ],
+        "valueStep9": [
+          [
+            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ],
+          [
+            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ]
+        ],
+        "valueStep10": [
+          "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ],
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ]
+        ],
+        "valueStep11": [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ],
+        "valueStep13": {
+          "@class": "org.openl.generated.spreadsheetresults.Spr1",
+          "step1": 1.0
+        },
+        "valueStep14": [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ],
+        "valueStep15": [
+          "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ],
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ]
+        ],
+        "valueStep16": {
+          "@class": "java.util.HashMap",
           "key": {
             "@class": "org.openl.generated.spreadsheetresults.Spr1",
             "step1": 1.0
           }
         },
-        "step17": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
+        "valueStep17": [
+          "java.util.ArrayList",
+          [
+            {
+              "@class": "org.openl.generated.spreadsheetresults.Spr1",
+              "step1": 1.0
+            }
+          ]
         ],
-        "step18": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
+        "valueStep18": [
+          "java.util.ArrayList",
+          [
+            {
+              "@class": "org.openl.generated.spreadsheetresults.Spr1",
+              "step1": 1.0
+            }
+          ]
         ],
-        "step19": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
+        "valueStep19": [
+          "java.util.HashSet",
+          [
+            {
+              "@class": "org.openl.generated.spreadsheetresults.Spr1",
+              "step1": 1.0
+            }
+          ]
         ],
-        "step20": {
-          "step1": 1.0
-        }
+        "valueStep20": {
+          "valueStep1": 1.0,
+          "valueStep12": false
+        },
+        "valueStep12": false
       },
       {
-        "step1": 1.0,
-        "step2": {
-          "step1": 1.0
-        },
-        "step3": [
-          1.0,
-          2.0
-        ],
-        "step4": [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
-        ],
-        "step5": [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
-        ],
-        "step6": [
+        "valueStep3": [
+          "[Ljava.lang.Double;",
           [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ],
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
+            1.0,
+            2.0
           ]
         ],
-        "step7": [
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ],
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ]
-        ],
-        "step8": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          },
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
-        ],
-        "step9": [
-          [
-            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
-            [
-              {
-                "step1": 1.0
-              },
-              {
-                "step1": 1.0
-              }
-            ]
-          ],
-          [
-            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
-            [
-              {
-                "step1": 1.0
-              },
-              {
-                "step1": 1.0
-              }
-            ]
-          ]
-        ],
-        "step10": [
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ],
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ]
-        ],
-        "step11": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          },
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
-        ],
-        "step13": {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
-        },
-        "step14": [
+        "valueStep4": [
           "[Lorg.openl.generated.spreadsheetresults.Spr1;",
           [
             {
@@ -4292,7 +4345,23 @@
             }
           ]
         ],
-        "step15": [
+        "valueStep1": 1.0,
+        "valueStep2": {
+          "valueStep1": 1.0,
+          "valueStep12": false
+        },
+        "valueStep5": [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ],
+        "valueStep6": [
           "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
           [
             [
@@ -4313,166 +4382,181 @@
             ]
           ]
         ],
-        "step16": {
+        "valueStep7": [
+          "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ],
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ]
+        ],
+        "valueStep8": [
+          {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "step1": 1.0
+          },
+          {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "step1": 1.0
+          }
+        ],
+        "valueStep9": [
+          [
+            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ],
+          [
+            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ]
+        ],
+        "valueStep10": [
+          "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ],
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ]
+        ],
+        "valueStep11": [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ],
+        "valueStep13": {
+          "@class": "org.openl.generated.spreadsheetresults.Spr1",
+          "step1": 1.0
+        },
+        "valueStep14": [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ],
+        "valueStep15": [
+          "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ],
+            [
+              {
+                "step1": 1.0
+              },
+              {
+                "step1": 1.0
+              }
+            ]
+          ]
+        ],
+        "valueStep16": {
+          "@class": "java.util.HashMap",
           "key": {
             "@class": "org.openl.generated.spreadsheetresults.Spr1",
             "step1": 1.0
           }
         },
-        "step17": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
+        "valueStep17": [
+          "java.util.ArrayList",
+          [
+            {
+              "@class": "org.openl.generated.spreadsheetresults.Spr1",
+              "step1": 1.0
+            }
+          ]
         ],
-        "step18": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
+        "valueStep18": [
+          "java.util.ArrayList",
+          [
+            {
+              "@class": "org.openl.generated.spreadsheetresults.Spr1",
+              "step1": 1.0
+            }
+          ]
         ],
-        "step19": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
-          }
+        "valueStep19": [
+          "java.util.HashSet",
+          [
+            {
+              "@class": "org.openl.generated.spreadsheetresults.Spr1",
+              "step1": 1.0
+            }
+          ]
         ],
-        "step20": {
-          "step1": 1.0
-        }
+        "valueStep20": {
+          "valueStep1": 1.0,
+          "valueStep12": false
+        },
+        "valueStep12": false
       }
     ]
   ],
   "step11": [
     {
-      "@class": "org.openl.generated.spreadsheetresults.Spr",
-      "step1": 1.0,
-      "step2": {
-        "step1": 1.0
-      },
-      "step3": [
-        1.0,
-        2.0
-      ],
-      "step4": [
-        {
-          "step1": 1.0
-        },
-        {
-          "step1": 1.0
-        }
-      ],
-      "step5": [
-        {
-          "step1": 1.0
-        },
-        {
-          "step1": 1.0
-        }
-      ],
-      "step6": [
+      "valueStep3": [
+        "[Ljava.lang.Double;",
         [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
-        ],
-        [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
+          1.0,
+          2.0
         ]
       ],
-      "step7": [
-        [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
-        ],
-        [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
-        ]
-      ],
-      "step8": [
-        {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
-        },
-        {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
-        }
-      ],
-      "step9": [
-        [
-          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ]
-        ],
-        [
-          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ]
-        ]
-      ],
-      "step10": [
-        [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
-        ],
-        [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
-        ]
-      ],
-      "step11": [
-        {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
-        },
-        {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
-        }
-      ],
-      "step13": {
-        "@class": "org.openl.generated.spreadsheetresults.Spr1",
-        "step1": 1.0
-      },
-      "step14": [
+      "valueStep4": [
         "[Lorg.openl.generated.spreadsheetresults.Spr1;",
         [
           {
@@ -4483,7 +4567,23 @@
           }
         ]
       ],
-      "step15": [
+      "valueStep1": 1.0,
+      "valueStep2": {
+        "valueStep1": 1.0,
+        "valueStep12": false
+      },
+      "valueStep5": [
+        "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+        [
+          {
+            "step1": 1.0
+          },
+          {
+            "step1": 1.0
+          }
+        ]
+      ],
+      "valueStep6": [
         "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
         [
           [
@@ -4504,163 +4604,178 @@
           ]
         ]
       ],
-      "step16": {
+      "valueStep7": [
+        "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
+        [
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ],
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ]
+      ],
+      "valueStep8": [
+        {
+          "@class": "org.openl.generated.spreadsheetresults.Spr1",
+          "step1": 1.0
+        },
+        {
+          "@class": "org.openl.generated.spreadsheetresults.Spr1",
+          "step1": 1.0
+        }
+      ],
+      "valueStep9": [
+        [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ],
+        [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ]
+      ],
+      "valueStep10": [
+        "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
+        [
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ],
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ]
+      ],
+      "valueStep11": [
+        "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+        [
+          {
+            "step1": 1.0
+          },
+          {
+            "step1": 1.0
+          }
+        ]
+      ],
+      "valueStep13": {
+        "@class": "org.openl.generated.spreadsheetresults.Spr1",
+        "step1": 1.0
+      },
+      "valueStep14": [
+        "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+        [
+          {
+            "step1": 1.0
+          },
+          {
+            "step1": 1.0
+          }
+        ]
+      ],
+      "valueStep15": [
+        "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
+        [
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ],
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ]
+      ],
+      "valueStep16": {
+        "@class": "java.util.HashMap",
         "key": {
           "@class": "org.openl.generated.spreadsheetresults.Spr1",
           "step1": 1.0
         }
       },
-      "step17": [
-        {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
-        }
+      "valueStep17": [
+        "java.util.ArrayList",
+        [
+          {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "step1": 1.0
+          }
+        ]
       ],
-      "step18": [
-        {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
-        }
+      "valueStep18": [
+        "java.util.ArrayList",
+        [
+          {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "step1": 1.0
+          }
+        ]
       ],
-      "step19": [
-        {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
-        }
+      "valueStep19": [
+        "java.util.HashSet",
+        [
+          {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "step1": 1.0
+          }
+        ]
       ],
-      "step20": {
-        "step1": 1.0
-      }
+      "valueStep20": {
+        "valueStep1": 1.0,
+        "valueStep12": false
+      },
+      "valueStep12": false
     },
     {
-      "@class": "org.openl.generated.spreadsheetresults.Spr",
-      "step1": 1.0,
-      "step2": {
-        "step1": 1.0
-      },
-      "step3": [
-        1.0,
-        2.0
-      ],
-      "step4": [
-        {
-          "step1": 1.0
-        },
-        {
-          "step1": 1.0
-        }
-      ],
-      "step5": [
-        {
-          "step1": 1.0
-        },
-        {
-          "step1": 1.0
-        }
-      ],
-      "step6": [
+      "valueStep3": [
+        "[Ljava.lang.Double;",
         [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
-        ],
-        [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
+          1.0,
+          2.0
         ]
       ],
-      "step7": [
-        [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
-        ],
-        [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
-        ]
-      ],
-      "step8": [
-        {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
-        },
-        {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
-        }
-      ],
-      "step9": [
-        [
-          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ]
-        ],
-        [
-          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
-          [
-            {
-              "step1": 1.0
-            },
-            {
-              "step1": 1.0
-            }
-          ]
-        ]
-      ],
-      "step10": [
-        [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
-        ],
-        [
-          {
-            "step1": 1.0
-          },
-          {
-            "step1": 1.0
-          }
-        ]
-      ],
-      "step11": [
-        {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
-        },
-        {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
-        }
-      ],
-      "step13": {
-        "@class": "org.openl.generated.spreadsheetresults.Spr1",
-        "step1": 1.0
-      },
-      "step14": [
+      "valueStep4": [
         "[Lorg.openl.generated.spreadsheetresults.Spr1;",
         [
           {
@@ -4671,7 +4786,23 @@
           }
         ]
       ],
-      "step15": [
+      "valueStep1": 1.0,
+      "valueStep2": {
+        "valueStep1": 1.0,
+        "valueStep12": false
+      },
+      "valueStep5": [
+        "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+        [
+          {
+            "step1": 1.0
+          },
+          {
+            "step1": 1.0
+          }
+        ]
+      ],
+      "valueStep6": [
         "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
         [
           [
@@ -4692,33 +4823,168 @@
           ]
         ]
       ],
-      "step16": {
+      "valueStep7": [
+        "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
+        [
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ],
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ]
+      ],
+      "valueStep8": [
+        {
+          "@class": "org.openl.generated.spreadsheetresults.Spr1",
+          "step1": 1.0
+        },
+        {
+          "@class": "org.openl.generated.spreadsheetresults.Spr1",
+          "step1": 1.0
+        }
+      ],
+      "valueStep9": [
+        [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ],
+        [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ]
+      ],
+      "valueStep10": [
+        "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
+        [
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ],
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ]
+      ],
+      "valueStep11": [
+        "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+        [
+          {
+            "step1": 1.0
+          },
+          {
+            "step1": 1.0
+          }
+        ]
+      ],
+      "valueStep13": {
+        "@class": "org.openl.generated.spreadsheetresults.Spr1",
+        "step1": 1.0
+      },
+      "valueStep14": [
+        "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+        [
+          {
+            "step1": 1.0
+          },
+          {
+            "step1": 1.0
+          }
+        ]
+      ],
+      "valueStep15": [
+        "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
+        [
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ],
+          [
+            {
+              "step1": 1.0
+            },
+            {
+              "step1": 1.0
+            }
+          ]
+        ]
+      ],
+      "valueStep16": {
+        "@class": "java.util.HashMap",
         "key": {
           "@class": "org.openl.generated.spreadsheetresults.Spr1",
           "step1": 1.0
         }
       },
-      "step17": [
-        {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
-        }
+      "valueStep17": [
+        "java.util.ArrayList",
+        [
+          {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "step1": 1.0
+          }
+        ]
       ],
-      "step18": [
-        {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
-        }
+      "valueStep18": [
+        "java.util.ArrayList",
+        [
+          {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "step1": 1.0
+          }
+        ]
       ],
-      "step19": [
-        {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
-        }
+      "valueStep19": [
+        "java.util.HashSet",
+        [
+          {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "step1": 1.0
+          }
+        ]
       ],
-      "step20": {
-        "step1": 1.0
-      }
+      "valueStep20": {
+        "valueStep1": 1.0,
+        "valueStep12": false
+      },
+      "valueStep12": false
     }
   ],
   "step13": {
@@ -4820,29 +5086,33 @@
     "step10": [
       [
         {
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         },
         {
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         }
       ],
       [
         {
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         },
         {
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         }
       ]
     ],
     "step11": [
       {
-        "@class": "org.openl.generated.spreadsheetresults.Spr1",
-        "step1": 1.0
+        "valueStep1": 1.0,
+        "valueStep12": false
       },
       {
-        "@class": "org.openl.generated.spreadsheetresults.Spr1",
-        "step1": 1.0
+        "valueStep1": 1.0,
+        "valueStep12": false
       }
     ],
     "step13": {
@@ -5010,29 +5280,33 @@
         "step10": [
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ],
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ]
         ],
         "step11": [
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         "step13": {
@@ -5197,29 +5471,33 @@
         "step10": [
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ],
           [
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ]
         ],
         "step11": [
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         "step13": {
@@ -5390,29 +5668,33 @@
           "step10": [
             [
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               },
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               }
             ],
             [
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               },
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               }
             ]
           ],
           "step11": [
             {
-              "@class": "org.openl.generated.spreadsheetresults.Spr1",
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "@class": "org.openl.generated.spreadsheetresults.Spr1",
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ],
           "step13": {
@@ -5577,29 +5859,33 @@
           "step10": [
             [
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               },
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               }
             ],
             [
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               },
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               }
             ]
           ],
           "step11": [
             {
-              "@class": "org.openl.generated.spreadsheetresults.Spr1",
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "@class": "org.openl.generated.spreadsheetresults.Spr1",
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ],
           "step13": {
@@ -5766,29 +6052,33 @@
           "step10": [
             [
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               },
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               }
             ],
             [
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               },
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               }
             ]
           ],
           "step11": [
             {
-              "@class": "org.openl.generated.spreadsheetresults.Spr1",
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "@class": "org.openl.generated.spreadsheetresults.Spr1",
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ],
           "step13": {
@@ -5953,29 +6243,33 @@
           "step10": [
             [
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               },
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               }
             ],
             [
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               },
               {
-                "step1": 1.0
+                "valueStep1": 1.0,
+                "valueStep12": false
               }
             ]
           ],
           "step11": [
             {
-              "@class": "org.openl.generated.spreadsheetresults.Spr1",
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             },
             {
-              "@class": "org.openl.generated.spreadsheetresults.Spr1",
-              "step1": 1.0
+              "valueStep1": 1.0,
+              "valueStep12": false
             }
           ],
           "step13": {
@@ -6145,29 +6439,33 @@
       "step10": [
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ]
       ],
       "step11": [
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         },
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         }
       ],
       "step13": {
@@ -6335,29 +6633,33 @@
       "step10": [
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ]
       ],
       "step11": [
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         },
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         }
       ],
       "step13": {
@@ -6525,29 +6827,33 @@
       "step10": [
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ]
       ],
       "step11": [
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         },
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         }
       ],
       "step13": {
@@ -6715,29 +7021,33 @@
       "step10": [
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ],
         [
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           },
           {
-            "step1": 1.0
+            "valueStep1": 1.0,
+            "valueStep12": false
           }
         ]
       ],
       "step11": [
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         },
         {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "step1": 1.0
+          "valueStep1": 1.0,
+          "valueStep12": false
         }
       ],
       "step13": {
@@ -6806,8 +7116,8 @@
     }
   ],
   "step20": {
-    "@class": "org.openl.generated.spreadsheetresults.Spr1",
-    "step1": 1.0
+    "valueStep1": 1.0,
+    "valueStep12": false
   },
   "AAA": 0.0,
   "rowNames": [

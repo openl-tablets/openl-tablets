@@ -71,37 +71,6 @@
         }
       }
     },
-    "/mySpr": {
-      "post": {
-        "summary": "Method: mySpr(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "mySpr",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MySpr"
-            }
-          }
-        }
-      }
-    },
     "/arrSpreadsheetResultspr1": {
       "post": {
         "summary": "Method: arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
@@ -163,8 +132,39 @@
             "schema": {
               "type": "array",
               "items": {
-                "type": "object"
+                "$ref": "#/definitions/AnySpreadsheetResult"
               }
+            }
+          }
+        }
+      }
+    },
+    "/mySpr": {
+      "post": {
+        "summary": "Method: mySpr(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "",
+        "operationId": "mySpr",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MySpr"
             }
           }
         }
@@ -172,6 +172,184 @@
     }
   },
   "definitions": {
+    "AnySpreadsheetResult": {
+      "type": "object",
+      "properties": {
+        "value3Step3": {
+          "type": "number",
+          "format": "double"
+        },
+        "value4Step3": {
+          "type": "number",
+          "format": "double"
+        },
+        "valueStep3": {
+          "type": "object"
+        },
+        "value3Step4": {
+          "type": "number",
+          "format": "double"
+        },
+        "value4Step4": {
+          "type": "number",
+          "format": "double"
+        },
+        "valueStep4": {
+          "type": "object"
+        },
+        "value1Step1": {
+          "type": "number",
+          "format": "double"
+        },
+        "value2Step1": {
+          "type": "number",
+          "format": "double"
+        },
+        "valueStep1": {
+          "type": "object"
+        },
+        "value1Step2": {
+          "type": "number",
+          "format": "double"
+        },
+        "value2Step2": {
+          "type": "number",
+          "format": "double"
+        },
+        "valueStep2": {
+          "$ref": "#/definitions/AnySpreadsheetResult"
+        },
+        "valueStep5": {
+          "type": "object"
+        },
+        "valueStep6": {
+          "type": "object"
+        },
+        "valueStep7": {
+          "type": "object"
+        },
+        "valueStep8": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "xml": {
+              "name": "valueStep8"
+            }
+          }
+        },
+        "valueStep9": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "xml": {
+              "name": "valueStep9"
+            }
+          }
+        },
+        "valueStep10": {
+          "type": "object"
+        },
+        "valueStep11": {
+          "type": "object"
+        },
+        "valueStep13": {
+          "type": "object"
+        },
+        "valueStep14": {
+          "type": "object"
+        },
+        "valueStep15": {
+          "type": "object"
+        },
+        "valueStep16": {
+          "type": "object"
+        },
+        "valueStep17": {
+          "type": "object"
+        },
+        "valueStep18": {
+          "type": "object"
+        },
+        "valueStep19": {
+          "type": "object"
+        },
+        "valueStep20": {
+          "$ref": "#/definitions/AnySpreadsheetResult"
+        },
+        "valueStep21": {
+          "type": "array",
+          "items": {
+            "xml": {
+              "name": "valueStep21"
+            },
+            "$ref": "#/definitions/AnySpreadsheetResult"
+          }
+        },
+        "valueStep22": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "xml": {
+              "name": "valueStep22"
+            }
+          }
+        },
+        "valueStep23": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "xml": {
+              "name": "valueStep23"
+            }
+          }
+        },
+        "valueAAA": {
+          "type": "number",
+          "format": "double"
+        },
+        "valueStep0": {
+          "type": "number",
+          "format": "double"
+        },
+        "valueStep12": {
+          "type": "boolean"
+        },
+        "rowNames": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "xml": {
+              "name": "rowNames"
+            }
+          }
+        },
+        "columnNames": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "xml": {
+              "name": "columnNames"
+            }
+          }
+        },
+        "fieldNames": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "xml": {
+              "name": "fieldNames"
+            },
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "xml": {
+        "name": "AnySpreadsheetResult",
+        "namespace": "http://spreadsheetresults.generated.openl.org"
+      }
+    },
     "Main": {
       "type": "object",
       "properties": {
@@ -260,17 +438,17 @@
               "name": "step10"
             },
             "items": {
-              "type": "object"
+              "$ref": "#/definitions/AnySpreadsheetResult"
             }
           }
         },
         "step11": {
           "type": "array",
           "items": {
-            "type": "object",
             "xml": {
               "name": "step11"
-            }
+            },
+            "$ref": "#/definitions/AnySpreadsheetResult"
           }
         },
         "step13": {
@@ -317,7 +495,7 @@
           }
         },
         "step20": {
-          "type": "object"
+          "$ref": "#/definitions/AnySpreadsheetResult"
         },
         "step21": {
           "type": "array",
@@ -474,17 +652,17 @@
               "name": "step10"
             },
             "items": {
-              "type": "object"
+              "$ref": "#/definitions/AnySpreadsheetResult"
             }
           }
         },
         "step11": {
           "type": "array",
           "items": {
-            "type": "object",
             "xml": {
               "name": "step11"
-            }
+            },
+            "$ref": "#/definitions/AnySpreadsheetResult"
           }
         },
         "step13": {
