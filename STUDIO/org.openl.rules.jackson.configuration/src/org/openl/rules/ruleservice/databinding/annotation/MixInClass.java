@@ -18,5 +18,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface MixInClass {
-    Class<?>[] value();
+    String[] value();
 }

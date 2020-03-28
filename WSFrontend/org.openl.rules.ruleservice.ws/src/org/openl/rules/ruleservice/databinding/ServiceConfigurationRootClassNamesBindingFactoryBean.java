@@ -12,6 +12,7 @@ import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
+import org.openl.rules.ruleservice.databinding.annotation.JacksonBindingConfigurationUtils;
 import org.openl.rules.variation.ArgumentReplacementVariation;
 import org.openl.rules.variation.ComplexVariation;
 import org.openl.rules.variation.DeepCloningVariation;
@@ -47,11 +48,13 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
     }
 
     private void checkXmlSeeAlso(Set<String> rootClassNames, Class<?> clazz) {
-        XmlSeeAlso xmlSeeAlso = clazz.getAnnotation(XmlSeeAlso.class);
-        if (xmlSeeAlso != null) {
-            for (Class<?> cls : xmlSeeAlso.value()) {
-                rootClassNames.add(cls.getName());
-                checkXmlSeeAlso(rootClassNames, cls);
+        if (!JacksonBindingConfigurationUtils.isConfiguration(clazz)) {
+            XmlSeeAlso xmlSeeAlso = clazz.getAnnotation(XmlSeeAlso.class);
+            if (xmlSeeAlso != null) {
+                for (Class<?> cls : xmlSeeAlso.value()) {
+                    rootClassNames.add(cls.getName());
+                    checkXmlSeeAlso(rootClassNames, cls);
+                }
             }
         }
     }

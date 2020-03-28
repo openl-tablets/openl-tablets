@@ -1027,6 +1027,11 @@
                 <artifactId>swagger-jaxrs</artifactId>
                 <version>1.6.0</version>
             </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>1.6.0</version>
+            </dependency>
             <!-- Apache CXF Runtime CORBA Binding -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
@@ -1041,6 +1046,11 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
+                <version>${com.fasterxml.jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
                 <version>${com.fasterxml.jackson.version}</version>
             </dependency>
             <dependency>
@@ -1580,6 +1590,11 @@
                 <artifactId>org.openl.rules.ruleservice.ws</artifactId>
                 <type>war</type>
                 <scope>runtime</scope>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.ws.annotation</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

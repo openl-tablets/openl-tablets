@@ -1,18 +1,23 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.util.HashMap;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
+import org.apache.cxf.jaxrs.model.wadl.WadlGenerator;
 import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
+import org.openl.rules.ruleservice.databinding.annotation.JacksonBindingConfigurationUtils;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer;
 import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerHackContainerRequestFilter;
@@ -44,7 +49,9 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
     private final Logger log = LoggerFactory.getLogger(JAXRSRuleServicePublisher.class);
 
-    private Map<OpenLService, Server> runningServices = new HashMap<>();
+    private Map<OpenLService, Server> runningServices = new ConcurrentHashMap<>();
+    private Set<String> noWadlServices = new ConcurrentSkipListSet<>();
+
     private boolean storeLogDataEnabled = false;
     private boolean swaggerPrettyPrint = false;
 
@@ -57,6 +64,9 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
     @Autowired
     private ObjectFactory<StoreLogDataFeature> storeLoggingFeatureObjectFactory;
+
+    @Autowired
+    private ObjectFactory<WadlGenerator> wadlGeneratorObjectFactory;
 
     public boolean isStoreLogDataEnabled() {
         return storeLogDataEnabled;
@@ -82,6 +92,14 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     public void setStoreLoggingFeatureObjectFactory(
             ObjectFactory<StoreLogDataFeature> storeLoggingFeatureObjectFactory) {
         this.storeLoggingFeatureObjectFactory = storeLoggingFeatureObjectFactory;
+    }
+
+    public ObjectFactory<WadlGenerator> getWadlGeneratorObjectFactory() {
+        return wadlGeneratorObjectFactory;
+    }
+
+    public void setWadlGeneratorObjectFactory(ObjectFactory<WadlGenerator> wadlGeneratorObjectFactory) {
+        this.wadlGeneratorObjectFactory = wadlGeneratorObjectFactory;
     }
 
     public void setSwaggerPrettyPrint(boolean swaggerPrettyPrint) {
@@ -143,13 +161,25 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             Swagger2Feature swagger2Feature = getSwagger2Feature(service, serviceClass);
             svrFactory.getFeatures().add(swagger2Feature);
 
+            // Wadl Support
+            WadlGenerator wadlGenerator = getWadlGeneratorObjectFactory().getObject();
+            Field extraClassesField = WadlGenerator.class.getDeclaredField("extraClasses");
+            extraClassesField.setAccessible(true);
+            List<Class<?>> extraClasses = (List<Class<?>>) extraClassesField.get(wadlGenerator);
+            boolean noWadl = extraClasses.stream().anyMatch(JacksonBindingConfigurationUtils::isConfiguration);
+            if (!noWadl) {
+                ((List) svrFactory.getProviders()).add(wadlGenerator);
+            }
+
             svrFactory.setResourceProvider(serviceClass, new SingletonResourceProvider(proxyServiceBean));
             ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
             try {
                 svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
                 Server wsServer = svrFactory.create();
-
                 runningServices.put(service, wsServer);
+                if (noWadl) {
+                    noWadlServices.add(service.getName());
+                }
                 log.info("Service '{}' has been exposed with URL '{}'.", service.getName(), url);
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
@@ -201,7 +231,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     public OpenLService getServiceByName(String serviceName) {
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
         for (OpenLService service : runningServices.keySet()) {
-            if (service.getName().equals(serviceName)) {
+            if (Objects.equals(service.getName(), serviceName)) {
                 return service;
             }
         }
@@ -220,6 +250,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             SwaggerStaticFieldsWorkaround.reset();
             server.destroy();
             runningServices.remove(service);
+            noWadlServices.remove(service.getName());
             log.info("Service '{}' has been undeployed successfully.", service.getName());
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()),
@@ -241,5 +272,9 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             url = REST_PREFIX + url;
         }
         return url;
+    }
+
+    public Set<String> listNoWadlServices() {
+        return noWadlServices;
     }
 }

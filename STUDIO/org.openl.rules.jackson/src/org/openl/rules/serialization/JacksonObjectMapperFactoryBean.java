@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 
-import org.openl.rules.ruleservice.databinding.annotation.BindingConfigurationUtils;
+import org.openl.rules.ruleservice.databinding.annotation.JacksonBindingConfigurationUtils;
+import org.openl.rules.ruleservice.databinding.annotation.MixInClassFor;
 import org.openl.rules.ruleservice.databinding.annotation.MixInClass;
-import org.openl.rules.ruleservice.databinding.annotation.MixInRulesClass;
 import org.openl.rules.serialization.jackson.Mixin;
 import org.openl.rules.serialization.jackson.org.openl.rules.variation.ArgumentReplacementVariationType;
 import org.openl.rules.serialization.jackson.org.openl.rules.variation.ComplexVariationType;
@@ -106,7 +106,7 @@ public class JacksonObjectMapperFactoryBean {
                 for (String className : getOverrideTypes()) {
                     try {
                         Class<?> clazz = loadClass(className);
-                        if (BindingConfigurationUtils.isConfiguration(clazz)) {
+                        if (JacksonBindingConfigurationUtils.isConfiguration(clazz)) {
                             configurationClasses.add(clazz);
                         } else {
                             classes.add(clazz);
@@ -120,11 +120,11 @@ public class JacksonObjectMapperFactoryBean {
                     }
                 }
                 for (Class<?> clazz : configurationClasses) {
-                    MixInClass mixInClass = clazz.getAnnotation(MixInClass.class);
+                    MixInClassFor mixInClass = clazz.getAnnotation(MixInClassFor.class);
                     if (mixInClass != null) {
                         Arrays.stream(mixInClass.value()).forEach(forClass -> mapper.addMixIn(forClass, clazz));
                     }
-                    MixInRulesClass mixInRulesClass = clazz.getAnnotation(MixInRulesClass.class);
+                    MixInClass mixInRulesClass = clazz.getAnnotation(MixInClass.class);
                     if (mixInRulesClass != null) {
                         for (String className : mixInRulesClass.value()) {
                             try {

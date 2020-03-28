@@ -12,11 +12,11 @@ package org.openl.rules.ruleservice.databinding.annotation;
 
 import java.lang.annotation.Annotation;
 
-public final class BindingConfigurationUtils {
+public final class JacksonBindingConfigurationUtils {
 
-    private static final Class<?>[] CONFIGURATION_ANNOTATIONS = { MixInClass.class, MixInRulesClass.class };
+    private static final Class<?>[] CONFIGURATION_ANNOTATIONS = { MixInClassFor.class, MixInClass.class };
 
-    private BindingConfigurationUtils() {
+    private JacksonBindingConfigurationUtils() {
     }
 
     @SuppressWarnings("unchecked")
