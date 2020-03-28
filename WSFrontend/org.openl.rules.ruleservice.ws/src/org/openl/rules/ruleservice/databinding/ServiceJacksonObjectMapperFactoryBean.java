@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.databinding;
 
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.OpenLServiceHolder;
 import org.openl.rules.ruleservice.databinding.jackson.NonDefaultMixIn;
@@ -42,6 +43,12 @@ public class ServiceJacksonObjectMapperFactoryBean extends AbstractFactoryBean<O
                             NonDefaultMixIn.class);
                     }
                 }
+            }
+            if (openLService.getOpenClass() instanceof XlsModuleOpenClass) {
+                objectMapper.addMixIn(((XlsModuleOpenClass) openLService.getOpenClass())
+                    .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                    .toCustomSpreadsheetResultOpenClass()
+                    .getBeanClass(), NonDefaultMixIn.class);
             }
         }
         return objectMapper;

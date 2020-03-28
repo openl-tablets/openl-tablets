@@ -350,7 +350,16 @@
     </xs:schema>
     <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://jaxb.dev.java.net/array" xmlns:tns="http://spreadsheetresults.generated.openl.org" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://spreadsheetresults.generated.openl.org" version="1.0">
         <xs:import namespace="http://jaxb.dev.java.net/array"/>
+        <xs:element name="AnySpreadsheetResult" type="tns:AnySpreadsheetResult"/>
         <xs:element name="Calc" type="tns:Calc"/>
+        <xs:complexType name="AnySpreadsheetResult">
+            <xs:sequence>
+                <xs:element minOccurs="0" name="step1" type="xs:double"/>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="rowNames" type="xs:string"/>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="columnNames" type="xs:string"/>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="fieldNames" type="ns1:stringArray"/>
+            </xs:sequence>
+        </xs:complexType>
         <xs:complexType name="Calc">
             <xs:sequence>
                 <xs:element minOccurs="0" name="step1" type="xs:double"/>
@@ -379,6 +388,13 @@
             </xs:sequence>
         </xs:complexType>
     </xs:schema>
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jaxb.dev.java.net/array" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://jaxb.dev.java.net/array" version="1.0">
+        <xs:complexType final="#all" name="stringArray">
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:schema>
     <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://context.rules.openl.org" xmlns:ns1="http://enumeration.rules.openl.org" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://context.rules.openl.org" version="1.0">
         <xs:import namespace="http://enumeration.rules.openl.org"/>
         <xs:complexType name="defaultRulesRuntimeContext">
@@ -395,13 +411,6 @@
                 <xs:element minOccurs="0" name="requestDate" type="xs:dateTime"/>
                 <xs:element minOccurs="0" name="usRegion" type="ns1:usRegionsEnum"/>
                 <xs:element minOccurs="0" name="usState" type="ns1:usStatesEnum"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:schema>
-    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jaxb.dev.java.net/array" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://jaxb.dev.java.net/array" version="1.0">
-        <xs:complexType final="#all" name="stringArray">
-            <xs:sequence>
-                <xs:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:schema>

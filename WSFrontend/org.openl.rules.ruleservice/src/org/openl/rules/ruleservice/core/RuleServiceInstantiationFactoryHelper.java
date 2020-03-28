@@ -22,7 +22,7 @@ import org.objectweb.asm.Type;
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
-import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAdvice;
@@ -286,8 +286,10 @@ public final class RuleServiceInstantiationFactoryHelper {
                 if (type instanceof CustomSpreadsheetResultOpenClass) {
                     Class<?> t = ((CustomSpreadsheetResultOpenClass) type).getBeanClass();
                     return dim > 0 ? Array.newInstance(t, dim).getClass() : t;
-                } else if (ClassUtils.isAssignable(type.getInstanceClass(), SpreadsheetResult.class)) {
-                    return dim > 0 ? Array.newInstance(Object.class, dim).getClass() : Object.class;
+                } else if (type instanceof SpreadsheetResultOpenClass) {
+                    Class<?> t = ((SpreadsheetResultOpenClass) type).toCustomSpreadsheetResultOpenClass()
+                        .getBeanClass();
+                    return dim > 0 ? Array.newInstance(t, dim).getClass() : t;
                 } else {
                     return returnType.getInstanceClass();
                 }
@@ -363,8 +365,9 @@ public final class RuleServiceInstantiationFactoryHelper {
                         t = Array.newInstance(t, new int[dim]).getClass();
                     }
                     ret.put(method, Pair.of(t, Boolean.FALSE));
-                } else if (ClassUtils.isAssignable(type.getInstanceClass(), SpreadsheetResult.class)) {
-                    Class<?> t = Object.class;
+                } else if (type instanceof SpreadsheetResultOpenClass) {
+                    Class<?> t = ((SpreadsheetResultOpenClass) type).toCustomSpreadsheetResultOpenClass()
+                        .getBeanClass();
                     if (dim > 0) {
                         t = Array.newInstance(t, new int[dim]).getClass();
                     }

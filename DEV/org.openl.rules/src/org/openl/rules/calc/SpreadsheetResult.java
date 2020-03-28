@@ -376,7 +376,7 @@ public class SpreadsheetResult implements Serializable {
                 return ((CustomSpreadsheetResultOpenClass) openClass).createBean(this);
             } else {
                 throw new IllegalStateException(
-                    String.format("Custom spreadsheet type with name '%s' is not found in the module.",
+                    String.format("Custom spreadsheet type '%s' is not found in the module.",
                         getCustomSpreadsheetResultOpenClass().getName()));
             }
         } else {
@@ -452,7 +452,19 @@ public class SpreadsheetResult implements Serializable {
         return values;
     }
 
-    public static Object convertSpreadsheetResult(XlsModuleOpenClass module, Object v) {
+    private static Object convertSpreadsheetResult(XlsModuleOpenClass module, Object v) {
+        if (v instanceof SpreadsheetResult) {
+            SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
+            if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() == null) {
+                return convertSpreadsheetResult(module,
+                    v,
+                    module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                        .toCustomSpreadsheetResultOpenClass()
+                        .getBeanClass());
+            } else {
+                return convertSpreadsheetResult(module, v, null);
+            }
+        }
         return convertSpreadsheetResult(module, v, null);
     }
 
@@ -499,11 +511,17 @@ public class SpreadsheetResult implements Serializable {
                 Object tmpArray = Array
                     .newInstance(toType != null && toType.isArray() ? toType.getComponentType() : Object.class, len);
                 for (int i = 0; i < len; i++) {
-                    Array.set(tmpArray,
-                        i,
+                    try {
+                        Array.set(tmpArray,
+                            i,
+                            convertSpreadsheetResult(module,
+                                Array.get(v, i),
+                                toType != null && toType.isArray() ? toType.getComponentType() : null));
+                    } catch (Exception e) {
                         convertSpreadsheetResult(module,
                             Array.get(v, i),
-                            toType != null && toType.isArray() ? toType.getComponentType() : null));
+                            toType != null && toType.isArray() ? toType.getComponentType() : null);
+                    }
                 }
                 if (toType != null && toType.isArray() && !Object.class.equals(toType.getComponentType())) {
                     return tmpArray;
@@ -534,7 +552,7 @@ public class SpreadsheetResult implements Serializable {
                 Map.class) || ClassUtils.isAssignable(t, Collection.class)) {
                 Object newArray = Array.newInstance(componentType, len);
                 for (int i = 0; i < len; i++) {
-                    Array.set(newArray, i, convertSpreadsheetResult(module, Array.get(v, i)));
+                    Array.set(newArray, i, convertSpreadsheetResult(module, Array.get(v, i), componentType));
                 }
                 return newArray;
             } else {
@@ -545,6 +563,14 @@ public class SpreadsheetResult implements Serializable {
             SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
             if (Map.class == toType) {
                 return spreadsheetResult.toMap(module);
+            } else if (toType == null && spreadsheetResult
+                .getCustomSpreadsheetResultOpenClass() == null || toType != null && toType == module
+                    .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                    .toCustomSpreadsheetResultOpenClass()
+                    .getBeanClass()) {
+                return module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                    .toCustomSpreadsheetResultOpenClass()
+                    .createBean(spreadsheetResult);
             } else {
                 return spreadsheetResult.toPlain(module);
             }

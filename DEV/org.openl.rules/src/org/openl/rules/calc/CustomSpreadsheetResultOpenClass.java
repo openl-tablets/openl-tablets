@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.IntStream;
@@ -317,6 +316,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         CustomSpreadsheetResultOpenClass.class.getTypeName(),
                         openClass.getName()));
                 }
+            } else if (type instanceof SpreadsheetResultOpenClass) {
+                IOpenClass t = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes();
+                if (dim > 0) {
+                    t = t.getArrayType(dim);
+                }
+                fieldMap().put(fieldName, new CustomSpreadsheetResultField(module, fieldName, t));
             }
         }
     }
@@ -370,7 +375,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     }
 
     public Object createBean(SpreadsheetResult spreadsheetResult) {
-        if (!this.getName().equals(spreadsheetResult.getCustomSpreadsheetResultOpenClass().getName())) {
+        if (!this.getName().equals(spreadsheetResult.getCustomSpreadsheetResultOpenClass().getName()) && !Objects
+            .equals(
+                module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                    .toCustomSpreadsheetResultOpenClass()
+                    .getName(),
+                getName())) {
             throw new IllegalArgumentException("Invalid spreadsheet result.");
         }
         Class<?> clazz = getBeanClass();
@@ -552,27 +562,31 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         dim++;
                         t = t.getComponentClass();
                     }
-                    if (t instanceof CustomSpreadsheetResultOpenClass) {
-                        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) t;
-                        CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) this.getModule()
-                            .findType(customSpreadsheetResultOpenClass.getName());
+                    if (t instanceof CustomSpreadsheetResultOpenClass || t instanceof SpreadsheetResultOpenClass) {
+                        CustomSpreadsheetResultOpenClass csroc;
                         String fieldClsName;
-                        if (csroc != null) {
-                            fieldClsName = csroc.getBeanClassName();
-                            // Loads field bean class to the same class loader
-                            csroc.generateBeanClass();
+                        if (t instanceof CustomSpreadsheetResultOpenClass) {
+                            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) t;
+                            csroc = (CustomSpreadsheetResultOpenClass) getModule()
+                                .findType(customSpreadsheetResultOpenClass.getName());
+                            if (csroc != null) {
+                                fieldClsName = csroc.getBeanClassName();
+                                csroc.generateBeanClass();
+                            } else {
+                                fieldClsName = getModule().getSpreadsheetResultPackage() + ".AnySpreadsheetResult";
+                                getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                                    .toCustomSpreadsheetResultOpenClass()
+                                    .generateBeanClass();
+                            }
                         } else {
-                            fieldClsName = Object.class.getName();
+                            fieldClsName = getModule().getSpreadsheetResultPackage() + ".AnySpreadsheetResult";
+                            getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                                .toCustomSpreadsheetResultOpenClass()
+                                .generateBeanClass();
                         }
                         typeName = dim > 0 ? IntStream.range(0, dim)
                             .mapToObj(e -> "[")
                             .collect(joining()) + "L" + fieldClsName + ";" : fieldClsName;
-                    } else if (t instanceof SpreadsheetResultOpenClass) {
-                        if (dim > 0) {
-                            typeName = Array.newInstance(Object.class, new int[dim]).getClass().getName();
-                        } else {
-                            typeName = Object.class.getName();
-                        }
                     } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t) || NullOpenClass.the
                         .equals(t)) {
                         continue; // IGNORE VOID FIELDS
@@ -641,17 +655,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         if (name.length() > Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) {
                             name = name.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
                         }
-                    } else {
-                        throw new IllegalStateException(
-                            String.format("Prefix '%s' is required", Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX));
+                        String firstLetterUppercaseName = Character
+                            .toUpperCase(name.charAt(0)) + (name.length() > 1 ? name.substring(1) : StringUtils.EMPTY);
+                        if (getModule()
+                            .findType(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + firstLetterUppercaseName) == null) {
+                            name = firstLetterUppercaseName;
+                        }
                     }
-                    String firstLetterUppercaseName = Character
-                        .toUpperCase(name.charAt(0)) + (name.length() > 1 ? name.substring(1) : StringUtils.EMPTY);
-                    if (getModule()
-                        .findType(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + firstLetterUppercaseName) == null) {
-                        name = firstLetterUppercaseName;
-                    }
-
                     beanClassName = getPackageName() + "." + name;
                 }
             }

@@ -389,9 +389,9 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         // TotalAssets2
         usedNodes = getMetaInfo(miscAssets.getMetaInfoReader(), miscAssets.getGridTable().getCell(1, 3)).getUsedNodes();
         assertEquals(3, usedNodes.size());
-        assertEquals("Cell type: Object", usedNodes.get(0).getDescription()); // =
+        assertEquals("Cell type: Long", usedNodes.get(0).getDescription()); // =
         assertEquals("SpreadsheetResult totalAssets2", usedNodes.get(1).getDescription()); // totalAssets2
-        assertEquals("Spreadsheet\nObject $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
+        assertEquals("Spreadsheet TotalAssets\nLong $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
         // (other spreadsheet)
     }
 

@@ -9,12 +9,17 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.INodeBinder;
-import org.openl.binding.exception.*;
+import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.exception.AmbiguousTypeException;
+import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.DuplicatedTypeException;
+import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -82,7 +87,17 @@ public class BindingContextDelegator implements IBindingContextDelegator {
 
     @Override
     public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
-        return delegate.findClosestClass(openClass1, openClass2);
+        IOpenClass openClass = delegate.findClosestClass(openClass1, openClass2);
+        if (openClass == null) {
+            return null;
+        }
+        int dim = 0;
+        while (openClass.isArray()) {
+            openClass = openClass.getComponentClass();
+            dim++;
+        }
+        openClass = this.findType(ISyntaxConstants.THIS_NAMESPACE, openClass.getName());
+        return dim > 0 ? openClass.getArrayType(dim) : openClass;
     }
 
     public IBindingContext getDelegate() {

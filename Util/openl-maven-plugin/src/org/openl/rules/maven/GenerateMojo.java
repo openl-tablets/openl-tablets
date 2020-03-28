@@ -8,6 +8,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +23,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.OpenL;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.maven.decompiler.BytecodeDecompiler;
 import org.openl.rules.maven.gen.GenerateInterface;
@@ -282,6 +284,12 @@ public final class GenerateMojo extends BaseOpenLMojo {
 
             if (generateSpreadsheetResultBeans) {
                 writeCustomSpreadsheetResultBeans(openLRules.getTypes());
+                if (openLRules.getOpenClass() instanceof XlsModuleOpenClass) {
+                    CustomSpreadsheetResultOpenClass spreadsheetResultOpenClass = ((XlsModuleOpenClass) openLRules
+                        .getOpenClass()).getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                            .toCustomSpreadsheetResultOpenClass();
+                    writeCustomSpreadsheetResultBeans(Collections.singleton(spreadsheetResultOpenClass));
+                }
             }
 
             // Generate interface is optional.

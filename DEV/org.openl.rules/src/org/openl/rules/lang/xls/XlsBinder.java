@@ -631,6 +631,14 @@ public class XlsBinder implements IOpenBinder {
                     }
                 }
             }
+            module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                .toCustomSpreadsheetResultOpenClass()
+                .getFields()
+                .values()
+                .forEach(IOpenField::getType);
+            module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                .toCustomSpreadsheetResultOpenClass()
+                .generateBeanClass();
         }
 
         if (rulesModuleBindingContext.isExecutionMode()) {
