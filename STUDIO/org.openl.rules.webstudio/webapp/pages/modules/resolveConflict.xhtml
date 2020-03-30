@@ -37,14 +37,14 @@
             <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
               <h:outputText value="Your version:" title="#{mergeConflictBean.yourBranch}" rendered="#{mergeConflictBean.merging}"/>
               <h:outputText value="Your version:" rendered="#{not mergeConflictBean.merging}"/>
-              <h:outputText value="#{mergeConflictBean.yourCommit}"/>
+              <h:outputText value="#{mergeConflictBean.yourRevision}" title="#{mergeConflictBean.yourCommit}"/>
 
               <h:outputText value="Their version:" title="#{mergeConflictBean.theirBranch}" rendered="#{mergeConflictBean.merging}"/>
               <h:outputText value="Their version:" rendered="#{not mergeConflictBean.merging}"/>
-              <h:outputText value="#{mergeConflictBean.theirCommit}"/>
+              <h:outputText value="#{mergeConflictBean.theirRevision}" title="#{mergeConflictBean.theirCommit}"/>
 
               <h:outputText value="Base version:"/>
-              <h:outputText value="#{mergeConflictBean.baseCommit}"/>
+              <h:outputText value="#{mergeConflictBean.baseRevision}" title="#{mergeConflictBean.baseCommit}"/>
 
               <h:outputText value="Comment:"/>
               <h:panelGroup id="comment">
