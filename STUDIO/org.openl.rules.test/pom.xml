@@ -25,7 +25,9 @@
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
-            <scope>provided</scope>
+            <scope>test</scope>
+            <!-- Annotation classes are used in generated from Datatype Table classes.
+            To compile them without adding extra dependency in client's project "compile" scope is used -->
         </dependency>
     </dependencies>
 </project>
