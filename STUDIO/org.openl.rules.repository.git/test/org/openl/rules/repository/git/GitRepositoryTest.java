@@ -126,11 +126,11 @@ public class GitRepositoryTest {
     }
 
     @After
-    public void tearDown() throws IOException {
+    public void tearDown() {
         if (repo != null) {
             repo.close();
         }
-        FileUtils.delete(root);
+        FileUtils.deleteQuietly(root);
         if (root.exists()) {
             fail("Cannot delete folder " + root);
         }
