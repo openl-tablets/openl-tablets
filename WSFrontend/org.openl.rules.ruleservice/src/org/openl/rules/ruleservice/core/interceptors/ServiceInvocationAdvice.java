@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.core.interceptors;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -28,8 +29,8 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfte
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
-import org.openl.runtime.IEngineWrapper;
 import org.openl.runtime.ASMProxyHandler;
+import org.openl.runtime.IEngineWrapper;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.slf4j.Logger;
@@ -347,6 +348,10 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                         invokeAfterMethodInvocationOnListeners(interfaceMethod, args, result);
                     }
                     result = afterInvocation(interfaceMethod, result, null, args);
+                    // repack result if arrays inside it doesn't have the returnType as interfaceMethod
+                    if (interfaceMethod.getReturnType().isArray()) {
+                        result = repackResultIfNeeded(result, interfaceMethod.getReturnType());
+                    }
                 } finally {
                     Thread.currentThread().setContextClassLoader(oldClassLoader);
                 }
@@ -382,6 +387,37 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                 log.warn(
                     "Service bean does not implement IEngineWrapper interface. Please, don't use deprecated static wrapper classes.");
             }
+        }
+    }
+
+    private Object repackResultIfNeeded(Object o, Class<?> expectedClass) {
+        Class<?> returnType = o.getClass();
+        int dim1 = 0;
+        while (returnType.isArray()) {
+            returnType = returnType.getComponentType();
+            dim1++;
+        }
+        int dim2 = 0;
+        while (expectedClass.isArray()) {
+            expectedClass = expectedClass.getComponentType();
+            dim2++;
+        }
+        if (!returnType.equals(expectedClass) && o.getClass().isArray() && expectedClass
+            .isAssignableFrom(returnType) && dim1 == dim2) {
+            int n = Array.getLength(o);
+            Object result = Array.newInstance(expectedClass, n);
+            for (int i = 0; i < n; i++) {
+                Object from = Array.get(o, i);
+                if (from != null && from.getClass().isArray()) {
+                    Object to = repackResultIfNeeded(from, expectedClass);
+                    Array.set(result, i, to);
+                } else {
+                    Array.set(result, i, from);
+                }
+            }
+            return result;
+        } else {
+            return o;
         }
     }
 

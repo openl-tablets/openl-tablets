@@ -139,6 +139,40 @@
         }
       }
     },
+    "/arrObjSpreadsheetResult": {
+      "post": {
+        "summary": "Method: arrObjSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "",
+        "operationId": "arrObjSpreadsheetResult",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
     "/mySpr": {
       "post": {
         "summary": "Method: mySpr(org.openl.rules.context.IRulesRuntimeContext)",

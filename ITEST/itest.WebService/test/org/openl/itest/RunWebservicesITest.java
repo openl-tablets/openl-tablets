@@ -83,6 +83,9 @@ public class RunWebservicesITest {
         client.post("/REST/deployment3/simple3/arrSpreadsheetResultspr1",
             "/simple3_main.req.json",
             "/simple3_arrSpreadsheetResultspr1.resp.json");
+        client.post("/REST/deployment3/simple3/arrObjSpreadsheetResult",
+            "/simple3_main.req.json",
+            "/simple3_arrObjSpreadsheetResult.resp.json");
     }
 
     @Test
