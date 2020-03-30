@@ -5,6 +5,8 @@ import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.ui.filters.AGridFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class TableValueFilter extends AGridFilter {
 
@@ -53,7 +55,15 @@ class TableValueFilter extends AGridFilter {
             Object v = res.getValue(row, col);
             cell.setObjectValue(v);
             if (v != null) {
-                cell.setFormattedValue(String.valueOf(v));
+                try {
+                    cell.setFormattedValue(String.valueOf(v));
+                } catch (Throwable e) {
+                    Logger log = LoggerFactory.getLogger(getClass());
+                    log.debug(e.getMessage(), e);
+                    cell.setFormattedValue(String.format("<span style=\"color: red;\">throw '%s' exception. Cannot format '%s'</span>",
+                            e.getClass().getName(),
+                            v.getClass().getName()));
+                }
             } else {
                 cell.setFormattedValue("null");
             }

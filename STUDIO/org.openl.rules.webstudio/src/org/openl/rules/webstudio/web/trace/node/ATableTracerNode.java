@@ -27,7 +27,7 @@ public class ATableTracerNode extends SimpleTracerObject {
             Object[] clonedParams;
             try {
                 clonedParams = cloner.deepClone(params);
-            } catch (Exception ex) {
+            } catch (Throwable e) {
                 // ignore cloning exception if any, use params itself
                 //
                 clonedParams = params;
