@@ -21,5 +21,11 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.project</artifactId>
         </dependency>
+        <!-- Required for Java11 -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
