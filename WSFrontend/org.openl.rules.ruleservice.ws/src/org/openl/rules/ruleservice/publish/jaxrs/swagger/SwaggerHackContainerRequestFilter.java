@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.publish.jaxrs.swagger;
 
-import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -28,18 +27,14 @@ public class SwaggerHackContainerRequestFilter implements ContainerRequestFilter
     }
 
     @Override
-    public void filter(ContainerRequestContext requestContext) throws IOException {
+    public void filter(ContainerRequestContext requestContext) {
         UriInfo ui = requestContext.getUriInfo();
         if (ui.getPath().endsWith(APIDOCS_LISTING_PATH_JSON) || ui.getPath().endsWith(APIDOCS_LISTING_PATH_YAML)) {
             requestContext.setProperty("SwaggerHackContainerRequestFilterLock", lock);
             lock.lock();
-            try {
-                SwaggerObjectMapperHack swaggerObjectMapperHack = new SwaggerObjectMapperHack();
-                swaggerObjectMapperHack.apply(objectMapper);
-                requestContext.setProperty("SwaggerObjectMapperHack", swaggerObjectMapperHack);
-            } catch (ReflectiveOperationException e) {
-                throw new IOException("Failed to set ObjectMapper", e);
-            }
+            SwaggerObjectMapperHack swaggerObjectMapperHack = new SwaggerObjectMapperHack();
+            swaggerObjectMapperHack.apply(objectMapper);
+            requestContext.setProperty("SwaggerObjectMapperHack", swaggerObjectMapperHack);
         }
     }
 }

@@ -1,24 +1,19 @@
 package org.openl.rules.ruleservice.publish.jaxrs.swagger;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.converter.ModelConverters;
-import io.swagger.jackson.AbstractModelConverter;
+import io.swagger.jackson.ModelResolver;
 
 @SuppressWarnings("rawtypes")
 public class SwaggerObjectMapperHack {
 
     private final List converters;
-    private final Field swaggerObjectMapperField;
-
-    private final Map<Integer, Object> oldMappers;
+    private List<Object> oldConverters;
 
     public SwaggerObjectMapperHack() {
         try {
@@ -26,52 +21,27 @@ public class SwaggerObjectMapperHack {
             Field convertersField = ModelConverters.class.getDeclaredField("converters");
             convertersField.setAccessible(true);
             this.converters = (List) convertersField.get(modelConverters);
-
-            Field swaggerMapperField = AbstractModelConverter.class.getDeclaredField("_mapper");
-            Field modifiersField = Field.class.getDeclaredField("modifiers");
-            modifiersField.setAccessible(true);
-            modifiersField.setInt(swaggerMapperField, swaggerMapperField.getModifiers() & ~Modifier.FINAL);
-            swaggerMapperField.setAccessible(true);
-
-            this.swaggerObjectMapperField = swaggerMapperField;
-            this.oldMappers = new HashMap<>();
-        } catch (IllegalAccessException | NoSuchFieldException e) {
+        } catch (ReflectiveOperationException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    public void apply(ObjectMapper objectMapper) throws IllegalAccessException {
-        Iterator it = converters.iterator();
-        int i = 0;
-        while (it.hasNext()) {
-            final Object modelResolver = it.next();
-            if (modelResolver instanceof AbstractModelConverter) {
-                oldMappers.put(i, swaggerObjectMapperField.get(modelResolver));
-                try {
-                    swaggerObjectMapperField.set(modelResolver, objectMapper);
-                } catch (IllegalAccessException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-            i++;
+    @SuppressWarnings("unchecked")
+    public void apply(ObjectMapper objectMapper) {
+        List<Object> hackedConverters = new ArrayList<>();
+        oldConverters = new ArrayList<>();
+        for (Object converter : converters) {
+            oldConverters.add(converter);
+            hackedConverters.add(converter instanceof ModelResolver ? new ModelResolver(objectMapper) : converter);
         }
+        converters.clear();
+        converters.addAll(hackedConverters);
     }
 
+    @SuppressWarnings("unchecked")
     public void revert() {
-        Iterator it = converters.iterator();
-        int i = 0;
-        while (it.hasNext()) {
-            final Object modelResolver = it.next();
-            if (modelResolver instanceof AbstractModelConverter) {
-                Object oldObjectMapper = oldMappers.get(i);
-                try {
-                    swaggerObjectMapperField.set(modelResolver, oldObjectMapper);
-                } catch (IllegalAccessException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-            i++;
-        }
+        converters.clear();
+        converters.addAll(oldConverters);
     }
 
 }
