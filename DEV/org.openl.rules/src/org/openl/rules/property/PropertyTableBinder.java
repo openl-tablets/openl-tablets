@@ -100,7 +100,6 @@ public class PropertyTableBinder extends DataNodeBinder {
      * @param tableSyntaxNode <code>{@link TableSyntaxNode}</code>.
      * @param propertiesInstance <code>{@link TableProperties}</code>.
      * @param bindingContext <code>{@link RulesModuleBindingContext}</code>.
-     * @param propertyNode Bound node for current property table.
      * @throws DuplicatedPropertiesTableException if module level properties already exists, or there are properties for
      *             the category with the same name.
      */
@@ -115,16 +114,19 @@ public class PropertyTableBinder extends DataNodeBinder {
                 processModuleProperties(tableSyntaxNode, propertiesInstance, bindingContext);
             } else if (isCategoryProperties(scope)) {
                 processCategoryProperties(tableSyntaxNode, propertiesInstance, bindingContext);
+            } else if (isGlobalProperties(scope)) {
+                processGlobalProperties(tableSyntaxNode, propertiesInstance, bindingContext);
             } else {
-                String message = String.format("Value of the property '%s' is neither '%s' or '%s'",
+                String message = String.format("Value of the property '%s' is neither '%s', '%s' or '%s'.",
                     SCOPE_PROPERTY_NAME,
+                    InheritanceLevel.GLOBAL.getDisplayName(),
                     InheritanceLevel.MODULE.getDisplayName(),
                     InheritanceLevel.CATEGORY.getDisplayName());
 
                 throw SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
             }
         } else {
-            String message = String.format("There is no obligatory property '%s'", SCOPE_PROPERTY_NAME);
+            String message = String.format("There is no obligatory property '%s'.", SCOPE_PROPERTY_NAME);
 
             throw SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
         }
@@ -140,12 +142,26 @@ public class PropertyTableBinder extends DataNodeBinder {
 
         checkPropertiesLevel(currentLevel, propertiesInstance, tableSyntaxNode);
 
-        if (!bindingContext.isTableSyntaxNodeExist(key)) {
+        if (!bindingContext.isTableSyntaxNodePresented(key)) {
             bindingContext.registerTableSyntaxNode(key, tableSyntaxNode);
         } else {
-            String message = String.format("Properties for category '%s' already exists", category);
+            String message = String.format("Properties for category '%s' already exists.", category);
 
             throw new DuplicatedPropertiesTableException(message, null, tableSyntaxNode);
+        }
+    }
+
+    private void processGlobalProperties(TableSyntaxNode tableSyntaxNode,
+            TableProperties propertiesInstance,
+            RulesModuleBindingContext bindingContext) throws SyntaxNodeException {
+        String key = RulesModuleBindingContext.GLOBAL_PROPERTIES_KEY;
+        InheritanceLevel currentLevel = InheritanceLevel.GLOBAL;
+        checkPropertiesLevel(currentLevel, propertiesInstance, tableSyntaxNode);
+
+        if (!bindingContext.isTableSyntaxNodePresented(key)) {
+            bindingContext.registerTableSyntaxNode(key, tableSyntaxNode);
+        } else {
+            throw new DuplicatedPropertiesTableException("Global properties is already exists.", null, tableSyntaxNode);
         }
     }
 
@@ -156,7 +172,7 @@ public class PropertyTableBinder extends DataNodeBinder {
         for (String propertyNameToCheck : propertiesInstance.getAllProperties().keySet()) {
 
             if (!PropertiesChecker.isPropertySuitableForLevel(currentLevel, propertyNameToCheck)) {
-                String message = String.format("Property '%s' cannot be defined on the '%s' level",
+                String message = String.format("Property '%s' cannot be defined on the '%s' level.",
                     propertyNameToCheck,
                     currentLevel.getDisplayName());
 
@@ -175,7 +191,7 @@ public class PropertyTableBinder extends DataNodeBinder {
 
         checkPropertiesLevel(currentLevel, propertiesInstance, tableSyntaxNode);
 
-        if (!bindingContext.isTableSyntaxNodeExist(key)) {
+        if (!bindingContext.isTableSyntaxNodePresented(key)) {
             bindingContext.registerTableSyntaxNode(key, tableSyntaxNode);
         } else {
             XlsWorkbookSourceCodeModule module = ((XlsSheetSourceCodeModule) tableSyntaxNode.getModule())
@@ -211,6 +227,10 @@ public class PropertyTableBinder extends DataNodeBinder {
 
     private boolean isCategoryProperties(String scope) {
         return InheritanceLevel.CATEGORY.getDisplayName().equals(scope);
+    }
+
+    private boolean isGlobalProperties(String scope) {
+        return InheritanceLevel.GLOBAL.getDisplayName().equals(scope);
     }
 
     @Override

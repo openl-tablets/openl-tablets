@@ -1,6 +1,7 @@
 package org.openl.rules.table.properties.inherit;
 
 public enum InheritanceLevel {
+    GLOBAL("Global"),
     PROJECT("Project"),
     FOLDER("Folder"),
     EXTERNAL("External"),

@@ -17,7 +17,7 @@ public class TestTableErrorsTest extends BaseOpenlBuilderHelper {
     public void testHaveErrorAboveRunTable() {
         TableSyntaxNode table = findTable("Run DriverPremium5 DriverPremium5Run");
         assertNotNull("Table DriverPremium5Run not found", table);
-        assertContainsError("Property 'version' cannot be defined in Run Table", table);
+        assertContainsError("Property 'version' cannot be defined in 'Run' table.", table);
         assertEquals("Run Table node must contain only one error", 1, table.getErrors().length);
     }
 
@@ -25,7 +25,7 @@ public class TestTableErrorsTest extends BaseOpenlBuilderHelper {
     public void testHaveErrorAboveTestTable() {
         TableSyntaxNode table = findTable("Test DriverPremium5 DriverPremium5Test");
         assertNotNull("Table DriverPremium5Test not found", table);
-        assertContainsError("Property 'active' cannot be defined in Test Table", table);
+        assertContainsError("Property 'active' cannot be defined in 'Test' table.", table);
         assertEquals("Test Table node must contain only one error", 1, table.getErrors().length);
     }
 
@@ -33,8 +33,8 @@ public class TestTableErrorsTest extends BaseOpenlBuilderHelper {
     public void testHaveErrorAboveEmptyTestTable() {
         TableSyntaxNode table = findTable("Test DriverPremium5 DriverPremiumEmptyTest");
         assertNotNull("Table DriverPremiumEmptyTest not found", table);
-        assertContainsError("There is no body in Data table.", table);
-        assertContainsError("Property 'id' cannot be defined in Test Table", table);
+        assertContainsError("There is no body in 'Data' table.", table);
+        assertContainsError("Property 'id' cannot be defined in 'Test' table.", table);
         assertEquals("Test Table node must contain only 2 errors", 2, table.getErrors().length);
     }
 

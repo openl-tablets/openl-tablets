@@ -136,11 +136,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     }
 
     @Override
-    public String getPackageName() {
-        return getModule().getSpreadsheetResultPackage();
-    }
-
-    @Override
     public synchronized Iterable<IOpenClass> superClasses() {
         if (superClasses == null) {
             Class<?>[] interfaces = SpreadsheetResult.class.getInterfaces();
@@ -573,13 +568,15 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                                 fieldClsName = csroc.getBeanClassName();
                                 csroc.generateBeanClass();
                             } else {
-                                fieldClsName = getModule().getSpreadsheetResultPackage() + ".AnySpreadsheetResult";
+                                fieldClsName = getModule().getGlobalTableProperties()
+                                    .getSpreadsheetResultPackage() + ".AnySpreadsheetResult";
                                 getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                                     .toCustomSpreadsheetResultOpenClass()
                                     .generateBeanClass();
                             }
                         } else {
-                            fieldClsName = getModule().getSpreadsheetResultPackage() + ".AnySpreadsheetResult";
+                            fieldClsName = getModule().getGlobalTableProperties()
+                                .getSpreadsheetResultPackage() + ".AnySpreadsheetResult";
                             getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                                 .toCustomSpreadsheetResultOpenClass()
                                 .generateBeanClass();
@@ -662,7 +659,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             name = firstLetterUppercaseName;
                         }
                     }
-                    beanClassName = getPackageName() + "." + name;
+                    beanClassName = getModule().getGlobalTableProperties().getSpreadsheetResultPackage() + "." + name;
                 }
             }
         }

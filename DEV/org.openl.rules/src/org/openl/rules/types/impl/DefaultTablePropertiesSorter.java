@@ -69,8 +69,7 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
             }
 
             @Override
-            public int compareNotNulls(org.openl.rules.enumeration.OriginsEnum propertyValue1,
-                    org.openl.rules.enumeration.OriginsEnum propertyValue2) {
+            public int compareNotNulls(org.openl.rules.enumeration.OriginsEnum propertyValue1, org.openl.rules.enumeration.OriginsEnum propertyValue2) {
                 return MAX(propertyValue1, propertyValue2);
             }
         });

@@ -90,7 +90,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private SpreadsheetResultOpenClass spreadsheetResultOpenClass;
 
-    private String spreadsheetResultPackage;
+    private ITableProperties globalTableProperties;
 
     public RulesModuleBindingContext getRulesModuleBindingContext() {
         return rulesModuleBindingContext;
@@ -118,6 +118,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         this.classGenerationClassLoader = new OpenLBundleClassLoader(null);
         this.classGenerationClassLoader.addClassLoader(classLoader);
         this.rulesModuleBindingContext = new RulesModuleBindingContext(bindingContext, this);
+
+        this.globalTableProperties = TablePropertyDefinitionUtils.buildGlobalTableProperties();
+
         if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams())) {
             this.spreadsheetResultOpenClass = new SpreadsheetResultOpenClass(this);
         }
@@ -128,16 +131,22 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         initImports(metaInfo.getXlsModuleNode());
     }
 
-    public String getSpreadsheetResultPackage() {
-        if (spreadsheetResultPackage == null) {
-            spreadsheetResultPackage = TablePropertyDefinitionUtils
-                .getDefaultValueForProperty("spreadsheetResultPackage");
-        }
-        return spreadsheetResultPackage;
+    public ITableProperties getGlobalTableProperties() {
+        return globalTableProperties;
     }
 
-    public void setSpreadsheetResultPackage(String spreadsheetResultPackage) {
-        this.spreadsheetResultPackage = spreadsheetResultPackage;
+    public void addGlobalTableProperties(ITableProperties globalProperties) {
+        if (globalProperties != null) {
+            if (this.getGlobalTableProperties().getPriority() < globalProperties.getPriority()) {
+                this.globalTableProperties = globalProperties;
+            } else if (Objects.equals(this.getGlobalTableProperties().getPriority(), globalProperties.getPriority())) {
+                Map<String, Object> mergedTableProperties = TablePropertyDefinitionUtils.mergeGlobalProperties(
+                    this.globalTableProperties.getGlobalProperties(),
+                    globalProperties.getGlobalProperties());
+                this.globalTableProperties = TablePropertyDefinitionUtils
+                    .buildGlobalTableProperties(mergedTableProperties);
+            }
+        }
     }
 
     public boolean isUseDecisionTableDispatcher() {
@@ -205,12 +214,12 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
             addXlsDefinitions(dependency);
 
-            addSpreadsheetResultPackage(dependency);
+            addGlobalTableProperties(dependency);
 
             addMethods(dependency);
             // Populate current module fields with data from dependent modules.
-            // Requered
-            // for data tables inheriting from dependend modules.
+            // Required
+            // for data tables inheriting from dependent modules.
             addDataTables(dependency.getCompiledOpenClass()); // Required for
             // data tables.
             addFields(dependency);
@@ -223,16 +232,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
     }
 
-    protected void addSpreadsheetResultPackage(CompiledDependency dependency) {
+    protected void addGlobalTableProperties(CompiledDependency dependency) {
         IOpenClass openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
         if (openClass instanceof XlsModuleOpenClass) {
             XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
-            if (spreadsheetResultPackage == null || Objects.equals(spreadsheetResultPackage,
-                TablePropertyDefinitionUtils.getDefaultValueForProperty(
-                    "spreadsheetResultPackage")) || xlsModuleOpenClass.spreadsheetResultPackage != null && spreadsheetResultPackage
-                        .compareTo(xlsModuleOpenClass.spreadsheetResultPackage) > 0) {
-                spreadsheetResultPackage = xlsModuleOpenClass.spreadsheetResultPackage;
-            }
+            addGlobalTableProperties(xlsModuleOpenClass.getGlobalTableProperties());
         }
     }
 
@@ -296,6 +300,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
             if (xlsModuleOpenClass.getDataBase() != null) {
                 for (ITable table : xlsModuleOpenClass.getDataBase().getTables()) {
+                    // TODO Test and fix with lazy compilation. It was fixed for Maven Plugin but wasn't tested.
                     if (XlsNodeTypes.XLS_DATA.toString().equals(table.getTableSyntaxNode().getType())) {
                         try {
                             getDataBase().registerTable(table);

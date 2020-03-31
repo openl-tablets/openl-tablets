@@ -50,6 +50,13 @@ public interface ITableProperties {
      */
     Map<String, Object> getModuleProperties();
 
+    /**
+     * <code>{@link Map}</code> of properties applied globally and inheritable in modules.
+     *
+     * @return <code>{@link Map}</code> of properties applied to the module this table belongs to.
+     */
+    Map<String, Object> getGlobalProperties();
+
     Map<String, Object> getExternalProperties();
 
     /**
@@ -89,7 +96,11 @@ public interface ITableProperties {
 
     TableSyntaxNode getModulePropertiesTableSyntaxNode();
 
+    TableSyntaxNode getGlobalPropertiesTableSyntaxNode();
+
     void setModulePropertiesTableSyntaxNode(TableSyntaxNode modulePropertiesTableSyntaxNode);
+
+    void setGlobalPropertiesTableSyntaxNode(TableSyntaxNode globalPropertiesTableSyntaxNode);
 
     TableSyntaxNode getCategoryPropertiesTableSyntaxNode();
 
@@ -243,6 +254,10 @@ public interface ITableProperties {
 
     void setScope(java.lang.String scope);
 
+    java.lang.Integer getPriority();
+
+    void setPriority(java.lang.Integer priority);
+
     java.lang.String getDatatypePackage();
 
     void setDatatypePackage(java.lang.String datatypePackage);
@@ -287,6 +302,8 @@ public interface ITableProperties {
     void setCategoryProperties(Map<String, Object> categoryProperties);
 
     void setModuleProperties(Map<String, Object> moduleProperties);
+
+    void setGlobalProperties(Map<String, Object> moduleProperties);
 
     void setExternalProperties(Map<String, Object> moduleProperties);
 

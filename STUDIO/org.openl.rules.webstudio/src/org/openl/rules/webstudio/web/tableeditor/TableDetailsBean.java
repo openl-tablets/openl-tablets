@@ -85,8 +85,10 @@ public class TableDetailsBean {
                     .containsKey(propDefinition.getName()) || table.getProperties()
                         .getModuleProperties()
                         .containsKey(propDefinition.getName()) || table.getProperties()
-                            .getExternalProperties()
-                            .containsKey(propDefinition.getName()))) {
+                            .getGlobalProperties()
+                            .containsKey(propDefinition.getName()) || table.getProperties()
+                                .getExternalProperties()
+                                .containsKey(propDefinition.getName()))) {
                 InheritanceLevel inheritanceLevel = props.getPropertyLevelDefinedOn(propDefinition.getName());
 
                 TableProperty prop = new TableProperty(propDefinition, WebStudioFormats.getInstance());

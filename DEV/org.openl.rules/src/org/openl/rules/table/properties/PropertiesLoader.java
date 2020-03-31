@@ -132,6 +132,33 @@ public class PropertiesLoader {
     }
 
     /**
+     * Load to tsn module properties from context.
+     *
+     * @param tableSyntaxNode Tsn to load properties.
+     */
+    private void loadGlobalProperties(TableSyntaxNode tableSyntaxNode) {
+
+        ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
+        TableSyntaxNode globalPropertiesTsn = bindingContext
+            .getTableSyntaxNode(RulesModuleBindingContext.GLOBAL_PROPERTIES_KEY);
+
+        if (tableProperties != null) {
+            if (globalPropertiesTsn != null) {
+                ITableProperties globalProperties = globalPropertiesTsn.getTableProperties();
+                Map<String, Object> tablePropertiesMergedWithModule = TablePropertyDefinitionUtils
+                    .mergeGlobalProperties(globalProperties.getAllProperties(), module.getGlobalTableProperties().getGlobalProperties());
+                tableProperties.setGlobalProperties(tablePropertiesMergedWithModule);
+                tableProperties.setGlobalPropertiesTableSyntaxNode(globalPropertiesTsn);
+            } else {
+                tableProperties.setGlobalProperties(module.getGlobalTableProperties().getGlobalProperties());
+                tableProperties.setGlobalPropertiesTableSyntaxNode(
+                    module.getGlobalTableProperties().getGlobalPropertiesTableSyntaxNode());
+            }
+            tableProperties.setDefaultProperties(TablePropertyDefinitionUtils.getGlobalPropertiesToBeSetByDefault());
+        }
+    }
+
+    /**
      * Load to tsn default properties.
      *
      * @param tableSyntaxNode Tsn to load properties.
@@ -174,6 +201,7 @@ public class PropertiesLoader {
             loadExternalProperties(tsn);
             loadCategoryProperties(tsn);
             loadModuleProperties(tsn);
+            loadGlobalProperties(tsn);
             loadDefaultProperties(tsn);
         }
     }

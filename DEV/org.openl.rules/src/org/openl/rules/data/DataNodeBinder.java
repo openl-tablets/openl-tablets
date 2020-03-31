@@ -149,7 +149,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             boolean hasColumnTitleRow) throws Exception {
 
         if (tableBody == null) {
-            String message = "There is no body in Data table.";
+            String message = "There is no body in 'Data' table.";
             throw SyntaxNodeExceptionUtils.createError(message, tableToProcess.getTableSyntaxNode());
         } else {
             ILogicalTable horizDataTableBody = DataTableBindHelper.getHorizontalTable(tableBody, tableType);

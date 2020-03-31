@@ -6,6 +6,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 
@@ -23,6 +25,7 @@ public final class TablePropertyDefinitionUtils {
 
     private static final List<TablePropertyDefinition> PROPERTIES_TO_BE_SET_BY_DEFAULT;
     private static final Map<String, Object> PROPERTIES_MAP_TO_BE_SET_BY_DEFAULT;
+    private static final Map<String, Object> GLOBAL_PROPERTIES_MAP_TO_BE_SET_BY_DEFAULT;
 
     static {
         List<TablePropertyDefinition> propertiesToBeSetByDefault = new ArrayList<>();
@@ -49,6 +52,23 @@ public final class TablePropertyDefinitionUtils {
         }
 
         PROPERTIES_MAP_TO_BE_SET_BY_DEFAULT = Collections.unmodifiableMap(propertiesMapToBeSetByDefault);
+        List<TablePropertyDefinition> globalDefaultProperties = new ArrayList<>();
+        TablePropertyDefinition[] definitions = DefaultPropertyDefinitions.getDefaultDefinitions();
+        for (TablePropertyDefinition definition : definitions) {
+            if (definition.getInheritanceLevel() != null && Arrays.asList(definition.getInheritanceLevel())
+                .contains(InheritanceLevel.GLOBAL)) {
+                globalDefaultProperties.add(definition);
+            }
+        }
+        Map<String, Object> defaultGlobalProperties = new HashMap<>();
+        for (TablePropertyDefinition tablePropertyDefinition : globalDefaultProperties) {
+            Object v = TablePropertyDefinitionUtils.getPropertiesMapToBeSetByDefault()
+                .get(tablePropertyDefinition.getName());
+            if (v != null) {
+                defaultGlobalProperties.put(tablePropertyDefinition.getName(), v);
+            }
+        }
+        GLOBAL_PROPERTIES_MAP_TO_BE_SET_BY_DEFAULT = Collections.unmodifiableMap(defaultGlobalProperties);
     }
 
     private static String[] dimensionalTablePropertiesNames = null;
@@ -93,6 +113,10 @@ public final class TablePropertyDefinitionUtils {
             dimensionalTableProperties = Collections.unmodifiableList(dimensionalProperties);
         }
         return dimensionalTableProperties;
+    }
+
+    public static Map<String, Object> getGlobalPropertiesToBeSetByDefault() {
+        return GLOBAL_PROPERTIES_MAP_TO_BE_SET_BY_DEFAULT;
     }
 
     /**
@@ -258,5 +282,62 @@ public final class TablePropertyDefinitionUtils {
             return propDefinition.getType().getInstanceClass();
         }
         return null;
+    }
+
+    public static Map<String, Object> mergeGlobalProperties(Map<String, Object> properties1,
+            Map<String, Object> properties2) {
+        if (properties1 == null) {
+            return properties2;
+        }
+        if (properties2 == null) {
+            return properties1;
+        }
+        Map<String, Object> mergedGlobalProperties = new HashMap<>(properties1);
+        Set<String> keys = new HashSet<>(properties1.keySet());
+        keys.addAll(properties2.keySet());
+        for (String key : keys) {
+            Object v1 = properties1.get(key);
+            Object v2 = properties2.get(key);
+            if (v1 == null) {
+                if (properties2.containsKey(key)) {
+                    mergedGlobalProperties.put(key, v2);
+                    continue;
+                }
+            }
+            if (v2 == null) {
+                if (properties1.containsKey(key)) {
+                    mergedGlobalProperties.put(key, v1);
+                    continue;
+                }
+            }
+            if (!Objects.equals(v1, v2)) {
+                Object defaultValue = getDefaultValueForProperty(key);
+                if (Objects.equals(defaultValue, v1)) {
+                    mergedGlobalProperties.put(key, v2);
+                } else if (Objects.equals(defaultValue, v2)) {
+                    mergedGlobalProperties.put(key, v1);
+                } else if (v1 instanceof Comparable && v2 instanceof Comparable && v1.getClass() == v2.getClass()) {
+                    mergedGlobalProperties.put(key, ((Comparable) v1).compareTo(v2) < 0 ? v1 : v2);
+                }
+                throw new IllegalStateException("Failed to merge global properties.");
+            } else {
+                mergedGlobalProperties.put(key, v1 != null ? v1 : v2);
+            }
+        }
+        return mergedGlobalProperties;
+    }
+
+    public static ITableProperties buildGlobalTableProperties() {
+        return buildGlobalTableProperties(null);
+    }
+
+    public static ITableProperties buildGlobalTableProperties(Map<String, Object> globalProperties) {
+        TableProperties globalTableProperties = new TableProperties();
+        if (globalProperties != null) {
+            globalTableProperties.setGlobalProperties(globalProperties);
+        }
+        globalTableProperties.setDefaultProperties(TablePropertyDefinitionUtils.getGlobalPropertiesToBeSetByDefault());
+        globalTableProperties.setCurrentTableType(XlsNodeTypes.XLS_PROPERTIES.toString());
+        return globalTableProperties;
     }
 }

@@ -30,6 +30,8 @@ public class TableProperties extends DynamicObject implements ITableProperties {
      */
     private ILogicalTable propertySection;
 
+    private TableSyntaxNode globalPropertiesTableSyntaxNode;
+
     private TableSyntaxNode modulePropertiesTableSyntaxNode;
 
     private TableSyntaxNode categoryPropertiesTableSyntaxNode;
@@ -39,6 +41,8 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     private Map<String, Object> externalModuleProperties = Collections.emptyMap();
 
     private Map<String, Object> moduleProperties = Collections.emptyMap();
+
+    private Map<String, Object> globalProperties = Collections.emptyMap();
 
     private Map<String, Object> defaultProperties = Collections.emptyMap();
 
@@ -53,18 +57,17 @@ public class TableProperties extends DynamicObject implements ITableProperties {
      */
     private Map<String, Object> mergeLevelProperties(Map<String, Object> downLevelProperties,
             Map<String, Object> upLevelProperties) {
-        Map<String, Object> resultProperties = downLevelProperties;
         for (Entry<String, Object> upLevelProperty : upLevelProperties.entrySet()) {
             String upLevelPropertyName = upLevelProperty.getKey();
             Object upLevelPropertyValue = upLevelProperty.getValue();
 
             if (PropertiesChecker.isPropertySuitableForTableType(upLevelPropertyName, currentTableType)) {
                 if (!downLevelProperties.containsKey(upLevelPropertyName)) {
-                    resultProperties.put(upLevelPropertyName, upLevelPropertyValue);
+                    downLevelProperties.put(upLevelPropertyName, upLevelPropertyValue);
                 }
             }
         }
-        return resultProperties;
+        return downLevelProperties;
     }
 
     @Override
@@ -399,6 +402,17 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     @Override
+    public java.lang.Integer getPriority() {
+        return (java.lang.Integer) getPropertyValue("priority");
+    }
+
+    @Override
+    public void setPriority(java.lang.Integer priority) {
+        setFieldValue("priority", priority);
+        reset();
+    }
+
+    @Override
     public java.lang.String getDatatypePackage() {
         return (java.lang.String) getPropertyValue("datatypePackage");
     }
@@ -612,6 +626,16 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     @Override
+    public TableSyntaxNode getGlobalPropertiesTableSyntaxNode() {
+        return globalPropertiesTableSyntaxNode;
+    }
+
+    @Override
+    public void setGlobalPropertiesTableSyntaxNode(TableSyntaxNode globalPropertiesTableSyntaxNode) {
+        this.globalPropertiesTableSyntaxNode = globalPropertiesTableSyntaxNode;
+    }
+
+    @Override
     public TableSyntaxNode getCategoryPropertiesTableSyntaxNode() {
         return categoryPropertiesTableSyntaxNode;
     }
@@ -646,10 +670,12 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         Map<String, Object> tableAndCategoryProp = mergeLevelProperties(super.getFieldValues(), categoryProperties);
         Map<String, Object> tableAndCategoryAndModuleProp = mergeLevelProperties(tableAndCategoryProp,
             moduleProperties);
-        Map<String, Object> tableAndCategoryAndModuleAndExternalProp = mergeLevelProperties(
-            tableAndCategoryAndModuleProp,
+        Map<String, Object> tableAndCategoryAndModuleAndGlobalProp = mergeLevelProperties(tableAndCategoryAndModuleProp,
+            globalProperties);
+        Map<String, Object> tableAndCategoryAndModuleAndGlobalAndExternalProp = mergeLevelProperties(
+            tableAndCategoryAndModuleAndGlobalProp,
             externalModuleProperties);
-        Map<String, Object> allTableProperties = mergeLevelProperties(tableAndCategoryAndModuleAndExternalProp,
+        Map<String, Object> allTableProperties = mergeLevelProperties(tableAndCategoryAndModuleAndGlobalAndExternalProp,
             defaultProperties);
         allProperties = Collections.unmodifiableMap(allTableProperties);
         return allProperties;
@@ -736,12 +762,30 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         reset();
     }
 
+    @Override
+    public void setGlobalProperties(Map<String, Object> globalProperties) {
+        if (globalProperties == null) {
+            this.globalProperties = Collections.emptyMap();
+        } else {
+            this.globalProperties = extractPropertiesMap(globalProperties);
+        }
+        reset();
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public Map<String, Object> getModuleProperties() {
         return moduleProperties;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<String, Object> getGlobalProperties() {
+        return globalProperties;
     }
 
     @Override
@@ -765,6 +809,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     @Override
     public void setCurrentTableType(String currentTableType) {
         this.currentTableType = currentTableType;
+        reset();
     }
 
     @Override

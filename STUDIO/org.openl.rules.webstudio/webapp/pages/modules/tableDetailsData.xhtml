@@ -29,12 +29,12 @@
 
             <ui:param name="prop" value="#{row.data}" />
             <ui:param name="editable"
-                value="#{tableDetailsBean.editable and (!prop.system or !studio.updateSystemProperties) and prop.canBeOverridenInTable and prop.name != 'version'}" />
+                value="#{tableDetailsBean.editable and (!prop.system or !studio.updateSystemProperties) and prop.canBeOverriddenInTable and prop.name != 'version'}" />
             <ui:param name="added" value="#{empty prop.value}" />
 
             <tr class="#{(editable and !added) ? 'editableProp' : ''}#{prop.inheritedProperty ? ' inheritedProp' : ''}#{!empty prop.deprecation ? ' deprecatedProp' : ''}"
                 onmouseover="showRemoveBtn(this,#{!empty prop.deprecation})" onmouseout="hideRemoveBtn(this,#{!empty prop.deprecation})"
-                title="#{prop.inheritedProperty ? 'Inherited property' : (!empty prop.deprecation ? 'This property was deprecated. Please remove it!' : '')}">
+                title="#{prop.inheritedProperty ? 'Inherited property' : (!empty prop.deprecation ? 'This property was deprecated. Please, remove it!' : '')}">
                 <td class="propName" onclick="#{editable ? 'editProperty(this.parentNode)' : ''}">
                     #{prop.displayName}
                 </td>

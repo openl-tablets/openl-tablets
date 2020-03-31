@@ -10,6 +10,8 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
@@ -36,7 +38,11 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
             openClass.addField(field);
             tsn.setMember(field);
         }
-        openClass.setSpreadsheetResultPackage(propertiesInstance.getSpreadsheetResultPackage());
+        if (InheritanceLevel.GLOBAL.getDisplayName().equals(propertiesInstance.getScope())) {
+            ITableProperties globalProperties = TablePropertyDefinitionUtils
+                .buildGlobalTableProperties(propertiesInstance.getAllProperties());
+            openClass.addGlobalTableProperties(globalProperties);
+        }
     }
 
     @Override

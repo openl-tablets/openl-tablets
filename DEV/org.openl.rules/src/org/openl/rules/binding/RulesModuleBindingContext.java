@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class RulesModuleBindingContext extends ModuleBindingContext {
-
+    public static final String GLOBAL_PROPERTIES_KEY = "Properties:Global";
     public static final String MODULE_PROPERTIES_KEY = "Properties:Module";
     public static final String CATEGORY_PROPERTIES_KEY = "Properties:Category:";
     private Map<String, TableSyntaxNode> bindedTables = new HashMap<>();
@@ -86,7 +86,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     /**
      * @return <code>true</code> if key TableSyntaxNode with specified key has already been registered.
      */
-    public boolean isTableSyntaxNodeExist(String key) {
+    public boolean isTableSyntaxNodePresented(String key) {
         return this.bindedTables.containsKey(key);
     }
 

@@ -82,7 +82,7 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
 
         String key = makeKey(tableSyntaxNode, header);
 
-        if (!bindingContext.isTableSyntaxNodeExist(key)) {
+        if (!bindingContext.isTableSyntaxNodePresented(key)) {
             bindingContext.registerTableSyntaxNode(key, tableSyntaxNode);
         } else {
             throw new DuplicatedTableException(tableSyntaxNode.getDisplayName(), tableSyntaxNode);

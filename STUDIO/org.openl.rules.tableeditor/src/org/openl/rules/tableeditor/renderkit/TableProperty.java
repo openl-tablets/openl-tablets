@@ -102,7 +102,7 @@ public class TableProperty {
      *
      * @return <code>TRUE</code> if property value can be overriden on TABLE level.
      */
-    public boolean isCanBeOverridenInTable() {
+    public boolean isCanBeOverriddenInTable() {
         return PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, name);
     }
 
@@ -122,12 +122,16 @@ public class TableProperty {
         return InheritanceLevel.CATEGORY.equals(inheritanceLevel);
     }
 
+    public boolean isGlobalLevelProperty() {
+        return InheritanceLevel.GLOBAL.equals(inheritanceLevel);
+    }
+
     public boolean isExternalProperty() {
         return InheritanceLevel.EXTERNAL.equals(inheritanceLevel);
     }
 
     public boolean isInheritedProperty() {
-        return isModuleLevelProperty() || isCategoryLevelProperty() || isFolderLevelProperty() || isProjectLevelProperty() || isExternalProperty();
+        return isGlobalLevelProperty() || isModuleLevelProperty() || isCategoryLevelProperty() || isFolderLevelProperty() || isProjectLevelProperty() || isExternalProperty();
     }
 
     public String getDisplayName() {
