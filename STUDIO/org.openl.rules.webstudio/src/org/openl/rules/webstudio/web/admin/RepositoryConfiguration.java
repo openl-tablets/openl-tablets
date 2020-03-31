@@ -106,6 +106,10 @@ public class RepositoryConfiguration {
         settings.revert(properties);
     }
 
+    public void reload(){
+        settings.revert(properties);
+    }
+
     public PropertiesHolder getPropertiesToValidate() {
         InMemoryProperties tempProps = new InMemoryProperties(getProperties().getPropertyResolver());
         store(tempProps);
