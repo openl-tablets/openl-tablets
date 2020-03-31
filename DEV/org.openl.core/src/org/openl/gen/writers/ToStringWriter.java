@@ -16,6 +16,8 @@ import org.openl.gen.FieldDescription;
  * @author Yury Molchan
  */
 public class ToStringWriter extends MethodWriter {
+    private static final int MAX_FIELDS = 100;
+
     private static final Map<String, String> PRIMITIVE_DESCRIPTORS = Collections
         .unmodifiableMap(new HashMap<String, String>(8, 1) {
             {
@@ -77,7 +79,7 @@ public class ToStringWriter extends MethodWriter {
 
         // write fields
         invokeAppendValue(methodVisitor, "{ ");
-
+        int i = 0;
         for (Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
             invokeAppendValue(methodVisitor, field.getKey() + "=");
 
@@ -95,8 +97,13 @@ public class ToStringWriter extends MethodWriter {
             } else {
                 invokeAppendObject(methodVisitor);
             }
-
-            invokeAppendValue(methodVisitor, " ");
+            if (i >= MAX_FIELDS) {
+                invokeAppendValue(methodVisitor, "...");
+                break;
+            } else {
+                invokeAppendValue(methodVisitor, " ");
+            }
+            i++;
         }
         invokeAppendValue(methodVisitor, "}");
 
