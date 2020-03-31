@@ -443,7 +443,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         try {
                             initializing = true;
                             final String beanClassName = getBeanClassName();
-                            JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanClassName);
+                            JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanClassName)
+                                .withEqualsHashCodeToStringMethods(false);
                             Set<String> usedFields = new HashSet<>();
                             @SuppressWarnings("unchecked")
                             List<IOpenField>[][] used = new List[rowNames.length][columnNames.length];

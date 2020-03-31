@@ -52,6 +52,7 @@ public class POJOByteCodeGenerator {
             Class<?> parentClass,
             Map<String, FieldDescription> parentFields,
             boolean additionalConstructor,
+            boolean equalsHashCodeToStringMethods,
             boolean publicFields) {
 
         this.beanFields = new LinkedHashMap<>(beanFields);
@@ -80,9 +81,11 @@ public class POJOByteCodeGenerator {
 
         writers.add(new GettersWriter(beanNameWithPackage, this.beanFields));
         writers.add(new SettersWriter(beanNameWithPackage, this.beanFields));
-        writers.add(new ToStringWriter(beanNameWithPackage, allFields));
-        writers.add(new EqualsWriter(beanNameWithPackage, allFields));
-        writers.add(new HashCodeWriter(beanNameWithPackage, allFields));
+        if (equalsHashCodeToStringMethods) {
+            writers.add(new ToStringWriter(beanNameWithPackage, allFields));
+            writers.add(new EqualsWriter(beanNameWithPackage, allFields));
+            writers.add(new HashCodeWriter(beanNameWithPackage, allFields));
+        }
     }
 
     private void visitClassDescription(ClassWriter classWriter) {
