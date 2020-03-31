@@ -276,7 +276,6 @@ public class SystemSettingsBean {
     public void restoreDefaults() {
         try {
             designRepositoryConfiguration.revert();
-
             properties.revertProperties(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO);
             deployConfigRepositoryConfiguration.revert();
 
@@ -289,6 +288,7 @@ public class SystemSettingsBean {
             saveSystemConfig();
 
             productionRepositoryEditor.reload();
+            designRepositoryConfiguration.reload();
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             WebStudioUtils.addErrorMessage(e.getMessage());

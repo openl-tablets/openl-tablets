@@ -44,7 +44,7 @@
     <h:panelGrid columns="3" columnClasses="titleColumn" id="#{prependId}gitSettings">
         <h:outputLabel value="Remote repository:" for="#{prependId}gitRemoteRepository"/>
         <h:selectBooleanCheckbox id="#{prependId}gitRemoteRepository" value="#{settings.remoteRepository}">
-            <f:ajax event="change" execute="@form" render="#{prependId}gitSettings"/>
+            <f:ajax event="change" execute="#{prependId}gitSettings" render="#{prependId}gitSettings"/>
         </h:selectBooleanCheckbox>
         <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}remoteRepositoryShowInfo');return false;" title="Details"/>
 

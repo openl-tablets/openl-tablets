@@ -1316,7 +1316,7 @@ public class RepositoryTreeController {
         return selectItems.toArray(new SelectItem[0]);
     }
 
-    static String getDescriptiveVersion(ProjectVersion version) {
+    public static String getDescriptiveVersion(ProjectVersion version) {
         VersionInfo versionInfo = version.getVersionInfo();
         if (versionInfo == null) {
             return "Version not found";

@@ -122,6 +122,7 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
 
         // jgit
         permission java.io.FilePermission "${user.home}/.gitconfig", "read";
+        permission java.io.FilePermission "${user.home}/.gitattributes", "read";
         permission java.io.FilePermission "${user.home}/.config", "read,write";
         permission java.io.FilePermission "${user.home}/.config/-", "read,write";
         permission java.net.NetPermission "getProxySelector";

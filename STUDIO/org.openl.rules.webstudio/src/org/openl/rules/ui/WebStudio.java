@@ -725,13 +725,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
             log.warn(e.getMessage(), e);
         }
 
+        List<ProjectDescriptor> localProjects = getAllProjects();
         // Replace project descriptor in the list of all projects
-        for (int i = 0; i < projects.size(); i++) {
-            if (projects.get(i) == oldProjectDescriptor) {
+        for (int i = 0; i < localProjects.size(); i++) {
+            if (localProjects.get(i) == oldProjectDescriptor) {
                 if (newProjectDescriptor != null) {
-                    projects.set(i, newProjectDescriptor);
+                    localProjects.set(i, newProjectDescriptor);
                 } else {
-                    projects.remove(i);
+                    localProjects.remove(i);
                 }
                 break;
             }
