@@ -73,9 +73,9 @@ public final class PackageMojo extends BaseOpenLMojo {
     private String classpathFolder;
 
     /**
-     * Classifier added as a supplemental artifact to the generated artifact. If the value is not provided, the system
-     * creates the main artifact, which is the default behavior. Upon the second attempt to create the main artifact
-     * without using a classifier, the build fails.
+     * Classifier that identifies the generated artifact as a supplemental one. By default, if a classifier is not
+     * provided, the system creates the artifact as the main one. Maven does not support using multiple main artifacts.
+     * Upon the second attempt to create the main artifact without using a classifier, the build fails.
      */
     @Parameter
     private String classifier;
