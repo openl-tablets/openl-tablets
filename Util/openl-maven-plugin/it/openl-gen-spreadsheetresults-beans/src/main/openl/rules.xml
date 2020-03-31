@@ -5,8 +5,11 @@
             <name>Main</name>
             <rules-root path="rules/Main.xlsx"/>
         </module>
+        <module>
+            <name>Secondary</name>
+            <rules-root path="rules/Secondary.xlsx"/>
+        </module>
     </modules>
-    <csr-beans-package>org.openl.generated.csrbeans</csr-beans-package>
     <classpath>
         <entry path="lib/*.jar"/>
     </classpath>
