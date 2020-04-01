@@ -589,7 +589,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         .equals(t)) {
                         continue; // IGNORE VOID FIELDS
                     } else {
-                        typeName = w.getRight().getType().getInstanceClass().getName();
+                        if (w.getRight().getType().getInstanceClass().isPrimitive()) {
+                            typeName = ClassUtils.primitiveToWrapper(w.getRight().getType().getInstanceClass())
+                                .getName();
+                        } else {
+                            typeName = w.getRight().getType().getInstanceClass().getName();
+                        }
                     }
                     if (!isFieldConflictsWithOtherGetterSetters(usedGettersAndSetters, fieldName)) {
                         usedGettersAndSetters.add(ClassUtils.getter(fieldName));
