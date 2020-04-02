@@ -12,10 +12,15 @@ import org.openl.codegen.tools.generator.SourceGenerator;
 import org.openl.codegen.tools.loader.IContextPropertyDefinitionLoader;
 import org.openl.codegen.tools.loader.ITablePropertyDefinitionLoader;
 import org.openl.codegen.tools.loader.ITablesPriorityLoader;
-import org.openl.codegen.tools.type.*;
+import org.openl.codegen.tools.type.ContextPropertyDefinitionWrapper;
+import org.openl.codegen.tools.type.ContextPropertyDefinitionWrappers;
+import org.openl.codegen.tools.type.TablePriorityRuleWrappers;
+import org.openl.codegen.tools.type.TablePropertyDefinitionWrapper;
+import org.openl.codegen.tools.type.TablePropertyDefinitionWrappers;
+import org.openl.codegen.tools.type.TablePropertyValidatorsWrapper;
+import org.openl.codegen.tools.type.TablePropertyValidatorsWrappers;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.context.RulesRuntimeContextDelegator;
 import org.openl.rules.context.properties.ContextPropertyDefinition;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.table.properties.ITableProperties;
@@ -126,10 +131,6 @@ public class GenRulesCode {
         String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(DefaultRulesRuntimeContext.class);
 
         processSourceCode(sourceFilePath, "DefaultRulesContext-properties.vm", variables);
-
-        sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(RulesRuntimeContextDelegator.class);
-
-        processSourceCode(sourceFilePath, "RulesRuntimeContextDelegator-properties.vm", variables);
 
     }
 

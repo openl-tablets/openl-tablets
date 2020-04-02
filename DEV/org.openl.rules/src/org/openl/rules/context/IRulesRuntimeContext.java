@@ -70,4 +70,6 @@ public interface IRulesRuntimeContext extends IRuntimeContext {
     void setCaRegion(org.openl.rules.enumeration.CaRegionsEnum caRegion);
 
     // <<< END INSERT >>>
+
+    IRulesRuntimeContext clone() throws CloneNotSupportedException;
 }

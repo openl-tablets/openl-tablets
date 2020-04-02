@@ -22,7 +22,6 @@ import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.context.RulesRuntimeContextDelegator;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -519,10 +518,12 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             if (env.isContextManagingSupported()) {
-                IRulesRuntimeContext runtimeContext = new RulesRuntimeContextDelegator(
-                    (IRulesRuntimeContext) env.getContext());
-                runtimeContext.setValue((String) params[0], params[1]);
-                env.pushContext(runtimeContext);
+                try {
+                    IRulesRuntimeContext runtimeContext = ((IRulesRuntimeContext) env.getContext()).clone();
+                    runtimeContext.setValue((String) params[0], params[1]);
+                    env.pushContext(runtimeContext);
+                } catch (CloneNotSupportedException ignored) {
+                }
             } else {
                 LoggerFactory.getLogger(RulesModuleBindingContext.class)
                     .warn("Failed to modify runtime context. Runtime context does not support context modifications.");
