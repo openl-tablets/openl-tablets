@@ -2,7 +2,10 @@ package org.openl.util;
 
 import java.lang.reflect.Array;
 
-public class RepackArrayUtils {
+public final class RepackArrayUtils {
+
+    private RepackArrayUtils() {
+    }
 
     /**
      * Repacks an array to the given class
