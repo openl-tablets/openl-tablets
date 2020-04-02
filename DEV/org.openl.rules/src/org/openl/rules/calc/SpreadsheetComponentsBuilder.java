@@ -603,12 +603,6 @@ public class SpreadsheetComponentsBuilder {
                             symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
 
                     }
-                case 1:
-                    resultBuilder = new ScalarResultBuilder(
-                        returnSpreadsheetCells.get(returnSpreadsheetCells.size() - 1),
-                        casts.get(casts.size() - 1),
-                        isCalculateAllCellsInSpreadsheet(spreadsheet));
-                    break;
                 default:
                     if (asArray) {
                         resultBuilder = new ArrayResultBuilder(retCells,

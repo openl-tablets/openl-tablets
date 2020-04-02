@@ -138,7 +138,7 @@ public class JavaOpenConstructor implements IOpenMethod, IMethodSignature {
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         try {
             return constructor.newInstance(params);
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw RuntimeExceptionWrapper.wrap(t);
         }
     }
