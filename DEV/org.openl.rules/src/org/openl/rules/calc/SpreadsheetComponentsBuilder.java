@@ -584,37 +584,33 @@ public class SpreadsheetComponentsBuilder {
                 }
             }
 
-            switch (returnSpreadsheetCells.size()) {
-                case 0:
-                    if (!nonEmptySpreadsheetCells.isEmpty()) {
-                        SpreadsheetCell nonEmptySpreadsheetCell = nonEmptySpreadsheetCells
-                            .get(nonEmptySpreadsheetCells.size() - 1);
-                        if (nonEmptySpreadsheetCell.getType() != null) {
-                            throw SyntaxNodeExceptionUtils.createError(
-                                String.format("Cannot convert from '%s' to '%s'.",
-                                    nonEmptySpreadsheetCell.getType().getName(),
-                                    spreadsheet.getHeader().getType().getName()),
+            if (returnSpreadsheetCells.size() == 0) {
+                if (!nonEmptySpreadsheetCells.isEmpty()) {
+                    SpreadsheetCell nonEmptySpreadsheetCell = nonEmptySpreadsheetCells.get(nonEmptySpreadsheetCells.size() - 1);
+                    if (nonEmptySpreadsheetCell.getType() != null) {
+                        throw SyntaxNodeExceptionUtils.createError(String.format("Cannot convert from '%s' to '%s'.",
+                                nonEmptySpreadsheetCell.getType().getName(),
+                                spreadsheet.getHeader().getType().getName()),
                                 symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
-                        } else {
-                            return null;
-                        }
                     } else {
-                        throw SyntaxNodeExceptionUtils.createError("There is no return expression cell.",
+                        return null;
+                    }
+                } else {
+                    throw SyntaxNodeExceptionUtils.createError("There is no return expression cell.",
                             symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
 
-                    }
-                default:
-                    if (asArray) {
-                        resultBuilder = new ArrayResultBuilder(retCells,
+                }
+            } else {
+                if (asArray) {
+                    resultBuilder = new ArrayResultBuilder(retCells,
                             castsAsArray.toArray(new IOpenCast[] {}),
                             type,
                             isCalculateAllCellsInSpreadsheet(spreadsheet));
-                    } else {
-                        resultBuilder = new ScalarResultBuilder(
-                            returnSpreadsheetCells.get(returnSpreadsheetCells.size() - 1),
+                } else {
+                    resultBuilder = new ScalarResultBuilder(returnSpreadsheetCells.get(returnSpreadsheetCells.size() - 1),
                             casts.get(casts.size() - 1),
                             isCalculateAllCellsInSpreadsheet(spreadsheet));
-                    }
+                }
             }
         }
         return resultBuilder;
