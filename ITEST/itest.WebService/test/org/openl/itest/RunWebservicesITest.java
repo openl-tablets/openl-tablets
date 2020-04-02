@@ -156,4 +156,11 @@ public class RunWebservicesITest {
         client.get("/EPBDS-9581/EPBDS-9581?_wadl", 404);
     }
 
+    @Test
+    public void EPBDS_9453() {
+        client.post("/EPBDS-9453/EPBDS-9453/proxyCustomer",
+            "/EPBDS-9453/EPBDS-9453_proxyCustomer.req.json",
+            "/EPBDS-9453/EPBDS-9453_proxyCustomer.resp.json");
+
+    }
 }

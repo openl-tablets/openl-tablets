@@ -1,0 +1,15 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>EPBDS-9453</serviceName>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+
+    <configuration>
+        <entry>
+            <string>jacksondatabinding.caseInsensitiveProperties</string>
+            <string>true</string>
+        </entry>
+    </configuration>
+</rules-deploy>
