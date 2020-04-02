@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.core.interceptors;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -23,6 +22,7 @@ import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
+import org.openl.util.RepackArrayUtils;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
@@ -350,7 +350,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                     result = afterInvocation(interfaceMethod, result, null, args);
                     // repack result if arrays inside it doesn't have the returnType as interfaceMethod
                     if (interfaceMethod.getReturnType().isArray()) {
-                        result = repackResultIfNeeded(result, interfaceMethod.getReturnType());
+                        result = RepackArrayUtils.repackArray(result, interfaceMethod.getReturnType());
                     }
                 } finally {
                     Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -390,36 +390,6 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         }
     }
 
-    private Object repackResultIfNeeded(Object o, Class<?> expectedClass) {
-        Class<?> returnType = o.getClass();
-        int dim1 = 0;
-        while (returnType.isArray()) {
-            returnType = returnType.getComponentType();
-            dim1++;
-        }
-        int dim2 = 0;
-        while (expectedClass.isArray()) {
-            expectedClass = expectedClass.getComponentType();
-            dim2++;
-        }
-        if (!returnType.equals(expectedClass) && o.getClass().isArray() && expectedClass
-            .isAssignableFrom(returnType) && dim1 == dim2) {
-            int n = Array.getLength(o);
-            Object result = Array.newInstance(expectedClass, n);
-            for (int i = 0; i < n; i++) {
-                Object from = Array.get(o, i);
-                if (from != null && from.getClass().isArray()) {
-                    Object to = repackResultIfNeeded(from, expectedClass);
-                    Array.set(result, i, to);
-                } else {
-                    Array.set(result, i, from);
-                }
-            }
-            return result;
-        } else {
-            return o;
-        }
-    }
 
     private void invokeAfterMethodInvocationOnListeners(Method interfaceMethod, Object[] args, Object result) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
