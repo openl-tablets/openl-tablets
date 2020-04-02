@@ -41,8 +41,7 @@
                 </h:commandLink>
               </rich:column>
               <rich:column rendered="#{node.type == 'proddeployment'}" style="text-align:center">
-                <h:outputText value="#{fn:substring(prj.data.version.versionName, 0, 6)}" styleClass="expandable"/>
-                <h:outputText value="#{prj.data.version.versionName}" styleClass="hidden"/>
+                <h:outputText value="#{productionRepositoriesTreeController.getBusinessVersion(prj)}"/>
               </rich:column>
               <rich:column rendered="#{node.type == 'proddeployment'}" style="text-align:center">
                 <h:outputText value="#{prj.modifiedBy}" />

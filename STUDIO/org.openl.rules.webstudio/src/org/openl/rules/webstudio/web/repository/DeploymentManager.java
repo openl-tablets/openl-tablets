@@ -4,7 +4,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
@@ -16,7 +21,12 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeployUtils;
@@ -41,6 +51,7 @@ public class DeploymentManager implements InitializingBean {
     private IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
 
     private Set<String> deployers = new HashSet<>();
+    public ProductionRepositoryFactoryProxy repositoryFactoryProxy;
 
     public void addRepository(String repositoryConfigName) {
         deployers.add(repositoryConfigName);
@@ -225,10 +236,12 @@ public class DeploymentManager implements InitializingBean {
         return null;
     }
 
-    private ProductionRepositoryFactoryProxy repositoryFactoryProxy;
-
     public void setRepositoryFactoryProxy(ProductionRepositoryFactoryProxy repositoryFactoryProxy) {
         this.repositoryFactoryProxy = repositoryFactoryProxy;
+    }
+
+    public Repository getDeployRepository(String repositoryConfigName) throws RRepositoryException {
+        return repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
     }
 
     public void setInitialProductionRepositoryConfigNames(String[] initialProductionRepositoryConfigNames) {

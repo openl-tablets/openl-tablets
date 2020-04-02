@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -7,17 +8,27 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 
+import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
+import org.openl.rules.webstudio.web.repository.tree.TreeProductProject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ManagedBean
 @SessionScoped
 public class ProductionRepositoriesTreeController {
+
+    private final Logger log = LoggerFactory.getLogger(ProductionRepositoriesTreeController.class);
+
     @ManagedProperty(value = "#{repositorySelectNodeStateHolder}")
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
 
     @ManagedProperty(value = "#{productionRepositoriesTreeState}")
     private ProductionRepositoriesTreeState productionRepositoriesTreeState;
+
+    @ManagedProperty(value = "#{projectVersionCacheManager}")
+    private ProjectVersionCacheManager projectVersionCacheManager;
 
     public ProductionRepositoriesTreeState getProductionRepositoriesTreeState() {
         return productionRepositoriesTreeState;
@@ -74,6 +85,10 @@ public class ProductionRepositoriesTreeController {
         this.repositorySelectNodeStateHolder = repositorySelectNodeStateHolder;
     }
 
+    public void setProjectVersionCacheManager(ProjectVersionCacheManager projectVersionCacheManager) {
+        this.projectVersionCacheManager = projectVersionCacheManager;
+    }
+
     public String refreshTree() {
         productionRepositoriesTreeState.invalidateTree();
 
@@ -88,6 +103,17 @@ public class ProductionRepositoriesTreeController {
     public void deleteProdRepo(String configName) {
         if (productionRepositoriesTreeState.getRoot() != null) {
             productionRepositoriesTreeState.getRoot().removeChild(configName);
+        }
+    }
+
+    public String getBusinessVersion(TreeProductProject version) {
+        try {
+            String businessVersion = projectVersionCacheManager
+                .getDesignBusinessVersionOfDeployedProject(version.getData().getProject());
+            return businessVersion != null ? businessVersion : version.getVersionName();
+        } catch (IOException e) {
+            log.error("Error during getting project design version", e);
+            return version.getVersionName();
         }
     }
 }

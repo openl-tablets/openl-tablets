@@ -1,17 +1,32 @@
 package org.openl.rules.repository.db;
 
-import java.io.*;
-import java.sql.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.rules.repository.RRepositoryFactory;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.Features;
+import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.db.JDBCDriverRegister;
+import org.openl.util.db.SqlDBUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,9 +60,9 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(rs);
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(rs);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -79,9 +94,9 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(rs);
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(rs);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -104,7 +119,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                     statement = createInsertFileStatement(connection, data, fileItem.getStream());
                     statement.executeUpdate();
                 } finally {
-                    safeClose(statement);
+                    SqlDBUtils.safeClose(statement);
                 }
                 data.setVersion(null);
                 result.add(data);
@@ -114,7 +129,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(connection);
+            SqlDBUtils.safeClose(connection);
         }
         return result;
     }
@@ -161,8 +176,8 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -197,9 +212,9 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(rs);
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(rs);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -232,9 +247,9 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(rs);
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(rs);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -262,8 +277,8 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                 log.error(e.getMessage(), e);
                 throw new IOException(e.getMessage(), e);
             } finally {
-                safeClose(statement);
-                safeClose(connection);
+                SqlDBUtils.safeClose(statement);
+                SqlDBUtils.safeClose(connection);
             }
         } else {
             Connection connection = null;
@@ -285,8 +300,8 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                 log.error(e.getMessage(), e);
                 throw new IOException(e.getMessage(), e);
             } finally {
-                safeClose(statement);
-                safeClose(connection);
+                SqlDBUtils.safeClose(statement);
+                SqlDBUtils.safeClose(connection);
             }
         }
     }
@@ -315,8 +330,8 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -349,9 +364,9 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(rs);
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(rs);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -378,9 +393,9 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(rs);
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(rs);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -414,45 +429,8 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         return fileData;
     }
 
-    protected void safeClose(ResultSet rs) {
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (Exception e) {
-                log.warn("Unexpected sql failure", e);
-            }
-        }
-    }
-
-    protected void safeClose(Connection connection) {
-        if (connection != null) {
-            try {
-                if (!connection.getAutoCommit()) {
-                    connection.commit();
-                }
-            } catch (Exception e) {
-                log.warn("Failed to commit", e);
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-                log.warn("Unexpected sql failure", e);
-            }
-        }
-    }
-
     private String makePathPattern(String path) {
         return path.replace("$", "$$").replace("%", "$%") + "%";
-    }
-
-    protected void safeClose(Statement st) {
-        if (st != null) {
-            try {
-                st.close();
-            } catch (Exception e) {
-                log.warn("Unexpected sql failure", e);
-            }
-        }
     }
 
     private void invokeListener() {
@@ -481,8 +459,8 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -531,7 +509,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             log.info("Database code    : {}-v{}.{}", databaseCode, majorVersion, minorVersion);
             settings = new Settings(databaseCode, majorVersion, minorVersion);
         } finally {
-            safeClose(connection);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -569,8 +547,8 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             if (autoCommit != null) {
                 connection.setAutoCommit(autoCommit);
             }
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -606,9 +584,9 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         } catch (Exception e) {
             return e;
         } finally {
-            safeClose(rs);
-            safeClose(statement);
-            safeClose(connection);
+            SqlDBUtils.safeClose(rs);
+            SqlDBUtils.safeClose(statement);
+            SqlDBUtils.safeClose(connection);
         }
         return changeSet;
     }

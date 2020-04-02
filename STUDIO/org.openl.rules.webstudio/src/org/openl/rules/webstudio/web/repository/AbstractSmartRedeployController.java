@@ -4,6 +4,7 @@ import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.CREATE_DEPLOYMENT;
 import static org.openl.rules.security.Privileges.EDIT_DEPLOYMENT;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -19,9 +20,14 @@ import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.Comments;
+import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
+import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
@@ -48,6 +54,9 @@ public abstract class AbstractSmartRedeployController {
 
     @ManagedProperty(value = "#{deploymentManager}")
     private DeploymentManager deploymentManager;
+
+    @ManagedProperty(value = "#{projectVersionCacheManager}")
+    private ProjectVersionCacheManager projectVersionCacheManager;
 
     @ManagedProperty("#{projectDescriptorArtefactResolver}")
     private volatile ProjectDescriptorArtefactResolver projectDescriptorResolver;
@@ -99,6 +108,31 @@ public abstract class AbstractSmartRedeployController {
         return false;
     }
 
+    private String getLastDeployedVersion(AProject wsProject, String deployConfigName) throws IOException {
+        Repository deployRepo = null;
+        try {
+            deployRepo = deploymentManager.getDeployRepository(repositoryConfigName);
+        } catch (RRepositoryException e) {
+            throw new IOException(e);
+        }
+        boolean folderStructure;
+
+        if (deployRepo.supports().folders()) {
+            folderStructure = !((FolderRepository) deployRepo)
+                .listFolders(deploymentManager.repositoryFactoryProxy.getDeploymentsPath(repositoryConfigName) + "/")
+                .isEmpty();
+        } else {
+            folderStructure = false;
+        }
+        Deployment deployment = new Deployment(deployRepo,
+            deploymentManager.repositoryFactoryProxy.getDeploymentsPath(repositoryConfigName) + deployConfigName,
+            wsProject.getName(),
+            null,
+            folderStructure);
+        AProject deployedProject = deployment.getProject(wsProject.getName());
+        return deployedProject != null ? projectVersionCacheManager.getDeployedProjectVersion(deployedProject) : null;
+    }
+
     private List<DeploymentProjectItem> getItems4Project(AProject project, String repositoryConfigName) {
         String projectName = project.getName();
 
@@ -106,8 +140,6 @@ public abstract class AbstractSmartRedeployController {
         if (userWorkspace == null) {
             return result; // must never happen
         }
-
-        // FIXME take latest deployment projects from DTR not from user scope
         // get all deployment projects
         List<TreeNode> nodes = repositoryTreeState.getDeploymentRepository().getChildNodes();
         for (TreeNode node : nodes) {
@@ -151,10 +183,15 @@ public abstract class AbstractSmartRedeployController {
             // check against latest version of the deployment project
             checker.addProjects(latestDeploymentVersion);
 
-            CommonVersionImpl descrVersion = new CommonVersionImpl(projectDescriptor.getProjectVersion());
-            int cmp = descrVersion.compareTo(project.getVersion());
+            String lastDeployedVersion = "";
+            try {
+                String name = getSelectedProject().getName();
+                lastDeployedVersion = getLastDeployedVersion(project, name);
+            } catch (IOException e) {
+                item.setMessages("Internal error while reading project cache.");
+            }
 
-            if (cmp == 0) {
+            if (lastDeployedVersion != null && lastDeployedVersion.equals(project.getVersion().getVersionName())) {
                 if (StringUtils.isEmpty(repositoryConfigName)) {
                     item.setDisabled(true);
                     item.setMessages("Repository is not selected");
@@ -197,10 +234,14 @@ public abstract class AbstractSmartRedeployController {
                     checker.addProject(project);
                     if (checker.check()) {
                         String to = RepositoryTreeController.getDescriptiveVersion(project.getVersion());
-                        String from = RepositoryTreeController
-                            .getDescriptiveVersion(userWorkspace.getDesignTimeRepository()
-                                .getProject(projectDescriptor.getProjectName(), descrVersion)
-                                .getVersion());
+                        String from = "undefined";
+                        if (lastDeployedVersion != null) {
+                            from = RepositoryTreeController
+                                .getDescriptiveVersion(userWorkspace.getDesignTimeRepository()
+                                    .getProject(projectDescriptor.getProjectName(),
+                                        new CommonVersionImpl(lastDeployedVersion))
+                                    .getVersion());
+                        }
                         item.setMessages("Can be updated to '" + to + "' from '" + from + "' and then deployed");
                     } else {
                         item.setMessages(
@@ -321,6 +362,10 @@ public abstract class AbstractSmartRedeployController {
 
     public void setDeployConfigRepoComments(Comments deployConfigRepoComments) {
         this.deployConfigRepoComments = deployConfigRepoComments;
+    }
+
+    public void setProjectVersionCacheManager(ProjectVersionCacheManager projectVersionCacheManager) {
+        this.projectVersionCacheManager = projectVersionCacheManager;
     }
 
     private ADeploymentProject update(String deploymentName, AProject project) {

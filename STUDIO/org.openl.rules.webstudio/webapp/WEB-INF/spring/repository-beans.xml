@@ -44,4 +44,14 @@
         <constructor-arg ref="environment"/>
         <constructor-arg name="prefix" value="deploy-config."/>
     </bean>
+
+    <bean id="projectVersionCacheDB" class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheDB">
+        <property name="openLHome" value="${openl.home}"/>
+    </bean>
+
+    <bean id="projectVersionCacheManager" class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager">
+        <property name="ProjectVersionCacheDB" ref="projectVersionCacheDB"/>
+        <property name="designRepository" ref="designTimeRepository"/>
+    </bean>
+
 </beans>
