@@ -226,6 +226,7 @@ public class LocalGitRepositoryTest {
         repo.setLocalRepositoryPath(local.getAbsolutePath());
         repo.setGitSettingsPath(local.getParent() + "/git-settings");
         repo.setCommentTemplate("WebStudio: {commit-type}. {user-message}");
+        repo.setGcAutoDetach(false);
         repo.initialize();
 
         return repo;
