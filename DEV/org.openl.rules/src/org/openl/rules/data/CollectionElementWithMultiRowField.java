@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.AOpenField;
@@ -41,7 +40,7 @@ public class CollectionElementWithMultiRowField extends AOpenField {
     @Override
     public Object get(Object target, IRuntimeEnv env) {
         if (target == null) {
-            return null;
+            return getType().nullObject();
         }
 
         DatatypeArrayMultiRowElementContext context = (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
@@ -79,7 +78,7 @@ public class CollectionElementWithMultiRowField extends AOpenField {
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         if (target == null) {
-            throw new OpenLRuntimeException(String.format("Cannot set [%s] field to 'null' object", this.getName()));
+            return;
         }
 
         Object v = field.get(target, env);

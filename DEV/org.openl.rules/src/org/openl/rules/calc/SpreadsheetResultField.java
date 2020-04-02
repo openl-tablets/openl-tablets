@@ -38,6 +38,9 @@ public class SpreadsheetResultField extends AOpenField implements NodeDescriptio
 
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
+        if (target == null) {
+            return;
+        }
         SpreadsheetResult spreadsheetResult = (SpreadsheetResult) target;
         String name = getName();
 

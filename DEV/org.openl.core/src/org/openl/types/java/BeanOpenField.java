@@ -101,7 +101,7 @@ public class BeanOpenField implements IOpenField {
         try {
             if (target == null) {
                 // assuming it is a non static read method.
-                return null;
+                return getType().nullObject();
             }
             return readMethod.invoke(target, ArrayTool.ZERO_OBJECT);
         } catch (Exception ex) {
@@ -162,10 +162,12 @@ public class BeanOpenField implements IOpenField {
 
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
-        try {
-            writeMethod.invoke(target, value);
-        } catch (Exception ex) {
-            throw RuntimeExceptionWrapper.wrap("", ex);
+        if (target != null) {
+            try {
+                writeMethod.invoke(target, value);
+            } catch (Exception ex) {
+                throw RuntimeExceptionWrapper.wrap("", ex);
+            }
         }
     }
 

@@ -36,13 +36,13 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
-        SpreadsheetResultCalculator result = (SpreadsheetResultCalculator) target;
+        SpreadsheetResultCalculator spreadsheetResultCalculator = (SpreadsheetResultCalculator) target;
 
-        if (result == null) {
+        if (spreadsheetResultCalculator == null) {
             return getType().nullObject();
         }
 
-        return result.getValue(cell.getRowIndex(), cell.getColumnIndex());
+        return spreadsheetResultCalculator.getValue(cell.getRowIndex(), cell.getColumnIndex());
     }
 
     public SpreadsheetCell getCell() {

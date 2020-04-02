@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
@@ -40,7 +39,7 @@ public class CollectionElementField extends AOpenField {
     @Override
     public Object get(Object target, IRuntimeEnv env) {
         if (target == null) {
-            return null;
+            return getType().nullObject();
         }
 
         Object res = null;
@@ -87,9 +86,8 @@ public class CollectionElementField extends AOpenField {
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         if (target == null) {
-            throw new OpenLRuntimeException(String.format("Cannot set [%s] field to 'null' object", this.getName()));
+           return;
         }
-
         Object v = field.get(target, env);
         if (collectionType.isArray()) {
             setForArray(target, value, env, v);

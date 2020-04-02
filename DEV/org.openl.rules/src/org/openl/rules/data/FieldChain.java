@@ -84,7 +84,7 @@ public class FieldChain extends AOpenField {
 
         for (IOpenField field : fields) {
             if (target == null) {
-                result = null;
+                result = getType().nullObject();
                 break;
             }
             result = field.get(target, env);

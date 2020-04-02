@@ -35,6 +35,9 @@ public class JavaOpenField implements IOpenField {
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
+        if (target == null) {
+            return getType().nullObject();
+        }
         try {
             return field.get(target);
         } catch (Exception t) {
@@ -109,10 +112,12 @@ public class JavaOpenField implements IOpenField {
 
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
-        try {
-            field.set(target, value);
-        } catch (Exception t) {
-            throw RuntimeExceptionWrapper.wrap(t);
+        if (target != null) {
+            try {
+                field.set(target, value);
+            } catch (Exception t) {
+                throw RuntimeExceptionWrapper.wrap(t);
+            }
         }
     }
 

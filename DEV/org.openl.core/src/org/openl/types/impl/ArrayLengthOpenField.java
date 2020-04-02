@@ -20,6 +20,9 @@ import org.openl.vm.IRuntimeEnv;
 public abstract class ArrayLengthOpenField implements IOpenField {
     @Override
     public Object get(Object target, IRuntimeEnv env) {
+        if (target == null) {
+            return getType().nullObject();
+        }
         return getLength(target);
     }
 

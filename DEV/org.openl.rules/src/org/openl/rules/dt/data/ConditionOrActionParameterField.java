@@ -19,7 +19,9 @@ public class ConditionOrActionParameterField implements IOpenField {
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
-
+        if (target == null) {
+            return getType().nullObject();
+        }
         Object[] params = (Object[]) target;
 
         return params[paramNum];

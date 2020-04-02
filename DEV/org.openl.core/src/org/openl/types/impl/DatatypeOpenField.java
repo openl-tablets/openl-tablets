@@ -98,10 +98,12 @@ public class DatatypeOpenField extends AOpenField {
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         initMethods();
-        try {
-            setter.invoke(target, value);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+        if (target != null) {
+            try {
+                setter.invoke(target, value);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

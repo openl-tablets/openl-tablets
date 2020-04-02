@@ -30,6 +30,9 @@ public class SpreadsheetRangeField extends ASpreadsheetField implements NodeDesc
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
+        if (target == null) {
+            return getType().nullObject();
+        }
         int sx = fstart.getCell().getColumnIndex();
         int sy = fstart.getCell().getRowIndex();
         int ex = fend.getCell().getColumnIndex();

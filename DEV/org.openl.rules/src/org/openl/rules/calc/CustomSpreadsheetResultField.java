@@ -69,7 +69,9 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
 
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
-        ((SpreadsheetResult) target).setFieldValue(getName(), value);
+        if (target != null) {
+            ((SpreadsheetResult) target).setFieldValue(getName(), value);
+        }
     }
 
 }

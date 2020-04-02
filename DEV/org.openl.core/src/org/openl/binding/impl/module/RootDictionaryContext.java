@@ -65,8 +65,9 @@ public class RootDictionaryContext implements VariableInContextFinder {
             if (parent != null) {
                 target = parent.get(target, env);
             }
-            super.set(target, value, env);
-
+            if (target != null) {
+                super.set(target, value, env);
+            }
         }
 
     }
