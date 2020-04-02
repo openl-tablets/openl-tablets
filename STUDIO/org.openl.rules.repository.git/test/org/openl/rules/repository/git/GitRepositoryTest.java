@@ -18,9 +18,11 @@ import java.util.List;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -56,6 +58,9 @@ public class GitRepositoryTest {
         // Initialize remote repository
         try (Git git = Git.init().setDirectory(template).call()) {
             Repository repository = git.getRepository();
+            StoredConfig config = repository.getConfig();
+            config.setBoolean(ConfigConstants.CONFIG_GC_SECTION, null, ConfigConstants.CONFIG_KEY_AUTODETACH, false);
+            config.save();
 
             File parent = repository.getDirectory().getParentFile();
             File rulesFolder = new File(parent, FOLDER_IN_REPOSITORY);
@@ -1007,6 +1012,7 @@ public class GitRepositoryTest {
         repo.setCommentTemplate("WebStudio: {commit-type}. {user-message}");
         String settingsPath = local.getParent() + "/git-settings";
         repo.setGitSettingsPath(settingsPath);
+        repo.setGcAutoDetach(false);
         repo.initialize();
 
         return repo;

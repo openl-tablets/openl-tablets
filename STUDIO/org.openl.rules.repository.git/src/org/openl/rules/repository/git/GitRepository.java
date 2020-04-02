@@ -76,6 +76,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private String escapedCommentTemplate;
     private String gitSettingsPath;
     private boolean noVerify;
+    private Boolean gcAutoDetach;
 
     private ChangesMonitor monitor;
     private Git git;
@@ -594,6 +595,14 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             } else {
                 config.unset(ConfigConstants.CONFIG_USER_SECTION, null, ConfigConstants.CONFIG_KEY_EMAIL);
             }
+
+            if (gcAutoDetach != null) {
+                config.setBoolean(ConfigConstants.CONFIG_GC_SECTION,
+                    null,
+                    ConfigConstants.CONFIG_KEY_AUTODETACH,
+                    gcAutoDetach);
+            }
+
             config.save();
 
             // Track all remote branches as local branches
@@ -756,6 +765,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     public void setGitSettingsPath(String gitSettingsPath) {
         this.gitSettingsPath = gitSettingsPath;
+    }
+
+    /**
+     * If null, don't modify "gc.autoDetach" state. Otherwise, save it as a git repository setting.
+     */
+    public void setGcAutoDetach(Boolean gcAutoDetach) {
+        this.gcAutoDetach = gcAutoDetach;
     }
 
     private static TreeWalk buildTreeWalk(org.eclipse.jgit.lib.Repository repository,

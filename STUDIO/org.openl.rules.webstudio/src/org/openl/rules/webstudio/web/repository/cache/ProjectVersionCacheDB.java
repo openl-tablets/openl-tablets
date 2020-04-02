@@ -28,7 +28,7 @@ public class ProjectVersionCacheDB extends H2CacheDB {
     private static final String CREATED_BY = "created_by";
     private static final String REPOSITORY = "repository";
 
-    private static final String CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(" + PROJECT_NAME + " varchar(50)," + VERSION + " varchar(50), " + CREATED_AT + " TIMESTAMP, " + CREATED_BY + " varchar(50), " + HASH + " varchar(32), " + REPOSITORY + " varchar(6))";
+    private static final String CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(" + PROJECT_NAME + " varchar(300)," + VERSION + " varchar(50), " + CREATED_AT + " TIMESTAMP, " + CREATED_BY + " varchar(50), " + HASH + " varchar(32), " + REPOSITORY + " varchar(6))";
     private static final String SELECT_VERSION_QUERY = "select " + VERSION + " from " + TABLE_NAME + " WHERE " + CREATED_AT + "=(SELECT MAX(" + CREATED_AT + ") FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? and " + HASH + "=? and " + REPOSITORY + "=?) and " + HASH + "=?";
     private static final String SELECT_HASH_QUERY = "select " + HASH + " from " + TABLE_NAME + " WHERE " + CREATED_AT + "=(SELECT MAX(" + CREATED_AT + ") FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? and " + VERSION + "=? and " + REPOSITORY + "=?) and " + HASH + "=?";
     private static final String SELECT_DESIGN_VERSION_QUERY = "select " + CREATED_AT + ", " + CREATED_BY + " from " + TABLE_NAME + " WHERE " + CREATED_AT + "=(SELECT MAX(" + CREATED_AT + ") FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? and " + HASH + "=? and " + REPOSITORY + "=?)";
