@@ -9,7 +9,15 @@ import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openl.meta.*;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.BigIntegerValue;
+import org.openl.meta.ByteValue;
+import org.openl.meta.DoubleValue;
+import org.openl.meta.FloatValue;
+import org.openl.meta.IntValue;
+import org.openl.meta.LongValue;
+import org.openl.meta.ShortValue;
+import org.openl.meta.StringValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calculation.result.convertor2.CompoundStep;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
@@ -19,10 +27,14 @@ import org.openl.rules.helpers.IntRange;
 import org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean;
 import org.openl.rules.serialization.DefaultTypingMode;
 import org.openl.rules.table.Point;
-import org.openl.rules.variation.*;
+import org.openl.rules.variation.ArgumentReplacementVariation;
+import org.openl.rules.variation.ComplexVariation;
+import org.openl.rules.variation.DeepCloningVariation;
+import org.openl.rules.variation.JXPathVariation;
+import org.openl.rules.variation.Variation;
+import org.openl.rules.variation.VariationsResult;
 import org.openl.util.RangeWithBounds.BoundType;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
@@ -117,7 +129,7 @@ public class JacksonObjectMapperFactoryBeanTest {
     }
 
     @Test
-    public void testOpenLTypes() throws JsonProcessingException, IOException {
+    public void testOpenLTypes() throws ClassNotFoundException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
 
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
@@ -161,9 +173,9 @@ public class JacksonObjectMapperFactoryBeanTest {
     }
 
     @Test
-    public void testVariations() throws JsonProcessingException, IOException {
+    public void testVariations() throws ClassNotFoundException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
-        bean.setDefaultTypingMode(DefaultTypingMode.SMART);
+        bean.setDefaultTypingMode(DefaultTypingMode.OBJECT_AND_NON_CONCRETE);
         bean.setSupportVariations(true);
         Set<String> overrideTypes = new HashSet<>();
         overrideTypes.add(CompoundStep.class.getName());
@@ -201,7 +213,7 @@ public class JacksonObjectMapperFactoryBeanTest {
     }
 
     @Test
-    public void testSpreadsheetResult() throws JsonProcessingException, IOException {
+    public void testSpreadsheetResult() throws ClassNotFoundException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setSupportVariations(true);
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
@@ -218,7 +230,7 @@ public class JacksonObjectMapperFactoryBeanTest {
     }
 
     @Test
-    public void testRange() throws JsonProcessingException, IOException {
+    public void testRange() throws ClassNotFoundException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setSupportVariations(true);
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
@@ -235,7 +247,7 @@ public class JacksonObjectMapperFactoryBeanTest {
     }
 
     @Test
-    public void testIRulesRuntimeContext() throws JsonProcessingException, IOException {
+    public void testIRulesRuntimeContext() throws ClassNotFoundException, IOException {
         DefaultRulesRuntimeContext context = new DefaultRulesRuntimeContext();
         Date date = new Date();
         context.setCurrentDate(date);
@@ -268,9 +280,9 @@ public class JacksonObjectMapperFactoryBeanTest {
     }
 
     @Test
-    public void testOverrideTypesSmart() throws JsonProcessingException, IOException {
+    public void testOverrideTypesSmart() throws ClassNotFoundException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
-        bean.setDefaultTypingMode(DefaultTypingMode.SMART);
+        bean.setDefaultTypingMode(DefaultTypingMode.OBJECT_AND_NON_CONCRETE);
         bean.setSupportVariations(true);
         bean.setPolymorphicTypeValidation(true);
         Set<String> overrideTypes = new HashSet<>();
@@ -296,9 +308,9 @@ public class JacksonObjectMapperFactoryBeanTest {
     }
 
     @Test
-    public void testOverrideTypesEnable() throws JsonProcessingException, IOException {
+    public void testOverrideTypesEnable() throws ClassNotFoundException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
-        bean.setDefaultTypingMode(DefaultTypingMode.ENABLE);
+        bean.setDefaultTypingMode(DefaultTypingMode.OBJECT_AND_NON_CONCRETE);
         bean.setSupportVariations(true);
         bean.setPolymorphicTypeValidation(true);
         Set<String> overrideTypes = new HashSet<>();
@@ -325,9 +337,9 @@ public class JacksonObjectMapperFactoryBeanTest {
     }
 
     @Test(expected = InvalidTypeIdException.class)
-    public void testOverrideTypesEnableMissedClass() throws JsonProcessingException, IOException {
+    public void testOverrideTypesEnableMissedClass() throws ClassNotFoundException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
-        bean.setDefaultTypingMode(DefaultTypingMode.ENABLE);
+        bean.setDefaultTypingMode(DefaultTypingMode.NON_FINAL);
         bean.setSupportVariations(true);
         bean.setPolymorphicTypeValidation(true);
         Set<String> overrideTypes = new HashSet<>();

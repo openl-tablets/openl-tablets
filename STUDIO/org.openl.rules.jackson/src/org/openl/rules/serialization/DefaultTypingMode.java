@@ -9,9 +9,11 @@ package org.openl.rules.serialization;
  * See the file LICENSE.txt for copying permission.
  * #L%
  */
-
 public enum DefaultTypingMode {
-    ENABLE,
-    SMART,
-    DISABLE;
+    JAVA_LANG_OBJECT,
+    OBJECT_AND_NON_CONCRETE,
+    NON_CONCRETE_AND_ARRAYS,
+    NON_FINAL,
+    EVERYTHING,
+    DISABLED;
 }

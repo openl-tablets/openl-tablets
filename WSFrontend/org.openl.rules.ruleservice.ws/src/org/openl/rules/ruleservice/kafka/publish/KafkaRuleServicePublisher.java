@@ -67,7 +67,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
 
     private static final String[] CLEAN_UP_PROPERTIES = { "jacksondatabinding.defaultTypingMode",
             "rootClassNamesBinding",
-            "jacksondatabinding.enableDefaultTyping",
             CLIENT_ID_GENERATOR };
 
     private Map<OpenLService, Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>>> runningServices = new HashMap<>();

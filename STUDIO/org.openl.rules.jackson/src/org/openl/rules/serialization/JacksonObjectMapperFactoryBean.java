@@ -17,9 +17,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 
+import org.openl.rules.context.DefaultRulesRuntimeContext;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.ruleservice.databinding.annotation.JacksonBindingConfigurationUtils;
-import org.openl.rules.ruleservice.databinding.annotation.MixInClassFor;
 import org.openl.rules.ruleservice.databinding.annotation.MixInClass;
+import org.openl.rules.ruleservice.databinding.annotation.MixInClassFor;
 import org.openl.rules.serialization.jackson.Mixin;
 import org.openl.rules.serialization.jackson.org.openl.rules.variation.ArgumentReplacementVariationType;
 import org.openl.rules.serialization.jackson.org.openl.rules.variation.ComplexVariationType;
@@ -40,6 +42,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
@@ -55,11 +58,13 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
 public class JacksonObjectMapperFactoryBean {
 
+    private static final DefaultTypingMode DEFAULT_VALUE_FOR_DEFAULT_TYPING_MODE = DefaultTypingMode.JAVA_LANG_OBJECT;
+
     private final Logger log = LoggerFactory.getLogger(JacksonObjectMapperFactoryBean.class);
 
     private boolean supportVariations = false;
 
-    private DefaultTypingMode defaultTypingMode = DefaultTypingMode.SMART;
+    private DefaultTypingMode defaultTypingMode = DEFAULT_VALUE_FOR_DEFAULT_TYPING_MODE;
 
     private DateFormat defaultDateFormat = getISO8601Format();
 
@@ -67,11 +72,17 @@ public class JacksonObjectMapperFactoryBean {
 
     private Set<String> overrideTypes;
 
+    private Set<Class<?>> overrideClasses;
+
     private boolean failOnUnknownProperties = false;
 
     private boolean polymorphicTypeValidation = false;
 
-    public ObjectMapper createJacksonObjectMapper() {
+    private boolean caseInsensitiveProperties = false;
+
+    private ClassLoader classLoader;
+
+    public ObjectMapper createJacksonObjectMapper() throws ClassNotFoundException {
         ObjectMapper mapper = new ObjectMapper();
 
         mapper.registerModule(new ParameterNamesModule())
@@ -92,73 +103,16 @@ public class JacksonObjectMapperFactoryBean {
 
         mapper.setAnnotationIntrospector(introspector);
 
-        if (DefaultTypingMode.SMART.equals(getDefaultTypingMode()) || DefaultTypingMode.ENABLE
-            .equals(getDefaultTypingMode())) {
-            Builder basicPolymorphicTypeValidatorBuilder = null;
-            final boolean polymorphicTypeValidation = isPolymorphicTypeValidation();
-            if (polymorphicTypeValidation) {
-                basicPolymorphicTypeValidatorBuilder = BasicPolymorphicTypeValidator.builder();
-                basicPolymorphicTypeValidatorBuilder.allowIfSubTypeIsArray();
-            }
-            if (getOverrideTypes() != null) {
-                List<Class<?>> classes = new ArrayList<>();
-                List<Class<?>> configurationClasses = new ArrayList<>();
-                for (String className : getOverrideTypes()) {
-                    try {
-                        Class<?> clazz = loadClass(className);
-                        if (JacksonBindingConfigurationUtils.isConfiguration(clazz)) {
-                            configurationClasses.add(clazz);
-                        } else {
-                            classes.add(clazz);
-                            if (polymorphicTypeValidation) {
-                                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(clazz);
-                                basicPolymorphicTypeValidatorBuilder.allowIfSubType(clazz);
-                            }
-                        }
-                    } catch (ClassNotFoundException e) {
-                        log.warn("Class '{}' is not found.", className, e);
-                    }
-                }
-                for (Class<?> clazz : configurationClasses) {
-                    MixInClassFor mixInClass = clazz.getAnnotation(MixInClassFor.class);
-                    if (mixInClass != null) {
-                        Arrays.stream(mixInClass.value()).forEach(forClass -> mapper.addMixIn(forClass, clazz));
-                    }
-                    MixInClass mixInRulesClass = clazz.getAnnotation(MixInClass.class);
-                    if (mixInRulesClass != null) {
-                        for (String className : mixInRulesClass.value()) {
-                            try {
-                                Class<?> useForClass = loadClass(className);
-                                mapper.addMixIn(useForClass, clazz);
-                            } catch (ClassNotFoundException e) {
-                                log.warn("Class '{}' is not found.", className, e);
-                            }
-                        }
-
-                    }
-                }
-                for (Class<?> clazz : classes) {
-                    for (Class<?> c : classes) {
-                        if (!clazz.equals(c) && clazz.isAssignableFrom(c)) {
-                            addMixIn(mapper, clazz, Mixin.class);
-                            break;
-                        }
-                    }
-                    mapper.registerSubtypes(clazz);
-                }
-            }
-            mapper.activateDefaultTyping(
-                polymorphicTypeValidation ? basicPolymorphicTypeValidatorBuilder.build()
-                                          : LaissezFaireSubTypeValidator.instance,
-                DefaultTypingMode.ENABLE.equals(getDefaultTypingMode()) ? ObjectMapper.DefaultTyping.NON_FINAL
-                                                                        : ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT,
-                JsonTypeInfo.As.PROPERTY);
-        } else {
-            mapper.deactivateDefaultTyping();
+        Builder basicPolymorphicTypeValidatorBuilder = null;
+        final boolean polymorphicTypeValidation = isPolymorphicTypeValidation();
+        if (polymorphicTypeValidation) {
+            basicPolymorphicTypeValidatorBuilder = BasicPolymorphicTypeValidator.builder();
+            basicPolymorphicTypeValidatorBuilder.allowIfSubTypeIsArray();
+            basicPolymorphicTypeValidatorBuilder.allowIfBaseType(IRulesRuntimeContext.class);
+            basicPolymorphicTypeValidatorBuilder.allowIfSubType(IRulesRuntimeContext.class);
+            basicPolymorphicTypeValidatorBuilder.allowIfBaseType(DefaultRulesRuntimeContext.class);
+            basicPolymorphicTypeValidatorBuilder.allowIfSubType(DefaultRulesRuntimeContext.class);
         }
-
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, isFailOnUnknownProperties());
-
         if (isSupportVariations()) {
             addMixIn(mapper, Variation.class, VariationType.class);
             addMixIn(mapper, ArgumentReplacementVariation.class, ArgumentReplacementVariationType.class);
@@ -166,6 +120,102 @@ public class JacksonObjectMapperFactoryBean {
             addMixIn(mapper, DeepCloningVariation.class, DeepCloningVariationType.class);
             addMixIn(mapper, JXPathVariation.class, JXPathVariationType.class);
             addMixIn(mapper, VariationsResult.class, VariationsResultType.class);
+            if (polymorphicTypeValidation) {
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(Variation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(Variation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(ArgumentReplacementVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(ArgumentReplacementVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(ComplexVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(ComplexVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(DeepCloningVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(DeepCloningVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(JXPathVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(JXPathVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(VariationsResult.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(VariationsResult.class);
+            }
+        }
+        if (!DefaultTypingMode.DISABLED.equals(getDefaultTypingMode())) {
+            List<Class<?>> classes = new ArrayList<>();
+            List<Class<?>> configurationClasses = new ArrayList<>();
+            if (getOverrideTypes() != null) {
+                for (String className : getOverrideTypes()) {
+                    Class<?> clazz = loadClass(className);
+                    registerOverrideClass(basicPolymorphicTypeValidatorBuilder,
+                        polymorphicTypeValidation,
+                        classes,
+                        configurationClasses,
+                        clazz);
+                }
+            }
+            if (getOverrideClasses() != null) {
+                for (Class<?> clazz : getOverrideClasses()) {
+                    registerOverrideClass(basicPolymorphicTypeValidatorBuilder,
+                        polymorphicTypeValidation,
+                        classes,
+                        configurationClasses,
+                        clazz);
+                }
+            }
+            for (Class<?> clazz : configurationClasses) {
+                MixInClassFor mixInClass = clazz.getAnnotation(MixInClassFor.class);
+                if (mixInClass != null) {
+                    Arrays.stream(mixInClass.value()).forEach(forClass -> mapper.addMixIn(forClass, clazz));
+                }
+                MixInClass mixInRulesClass = clazz.getAnnotation(MixInClass.class);
+                if (mixInRulesClass != null) {
+                    for (String className : mixInRulesClass.value()) {
+                        try {
+                            Class<?> useForClass = loadClass(className);
+                            mapper.addMixIn(useForClass, clazz);
+                        } catch (ClassNotFoundException e) {
+                            log.warn("Class '{}' is not found.", className, e);
+                        }
+                    }
+
+                }
+            }
+            for (Class<?> clazz : classes) {
+                for (Class<?> c : classes) {
+                    if (!clazz.equals(c) && clazz.isAssignableFrom(c)) {
+                        addMixIn(mapper, clazz, Mixin.class);
+                        break;
+                    }
+                }
+                mapper.registerSubtypes(clazz);
+            }
+
+            ObjectMapper.DefaultTyping defaultTyping = null;
+            switch (getDefaultTypingMode()) {
+                case NON_FINAL:
+                    defaultTyping = ObjectMapper.DefaultTyping.NON_FINAL;
+                    break;
+                case OBJECT_AND_NON_CONCRETE:
+                    defaultTyping = ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE;
+                    break;
+                case NON_CONCRETE_AND_ARRAYS:
+                    defaultTyping = ObjectMapper.DefaultTyping.NON_CONCRETE_AND_ARRAYS;
+                    break;
+                case JAVA_LANG_OBJECT:
+                    defaultTyping = ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT;
+                    break;
+                case EVERYTHING:
+                    defaultTyping = ObjectMapper.DefaultTyping.EVERYTHING;
+                    break;
+            }
+            mapper.activateDefaultTyping(
+                polymorphicTypeValidation ? basicPolymorphicTypeValidatorBuilder.build()
+                                          : LaissezFaireSubTypeValidator.instance,
+                defaultTyping,
+                JsonTypeInfo.As.PROPERTY);
+        } else {
+            mapper.deactivateDefaultTyping();
+        }
+
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, isFailOnUnknownProperties());
+
+        if (isCaseInsensitiveProperties()) {
+            mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
         }
 
         if (getDefaultDateFormat() == null) {
@@ -175,6 +225,22 @@ public class JacksonObjectMapperFactoryBean {
         }
 
         return mapper;
+    }
+
+    private void registerOverrideClass(Builder basicPolymorphicTypeValidatorBuilder,
+            boolean polymorphicTypeValidation,
+            List<Class<?>> classes,
+            List<Class<?>> configurationClasses,
+            Class<?> clazz) {
+        if (JacksonBindingConfigurationUtils.isConfiguration(clazz)) {
+            configurationClasses.add(clazz);
+        } else {
+            classes.add(clazz);
+            if (polymorphicTypeValidation) {
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(clazz);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(clazz);
+            }
+        }
     }
 
     private void addMixIn(ObjectMapper mapper, Class<?> classFor, Class<?> mixIn) {
@@ -205,8 +271,12 @@ public class JacksonObjectMapperFactoryBean {
         return iso8601Format;
     }
 
-    private static Class<?> loadClass(String className) throws ClassNotFoundException {
-        return Thread.currentThread().getContextClassLoader().loadClass(className);
+    private Class<?> loadClass(String className) throws ClassNotFoundException {
+        if (classLoader == null) {
+            return Thread.currentThread().getContextClassLoader().loadClass(className);
+        } else {
+            return classLoader.loadClass(className);
+        }
     }
 
     public boolean isSupportVariations() {
@@ -223,7 +293,7 @@ public class JacksonObjectMapperFactoryBean {
 
     public void setDefaultTypingMode(DefaultTypingMode defaultTypingMode) {
         if (defaultTypingMode == null) {
-            this.defaultTypingMode = DefaultTypingMode.SMART;
+            this.defaultTypingMode = DEFAULT_VALUE_FOR_DEFAULT_TYPING_MODE;
         } else {
             this.defaultTypingMode = defaultTypingMode;
         }
@@ -267,5 +337,29 @@ public class JacksonObjectMapperFactoryBean {
 
     public void setPolymorphicTypeValidation(boolean polymorphicTypeValidation) {
         this.polymorphicTypeValidation = polymorphicTypeValidation;
+    }
+
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
+
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
+
+    public Set<Class<?>> getOverrideClasses() {
+        return overrideClasses;
+    }
+
+    public void setOverrideClasses(Set<Class<?>> overrideClasses) {
+        this.overrideClasses = overrideClasses;
+    }
+
+    public boolean isCaseInsensitiveProperties() {
+        return caseInsensitiveProperties;
+    }
+
+    public void setCaseInsensitiveProperties(boolean caseInsensitiveProperties) {
+        this.caseInsensitiveProperties = caseInsensitiveProperties;
     }
 }
