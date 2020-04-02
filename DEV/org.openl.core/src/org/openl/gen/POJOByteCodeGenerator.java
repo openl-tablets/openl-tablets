@@ -134,7 +134,8 @@ public class POJOByteCodeGenerator {
             FieldDescription field,
             String javaType) {
         AnnotationVisitor av = fieldVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlElement;", true);
-        av.visit("name", fieldName);
+
+        av.visit("name", field.getXmlName() != null ? field.getXmlName() : fieldName);
 
         if (field.hasDefaultValue() && field.getTypeDescriptor().length() != 1) {
             av.visit("nillable", true);

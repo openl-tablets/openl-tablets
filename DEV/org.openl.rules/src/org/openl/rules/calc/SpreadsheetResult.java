@@ -395,7 +395,8 @@ public class SpreadsheetResult implements Serializable {
             long nonNullsColumnsCount = Arrays.stream(columnNamesForResultModel).filter(Objects::nonNull).count();
             long nonNullsRowsCount = Arrays.stream(rowNamesForResultModel).filter(Objects::nonNull).count();
             final boolean isDetailedPlainModel = detailedPlainModel;
-            String[][] fieldNames = isDetailedPlainModel ? new String[rowNames.length][columnNames.length] : null;
+            String[][] TableDetails = isDetailedPlainModel ? new String[rowNames.length][columnNames.length]
+                                                                         : null;
             if (customSpreadsheetResultOpenClass != null) {
                 CustomSpreadsheetResultOpenClass csrt;
                 if (module != null) {
@@ -404,16 +405,17 @@ public class SpreadsheetResult implements Serializable {
                 } else {
                     csrt = customSpreadsheetResultOpenClass;
                 }
+                Map<String, String> xmlNamesMap = csrt.getXmlNamesMap();
                 for (Map.Entry<String, List<IOpenField>> e : csrt.getBeanFieldsMap().entrySet()) {
                     List<IOpenField> openFields = e.getValue();
                     for (IOpenField openField : openFields) {
                         Point p = fieldsCoordinates.get(openField.getName());
                         if (p != null && columnNamesForResultModel[p.getColumn()] != null && rowNamesForResultModel[p
                             .getRow()] != null) {
-                            values.put(e.getKey(),
+                            values.put(xmlNamesMap.get(e.getKey()),
                                 convertSpreadsheetResult(module, getValue(p.getRow(), p.getColumn())));
                             if (isDetailedPlainModel) {
-                                fieldNames[p.getRow()][p.getColumn()] = e.getKey();
+                                TableDetails[p.getRow()][p.getColumn()] = xmlNamesMap.get(e.getKey());
                             }
                         }
                     }
@@ -424,12 +426,11 @@ public class SpreadsheetResult implements Serializable {
                         if (columnNamesForResultModel[j] != null && rowNamesForResultModel[i] != null) {
                             String fName;
                             if (nonNullsColumnsCount == 1) {
-                                fName = ClassUtils.decapitalize(rowNamesForResultModel[i]);
+                                fName = rowNamesForResultModel[i];
                             } else if (nonNullsRowsCount == 1) {
-                                fName = ClassUtils.decapitalize(columnNamesForResultModel[j]);
+                                fName = columnNamesForResultModel[j];
                             } else {
-                                fName = ClassUtils.decapitalize(columnNamesForResultModel[j]) + ClassUtils
-                                    .capitalize(rowNamesForResultModel[i]);
+                                fName = columnNamesForResultModel[j] + "_" + rowNamesForResultModel[i];
                             }
                             String fNewName = fName;
                             int k = 1;
@@ -439,18 +440,18 @@ public class SpreadsheetResult implements Serializable {
                             }
                             values.put(fName, convertSpreadsheetResult(module, getValue(i, j)));
                             if (isDetailedPlainModel) {
-                                fieldNames[i][j] = fName;
+                                TableDetails[i][j] = fName;
                             }
                         }
                     }
                 }
             }
             if (detailedPlainModel) {
-                values.put(CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(), "fieldNames"),
-                    fieldNames);
-                values.put(CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(), "rowNames"),
+                values.put(CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(),
+                    "TableDetails"), TableDetails);
+                values.put(CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(), "RowNames"),
                     rowNames);
-                values.put(CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(), "columnNames"),
+                values.put(CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(), "ColumnNames"),
                     columnNames);
             }
         }

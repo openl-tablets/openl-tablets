@@ -71,11 +71,11 @@
         }
       }
     },
-    "/arrSpreadsheetResultspr1": {
+    "/mySpr": {
       "post": {
-        "summary": "Method: arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
+        "summary": "Method: mySpr(org.openl.rules.context.IRulesRuntimeContext)",
         "description": "",
-        "operationId": "arrSpreadsheetResultspr1",
+        "operationId": "mySpr",
         "consumes": [
           "application/json"
         ],
@@ -96,10 +96,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Spr1"
-              }
+              "$ref": "#/definitions/MySpr"
             }
           }
         }
@@ -139,6 +136,40 @@
         }
       }
     },
+    "/arrSpreadsheetResultspr1": {
+      "post": {
+        "summary": "Method: arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "",
+        "operationId": "arrSpreadsheetResultspr1",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Spr1"
+              }
+            }
+          }
+        }
+      }
+    },
     "/arrObjSpreadsheetResult": {
       "post": {
         "summary": "Method: arrObjSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
@@ -172,206 +203,175 @@
           }
         }
       }
-    },
-    "/mySpr": {
-      "post": {
-        "summary": "Method: mySpr(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "mySpr",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MySpr"
-            }
-          }
-        }
-      }
     }
   },
   "definitions": {
     "AnySpreadsheetResult": {
       "type": "object",
       "properties": {
-        "value3Step3": {
+        "Value3_Step3": {
           "type": "number",
           "format": "double"
         },
-        "value4Step3": {
+        "Value4_Step3": {
           "type": "number",
           "format": "double"
         },
-        "valueStep3": {
+        "Value_Step3": {
           "type": "object"
         },
-        "value3Step4": {
+        "Value3_Step4": {
           "type": "number",
           "format": "double"
         },
-        "value4Step4": {
+        "Value4_Step4": {
           "type": "number",
           "format": "double"
         },
-        "valueStep4": {
+        "Value_Step4": {
           "type": "object"
         },
-        "value1Step1": {
+        "Value1_Step1": {
           "type": "number",
           "format": "double"
         },
-        "value2Step1": {
+        "Value2_Step1": {
           "type": "number",
           "format": "double"
         },
-        "valueStep1": {
+        "Value_Step1": {
           "type": "object"
         },
-        "value1Step2": {
+        "Value1_Step2": {
           "type": "number",
           "format": "double"
         },
-        "value2Step2": {
+        "Value2_Step2": {
           "type": "number",
           "format": "double"
         },
-        "valueStep2": {
+        "Value_Step2": {
           "$ref": "#/definitions/AnySpreadsheetResult"
         },
-        "valueStep5": {
+        "Value_Step5": {
           "type": "object"
         },
-        "valueStep6": {
+        "Value_Step6": {
           "type": "object"
         },
-        "valueStep7": {
+        "Value_Step7": {
           "type": "object"
         },
-        "valueStep8": {
+        "Value_Step8": {
           "type": "array",
           "items": {
             "type": "object",
             "xml": {
-              "name": "valueStep8"
+              "name": "Value_Step8"
             }
           }
         },
-        "valueStep9": {
+        "Value_Step9": {
           "type": "array",
           "items": {
             "type": "object",
             "xml": {
-              "name": "valueStep9"
+              "name": "Value_Step9"
             }
           }
         },
-        "valueStep10": {
+        "Value_Step10": {
           "type": "object"
         },
-        "valueStep11": {
+        "Value_Step11": {
           "type": "object"
         },
-        "valueStep13": {
+        "Value_Step13": {
           "type": "object"
         },
-        "valueStep14": {
+        "Value_Step14": {
           "type": "object"
         },
-        "valueStep15": {
+        "Value_Step15": {
           "type": "object"
         },
-        "valueStep16": {
+        "Value_Step16": {
           "type": "object"
         },
-        "valueStep17": {
+        "Value_Step17": {
           "type": "object"
         },
-        "valueStep18": {
+        "Value_Step18": {
           "type": "object"
         },
-        "valueStep19": {
+        "Value_Step19": {
           "type": "object"
         },
-        "valueStep20": {
+        "Value_Step20": {
           "$ref": "#/definitions/AnySpreadsheetResult"
         },
-        "valueStep21": {
+        "Value_Step21": {
           "type": "array",
           "items": {
             "xml": {
-              "name": "valueStep21"
+              "name": "Value_Step21"
             },
             "$ref": "#/definitions/AnySpreadsheetResult"
           }
         },
-        "valueStep22": {
+        "Value_Step22": {
           "type": "array",
           "items": {
             "type": "object",
             "xml": {
-              "name": "valueStep22"
+              "name": "Value_Step22"
             }
           }
         },
-        "valueStep23": {
+        "Value_Step23": {
           "type": "array",
           "items": {
             "type": "object",
             "xml": {
-              "name": "valueStep23"
+              "name": "Value_Step23"
             }
           }
         },
-        "valueAAA": {
+        "Value_AAA": {
           "type": "number",
           "format": "double"
         },
-        "valueStep0": {
+        "Value_Step0": {
           "type": "number",
           "format": "double"
         },
-        "valueStep12": {
+        "Value_Step12": {
           "type": "boolean"
         },
-        "rowNames": {
+        "RowNames": {
           "type": "array",
           "items": {
             "type": "string",
             "xml": {
-              "name": "rowNames"
+              "name": "RowNames"
             }
           }
         },
-        "columnNames": {
+        "ColumnNames": {
           "type": "array",
           "items": {
             "type": "string",
             "xml": {
-              "name": "columnNames"
+              "name": "ColumnNames"
             }
           }
         },
-        "fieldNames": {
+        "TableDetails": {
           "type": "array",
           "items": {
             "type": "array",
             "xml": {
-              "name": "fieldNames"
+              "name": "TableDetails"
             },
             "items": {
               "type": "string"
@@ -387,174 +387,174 @@
     "Main": {
       "type": "object",
       "properties": {
-        "step1": {
+        "Step1": {
           "type": "number",
           "format": "double"
         },
-        "step2": {
+        "Step2": {
           "$ref": "#/definitions/Spr"
         },
-        "step3": {
+        "Step3": {
           "type": "array",
           "items": {
             "type": "number",
             "format": "double",
             "xml": {
-              "name": "step3"
+              "name": "Step3"
             }
           }
         },
-        "step4": {
+        "Step4": {
           "type": "array",
           "items": {
             "xml": {
-              "name": "step4"
+              "name": "Step4"
             },
             "$ref": "#/definitions/Spr"
           }
         },
-        "step5": {
+        "Step5": {
           "type": "array",
           "items": {
             "xml": {
-              "name": "step5"
+              "name": "Step5"
             },
             "$ref": "#/definitions/Spr"
           }
         },
-        "step6": {
+        "Step6": {
           "type": "array",
           "items": {
             "type": "array",
             "xml": {
-              "name": "step6"
+              "name": "Step6"
             },
             "items": {
               "$ref": "#/definitions/Spr"
             }
           }
         },
-        "step7": {
+        "Step7": {
           "type": "array",
           "items": {
             "type": "array",
             "xml": {
-              "name": "step7"
+              "name": "Step7"
             },
             "items": {
               "type": "object"
             }
           }
         },
-        "step8": {
+        "Step8": {
           "type": "array",
           "items": {
             "type": "object",
             "xml": {
-              "name": "step8"
+              "name": "Step8"
             }
           }
         },
-        "step9": {
+        "Step9": {
           "type": "array",
           "items": {
             "type": "object",
             "xml": {
-              "name": "step9"
+              "name": "Step9"
             }
           }
         },
-        "step10": {
+        "Step10": {
           "type": "array",
           "items": {
             "type": "array",
             "xml": {
-              "name": "step10"
+              "name": "Step10"
             },
             "items": {
               "$ref": "#/definitions/AnySpreadsheetResult"
             }
           }
         },
-        "step11": {
+        "Step11": {
           "type": "array",
           "items": {
             "xml": {
-              "name": "step11"
+              "name": "Step11"
             },
             "$ref": "#/definitions/AnySpreadsheetResult"
           }
         },
-        "step13": {
+        "Step13": {
           "type": "object"
         },
-        "step14": {
+        "Step14": {
           "type": "object"
         },
-        "step15": {
+        "Step15": {
           "type": "object"
         },
-        "step16": {
+        "Step16": {
           "type": "object",
           "additionalProperties": {
             "type": "object"
           }
         },
-        "step17": {
+        "Step17": {
           "type": "array",
           "items": {
             "type": "object",
             "xml": {
-              "name": "step17"
+              "name": "Step17"
             }
           }
         },
-        "step18": {
+        "Step18": {
           "type": "array",
           "items": {
             "type": "object",
             "xml": {
-              "name": "step18"
+              "name": "Step18"
             }
           }
         },
-        "step19": {
+        "Step19": {
           "type": "array",
           "uniqueItems": true,
           "items": {
             "type": "object",
             "xml": {
-              "name": "step19"
+              "name": "Step19"
             }
           }
         },
-        "step20": {
+        "Step20": {
           "$ref": "#/definitions/AnySpreadsheetResult"
         },
-        "step21": {
+        "Step21": {
           "type": "array",
           "items": {
             "xml": {
-              "name": "step21"
+              "name": "Step21"
             },
             "$ref": "#/definitions/Spr"
           }
         },
-        "step22": {
+        "Step22": {
           "type": "array",
           "items": {
             "type": "object",
             "xml": {
-              "name": "step22"
+              "name": "Step22"
             }
           }
         },
-        "step23": {
+        "Step23": {
           "type": "array",
           "items": {
             "type": "object",
             "xml": {
-              "name": "step23"
+              "name": "Step23"
             }
           }
         },
@@ -562,30 +562,30 @@
           "type": "number",
           "format": "double"
         },
-        "rowNames": {
+        "RowNames": {
           "type": "array",
           "items": {
             "type": "string",
             "xml": {
-              "name": "rowNames"
+              "name": "RowNames"
             }
           }
         },
-        "columnNames": {
+        "ColumnNames": {
           "type": "array",
           "items": {
             "type": "string",
             "xml": {
-              "name": "columnNames"
+              "name": "ColumnNames"
             }
           }
         },
-        "fieldNames": {
+        "TableDetails": {
           "type": "array",
           "items": {
             "type": "array",
             "xml": {
-              "name": "fieldNames"
+              "name": "TableDetails"
             },
             "items": {
               "type": "string"
@@ -601,174 +601,174 @@
     "Spr": {
       "type": "object",
       "properties": {
-        "step1": {
+        "Step1": {
           "type": "number",
           "format": "double"
         },
-        "step2": {
+        "Step2": {
           "$ref": "#/definitions/Spr1"
         },
-        "step3": {
+        "Step3": {
           "type": "array",
           "items": {
             "type": "number",
             "format": "double",
             "xml": {
-              "name": "step3"
+              "name": "Step3"
             }
           }
         },
-        "step4": {
+        "Step4": {
           "type": "array",
           "items": {
             "xml": {
-              "name": "step4"
+              "name": "Step4"
             },
             "$ref": "#/definitions/Spr1"
           }
         },
-        "step5": {
+        "Step5": {
           "type": "array",
           "items": {
             "xml": {
-              "name": "step5"
+              "name": "Step5"
             },
             "$ref": "#/definitions/Spr1"
           }
         },
-        "step6": {
+        "Step6": {
           "type": "array",
           "items": {
             "type": "array",
             "xml": {
-              "name": "step6"
+              "name": "Step6"
             },
             "items": {
               "$ref": "#/definitions/Spr1"
             }
           }
         },
-        "step7": {
+        "Step7": {
           "type": "array",
           "items": {
             "type": "array",
             "xml": {
-              "name": "step7"
+              "name": "Step7"
             },
             "items": {
               "type": "object"
             }
           }
         },
-        "step8": {
+        "Step8": {
           "type": "array",
           "items": {
             "type": "object",
             "xml": {
-              "name": "step8"
+              "name": "Step8"
             }
           }
         },
-        "step9": {
+        "Step9": {
           "type": "array",
           "items": {
             "type": "object",
             "xml": {
-              "name": "step9"
+              "name": "Step9"
             }
           }
         },
-        "step10": {
+        "Step10": {
           "type": "array",
           "items": {
             "type": "array",
             "xml": {
-              "name": "step10"
+              "name": "Step10"
             },
             "items": {
               "$ref": "#/definitions/AnySpreadsheetResult"
             }
           }
         },
-        "step11": {
+        "Step11": {
           "type": "array",
           "items": {
             "xml": {
-              "name": "step11"
+              "name": "Step11"
             },
             "$ref": "#/definitions/AnySpreadsheetResult"
           }
         },
-        "step13": {
+        "Step13": {
           "type": "object"
         },
-        "step14": {
+        "Step14": {
           "type": "object"
         },
-        "step15": {
+        "Step15": {
           "type": "object"
         },
-        "step16": {
+        "Step16": {
           "type": "object",
           "additionalProperties": {
             "type": "object"
           }
         },
-        "step17": {
+        "Step17": {
           "type": "array",
           "items": {
             "type": "object",
             "xml": {
-              "name": "step17"
+              "name": "Step17"
             }
           }
         },
-        "step18": {
+        "Step18": {
           "type": "array",
           "items": {
             "type": "object",
             "xml": {
-              "name": "step18"
+              "name": "Step18"
             }
           }
         },
-        "step19": {
+        "Step19": {
           "type": "array",
           "uniqueItems": true,
           "items": {
             "type": "object",
             "xml": {
-              "name": "step19"
+              "name": "Step19"
             }
           }
         },
-        "step20": {
+        "Step20": {
           "$ref": "#/definitions/Spr1"
         },
-        "step21": {
+        "Step21": {
           "type": "array",
           "items": {
             "xml": {
-              "name": "step21"
+              "name": "Step21"
             },
             "$ref": "#/definitions/Spr1"
           }
         },
-        "step22": {
+        "Step22": {
           "type": "array",
           "items": {
             "type": "object",
             "xml": {
-              "name": "step22"
+              "name": "Step22"
             }
           }
         },
-        "step23": {
+        "Step23": {
           "type": "array",
           "items": {
             "type": "object",
             "xml": {
-              "name": "step23"
+              "name": "Step23"
             }
           }
         }
@@ -781,11 +781,11 @@
     "Spr1": {
       "type": "object",
       "properties": {
-        "step1": {
+        "Step1": {
           "type": "number",
           "format": "double"
         },
-        "step2": {
+        "Step2": {
           "$ref": "#/definitions/Spr"
         }
       },
@@ -1132,35 +1132,35 @@
     "MySpr2": {
       "type": "object",
       "properties": {
-        "value3Step3": {
+        "Value3_Step3": {
           "type": "number",
           "format": "double"
         },
-        "value4Step3": {
+        "Value4_Step3": {
           "type": "number",
           "format": "double"
         },
-        "value3Step4": {
+        "Value3_Step4": {
           "type": "number",
           "format": "double"
         },
-        "value4Step4": {
+        "Value4_Step4": {
           "type": "number",
           "format": "double"
         },
-        "value1Step1": {
+        "Value1_Step1": {
           "type": "number",
           "format": "double"
         },
-        "value2Step1": {
+        "Value2_Step1": {
           "type": "number",
           "format": "double"
         },
-        "value1Step2": {
+        "Value1_Step2": {
           "type": "number",
           "format": "double"
         },
-        "value2Step2": {
+        "Value2_Step2": {
           "type": "number",
           "format": "double"
         }
@@ -1173,11 +1173,11 @@
     "MySpr": {
       "type": "object",
       "properties": {
-        "step1": {
+        "Step1": {
           "type": "number",
           "format": "double"
         },
-        "step2": {
+        "Step2": {
           "type": "number",
           "format": "double"
         }

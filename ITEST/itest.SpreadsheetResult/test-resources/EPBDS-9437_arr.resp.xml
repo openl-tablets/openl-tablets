@@ -2,12 +2,12 @@
     <soap:Body>
         <ns1:EPBDS_9437Response xmlns:ns1="http://DefaultNamespace">
             <ns1:return xmlns:ns2="http://spreadsheetresults.generated.openl.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:EPBDS_9437">
-                <ns2:driver_Forms>
+                <ns2:Driver_Forms>
                     <ns2:AnySpreadsheetResult xsi:type="ns2:AnySpreadsheetResult">
                         <ns2:INT>100</ns2:INT>
-                        <ns2:string>Hey!</ns2:string>
+                        <ns2:String>Hey!</ns2:String>
                     </ns2:AnySpreadsheetResult>
-                </ns2:driver_Forms>
+                </ns2:Driver_Forms>
             </ns1:return>
         </ns1:EPBDS_9437Response>
     </soap:Body>

@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.openl.binding.exception.DuplicatedFieldException;
+import org.openl.gen.FieldDescription;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.table.ILogicalTable;
@@ -54,6 +55,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     private byte[] beanClassByteCode;
     private volatile String beanClassName;
     volatile Map<String, List<IOpenField>> beanFieldsMap;
+    volatile Map<String, String> xmlNamesMap;
     private String[] sprStructureFieldNames;
     private volatile boolean initializing;
 
@@ -419,7 +421,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                                 } else if (field.getName().equals(sprStructureFieldNames[1])) {
                                     sprSetters.add(new SpreadsheetResultColumnNamesSetter(field));
                                 } else if (field.getName().equals(sprStructureFieldNames[2])) {
-                                    sprSetters.add(new SpreadsheetResultFieldNamesSetter(field, beanFieldsMap));
+                                    sprSetters.add(new SpreadsheetResultFieldNamesSetter(field, beanFieldsMap, xmlNamesMap));
                                 }
                             }
                         }
@@ -446,16 +448,32 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanClassName)
                                 .withEqualsHashCodeToStringMethods(false);
                             Set<String> usedFields = new HashSet<>();
+                            Map<String, String> xmlNames = new HashMap<>();
                             @SuppressWarnings("unchecked")
                             List<IOpenField>[][] used = new List[rowNames.length][columnNames.length];
                             Map<String, List<IOpenField>> fieldsMap = new HashMap<>();
                             List<Triple<String, Point, IOpenField>> fields = getSortedFields();
-                            addFieldsToJavaClassBuilder(beanClassBuilder, fields, used, usedFields, true, fieldsMap);
-                            addFieldsToJavaClassBuilder(beanClassBuilder, fields, used, usedFields, false, fieldsMap);
-                            sprStructureFieldNames = addSprStructureFields(beanClassBuilder, fieldsMap.keySet());
+                            addFieldsToJavaClassBuilder(beanClassBuilder,
+                                fields,
+                                used,
+                                usedFields,
+                                xmlNames,
+                                true,
+                                fieldsMap);
+                            addFieldsToJavaClassBuilder(beanClassBuilder,
+                                fields,
+                                used,
+                                usedFields,
+                                xmlNames,
+                                false,
+                                fieldsMap);
+                            sprStructureFieldNames = addSprStructureFields(beanClassBuilder,
+                                fieldsMap.keySet(),
+                                xmlNames.values());
                             byte[] bc = beanClassBuilder.byteCode();
                             getModule().getClassGenerationClassLoader().addGeneratedClass(beanClassName, bc);
-                            beanFieldsMap = fieldsMap;
+                            beanFieldsMap = Collections.unmodifiableMap(fieldsMap);
+                            xmlNamesMap = Collections.unmodifiableMap(xmlNames);
                             beanClassByteCode = bc;
                         } finally {
                             initializing = false;
@@ -481,7 +499,14 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return beanFieldsMap;
     }
 
-    public static String findNonConflictFieldName(Set<String> beanFieldNames, String fName) {
+    public Map<String, String> getXmlNamesMap() {
+        if (xmlNamesMap == null) {
+            generateBeanClass();
+        }
+        return xmlNamesMap;
+    }
+
+    public static String findNonConflictFieldName(Collection<String> beanFieldNames, String fName) {
         String fNewName = fName;
         int i = 1;
         while (beanFieldNames.contains(fNewName)) {
@@ -491,15 +516,23 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return fNewName;
     }
 
-    private String[] addSprStructureFields(JavaBeanClassBuilder beanClassBuilder, Set<String> beanFieldNames) {
+    private String[] addSprStructureFields(JavaBeanClassBuilder beanClassBuilder,
+            Set<String> beanFieldNames,
+            Collection<String> xmlNames) {
         if (detailedPlainModel) {
             String[] sprStructureFieldNames = new String[3];
             sprStructureFieldNames[0] = findNonConflictFieldName(beanFieldNames, "rowNames");
             sprStructureFieldNames[1] = findNonConflictFieldName(beanFieldNames, "columnNames");
-            sprStructureFieldNames[2] = findNonConflictFieldName(beanFieldNames, "fieldNames");
-            beanClassBuilder.addField(sprStructureFieldNames[0], String[].class.getName());
-            beanClassBuilder.addField(sprStructureFieldNames[1], String[].class.getName());
-            beanClassBuilder.addField(sprStructureFieldNames[2], String[][].class.getName());
+            sprStructureFieldNames[2] = findNonConflictFieldName(beanFieldNames, "tableDetails");
+            beanClassBuilder.addField(sprStructureFieldNames[0],
+                new FieldDescription(String[].class
+                    .getName(), null, null, null, findNonConflictFieldName(xmlNames, "RowNames")));
+            beanClassBuilder.addField(sprStructureFieldNames[1],
+                new FieldDescription(String[].class
+                    .getName(), null, null, null, findNonConflictFieldName(xmlNames, "ColumnNames")));
+            beanClassBuilder.addField(sprStructureFieldNames[2],
+                new FieldDescription(String[][].class
+                    .getName(), null, null, null, findNonConflictFieldName(xmlNames, "TableDetails")));
             return sprStructureFieldNames;
         }
         return new String[3];
@@ -517,6 +550,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             List<Triple<String, Point, IOpenField>> fields,
             List<IOpenField>[][] used,
             Set<String> usedGettersAndSetters,
+            Map<String, String> usedXmlNames,
             boolean addFieldNameWithCollisions,
             Map<String, List<IOpenField>> beanFieldsMap) {
         for (Triple<String, Point, IOpenField> w : fields) {
@@ -525,10 +559,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                 .getColumn()] != null) {
                 if (used[point.getRow()][point.getColumn()] == null) {
                     String fieldName;
+                    String xmlName;
                     if (simpleRefBeanByRow) {
                         fieldName = ClassUtils.decapitalize(rowNamesForResultModel[point.getRow()]);
+                        xmlName = rowNamesForResultModel[point.getRow()];
                     } else if (simpleRefBeanByColumn) {
                         fieldName = ClassUtils.decapitalize(columnNamesForResultModel[point.getColumn()]);
+                        xmlName = columnNamesForResultModel[point.getColumn()];
                     } else {
                         boolean found = false;
                         for (Pair<String[], String[]> p : rowAndColumnNamesForResultModelHistory) {
@@ -547,9 +584,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         }
                         fieldName = ClassUtils.decapitalize(columnNamesForResultModel[point.getColumn()]) + ClassUtils
                             .capitalize(rowNamesForResultModel[point.getRow()]);
+                        xmlName = columnNamesForResultModel[point.getColumn()] + "_" + rowNamesForResultModel[point
+                            .getRow()];
                     }
                     if (org.apache.commons.lang3.StringUtils.isBlank(fieldName)) {
                         fieldName = "_";
+                        xmlName = "_";
                     }
                     String typeName;
                     IOpenClass t = w.getRight().getType();
@@ -596,11 +636,14 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             typeName = w.getRight().getType().getInstanceClass().getName();
                         }
                     }
-                    if (!isFieldConflictsWithOtherGetterSetters(usedGettersAndSetters, fieldName)) {
+                    if (!isFieldConflictsWithOtherGetterSetters(usedGettersAndSetters, fieldName) && !usedXmlNames
+                        .containsValue(xmlName)) {
                         usedGettersAndSetters.add(ClassUtils.getter(fieldName));
                         usedGettersAndSetters.add(ClassUtils.setter(fieldName));
-                        beanClassBuilder.addField(fieldName, typeName);
+                        FieldDescription fieldDescription = new FieldDescription(typeName, null, null, null, xmlName);
+                        beanClassBuilder.addField(fieldName, fieldDescription);
                         beanFieldsMap.put(fieldName, fillUsed(used, point, w.getRight()));
+                        usedXmlNames.put(fieldName, xmlName);
                     } else if (addFieldNameWithCollisions) {
                         String newFieldName = fieldName;
                         int i = 1;
@@ -608,10 +651,22 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             newFieldName = fieldName + i;
                             i++;
                         }
+                        String newXmlName = xmlName;
+                        i = 1;
+                        while (usedXmlNames.containsValue(newXmlName)) {
+                            newXmlName = xmlName + i;
+                            i++;
+                        }
                         usedGettersAndSetters.add(ClassUtils.getter(newFieldName));
                         usedGettersAndSetters.add(ClassUtils.setter(newFieldName));
-                        beanClassBuilder.addField(newFieldName, typeName);
+                        FieldDescription fieldDescription = new FieldDescription(typeName,
+                            null,
+                            null,
+                            null,
+                            newXmlName);
+                        beanClassBuilder.addField(newFieldName, fieldDescription);
                         beanFieldsMap.put(newFieldName, fillUsed(used, point, w.getRight()));
+                        usedXmlNames.put(newFieldName, newXmlName);
                     }
                 } else {
                     boolean f = false;
@@ -748,17 +803,19 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     private static class SpreadsheetResultFieldNamesSetter implements SpreadsheetResultSetter {
         private Field field;
         private Map<String, List<IOpenField>> beanFieldsMap;
+        private Map<String, String> xmlNamesMap;
 
-        public SpreadsheetResultFieldNamesSetter(Field field, Map<String, List<IOpenField>> beanFieldsMap) {
+        public SpreadsheetResultFieldNamesSetter(Field field, Map<String, List<IOpenField>> beanFieldsMap, Map<String, String> xmlNamesMap) {
             this.field = Objects.requireNonNull(field);
             this.beanFieldsMap = Objects.requireNonNull(beanFieldsMap);
             this.field.setAccessible(true);
+            this.xmlNamesMap = Objects.requireNonNull(xmlNamesMap);
         }
 
         @Override
         public void set(SpreadsheetResult spreadsheetResult, Object target) {
             if (spreadsheetResult.isDetailedPlainModel()) {
-                String[][] fieldNames = new String[spreadsheetResult.getRowNames().length][spreadsheetResult
+                String[][] TableDetails = new String[spreadsheetResult.getRowNames().length][spreadsheetResult
                     .getColumnNames().length];
                 for (Map.Entry<String, List<IOpenField>> e : beanFieldsMap.entrySet()) {
                     List<IOpenField> openFields = e.getValue();
@@ -766,12 +823,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         Point p = spreadsheetResult.fieldsCoordinates.get(openField.getName());
                         if (p != null && spreadsheetResult.rowNamesForResultModel[p
                             .getRow()] != null && spreadsheetResult.columnNamesForResultModel[p.getColumn()] != null) {
-                            fieldNames[p.getRow()][p.getColumn()] = e.getKey();
+                            TableDetails[p.getRow()][p.getColumn()] = xmlNamesMap.get(e.getKey());
                         }
                     }
                 }
                 try {
-                    field.set(target, fieldNames);
+                    field.set(target, TableDetails);
                 } catch (IllegalAccessException ignore) {
                 }
             }

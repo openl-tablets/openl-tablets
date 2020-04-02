@@ -9,6 +9,7 @@ public class FieldDescription {
     private String defaultValueAsString;
     private Object defaultValue;
     private String contextPropertyName;
+    private String xmlName;
 
     public FieldDescription(String typeName) {
         this.typeDescription = new TypeDescription(typeName);
@@ -18,10 +19,19 @@ public class FieldDescription {
             Object defaultValue,
             String defaultValueAsString,
             String contextPropertyName) {
+        this(typeName, defaultValue, defaultValueAsString, contextPropertyName, null);
+    }
+
+    public FieldDescription(String typeName,
+            Object defaultValue,
+            String defaultValueAsString,
+            String contextPropertyName,
+            String xmlName) {
         this(typeName);
         this.defaultValueAsString = defaultValueAsString;
         this.defaultValue = defaultValue;
         this.contextPropertyName = contextPropertyName;
+        this.xmlName = xmlName;
     }
 
     public String getTypeName() {
@@ -46,6 +56,10 @@ public class FieldDescription {
 
     public String getContextPropertyName() {
         return contextPropertyName;
+    }
+
+    public String getXmlName() {
+        return xmlName;
     }
 
     @Override

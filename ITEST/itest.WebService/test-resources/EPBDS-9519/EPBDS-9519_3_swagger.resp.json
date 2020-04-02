@@ -9,37 +9,6 @@
   },
   "basePath": "/REST/EPBDS-9519_3/EPBDS-9519",
   "paths": {
-    "/myType1": {
-      "post": {
-        "summary": "Method: myType1(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyType)",
-        "description": "",
-        "operationId": "myType1",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/MyType1Request"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MyType1"
-            }
-          }
-        }
-      }
-    },
     "/someRules": {
       "post": {
         "summary": "Method: someRules(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.String)",
@@ -70,40 +39,56 @@
           }
         }
       }
+    },
+    "/myType1": {
+      "post": {
+        "summary": "Method: myType1(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyType)",
+        "description": "",
+        "operationId": "myType1",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/MyType1Request"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MyType1"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
-    "MyType1": {
+    "MyType": {
       "type": "object",
       "properties": {
-        "testsTep": {
-          "type": "number",
-          "format": "double"
+        "MYSPR": {
+          "type": "string"
         },
-        "mYStepsTep": {
-          "type": "number",
-          "format": "double"
+        "mYSPR1": {
+          "type": "string"
         },
-        "testStepchik": {
-          "type": "number",
-          "format": "double"
-        },
-        "mYStepStepchik": {
-          "type": "number",
-          "format": "double"
-        },
-        "testStepic": {
-          "type": "number",
-          "format": "double"
-        },
-        "mYStepStepic": {
-          "type": "number",
-          "format": "double"
+        "ySrp2": {
+          "type": "string"
         }
       },
       "xml": {
-        "name": "MyType1",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
+        "name": "MyType",
+        "namespace": "http://beans.generated.openl.org"
       }
     },
     "DefaultRulesRuntimeContext": {
@@ -441,39 +426,6 @@
         }
       }
     },
-    "MyType": {
-      "type": "object",
-      "properties": {
-        "MYSPR": {
-          "type": "string"
-        },
-        "mYSPR1": {
-          "type": "string"
-        },
-        "ySrp2": {
-          "type": "string"
-        }
-      },
-      "xml": {
-        "name": "MyType",
-        "namespace": "http://beans.generated.openl.org"
-      }
-    },
-    "MyType1Request": {
-      "type": "object",
-      "properties": {
-        "runtimeContext": {
-          "$ref": "#/definitions/DefaultRulesRuntimeContext"
-        },
-        "a": {
-          "$ref": "#/definitions/MyType"
-        }
-      },
-      "xml": {
-        "name": "MyType1Request",
-        "namespace": "http://jaxrs.openl.org"
-      }
-    },
     "SomeRulesRequest": {
       "type": "object",
       "properties": {
@@ -498,6 +450,54 @@
       },
       "xml": {
         "name": "SomeRulesRequest",
+        "namespace": "http://jaxrs.openl.org"
+      }
+    },
+    "MyType1": {
+      "type": "object",
+      "properties": {
+        "Test_sTep": {
+          "type": "number",
+          "format": "double"
+        },
+        "mYStep_sTep": {
+          "type": "number",
+          "format": "double"
+        },
+        "Test_stepchik": {
+          "type": "number",
+          "format": "double"
+        },
+        "mYStep_stepchik": {
+          "type": "number",
+          "format": "double"
+        },
+        "Test_Stepic": {
+          "type": "number",
+          "format": "double"
+        },
+        "mYStep_Stepic": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "xml": {
+        "name": "MyType1",
+        "namespace": "http://spreadsheetresults.generated.openl.org"
+      }
+    },
+    "MyType1Request": {
+      "type": "object",
+      "properties": {
+        "runtimeContext": {
+          "$ref": "#/definitions/DefaultRulesRuntimeContext"
+        },
+        "a": {
+          "$ref": "#/definitions/MyType"
+        }
+      },
+      "xml": {
+        "name": "MyType1Request",
         "namespace": "http://jaxrs.openl.org"
       }
     }

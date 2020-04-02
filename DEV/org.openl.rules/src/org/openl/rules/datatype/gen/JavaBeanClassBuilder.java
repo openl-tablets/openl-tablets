@@ -2,6 +2,7 @@ package org.openl.rules.datatype.gen;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.gen.FieldDescription;
 import org.openl.gen.POJOByteCodeGenerator;
@@ -30,14 +31,22 @@ public class JavaBeanClassBuilder {
     }
 
     public JavaBeanClassBuilder addParentField(String name, String type) {
-        Object put = parentFields.put(name, new FieldDescription(type));
+        return addParentField(name, new FieldDescription(type));
+    }
+
+    public JavaBeanClassBuilder addParentField(String name, FieldDescription type) {
+        Objects.requireNonNull(name, "name cannot be null");
+        Objects.requireNonNull(type, "type type be null");
+        Object put = parentFields.put(name, type);
         if (put != null) {
             throw new IllegalArgumentException(String.format("The same parent field '%s has been put.", name));
         }
         return this;
     }
 
-    private JavaBeanClassBuilder addField(String name, FieldDescription type) {
+    public JavaBeanClassBuilder addField(String name, FieldDescription type) {
+        Objects.requireNonNull(name, "name cannot be null");
+        Objects.requireNonNull(type, "type type be null");
         Object put = fields.put(name, type);
         if (put != null) {
             throw new IllegalArgumentException(String.format("The same parent field '%s has been put.", name));
@@ -53,6 +62,13 @@ public class JavaBeanClassBuilder {
     public JavaBeanClassBuilder addFields(Map<String, FieldDescription> fields) {
         for (Map.Entry<String, FieldDescription> field : fields.entrySet()) {
             addField(field.getKey(), field.getValue());
+        }
+        return this;
+    }
+
+    public JavaBeanClassBuilder addParentFields(Map<String, FieldDescription> parentFields) {
+        for (Map.Entry<String, FieldDescription> field : parentFields.entrySet()) {
+            addParentField(field.getKey(), field.getValue());
         }
         return this;
     }

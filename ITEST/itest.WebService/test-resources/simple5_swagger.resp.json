@@ -45,34 +45,34 @@
     "Calc": {
       "type": "object",
       "properties": {
-        "step1": {
+        "Step1": {
           "type": "number",
           "format": "double"
         },
-        "rowNames": {
+        "RowNames": {
           "type": "array",
           "items": {
             "type": "string",
             "xml": {
-              "name": "rowNames"
+              "name": "RowNames"
             }
           }
         },
-        "columnNames": {
+        "ColumnNames": {
           "type": "array",
           "items": {
             "type": "string",
             "xml": {
-              "name": "columnNames"
+              "name": "ColumnNames"
             }
           }
         },
-        "fieldNames": {
+        "TableDetails": {
           "type": "array",
           "items": {
             "type": "array",
             "xml": {
-              "name": "fieldNames"
+              "name": "TableDetails"
             },
             "items": {
               "type": "string"
