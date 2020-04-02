@@ -4,7 +4,6 @@ import org.openl.rules.serialization.DefaultTypingMode;
 
 public class ServiceConfigurationDefaultTypingModeFactoryBean extends ServiceConfigurationFactoryBean<DefaultTypingMode> {
 
-    public static final String ENABLE_DEFAULT_TYPING = "jacksondatabinding.enableDefaultTyping";
     public static final String DEFAULT_TYPING_TYPE = "jacksondatabinding.defaultTypingMode";
 
     @Override
@@ -12,43 +11,32 @@ public class ServiceConfigurationDefaultTypingModeFactoryBean extends ServiceCon
         Object value = getValue(DEFAULT_TYPING_TYPE);
         if (value instanceof String) {
             String v = (String) value;
-            if (DefaultTypingMode.SMART.name().equalsIgnoreCase(v.trim())) {
-                return DefaultTypingMode.SMART;
+            if (DefaultTypingMode.DISABLED.name().equalsIgnoreCase(v.trim())) {
+                return DefaultTypingMode.DISABLED;
+            } else if (DefaultTypingMode.OBJECT_AND_NON_CONCRETE.name().equalsIgnoreCase(v.trim())) {
+                return DefaultTypingMode.OBJECT_AND_NON_CONCRETE;
+            } else if (DefaultTypingMode.EVERYTHING.name().equalsIgnoreCase(v.trim())) {
+                return DefaultTypingMode.EVERYTHING;
+            } else if (DefaultTypingMode.NON_CONCRETE_AND_ARRAYS.name().equalsIgnoreCase(v.trim())) {
+                return DefaultTypingMode.NON_CONCRETE_AND_ARRAYS;
+            } else if (DefaultTypingMode.JAVA_LANG_OBJECT.name().equalsIgnoreCase(v.trim())) {
+                return DefaultTypingMode.JAVA_LANG_OBJECT;
+            } else if (DefaultTypingMode.NON_FINAL.name().equalsIgnoreCase(v.trim())) {
+                return DefaultTypingMode.NON_FINAL;
             }
-            if (DefaultTypingMode.ENABLE.name().equalsIgnoreCase(v.trim())) {
-                return DefaultTypingMode.ENABLE;
-            }
-            if (DefaultTypingMode.DISABLE.name().equalsIgnoreCase(v.trim())) {
-                return DefaultTypingMode.DISABLE;
-            }
-            throw new ServiceConfigurationException(
-                String.format("Expected SMART/ENABLE/DISABLE value for '%s' in the configuration for service '%s'.",
-                    DEFAULT_TYPING_TYPE,
-                    getServiceDescription().getName()));
+            throw new ServiceConfigurationException(String.format(
+                "Expected JAVA_LANG_OBJECT/OBJECT_AND_NON_CONCRETE/NON_CONCRETE_AND_ARRAYS/NON_FINAL/EVERYTHING/DISABLED value for '%s' in the configuration for service '%s'.",
+                DEFAULT_TYPING_TYPE,
+                getServiceDescription().getName()));
         }
         if (value instanceof DefaultTypingMode) {
             return (DefaultTypingMode) value;
         }
         if (value != null) {
-            throw new ServiceConfigurationException(
-                String.format("Expected SMART/ENABLE/DISABLE value for '%s' in the configuration for service '%s'.",
-                    DEFAULT_TYPING_TYPE,
-                    getServiceDescription().getName()));
-        }
-        value = getValue(ENABLE_DEFAULT_TYPING);
-        if (value instanceof String) {
-            if ("true".equalsIgnoreCase(((String) value).trim())) {
-                return DefaultTypingMode.ENABLE;
-            }
-            if ("false".equalsIgnoreCase(((String) value).trim())) {
-                return DefaultTypingMode.SMART;
-            }
-        }
-        if (value != null) {
-            throw new ServiceConfigurationException(
-                String.format("Expected true/false value for '%s' in the configuration for service '%s'.",
-                    ENABLE_DEFAULT_TYPING,
-                    getServiceDescription().getName()));
+            throw new ServiceConfigurationException(String.format(
+                "Expected JAVA_LANG_OBJECT/OBJECT_AND_NON_CONCRETE/NON_CONCRETE_AND_ARRAYS/NON_FINAL/EVERYTHING/DISABLED; value for '%s' in the configuration for service '%s'.",
+                DEFAULT_TYPING_TYPE,
+                getServiceDescription().getName()));
         }
         return getDefaultValue();
     }

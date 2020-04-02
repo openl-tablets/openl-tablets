@@ -62,17 +62,33 @@
     </bean>
 
     <bean id="kafkaProducerFailOnMissPropertiesFactoryBean"
-          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationFailOnMissPropertiesFactoryBean">
+          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationBooleanFactoryBean">
         <property name="type" value="PRODUCER"/>
         <property name="propertyName" value="jacksondatabinding.failOnUnknownProperties"/>
         <property name="defaultValue" value="${ruleservice.jackson.failOnUnknownProperties}"/>
     </bean>
 
     <bean id="kafkaConsumerFailOnMissPropertiesFactoryBean"
-          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationFailOnMissPropertiesFactoryBean">
+          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationBooleanFactoryBean">
         <property name="type" value="CONSUMER"/>
         <property name="propertyName" value="jacksondatabinding.failOnUnknownProperties"/>
         <property name="defaultValue" value="${ruleservice.jackson.failOnUnknownProperties}"/>
+    </bean>
+
+    <bean id="kafkaProducerCaseInsensitivePropertiesFactoryBean"
+          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationBooleanFactoryBean"
+          scope="prototype">
+        <property name="type" value="PRODUCER"/>
+        <property name="propertyName" value="jacksondatabinding.caseInsensitiveProperties"/>
+        <property name="defaultValue" value="${ruleservice.jackson.caseInsensitiveProperties}"/>
+    </bean>
+
+    <bean id="kafkaConsumerCaseInsensitivePropertiesFactoryBean"
+          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationBooleanFactoryBean"
+          scope="prototype">
+        <property name="type" value="CONSUMER"/>
+        <property name="propertyName" value="jacksondatabinding.caseInsensitiveProperties"/>
+        <property name="defaultValue" value="${ruleservice.jackson.caseInsensitiveProperties}"/>
     </bean>
 
     <bean id="kafkaProducerJacksonDatabindingFactoryBean"
@@ -83,6 +99,7 @@
         <property name="defaultDateFormat" ref="kafkaProducerDefaultDateFormatFactoryBean"/>
         <property name="serializationInclusion" ref="kafkaProducerSerializationInclusionFactoryBean"/>
         <property name="failOnUnknownProperties" ref="kafkaProducerFailOnMissPropertiesFactoryBean"/>
+        <property name="caseInsensitiveProperties" ref="kafkaProducerCaseInsensitivePropertiesFactoryBean"/>
         <property name="polymorphicTypeValidation" value="true"/>
     </bean>
 
@@ -99,6 +116,7 @@
         <property name="defaultDateFormat" ref="kafkaConsumerDefaultDateFormatFactoryBean"/>
         <property name="serializationInclusion" ref="kafkaConsumerSerializationInclusionFactoryBean"/>
         <property name="failOnUnknownProperties" ref="kafkaConsumerFailOnMissPropertiesFactoryBean"/>
+        <property name="caseInsensitiveProperties" ref="kafkaConsumerCaseInsensitivePropertiesFactoryBean"/>
         <property name="polymorphicTypeValidation" value="true"/>
     </bean>
 

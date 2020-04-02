@@ -8,7 +8,7 @@ import org.openl.rules.ruleservice.kafka.conf.BaseKafkaConfig;
 import org.openl.rules.ruleservice.kafka.conf.KafkaDeploy;
 import org.openl.rules.ruleservice.kafka.conf.KafkaDeployUtils;
 
-public class KafkaDeployConfigurationFailOnMissPropertiesFactoryBean extends ServiceConfigurationBooleanFactoryBean {
+public class KafkaDeployConfigurationBooleanFactoryBean extends ServiceConfigurationBooleanFactoryBean {
     private Type type;
     private KafkaDeploy kafkaDeploy;
     private BaseKafkaConfig kafkaConfig;

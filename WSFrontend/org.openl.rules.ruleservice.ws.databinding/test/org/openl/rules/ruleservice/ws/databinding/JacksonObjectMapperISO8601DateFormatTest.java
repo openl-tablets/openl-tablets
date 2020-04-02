@@ -58,7 +58,12 @@ public class JacksonObjectMapperISO8601DateFormatTest {
 
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setSupportVariations(true);
-        this.objectMapper = bean.createJacksonObjectMapper();
+        ObjectMapper objectMapper = null;
+        try {
+            objectMapper = bean.createJacksonObjectMapper();
+        } catch (ClassNotFoundException ignored) {
+        }
+        this.objectMapper = objectMapper;
     }
 
     @Test

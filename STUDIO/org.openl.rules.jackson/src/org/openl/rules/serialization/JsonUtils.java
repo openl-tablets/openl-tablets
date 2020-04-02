@@ -26,17 +26,21 @@ public final class JsonUtils {
         private static final ObjectMapper INSTANCE;
         static {
             JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
-            jacksonObjectMapperFactoryBean.setDefaultTypingMode(DefaultTypingMode.SMART);
             jacksonObjectMapperFactoryBean.setSupportVariations(true);
-            INSTANCE = jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
+            ObjectMapper objectMapper = null;
+            try {
+                objectMapper = jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
+            } catch (ClassNotFoundException ignored) {
+            }
+            INSTANCE = objectMapper;
         }
     }
 
     public static ObjectMapper createJacksonObjectMapper(Class<?>[] types, boolean enableDefaultTyping) {
         if (enableDefaultTyping) {
-            return createJacksonObjectMapper(types, DefaultTypingMode.ENABLE);
+            return createJacksonObjectMapper(types, DefaultTypingMode.EVERYTHING);
         } else {
-            return createJacksonObjectMapper(types, DefaultTypingMode.SMART);
+            return createJacksonObjectMapper(types, DefaultTypingMode.JAVA_LANG_OBJECT);
         }
     }
 
@@ -44,12 +48,12 @@ public final class JsonUtils {
         JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
         jacksonObjectMapperFactoryBean.setDefaultTypingMode(defaultTypingMode);
         jacksonObjectMapperFactoryBean.setSupportVariations(true);
-        Set<String> overrideTypes = new HashSet<>();
-        for (Class<?> type : types) {
-            overrideTypes.add(type.getName());
+        jacksonObjectMapperFactoryBean.setOverrideClasses(new HashSet<>(Arrays.asList(types)));
+        try {
+            return jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
+        } catch (ClassNotFoundException ignored) {
+            return null;
         }
-        jacksonObjectMapperFactoryBean.setOverrideTypes(overrideTypes);
-        return jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
     }
 
     private static ObjectMapper getDefaultJacksonObjectMapper() {
@@ -99,17 +103,18 @@ public final class JsonUtils {
     }
 
     public static <T> T fromJSON(String jsonString, Class<T> readType, Class<?>[] types) throws IOException {
-        return fromJSON(jsonString, readType, types, false);
+        if (types == null) {
+            types = new Class<?>[0];
+        }
+        ObjectMapper objectMapper = createJacksonObjectMapper(types, DefaultTypingMode.DISABLED);
+        return objectMapper.readValue(jsonString, readType);
     }
 
+    @Deprecated
     public static <T> T fromJSON(String jsonString,
             Class<T> readType,
             Class<?>[] types,
             boolean enableDefaultTyping) throws IOException {
-        if (types == null) {
-            types = new Class<?>[0];
-        }
-        ObjectMapper objectMapper = createJacksonObjectMapper(types, enableDefaultTyping);
-        return objectMapper.readValue(jsonString, readType);
+        return fromJSON(jsonString, readType, types);
     }
 }
