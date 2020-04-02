@@ -1,7 +1,27 @@
 package org.openl.rules.webstudio.web.test;
 
-import com.fasterxml.jackson.core.JsonParseException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
+import javax.faces.model.SelectItem;
+
 import org.openl.base.INamedThing;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.IRulesDeploySerializer;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.xml.XmlRulesDeploySerializer;
+import org.openl.rules.serialization.JacksonObjectMapperFactoryBean;
 import org.openl.rules.serialization.JsonUtils;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.Message;
@@ -9,6 +29,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.tablewizard.DomainTree;
 import org.openl.rules.ui.tablewizard.WizardUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -20,19 +41,16 @@ import org.richfaces.model.SequenceRowKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
-import javax.faces.model.SelectItem;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @ManagedBean
 @ViewScoped
 public class InputArgsBean {
     private final Logger log = LoggerFactory.getLogger(InputArgsBean.class);
+
+    private static final String ROOT_CLASS_NAMES_BINDING = "rootClassNamesBinding";
+    private static final String CASE_INSENSITIVE_PROPERTIES = "jacksondatabinding.caseInsensitiveProperties";
 
     private String uri;
     private UITree currentTreeNode;
@@ -91,6 +109,48 @@ public class InputArgsBean {
         return (ParameterDeclarationTreeNode) currentTreeNode.getRowData();
     }
 
+    private boolean isProvideRuntimeContext() {
+        RulesDeploy rulesDeploy = getCurrentProjectRulesDeploy();
+        if (rulesDeploy == null) {
+            return true;
+        } else {
+            return rulesDeploy.isProvideRuntimeContext();
+        }
+    }
+
+    private ObjectMapper configureObjectMapper() {
+        RulesDeploy rulesDeploy = getCurrentProjectRulesDeploy();
+        JacksonObjectMapperFactoryBean objectMapperFactory = new JacksonObjectMapperFactoryBean();
+        ClassLoader classLoader = WebStudioUtils.getProjectModel().getCompiledOpenClass().getClassLoader();
+        objectMapperFactory.setClassLoader(classLoader);
+        objectMapperFactory.setPolymorphicTypeValidation(true);
+        if (rulesDeploy != null) {
+            Boolean provideVariations = rulesDeploy.isProvideVariations();
+            if (provideVariations != null) {
+                objectMapperFactory.setSupportVariations(provideVariations);
+            }
+            Map<String, Object> configuration = rulesDeploy.getConfiguration();
+            if (configuration != null) {
+                Object rootClassNamesBinding = configuration.get(ROOT_CLASS_NAMES_BINDING);
+                if (rootClassNamesBinding != null) {
+                    String[] rootClassNamesBindings = rootClassNamesBinding.toString().split(",");
+                    Set<String> set = new HashSet<>(Arrays.asList(rootClassNamesBindings));
+                    objectMapperFactory.setOverrideTypes(set);
+                }
+                Object caseInsensitiveString = configuration.get(CASE_INSENSITIVE_PROPERTIES);
+                if (caseInsensitiveString != null) {
+                    boolean caseInsensitive = Boolean.parseBoolean(caseInsensitiveString.toString());
+                    objectMapperFactory.setCaseInsensitiveProperties(caseInsensitive);
+                }
+            }
+        }
+        try {
+            return objectMapperFactory.createJacksonObjectMapper();
+        } catch (ClassNotFoundException e) {
+            throw new Message(constructJsonExceptionMessage(e));
+        }
+    }
+
     public void fillBean() {
         if (StringUtils.isNotBlank(inputTextBean) && InputTestCaseType.BEAN
             .equals(inputTestCaseType) && argumentTreeNodes != null) {
@@ -101,11 +161,12 @@ public class InputArgsBean {
                 }
                 for (ParameterDeclarationTreeNode arg : argumentTreeNodes) {
                     String field = stringStringMap.get(arg.getName());
+                    ObjectMapper objectMapper = configureObjectMapper();
                     if (field != null) {
-                        arg.setValueForced(JsonUtils.fromJSON(field, arg.getType().getInstanceClass()));
+                        arg.setValueForced(JsonUtils.fromJSON(field, arg.getType().getInstanceClass(), objectMapper));
                     } else if (argumentTreeNodes.length == 1) {
-                        argumentTreeNodes[0].setValueForced(
-                            JsonUtils.fromJSON(inputTextBean, argumentTreeNodes[0].getType().getInstanceClass()));
+                        argumentTreeNodes[0].setValueForced(JsonUtils
+                            .fromJSON(inputTextBean, argumentTreeNodes[0].getType().getInstanceClass(), objectMapper));
                     }
                 }
             } catch (IOException e) {
@@ -133,11 +194,12 @@ public class InputArgsBean {
         try {
             for (int i = 0; i < argumentTreeNodes.length; i++) {
                 if (InputTestCaseType.TEXT.equals(inputTestCaseType) && stringStringMap != null) {
+                    ObjectMapper objectMapper = configureObjectMapper();
                     String field = stringStringMap.get(argumentTreeNodes[i].getName());
                     if (field != null) {
-                        parsedArguments[i] = JsonUtils.fromJSON(field,
-                            argumentTreeNodes[i].getType().getInstanceClass());
-                    } else if (argumentTreeNodes.length == 1) {
+                        parsedArguments[i] = JsonUtils
+                            .fromJSON(field, argumentTreeNodes[i].getType().getInstanceClass(), objectMapper);
+                    } else if (argumentTreeNodes.length == 1 && !isProvideRuntimeContext()) {
                         parsedArguments[i] = JsonUtils.fromJSON(inputTextBean,
                             argumentTreeNodes[i].getType().getInstanceClass());
                     }
@@ -164,7 +226,7 @@ public class InputArgsBean {
         }
     }
 
-    private String constructJsonExceptionMessage(IOException e) {
+    private String constructJsonExceptionMessage(Exception e) {
         if (e instanceof JsonParseException) {
             return String.format("%s</br>[line: %s, column: %s]",
                 ((JsonParseException) e).getOriginalMessage(),
@@ -347,6 +409,23 @@ public class InputArgsBean {
                 }
             }
         }
+    }
+
+    private RulesDeploy getCurrentProjectRulesDeploy() {
+        RulesDeploy rulesDeploy = null;
+        try {
+            AProjectArtefact artefact = WebStudioUtils.getWebStudio()
+                .getCurrentProject()
+                .getArtefact(DeployUtils.RULES_DEPLOY_XML);
+            if (artefact instanceof AProjectResource) {
+                InputStream content = ((AProjectResource) artefact).getContent();
+                IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
+                rulesDeploy = rulesDeploySerializer.deserialize(content);
+            }
+        } catch (ProjectException e) {
+            log.error("Error during getting project rules deploy", e);
+        }
+        return rulesDeploy;
     }
 
     public InputTestCaseType getInputTestCaseType() {
