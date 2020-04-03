@@ -13,7 +13,7 @@ import org.openl.gen.FieldDescription;
  *
  * @author Yury Molchan
  */
-public class EqualsWriter extends MethodWriter {
+public class EqualsWriter extends DefaultBeanByteCodeWriter {
 
     /**
      *
@@ -22,7 +22,7 @@ public class EqualsWriter extends MethodWriter {
      * @param allFields collection of fields for current class and parent`s ones.
      */
     public EqualsWriter(String beanNameWithPackage, Map<String, FieldDescription> allFields) {
-        super(beanNameWithPackage, allFields);
+        super(beanNameWithPackage, null, allFields);
     }
 
     @Override
@@ -37,9 +37,19 @@ public class EqualsWriter extends MethodWriter {
 
         Label retFalse = new Label();
         // comparing by fields
-        for (Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
-            pushFieldToStack(mv, 0, field.getKey());
-            pushFieldToStack(mv, 2, field.getKey());
+        for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
+            String fieldName1 = field.getKey();
+            mv.visitVarInsn(Opcodes.ALOAD, 0);
+            mv.visitFieldInsn(Opcodes.GETFIELD,
+                getBeanNameWithPackage(),
+                    fieldName1,
+                getBeanFields().get(fieldName1).getTypeDescriptor());
+            String fieldName = field.getKey();
+            mv.visitVarInsn(Opcodes.ALOAD, 2);
+            mv.visitFieldInsn(Opcodes.GETFIELD,
+                getBeanNameWithPackage(),
+                fieldName,
+                getBeanFields().get(fieldName).getTypeDescriptor());
 
             final String type = field.getValue().getTypeName();
             if ("double".equals(type)) {
