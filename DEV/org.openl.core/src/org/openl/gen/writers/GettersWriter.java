@@ -14,7 +14,7 @@ import org.openl.util.ClassUtils;
  *
  * @author DLiauchuk
  */
-public class GettersWriter extends MethodWriter {
+public class GettersWriter extends DefaultBeanByteCodeWriter {
 
     /**
      *
@@ -23,7 +23,7 @@ public class GettersWriter extends MethodWriter {
      * @param beanFields fields of generating class.
      */
     public GettersWriter(String beanNameWithPackage, Map<String, FieldDescription> beanFields) {
-        super(beanNameWithPackage, beanFields);
+        super(beanNameWithPackage, null, beanFields);
     }
 
     @Override
@@ -32,10 +32,8 @@ public class GettersWriter extends MethodWriter {
          * ignore those fields that are of void type. In java it is impossible but possible in Openl, e.g. spreadsheet
          * cell with void type.
          */
-        for (Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
-            if (validField(field.getKey(), field.getValue())) {
-                generateGetter(classWriter, field);
-            }
+        for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
+            generateGetter(classWriter, field);
         }
     }
 

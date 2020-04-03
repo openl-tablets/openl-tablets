@@ -20,7 +20,7 @@ import org.openl.gen.FieldDescription;
  *
  * @author Yury Molchan
  */
-public class HashCodeWriter extends MethodWriter {
+public class HashCodeWriter extends DefaultBeanByteCodeWriter {
 
     /**
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
@@ -28,7 +28,7 @@ public class HashCodeWriter extends MethodWriter {
      * @param allFields collection of fields for current class and parent`s ones.
      */
     public HashCodeWriter(String beanNameWithPackage, Map<String, FieldDescription> allFields) {
-        super(beanNameWithPackage, allFields);
+        super(beanNameWithPackage, null, allFields);
     }
 
     @Override
@@ -40,14 +40,19 @@ public class HashCodeWriter extends MethodWriter {
         mv.visitInsn(Opcodes.ICONST_5);
 
         // generating hash code by fields
-        for (Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
+        for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
             // hash *= 31
             mv.visitIntInsn(Opcodes.BIPUSH, 31);
             mv.visitInsn(Opcodes.IMUL);
             mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] { Opcodes.INTEGER });
 
             // getField
-            pushFieldToStack(mv, 0, field.getKey());
+            String fieldName = field.getKey();
+            mv.visitVarInsn(Opcodes.ALOAD, 0);
+            mv.visitFieldInsn(Opcodes.GETFIELD,
+                getBeanNameWithPackage(),
+                fieldName,
+                getBeanFields().get(fieldName).getTypeDescriptor());
 
             // c = ?
             final String type = field.getValue().getTypeName();
