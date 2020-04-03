@@ -15,7 +15,7 @@ import org.openl.gen.FieldDescription;
  *
  * @author Yury Molchan
  */
-public class ToStringWriter extends MethodWriter {
+public class ToStringWriter extends DefaultBeanByteCodeWriter {
     private static final int MAX_FIELDS = 100;
 
     private static final Map<String, String> PRIMITIVE_DESCRIPTORS = Collections
@@ -60,7 +60,7 @@ public class ToStringWriter extends MethodWriter {
      * @param allFields collection of fields for current class and parent`s ones.
      */
     public ToStringWriter(String beanNameWithPackage, Map<String, FieldDescription> allFields) {
-        super(beanNameWithPackage, allFields);
+        super(beanNameWithPackage, null, allFields);
     }
 
     @Override
@@ -80,10 +80,15 @@ public class ToStringWriter extends MethodWriter {
         // write fields
         invokeAppendValue(methodVisitor, "{ ");
         int i = 0;
-        for (Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
+        for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
             invokeAppendValue(methodVisitor, field.getKey() + "=");
 
-            pushFieldToStack(methodVisitor, 0, field.getKey());
+            String fieldName = field.getKey();
+            methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+            methodVisitor.visitFieldInsn(Opcodes.GETFIELD,
+                getBeanNameWithPackage(),
+                fieldName,
+                getBeanFields().get(fieldName).getTypeDescriptor());
 
             String type = field.getValue().getTypeName();
             if (PRIMITIVE_DESCRIPTORS.containsKey(type)) {

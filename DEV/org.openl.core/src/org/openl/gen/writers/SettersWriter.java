@@ -9,18 +9,16 @@ import org.objectweb.asm.Opcodes;
 import org.openl.gen.FieldDescription;
 import org.openl.util.ClassUtils;
 
-public class SettersWriter extends MethodWriter {
+public class SettersWriter extends DefaultBeanByteCodeWriter {
 
     public SettersWriter(String beanNameWithPackage, Map<String, FieldDescription> allFields) {
-        super(beanNameWithPackage, allFields);
+        super(beanNameWithPackage, null, allFields);
     }
 
     @Override
     public void write(ClassWriter classWriter) {
-        for (Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
-            if (validField(field.getKey(), field.getValue())) {
-                generateSetter(classWriter, field);
-            }
+        for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
+            generateSetter(classWriter, field);
         }
     }
 

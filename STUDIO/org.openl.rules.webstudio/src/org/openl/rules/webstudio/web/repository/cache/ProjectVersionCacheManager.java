@@ -65,6 +65,9 @@ public class ProjectVersionCacheManager {
             .getCreatedAt()
             .compareTo(pr1.getVersionInfo().getCreatedAt()));
         for (ProjectVersion projectVersion : versions) {
+            if (projectVersion.isDeleted()) {
+                continue;
+            }
             AProject designProject = designRepository.getProject(project.getName(), projectVersion);
             boolean cached = cacheProjectVersion(designProject, repoType);
             if (!cached) {

@@ -79,8 +79,10 @@ public class POJOByteCodeGenerator {
                 allFields));
         }
 
-        writers.add(new GettersWriter(beanNameWithPackage, this.beanFields));
-        writers.add(new SettersWriter(beanNameWithPackage, this.beanFields));
+        if (!publicFields) {
+            writers.add(new GettersWriter(beanNameWithPackage, this.beanFields));
+            writers.add(new SettersWriter(beanNameWithPackage, this.beanFields));
+        }
         if (equalsHashCodeToStringMethods) {
             writers.add(new ToStringWriter(beanNameWithPackage, allFields));
             writers.add(new EqualsWriter(beanNameWithPackage, allFields));

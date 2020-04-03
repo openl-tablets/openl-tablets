@@ -19,6 +19,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.serialization.JacksonObjectMapperFactoryBean;
@@ -414,13 +415,14 @@ public class InputArgsBean {
     private RulesDeploy getCurrentProjectRulesDeploy() {
         RulesDeploy rulesDeploy = null;
         try {
-            AProjectArtefact artefact = WebStudioUtils.getWebStudio()
-                .getCurrentProject()
-                .getArtefact(DeployUtils.RULES_DEPLOY_XML);
-            if (artefact instanceof AProjectResource) {
-                InputStream content = ((AProjectResource) artefact).getContent();
-                IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
-                rulesDeploy = rulesDeploySerializer.deserialize(content);
+            RulesProject currentProject = WebStudioUtils.getWebStudio().getCurrentProject();
+            if (currentProject.hasArtefact(DeployUtils.RULES_DEPLOY_XML)) {
+                AProjectArtefact artefact = currentProject.getArtefact(DeployUtils.RULES_DEPLOY_XML);
+                if (artefact instanceof AProjectResource) {
+                    InputStream content = ((AProjectResource) artefact).getContent();
+                    IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
+                    rulesDeploy = rulesDeploySerializer.deserialize(content);
+                }
             }
         } catch (ProjectException e) {
             log.error("Error during getting project rules deploy", e);
