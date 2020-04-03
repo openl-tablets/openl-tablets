@@ -446,6 +446,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             initializing = true;
                             final String beanClassName = getBeanClassName();
                             JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanClassName)
+                                .withAdditionalConstructor(false)
                                 .withEqualsHashCodeToStringMethods(false);
                             Set<String> usedFields = new HashSet<>();
                             Map<String, String> xmlNames = new HashMap<>();
