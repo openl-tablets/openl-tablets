@@ -19,7 +19,7 @@ public class StringUtilsTest {
             "\u009D\u009E\u009F\u00A0\u2007\u202F";
 
     @Test
-    public void testSplit() throws Exception {
+    public void testSplit() {
         assertNull(StringUtils.split(null, ' '));
         assertNull(StringUtils.split(null, '*'));
         assertArrayEquals("Returned array is not empty", new String[]{}, StringUtils.split("", '*'));
@@ -77,7 +77,7 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testSplitWS() throws Exception {
+    public void testSplitWS() {
         assertNull(StringUtils.split(null));
         assertArrayEquals("Returned array is not empty", new String[]{}, StringUtils.split(""));
         assertArrayEquals("Returned array is not empty", new String[]{}, StringUtils.split("  \n\r  \t \r\n  \t\t"));
@@ -100,8 +100,8 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testJoinObject() throws Exception {
-        assertEquals("Returned string is not valid", null, StringUtils.join(null, "*"));
+    public void testJoinObject() {
+        assertNull("Returned string is not valid", StringUtils.join(null, "*"));
         assertEquals("Returned string is not valid", "", StringUtils.join(new Object[]{}, "*"));
         assertEquals("Returned string is not valid", "null", StringUtils.join(new Object[]{null}, "*"));
         assertEquals("Returned string is not valid", "null,null", StringUtils.join(new Object[]{null, null}, ","));
@@ -110,7 +110,7 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testIsEmpty() throws Exception {
+    public void testIsEmpty() {
         assertTrue("Returned value is false", StringUtils.isEmpty(null));
         assertTrue("Returned value is false", StringUtils.isEmpty(""));
         assertFalse("Returned value is true", StringUtils.isEmpty(" "));
@@ -119,7 +119,7 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testIsNotEmpty() throws Exception {
+    public void testIsNotEmpty() {
         assertFalse("Returned value is true", StringUtils.isNotEmpty(null));
         assertFalse("Returned value is true", StringUtils.isNotEmpty(""));
         assertTrue("Returned value is false", StringUtils.isNotEmpty(" "));
@@ -128,7 +128,7 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testIsBlank() throws Exception {
+    public void testIsBlank() {
         assertTrue("Returned value is false", StringUtils.isBlank(null));
         assertTrue("Returned value is false", StringUtils.isBlank(""));
         assertTrue("Returned value is false", StringUtils.isBlank(" "));
@@ -137,7 +137,7 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testIsNotBlank() throws Exception {
+    public void testIsNotBlank() {
         assertFalse("Returned value is true", StringUtils.isNotBlank(null));
         assertFalse("Returned value is true", StringUtils.isNotBlank(""));
         assertFalse("Returned value is true", StringUtils.isNotBlank(" "));
@@ -146,7 +146,7 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testContainsIgnoreCase() throws Exception {
+    public void testContainsIgnoreCase() {
         assertFalse("Returned value is true", StringUtils.containsIgnoreCase(null, ""));
         assertFalse("Returned value is true", StringUtils.containsIgnoreCase("", null));
         assertFalse("Returned value is true", StringUtils.containsIgnoreCase("abc", "z"));
@@ -161,7 +161,7 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testMatches() throws Exception {
+    public void testMatches() {
         assertFalse("Returned value is true", StringUtils.matches(Pattern.compile("\\d"), ""));
         assertTrue("Returned value is true", StringUtils.matches(Pattern.compile("\\d"), "1"));
         assertTrue("Returned value is true", StringUtils.matches(Pattern.compile("\\d"), "2"));
@@ -169,8 +169,8 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testTrim() throws Exception {
-        assertEquals("Returned string is not valid", null, StringUtils.trim(null));
+    public void testTrim() {
+        assertNull("Returned string is not valid", StringUtils.trim(null));
         assertEquals("Returned string is not valid", "", StringUtils.trim(""));
         assertEquals("Returned string is not valid", "", StringUtils.trim("     "));
         assertEquals("Returned string is not valid", "boo", StringUtils.trim("boo"));
@@ -181,19 +181,19 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testTrimToNull() throws Exception {
-        assertEquals("Returned string is not valid", null, StringUtils.trimToNull(null));
-        assertEquals("Returned string is not valid", null, StringUtils.trimToNull(""));
-        assertEquals("Returned string is not valid", null, StringUtils.trimToNull("     "));
+    public void testTrimToNull() {
+        assertNull("Returned string is not valid", StringUtils.trimToNull(null));
+        assertNull("Returned string is not valid", StringUtils.trimToNull(""));
+        assertNull("Returned string is not valid", StringUtils.trimToNull("     "));
         assertEquals("Returned string is not valid", "boo", StringUtils.trimToNull("boo"));
         assertEquals("Returned string is not valid", "boo", StringUtils.trimToNull("    boo    "));
         assertEquals("Returned string is not valid", "bar", StringUtils.trimToNull("     bar     "));
         assertEquals("Returned string is not valid", "foo", StringUtils.trimToNull(CONTROLS_AND_SPACES + "  foo" + CONTROLS_AND_SPACES + "   "));
-        assertEquals("Returned string is not valid", null, StringUtils.trimToNull(CONTROLS_AND_SPACES));
+        assertNull("Returned string is not valid", StringUtils.trimToNull(CONTROLS_AND_SPACES));
     }
 
     @Test
-    public void testTrimToEmpty() throws Exception {
+    public void testTrimToEmpty() {
         assertEquals("Returned string is not valid", "", StringUtils.trimToEmpty(null));
         assertEquals("Returned string is not valid", "", StringUtils.trimToEmpty(""));
         assertEquals("Returned string is not valid", "", StringUtils.trimToEmpty("     "));
@@ -205,8 +205,8 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testCapitalize() throws Exception {
-        assertEquals("Returned string is not valid", null, StringUtils.capitalize(null));
+    public void testCapitalize() {
+        assertNull("Returned string is not valid", StringUtils.capitalize(null));
         assertEquals("Returned string is not valid", "", StringUtils.capitalize(""));
         assertEquals("Returned string is not valid", "Foo", StringUtils.capitalize("foo"));
         assertEquals("Returned string is not valid", "FOo", StringUtils.capitalize("fOo"));
@@ -214,8 +214,8 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testUnCapitalize() throws Exception {
-        assertEquals("Returned string is not valid", null, StringUtils.uncapitalize(null));
+    public void testUnCapitalize() {
+        assertNull("Returned string is not valid", StringUtils.uncapitalize(null));
         assertEquals("Returned string is not valid", "", StringUtils.uncapitalize(""));
         assertEquals("Returned string is not valid", "foo", StringUtils.uncapitalize("Foo"));
         assertEquals("Returned string is not valid", "fOO", StringUtils.uncapitalize("FOO"));
