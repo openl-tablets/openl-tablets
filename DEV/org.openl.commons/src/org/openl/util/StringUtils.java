@@ -328,7 +328,13 @@ public class StringUtils {
         return (start > 0 || end < str.length()) ? str.substring(start, end) : str;
     }
 
-    private static boolean isSpaceOrControl(char ch) {
+    /**
+     * Determines if the specified character is whitespace or control character (char &lt;= 32 or (&gt;= 127 and &lt;= 160)
+     *
+     * @param ch the character to be tested
+     * @return {@code true} if character is whitespace or control, otherwise {@code false}
+     */
+    public static boolean isSpaceOrControl(char ch) {
         return Character.isWhitespace(ch)
                 || Character.isISOControl(ch)
                 || Character.isSpaceChar(ch);
