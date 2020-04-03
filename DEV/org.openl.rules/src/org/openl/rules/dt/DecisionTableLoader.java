@@ -47,6 +47,8 @@ public class DecisionTableLoader {
      */
     static final String EMPTY_BODY = "Decision table must contain body section.";
 
+    private static final int MAX_COLUMNS_IN_DT = 100;
+
     private static class TableStructure {
         private final List<IBaseCondition> conditions = new ArrayList<>();
         private final List<IBaseAction> actions = new ArrayList<>();
@@ -84,9 +86,9 @@ public class DecisionTableLoader {
             DecisionTable decisionTable,
             OpenL openl,
             ModuleOpenClass module,
-            boolean transponse,
+            boolean transpose,
             IBindingContext bindingContext) throws Exception {
-        TableStructure tableStructure = loadTableStructure(tableSyntaxNode, decisionTable, transponse, bindingContext);
+        TableStructure tableStructure = loadTableStructure(tableSyntaxNode, decisionTable, transpose, bindingContext);
         IBaseCondition[] conditionsArray = tableStructure.conditions.toArray(IBaseCondition.EMPTY);
         IBaseAction[] actionsArray = tableStructure.actions.toArray(IBaseAction.EMPTY);
         decisionTable.bindTable(conditionsArray,
@@ -103,34 +105,45 @@ public class DecisionTableLoader {
             OpenL openl,
             ModuleOpenClass module,
             IBindingContext bindingContext) throws Exception {
+        boolean firstTransposedThenNormal = tableSyntaxNode.getTableBody() != null && tableSyntaxNode.getTableBody()
+            .getWidth() > tableSyntaxNode.getTableBody().getHeight() && (tableSyntaxNode.getTableBody()
+                .getWidth() >= MAX_COLUMNS_IN_DT || tableSyntaxNode.getTableBody().getHeight() >= MAX_COLUMNS_IN_DT);
         CompilationErrors loadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode, () -> {
-            loadAndBind(tableSyntaxNode, decisionTable, openl, module, false, bindingContext);
+            loadAndBind(tableSyntaxNode, decisionTable, openl, module, firstTransposedThenNormal, bindingContext);
             return null;
         }, bindingContext);
         final DTInfo dtInfo = decisionTable.getDtInfo();
         if (loadAndBindErrors != null) {
-            if (DecisionTableHelper.isSimple(tableSyntaxNode) || DecisionTableHelper.isSmart(tableSyntaxNode)) {
-                CompilationErrors transponsedLoadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode, () -> {
-                    loadAndBind(tableSyntaxNode, decisionTable, openl, module, true, bindingContext);
-                    return null;
-                }, bindingContext);
-                if (transponsedLoadAndBindErrors == null) {
-                    return;
-                } else {
-                    // Select compilation with less errors count
-                    if (loadAndBindErrors.getBindingSyntaxNodeException().size() > transponsedLoadAndBindErrors
-                        .getBindingSyntaxNodeException()
-                        .size() || loadAndBindErrors.getSyntaxNodeExceptions().length > transponsedLoadAndBindErrors
-                            .getSyntaxNodeExceptions().length && loadAndBindErrors.getBindingSyntaxNodeException()
-                                .size() == transponsedLoadAndBindErrors.getBindingSyntaxNodeException().size()) {
-                        transponsedLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
-                        if (transponsedLoadAndBindErrors.getEx() != null) {
-                            throw transponsedLoadAndBindErrors.getEx();
-                        }
+            if ((tableSyntaxNode.getTableBody() == null || (firstTransposedThenNormal ? tableSyntaxNode.getTableBody()
+                .getWidth() : tableSyntaxNode.getTableBody().getHeight()) <= MAX_COLUMNS_IN_DT)) {
+                if (DecisionTableHelper.isSimple(tableSyntaxNode) || DecisionTableHelper.isSmart(tableSyntaxNode)) {
+                    CompilationErrors altLoadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode, () -> {
+                        loadAndBind(tableSyntaxNode,
+                            decisionTable,
+                            openl,
+                            module,
+                            !firstTransposedThenNormal,
+                            bindingContext);
+                        return null;
+                    }, bindingContext);
+                    if (altLoadAndBindErrors == null) {
                         return;
+                    } else {
+                        // Select compilation with less errors count
+                        if (loadAndBindErrors.getBindingSyntaxNodeException().size() > altLoadAndBindErrors
+                            .getBindingSyntaxNodeException()
+                            .size() || loadAndBindErrors.getSyntaxNodeExceptions().length > altLoadAndBindErrors
+                                .getSyntaxNodeExceptions().length && loadAndBindErrors.getBindingSyntaxNodeException()
+                                    .size() == altLoadAndBindErrors.getBindingSyntaxNodeException().size()) {
+                            altLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
+                            if (altLoadAndBindErrors.getEx() != null) {
+                                throw altLoadAndBindErrors.getEx();
+                            }
+                            return;
+                        }
                     }
+                    decisionTable.setDtInfo(dtInfo);
                 }
-                decisionTable.setDtInfo(dtInfo);
             }
             loadAndBindErrors.apply(tableSyntaxNode, bindingContext);
             if (loadAndBindErrors.getEx() != null) {
@@ -174,7 +187,7 @@ public class DecisionTableLoader {
 
     private TableStructure loadTableStructure(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
-            boolean transponse,
+            boolean transpose,
             IBindingContext bindingContext) throws SyntaxNodeException {
 
         if (DecisionTableHelper.isCollect(tableSyntaxNode)) {
@@ -186,7 +199,7 @@ public class DecisionTableLoader {
         if (tableBody == null) {
             throw SyntaxNodeExceptionUtils.createError(EMPTY_BODY, tableSyntaxNode);
         }
-        if (transponse) {
+        if (transpose) {
             tableBody = tableBody.transpose();
         }
         // preprocess decision tables (without conditions and return headers)

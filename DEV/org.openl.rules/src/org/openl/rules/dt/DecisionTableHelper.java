@@ -1926,7 +1926,11 @@ public final class DecisionTableHelper {
             List<List<DTHeader>> fits,
             Set<Integer> failedToFit,
             int numberOfReturns,
-            int fuzzyReturnsFlag) {
+            int fuzzyReturnsFlag,
+            int counter) {
+        if (counter > 500) {
+            System.out.println();
+        }
         if (fits.size() > FITS_MAX_LIMIT) {
             return column >= lastColumn;
         }
@@ -1989,7 +1993,8 @@ public final class DecisionTableHelper {
                             fits,
                             failedToFit,
                             numberOfReturns1,
-                            fuzzyReturnsFlag1);
+                            fuzzyReturnsFlag1,
+                            counter + 1);
                         usedIndexes.remove(usedIndexes.size() - 1);
                         used.remove(used.size() - 1);
                     }
@@ -2017,7 +2022,8 @@ public final class DecisionTableHelper {
                     fits,
                     failedToFit,
                     numberOfReturns,
-                    fuzzyReturnsFlag);
+                    fuzzyReturnsFlag,
+                    counter + 1);
                 used.remove(used.size() - 1);
             }
         }
@@ -2337,6 +2343,7 @@ public final class DecisionTableHelper {
             new HashSet<>(),
             fits,
             failedToFit,
+            0,
             0,
             0);
         if (fits.size() > FITS_MAX_LIMIT) {
