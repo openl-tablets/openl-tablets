@@ -295,7 +295,7 @@ public class StringUtils {
 
     /**
      * <p>
-     * Removes control characters (char &lt;= 32) from both ends of this String, handling {@code null} by returning
+     * Removes control characters (char &lt;= 32 or (&gt;= 127 and &lt;= 160) from both ends of this String, handling {@code null} by returning
      * {@code null}.
      * </p>
      * <p>
@@ -312,12 +312,31 @@ public class StringUtils {
      * @return the trimmed string, {@code null} if null String input
      */
     public static String trim(final String str) {
-        return str == null ? null : str.trim();
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        int start = 0;
+        while (start < str.length() && isSpaceOrControl(str.charAt(start))) {
+            start++;
+        }
+
+        int end = str.length();
+        while (start < end && isSpaceOrControl(str.charAt(end - 1))) {
+            end--;
+        }
+
+        return (start > 0 || end < str.length()) ? str.substring(start, end) : str;
+    }
+
+    private static boolean isSpaceOrControl(char ch) {
+        return Character.isWhitespace(ch)
+                || Character.isISOControl(ch)
+                || Character.isSpaceChar(ch);
     }
 
     /**
      * <p>
-     * Removes control characters (char &lt;= 32) from both ends of this String returning {@code null} if the String is
+     * Removes control characters (char &lt;= 32 or (&gt;= 127 and &lt;= 160) from both ends of this String returning {@code null} if the String is
      * empty ("") after the trim or if it is {@code null}.
      * <p>
      *
@@ -339,7 +358,7 @@ public class StringUtils {
 
     /**
      * <p>
-     * Removes control characters (char &lt;= 32) from both ends of this String returning an empty String ("") if the
+     * Removes control characters (char &lt;= 32 or (&gt;= 127 and &lt;= 160) from both ends of this String returning an empty String ("") if the
      * String is empty ("") after the trim or if it is {@code null}.
      * <p>
      *
@@ -355,7 +374,7 @@ public class StringUtils {
      * @return the trimmed String, or an empty String if {@code null} input
      */
     public static String trimToEmpty(final String str) {
-        return str == null ? EMPTY : str.trim();
+        return str == null ? EMPTY : trim(str);
     }
 
     /**

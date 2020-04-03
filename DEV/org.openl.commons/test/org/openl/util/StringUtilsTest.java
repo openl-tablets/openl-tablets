@@ -11,6 +11,13 @@ import org.junit.Test;
  */
 public class StringUtilsTest {
 
+    //All possible combinations of hidden UTF-8 symbols
+    private static final String CONTROLS_AND_SPACES = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\u0009" +
+            "\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C" +
+            "\u001D\u001E\u001F\u0020\u007F\u0080\u0081\u0082\u0083\u0084\u0085\u0086\u0087\u0088\u0089\u008A\u008B" +
+            "\u008C\u008D\u008E\u008F\u0090\u0091\u0092\u0093\u0094\u0095\u0096\u0097\u0098\u0099\u009A\u009B\u009C" +
+            "\u009D\u009E\u009F\u00A0\u2007\u202F";
+
     @Test
     public void testSplit() throws Exception {
         assertNull(StringUtils.split(null, ' '));
@@ -168,6 +175,9 @@ public class StringUtilsTest {
         assertEquals("Returned string is not valid", "", StringUtils.trim("     "));
         assertEquals("Returned string is not valid", "boo", StringUtils.trim("boo"));
         assertEquals("Returned string is not valid", "boo", StringUtils.trim("    boo    "));
+        assertEquals("Returned string is not valid", "bar", StringUtils.trim("     bar     "));
+        assertEquals("Returned string is not valid", "foo", StringUtils.trim(CONTROLS_AND_SPACES + "  foo" + CONTROLS_AND_SPACES + "   "));
+        assertEquals("Returned string is not valid", "", StringUtils.trim(CONTROLS_AND_SPACES));
     }
 
     @Test
@@ -177,6 +187,9 @@ public class StringUtilsTest {
         assertEquals("Returned string is not valid", null, StringUtils.trimToNull("     "));
         assertEquals("Returned string is not valid", "boo", StringUtils.trimToNull("boo"));
         assertEquals("Returned string is not valid", "boo", StringUtils.trimToNull("    boo    "));
+        assertEquals("Returned string is not valid", "bar", StringUtils.trimToNull("     bar     "));
+        assertEquals("Returned string is not valid", "foo", StringUtils.trimToNull(CONTROLS_AND_SPACES + "  foo" + CONTROLS_AND_SPACES + "   "));
+        assertEquals("Returned string is not valid", null, StringUtils.trimToNull(CONTROLS_AND_SPACES));
     }
 
     @Test
@@ -186,6 +199,9 @@ public class StringUtilsTest {
         assertEquals("Returned string is not valid", "", StringUtils.trimToEmpty("     "));
         assertEquals("Returned string is not valid", "boo", StringUtils.trimToEmpty("boo"));
         assertEquals("Returned string is not valid", "boo", StringUtils.trimToEmpty("    boo    "));
+        assertEquals("Returned string is not valid", "bar", StringUtils.trimToEmpty("     bar     "));
+        assertEquals("Returned string is not valid", "foo", StringUtils.trimToEmpty(CONTROLS_AND_SPACES + "  foo" + CONTROLS_AND_SPACES + "   "));
+        assertEquals("Returned string is not valid", "", StringUtils.trimToEmpty(CONTROLS_AND_SPACES));
     }
 
     @Test
