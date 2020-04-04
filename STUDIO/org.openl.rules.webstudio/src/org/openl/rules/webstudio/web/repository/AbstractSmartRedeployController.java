@@ -108,7 +108,7 @@ public abstract class AbstractSmartRedeployController {
         return false;
     }
 
-    private String getLastDeployedVersion(AProject wsProject, String deployConfigName) throws IOException {
+    private AProject getDeployedProject(AProject wsProject, String deployConfigName) throws IOException {
         Repository deployRepo = null;
         try {
             deployRepo = deploymentManager.getDeployRepository(repositoryConfigName);
@@ -129,8 +129,7 @@ public abstract class AbstractSmartRedeployController {
             wsProject.getName(),
             null,
             folderStructure);
-        AProject deployedProject = deployment.getProject(wsProject.getName());
-        return deployedProject != null ? projectVersionCacheManager.getDeployedProjectVersion(deployedProject) : null;
+        return deployment.getProject(wsProject.getName());
     }
 
     private List<DeploymentProjectItem> getItems4Project(AProject project, String repositoryConfigName) {
@@ -184,9 +183,12 @@ public abstract class AbstractSmartRedeployController {
             checker.addProjects(latestDeploymentVersion);
 
             String lastDeployedVersion = "";
+            AProject deployedProject = null;
             try {
                 String name = getSelectedProject().getName();
-                lastDeployedVersion = getLastDeployedVersion(project, name);
+                deployedProject = getDeployedProject(project, name);
+                lastDeployedVersion = deployedProject != null ? projectVersionCacheManager
+                    .getDeployedProjectVersion(deployedProject) : null;
             } catch (IOException e) {
                 item.setMessages("Internal error while reading project cache.");
             }
@@ -234,15 +236,24 @@ public abstract class AbstractSmartRedeployController {
                     checker.addProject(project);
                     if (checker.check()) {
                         String to = RepositoryTreeController.getDescriptiveVersion(project.getVersion());
-                        String from = "undefined";
-                        if (lastDeployedVersion != null) {
-                            from = RepositoryTreeController
+                        if (deployedProject == null) {
+                            item.setMessages("Can be deployed");
+                        } else if (lastDeployedVersion == null) {
+                            if (projectVersionCacheManager.isCacheCalculated()) {
+                                item.setMessages(
+                                    "Can be updated to '" + to + "' and then deployed. Deployed version not defined");
+                            } else {
+                                item.setMessages(
+                                    "Can be updated to " + to + " and then deployed. Deployed version is being defined");
+                            }
+                        } else {
+                            String from = RepositoryTreeController
                                 .getDescriptiveVersion(userWorkspace.getDesignTimeRepository()
                                     .getProject(projectDescriptor.getProjectName(),
                                         new CommonVersionImpl(lastDeployedVersion))
                                     .getVersion());
+                            item.setMessages("Can be updated to '" + to + "' from '" + from + "' and then deployed");
                         }
-                        item.setMessages("Can be updated to '" + to + "' from '" + from + "' and then deployed");
                     } else {
                         item.setMessages(
                             "Project version will be updated. Dependent projects should be added to deploy configuration.");

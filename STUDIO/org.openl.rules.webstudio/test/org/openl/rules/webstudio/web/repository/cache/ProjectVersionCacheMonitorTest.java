@@ -17,20 +17,25 @@ import org.openl.rules.repository.git.GitRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
-public class ProjectVersionCacheManagerTest {
+public class ProjectVersionCacheMonitorTest {
 
     private File root;
     private GitRepository repo;
+    private ProjectVersionCacheMonitor projectVersionCacheMonitor;
     private ProjectVersionCacheManager projectVersionCacheManager;
+    private ProjectVersionH2CacheDB projectVersionCacheDB;
 
     @Before
     public void setUp() throws IOException, RRepositoryException {
         root = Files.createTempDirectory("openl").toFile();
         repo = createRepository(new File(root, "design-repository"));
+        projectVersionCacheMonitor = new ProjectVersionCacheMonitor();
         projectVersionCacheManager = new ProjectVersionCacheManager();
-        ProjectVersionCacheDB projectVersionCacheDB = new ProjectVersionCacheDB();
+        projectVersionCacheDB = new ProjectVersionH2CacheDB();
         projectVersionCacheDB.setOpenLHome(root.getAbsolutePath());
+        projectVersionCacheMonitor.setProjectVersionCacheDB(projectVersionCacheDB);
         projectVersionCacheManager.setProjectVersionCacheDB(projectVersionCacheDB);
+        projectVersionCacheMonitor.setProjectVersionCacheManager(projectVersionCacheManager);
     }
 
     @After
@@ -45,7 +50,7 @@ public class ProjectVersionCacheManagerTest {
     }
 
     @Test
-    public void testSaveFile() throws IOException {
+    public void testCacheProjects() throws IOException {
         String path = "project/test";
         FileData data = repo.save(createFileData(path, path), IOUtils.toInputStream(path + "1"));
         FileData data2 = repo.save(createFileData(path, path), IOUtils.toInputStream(path + "2"));
@@ -53,12 +58,13 @@ public class ProjectVersionCacheManagerTest {
         AProject project = new AProject(repo, "project", data.getVersion());
         AProject project2 = new AProject(repo, "project", data2.getVersion());
         AProject project3 = new AProject(repo, "project", data3.getVersion());
-        projectVersionCacheManager.cacheProjectVersion(project, ProjectVersionCacheDB.RepoType.DESIGN);
-        projectVersionCacheManager.cacheProjectVersion(project2, ProjectVersionCacheDB.RepoType.DESIGN);
-        projectVersionCacheManager.cacheProjectVersion(project2, ProjectVersionCacheDB.RepoType.DEPLOY);
-        projectVersionCacheManager.cacheProjectVersion(project3, ProjectVersionCacheDB.RepoType.DESIGN);
+        projectVersionCacheMonitor.cacheProjectVersion(project, ProjectVersionH2CacheDB.RepoType.DESIGN);
+        projectVersionCacheMonitor.cacheProjectVersion(project2, ProjectVersionH2CacheDB.RepoType.DESIGN);
+        projectVersionCacheMonitor.cacheProjectVersion(project2, ProjectVersionH2CacheDB.RepoType.DEPLOY);
+        projectVersionCacheMonitor.cacheProjectVersion(project3, ProjectVersionH2CacheDB.RepoType.DESIGN);
         String deployedProjectVersion = projectVersionCacheManager.getDeployedProjectVersion(project2);
         assertEquals(data2.getVersion(), deployedProjectVersion);
+        projectVersionCacheDB.closeDb();
     }
 
     private GitRepository createRepository(File local) throws RRepositoryException {
