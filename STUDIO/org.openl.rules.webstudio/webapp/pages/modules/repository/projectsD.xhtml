@@ -1,8 +1,9 @@
 <ui:composition
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:rich="http://richfaces.org/rich"
-    xmlns:ui="http://java.sun.com/jsf/facelets">
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <style>
         #content {
@@ -45,8 +46,16 @@
                 </h:commandLink>
               </rich:column>
               <rich:column style="text-align:center">
-                  <h:outputText value="#{prj.shortVersion}" styleClass="expandable"/>
-                  <h:outputText value="#{prj.version}" styleClass="hidden"/>
+                  <ui:param name="revisionNo" value="#{prj.version}" />
+                  <ui:param name="shortRevisionNo" value="#{prj.shortVersion}" />
+
+                  <h:panelGroup rendered="#{revisionNo eq shortRevisionNo}">
+                      <h:outputText value="#{revisionNo}"/>
+                  </h:panelGroup>
+                  <h:panelGroup rendered="#{not (revisionNo eq shortRevisionNo)}">
+                      <h:outputText value="#{shortRevisionNo}" styleClass="expandable" />
+                      <h:outputText value="#{revisionNo}" styleClass="hidden"/>
+                  </h:panelGroup>
               </rich:column>
               <rich:column>
                 <h:outputText value="#{prj.status}" />

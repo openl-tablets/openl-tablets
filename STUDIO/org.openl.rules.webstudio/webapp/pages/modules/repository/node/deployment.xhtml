@@ -1,7 +1,7 @@
 <ui:composition
         xmlns:f="http://java.sun.com/jsf/core"
         xmlns:h="http://java.sun.com/jsf/html"
-        xmlns:ui="http://java.sun.com/jsf/facelets">
+        xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputText value="Name:"/>
@@ -9,8 +9,18 @@
 
         <h:outputText value="Revision:"/>
         <h:panelGroup>
-            <h:outputText value="#{artefact.version.shortVersion}" styleClass="expandable"/>
-            <h:outputText value="#{artefact.version.versionName}" styleClass="hidden"/>
+            <ui:param name="revisionNo" value="#{artefact.version.versionName}" />
+            <ui:param name="shortRevisionNo" value="#{artefact.version.shortVersion}" />
+
+            <c:choose>
+                <c:when test="#{revisionNo eq shortRevisionNo}">
+                    <h:outputText value="#{revisionNo}"/>
+                </c:when>
+                <c:otherwise>
+                    <h:outputText value="#{shortRevisionNo}" styleClass="expandable"/>
+                    <h:outputText value="#{revisionNo}" styleClass="hidden"/>
+                </c:otherwise>
+            </c:choose>
         </h:panelGroup>
 
         <h:outputText value="Status:"/>

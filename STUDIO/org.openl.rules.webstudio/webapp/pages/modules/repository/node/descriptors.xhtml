@@ -34,8 +34,16 @@
       <h:outputText value="#{item.name}" />
     </rich:column>
     <rich:column style="text-align: center">
-      <h:outputText value="#{item.version.shortVersion}" styleClass="expandable"/>
-      <h:outputText value="#{item.version.versionName}" styleClass="hidden"/>
+      <ui:param name="revisionNo" value="#{item.version.versionName}" />
+      <ui:param name="shortRevisionNo" value="#{item.version.shortVersion}" />
+
+      <h:panelGroup rendered="#{revisionNo eq shortRevisionNo}">
+        <h:outputText value="#{revisionNo}"/>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{not (revisionNo eq shortRevisionNo)}">
+        <h:outputText value="#{shortRevisionNo}" styleClass="expandable" />
+        <h:outputText value="#{revisionNo}" styleClass="hidden"/>
+      </h:panelGroup>
     </rich:column>
     <rich:column style="text-align: center">
       <h:outputText value="#{item.messages}" escape="false" styleClass="#{item.styleForMessages}" />
