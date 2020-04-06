@@ -298,9 +298,12 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><label class="required">SAML remote server X509 certificate (PEM base64 encoded format):</label></td>
+                                    <td><label
+                                            class="required">SAML remote server X509 certificate (PEM base64 encoded format, begin/end tags are NOT needed):</label>
+                                    </td>
                                     <td><h:inputTextarea style="width:225px; height: 200px;" id="samlServerCertificate"
-                                                         value="#{installWizard.samlSettings.serverCertificate}"/></td>
+                                                         value="#{installWizard.samlSettings.serverCertificate}"/>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td><label>Authentication Contexts:</label></td>
@@ -598,6 +601,12 @@
                     showSamlAppAfterBalancer();
                 });
 
+                //remove all whitespaces and new lines from input
+                $j("#step3Form\\:samlServerCertificate").on("input", function () {
+                    $(this).val(function (_, v) {
+                        return v.replace(/\r?\n|\r|\s/g, '');
+                    })
+                });
             })();
 
             //]]>
