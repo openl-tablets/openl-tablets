@@ -31,6 +31,28 @@ import org.openl.vm.IRuntimeEnv;
 public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
     private static final String[] EMPTY_STRING_ARRAY = new String[] {};
+    private static final Comparator<String> FIELD_COMPARATOR = (o1, o2) -> {
+        // We do not expect empty fields names, so the length of strings always be greater than zero.
+        char c1 = Character.toUpperCase(o1.charAt(0));
+        char c2 = Character.toUpperCase(o2.charAt(0));
+        if (c1 != c2) {
+            return c1 - c2;
+        }
+
+        int len1 = o1.length();
+        int len2 = o2.length();
+        int lim = Math.min(len1, len2);
+        int k = 1;
+        while (k < lim) {
+            c1 = o1.charAt(k);
+            c2 = o2.charAt(k);
+            if (c1 != c2) {
+                return c1 - c2;
+            }
+            k++;
+        }
+        return len1 - len2;
+    };
 
     private String[] rowNames;
     private String[] columnNames;
@@ -421,7 +443,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                                 } else if (field.getName().equals(sprStructureFieldNames[1])) {
                                     sprSetters.add(new SpreadsheetResultColumnNamesSetter(field));
                                 } else if (field.getName().equals(sprStructureFieldNames[2])) {
-                                    sprSetters.add(new SpreadsheetResultFieldNamesSetter(field, beanFieldsMap, xmlNamesMap));
+                                    sprSetters
+                                        .add(new SpreadsheetResultFieldNamesSetter(field, beanFieldsMap, xmlNamesMap));
                                 }
                             }
                         }
@@ -448,7 +471,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanClassName)
                                 .withAdditionalConstructor(false)
                                 .withEqualsHashCodeToStringMethods(false);
-                            Set<String> usedFields = new HashSet<>();
+                            TreeSet<String> usedFields = new TreeSet<>(FIELD_COMPARATOR);
                             Map<String, String> xmlNames = new HashMap<>();
                             @SuppressWarnings("unchecked")
                             List<IOpenField>[][] used = new List[rowNames.length][columnNames.length];
@@ -637,10 +660,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             typeName = w.getRight().getType().getInstanceClass().getName();
                         }
                     }
-                    if (!isFieldConflictsWithOtherGetterSetters(usedGettersAndSetters, fieldName) && !usedXmlNames
-                        .containsValue(xmlName)) {
-                        usedGettersAndSetters.add(ClassUtils.getter(fieldName));
-                        usedGettersAndSetters.add(ClassUtils.setter(fieldName));
+                    if (!usedGettersAndSetters.contains(fieldName) && !usedXmlNames.containsValue(xmlName)) {
+                        usedGettersAndSetters.add(fieldName);
                         FieldDescription fieldDescription = new FieldDescription(typeName, null, null, null, xmlName);
                         beanClassBuilder.addField(fieldName, fieldDescription);
                         beanFieldsMap.put(fieldName, fillUsed(used, point, w.getRight()));
@@ -648,7 +669,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                     } else if (addFieldNameWithCollisions) {
                         String newFieldName = fieldName;
                         int i = 1;
-                        while (isFieldConflictsWithOtherGetterSetters(usedGettersAndSetters, newFieldName)) {
+                        while (usedGettersAndSetters.contains(newFieldName)) {
                             newFieldName = fieldName + i;
                             i++;
                         }
@@ -658,8 +679,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             newXmlName = xmlName + i;
                             i++;
                         }
-                        usedGettersAndSetters.add(ClassUtils.getter(newFieldName));
-                        usedGettersAndSetters.add(ClassUtils.setter(newFieldName));
+                        usedGettersAndSetters.add(newFieldName);
                         FieldDescription fieldDescription = new FieldDescription(typeName,
                             null,
                             null,
@@ -683,11 +703,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                 }
             }
         }
-    }
-
-    private boolean isFieldConflictsWithOtherGetterSetters(Set<String> usedGettersAndSetters, String fieldName) {
-        return usedGettersAndSetters.contains(ClassUtils.getter(fieldName)) || usedGettersAndSetters
-            .contains(ClassUtils.setter(fieldName));
     }
 
     private List<IOpenField> fillUsed(List<IOpenField>[][] used, Point point, IOpenField field) {
@@ -806,7 +821,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         private Map<String, List<IOpenField>> beanFieldsMap;
         private Map<String, String> xmlNamesMap;
 
-        public SpreadsheetResultFieldNamesSetter(Field field, Map<String, List<IOpenField>> beanFieldsMap, Map<String, String> xmlNamesMap) {
+        public SpreadsheetResultFieldNamesSetter(Field field,
+                Map<String, List<IOpenField>> beanFieldsMap,
+                Map<String, String> xmlNamesMap) {
             this.field = Objects.requireNonNull(field);
             this.beanFieldsMap = Objects.requireNonNull(beanFieldsMap);
             this.field.setAccessible(true);
