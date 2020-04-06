@@ -501,11 +501,11 @@ public class SpreadsheetStructureBuilder {
 
     private IBindingContext makeSpreadsheetResultContext(int columnIndex, IBindingContext rowBindingContext) {
         ComponentOpenClass columnOpenClass = colComponentOpenClasses.computeIfAbsent(columnIndex,
-            e -> makeColumnComponentOpenClass(columnIndex, rowBindingContext));
+            e -> makeColumnComponentOpenClass(columnIndex));
         return new SpreadsheetContext(rowBindingContext, columnOpenClass);
     }
 
-    private ComponentOpenClass makeColumnComponentOpenClass(int columnIndex, IBindingContext rowBindingContext) {
+    private ComponentOpenClass makeColumnComponentOpenClass(int columnIndex) {
         // create name for the column open class
         String columnOpenClassName = String.format("%sColType%d", spreadsheetHeader.getName(), columnIndex);
 
