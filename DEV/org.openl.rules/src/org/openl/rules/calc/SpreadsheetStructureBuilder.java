@@ -521,10 +521,10 @@ public class SpreadsheetStructureBuilder {
 
     private IBindingContext makeRowContext(int rowIndex) {
 
-        /** create name for the row open class */
+        /* create name for the row open class */
         String rowOpenClassName = String.format("%sRowType%d", spreadsheetHeader.getName(), rowIndex);
 
-        /** create row open class and populate it with fields **/
+        /* create row open class and populate it with fields **/
         IBindingContext generalBindingContext = componentsBuilder.getBindingContext();
         Map<Integer, SpreadsheetHeaderDefinition> headers = componentsBuilder.getColumnHeaders();
 
@@ -542,7 +542,7 @@ public class SpreadsheetStructureBuilder {
             proc(rowIndex, rowOpenClass, columnIndex, columnHeader);
         }
 
-        /** create row binding context **/
+        /* create row binding context */
         return new SpreadsheetContext(spreadsheetBindingContext, rowOpenClass);
     }
 
