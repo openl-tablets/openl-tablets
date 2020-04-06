@@ -93,8 +93,18 @@
                         <tr>
                             <td>Revision:</td>
                             <td>
-                                <span class="expandable">#{projectData.version.shortVersion}</span>
-                                <span class="hidden">#{projectData.version.versionName}</span>
+                                <ui:param name="revisionNo" value="#{projectData.version.versionName}" />
+                                <ui:param name="shortRevisionNo" value="#{projectData.version.shortVersion}" />
+
+                                <c:choose>
+                                    <c:when test="#{revisionNo eq shortRevisionNo}">
+                                        <span>#{revisionNo}</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="expandable">#{shortRevisionNo}</span>
+                                        <span class="hidden">#{revisionNo}</span>
+                                    </c:otherwise>
+                                </c:choose>
                             </td>
                         </tr>
                         <tr>

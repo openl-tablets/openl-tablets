@@ -26,7 +26,7 @@ public class H2CacheDB {
         }
         try {
             Connection dbConnection = DriverManager
-                .getConnection(DB_CONNECTION + openLHome + CACHE_FOLDER + cacheName, "", "");
+                .getConnection(DB_CONNECTION + openLHome + CACHE_FOLDER + cacheName + ";DB_CLOSE_DELAY=8");
             return dbConnection;
         } catch (SQLException e) {
             throw new IOException(e);
