@@ -71,7 +71,8 @@ public class SpreadsheetStructureBuilder {
     }
 
     private Map<Integer, IBindingContext> rowContexts = new HashMap<>();
-    private Map<Integer, Map<Integer, IBindingContext>> colContexts = new HashMap<>();
+    private Map<Integer, ComponentOpenClass> colComponentOpenClasses = new HashMap<>();
+    private Map<Integer, Map<Integer, IBindingContext>> spreadsheetResultContexts = new HashMap<>();
 
     private SpreadsheetCell[][] cells;
 
@@ -180,8 +181,7 @@ public class SpreadsheetStructureBuilder {
                 List<SpreadsheetCell> cellInChain = map.computeIfAbsent(this, (k) -> new ArrayList<>());
                 if (cellInChain.contains(cell)) {
                     cell.setTypeUnknown(true);
-                    throw new SpreadsheetCellsLoopException(
-                        "Spreadsheet Expression Loop: " + cellInChain.toString());
+                    throw new SpreadsheetCellsLoopException("Spreadsheet Expression Loop: " + cellInChain.toString());
                 }
                 try {
                     cellInChain.add(cell);
@@ -494,11 +494,18 @@ public class SpreadsheetStructureBuilder {
     }
 
     private IBindingContext getColumnContext(int columnIndex, int rowIndex, IBindingContext rowBindingContext) {
-        Map<Integer, IBindingContext> contexts = colContexts.computeIfAbsent(columnIndex, e -> new HashMap<>());
-        return contexts.computeIfAbsent(rowIndex, e -> makeColumnContext(columnIndex, rowBindingContext));
+        Map<Integer, IBindingContext> contexts = spreadsheetResultContexts.computeIfAbsent(columnIndex,
+            e -> new HashMap<>());
+        return contexts.computeIfAbsent(rowIndex, e -> makeSpreadsheetResultContext(columnIndex, rowBindingContext));
     }
 
-    private IBindingContext makeColumnContext(int columnIndex, IBindingContext rowBindingContext) {
+    private IBindingContext makeSpreadsheetResultContext(int columnIndex, IBindingContext rowBindingContext) {
+        ComponentOpenClass columnOpenClass = colComponentOpenClasses.computeIfAbsent(columnIndex,
+            e -> makeColumnComponentOpenClass(columnIndex, rowBindingContext));
+        return new SpreadsheetContext(rowBindingContext, columnOpenClass);
+    }
+
+    private ComponentOpenClass makeColumnComponentOpenClass(int columnIndex, IBindingContext rowBindingContext) {
         // create name for the column open class
         String columnOpenClassName = String.format("%sColType%d", spreadsheetHeader.getName(), columnIndex);
 
@@ -516,7 +523,7 @@ public class SpreadsheetStructureBuilder {
 
             proc(rowIndex, columnOpenClass, columnIndex, headerDefinition);
         }
-        return new SpreadsheetContext(rowBindingContext, columnOpenClass);
+        return columnOpenClass;
     }
 
     private IBindingContext makeRowContext(int rowIndex) {
