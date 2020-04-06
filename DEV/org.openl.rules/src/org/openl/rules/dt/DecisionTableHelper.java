@@ -2552,7 +2552,7 @@ public final class DecisionTableHelper {
                     String titleForColumn = getTitleForColumn(originalTable, firstColumnHeight, column);
                     int width = originalTable.getSource().getCell(column, 0).getWidth();
                     lastSimpleReturnDTHeader = new SimpleReturnDTHeader(null, titleForColumn, column, width);
-                    if (fuzzyContext.isFuzzySupportsForReturnType()) {
+                    if (fuzzyContext != null && fuzzyContext.isFuzzySupportsForReturnType()) {
                         List<FuzzyResult> returnTypeFuzzyExtractResult = OpenLFuzzyUtils
                             .fuzzyExtract(titleForColumn, new Token[] { new Token(returnTokenString, -1) }, true);
                         if (!returnTypeFuzzyExtractResult.isEmpty()) {
@@ -2567,7 +2567,9 @@ public final class DecisionTableHelper {
                                 true));
                         } else if (fuzzyHeaders.stream()
                             .noneMatch(DTHeader::isReturn) && numberOfColumnsUnderTitleCounter
-                                .get(column) == 1 && columnWithFormulas(originalTable, firstColumnHeight, column)) {
+                                .get(column) == 1 && (column + w >= lastColumn || columnWithFormulas(originalTable,
+                                    firstColumnHeight,
+                                    column))) {
                             dtHeaders.add(lastSimpleReturnDTHeader);
                         }
                     } else {
@@ -3233,7 +3235,7 @@ public final class DecisionTableHelper {
             IOpenClass type,
             boolean isArray,
             boolean isMoreThanOneColumnIsUsed) {
-        int v = 0;
+        int v;
         if (isArray) {
             v = isMoreThanOneColumnIsUsed ? 2 : 1;
         } else {
