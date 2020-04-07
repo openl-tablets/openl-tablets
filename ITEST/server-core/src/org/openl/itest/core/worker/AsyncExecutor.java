@@ -19,9 +19,13 @@ public class AsyncExecutor {
 
     public AsyncExecutor(int threads, Runnable command) {
         this.threads = threads;
-        this.workers = Stream.generate(() -> new Wrapper(command))
-                .limit(this.threads)
-                .collect(Collectors.toList());
+        this.workers = Stream.generate(() -> new Wrapper(command)).limit(this.threads).collect(Collectors.toList());
+        this.executor = Executors.newFixedThreadPool(this.threads);
+    }
+
+    public AsyncExecutor(Runnable... commands) {
+        this.threads = commands.length;
+        this.workers = Stream.of(commands).map(Wrapper::new).collect(Collectors.toList());
         this.executor = Executors.newFixedThreadPool(this.threads);
     }
 
@@ -38,9 +42,7 @@ public class AsyncExecutor {
         } catch (InterruptedException e) {
             errors.add(e);
         }
-        workers.stream()
-                .map(Wrapper::getErrors)
-                .forEach(errors::addAll);
+        workers.stream().map(Wrapper::getErrors).forEach(errors::addAll);
 
         return Collections.unmodifiableList(errors);
     }

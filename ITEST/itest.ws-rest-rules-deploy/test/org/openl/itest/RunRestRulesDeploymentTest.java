@@ -159,6 +159,28 @@ public class RunRestRulesDeploymentTest {
                 .collect(Collectors.toList()));
     }
 
+    @Test
+    public void test_EPBDS_8758_multithread2() throws Exception {
+        client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
+        client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v1.resp.txt");
+        AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS / 4, () -> client.get("/REST/EPBDS-8758/doSomething"));
+        executor.start();
+
+        AsyncExecutor deployers = new AsyncExecutor(() -> {
+            client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v2.zip", 201);
+        }, () -> {
+            client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v3.zip", 201);
+        });
+
+        deployers.start();
+        TimeUnit.SECONDS.sleep(1);
+        List<Throwable> deployErrors = deployers.stop();
+        List<Throwable> invocationErrors = executor.stop();
+
+        MultipleFailureException.assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream())
+                .collect(Collectors.toList()));
+    }
+
     private void checkServiceInfo(ServiceInfoResponse service,
             String expectedName,
             String expectedSoap,
