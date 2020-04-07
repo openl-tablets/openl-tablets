@@ -598,11 +598,13 @@ public class XlsBinder implements IOpenBinder {
             for (IMemberBoundNode child : childrens) {
                 if (child instanceof SpreadsheetBoundNode) {
                     SpreadsheetBoundNode spreadsheetBoundNode = (SpreadsheetBoundNode) child;
-                    spreadsheetBoundNode.getSpreadsheet()
-                        .getSpreadsheetType()
-                        .getFields()
-                        .values()
-                        .forEach(IOpenField::getType);
+                    if (spreadsheetBoundNode.getSpreadsheet() != null) {
+                        spreadsheetBoundNode.getSpreadsheet()
+                            .getSpreadsheetType()
+                            .getFields()
+                            .values()
+                            .forEach(IOpenField::getType);
+                    }
                 }
             }
             for (IOpenClass openClass : module.getTypes()) {
@@ -838,8 +840,9 @@ public class XlsBinder implements IOpenBinder {
 
         @Override
         public boolean isReturnsCustomSpreadsheetResult() {
-            if (XlsNodeTypes.XLS_SPREADSHEET.equals(this.tableSyntaxNode.getNodeType()) && ClassUtils
-                .isAssignable(openMethodHeader.getType().getInstanceClass(), SpreadsheetResult.class)) {
+            if (XlsNodeTypes.XLS_SPREADSHEET.equals(this.tableSyntaxNode.getNodeType()) && openMethodHeader.getType()
+                .getInstanceClass() != null && ClassUtils.isAssignable(openMethodHeader.getType().getInstanceClass(),
+                    SpreadsheetResult.class)) {
                 if (openMethodHeader.getType() instanceof CustomSpreadsheetResultOpenClass) {
                     return Objects.equals(openMethodHeader.getType().getName(),
                         Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + openMethodHeader.getName());

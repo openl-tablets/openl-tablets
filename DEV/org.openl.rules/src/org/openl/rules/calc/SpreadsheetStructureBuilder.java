@@ -44,6 +44,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.MessageUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 
@@ -287,7 +288,7 @@ public class SpreadsheetStructureBuilder {
         } else {
             Class<?> instanceClass = type.getInstanceClass();
             if (instanceClass == null) {
-                String message = String.format("Type '%s' was loaded with errors", type.getName());
+                String message = MessageUtils.getTypeDefinedErrorMessage(type.getName());
                 addError(SyntaxNodeExceptionUtils.createError(message, source));
             }
 
