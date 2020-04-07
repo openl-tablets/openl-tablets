@@ -9,7 +9,7 @@ import java.util.Objects;
 
 import org.junit.Test;
 
-public class RepackArrayUtilsTest {
+public class ArrayUtilsTest {
 
     C[] array1D = new C[] { new C("c1", "c1@email"), new C("c2", "c2@email"), new C("c3", "c3@email") };
     A[] resultArray1D = new A[] { new C("c1", "c1@email"), new C("c2", "c2@email"), new C("c3", "c3@email") };
@@ -55,13 +55,13 @@ public class RepackArrayUtilsTest {
 
     @Test
     public void nonAssignableClass() {
-        Object o = RepackArrayUtils.repackArray(array1D, B[].class);
+        Object o = ArrayUtils.repackArray(array1D, B[].class);
         assertArrayEquals((Object[]) o, array1D);
     }
 
     @Test
     public void testDifferentDims() {
-        Object o = RepackArrayUtils.repackArray(array2D, A[].class);
+        Object o = ArrayUtils.repackArray(array2D, A[].class);
         assertArrayEquals((Object[]) o, array2D);
         Class<?> expectedType = o.getClass();
         while (expectedType.isArray()) {
@@ -73,18 +73,18 @@ public class RepackArrayUtilsTest {
 
     @Test
     public void testEmptyArray() {
-        Object o = RepackArrayUtils.repackArray(new C[0], A[].class);
+        Object o = ArrayUtils.repackArray(new C[0], A[].class);
         int length = Array.getLength(o);
         assertEquals(0, length);
 
-        Object o1 = RepackArrayUtils.repackArray(new A[0], C[].class);
+        Object o1 = ArrayUtils.repackArray(new A[0], C[].class);
         int length1 = Array.getLength(o1);
         assertEquals(0, length1);
     }
 
     @Test
     public void test1DArray() {
-        Object o = RepackArrayUtils.repackArray(array1D, A[].class);
+        Object o = ArrayUtils.repackArray(array1D, A[].class);
         assertArrayEquals((Object[]) o, resultArray1D);
         Class<?> resultType = o.getClass();
         while (resultType.isArray()) {
@@ -95,7 +95,7 @@ public class RepackArrayUtilsTest {
 
     @Test
     public void test2DArray() {
-        Object o = RepackArrayUtils.repackArray(array2D, A[][].class);
+        Object o = ArrayUtils.repackArray(array2D, A[][].class);
         assertArrayEquals((Object[][]) o, resultArray2D);
         Class<?> resultType = o.getClass();
         while (resultType.isArray()) {
@@ -106,7 +106,7 @@ public class RepackArrayUtilsTest {
 
     @Test
     public void test3DArray() {
-        Object o = RepackArrayUtils.repackArray(array3DWithEmptyElements, A[][][].class);
+        Object o = ArrayUtils.repackArray(array3DWithEmptyElements, A[][][].class);
         assertArrayEquals((Object[][][]) o, resultArray3DWithEmptyElements);
         Class<?> resultType = o.getClass();
         while (resultType.isArray()) {
@@ -114,7 +114,7 @@ public class RepackArrayUtilsTest {
         }
         assertEquals(A.class, resultType);
 
-        Object oFull = RepackArrayUtils.repackArray(array3D, A[][][].class);
+        Object oFull = ArrayUtils.repackArray(array3D, A[][][].class);
         assertArrayEquals((Object[][][]) oFull, resultArray3D);
         Class<?> resultType1 = oFull.getClass();
         while (resultType1.isArray()) {
@@ -125,7 +125,7 @@ public class RepackArrayUtilsTest {
 
     @Test
     public void test5DArray(){
-        Object o = RepackArrayUtils.repackArray(array5D, A[][][][][].class);
+        Object o = ArrayUtils.repackArray(array5D, A[][][][][].class);
         assertArrayEquals((Object[][][]) o, resultArray5D);
         Class<?> resultType = o.getClass();
         while (resultType.isArray()) {
@@ -136,7 +136,7 @@ public class RepackArrayUtilsTest {
 
     @Test
     public void testConvert() {
-        Object o = RepackArrayUtils.convert(array1D[0], C.class);
+        Object o = ArrayUtils.convert(array1D[0], C.class);
         assertTrue(o.getClass().isArray());
         Object[] o1 = (Object[]) o;
         assertEquals(0, o1.length);

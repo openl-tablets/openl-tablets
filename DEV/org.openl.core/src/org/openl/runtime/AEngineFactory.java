@@ -16,7 +16,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public abstract class AEngineFactory {
 
-    private static final String INCORRECT_RET_TYPE_MSG = "Expected '%s' for the return type of method '%s', but found '%s' type.";
+    private static final String INCORRECT_RET_TYPE_MSG = "Expected return type '%s' for method '%s', but found '%s'.";
 
     public final Object newInstance() {
         return newInstance(getRuntimeEnvBuilder().buildRuntimeEnv());
@@ -29,7 +29,8 @@ public abstract class AEngineFactory {
 
         Class<?>[] proxyInterfaces = prepareInstanceInterfaces();
 
-        return ASMProxyFactory.newProxyInstance(classLoader, prepareMethodHandler(openClassInstance, methodMap, runtimeEnv),
+        return ASMProxyFactory.newProxyInstance(classLoader,
+            prepareMethodHandler(openClassInstance, methodMap, runtimeEnv),
             proxyInterfaces);
     }
 
@@ -125,8 +126,8 @@ public abstract class AEngineFactory {
                             // exception.
                             //
                             String message = String.format(INCORRECT_RET_TYPE_MSG,
-                                interfaceMethodName,
                                 rulesField.getType(),
+                                interfaceMethodName,
                                 methodReturnType.getName());
 
                             throw new RuntimeException(message);
@@ -153,8 +154,8 @@ public abstract class AEngineFactory {
         boolean isAssignable = ClassUtils.isAssignable(openClassReturnType, interfaceReturnType);
         if (!isAssignable) {
             String message = String.format(INCORRECT_RET_TYPE_MSG,
-                interfaceMethod.getName(),
                 openClassReturnType.getName(),
+                interfaceMethod.getName(),
                 interfaceReturnType.getName());
             throw new ClassCastException(message);
         }

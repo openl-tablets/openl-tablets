@@ -33,9 +33,11 @@ import org.openl.util.JAXBUtils;
  */
 public class POJOByteCodeGenerator {
 
+    public final static TypeDescription OBJECT_TYPE_DESCRIPTION = new TypeDescription(Object.class.getName());
+
     private final String beanNameWithPackage;
-    private final Class<?> parentClass;
-    private Map<String, FieldDescription> beanFields;
+    private final TypeDescription parentType;
+    private Map<String, FieldDescription> fields;
     private Map<String, FieldDescription> parentFields;
     private List<BeanByteCodeWriter> writers;
     private boolean publicFields;
@@ -44,44 +46,43 @@ public class POJOByteCodeGenerator {
      *
      * @param beanName name of the generated class, with namespace (e.g. <code>my.test.TestClass</code>)
      * @param beanFields map of fields, field name as a key, and type as value.
-     * @param parentClass parent class
+     * @param parentType parent type
      * @param additionalConstructor true if required to generate constructor with parameter
      */
     public POJOByteCodeGenerator(String beanName,
             Map<String, FieldDescription> beanFields,
-            Class<?> parentClass,
+            TypeDescription parentType,
             Map<String, FieldDescription> parentFields,
             boolean additionalConstructor,
             boolean equalsHashCodeToStringMethods,
             boolean publicFields) {
 
-        this.beanFields = new LinkedHashMap<>(beanFields);
-        this.parentClass = parentClass;
-        this.parentFields = new LinkedHashMap<>(parentFields);
+        this.fields = beanFields != null ? new LinkedHashMap<>(beanFields) : new LinkedHashMap<>();
+        this.parentType = parentType;
+        this.parentFields = parentFields != null ? new LinkedHashMap<>(parentFields) : new LinkedHashMap<>();
         this.beanNameWithPackage = beanName.replace('.', '/');
         this.publicFields = publicFields;
 
         Map<String, FieldDescription> allFields = new LinkedHashMap<>();
-        allFields.putAll(parentFields);
-        allFields.putAll(beanFields);
+        allFields.putAll(this.parentFields);
+        allFields.putAll(this.fields);
 
         this.writers = new ArrayList<>();
-        writers.add(new DefaultConstructorWriter(beanNameWithPackage, parentClass, this.beanFields));
-        if (additionalConstructor && allFields.size() < 256 && allFields.size() > 0) {
+        writers.add(new DefaultConstructorWriter(beanNameWithPackage, parentType, this.fields));
+        if (additionalConstructor && allFields.size() < 256 && allFields.size() > 0 && !OBJECT_TYPE_DESCRIPTION
+            .getTypeName()
+            .equals(parentType.getTypeDescriptor())) {
             // Generate constructor with parameters only in case where there are
             // less than 256 arguments.
             // 255 arguments to the method is a Java limitation
             //
-            writers.add(new ConstructorWithParametersWriter(beanNameWithPackage,
-                parentClass,
-                this.beanFields,
-                this.parentFields,
-                allFields));
+            writers.add(
+                new ConstructorWithParametersWriter(beanNameWithPackage, parentType, this.parentFields, this.fields));
         }
 
         if (!publicFields) {
-            writers.add(new GettersWriter(beanNameWithPackage, this.beanFields));
-            writers.add(new SettersWriter(beanNameWithPackage, this.beanFields));
+            writers.add(new GettersWriter(beanNameWithPackage, this.fields));
+            writers.add(new SettersWriter(beanNameWithPackage, this.fields));
         }
         if (equalsHashCodeToStringMethods) {
             writers.add(new ToStringWriter(beanNameWithPackage, allFields));
@@ -91,7 +92,7 @@ public class POJOByteCodeGenerator {
     }
 
     private void visitClassDescription(ClassWriter classWriter) {
-        String parent = Type.getInternalName(parentClass);
+        String parent = parentType.getTypeName().replace('.', '/');
         classWriter.visit(Opcodes.V1_8,
             Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER,
             beanNameWithPackage,
@@ -124,7 +125,7 @@ public class POJOByteCodeGenerator {
         for (Entry<String, FieldDescription> e : parentFields.entrySet()) {
             av1.visit(null, e.getKey());
         }
-        for (Entry<String, FieldDescription> e : beanFields.entrySet()) {
+        for (Entry<String, FieldDescription> e : fields.entrySet()) {
             av1.visit(null, e.getKey());
         }
         av1.visitEnd();
@@ -172,7 +173,7 @@ public class POJOByteCodeGenerator {
     }
 
     private void visitFields(ClassWriter classWriter) {
-        for (Map.Entry<String, FieldDescription> field : beanFields.entrySet()) {
+        for (Map.Entry<String, FieldDescription> field : fields.entrySet()) {
             String fieldTypeName = field.getValue().getTypeDescriptor();
             FieldVisitor fieldVisitor = classWriter
                 .visitField(publicFields ? Opcodes.ACC_PUBLIC
@@ -233,8 +234,8 @@ public class POJOByteCodeGenerator {
         return classWriter.toByteArray();
     }
 
-    protected Map<String, FieldDescription> getBeanFields() {
-        return beanFields;
+    protected Map<String, FieldDescription> getFields() {
+        return fields;
     }
 
     protected String getBeanNameDescriptor() {

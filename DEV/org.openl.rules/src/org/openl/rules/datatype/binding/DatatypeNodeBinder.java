@@ -62,7 +62,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
         // Put sub table without header and properties section for business view.
         //
-        putSubTableForBussinesView(tsn);
+        putSubTableForBusinessView(tsn);
 
         // Check the datatype table that is alias data type.
         //
@@ -155,7 +155,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
         }
     }
 
-    private void putSubTableForBussinesView(TableSyntaxNode tsn) {
+    private void putSubTableForBusinessView(TableSyntaxNode tsn) {
         tsn.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tsn.getTableBody());
     }
 }

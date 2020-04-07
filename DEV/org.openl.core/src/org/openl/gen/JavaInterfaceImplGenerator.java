@@ -24,7 +24,13 @@ class JavaInterfaceImplGenerator extends POJOByteCodeGenerator {
             Map<String, FieldDescription> beanFields,
             List<MethodDescription> beanStubMethods) {
 
-        super(beanName, beanFields, Object.class, Collections.emptyMap(), false, true, false);
+        super(beanName,
+            beanFields,
+            POJOByteCodeGenerator.OBJECT_TYPE_DESCRIPTION,
+            Collections.emptyMap(),
+            false,
+            true,
+            false);
         this.clazzInterface = clazzInterface;
         this.beanStubMethods = beanStubMethods;
     }
