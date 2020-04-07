@@ -577,34 +577,39 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             Map<String, String> usedXmlNames,
             boolean addFieldNameWithCollisions,
             Map<String, List<IOpenField>> beanFieldsMap) {
-        for (Triple<String, Point, IOpenField> w : fields) {
-            Point point = w.getMiddle();
-            if (point != null && rowNamesForResultModel[point.getRow()] != null && columnNamesForResultModel[point
-                .getColumn()] != null) {
-                if (used[point.getRow()][point.getColumn()] == null) {
+        for (Triple<String, Point, IOpenField> pair : fields) {
+            Point point = pair.getMiddle();
+            IOpenField field = pair.getRight();
+            if (point == null) {
+                continue;
+            }
+            int row = point.getRow();
+            int column = point.getColumn();
+            String rowName = rowNamesForResultModel[row];
+            String columnName = columnNamesForResultModel[column];
+            if (rowName != null && columnName != null) {
+                if (used[row][column] == null) {
                     String fieldName;
                     String xmlName;
                     if (simpleRefBeanByRow) {
-                        fieldName = ClassUtils.decapitalize(rowNamesForResultModel[point.getRow()]);
-                        xmlName = rowNamesForResultModel[point.getRow()];
+                        fieldName = ClassUtils.decapitalize(rowName);
+                        xmlName = rowName;
                     } else if (simpleRefBeanByColumn) {
-                        fieldName = ClassUtils.decapitalize(columnNamesForResultModel[point.getColumn()]);
-                        xmlName = columnNamesForResultModel[point.getColumn()];
+                        fieldName = ClassUtils.decapitalize(columnName);
+                        xmlName = columnName;
                     } else {
-                        if (absentInHistory(rowNamesForResultModel[point.getRow()], columnNamesForResultModel[point.getColumn()])) {
+                        if (absentInHistory(rowName, columnName)) {
                             continue;
                         }
-                        fieldName = ClassUtils.decapitalize(columnNamesForResultModel[point.getColumn()]) + ClassUtils
-                            .capitalize(rowNamesForResultModel[point.getRow()]);
-                        xmlName = columnNamesForResultModel[point.getColumn()] + "_" + rowNamesForResultModel[point
-                            .getRow()];
+                        fieldName = ClassUtils.decapitalize(columnName) + ClassUtils.capitalize(rowName);
+                        xmlName = columnName + "_" + rowName;
                     }
                     if (org.apache.commons.lang3.StringUtils.isBlank(fieldName)) {
                         fieldName = "_";
                         xmlName = "_";
                     }
                     String typeName;
-                    IOpenClass t = w.getRight().getType();
+                    IOpenClass t = field.getType();
                     int dim = 0;
                     while (t.isArray()) {
                         dim++;
@@ -641,18 +646,18 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         .equals(t)) {
                         continue; // IGNORE VOID FIELDS
                     } else {
-                        if (w.getRight().getType().getInstanceClass().isPrimitive()) {
-                            typeName = ClassUtils.primitiveToWrapper(w.getRight().getType().getInstanceClass())
+                        if (field.getType().getInstanceClass().isPrimitive()) {
+                            typeName = ClassUtils.primitiveToWrapper(field.getType().getInstanceClass())
                                 .getName();
                         } else {
-                            typeName = w.getRight().getType().getInstanceClass().getName();
+                            typeName = field.getType().getInstanceClass().getName();
                         }
                     }
                     if (!usedGettersAndSetters.contains(fieldName) && !usedXmlNames.containsValue(xmlName)) {
                         usedGettersAndSetters.add(fieldName);
                         FieldDescription fieldDescription = new FieldDescription(typeName, null, null, null, xmlName);
                         beanClassBuilder.addField(fieldName, fieldDescription);
-                        beanFieldsMap.put(fieldName, fillUsed(used, point, w.getRight()));
+                        beanFieldsMap.put(fieldName, fillUsed(used, point, field));
                         usedXmlNames.put(fieldName, xmlName);
                     } else if (addFieldNameWithCollisions) {
                         String newFieldName = fieldName;
@@ -674,19 +679,19 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             null,
                             newXmlName);
                         beanClassBuilder.addField(newFieldName, fieldDescription);
-                        beanFieldsMap.put(newFieldName, fillUsed(used, point, w.getRight()));
+                        beanFieldsMap.put(newFieldName, fillUsed(used, point, field));
                         usedXmlNames.put(newFieldName, newXmlName);
                     }
                 } else {
                     boolean f = false;
-                    for (IOpenField openField : used[point.getRow()][point.getColumn()]) { // Do not add the same twice
-                        if (openField.getName().equals(w.getRight().getName())) {
+                    for (IOpenField openField : used[row][column]) { // Do not add the same twice
+                        if (openField.getName().equals(field.getName())) {
                             f = true;
                             break;
                         }
                     }
                     if (!f) {
-                        used[point.getRow()][point.getColumn()].add(w.getRight());
+                        used[row][column].add(field);
                     }
                 }
             }
