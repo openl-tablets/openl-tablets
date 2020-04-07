@@ -19,7 +19,6 @@ import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -41,6 +40,7 @@ import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
+import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -593,23 +593,23 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                     String fieldName;
                     String xmlName;
                     if (simpleRefByRow) {
-                        fieldName = ClassUtils.decapitalize(rowName);
+                        fieldName = rowName;
                         xmlName = rowName;
                         field = getField(SpreadsheetStructureBuilder.DOLLAR_SIGN + rowName);
                     } else if (simpleRefByColumn) {
-                        fieldName = ClassUtils.decapitalize(columnName);
+                        fieldName = columnName;
                         xmlName = columnName;
                         field = getField(SpreadsheetStructureBuilder.DOLLAR_SIGN + columnName);
                     } else if (absentInHistory(rowName, columnName)) {
                         continue;
                     } else if (StringUtils.isBlank(columnName)) { // * in the column
-                        fieldName = ClassUtils.decapitalize(rowName);
+                        fieldName = rowName;
                         xmlName = rowName;
                     } else if (StringUtils.isBlank(rowName)) { // * in the row
-                        fieldName = ClassUtils.decapitalize(columnName);
+                        fieldName = columnName;
                         xmlName = columnName;
                     } else {
-                        fieldName = ClassUtils.decapitalize(columnName) + ClassUtils.capitalize(rowName);
+                        fieldName = columnName + StringUtils.capitalize(rowName);
                         xmlName = columnName + "_" + rowName;
                     }
                     if (field == null) {
@@ -680,6 +680,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         }
                         annotationVisitor.visitEnd();
                     });
+
+                    fieldName = ClassUtils.decapitalize(fieldName); // FIXME: WSDL decapitalize field name without this
                     if (!usedXmlNames.containsKey(fieldName) && !usedXmlNames.containsValue(xmlName)) {
                         FieldDescription fieldDescription = new FieldDescription(typeName,
                             null,
@@ -773,8 +775,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         if (name.length() > Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) {
                             name = name.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
                         }
-                        String firstLetterUppercaseName = Character
-                            .toUpperCase(name.charAt(0)) + (name.length() > 1 ? name.substring(1) : StringUtils.EMPTY);
+                        String firstLetterUppercaseName = StringUtils.capitalize(name);
                         if (getModule()
                             .findType(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + firstLetterUppercaseName) == null) {
                             name = firstLetterUppercaseName;
