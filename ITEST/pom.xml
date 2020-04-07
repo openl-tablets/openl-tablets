@@ -56,6 +56,11 @@
                 <version>${jetty.server.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-annotations</artifactId>
+                <version>${jetty.server.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.openl.itest</groupId>
                 <artifactId>server-core</artifactId>
                 <version>${project.version}</version>
