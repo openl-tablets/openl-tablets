@@ -470,8 +470,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanClassName)
                                 .withAdditionalConstructor(false)
                                 .withEqualsHashCodeToStringMethods(false);
-                            TreeSet<String> usedFields = new TreeSet<>(FIELD_COMPARATOR);
-                            Map<String, String> xmlNames = new HashMap<>();
+                            TreeMap<String, String> xmlNames = new TreeMap<>(FIELD_COMPARATOR);
                             @SuppressWarnings("unchecked")
                             List<IOpenField>[][] used = new List[rowNames.length][columnNames.length];
                             Map<String, List<IOpenField>> fieldsMap = new HashMap<>();
@@ -479,14 +478,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             addFieldsToJavaClassBuilder(beanClassBuilder,
                                 fields,
                                 used,
-                                usedFields,
                                 xmlNames,
                                 true,
                                 fieldsMap);
                             addFieldsToJavaClassBuilder(beanClassBuilder,
                                 fields,
                                 used,
-                                usedFields,
                                 xmlNames,
                                 false,
                                 fieldsMap);
@@ -572,7 +569,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     private void addFieldsToJavaClassBuilder(JavaBeanClassBuilder beanClassBuilder,
             List<Pair<Point, IOpenField>> fields,
             List<IOpenField>[][] used,
-            Set<String> usedGettersAndSetters,
             Map<String, String> usedXmlNames,
             boolean addFieldNameWithCollisions,
             Map<String, List<IOpenField>> beanFieldsMap) {
@@ -652,8 +648,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             typeName = field.getType().getInstanceClass().getName();
                         }
                     }
-                    if (!usedGettersAndSetters.contains(fieldName) && !usedXmlNames.containsValue(xmlName)) {
-                        usedGettersAndSetters.add(fieldName);
+                    if (!usedXmlNames.containsKey(fieldName) && !usedXmlNames.containsValue(xmlName)) {
                         FieldDescription fieldDescription = new FieldDescription(typeName, null, null, null, xmlName);
                         beanClassBuilder.addField(fieldName, fieldDescription);
                         beanFieldsMap.put(fieldName, fillUsed(used, point, field));
@@ -661,7 +656,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                     } else if (addFieldNameWithCollisions) {
                         String newFieldName = fieldName;
                         int i = 1;
-                        while (usedGettersAndSetters.contains(newFieldName)) {
+                        while (usedXmlNames.containsKey(newFieldName)) {
                             newFieldName = fieldName + i;
                             i++;
                         }
@@ -671,7 +666,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             newXmlName = xmlName + i;
                             i++;
                         }
-                        usedGettersAndSetters.add(newFieldName);
                         FieldDescription fieldDescription = new FieldDescription(typeName,
                             null,
                             null,
