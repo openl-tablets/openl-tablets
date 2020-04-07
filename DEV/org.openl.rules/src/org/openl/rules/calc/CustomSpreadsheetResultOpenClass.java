@@ -11,7 +11,6 @@ import java.util.stream.IntStream;
 import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.gen.FieldDescription;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
@@ -476,7 +475,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             @SuppressWarnings("unchecked")
                             List<IOpenField>[][] used = new List[rowNames.length][columnNames.length];
                             Map<String, List<IOpenField>> fieldsMap = new HashMap<>();
-                            List<Triple<String, Point, IOpenField>> fields = getSortedFields();
+                            List<Pair<Point, IOpenField>> fields = getSortedFields();
                             addFieldsToJavaClassBuilder(beanClassBuilder,
                                 fields,
                                 used,
@@ -508,10 +507,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         }
     }
 
-    private List<Triple<String, Point, IOpenField>> getSortedFields() {
+    private List<Pair<Point, IOpenField>> getSortedFields() {
         return getFields().entrySet()
             .stream()
-            .map(entry -> Triple.of(entry.getKey(), fieldsCoordinates.get(entry.getKey()), entry.getValue()))
+            .map(entry -> Pair.of(fieldsCoordinates.get(entry.getKey()), entry.getValue()))
             .sorted(COMP)
             .collect(toList());
     }
@@ -562,23 +561,23 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return new String[3];
     }
 
-    private static final Comparator<Triple<String, Point, IOpenField>> COMP = (a, b) -> {
+    private static final Comparator<Pair<Point, IOpenField>> COMP = (a, b) -> {
         @SuppressWarnings("unchecked")
         Comparator<Point> c = ComparatorUtils.chainedComparator(
             Comparator.nullsLast(Comparator.comparingInt(Point::getRow)),
             Comparator.nullsLast(Comparator.comparingInt(Point::getColumn)));
-        return c.compare(a.getMiddle(), b.getMiddle());
+        return c.compare(a.getLeft(), b.getLeft());
     };
 
     private void addFieldsToJavaClassBuilder(JavaBeanClassBuilder beanClassBuilder,
-            List<Triple<String, Point, IOpenField>> fields,
+            List<Pair<Point, IOpenField>> fields,
             List<IOpenField>[][] used,
             Set<String> usedGettersAndSetters,
             Map<String, String> usedXmlNames,
             boolean addFieldNameWithCollisions,
             Map<String, List<IOpenField>> beanFieldsMap) {
-        for (Triple<String, Point, IOpenField> pair : fields) {
-            Point point = pair.getMiddle();
+        for (Pair<Point, IOpenField> pair : fields) {
+            Point point = pair.getLeft();
             IOpenField field = pair.getRight();
             if (point == null) {
                 continue;
