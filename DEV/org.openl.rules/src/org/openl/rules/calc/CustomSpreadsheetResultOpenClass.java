@@ -591,19 +591,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         fieldName = ClassUtils.decapitalize(columnNamesForResultModel[point.getColumn()]);
                         xmlName = columnNamesForResultModel[point.getColumn()];
                     } else {
-                        boolean found = false;
-                        for (Pair<String[], String[]> p : rowAndColumnNamesForResultModelHistory) {
-                            for (String col : p.getLeft()) {
-                                for (String row : p.getRight()) {
-                                    if (!found && Objects.equals(columnNamesForResultModel[point.getColumn()],
-                                        col) && Objects.equals(rowNamesForResultModel[point.getRow()], row)) {
-                                        found = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        if (!found) {
+                        if (absentInHistory(rowNamesForResultModel[point.getRow()], columnNamesForResultModel[point.getColumn()])) {
                             continue;
                         }
                         fieldName = ClassUtils.decapitalize(columnNamesForResultModel[point.getColumn()]) + ClassUtils
@@ -703,6 +691,22 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                 }
             }
         }
+    }
+
+    private boolean absentInHistory(String rowName, String columnName) {
+        for (Pair<String[], String[]> p : rowAndColumnNamesForResultModelHistory) {
+            for (String col : p.getLeft()) {
+                if (Objects.equals(columnName, col)) {
+                    for (String row : p.getRight()) {
+                        if (Objects.equals(rowName, row)) {
+                            return false; // column and row exist in the given Spreadsheet
+                        }
+                    }
+                    break; // Skip checking of rest columns, because of the rowName does not exist
+                }
+            }
+        }
+        return true;
     }
 
     private List<IOpenField> fillUsed(List<IOpenField>[][] used, Point point, IOpenField field) {
