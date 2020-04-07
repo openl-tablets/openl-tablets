@@ -592,14 +592,19 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                     } else if (simpleRefBeanByColumn) {
                         fieldName = ClassUtils.decapitalize(columnName);
                         xmlName = columnName;
+                    } else if (absentInHistory(rowName, columnName)) {
+                        continue;
+                    } else if (StringUtils.isBlank(columnName)) { // * in the cloumn
+                        fieldName = ClassUtils.decapitalize(rowName);
+                        xmlName = rowName;
+                    } else if (StringUtils.isBlank(rowName)) { // * in the row
+                        fieldName = ClassUtils.decapitalize(columnName);
+                        xmlName = columnName;
                     } else {
-                        if (absentInHistory(rowName, columnName)) {
-                            continue;
-                        }
                         fieldName = ClassUtils.decapitalize(columnName) + ClassUtils.capitalize(rowName);
                         xmlName = columnName + "_" + rowName;
                     }
-                    if (org.apache.commons.lang3.StringUtils.isBlank(fieldName)) {
+                    if (StringUtils.isBlank(fieldName)) {
                         fieldName = "_";
                         xmlName = "_";
                     }
