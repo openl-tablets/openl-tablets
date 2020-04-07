@@ -5,7 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
           http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
           http://www.springframework.org/schema/security
-          https://www.springframework.org/schema/security/spring-security-5.2.xsd">
+          https://www.springframework.org/schema/security/spring-security-5.3.xsd">
 
     <!--  if you wish to use channel security, add "ChannelProcessingFilter," in front
       of "securityContextPersistenceFilter" in the list below -->
