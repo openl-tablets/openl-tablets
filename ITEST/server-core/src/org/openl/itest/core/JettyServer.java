@@ -25,8 +25,7 @@ public class JettyServer {
         webAppContext.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", ".*/classes/.*");
         webAppContext.setConfigurations(new Configuration[] {
                 new AnnotationConfiguration(),
-                new WebInfConfiguration(),
-                new WebXmlConfiguration()
+                new WebInfConfiguration()
         });
 
         if (sharedClassloader) {
