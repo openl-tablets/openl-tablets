@@ -1,43 +1,34 @@
 package org.openl.rules.ruleservice.servlet;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.concurrent.locks.Lock;
 
+import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 
 import org.openl.rules.ruleservice.core.RuleServiceRedeployLock;
 
-public class RuleServiceRedeployLockFilter implements javax.servlet.Filter {
-    String[] ignorePrefixes;
-
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        String ignorePrefixesParameter = filterConfig.getInitParameter("ignorePrefixes");
-        if (ignorePrefixesParameter != null) {
-            ignorePrefixes = Arrays.stream(ignorePrefixesParameter.split(","))
-                .map(String::trim)
-                .toArray(String[]::new);
-        } else {
-            ignorePrefixes = new String[] {};
-        }
-    }
+/**
+ * TODO: Replace locking of all requests by locking per OpenL service in RuleService
+ */
+@WebFilter("/*")
+public class RuleServiceRedeployLockFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
                                                                                               ServletException {
-        for (String ignorePrefix : ignorePrefixes) {
-            String path = ((HttpServletRequest) request).getPathInfo();
-            if (path != null && path.startsWith(ignorePrefix)) {
-                chain.doFilter(request, response);
-                return;
-            }
+        String path = ((HttpServletRequest) request).getPathInfo();
+        if (path != null && path.startsWith("/admin")) { // Do not block admin functionality
+            chain.doFilter(request, response);
+            return;
         }
+
         Lock lock = RuleServiceRedeployLock.getInstance().getReadLock();
         try {
             lock.lock();
@@ -48,7 +39,10 @@ public class RuleServiceRedeployLockFilter implements javax.servlet.Filter {
     }
 
     @Override
-    public void destroy() {
+    public void init(FilterConfig filterConfig) {
+    }
 
+    @Override
+    public void destroy() {
     }
 }
