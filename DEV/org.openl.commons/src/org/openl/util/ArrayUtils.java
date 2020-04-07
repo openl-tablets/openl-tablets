@@ -1,10 +1,37 @@
 package org.openl.util;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Objects;
 
-public final class RepackArrayUtils {
+public final class ArrayUtils {
 
-    private RepackArrayUtils() {
+    private ArrayUtils() {
+    }
+
+    public static boolean deepEquals(Object e1, Object e2) {
+        boolean eq;
+        if (e1 instanceof Object[] && e2 instanceof Object[])
+            eq = Arrays.deepEquals((Object[]) e1, (Object[]) e2);
+        else if (e1 instanceof byte[] && e2 instanceof byte[])
+            eq = Arrays.equals((byte[]) e1, (byte[]) e2);
+        else if (e1 instanceof short[] && e2 instanceof short[])
+            eq = Arrays.equals((short[]) e1, (short[]) e2);
+        else if (e1 instanceof int[] && e2 instanceof int[])
+            eq = Arrays.equals((int[]) e1, (int[]) e2);
+        else if (e1 instanceof long[] && e2 instanceof long[])
+            eq = Arrays.equals((long[]) e1, (long[]) e2);
+        else if (e1 instanceof char[] && e2 instanceof char[])
+            eq = Arrays.equals((char[]) e1, (char[]) e2);
+        else if (e1 instanceof float[] && e2 instanceof float[])
+            eq = Arrays.equals((float[]) e1, (float[]) e2);
+        else if (e1 instanceof double[] && e2 instanceof double[])
+            eq = Arrays.equals((double[]) e1, (double[]) e2);
+        else if (e1 instanceof boolean[] && e2 instanceof boolean[])
+            eq = Arrays.equals((boolean[]) e1, (boolean[]) e2);
+        else
+            eq = Objects.equals(e1, e2);
+        return eq;
     }
 
     /**
@@ -40,7 +67,7 @@ public final class RepackArrayUtils {
         return convert(o, newType, dimension);
     }
 
-    public static Object convert(Object o, Class<?> newType, int dimension) {
+    private static Object convert(Object o, Class<?> newType, int dimension) {
         if (dimension == 0) {
             return Array.newInstance(newType, 0);
         } else {

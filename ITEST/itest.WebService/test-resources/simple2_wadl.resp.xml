@@ -336,7 +336,7 @@
                     <xs:element minOccurs="0" name="Values_Step1" type="xs:anyType"/>
                     <xs:element minOccurs="0" name="moreValues_Step1" type="xs:int"/>
                     <xs:element minOccurs="0" name="Formula_Step1" type="xs:int"/>
-                    <xs:element minOccurs="0" name="_Step1" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Step1" type="xs:int"/>
                     <xs:element minOccurs="0" name="Values_Step2" type="xs:int"/>
                     <xs:element minOccurs="0" name="moreValues_Step2" type="xs:int"/>
                     <xs:element minOccurs="0" name="Values1_Step2" type="xs:int"/>
@@ -350,7 +350,7 @@
                     <xs:element minOccurs="0" name="Step2_Values1" type="xs:int"/>
                     <xs:element minOccurs="0" name="Values2_Step4" type="xs:int"/>
                     <xs:element minOccurs="0" name="Formula2_Step4" type="xs:int"/>
-                    <xs:element minOccurs="0" name="Values_" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Values" type="xs:int"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="RowNames" type="xs:string"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="ColumnNames" type="xs:string"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="TableDetails"

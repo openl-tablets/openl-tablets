@@ -22,7 +22,7 @@ import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
-import org.openl.util.RepackArrayUtils;
+import org.openl.util.ArrayUtils;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
@@ -350,7 +350,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                     result = afterInvocation(interfaceMethod, result, null, args);
                     // repack result if arrays inside it doesn't have the returnType as interfaceMethod
                     if (interfaceMethod.getReturnType().isArray()) {
-                        result = RepackArrayUtils.repackArray(result, interfaceMethod.getReturnType());
+                        result = ArrayUtils.repackArray(result, interfaceMethod.getReturnType());
                     }
                 } finally {
                     Thread.currentThread().setContextClassLoader(oldClassLoader);

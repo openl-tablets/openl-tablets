@@ -198,6 +198,7 @@
                                                          disabled="#{systemSettingsBean.isSystemProp('user.workspace.home')}"
                                                          validator="#{validator.workSpaceDirValidator}"/>
                                         </h:panelGrid>
+                                        <h:message for="workspace-dir" class="error" />
                                     </div>
                                 </section>
                                 <section>
@@ -205,10 +206,11 @@
                                     <div id="history">
                                         <h:panelGrid columns="2" columnClasses="titleColumn">
                                             <h:outputText value="History Directory:"/>
-                                            <h:inputText value="#{systemSettingsBean.projectHistoryHome}"
+                                            <h:inputText id="history-dir" value="#{systemSettingsBean.projectHistoryHome}"
                                                          disabled="#{systemSettingsBean.isSystemProp('project.history.home')}"
                                                          validator="#{validator.historyDirValidator}"/>
                                         </h:panelGrid>
+                                        <h:message for="history-dir" class="error" />
                                         <h:panelGrid id="maxCountInHistory" columns="2" columnClasses="titleColumn"
                                                      style="#{systemSettingsBean.unlimitHistory ? 'display:none' : ''}">
                                             <h:outputText value="The maximum count of saved changes for each project:"/>

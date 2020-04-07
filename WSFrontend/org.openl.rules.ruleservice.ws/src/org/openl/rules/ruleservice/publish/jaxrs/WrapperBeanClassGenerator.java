@@ -11,6 +11,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
 import org.openl.gen.FieldDescription;
 import org.openl.gen.POJOByteCodeGenerator;
+import org.openl.gen.TypeDescription;
 
 class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
 
@@ -18,10 +19,10 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
 
     WrapperBeanClassGenerator(String beanName,
             LinkedHashMap<String, FieldDescription> beanFields,
-            Class<?> parentClass,
+            TypeDescription parentType,
             Map<String, FieldDescription> parentFields,
             String methodName) {
-        super(beanName, beanFields, parentClass, parentFields, false, false, true);
+        super(beanName, beanFields, parentType, parentFields, false, false, true);
         this.methodName = Objects.requireNonNull(methodName, "methodName cannot be null");
     }
 
@@ -99,8 +100,8 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
          * solution improves performance and reduces memory usage for back converting to the argument list, when
          * reflection is used to call the wrapped method.
          */
-        addArgs(classWriter, getBeanFields());
-        addTypes(classWriter, getBeanFields());
+        addArgs(classWriter, getFields());
+        addTypes(classWriter, getFields());
         addMethod(classWriter, methodName);
     }
 }

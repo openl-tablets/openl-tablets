@@ -1,34 +1,23 @@
-package org.openl.generated.epbds7084;
+package org.openl.generated.epbds6830;
 
 import java.util.Objects;
 
 public class BeanA {
-    protected int a = 1;
+    private int a = 1;
     protected int B = 2;
-    protected int aa = 4;
+    private int aa = 4;
     protected int aB = 8;
     protected int Ba = 16;
-    protected int BB = 32;
     protected int xB = 64;
 
     public BeanA() {
-    }
-
-    public BeanA(int a, int b, int aa, int aB, int ba, int BB, int xB) {
-        this.a = a;
-        B = b;
-        this.aa = aa;
-        this.aB = aB;
-        Ba = ba;
-        this.BB = BB;
-        this.xB = xB;
     }
 
     public int getA() {
         return a;
     }
 
-    public void setA(int a) {
+    protected void setA(int a) {
         this.a = a;
     }
 
@@ -48,7 +37,7 @@ public class BeanA {
         this.aa = aa;
     }
 
-    public int getAB() {
+    private int getAB() {
         return aB;
     }
 
@@ -62,14 +51,6 @@ public class BeanA {
 
     public void setBa(int ba) {
         Ba = ba;
-    }
-
-    public int getBB() {
-        return BB;
-    }
-
-    public void setBB(int BB) {
-        this.BB = BB;
     }
 
     public int getxB() {
@@ -89,11 +70,11 @@ public class BeanA {
             return false;
         }
         BeanA beanA = (BeanA) o;
-        return a == beanA.a && B == beanA.B && aa == beanA.aa && aB == beanA.aB && Ba == beanA.Ba && BB == beanA.BB && xB == beanA.xB;
+        return a == beanA.a && B == beanA.B && aa == beanA.aa && aB == beanA.aB && Ba == beanA.Ba && xB == beanA.xB;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(a, B, aa, aB, Ba, BB, xB);
+        return Objects.hash(a, B, aa, aB, Ba, xB);
     }
 }

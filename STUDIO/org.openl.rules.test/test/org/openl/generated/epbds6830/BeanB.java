@@ -1,16 +1,11 @@
-package org.openl.generated.epbds7084;
+package org.openl.generated.epbds6830;
 
 import java.util.Objects;
 
 public class BeanB extends BeanA {
-    private String txt = "message";
+    private String txt = "msg";
 
     public BeanB() {
-    }
-
-    public BeanB(int a, int b, int aa, int aB, int ba, int BB, int xB, String txt) {
-        super(a, b, aa, aB, ba, BB, xB);
-        this.txt = txt;
     }
 
     public String getTxt() {

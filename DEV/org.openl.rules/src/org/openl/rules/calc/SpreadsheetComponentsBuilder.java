@@ -1,6 +1,7 @@
 package org.openl.rules.calc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,11 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.JavaKeywordUtils;
-import org.openl.util.text.*;
+import org.openl.util.text.AbsolutePosition;
+import org.openl.util.text.ILocation;
+import org.openl.util.text.IPosition;
+import org.openl.util.text.TextInfo;
+import org.openl.util.text.TextInterval;
 
 import gcardone.junidecode.Junidecode;
 
@@ -96,7 +101,7 @@ public class SpreadsheetComponentsBuilder {
             return null;
         }
         s = s.trim();
-        if (s != null && s.length() > 0) {
+        if (s.length() > 0) {
             s = Junidecode.unidecode(s);
             if (JavaKeywordUtils.isJavaKeyword(s) || Character.isDigit(s.charAt(0))) {
                 s = "_" + s;
@@ -110,17 +115,17 @@ public class SpreadsheetComponentsBuilder {
     public String[] getRowNamesForResultModel() {
         final long rowsWithAsteriskCount = rowHeaders.entrySet()
             .stream()
-            .filter(e -> e.getValue().getDefinition().isWithAsterisk())
+            .filter(e -> e.getValue().getDefinition().isAsteriskPresented())
             .count();
         String[] ret;
         if (rowsWithAsteriskCount > 0) {
             ret = buildArrayForHeaders(rowHeaders,
                 cellsHeaderExtractor.getHeight(),
-                e -> e.getDefinition().isWithAsterisk());
+                e -> e.getDefinition().isAsteriskPresented());
         } else {
             ret = buildArrayForHeaders(rowHeaders,
                 cellsHeaderExtractor.getHeight(),
-                e -> !e.getDefinition().isWithTilde());
+                e -> !e.getDefinition().isTildePresented());
         }
         for (int i = 0; i < ret.length; i++) {
             ret[i] = handleWrongSymbols(ret[i]);
@@ -131,17 +136,17 @@ public class SpreadsheetComponentsBuilder {
     public String[] getColumnNamesForResultModel() {
         final long columnsWithAsteriskCount = columnHeaders.entrySet()
             .stream()
-            .filter(e -> e.getValue().getDefinition().isWithAsterisk())
+            .filter(e -> e.getValue().getDefinition().isAsteriskPresented())
             .count();
         String[] ret;
         if (columnsWithAsteriskCount > 0) {
             ret = buildArrayForHeaders(columnHeaders,
                 cellsHeaderExtractor.getWidth(),
-                e -> e.getDefinition().isWithAsterisk());
+                e -> e.getDefinition().isAsteriskPresented());
         } else {
             ret = buildArrayForHeaders(columnHeaders,
                 cellsHeaderExtractor.getWidth(),
-                e -> !e.getDefinition().isWithTilde());
+                e -> !e.getDefinition().isTildePresented());
         }
 
         for (int i = 0; i < ret.length; i++) {
@@ -311,11 +316,7 @@ public class SpreadsheetComponentsBuilder {
             default:
                 String message = String.format("Valid header format: name [%s type].",
                     SpreadsheetSymbols.TYPE_DELIMETER.toString());
-                if (nodes.length > 2) {
-                    throw SyntaxNodeExceptionUtils.createError(message, nodes[2]);
-                } else {
-                    throw SyntaxNodeExceptionUtils.createError(message, source);
-                }
+                throw SyntaxNodeExceptionUtils.createError(message, nodes[2]);
         }
     }
 
@@ -323,15 +324,12 @@ public class SpreadsheetComponentsBuilder {
         for (SpreadsheetHeaderDefinition headerDefinition : headerDefinitions.values()) {
 
             IOpenClass headerType = null;
-            IdentifierNode typeIdentifierNode = null;
-
             SymbolicTypeDefinition symbolicTypeDefinition = headerDefinition.getDefinition();
-            typeIdentifierNode = symbolicTypeDefinition.getType();
+            IdentifierNode typeIdentifierNode = symbolicTypeDefinition.getType();
             if (typeIdentifierNode != null) {
                 String typeIdentifier = typeIdentifierNode.getText();
                 try {
-                    IOpenClass type = RuleRowHelper.getType(typeIdentifier, typeIdentifierNode, bindingContext);
-                    headerType = type;
+                    headerType = RuleRowHelper.getType(typeIdentifier, typeIdentifierNode, bindingContext);
                 } catch (SyntaxNodeException e) {
                     addError(e);
                 }
@@ -346,7 +344,7 @@ public class SpreadsheetComponentsBuilder {
                 SpreadsheetMetaInfoReader metaInfoReader = (SpreadsheetMetaInfoReader) getTableSyntaxNode()
                     .getMetaInfoReader();
                 List<NodeUsage> nodeUsages = new ArrayList<>();
-                if (headerType != null && typeIdentifierNode != null) {
+                if (headerType != null) {
                     IdentifierNode identifier = cutTypeIdentifier(typeIdentifierNode);
                     if (identifier != null) {
                         IOpenClass type = headerType;
@@ -369,7 +367,7 @@ public class SpreadsheetComponentsBuilder {
                 } else {
                     cell = cellsHeaderExtractor.getColumnNamesTable().getColumn(headerDefinition.getColumn());
                 }
-                if (headerDefinition.getDefinition().isWithAsterisk()) {
+                if (headerDefinition.getDefinition().isAsteriskPresented()) {
                     String s = handleWrongSymbols(headerDefinition.getDefinitionName());
                     if (StringUtils.isEmpty(s)) {
                         s = "Empty string";
@@ -424,12 +422,13 @@ public class SpreadsheetComponentsBuilder {
 
         if (headerDefinition == null) {
             for (SpreadsheetHeaderDefinition spreadsheetHeaderDefinition : headerDefinitions.values()) {
-                if (headerDefinition == null) {
-                    headerDefinition = spreadsheetHeaderDefinition;
-                } else if (headerDefinition.getRow() < spreadsheetHeaderDefinition.getRow()) {
+                if (headerDefinition == null || headerDefinition.getRow() < spreadsheetHeaderDefinition.getRow()) {
                     headerDefinition = spreadsheetHeaderDefinition;
                 }
             }
+        }
+        if (headerDefinition == null) {
+            throw new IllegalStateException("Expected non-null headerDefinition");
         }
 
         if (Boolean.FALSE
@@ -528,9 +527,7 @@ public class SpreadsheetComponentsBuilder {
                     sprCells.add(spreadsheet.getCells()[i][n]);
                 }
             } else {
-                for (int i = 0; i < spreadsheet.getCells()[n].length; i++) {
-                    sprCells.add(spreadsheet.getCells()[n][i]);
-                }
+                sprCells.addAll(Arrays.asList(spreadsheet.getCells()[n]));
             }
 
             List<SpreadsheetCell> nonEmptySpreadsheetCells = new ArrayList<>();
@@ -586,30 +583,33 @@ public class SpreadsheetComponentsBuilder {
 
             if (returnSpreadsheetCells.size() == 0) {
                 if (!nonEmptySpreadsheetCells.isEmpty()) {
-                    SpreadsheetCell nonEmptySpreadsheetCell = nonEmptySpreadsheetCells.get(nonEmptySpreadsheetCells.size() - 1);
+                    SpreadsheetCell nonEmptySpreadsheetCell = nonEmptySpreadsheetCells
+                        .get(nonEmptySpreadsheetCells.size() - 1);
                     if (nonEmptySpreadsheetCell.getType() != null) {
-                        throw SyntaxNodeExceptionUtils.createError(String.format("Cannot convert from '%s' to '%s'.",
+                        throw SyntaxNodeExceptionUtils.createError(
+                            String.format("Cannot convert from '%s' to '%s'.",
                                 nonEmptySpreadsheetCell.getType().getName(),
                                 spreadsheet.getHeader().getType().getName()),
-                                symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
+                            symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
                     } else {
                         return null;
                     }
                 } else {
                     throw SyntaxNodeExceptionUtils.createError("There is no return expression cell.",
-                            symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
+                        symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
 
                 }
             } else {
                 if (asArray) {
                     resultBuilder = new ArrayResultBuilder(retCells,
-                            castsAsArray.toArray(new IOpenCast[] {}),
-                            type,
-                            isCalculateAllCellsInSpreadsheet(spreadsheet));
+                        castsAsArray.toArray(new IOpenCast[] {}),
+                        type,
+                        isCalculateAllCellsInSpreadsheet(spreadsheet));
                 } else {
-                    resultBuilder = new ScalarResultBuilder(returnSpreadsheetCells.get(returnSpreadsheetCells.size() - 1),
-                            casts.get(casts.size() - 1),
-                            isCalculateAllCellsInSpreadsheet(spreadsheet));
+                    resultBuilder = new ScalarResultBuilder(
+                        returnSpreadsheetCells.get(returnSpreadsheetCells.size() - 1),
+                        casts.get(casts.size() - 1),
+                        isCalculateAllCellsInSpreadsheet(spreadsheet));
                 }
             }
         }

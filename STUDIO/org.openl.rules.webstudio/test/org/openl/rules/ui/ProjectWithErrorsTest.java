@@ -50,7 +50,7 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
     }
 
     @Test
-    public void testTypesAndTestMethodsCount() throws Exception {
+    public void testTypesAndTestMethodsCount() {
         assertEquals(singleModuleMode, pm.isSingleModuleMode());
         assertTrue(pm.getCompiledOpenClass().hasErrors());
 
