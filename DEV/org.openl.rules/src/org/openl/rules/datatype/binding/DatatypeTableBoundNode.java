@@ -223,7 +223,16 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         if (superOpenClass != null) {
             beanBuilder.setParentType(new TypeDescription(superOpenClass.getJavaName()));
             if (superOpenClass instanceof DatatypeOpenClass) {
-                for (Entry<String, FieldDescription> field : getParentDatatypeTableBoundNode().getFields().entrySet()) {
+                Map<String, FieldDescription> parentFields;
+                if (parentDatatypeTableBoundNode != null) {
+                    parentFields = parentDatatypeTableBoundNode.getFields();
+                } else {
+                    parentFields = new LinkedHashMap<>();
+                    for (IOpenField field : superOpenClass.getFields().values()) {
+                        parentFields.put(field.getName(), new FieldDescription(field.getType().getJavaName()));
+                    }
+                }
+                for (Entry<String, FieldDescription> field : parentFields.entrySet()) {
                     beanBuilder.addParentField(field.getKey(), field.getValue());
                 }
             }
@@ -340,8 +349,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                                 }
                             }
                         }
-                    } catch (Exception ignored) {
-                        ignored.printStackTrace();
+                    } catch (ReflectiveOperationException | LinkageError ignored) {
                     }
                     if (f) {
                         String errorMessage = String.format(
