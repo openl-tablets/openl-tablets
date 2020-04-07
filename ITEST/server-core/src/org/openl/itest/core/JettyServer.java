@@ -6,7 +6,6 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
-import org.eclipse.jetty.webapp.WebXmlConfiguration;
 
 /**
  * Simple wrapper for Jetty Server
@@ -23,10 +22,8 @@ public class JettyServer {
         WebAppContext webAppContext = new WebAppContext();
         webAppContext.setResourceBase(explodedWar);
         webAppContext.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", ".*/classes/.*");
-        webAppContext.setConfigurations(new Configuration[] {
-                new AnnotationConfiguration(),
-                new WebInfConfiguration()
-        });
+        webAppContext
+            .setConfigurations(new Configuration[] { new AnnotationConfiguration(), new WebInfConfiguration() });
 
         if (sharedClassloader) {
             webAppContext.setClassLoader(JettyServer.class.getClassLoader());
