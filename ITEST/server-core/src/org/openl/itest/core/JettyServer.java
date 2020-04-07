@@ -22,7 +22,7 @@ public class JettyServer {
         this.server.setStopAtShutdown(true);
         WebAppContext webAppContext = new WebAppContext();
         webAppContext.setResourceBase(explodedWar);
-        webAppContext.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", ".*/classes/.*");
+        webAppContext.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", ".*/classes/.*");
         webAppContext.setConfigurations(new Configuration[] {
                 new AnnotationConfiguration(),
                 new WebInfConfiguration(),
