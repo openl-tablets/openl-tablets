@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.model.MultipleFailureException;
 import org.openl.itest.core.HttpClient;
@@ -160,10 +161,11 @@ public class RunRestRulesDeploymentTest {
     }
 
     @Test
+    @Ignore
     public void test_EPBDS_8758_multithread2() throws Exception {
         client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
         client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v1.resp.txt");
-        AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS / 4, () -> client.get("/REST/EPBDS-8758/doSomething"));
+        AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS, () -> client.get("/REST/EPBDS-8758/doSomething"));
         executor.start();
 
         AsyncExecutor deployers = new AsyncExecutor(() -> {
@@ -176,6 +178,8 @@ public class RunRestRulesDeploymentTest {
         TimeUnit.SECONDS.sleep(1);
         List<Throwable> deployErrors = deployers.stop();
         List<Throwable> invocationErrors = executor.stop();
+
+        client.delete("/admin/delete/EPBDS-8758");
 
         MultipleFailureException.assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream())
                 .collect(Collectors.toList()));
