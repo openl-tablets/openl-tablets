@@ -13,7 +13,7 @@
             <h:panelGrid columns="3" cellspacing="5">
                 <h:outputText value="Type:" styleClass="required" />
                 <h:selectOneMenu id="tableType" value="#{wizard.tableType}">
-                    <f:selectItems value="#{wizard.domainTypes}" />
+                    <f:selectItems value="#{wizard.domainTypes}" var="v" itemDisabled="#{v == ''}" />
                 </h:selectOneMenu>
                 <a4j:outputPanel ajaxRendered="true">
                     <h:message for="tableType" styleClass="error" />
