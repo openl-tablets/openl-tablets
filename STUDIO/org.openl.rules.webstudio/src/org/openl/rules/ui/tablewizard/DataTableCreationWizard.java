@@ -1,6 +1,11 @@
 package org.openl.rules.ui.tablewizard;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.faces.application.FacesMessage;
@@ -13,11 +18,15 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.rules.table.xls.builder.*;
+import org.openl.rules.table.xls.builder.CreateTableException;
+import org.openl.rules.table.xls.builder.DataTableBuilder;
+import org.openl.rules.table.xls.builder.DataTableField;
+import org.openl.rules.table.xls.builder.DataTablePredefinedTypeVariable;
+import org.openl.rules.table.xls.builder.DataTableUserDefinedTypeField;
+import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +43,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
     private IOpenClass tableOpenClass;
     private DataTableTree tree = new DataTableTree();
 
-    private DomainTree domainTree;
-    private SelectItem[] domainTypes;
+    private List<String> domainTypes;
     private List<TableSyntaxNode> allDataTables;
     private Collection<IOpenClass> importedClasses;
 
@@ -59,7 +67,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
         return tree;
     }
 
-    public SelectItem[] getDomainTypes() {
+    public List<String> getDomainTypes() {
         return domainTypes;
     }
 
@@ -72,34 +80,17 @@ public class DataTableCreationWizard extends TableCreationWizard {
     protected void onStart() {
         reset();
 
-        domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
         importedClasses = WizardUtils.getImportedClasses();
 
-        Collection<String> allClasses = domainTree.getAllClasses();
+        ArrayList<String> types = new ArrayList<>(WizardUtils.declaredDatatypes());
+        types.add("");
+        types.addAll(WizardUtils.declaredAliases());
+        types.add("");
+        types.addAll(WizardUtils.importedClasses());
+        types.add("");
+        types.addAll(DomainTree.getPredefinedTypes());
 
-        Iterator<String> classIterator = allClasses.iterator();
-
-        String typeName, className;
-
-        while (classIterator.hasNext()) {
-            className = classIterator.next();
-            for (IOpenClass dataType : domainTree.getAllOpenClasses()) {
-                if (dataType instanceof DomainOpenClass) {
-                    typeName = dataType.getName();
-                    if (typeName.equals(className)) {
-                        classIterator.remove();
-                    }
-                }
-            }
-        }
-
-        for (IOpenClass type : importedClasses) {
-            if (!(type instanceof DomainOpenClass)) {
-                allClasses.add(type.getDisplayName(INamedThing.SHORT));
-            }
-        }
-
-        domainTypes = WizardUtils.createSelectItems(allClasses);
+        domainTypes = types;
 
         allDataTables = new ArrayList<>();
         for (TableSyntaxNode tbl : WizardUtils.getTableSyntaxNodes()) {
@@ -149,7 +140,6 @@ public class DataTableCreationWizard extends TableCreationWizard {
         tableOpenClass = null;
         tree.setRoot(null);
 
-        domainTree = null;
         domainTypes = null;
 
         importedClasses = null;

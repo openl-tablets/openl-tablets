@@ -1,19 +1,24 @@
 package org.openl.rules.ui.tablewizard;
 
-import javax.faces.model.SelectItem;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
+
+import javax.faces.model.SelectItem;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.classes.ClassFinder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +29,32 @@ import org.slf4j.LoggerFactory;
 public final class WizardUtils {
 
     private WizardUtils() {
+    }
+
+    static List<String> declaredDatatypes() {
+        return getProjectOpenClass().getTypes()
+            .stream()
+            .filter(t -> t instanceof DatatypeOpenClass)
+            .map(IOpenClass::getName)
+            .sorted()
+            .collect(Collectors.toList());
+    }
+
+    static List<String> declaredAliases() {
+        return getProjectOpenClass().getTypes()
+            .stream()
+            .filter(t -> t instanceof DomainOpenClass)
+            .map(IOpenClass::getName)
+            .sorted()
+            .collect(Collectors.toList());
+    }
+
+    static List<String> importedClasses() {
+        return getImportedClasses().stream()
+            .filter(t -> !(t instanceof DomainOpenClass))
+            .map(IOpenClass::getName)
+            .sorted()
+            .collect(Collectors.toList());
     }
 
     public static IOpenClass getProjectOpenClass() {
