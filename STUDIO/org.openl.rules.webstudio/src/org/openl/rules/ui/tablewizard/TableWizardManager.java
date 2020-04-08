@@ -14,8 +14,6 @@ import org.openl.util.StringUtils;
 public class TableWizardManager extends BaseTableWizardManager {
 
     enum TableType {
-        UNKNOWN,
-        DECISION,
         DATATYPE,
         DATATYPE_ALIAS,
         DATA,
@@ -57,10 +55,6 @@ public class TableWizardManager extends BaseTableWizardManager {
     public String startWizard() {
         reload();
         switch (tableType) {
-            case DECISION:
-                wizard = new DecisionTableCreationWizard();
-                wizard.setStepsCount(6);
-                break;
             case DATATYPE:
                 wizard = new DatatypeTableCreationWizard();
                 wizard.setStepsCount(3);
