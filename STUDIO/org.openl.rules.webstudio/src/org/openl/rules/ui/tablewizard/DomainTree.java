@@ -150,8 +150,7 @@ public class DomainTree {
         treeElements.putIfAbsent(simpleTypeName, type);
 
         // types of IOpenClass fields
-        Map<String, IOpenField> fields = type.getFields();
-        for (IOpenField field : fields.values()) {
+        for (IOpenField field : type.getFields()) {
             if (!field.isStatic() && !field.getType().isAbstract()) {
                 addType(field.getType());
             }
