@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 
 import javax.faces.model.SelectItem;
 
-import javax.faces.model.SelectItem;
-
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.classes.ClassFinder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -51,8 +49,8 @@ public final class WizardUtils {
 
     static List<String> importedClasses() {
         return getImportedClasses().stream()
-            .filter(t -> !(t instanceof DomainOpenClass))
-            .map(IOpenClass::getName)
+            .filter(t -> t instanceof JavaOpenClass)
+            .map(v -> v.getDisplayName(INamedThing.SHORT))
             .sorted()
             .collect(Collectors.toList());
     }
