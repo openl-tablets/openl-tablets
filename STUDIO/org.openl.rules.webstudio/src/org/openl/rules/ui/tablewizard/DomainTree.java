@@ -23,29 +23,30 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class DomainTree {
     private static final Set<String> ignoredTypes;
-    private static Map<String, IOpenClass> predefinedTypes = new TreeMap<>();
+    private static Map<String, IOpenClass> predefinedTypes;
 
     private final Map<String, IOpenClass> treeElements;
 
     static {
         ignoredTypes = new HashSet<>();
-        ignoredTypes.add(OBJECT.getSimpleName());
-        ignoredTypes.add(CLASS.getSimpleName());
-        ignoredTypes.add(VOID.getSimpleName());
+        ignoredTypes.add("Object");
+        ignoredTypes.add("Class");
+        ignoredTypes.add("Void");
+        ignoredTypes.add("void");
     }
 
     static {
         predefinedTypes = new HashMap<>();
 
         // primitives
-        predefinedTypes.put(BYTE.getSimpleName(), BYTE);
-        predefinedTypes.put(INT.getSimpleName(), INT);
-        predefinedTypes.put(BOOLEAN.getSimpleName(), BOOLEAN);
-        predefinedTypes.put(LONG.getSimpleName(), LONG);
-        predefinedTypes.put(DOUBLE.getSimpleName(), DOUBLE);
-        predefinedTypes.put(FLOAT.getSimpleName(), FLOAT);
-        predefinedTypes.put(SHORT.getSimpleName(), SHORT);
-        predefinedTypes.put(CHAR.getSimpleName(), CHAR);
+        predefinedTypes.put("byte", BYTE);
+        predefinedTypes.put("int", INT);
+        predefinedTypes.put("boolean", BOOLEAN);
+        predefinedTypes.put("long", LONG);
+        predefinedTypes.put("double", DOUBLE);
+        predefinedTypes.put("float", FLOAT);
+        predefinedTypes.put("short", SHORT);
+        predefinedTypes.put("char", CHAR);
 
         // wrappers for primitives
         predefinedTypes.put("Integer", JavaOpenClass.getOpenClass(Integer.class));
@@ -56,7 +57,7 @@ public class DomainTree {
         predefinedTypes.put("Short", JavaOpenClass.getOpenClass(Short.class));
         predefinedTypes.put("Character", JavaOpenClass.getOpenClass(Character.class));
 
-        predefinedTypes.put(STRING.getSimpleName(), STRING);
+        predefinedTypes.put("String", STRING);
         predefinedTypes.put("Date", JavaOpenClass.getOpenClass(Date.class));
 
         predefinedTypes.put("BigInteger", JavaOpenClass.getOpenClass(BigInteger.class));
@@ -64,19 +65,6 @@ public class DomainTree {
 
         predefinedTypes.put("IntRange", JavaOpenClass.getOpenClass(IntRange.class));
         predefinedTypes.put("DoubleRange", JavaOpenClass.getOpenClass(DoubleRange.class));
-        // predefinedTypes.put("CharRange", JavaOpenClass.getOpenClass(CharRange.class)); // We don't recommend
-        // analytics to use them and we didn't document these data types usages
-
-        predefinedTypes.put("BigDecimalValue", JavaOpenClass.getOpenClass(BigDecimalValue.class));
-        predefinedTypes.put("BigIntegerValue", JavaOpenClass.getOpenClass(BigIntegerValue.class));
-        predefinedTypes.put("ByteValue", JavaOpenClass.getOpenClass(ByteValue.class));
-        predefinedTypes.put("DoubleValue", JavaOpenClass.getOpenClass(DoubleValue.class));
-        predefinedTypes.put("FloatValue", JavaOpenClass.getOpenClass(FloatValue.class));
-        predefinedTypes.put("IntValue", JavaOpenClass.getOpenClass(IntValue.class));
-        predefinedTypes.put("LongValue", JavaOpenClass.getOpenClass(LongValue.class));
-        predefinedTypes.put("ShortValue", JavaOpenClass.getOpenClass(ShortValue.class));
-        // predefinedTypes.put("StringValue", JavaOpenClass.getOpenClass(StringValue.class)); // We don't recommend
-        // analytics to use them and we didn't document these data types usages
     }
 
     /**
@@ -180,8 +168,7 @@ public class DomainTree {
     public Collection<IOpenClass> getAllOpenClasses() {
         Collection<IOpenClass> unsortedClasses = treeElements.values();
         List<IOpenClass> sortedClasses = new ArrayList<>(unsortedClasses);
-        Collections.sort(sortedClasses,
-            (s1, s2) -> s1.getDisplayName(INamedThing.SHORT).compareTo(s2.getDisplayName(INamedThing.SHORT)));
+        sortedClasses.sort(Comparator.comparing(s -> s.getDisplayName(INamedThing.SHORT)));
         return sortedClasses;
     }
 

@@ -228,10 +228,6 @@ public class JavaOpenClass extends AOpenClass {
         return getInstanceClass().getPackage().getName();
     }
 
-    public String getSimpleName() {
-        return getDisplayName(INamedThing.SHORT);
-    }
-
     @Override
     public int hashCode() {
         return getInstanceClass().hashCode();
