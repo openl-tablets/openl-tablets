@@ -54,6 +54,7 @@ public class TaskScheduler {
             boolean done = scheduledExecutor.awaitTermination(timeout, unit);
             if (!done) {
                 scheduledExecutor.shutdownNow();
+                scheduledExecutor.awaitTermination(timeout, unit);
             }
         } catch (InterruptedException e) {
             errors.add(e);
