@@ -12,6 +12,7 @@ import static org.openl.types.java.JavaOpenClass.STRING;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -158,11 +159,11 @@ public class DomainTree {
     }
 
     public Collection<IOpenClass> getAllOpenClasses() {
-        return treeElements.values();
+        return new ArrayList<>(treeElements.values());
     }
 
     public Collection<String> getAllClasses() {
-        return treeElements.keySet();
+        return new ArrayList<>(treeElements.keySet());
     }
 
 }
