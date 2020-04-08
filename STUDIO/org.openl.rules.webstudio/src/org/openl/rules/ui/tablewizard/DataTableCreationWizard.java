@@ -87,7 +87,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
         types.add("");
         types.addAll(WizardUtils.importedClasses());
         types.add("");
-        types.addAll(DomainTree.getPredefinedTypes());
+        types.addAll(WizardUtils.predefinedTypes());
 
         domainTypes = types;
 

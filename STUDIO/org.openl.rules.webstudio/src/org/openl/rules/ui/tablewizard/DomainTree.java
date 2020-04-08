@@ -84,10 +84,6 @@ public class DomainTree {
         predefinedTypes.put("char", CHAR);
     }
 
-    static Collection<String> getPredefinedTypes() {
-        return predefinedTypes.keySet();
-    }
-
     /**
      * Builds a domain tree from excel rules project meta information.
      *
@@ -160,9 +156,4 @@ public class DomainTree {
     public Collection<IOpenClass> getAllOpenClasses() {
         return new ArrayList<>(treeElements.values());
     }
-
-    public Collection<String> getAllClasses() {
-        return new ArrayList<>(treeElements.keySet());
-    }
-
 }

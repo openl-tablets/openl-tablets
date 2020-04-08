@@ -1,7 +1,9 @@
 package org.openl.rules.ui.tablewizard;
 
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -27,6 +29,44 @@ import org.slf4j.LoggerFactory;
 public final class WizardUtils {
 
     private WizardUtils() {
+    }
+
+    private static final List<String> predefinedTypes;
+    static {
+        ArrayList<String> types = new ArrayList<>();
+
+        // The most popular
+        types.add("String");
+        types.add("Double");
+        types.add("Integer");
+        types.add("Boolean");
+        types.add("Date");
+
+        types.add("BigInteger");
+        types.add("BigDecimal");
+
+        types.add("IntRange");
+        types.add("DoubleRange");
+
+        types.add("Long");
+        types.add("Float");
+        types.add("Short");
+        types.add("Character");
+
+        // Less popular
+        types.add("byte");
+        types.add("short");
+        types.add("int");
+        types.add("long");
+        types.add("float");
+        types.add("double");
+        types.add("boolean");
+        types.add("char");
+
+        predefinedTypes = Collections.unmodifiableList(types);
+    }
+    static List<String> predefinedTypes() {
+        return predefinedTypes;
     }
 
     static List<String> declaredDatatypes() {

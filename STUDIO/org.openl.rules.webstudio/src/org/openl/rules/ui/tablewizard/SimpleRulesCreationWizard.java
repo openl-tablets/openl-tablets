@@ -60,7 +60,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     protected void onStart() {
         reset();
 
-        domainTypes = new ArrayList<>(DomainTree.getPredefinedTypes());
+        domainTypes = new ArrayList<>(WizardUtils.predefinedTypes());
         domainTypes.add("");
         domainTypes.addAll(WizardUtils.declaredDatatypes());
         domainTypes.add("");
