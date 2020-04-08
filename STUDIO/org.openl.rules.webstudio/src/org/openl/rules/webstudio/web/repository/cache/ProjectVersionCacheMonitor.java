@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.openl.rules.common.ProjectVersion;
@@ -20,6 +21,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     private final Logger log = LoggerFactory.getLogger(ProjectVersionCacheMonitor.class);
 
     private ScheduledExecutorService scheduledPool;
+    private ScheduledFuture<?> scheduled;
     private ProjectVersionH2CacheDB projectVersionCacheDB;
     public ProjectVersionCacheManager projectVersionCacheManager;
     private DesignTimeRepository designRepository;
@@ -70,14 +72,17 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     }
 
     public void setProjectVersionCacheDB(ProjectVersionH2CacheDB projectVersionCacheDB) {
+        release();
         this.projectVersionCacheDB = projectVersionCacheDB;
     }
 
     public void setProjectVersionCacheManager(ProjectVersionCacheManager projectVersionCacheManager) {
+        release();
         this.projectVersionCacheManager = projectVersionCacheManager;
     }
 
     public void setDesignRepository(DesignTimeRepository designRepository) {
+        release();
         this.designRepository = designRepository;
     }
 
@@ -88,6 +93,23 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
             t.setDaemon(true);
             return t;
         });
-        scheduledPool.scheduleWithFixedDelay(this, 1, PERIOD, TimeUnit.SECONDS);
+        scheduled = scheduledPool.scheduleWithFixedDelay(this, 1, PERIOD, TimeUnit.SECONDS);
+    }
+
+    public synchronized void release() {
+        if (scheduledPool != null) {
+            scheduledPool.shutdownNow();
+        }
+        if (scheduled != null) {
+            scheduled.cancel(true);
+            scheduled = null;
+        }
+        if (scheduledPool != null) {
+            try {
+                scheduledPool.awaitTermination(PERIOD, TimeUnit.SECONDS);
+            } catch (InterruptedException ignored) {
+            }
+            scheduledPool = null;
+        }
     }
 }
