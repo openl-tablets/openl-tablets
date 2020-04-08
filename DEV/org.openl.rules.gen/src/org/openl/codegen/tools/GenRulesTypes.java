@@ -45,7 +45,7 @@ public class GenRulesTypes {
         IRuntimeEnv env = engineFactory.getOpenL().getVm().getRuntimeEnv();
         Object openClassInstance = openClass.newInstance(env);
 
-        for (IOpenField field : openClass.getFields().values()) {
+        for (IOpenField field : openClass.getFields()) {
 
             IOpenClass type = field.getType();
             Class<?> clazz = type.getInstanceClass();

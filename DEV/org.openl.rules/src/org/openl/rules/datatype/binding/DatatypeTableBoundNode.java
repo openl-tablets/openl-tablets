@@ -228,7 +228,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     parentFields = parentDatatypeTableBoundNode.getFields();
                 } else {
                     parentFields = new LinkedHashMap<>();
-                    for (IOpenField field : superOpenClass.getFields().values()) {
+                    for (IOpenField field : superOpenClass.getFields()) {
                         parentFields.put(field.getName(), new FieldDescription(field.getType().getJavaName()));
                     }
                 }
@@ -745,20 +745,18 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         final IOpenClass superClass = dataType.getSuperClass();
         if (superClass != null) {
             SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
-            for (final Entry<String, IOpenField> field : dataType.getDeclaredFields().entrySet()) {
+            for (final IOpenField field : dataType.getDeclaredFields()) {
                 syntaxNodeExceptionCollector.run(() -> {
-                    IOpenField fieldInParent = superClass.getField(field.getKey());
+                    IOpenField fieldInParent = superClass.getField(field.getName());
                     if (fieldInParent != null) {
-                        if (fieldInParent.getType()
-                            .getInstanceClass()
-                            .equals(field.getValue().getType().getInstanceClass())) {
+                        if (fieldInParent.getType().getInstanceClass().equals(field.getType().getInstanceClass())) {
                             BindHelper.processWarn(String.format("Field [%s] has been already defined in class '%s'",
-                                field.getKey(),
+                                field.getName(),
                                 fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
                         } else {
                             throw SyntaxNodeExceptionUtils.createError(
                                 String.format("Field [%s] has been already defined in class '%s' with another type",
-                                    field.getKey(),
+                                    field.getName(),
                                     fieldInParent.getDeclaringClass().getDisplayName(0)),
                                 tableSyntaxNode);
                         }

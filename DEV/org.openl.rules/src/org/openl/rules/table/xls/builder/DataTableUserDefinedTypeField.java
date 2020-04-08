@@ -3,7 +3,6 @@ package org.openl.rules.table.xls.builder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.openl.base.INamedThing;
 import org.openl.types.IOpenClass;
@@ -67,13 +66,12 @@ public class DataTableUserDefinedTypeField extends DataTableField {
         if (availableFields == null) {
             List<DataTableField> list = new ArrayList<>();
 
-            for (Entry<String, IOpenField> entry : getType().getFields().entrySet()) {
-                if (entry.getValue().isConst() || !entry.getValue().isWritable()) {
+            for (IOpenField field : getType().getFields()) {
+                if (field.isConst() || !field.isWritable()) {
                     continue;
                 }
 
-                list.add(
-                    new DataTableUserDefinedTypeField(entry.getValue().getType(), entry.getKey(), predefinedChecker));
+                list.add(new DataTableUserDefinedTypeField(field.getType(), field.getName(), predefinedChecker));
             }
 
             availableFields = Collections.unmodifiableList(list);

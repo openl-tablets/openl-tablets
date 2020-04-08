@@ -386,7 +386,7 @@ public class ColumnDescriptor {
         }
         IOpenClass declaredClass = targetField.getDeclaringClass();
 
-        for (IOpenField declaredField : declaredClass.getFields().values()) {
+        for (IOpenField declaredField : declaredClass.getFields()) {
             IOpenClass fieldType = declaredField.getType();
             IAggregateInfo info = fieldType.getAggregateInfo();
             if (info != null && info.isAggregate(fieldType)) {

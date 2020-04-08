@@ -395,7 +395,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                             if (resultType.isSimple() || resultType.isArray()) {
                                 fieldsToTest.add(new ThisField(resultType));
                             } else {
-                                fieldsToTest.addAll(resultType.getFields().values());
+                                fieldsToTest.addAll(resultType.getFields());
                             }
                             continue;
                         } else {

@@ -87,7 +87,7 @@ public class SpreadsheetContext extends ComponentBindingContext {
         ComponentOpenClass componentOpenClass = getComponentOpenClass();
         ComponentBindingContext componentBindingContext = this;
         while (componentOpenClass != null) {
-            for (IOpenField f : componentOpenClass.getDeclaredFields().values()) {
+            for (IOpenField f : componentOpenClass.getDeclaredFields()) {
                 if (f instanceof SpreadsheetCellField) {
                     SpreadsheetCellField field = (SpreadsheetCellField) f;
                     int columnInRange = field.getCell().getColumnIndex() - startColumn;

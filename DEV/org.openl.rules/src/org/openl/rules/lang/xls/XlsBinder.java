@@ -602,7 +602,6 @@ public class XlsBinder implements IOpenBinder {
                         spreadsheetBoundNode.getSpreadsheet()
                             .getSpreadsheetType()
                             .getFields()
-                            .values()
                             .forEach(IOpenField::getType);
                     }
                 }
@@ -611,7 +610,7 @@ public class XlsBinder implements IOpenBinder {
                 if (openClass instanceof CustomSpreadsheetResultOpenClass) {
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
                     if (!skip.contains(customSpreadsheetResultOpenClass)) {
-                        customSpreadsheetResultOpenClass.getFields().values().forEach(IOpenField::getType);
+                        customSpreadsheetResultOpenClass.getFields().forEach(IOpenField::getType);
                         skip.add(customSpreadsheetResultOpenClass);
                     }
                 }
@@ -619,7 +618,6 @@ public class XlsBinder implements IOpenBinder {
             module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                 .toCustomSpreadsheetResultOpenClass()
                 .getFields()
-                .values()
                 .forEach(IOpenField::getType);
             module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                 .toCustomSpreadsheetResultOpenClass()

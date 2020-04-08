@@ -149,8 +149,7 @@ public class DomainTree {
 
             if (inspectTypeRecursively(type)) {
                 // types of IOpenClass fields
-                Map<String, IOpenField> fields = type.getFields();
-                for (IOpenField field : fields.values()) {
+                for (IOpenField field : type.getFields()) {
                     if (isAppropriateProperty(field)) {
                         addType(field.getType());
                     }
@@ -221,8 +220,7 @@ public class DomainTree {
         }
 
         Collection<String> result = new ArrayList<>();
-        Map<String, IOpenField> fields = openClass.getFields();
-        for (IOpenField field : fields.values()) {
+        for (IOpenField field : openClass.getFields()) {
             if (isAppropriateProperty(field)) {
                 result.add(field.getName());
             }

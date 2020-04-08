@@ -325,7 +325,7 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     @Override
-    public Iterable<IOpenClass> superClasses() {
+    public Collection<IOpenClass> superClasses() {
         if (superClasses == null) {
             synchronized (this) {
                 if (superClasses == null) {
@@ -347,20 +347,18 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     @Override
-    public Map<String, IOpenField> getFields() {
+    public Collection<IOpenField> getFields() {
         Map<String, IOpenField> fields = new HashMap<>(fieldMap());
         for (IOpenClass superClass : superClasses()) {
             if (superClass.isInterface() && !isAbstract()) {
                 // no need to add fields from interface if current instance is not abstract class
                 continue;
             }
-            Map<String, IOpenField> superClassFields = superClass.getFields();
-            for (Map.Entry<String, IOpenField> entry : superClassFields.entrySet()) {
-                final IOpenField candidateField = entry.getValue();
+            for (IOpenField candidateField : superClass.getFields()) {
                 if (candidateField.getType() == JavaOpenClass.CLASS) {
                     continue;
                 }
-                final String name = entry.getKey();
+                final String name = candidateField.getName();
                 final IOpenField origField = fields.get(name);
                 if (origField == null) {
                     fields.put(name, candidateField);
@@ -376,7 +374,7 @@ public class JavaOpenClass extends AOpenClass {
                 }
             }
         }
-        return fields;
+        return fields.values();
     }
 
     private static class JavaArrayLengthField extends ArrayLengthOpenField {

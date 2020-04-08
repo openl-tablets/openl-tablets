@@ -147,7 +147,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return false;
     }
 
-    private Iterable<IOpenClass> superClasses = null;
+    private Collection<IOpenClass> superClasses = null;
 
     @Override
     public IAggregateInfo getAggregateInfo() {
@@ -159,7 +159,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     }
 
     @Override
-    public synchronized Iterable<IOpenClass> superClasses() {
+    public synchronized Collection<IOpenClass> superClasses() {
         if (superClasses == null) {
             Class<?>[] interfaces = SpreadsheetResult.class.getInterfaces();
             List<IOpenClass> superClasses = new ArrayList<>(interfaces.length + 1);
@@ -302,7 +302,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             customSpreadsheetResultOpenClass.columnNamesForResultModel,
             customSpreadsheetResultOpenClass.rowTitles,
             customSpreadsheetResultOpenClass.columnTitles,
-            customSpreadsheetResultOpenClass.getFields().values(),
+            customSpreadsheetResultOpenClass.getFields(),
             customSpreadsheetResultOpenClass.simpleRefBeanByRow,
             customSpreadsheetResultOpenClass.simpleRefBeanByColumn,
             customSpreadsheetResultOpenClass.detailedPlainModel);
@@ -366,7 +366,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             columnTitles,
             module,
             detailedPlainModel);
-        for (IOpenField field : getFields().values()) {
+        for (IOpenField field : getFields()) {
             if (isCustomSpreadsheetResultField(field)) {
                 type.addField(field);
             }
@@ -475,18 +475,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             List<IOpenField>[][] used = new List[rowNames.length][columnNames.length];
                             Map<String, List<IOpenField>> fieldsMap = new HashMap<>();
                             List<Pair<Point, IOpenField>> fields = getSortedFields();
-                            addFieldsToJavaClassBuilder(beanClassBuilder,
-                                fields,
-                                used,
-                                xmlNames,
-                                true,
-                                fieldsMap);
-                            addFieldsToJavaClassBuilder(beanClassBuilder,
-                                fields,
-                                used,
-                                xmlNames,
-                                false,
-                                fieldsMap);
+                            addFieldsToJavaClassBuilder(beanClassBuilder, fields, used, xmlNames, true, fieldsMap);
+                            addFieldsToJavaClassBuilder(beanClassBuilder, fields, used, xmlNames, false, fieldsMap);
                             sprStructureFieldNames = addSprStructureFields(beanClassBuilder,
                                 fieldsMap.keySet(),
                                 xmlNames.values());
@@ -505,9 +495,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     }
 
     private List<Pair<Point, IOpenField>> getSortedFields() {
-        return getFields().entrySet()
-            .stream()
-            .map(entry -> Pair.of(fieldsCoordinates.get(entry.getKey()), entry.getValue()))
+        return getFields().stream()
+            .map(e -> Pair.of(fieldsCoordinates.get(e.getName()), e))
             .sorted(COMP)
             .collect(toList());
     }
@@ -647,8 +636,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         continue; // IGNORE VOID FIELDS
                     } else {
                         if (field.getType().getInstanceClass().isPrimitive()) {
-                            typeName = ClassUtils.primitiveToWrapper(field.getType().getInstanceClass())
-                                .getName();
+                            typeName = ClassUtils.primitiveToWrapper(field.getType().getInstanceClass()).getName();
                         } else {
                             typeName = field.getType().getInstanceClass().getName();
                         }

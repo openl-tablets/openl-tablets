@@ -1,12 +1,12 @@
 package org.openl.rules.ui.tablewizard;
 
-import javax.faces.model.SelectItem;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+
+import javax.faces.model.SelectItem;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.classes.ClassFinder;
@@ -15,7 +15,6 @@ import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -128,10 +127,9 @@ public final class WizardUtils {
             return false;
         }
 
-        Map<String, IOpenField> fields = openType.getFields();
         // Every field has a "class" field. We skip a classes that does not
         // have any other field.
-        return fields.size() > 1;
+        return !openType.getFields().isEmpty();
 
     }
 

@@ -132,7 +132,7 @@ public class RootDictionaryContext implements VariableInContextFinder {
             return;
         }
 
-        for (IOpenField openField : fieldType.getFields().values()) {
+        for (IOpenField openField : fieldType.getFields()) {
             initializeField(field, openField, level + 1);
         }
 

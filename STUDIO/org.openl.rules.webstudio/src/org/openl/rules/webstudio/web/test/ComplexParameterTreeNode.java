@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.test;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -64,9 +63,8 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
             IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
             SortedMap<NumericComparableString, IOpenField> fieldMap = new TreeMap<>();
             try {
-                Map<String, IOpenField> openFieldMap = getType().getFields();
-                for (Entry<String, IOpenField> entry : openFieldMap.entrySet()) {
-                    fieldMap.put(NumericComparableString.valueOf(entry.getKey()), entry.getValue());
+                for (IOpenField field : getType().getFields()) {
+                    fieldMap.put(NumericComparableString.valueOf(field.getName()), field);
                 }
             } catch (LinkageError e) {
                 return fields;

@@ -1,7 +1,11 @@
 package org.openl.rules.ui.tablewizard;
 
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.model.SelectItem;
@@ -13,7 +17,12 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.rules.table.xls.builder.*;
+import org.openl.rules.table.xls.builder.CreateTableException;
+import org.openl.rules.table.xls.builder.DataTableBuilder;
+import org.openl.rules.table.xls.builder.DataTableField;
+import org.openl.rules.table.xls.builder.DataTablePredefinedTypeVariable;
+import org.openl.rules.table.xls.builder.DataTableUserDefinedTypeField;
+import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -220,10 +229,9 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
         IOpenClass type = getUserDefinedType(typeName);
         if (type != null) {
-            for (Entry<String, IOpenField> fieldEntry : type.getFields().entrySet()) {
-                IOpenField field = fieldEntry.getValue();
+            for (IOpenField field : type.getFields()) {
                 if (!field.isConst() && field.isWritable()) {
-                    columns.add(fieldEntry.getKey());
+                    columns.add(field.getName());
                 }
             }
         }

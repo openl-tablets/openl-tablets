@@ -6,7 +6,12 @@
 
 package org.openl.binding.impl.module;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.CompiledOpenClass;
@@ -17,7 +22,6 @@ import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.exception.DuplicatedTypeException;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.dependency.CompiledDependency;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -58,7 +62,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     private List<Exception> errors = new ArrayList<>();
 
-    private volatile Map<String, IOpenField> dependencyFields = null;
+    private volatile Collection<IOpenField> dependencyFields = null;
 
     public ModuleOpenClass(String name, OpenL openl) {
         super(name, openl);
@@ -120,7 +124,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     protected void addFields(CompiledDependency dependency) throws DuplicatedFieldException {
         CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
-        for (IOpenField depField : compiledOpenClass.getOpenClassWithErrors().getFields().values()) {
+        for (IOpenField depField : compiledOpenClass.getOpenClassWithErrors().getFields()) {
             try {
                 if (isDependencyFieldInheritable(depField)) {
                     addField(depField);
@@ -159,33 +163,31 @@ public class ModuleOpenClass extends ComponentOpenClass {
         return null;
     }
 
-    @Override
-    public Map<String, IOpenField> getFields() {
-        Map<String, IOpenField> fields = new HashMap<>();
+    private Collection<IOpenField> createDependencyFields() {
+        Collection<IOpenField> fields = new ArrayList<>();
+        for (CompiledDependency dependency : usingModules) {
+            CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
+            fields.addAll(compiledOpenClass.getOpenClassWithErrors().getFields());
+        }
+        return fields;
+    }
 
+    @Override
+    public Collection<IOpenField> getFields() {
+        Collection<IOpenField> fields = new ArrayList<>();
         // get fields from dependencies
         //
-        Map<String, IOpenField> localDependencyFields = this.dependencyFields;
-        if (localDependencyFields == null) {
+        if (this.dependencyFields == null) {
             synchronized (this) {
-                localDependencyFields = this.dependencyFields;
-                if (localDependencyFields == null) {
-                    localDependencyFields = new HashMap<>();
-                    for (CompiledDependency dependency : usingModules) {
-                        CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
-                        localDependencyFields.putAll(compiledOpenClass.getOpenClassWithErrors().getFields());
-                    }
-                    this.dependencyFields = localDependencyFields;
-                }
+                this.dependencyFields = createDependencyFields();
             }
         }
-        fields.putAll(dependencyFields);
+        fields.addAll(dependencyFields);
 
         // get own fields. if current module has duplicated fields they will
         // override the same from dependencies.
         //
-        fields.putAll(super.getFields());
-
+        fields.addAll(super.getFields());
         return fields;
     }
 
@@ -239,7 +241,6 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * Add new type to internal types list. If the type with the same name already exists exception will be thrown.
      *
      * @param type IOpenClass instance
-     * @throws OpenLCompilationException if an error had occurred.
      */
     @Override
     public void addType(IOpenClass type) {

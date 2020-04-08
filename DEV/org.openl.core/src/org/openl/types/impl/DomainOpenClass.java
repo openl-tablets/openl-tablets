@@ -2,7 +2,6 @@ package org.openl.types.impl;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousVarException;
@@ -174,7 +173,7 @@ public class DomainOpenClass implements IOpenClass {
     }
 
     @Override
-    public Iterable<IOpenClass> superClasses() {
+    public Collection<IOpenClass> superClasses() {
         return baseClass.superClasses();
     }
 
@@ -200,12 +199,12 @@ public class DomainOpenClass implements IOpenClass {
     }
 
     @Override
-    public Map<String, IOpenField> getFields() {
+    public Collection<IOpenField> getFields() {
         return baseClass.getFields();
     }
 
     @Override
-    public Map<String, IOpenField> getDeclaredFields() {
+    public Collection<IOpenField> getDeclaredFields() {
         return baseClass.getDeclaredFields();
     }
 

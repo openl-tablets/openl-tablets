@@ -2,8 +2,8 @@ package org.openl.rules.property;
 
 import static org.junit.Assert.*;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.junit.Test;
 import org.openl.CompiledOpenClass;
@@ -69,14 +69,14 @@ public class PropertiesTableInExecutionModeTest {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(SRC);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
-        Map<String, IOpenField> fields = compiledOpenClass.getOpenClass().getFields();
+        Collection<IOpenField> fields = compiledOpenClass.getOpenClass().getFields();
         // properties table with name will be represented as field
-        assertTrue(fields.containsKey("categoryProp"));
+        assertTrue(fields.stream().anyMatch(e -> "categoryProp".equals(e.getName())));
         // properties table without name will not be represented as field
         IRuntimeEnv env = engineFactory.getOpenL().getVm().getRuntimeEnv();
-        for (Entry<String, IOpenField> field : fields.entrySet()) {
-            if (field.getValue() instanceof PropertiesOpenField) {
-                ITableProperties properties = (ITableProperties) field.getValue()
+        for (IOpenField field : fields) {
+            if (field instanceof PropertiesOpenField) {
+                ITableProperties properties = (ITableProperties) field
                     .get(compiledOpenClass.getOpenClass().newInstance(env), env);
                 String scope = properties.getScope();
                 assertFalse(InheritanceLevel.MODULE.getDisplayName().equalsIgnoreCase(scope));

@@ -405,7 +405,7 @@ public final class DecisionTableHelper {
             return false;
         } else {
             int count = 0;
-            for (IOpenField field : compoundType.getFields().values()) {
+            for (IOpenField field : compoundType.getFields()) {
                 if (!field.isConst() && !field.isStatic() && field.isWritable()) {
                     count++;
                 }
@@ -419,7 +419,7 @@ public final class DecisionTableHelper {
             return false;
         }
         int count = 0;
-        for (IOpenField field : type.getFields().values()) {
+        for (IOpenField field : type.getFields()) {
             if (!field.isConst() && !field.isStatic() && field.isReadable()) {
                 count++;
             }
