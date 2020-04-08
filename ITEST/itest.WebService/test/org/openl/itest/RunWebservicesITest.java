@@ -169,4 +169,11 @@ public class RunWebservicesITest {
         client.get("/REST/EPBDS-9619/EPBDS-9619/swagger.json", "/EPBDS-9619/EPBDS-9619_swagger.resp.json");
     }
 
+    @Test
+    public void EPBDS_9622() {
+        client.get("/REST/v1/EPBDS-9622/doSomething", "/EPBDS-9622/EPBDS-9622_v1.resp.txt");
+        client.get("/REST/v2/EPBDS-9622/doSomething", "/EPBDS-9622/EPBDS-9622_v2.resp.txt");
+        client.get("/REST/v3/EPBDS-9622/doSomething", "/EPBDS-9622/EPBDS-9622_v3.resp.txt");
+    }
+
 }
