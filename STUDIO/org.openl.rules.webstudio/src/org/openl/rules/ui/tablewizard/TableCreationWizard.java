@@ -158,7 +158,7 @@ public abstract class TableCreationWizard extends BaseWizard {
     protected void initWorkbooks() {
         workbooks = new HashMap<>();
 
-        WorkbookSyntaxNode[] syntaxNodes = WizardUtils.getWorkbookNodes();
+        WorkbookSyntaxNode[] syntaxNodes = WebStudioUtils.getProjectModel().getWorkbookNodes();
         for (WorkbookSyntaxNode node : syntaxNodes) {
             XlsWorkbookSourceCodeModule module = node.getWorkbookSourceCodeModule();
             workbooks.put(module.getDisplayName(), module);
