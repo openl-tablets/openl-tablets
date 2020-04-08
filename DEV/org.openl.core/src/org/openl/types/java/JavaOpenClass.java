@@ -14,16 +14,7 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import org.openl.base.INamedThing;
 import org.openl.gen.JavaInterfaceImplBuilder;
@@ -33,7 +24,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AOpenClass;
-import org.openl.types.impl.ArrayIndex;
 import org.openl.types.impl.ArrayLengthOpenField;
 import org.openl.types.impl.MethodKey;
 import org.openl.util.ClassUtils;
@@ -68,6 +58,8 @@ public class JavaOpenClass extends AOpenClass {
     protected volatile Map<String, IOpenField> fields;
 
     private volatile List<IOpenClass> superClasses;
+
+    private String name;
 
     public JavaOpenClass(Class<?> instanceClass) {
         this(instanceClass, false);
@@ -137,18 +129,6 @@ public class JavaOpenClass extends AOpenClass {
 
     }
 
-    public static Class<?> makeArrayClass(Class<?> c) {
-        return Array.newInstance(c, 0).getClass();
-    }
-
-    public static ArrayIndex makeArrayIndex(IOpenClass arrayType) {
-        return new ArrayIndex(getOpenClass(arrayType.getInstanceClass().getComponentType()));
-    }
-
-    public static boolean isVoid(IOpenClass clazz) {
-        return JavaOpenClass.VOID.equals(clazz);
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof JavaOpenClass)) {
@@ -162,14 +142,14 @@ public class JavaOpenClass extends AOpenClass {
         if (fields == null) {
             synchronized (this) {
                 if (fields == null) {
-                    fields = initalizeFields();
+                    fields = initializeFields();
                 }
             }
         }
         return fields;
     }
 
-    private Map<String, IOpenField> initalizeFields() {
+    private Map<String, IOpenField> initializeFields() {
         Map<String, IOpenField> fields = new HashMap<>();
         Field[] ff = getInstanceClass().getDeclaredFields();
 
@@ -230,8 +210,6 @@ public class JavaOpenClass extends AOpenClass {
         return instanceClass;
     }
 
-    String name;
-
     @Override
     public String getName() {
         if (name == null) {
@@ -248,10 +226,6 @@ public class JavaOpenClass extends AOpenClass {
     @Override
     public String getPackageName() {
         return getInstanceClass().getPackage().getName();
-    }
-
-    public String getSimpleName() {
-        return getDisplayName(INamedThing.SHORT);
     }
 
     @Override
