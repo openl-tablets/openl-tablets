@@ -1,8 +1,11 @@
 package org.openl.itest.core;
 
+import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.webapp.WebInfConfiguration;
 
 /**
  * Simple wrapper for Jetty Server
@@ -18,6 +21,10 @@ public class JettyServer {
         this.server.setStopAtShutdown(true);
         WebAppContext webAppContext = new WebAppContext();
         webAppContext.setResourceBase(explodedWar);
+        webAppContext.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", ".*/classes/.*");
+        webAppContext
+            .setConfigurations(new Configuration[] { new AnnotationConfiguration(), new WebInfConfiguration() });
+
         if (sharedClassloader) {
             webAppContext.setClassLoader(JettyServer.class.getClassLoader());
         }

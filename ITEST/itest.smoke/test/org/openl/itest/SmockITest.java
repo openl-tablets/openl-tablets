@@ -23,6 +23,11 @@ public class SmockITest {
     }
 
     @Test
+    public void testIndex() {
+        client.get("/");
+    }
+
+    @Test
     public void testPingRest() {
         client.get("/REST/simple/ping", "/simple_ping.resp.txt");
     }
