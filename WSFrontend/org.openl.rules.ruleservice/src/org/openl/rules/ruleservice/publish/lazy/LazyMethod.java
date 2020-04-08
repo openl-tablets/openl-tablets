@@ -13,7 +13,6 @@ import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.types.IUriMember;
 import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.OpenClassHelper;
 import org.openl.vm.IRuntimeEnv;
@@ -41,7 +40,7 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
         this.argTypes = argTypes;
     }
 
-    public static final LazyMethod getLazyMethod(final XlsLazyModuleOpenClass xlsLazyModuleOpenClass,
+    public static LazyMethod getLazyMethod(final XlsLazyModuleOpenClass xlsLazyModuleOpenClass,
             final DeploymentDescription deployment,
             final Module module,
             Class<?>[] argTypes,
@@ -50,7 +49,7 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
             ClassLoader classLoader,
             boolean executionMode,
             Map<String, Object> externalParameters) {
-        LazyMethod lazyMethod = null;
+        LazyMethod lazyMethod;
 
         if (original instanceof ITablePropertiesMethod) {
             lazyMethod = new TablePropertiesLazyMethod(original
@@ -107,8 +106,8 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
         }
         try {
             CompiledOpenClass compiledOpenClass = getCompiledOpenClassWithThrowErrorExceptionsIfAny();
-            IOpenClass[] argOpenTypes = OpenClassHelper.getOpenClasses(compiledOpenClass.getOpenClass(), argTypes);
-            IOpenMethod openMethod = compiledOpenClass.getOpenClass().getMethod(methodName, argOpenTypes);
+            IOpenMethod openMethod = OpenClassHelper
+                .findRulesMethod(compiledOpenClass.getOpenClass(), methodName, argTypes);
             setCachedMember(openMethod);
             return openMethod;
         } catch (Exception e) {
