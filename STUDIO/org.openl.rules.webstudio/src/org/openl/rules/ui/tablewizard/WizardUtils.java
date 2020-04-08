@@ -9,8 +9,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import javax.faces.model.SelectItem;
-
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.classes.ClassFinder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -162,20 +160,5 @@ public final class WizardUtils {
         // have any other field.
         return !openType.getFields().isEmpty();
 
-    }
-
-    /**
-     * Creates an array of <code>SelectItem</code>s from collection of <code>String</code>s.
-     *
-     * @param values an array of <code>SelectItem</code> values.
-     * @return array of JSF objects representing items.
-     */
-    public static SelectItem[] createSelectItems(Collection<String> values) {
-        SelectItem[] items = new SelectItem[values.size()];
-        int index = 0;
-        for (String value : values) {
-            items[index++] = new SelectItem(value);
-        }
-        return items;
     }
 }

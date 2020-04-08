@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.application.FacesMessage;
-import javax.faces.model.SelectItem;
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -161,7 +160,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
      * @param typeName type of a table
      * @return possible foreign key table array
      */
-    public SelectItem[] getForeignKeyTables(String typeName) {
+    public List<String> getForeignKeyTables(String typeName) {
         List<String> tableNames = new ArrayList<>();
 
         IOpenClass to = getUserDefinedType(typeName);
@@ -184,7 +183,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
         Collections.sort(tableNames);
 
-        return WizardUtils.createSelectItems(tableNames);
+        return tableNames;
     }
 
     /**
@@ -194,7 +193,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
      * @return true if there is found a foreign key table variants for type "typeName"
      */
     public boolean hasForeignKeyTables(String typeName) {
-        return getForeignKeyTables(typeName).length > 0;
+        return getForeignKeyTables(typeName).size() > 0;
     }
 
     /**
@@ -203,7 +202,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
      * @param typeName type of a table
      * @return columns of a table
      */
-    public SelectItem[] getTableColumns(String typeName) {
+    public List<String> getTableColumns(String typeName) {
         List<String> columns = new ArrayList<>();
         columns.add("");
 
@@ -216,7 +215,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
             }
         }
 
-        return WizardUtils.createSelectItems(columns);
+        return columns;
     }
 
     protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule) throws CreateTableException {
