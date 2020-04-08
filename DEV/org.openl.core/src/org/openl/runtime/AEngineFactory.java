@@ -77,8 +77,7 @@ public abstract class AEngineFactory {
             // Try to find openClass's method with appropriate name and
             // parameter types.
             //
-            IOpenClass[] params = OpenClassHelper.getOpenClasses(moduleOpenClass, interfaceMethod.getParameterTypes());
-            IOpenMethod rulesMethod = moduleOpenClass.getMethod(interfaceMethodName, params);
+            IOpenMethod rulesMethod = OpenClassHelper.findRulesMethod(moduleOpenClass, interfaceMethod);
 
             if (rulesMethod != null) {
                 validateReturnType(rulesMethod, interfaceMethod);
@@ -107,8 +106,7 @@ public abstract class AEngineFactory {
                         // Cast method return type to appropriate OpenClass
                         // type.
                         //
-                        IOpenClass methodReturnType = OpenClassHelper.getOpenClass(moduleOpenClass,
-                            interfaceMethod.getReturnType());
+                        IOpenClass methodReturnType = moduleOpenClass.getField(fieldName).getType();
 
                         if (methodReturnType.isAssignableFrom(rulesField.getType())) {
                             // If openClass's field type is equal to method
