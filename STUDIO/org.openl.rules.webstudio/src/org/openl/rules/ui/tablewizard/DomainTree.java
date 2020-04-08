@@ -12,7 +12,13 @@ import static org.openl.types.java.JavaOpenClass.STRING;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.ClassUtils;
 import org.openl.base.INamedThing;
@@ -151,69 +157,12 @@ public class DomainTree {
         }
     }
 
-    /**
-     * Flat list of class names.
-     *
-     * @return sorted collection of the domain tree
-     */
     public Collection<IOpenClass> getAllOpenClasses() {
-        Collection<IOpenClass> unsortedClasses = treeElements.values();
-        List<IOpenClass> sortedClasses = new ArrayList<>(unsortedClasses);
-        sortedClasses.sort(Comparator.comparing(s -> s.getDisplayName(INamedThing.SHORT)));
-        return sortedClasses;
+        return treeElements.values();
     }
 
     public Collection<String> getAllClasses() {
         return treeElements.keySet();
-    }
-
-    /**
-     * Returns properties of a given class.
-     *
-     * @param typename class to get properties for.
-     * @return collection of property names or <code>null</code> if typename is unknown.
-     */
-    public Collection<String> getClassProperties(String typename) {
-        IOpenClass openClass = treeElements.get(typename);
-        if (openClass == null) {
-            return null;
-        }
-
-        Collection<String> result = new ArrayList<>();
-        Map<String, IOpenField> fields = openClass.getFields();
-        for (IOpenField field : fields.values()) {
-            if (!field.isStatic() && !field.getType().isAbstract()) {
-                result.add(field.getName());
-            }
-        }
-        return result;
-    }
-
-    public String getTypename(DomainTreeContext context, String path) {
-        if (path == null) {
-            return null;
-        }
-        String[] parts = path.split("\\.");
-        if (parts.length == 0) {
-            return null;
-        }
-        String rootClassname = context.getObjectType(parts[0]);
-        if (rootClassname == null) {
-            return null;
-        }
-        IOpenClass openClass = treeElements.get(rootClassname);
-        if (openClass == null) {
-            return null;
-        }
-
-        for (int i = 1; i < parts.length; ++i) {
-            IOpenField field = openClass.getField(parts[i]);
-            if (field == null) {
-                return null;
-            }
-            openClass = field.getType();
-        }
-        return openClass.getDisplayName(INamedThing.SHORT);
     }
 
 }
