@@ -103,7 +103,7 @@ public class TaskSchedulerTest {
         }).when(command1).run();
 
         scheduler.schedule(command1, 1, TimeUnit.NANOSECONDS);
-        List<Throwable> errors = scheduler.await(10, TimeUnit.MILLISECONDS);
+        List<Throwable> errors = scheduler.await(1, TimeUnit.SECONDS);
         threadCaptor.await(5, TimeUnit.SECONDS);
 
         assertEquals(1, errors.size());

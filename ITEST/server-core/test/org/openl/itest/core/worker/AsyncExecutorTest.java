@@ -3,10 +3,7 @@ package org.openl.itest.core.worker;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -76,7 +73,7 @@ public class AsyncExecutorTest {
         AsyncExecutor executor = new AsyncExecutor(taskMock);
         executor.start();
         waitToStart.await(1, TimeUnit.SECONDS);
-        List<Throwable> errors = executor.stop(1, TimeUnit.MILLISECONDS);
+        List<Throwable> errors = executor.stop(1, TimeUnit.SECONDS);
 
         assertEquals(1, errors.size());
         assertTrue(errors.stream().allMatch(InterruptedException.class::isInstance));
