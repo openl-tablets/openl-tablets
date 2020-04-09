@@ -88,12 +88,14 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
-        scheduledPool = Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = Executors.defaultThreadFactory().newThread(r);
-            t.setDaemon(true);
-            return t;
-        });
-        scheduled = scheduledPool.scheduleWithFixedDelay(this, 1, PERIOD, TimeUnit.SECONDS);
+        if (projectVersionCacheDB != null && projectVersionCacheManager != null && designRepository != null) {
+            scheduledPool = Executors.newSingleThreadScheduledExecutor(r -> {
+                Thread t = Executors.defaultThreadFactory().newThread(r);
+                t.setDaemon(true);
+                return t;
+            });
+            scheduled = scheduledPool.scheduleWithFixedDelay(this, 1, PERIOD, TimeUnit.SECONDS);
+        }
     }
 
     public synchronized void release() {

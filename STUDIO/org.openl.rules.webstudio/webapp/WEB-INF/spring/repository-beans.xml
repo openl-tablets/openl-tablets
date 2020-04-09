@@ -54,7 +54,7 @@
         <property name="designRepository" ref="designTimeRepository"/>
     </bean>
 
-    <bean id="ProjectVersionCacheMonitor" class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheMonitor">
+    <bean id="ProjectVersionCacheMonitor" class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheMonitor" destroy-method="release">
         <property name="projectVersionCacheDB" ref="projectVersionCacheDB"/>
         <property name="projectVersionCacheManager" ref="projectVersionCacheManager"/>
         <property name="designRepository" ref="designTimeRepository"/>
