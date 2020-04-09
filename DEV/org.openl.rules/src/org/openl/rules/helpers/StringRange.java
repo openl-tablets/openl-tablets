@@ -80,10 +80,9 @@ public class StringRange {
             return true;
         } else if (lowerComparison == 0 && lowerBoundType == BoundType.INCLUDING) {
             return true;
-        } else if (upperComparison == 0 && upperBoundType == BoundType.INCLUDING) {
-            return true;
+        } else {
+            return upperComparison == 0 && upperBoundType == BoundType.INCLUDING;
         }
-        return false;
     }
 
     public boolean contains(CharSequence s) {

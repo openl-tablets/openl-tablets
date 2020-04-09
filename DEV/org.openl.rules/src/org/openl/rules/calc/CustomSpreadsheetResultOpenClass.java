@@ -73,7 +73,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
     private ILogicalTable logicalTable;
 
-    private byte[] beanClassByteCode;
+    private volatile byte[] beanClassByteCode;
     private volatile String beanClassName;
     volatile Map<String, List<IOpenField>> beanFieldsMap;
     volatile Map<String, String> xmlNamesMap;
