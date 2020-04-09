@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -306,11 +305,11 @@ public class AProjectFolder extends AProjectArtefact {
     protected Map<String, AProjectArtefact> createInternalArtefacts() {
         HashMap<String, AProjectArtefact> internalArtefacts = new HashMap<>();
         Collection<FileData> fileDatas;
+        String folderPath = getFolderPath();
+        if (!folderPath.isEmpty() && !folderPath.endsWith("/")) {
+            folderPath += "/";
+        }
         try {
-            String folderPath = getFolderPath();
-            if (!folderPath.isEmpty() && !folderPath.endsWith("/")) {
-                folderPath += "/";
-            }
             if (isHistoric()) {
                 if (getRepository().supports().folders()) {
                     fileDatas = ((FolderRepository) getRepository()).listFiles(folderPath, getFileData().getVersion());
@@ -321,15 +320,14 @@ public class AProjectFolder extends AProjectArtefact {
             } else {
                 fileDatas = getRepository().list(folderPath);
             }
+            for (FileData fileData : fileDatas) {
+                if (!fileData.getName().equals(folderPath) && !fileData.isDeleted()) {
+                    String artefactName = fileData.getName().substring(folderPath.length());
+                    internalArtefacts.put(artefactName, new AProjectResource(getProject(), getRepository(), fileData));
+                }
+            }
         } catch (IOException ex) {
             log.error(ex.getMessage(), ex);
-            fileDatas = Collections.emptyList();
-        }
-        for (FileData fileData : fileDatas) {
-            if (!fileData.getName().equals(folderPath) && !fileData.isDeleted()) {
-                String artefactName = fileData.getName().substring(folderPath.length() + 1);
-                internalArtefacts.put(artefactName, new AProjectResource(getProject(), getRepository(), fileData));
-            }
         }
         return internalArtefacts;
     }
