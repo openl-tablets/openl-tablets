@@ -16,7 +16,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -62,7 +61,6 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.tablewizard.WizardUtils;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
@@ -1991,7 +1989,7 @@ public class RepositoryTreeController {
         }
     }
 
-    public List<SelectItem> getProjectBranches() {
+    public List<String> getProjectBranches() {
         try {
             UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
             if (selectedProject == null) {
@@ -2007,7 +2005,7 @@ public class RepositoryTreeController {
                 branches.sort(String.CASE_INSENSITIVE_ORDER);
             }
 
-            return Arrays.asList(WizardUtils.createSelectItems(branches));
+            return branches;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return Collections.emptyList();

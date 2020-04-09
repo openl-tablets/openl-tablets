@@ -1,11 +1,9 @@
 package org.openl.rules.ui.tablewizard;
 
-import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -17,7 +15,6 @@ import javax.faces.validator.ValidatorException;
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotBlank;
-import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -29,8 +26,6 @@ import org.openl.rules.table.xls.builder.SimpleRulesTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.ui.tablewizard.util.CellStyleManager;
 import org.openl.rules.ui.tablewizard.util.JSONHolder;
-import org.openl.types.IOpenClass;
-import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.StringUtils;
 import org.richfaces.json.JSONException;
 import org.slf4j.Logger;
@@ -45,7 +40,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     @NotBlank(message = "Cannot be empty")
     @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
     private String tableName;
-    private SelectItem[] domainTypes;
+    private List<String> domainTypes;
     private String jsonTable;
     private JSONHolder table;
     private String restoreTable;
@@ -65,41 +60,20 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     protected void onStart() {
         reset();
 
-        initDomainType();
+        domainTypes = new ArrayList<>(WizardUtils.predefinedTypes());
+        domainTypes.add("");
+        domainTypes.addAll(WizardUtils.declaredDatatypes());
+        domainTypes.add("");
+        domainTypes.addAll(WizardUtils.declaredAliases());
+        domainTypes.add("");
+        domainTypes.addAll(WizardUtils.importedClasses());
+
+        this.typesList = domainTypes.stream()
+            .filter(x -> !x.isEmpty())
+            .map(DomainTypeHolder::new)
+            .collect(Collectors.toList());
+
         initWorkbooks();
-    }
-
-    private void initDomainType() {
-        List<IOpenClass> types = new ArrayList<>(WizardUtils.getProjectOpenClass().getTypes());
-        Collection<IOpenClass> importedClasses = WizardUtils.getImportedClasses();
-        types.addAll(importedClasses);
-
-        List<String> datatypes = new ArrayList<>(types.size());
-        datatypes.add("");
-        for (IOpenClass datatype : types) {
-            if (Modifier.isFinal(datatype.getInstanceClass().getModifiers())) {
-                // cannot inherit from final class
-                continue;
-            }
-
-            if (!(datatype instanceof DomainOpenClass)) {
-                datatypes.add(datatype.getDisplayName(INamedThing.SHORT));
-            }
-        }
-
-        Collection<String> allClasses = DomainTree.buildTree(WizardUtils.getProjectOpenClass()).getAllClasses();
-        for (IOpenClass type : importedClasses) {
-            allClasses.add(type.getDisplayName(INamedThing.SHORT));
-        }
-
-        domainTypes = WizardUtils.createSelectItems(allClasses);
-
-        Collection<String> classTypes = DomainTree.buildTree(WizardUtils.getProjectOpenClass()).getAllClasses();
-        this.typesList = new ArrayList<>();
-
-        for (String oc : classTypes) {
-            typesList.add(new DomainTypeHolder(oc));
-        }
     }
 
     public int getColumnSize() {
@@ -235,12 +209,8 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         this.tableName = tableName;
     }
 
-    public SelectItem[] getDomainTypes() {
+    public List<String> getDomainTypes() {
         return domainTypes;
-    }
-
-    public void setDomainTypes(SelectItem[] domainTypes) {
-        this.domainTypes = domainTypes;
     }
 
     public String getReturnValueType() {

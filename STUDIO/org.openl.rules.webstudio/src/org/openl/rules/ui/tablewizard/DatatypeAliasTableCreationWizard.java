@@ -7,7 +7,6 @@ import java.util.Map;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
@@ -34,7 +33,7 @@ public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
     @Valid
     private List<AliasValue> values = new ArrayList<>();
 
-    private final SelectItem[] domainTypes = WizardUtils.createSelectItems(DomainTree.getPredefinedTypes());
+    private final List<String> domainTypes = WizardUtils.predefinedTypes();
 
     public String getTechnicalName() {
         return technicalName;
@@ -60,7 +59,7 @@ public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
         this.values = values;
     }
 
-    public SelectItem[] getDomainTypes() {
+    public List<String> getDomainTypes() {
         return domainTypes;
     }
 

@@ -1,15 +1,13 @@
 package org.openl.rules.ui.tablewizard;
 
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-
-import javax.faces.model.SelectItem;
-
-import javax.faces.model.SelectItem;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.classes.ClassFinder;
@@ -29,6 +27,44 @@ import org.slf4j.LoggerFactory;
 public final class WizardUtils {
 
     private WizardUtils() {
+    }
+
+    private static final List<String> predefinedTypes;
+    static {
+        ArrayList<String> types = new ArrayList<>();
+
+        // The most popular
+        types.add("String");
+        types.add("Double");
+        types.add("Integer");
+        types.add("Boolean");
+        types.add("Date");
+
+        types.add("BigInteger");
+        types.add("BigDecimal");
+
+        types.add("IntRange");
+        types.add("DoubleRange");
+
+        types.add("Long");
+        types.add("Float");
+        types.add("Short");
+        types.add("Character");
+
+        // Less popular
+        types.add("byte");
+        types.add("short");
+        types.add("int");
+        types.add("long");
+        types.add("float");
+        types.add("double");
+        types.add("boolean");
+        types.add("char");
+
+        predefinedTypes = Collections.unmodifiableList(types);
+    }
+    static List<String> predefinedTypes() {
+        return predefinedTypes;
     }
 
     static List<String> declaredDatatypes() {
@@ -51,8 +87,8 @@ public final class WizardUtils {
 
     static List<String> importedClasses() {
         return getImportedClasses().stream()
-            .filter(t -> !(t instanceof DomainOpenClass))
-            .map(IOpenClass::getName)
+            .filter(t -> t instanceof JavaOpenClass)
+            .map(v -> v.getDisplayName(INamedThing.SHORT))
             .sorted()
             .collect(Collectors.toList());
     }
@@ -124,20 +160,5 @@ public final class WizardUtils {
         // have any other field.
         return !openType.getFields().isEmpty();
 
-    }
-
-    /**
-     * Creates an array of <code>SelectItem</code>s from collection of <code>String</code>s.
-     *
-     * @param values an array of <code>SelectItem</code> values.
-     * @return array of JSF objects representing items.
-     */
-    public static SelectItem[] createSelectItems(Collection<String> values) {
-        SelectItem[] items = new SelectItem[values.size()];
-        int index = 0;
-        for (String value : values) {
-            items[index++] = new SelectItem(value);
-        }
-        return items;
     }
 }
