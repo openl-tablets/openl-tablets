@@ -1,18 +1,18 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
-import org.openl.message.OpenLMessage;
-import org.openl.message.Severity;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.StringUtils;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-@ManagedBean
-@RequestScoped
+import org.openl.message.OpenLMessage;
+import org.openl.message.Severity;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.RequestScope;
+
+@Controller
+@RequestScope
 public class ShowMessageBean {
 
     public List<OpenLMessage> getMessage() {
@@ -20,7 +20,7 @@ public class ShowMessageBean {
         String value = WebStudioUtils.getRequestParameter("summary");
         final int openLMessageId;
         try {
-            openLMessageId = Integer.valueOf(value);
+            openLMessageId = Integer.parseInt(value);
         } catch (Exception ignored) {
             return Collections.emptyList();
         }

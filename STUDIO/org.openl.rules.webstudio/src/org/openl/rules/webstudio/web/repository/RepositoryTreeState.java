@@ -12,9 +12,6 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -42,20 +39,23 @@ import org.richfaces.event.TreeSelectionChangeEvent;
 import org.richfaces.model.SequenceRowKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * Used for holding information about rulesRepository tree.
  *
  * @author Andrey Naumenko
  */
-@ManagedBean
-@SessionScoped
+@Controller
+@SessionScope
 public class RepositoryTreeState implements DesignTimeRepositoryListener {
     private static final String ROOT_TYPE = "root";
 
-    @ManagedProperty(value = "#{repositorySelectNodeStateHolder}")
+    @Autowired
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
-    @ManagedProperty("#{projectDescriptorArtefactResolver}")
+    @Autowired
     private ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
     private static final String DEFAULT_TAB = "Properties";

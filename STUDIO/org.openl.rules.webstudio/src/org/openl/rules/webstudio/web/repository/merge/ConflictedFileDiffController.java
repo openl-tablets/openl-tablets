@@ -6,9 +6,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import javax.annotation.PreDestroy;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.validation.ValidationException;
 
@@ -27,15 +24,20 @@ import org.richfaces.function.RichFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.SessionScope;
 
-@ManagedBean
-@SessionScoped
+@Controller
+@SessionScope
 public class ConflictedFileDiffController extends ExcelDiffController {
     private final Logger log = LoggerFactory.getLogger(ConflictedFileDiffController.class);
 
-    @ManagedProperty(value = "#{workspaceManager}")
-    private MultiUserWorkspaceManager workspaceManager;
+    private final MultiUserWorkspaceManager workspaceManager;
     private String conflictedFile;
+
+    public ConflictedFileDiffController(MultiUserWorkspaceManager workspaceManager) {
+        this.workspaceManager = workspaceManager;
+    }
 
     public void setConflictedFile(String conflictedFile) {
         try {
@@ -131,10 +133,6 @@ public class ConflictedFileDiffController extends ExcelDiffController {
         setDiffTree(null);
         clearTreeSelection();
         super.setShowEqualElements(false);
-    }
-
-    public void setWorkspaceManager(MultiUserWorkspaceManager workspaceManager) {
-        this.workspaceManager = workspaceManager;
     }
 
     public String getDiff() {

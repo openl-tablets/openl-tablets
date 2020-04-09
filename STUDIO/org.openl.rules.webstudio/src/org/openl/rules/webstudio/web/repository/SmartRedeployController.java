@@ -1,17 +1,17 @@
 package org.openl.rules.webstudio.web.repository;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
 import javax.faces.event.AjaxBehaviorEvent;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
+import org.springframework.stereotype.Controller;
 
 /**
  * @author Aleh Bykhavets
  */
-@ManagedBean
-@ViewScoped
+@Controller
+@ViewScope
 public class SmartRedeployController extends AbstractSmartRedeployController {
 
     private boolean loading = true;

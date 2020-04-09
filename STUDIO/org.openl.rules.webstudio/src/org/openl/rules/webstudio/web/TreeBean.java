@@ -3,9 +3,6 @@ package org.openl.rules.webstudio.web;
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.RUN;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-
 import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
@@ -22,12 +19,14 @@ import org.openl.util.CollectionUtils;
 import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * Request scope managed bean providing logic for tree page of OpenL Studio.
  */
-@ManagedBean
-@SessionScoped
+@Controller
+@SessionScope
 public class TreeBean {
 
     private boolean hideUtilityTables = true;
@@ -41,7 +40,7 @@ public class TreeBean {
         return hideUtilityTables;
     }
 
-    public void setCurrentView(String currentView) throws Exception {
+    public void setCurrentView(String currentView) {
         WebStudio studio = WebStudioUtils.getWebStudio();
         studio.setTreeView(currentView);
     }

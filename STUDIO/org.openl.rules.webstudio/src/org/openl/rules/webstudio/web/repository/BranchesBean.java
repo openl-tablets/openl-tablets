@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
 import org.openl.rules.project.abstraction.RulesProject;
@@ -22,9 +20,11 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.SessionScope;
 
-@ManagedBean
-@SessionScoped
+@Controller
+@SessionScope
 public class BranchesBean {
     private final Logger log = LoggerFactory.getLogger(BranchesBean.class);
 
@@ -306,7 +306,7 @@ public class BranchesBean {
     }
 
     private UserWorkspace getUserWorkspace() throws WorkspaceException {
-        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(WebStudioUtils.getSession());
+        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
         return rulesUserSession.getUserWorkspace();
     }
 }

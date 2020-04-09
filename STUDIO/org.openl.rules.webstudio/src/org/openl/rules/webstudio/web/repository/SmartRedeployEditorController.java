@@ -1,16 +1,15 @@
 package org.openl.rules.webstudio.web.repository;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * @author Aleh Bykhavets
  */
-@ManagedBean
-@SessionScoped
+@Controller
+@SessionScope
 public class SmartRedeployEditorController extends AbstractSmartRedeployController {
 
     private boolean loading = true;

@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.install;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -20,9 +21,6 @@ import java.util.Properties;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.UIViewRoot;
@@ -71,12 +69,14 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
+import org.springframework.stereotype.Controller;
 import org.springframework.util.ResourceUtils;
+import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
-@ManagedBean
-@SessionScoped
-public class InstallWizard {
+@Controller
+@SessionScope
+public class InstallWizard implements Serializable {
 
     private static final String MULTI_USER_MODE = "multi";
     private static final String AD_USER_MODE = "ad";
@@ -127,15 +127,19 @@ public class InstallWizard {
     // Reuse existing controllers
     private ConnectionProductionRepoController connectionProductionRepoController;
 
-    @ManagedProperty(value = "#{groupManagementService}")
-    private GroupManagementService groupManagementService;
+    private final GroupManagementService groupManagementService;
     private XmlWebApplicationContext dbContext;
     private Boolean allowAccessToNewUsers;
     private String externalAdmins;
 
-    @ManagedProperty(value = "#{environment}")
-    private PropertyResolver propertyResolver;
-    private PropertiesHolder properties;
+    private final PropertyResolver propertyResolver;
+    private final PropertiesHolder properties;
+
+    public InstallWizard(GroupManagementService groupManagementService, PropertyResolver propertyResolver) {
+        this.groupManagementService = groupManagementService;
+        this.propertyResolver = propertyResolver;
+        this.properties = new InMemoryProperties(propertyResolver);
+    }
 
     private static FacesMessage createErrorMessage(String summary) {
         return new FacesMessage(FacesMessage.SEVERITY_ERROR, summary, null);
@@ -1106,14 +1110,5 @@ public class InstallWizard {
             dbContext.close();
             dbContext = null;
         }
-    }
-
-    public void setGroupManagementService(GroupManagementService groupManagementService) {
-        this.groupManagementService = groupManagementService;
-    }
-
-    public void setPropertyResolver(PropertyResolver propertyResolver) {
-        this.propertyResolver = propertyResolver;
-        properties = new InMemoryProperties(propertyResolver);
     }
 }

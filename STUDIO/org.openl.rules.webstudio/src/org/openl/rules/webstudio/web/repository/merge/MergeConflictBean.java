@@ -13,9 +13,6 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.annotation.PreDestroy;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -48,14 +45,15 @@ import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.SessionScope;
 
-@ManagedBean
-@SessionScoped
+@Controller
+@SessionScope
 public class MergeConflictBean {
     private final Logger log = LoggerFactory.getLogger(MergeConflictBean.class);
 
-    @ManagedProperty(value = "#{workspaceManager}")
-    private MultiUserWorkspaceManager workspaceManager;
+    private final MultiUserWorkspaceManager workspaceManager;
 
     private Map<String, ConflictResolution> conflictResolutions = new HashMap<>();
     private Map<String, Boolean> existInRepositoryCache = new HashMap<>();
@@ -64,6 +62,10 @@ public class MergeConflictBean {
     private boolean mergeMessageModified;
     private String mergeError;
     private String uploadError;
+
+    public MergeConflictBean(MultiUserWorkspaceManager workspaceManager) {
+        this.workspaceManager = workspaceManager;
+    }
 
     public List<ConflictGroup> getConflictGroups() {
         MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
@@ -579,10 +581,6 @@ public class MergeConflictBean {
         }
 
         return null;
-    }
-
-    public void setWorkspaceManager(MultiUserWorkspaceManager workspaceManager) {
-        this.workspaceManager = workspaceManager;
     }
 
     @PreDestroy

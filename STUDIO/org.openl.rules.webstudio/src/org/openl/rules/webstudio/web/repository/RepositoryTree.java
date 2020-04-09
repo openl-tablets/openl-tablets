@@ -1,25 +1,23 @@
 package org.openl.rules.webstudio.web.repository;
 
-import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Needed to render repository tree and to show error messages if failed to render it.
  */
-@ManagedBean
-@RequestScoped
+@Controller
+@RequestScope
 public class RepositoryTree {
-    @ManagedProperty(value = "#{repositoryTreeState}")
-    private RepositoryTreeState repositoryTreeState;
+    private final RepositoryTreeState repositoryTreeState;
 
-    @PostConstruct
-    public void afterPropertiesSet() {
+    public RepositoryTree(RepositoryTreeState repositoryTreeState) {
+        this.repositoryTreeState = repositoryTreeState;
+
         // Build tree if needed.
         repositoryTreeState.getRoot();
 
@@ -28,10 +26,6 @@ public class RepositoryTree {
         if (errorMessage != null) {
             WebStudioUtils.addErrorMessage(errorMessage);
         }
-    }
-
-    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
-        this.repositoryTreeState = repositoryTreeState;
     }
 
     public TreeRepository getRoot() {

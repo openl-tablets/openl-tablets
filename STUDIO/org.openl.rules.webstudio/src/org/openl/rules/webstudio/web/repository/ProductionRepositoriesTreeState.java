@@ -5,10 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.repository.api.Repository;
@@ -24,21 +20,24 @@ import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.SessionScope;
 
-@ManagedBean
-@SessionScoped
+@Controller
+@SessionScope
 public class ProductionRepositoriesTreeState {
-    @ManagedProperty(value = "#{repositorySelectNodeStateHolder}")
+    @Autowired
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
 
-    @ManagedProperty(value = "#{deploymentManager}")
+    @Autowired
     private DeploymentManager deploymentManager;
 
-    @ManagedProperty(value = "#{productionRepositoryFactoryProxy}")
+    @Autowired
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
-    @ManagedProperty(value = "#{environment}")
+    @Autowired
     private PropertyResolver propertyResolver;
 
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoriesTreeState.class);

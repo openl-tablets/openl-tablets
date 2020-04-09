@@ -7,11 +7,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
-import javax.servlet.http.HttpSession;
-
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.resolving.ProjectResolver;
@@ -25,9 +20,12 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.RequestScope;
 
-@ManagedBean(name = "localUpload")
-@RequestScoped
+@Controller("localUpload")
+@RequestScope
 public class LocalUploadController {
     public static class UploadBean {
         private String projectName;
@@ -63,8 +61,11 @@ public class LocalUploadController {
 
     private String createProjectCommentTemplate;
 
-    @ManagedProperty(value = "#{designRepositoryComments}")
-    private Comments designRepoComments;
+    private final Comments designRepoComments;
+
+    public LocalUploadController(@Qualifier("designRepositoryComments") Comments designRepoComments) {
+        this.designRepoComments = designRepoComments;
+    }
 
     private void createProject(File baseFolder,
             RulesUserSession rulesUserSession,
@@ -79,7 +80,7 @@ public class LocalUploadController {
     public List<UploadBean> getProjects4Upload() {
         if (uploadBeans == null) {
             uploadBeans = new ArrayList<>();
-            RulesUserSession userRules = getRules();
+            RulesUserSession userRules = WebStudioUtils.getRulesUserSession();
             WebStudio webStudio = WebStudioUtils.getWebStudio();
             if (webStudio != null && userRules != null) {
                 DesignTimeRepository dtr;
@@ -138,14 +139,9 @@ public class LocalUploadController {
         }
     };
 
-    private RulesUserSession getRules() {
-        HttpSession session = WebStudioUtils.getSession();
-        return WebStudioUtils.getRulesUserSession(session);
-    }
-
     public String upload() {
         String workspacePath = WebStudioUtils.getWebStudio().getWorkspacePath();
-        RulesUserSession rulesUserSession = getRules();
+        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
 
         List<UploadBean> beans = uploadBeans;
         uploadBeans = null; // force re-read.
@@ -182,10 +178,6 @@ public class LocalUploadController {
         }
 
         return null;
-    }
-
-    public void setDesignRepoComments(Comments designRepoComments) {
-        this.designRepoComments = designRepoComments;
     }
 
     public String getCreateProjectCommentTemplate() {

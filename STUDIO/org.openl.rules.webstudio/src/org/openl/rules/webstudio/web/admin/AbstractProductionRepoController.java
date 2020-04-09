@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedProperty;
 
 import org.openl.config.ConfigNames;
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.util.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Pavel Tarasevich
@@ -21,10 +21,10 @@ public abstract class AbstractProductionRepoController {
     private boolean checked = false;
     private String errorMessage = "";
 
-    @ManagedProperty(value = "#{systemSettingsBean}")
+    @Autowired
     private SystemSettingsBean systemSettingsBean;
 
-    @ManagedProperty(value = "#{productionRepositoryFactoryProxy}")
+    @Autowired
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
     private PropertiesHolder properties;

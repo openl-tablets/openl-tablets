@@ -82,7 +82,7 @@
         <org.springframework.version>5.2.4.RELEASE</org.springframework.version>
         <org.springsecurity.version>5.2.2.RELEASE</org.springsecurity.version>
         <org.hibernate.version>5.2.18.Final</org.hibernate.version>
-        <org.mojarra.version>2.1.19</org.mojarra.version>
+        <org.mojarra.version>2.3.9</org.mojarra.version>
         <asm.version>7.2</asm.version>
         <cglib.version>3.3.0</cglib.version>
         <kafka.version>2.4.0</kafka.version>
@@ -90,7 +90,7 @@
         <cassandra.driver.version>4.3.1</cassandra.driver.version>
         <cassandra.unit.version>3.11.2.0</cassandra.unit.version>
         <cassandra.unit.driver.version>3.8.0</cassandra.unit.driver.version>
-        <org.richfaces.version>4.0.0.Final</org.richfaces.version>
+        <org.richfaces.version>4.5.17.Final</org.richfaces.version>
         <org.apache.cxf.version>3.3.5</org.apache.cxf.version>
         <org.slf4j.version>1.7.30</org.slf4j.version>
         <org.apache.poi.version>4.1.2</org.apache.poi.version>
@@ -852,15 +852,15 @@
                 <artifactId>javax.faces</artifactId>
                 <version>${org.mojarra.version}</version>
             </dependency>
+            <dependency>
+                <groupId>javax.enterprise</groupId>
+                <artifactId>cdi-api</artifactId>
+                <version>2.0</version>
+            </dependency>
             <!-- RichFaces -->
             <dependency>
-                <groupId>org.richfaces.core</groupId>
-                <artifactId>richfaces-core-impl</artifactId>
-                <version>${org.richfaces.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.richfaces.ui</groupId>
-                <artifactId>richfaces-components-ui</artifactId>
+                <groupId>org.richfaces</groupId>
+                <artifactId>richfaces</artifactId>
                 <version>${org.richfaces.version}</version>
             </dependency>
             <!-- Servlets -->

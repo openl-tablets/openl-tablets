@@ -8,6 +8,16 @@
     <bean id="versionProperties" class="org.openl.info.OpenLVersion" />
     <bean class="org.openl.rules.webstudio.web.Props"/>
 
+    <bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
+        <property name="scopes">
+            <map>
+                <entry key="view">
+                    <bean class="org.openl.rules.webstudio.web.jsf.ViewScope"/>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
     <!-- Either webstudio-true.xml or webstudio-false.xml. -->
     <import resource="webstudio-${webstudio.configured}.xml" />
 

@@ -5,10 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.ToLongFunction;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
@@ -18,19 +14,20 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.SessionScope;
 
-@ManagedBean
-@SessionScoped
+@Controller
+@SessionScope
 public class BenchmarkBean {
 
-    @ManagedProperty("#{runTestHelper}")
-    private RunTestHelper runTestHelper;
+    private final RunTestHelper runTestHelper;
 
     private List<BenchmarkInfoView> benchmarks = new ArrayList<>();
     private List<BenchmarkInfoView> comparedBenchmarks = Collections.emptyList();
     private List<BenchmarkInfoView> benchmarkOrders;
 
-    public void setRunTestHelper(RunTestHelper runTestHelper) {
+    public BenchmarkBean(RunTestHelper runTestHelper) {
         this.runTestHelper = runTestHelper;
     }
 

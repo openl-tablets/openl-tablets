@@ -10,8 +10,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
 import org.openl.base.INamedThing;
@@ -29,6 +27,7 @@ import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.tablewizard.DomainTree;
 import org.openl.rules.ui.tablewizard.WizardUtils;
+import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.types.IAggregateInfo;
@@ -41,12 +40,13 @@ import org.richfaces.component.UITree;
 import org.richfaces.model.SequenceRowKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@ManagedBean
-@ViewScoped
+@Controller
+@ViewScope
 public class InputArgsBean {
     private final Logger log = LoggerFactory.getLogger(InputArgsBean.class);
 

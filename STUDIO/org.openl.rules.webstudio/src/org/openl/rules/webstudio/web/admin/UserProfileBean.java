@@ -6,9 +6,6 @@ import java.util.Collections;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
@@ -23,12 +20,15 @@ import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.RequestScope;
 
-@ManagedBean
-@RequestScoped
+@Controller
+@RequestScope
 public class UserProfileBean extends UsersBean {
     public static final String VALIDATION_MAX = "Must be less than 25";
     private final Logger log = LoggerFactory.getLogger(UserProfileBean.class);
@@ -36,7 +36,7 @@ public class UserProfileBean extends UsersBean {
     private User user;
     private String newPassword;
     private String confirmPassword;
-    @ManagedProperty(value = "#{currentUserInfo}")
+    @Autowired
     private CurrentUserInfo currentUserInfo;
     private org.openl.rules.security.User simpleUser;
     private boolean isPasswordValid = false;

@@ -23,9 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
@@ -69,6 +66,7 @@ import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
+import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
@@ -98,7 +96,10 @@ import org.openl.util.StringUtils;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Controller;
 
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.io.StreamException;
@@ -109,8 +110,8 @@ import com.thoughtworks.xstream.io.StreamException;
  * @author Aleh Bykhavets
  * @author Andrey Naumenko
  */
-@ManagedBean
-@ViewScoped
+@Controller
+@ViewScope
 public class RepositoryTreeController {
 
     private static final String PROJECT_HISTORY_HOME = "project.history.home";
@@ -118,36 +119,38 @@ public class RepositoryTreeController {
 
     private final Logger log = LoggerFactory.getLogger(RepositoryTreeController.class);
 
-    @ManagedProperty(value = "#{repositoryTreeState}")
+    @Autowired
     private RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{rulesUserSession.userWorkspace}")
-    private volatile UserWorkspace userWorkspace;
+    private volatile UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
 
-    @ManagedProperty(value = "#{zipFilter}")
+    @Autowired
+    @Qualifier("zipFilter")
     private PathFilter zipFilter;
 
-    @ManagedProperty("#{projectDescriptorArtefactResolver}")
+    @Autowired
     private ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
-    @ManagedProperty(value = "#{projectDescriptorSerializerFactory}")
+    @Autowired
     private ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory;
 
-    @ManagedProperty(value = "#{zipCharsetDetector}")
+    @Autowired
     private ZipCharsetDetector zipCharsetDetector;
 
-    @ManagedProperty(value = "#{designRepositoryComments}")
+    @Autowired
+    @Qualifier("designRepositoryComments")
     private Comments designRepoComments;
 
-    @ManagedProperty(value = "#{deployConfigRepositoryComments}")
+    @Autowired
+    @Qualifier("deployConfigRepositoryComments")
     private Comments deployConfigRepoComments;
 
-    @ManagedProperty(value = "#{projectVersionCacheManager}")
+    @Autowired
     private ProjectVersionCacheManager projectVersionCacheManager;
 
     private WebStudio studio = WebStudioUtils.getWebStudio(true);
 
-    @ManagedProperty(value = "#{environment}")
+    @Autowired
     private PropertyResolver propertyResolver;
 
     private String projectName;

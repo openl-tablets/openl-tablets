@@ -29,6 +29,10 @@ public abstract class WebStudioUtils {
     private static final String STUDIO_ATTR = "studio";
     private static final String TRACER_NAME = "tracer";
 
+    public static RulesUserSession getRulesUserSession() {
+        return getRulesUserSession(getSession());
+    }
+
     public static RulesUserSession getRulesUserSession(HttpSession session) {
         if (session == null) {
             return null;

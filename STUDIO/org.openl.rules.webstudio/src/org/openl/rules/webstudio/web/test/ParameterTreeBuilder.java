@@ -4,9 +4,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
@@ -30,12 +27,14 @@ import org.openl.util.StringUtils;
 import org.openl.vm.SimpleVM;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * @author DLiauchuk
  */
-@ManagedBean
-@RequestScoped
+@Controller
+@RequestScope
 public class ParameterTreeBuilder {
     public static ParameterDeclarationTreeNode createNode(ParameterRenderConfig config) {
         ParameterDeclarationTreeNode customNode = getOpenLCustomNode(config.getType(),

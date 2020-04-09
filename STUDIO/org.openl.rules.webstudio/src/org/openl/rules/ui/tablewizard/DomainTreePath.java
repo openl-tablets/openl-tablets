@@ -4,25 +4,24 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
-
 import org.openl.util.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * @author Aliaksandr Antonik.
  */
-@ManagedBean
-@RequestScoped
+@Controller
+@RequestScope
 public class DomainTreePath {
 
     private String dotExpression;
 
-    @ManagedProperty(value = "#{tableCreatorWizardManager.wizard.domainTree}")
+    @Value("#{tableCreatorWizardManager.wizard.domainTree}")
     private DomainTree domainTree;
 
-    @ManagedProperty(value = "#{tableCreatorWizardManager.wizard.parameters}")
+    @Value("#{tableCreatorWizardManager.wizard.parameters}")
     private List<TypeNamePair> parameters;
 
     private DomainTreeContext context;

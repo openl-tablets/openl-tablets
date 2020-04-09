@@ -1,19 +1,19 @@
 package org.openl.rules.webstudio.web;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import javax.servlet.ServletRequest;
 
-import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.ui.ColorFilterHolder;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean for tableViewMenu page.
  */
-@ManagedBean
-@RequestScoped
+@Controller
+@RequestScope
 public class TableViewMenuBean {
 
     private ColorFilterHolder filterHolder;

@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.repository.project;
 
+import java.io.IOException;
+
 import org.openl.util.IOUtils;
 
 /**
@@ -10,7 +12,10 @@ import org.openl.util.IOUtils;
 public abstract class TemplatesResolverTest {
     protected void close(ProjectFile[] projectFiles) {
         for (ProjectFile projectFile : projectFiles) {
-            IOUtils.closeQuietly(projectFile.getInput());
+            try {
+                IOUtils.closeQuietly(projectFile.getInput());
+            } catch (IOException ignored) {
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.repository.project;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.openl.util.FileUtils;
@@ -27,7 +28,7 @@ public class ProjectFile {
         return name;
     }
 
-    public InputStream getInput() {
+    public InputStream getInput() throws IOException {
         if (uploadedFile != null) {
             // returns a new instance for each call
             // In some cases the same input stream is used several times. See ZipWalker implementation.

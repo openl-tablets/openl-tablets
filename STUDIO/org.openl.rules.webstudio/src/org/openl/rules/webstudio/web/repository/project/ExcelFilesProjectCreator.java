@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.repository.project;
 
+import java.io.IOException;
+
 import org.openl.rules.webstudio.web.repository.upload.AProjectCreator;
 import org.openl.rules.webstudio.web.repository.upload.RulesProjectBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -54,7 +56,10 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
     @Override
     public void destroy() {
         for (ProjectFile file : files) {
-            IOUtils.closeQuietly(file.getInput());
+            try {
+                IOUtils.closeQuietly(file.getInput());
+            } catch (IOException ignored) {
+            }
         }
     }
 

@@ -10,9 +10,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
@@ -41,23 +38,24 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.jsf.FacesContextUtils;
 
 /**
  * FIXME: Replace SessionScoped with RequestScoped when validation issues in inputNumberSpinner in Repository and Editor
  * tabs will be fixed.
  */
-@ManagedBean
-@SessionScoped
+@Controller
+@SessionScope
 public class CopyBean {
     private final Logger log = LoggerFactory.getLogger(CopyBean.class);
 
-    @ManagedProperty(value = "#{designRepositoryComments}")
-    private Comments designRepoComments;
+    private final Comments designRepoComments;
 
-    @ManagedProperty(value = "#{repositoryTreeState}")
-    private RepositoryTreeState repositoryTreeState;
+    private final RepositoryTreeState repositoryTreeState;
 
     private ApplicationContext applicationContext = FacesContextUtils
         .getWebApplicationContext(FacesContext.getCurrentInstance());
@@ -72,6 +70,12 @@ public class CopyBean {
     private Integer revisionsCount;
     private CommentValidator commentValidator;
     private String errorMessage;
+
+    public CopyBean(@Qualifier("designRepositoryComments") Comments designRepoComments,
+        RepositoryTreeState repositoryTreeState) {
+        this.designRepoComments = designRepoComments;
+        this.repositoryTreeState = repositoryTreeState;
+    }
 
     public boolean getCanCreate() {
         return isGranted(CREATE_PROJECTS);
@@ -269,10 +273,11 @@ public class CopyBean {
         WebStudioUtils.validate(StringUtils.isNotBlank(newProjectName), "Cannot be empty");
         WebStudioUtils.validate(NameChecker.checkName(newProjectName), NameChecker.BAD_PROJECT_NAME_MSG);
 
-        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(WebStudioUtils.getSession());
+        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
         try {
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
-            WebStudioUtils.validate(!userWorkspace.hasProject(newProjectName), "Project with such name already exists.");
+            WebStudioUtils.validate(!userWorkspace.hasProject(newProjectName),
+                "Project with such name already exists.");
         } catch (WorkspaceException e) {
             log.error(e.getMessage(), e);
             WebStudioUtils.throwValidationError("Error during validation.");
@@ -299,9 +304,7 @@ public class CopyBean {
             WebStudioUtils.validate(!designRepository.branchExists(newBranchName),
                 "Branch " + newBranchName + " already exists.");
             for (String branch : designRepository.getBranches(null)) {
-                String message = "Can't create the branch '" + newBranchName + "' because the branch '" + branch + "' already exists.\n"
-                    + "Explanation: for example a branch 'foo/bar'exists. That branch can be considered as a file 'bar' located in the folder 'foo'.\n"
-                    + "So you can't create a branch 'foo/bar/baz' because you can't create the folder 'foo/bar': the file with such name already exists.";
+                String message = "Can't create the branch '" + newBranchName + "' because the branch '" + branch + "' already exists.\n" + "Explanation: for example a branch 'foo/bar'exists. That branch can be considered as a file 'bar' located in the folder 'foo'.\n" + "So you can't create a branch 'foo/bar/baz' because you can't create the folder 'foo/bar': the file with such name already exists.";
                 WebStudioUtils.validate(!newBranchName.startsWith(branch + "/"), message);
             }
         } catch (WorkspaceException | IOException ignored) {
@@ -389,16 +392,8 @@ public class CopyBean {
     }
 
     private UserWorkspace getUserWorkspace() throws WorkspaceException {
-        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(WebStudioUtils.getSession());
+        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
         return rulesUserSession.getUserWorkspace();
-    }
-
-    public void setDesignRepoComments(Comments designRepoComments) {
-        this.designRepoComments = designRepoComments;
-    }
-
-    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
-        this.repositoryTreeState = repositoryTreeState;
     }
 
     public boolean isConfirmationRequired() {

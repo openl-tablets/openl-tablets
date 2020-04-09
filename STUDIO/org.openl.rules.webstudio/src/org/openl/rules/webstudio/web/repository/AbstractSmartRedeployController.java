@@ -11,8 +11,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.faces.bean.ManagedProperty;
-
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.CommonVersionImpl;
@@ -35,6 +33,8 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
 
 import com.thoughtworks.xstream.XStreamException;
@@ -46,29 +46,29 @@ public abstract class AbstractSmartRedeployController {
     /**
      * A controller which contains pre-built UI object tree.
      */
-    @ManagedProperty(value = "#{repositoryTreeState}")
+    @Autowired
     RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{productionRepositoriesTreeController}")
+    @Autowired
     private ProductionRepositoriesTreeController productionRepositoriesTreeController;
 
-    @ManagedProperty(value = "#{deploymentManager}")
+    @Autowired
     private DeploymentManager deploymentManager;
 
-    @ManagedProperty(value = "#{projectVersionCacheManager}")
+    @Autowired
     private ProjectVersionCacheManager projectVersionCacheManager;
 
-    @ManagedProperty("#{projectDescriptorArtefactResolver}")
+    @Autowired
     private volatile ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
-    @ManagedProperty(value = "#{deployConfigRepositoryComments}")
+    @Autowired
+    @Qualifier("deployConfigRepositoryComments")
     private Comments deployConfigRepoComments;
 
-    @ManagedProperty(value = "#{environment}")
+    @Autowired
     private PropertyResolver propertyResolver;
 
-    @ManagedProperty(value = "#{rulesUserSession.userWorkspace}")
-    volatile UserWorkspace userWorkspace;
+    volatile UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
 
     List<DeploymentProjectItem> items;
 
