@@ -19,6 +19,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeMetaInfo;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.utils.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -50,6 +51,10 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
         IdentifierNode[] parsedHeader = DatatypeHelper.tokenizeHeader(tableSource);
 
         String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
+        if (TableNameChecker.isInvalidJavaIdentifier(typeName)) {
+            String message = "Datatype table " + typeName + TableNameChecker.NAME_ERROR_MESSAGE;
+            throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
+        }
 
         IOpenClass openClass = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
         String packageName = tsn.getTableProperties().getPropertyValueAsString("datatypePackage");
