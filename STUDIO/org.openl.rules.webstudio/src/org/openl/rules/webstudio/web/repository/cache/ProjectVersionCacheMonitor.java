@@ -57,8 +57,10 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
             if (projectVersion.isDeleted()) {
                 continue;
             }
-            String hash = projectVersionCacheDB
-                .getHash(project.getName(), projectVersion.getVersionName(), ProjectVersionH2CacheDB.RepoType.DESIGN);
+            String hash = projectVersionCacheDB.getHash(project.getName(),
+                projectVersion.getVersionName(),
+                projectVersion.getVersionInfo().getCreatedAt(),
+                ProjectVersionH2CacheDB.RepoType.DESIGN);
             if (StringUtils.isEmpty(hash)) {
                 AProject designProject = designRepository.getProject(project.getName(), projectVersion);
                 cacheProjectVersion(designProject, ProjectVersionH2CacheDB.RepoType.DESIGN);

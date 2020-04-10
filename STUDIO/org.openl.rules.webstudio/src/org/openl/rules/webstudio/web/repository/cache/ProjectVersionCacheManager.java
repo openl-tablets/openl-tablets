@@ -63,8 +63,10 @@ public class ProjectVersionCacheManager implements InitializingBean {
     }
 
     private String getProjectMD5(AProject wsProject, ProjectVersionH2CacheDB.RepoType repoType) throws IOException {
-        String hash = projectVersionCacheDB
-            .getHash(wsProject.getName(), wsProject.getVersion().getVersionName(), repoType);
+        String hash = projectVersionCacheDB.getHash(wsProject.getName(),
+            wsProject.getVersion().getVersionName(),
+            wsProject.getVersion().getVersionInfo().getCreatedAt(),
+            repoType);
         if (StringUtils.isEmpty(hash)) {
             hash = computeMD5(wsProject);
             projectVersionCacheDB.insertProject(wsProject.getName(), wsProject.getVersion(), hash, repoType);

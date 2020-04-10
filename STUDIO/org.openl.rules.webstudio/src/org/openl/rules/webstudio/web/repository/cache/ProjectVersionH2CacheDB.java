@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.util.Date;
 
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.webstudio.WebStudioFormats;
@@ -31,7 +32,7 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
 
     private static final String CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(" + PROJECT_NAME + " varchar(1000)," + VERSION + " varchar(50), " + CREATED_AT + " TIMESTAMP, " + CREATED_BY + " varchar(50), " + HASH + " varchar(32), " + REPOSITORY + " varchar(6))";
     private static final String SELECT_VERSION_QUERY = "SELECT " + VERSION + " FROM " + TABLE_NAME + " WHERE " + CREATED_AT + "=(SELECT MAX(" + CREATED_AT + ") FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? AND " + HASH + "=? AND " + REPOSITORY + "=?) AND " + HASH + "=?";
-    private static final String SELECT_HASH_QUERY = "SELECT " + HASH + " FROM " + TABLE_NAME + " WHERE " + CREATED_AT + "=(SELECT MAX(" + CREATED_AT + ") FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? AND " + VERSION + "=? AND " + REPOSITORY + "=?) AND " + VERSION + "=?";
+    private static final String SELECT_HASH_QUERY = "SELECT " + HASH + " FROM " + TABLE_NAME + " WHERE " + CREATED_AT + "=? AND " + PROJECT_NAME + "=? AND " + REPOSITORY + "=? AND " + VERSION + "=?";
     private static final String SELECT_DESIGN_VERSION_QUERY = "select " + CREATED_AT + ", " + CREATED_BY + " FROM " + TABLE_NAME + " WHERE " + CREATED_AT + "=(SELECT MAX(" + CREATED_AT + ") FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? AND " + HASH + "=? AND " + REPOSITORY + "=?)";
     private static final String INSERT_QUERY = "INSERT INTO " + TABLE_NAME + "(" + PROJECT_NAME + ", " + VERSION + ", " + CREATED_AT + ", " + CREATED_BY + ", " + HASH + ", " + REPOSITORY + ") values" + "(?,?,?,?,?,?)";
     private static final String SELECT_COUNT_QUERY = "SELECT COUNT(*) FROM " + TABLE_NAME;
@@ -39,9 +40,6 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
 
     private static final String STATE_TABLE_NAME = "CACHE_STATE";
     private static final String STATE = "state";
-
-    private static final String STATE_CALCULATED = "calculated";
-    private static final String STATE_NOT_CALCULATED = "not_calculated";
 
     private static final String CREATE_CACHE_STATE_QUERY = "CREATE TABLE IF NOT EXISTS " + STATE_TABLE_NAME + "(" + STATE + " BOOL," + VERSION + " INT)";
     private static final String INSERT_CACHE_STATE_QUERY = "INSERT INTO  " + STATE_TABLE_NAME + "(" + STATE + "," + VERSION + ") VALUES (FALSE, " + CACHE_VERSION + ")";
@@ -142,19 +140,7 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
         }
     }
 
-    public String getHash(String name, String version, RepoType repoType) throws IOException {
-        return getProjectData(name, version, repoType, HASH, SELECT_HASH_QUERY);
-    }
-
-    public String getVersion(String name, String hash, RepoType repoType) throws IOException {
-        return getProjectData(name, hash, repoType, VERSION, SELECT_VERSION_QUERY);
-    }
-
-    private String getProjectData(String name,
-            String field,
-            RepoType repoType,
-            String resultField,
-            String query) throws IOException {
+    public String getHash(String name, String version, Date createdAt, RepoType repoType) throws IOException {
         Connection connection = null;
         ResultSet rs = null;
         PreparedStatement selectPreparedStatement = null;
@@ -162,15 +148,44 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
             connection = getDBConnection();
             connection.setAutoCommit(false);
             ensureCacheExist(connection);
-            selectPreparedStatement = connection.prepareStatement(query);
-            selectPreparedStatement.setString(1, name);
-            selectPreparedStatement.setString(2, field);
+            selectPreparedStatement = connection.prepareStatement(SELECT_HASH_QUERY);
+            selectPreparedStatement.setTimestamp(1, new java.sql.Timestamp(createdAt.getTime()));
+            selectPreparedStatement.setString(2, name);
             selectPreparedStatement.setString(3, repoType.name());
-            selectPreparedStatement.setString(4, field);
+            selectPreparedStatement.setString(4, version);
+            rs = selectPreparedStatement.executeQuery();
+            String hash = null;
+            while (rs.next()) {
+                hash = rs.getString(HASH);
+            }
+            connection.commit();
+            return hash;
+        } catch (Exception e) {
+            throw new IOException(e);
+        } finally {
+            SqlDBUtils.safeClose(rs);
+            SqlDBUtils.safeClose(selectPreparedStatement);
+            SqlDBUtils.safeClose(connection);
+        }
+    }
+
+    public String getVersion(String name, String hash, RepoType repoType) throws IOException {
+        Connection connection = null;
+        ResultSet rs = null;
+        PreparedStatement selectPreparedStatement = null;
+        try {
+            connection = getDBConnection();
+            connection.setAutoCommit(false);
+            ensureCacheExist(connection);
+            selectPreparedStatement = connection.prepareStatement(SELECT_VERSION_QUERY);
+            selectPreparedStatement.setString(1, name);
+            selectPreparedStatement.setString(2, hash);
+            selectPreparedStatement.setString(3, repoType.name());
+            selectPreparedStatement.setString(4, hash);
             rs = selectPreparedStatement.executeQuery();
             String version = null;
             while (rs.next()) {
-                version = rs.getString(resultField);
+                version = rs.getString(VERSION);
             }
             connection.commit();
             return version;
