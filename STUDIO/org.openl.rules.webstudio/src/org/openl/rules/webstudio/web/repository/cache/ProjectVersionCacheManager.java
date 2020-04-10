@@ -1,13 +1,20 @@
 package org.openl.rules.webstudio.web.repository.cache;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -46,20 +53,42 @@ public class ProjectVersionCacheManager implements InitializingBean {
     }
 
     public String computeMD5(AProject wsProject) {
-        StringBuilder md5Builder = new StringBuilder();
+        List<String> md5Strings = new ArrayList<>();
         try {
-            for (AProjectArtefact artefact : wsProject.getArtefacts()) {
-                if (artefact instanceof AProjectResource) {
-                    InputStream content = ((AProjectResource) artefact).getContent();
-                    md5Builder.append(DigestUtils.md5Hex(content));
-                    md5Builder.append(DigestUtils.md5Hex(artefact.getName()));
+            if (wsProject.getRepository().supports().folders()) {
+                for (AProjectArtefact artefact : wsProject.getArtefacts()) {
+                    if (artefact instanceof AProjectResource) {
+                        InputStream content = ((AProjectResource) artefact).getContent();
+                        md5Strings.add(DigestUtils.md5Hex(content));
+                        String fileName = artefact.getFileData().getName();
+                        String folderPath = wsProject.getFolderPath();
+                        if (!StringUtils.isEmpty(folderPath)) {
+                            fileName = fileName.substring(wsProject.getFolderPath().length() + 1);
+                        }
+                        md5Strings.add(DigestUtils.md5Hex(fileName));
+                    }
+                }
+            } else {
+                FileItem zip = wsProject.getRepository().read(wsProject.getFolderPath());
+                ZipInputStream zin = new ZipInputStream(zip.getStream());
+                ZipEntry entry;
+                while ((entry = zin.getNextEntry()) != null) {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    int b = zin.read();
+                    while (b >= 0) {
+                        baos.write(b);
+                        b = zin.read();
+                    }
+                    md5Strings.add(DigestUtils.md5Hex(baos.toByteArray()));
+                    md5Strings.add(DigestUtils.md5Hex(entry.getName()));
                 }
             }
         } catch (ProjectException | IOException e) {
             log.error("Error during computing hash", e);
             return null;
         }
-        return md5Builder.length() != 0 ? DigestUtils.md5Hex(md5Builder.toString()) : null;
+        return md5Strings.isEmpty() ? null
+                                    : DigestUtils.md5Hex(md5Strings.stream().sorted().collect(Collectors.joining()));
     }
 
     private String getProjectMD5(AProject wsProject, ProjectVersionH2CacheDB.RepoType repoType) throws IOException {
