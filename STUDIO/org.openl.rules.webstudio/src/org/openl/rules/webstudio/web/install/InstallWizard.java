@@ -96,7 +96,6 @@ public class InstallWizard {
 
     @NotBlank
     private String workingDir;
-    private boolean workingDirChanged;
     private boolean showErrorMessage = false;
 
     private String userMode = "demo";
@@ -145,7 +144,6 @@ public class InstallWizard {
     @PostConstruct
     public void init() {
         workingDir = propertyResolver.getProperty(DynamicPropertySource.OPENL_HOME);
-        workingDirChanged = true;
     }
 
     public String start() {
@@ -190,24 +188,18 @@ public class InstallWizard {
             ++step;
             if (step == 2) {
                 // Get defaults
-                if (workingDirChanged) {
-                    designRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DESIGN_CONFIG, properties);
-                    if (designRepositoryConfiguration.getErrorMessage() != null) {
-                        log.error(designRepositoryConfiguration.getErrorMessage());
-                    }
-
-                    deployConfigRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DEPLOY_CONFIG,
-                        properties);
-                    if (deployConfigRepositoryConfiguration.getErrorMessage() != null) {
-                        log.error(deployConfigRepositoryConfiguration.getErrorMessage());
-                    }
-
-                    initProductionRepositoryEditor();
-
-                    userMode = propertyResolver.getProperty("user.mode");
-
-                    workingDirChanged = false;
+                designRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DESIGN_CONFIG, properties);
+                if (designRepositoryConfiguration.getErrorMessage() != null) {
+                    log.error(designRepositoryConfiguration.getErrorMessage());
                 }
+
+                deployConfigRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DEPLOY_CONFIG, properties);
+                if (deployConfigRepositoryConfiguration.getErrorMessage() != null) {
+                    log.error(deployConfigRepositoryConfiguration.getErrorMessage());
+                }
+
+                initProductionRepositoryEditor();
+                userMode = propertyResolver.getProperty("user.mode");
             } else if (step == 3) {
                 readDbProperties();
                 readAdProperties();
@@ -792,19 +784,11 @@ public class InstallWizard {
     }
 
     public void setWorkingDir(String workingDir) {
-
-        workingDirChanged = workingDirChanged || !workingDir.equals(this.workingDir);
         this.workingDir = workingDir;
-
         // Other configurations depend on this property
         DynamicPropertySource.get().setOpenLHomeDir(this.workingDir);
-
-        String newWorkingDir = propertyResolver.getProperty(DynamicPropertySource.OPENL_HOME);
-        if (!workingDir.equals(newWorkingDir)) {
-            log.warn("Expected working dir {} but WebStudio sees it as {}", workingDir, newWorkingDir);
-            throw new IllegalStateException("WebStudio sees working dir as " + newWorkingDir);
-        }
     }
+
 
     public String getGroupsAreManagedInStudio() {
         return "" + groupsAreManagedInStudio;
