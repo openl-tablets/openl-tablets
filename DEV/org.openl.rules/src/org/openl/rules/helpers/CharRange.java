@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.rules.helpers.ARangeParser.ParseStruct;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
+import org.openl.util.StringUtils;
 
 public class CharRange extends IntRange {
 
@@ -46,7 +47,7 @@ public class CharRange extends IntRange {
     }
 
     private boolean isPrintable(long ch) {
-        if (Character.isWhitespace((char) ch) || Character.isISOControl((char) ch)) {
+        if (StringUtils.isSpaceOrControl((char) ch)) {
             return false;
         }
 

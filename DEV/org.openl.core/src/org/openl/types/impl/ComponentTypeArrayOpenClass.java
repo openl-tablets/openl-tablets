@@ -1,6 +1,7 @@
 package org.openl.types.impl;
 
 import java.lang.reflect.Array;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +21,8 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     protected HashMap<String, IOpenField> fieldMap;
     protected IOpenIndex index;
     private final String javaName;
-    private static final Iterable<IOpenClass> OBJECT_CLASS = Collections.singleton(JavaOpenClass.OBJECT);
+    private static final Collection<IOpenClass> OBJECT_CLASS = Collections.singleton(JavaOpenClass.OBJECT);
+    private Class<?> instanceClass;
 
     public static ComponentTypeArrayOpenClass createComponentTypeArrayOpenClass(IOpenClass componentClass, int dim) {
         ComponentTypeArrayOpenClass componentTypeArrayOpenClass = null;
@@ -52,7 +54,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     }
 
     @Override
-    public Iterable<IOpenClass> superClasses() {
+    public Collection<IOpenClass> superClasses() {
         return OBJECT_CLASS;
     }
 
@@ -74,7 +76,10 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     @Override
     public Class<?> getInstanceClass() {
         if (componentClass.getInstanceClass() != null) {
-            return JavaOpenClass.makeArrayClass(componentClass.getInstanceClass());
+            if (instanceClass == null) {
+                instanceClass = Array.newInstance(componentClass.getInstanceClass(), 0).getClass();
+            }
+            return instanceClass;
         } else {
             return null;
         }

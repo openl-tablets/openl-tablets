@@ -37,4 +37,13 @@ public interface RuleServiceLoader {
     Collection<Module> resolveModulesForProject(String deploymentName,
             CommonVersion deploymentVersion,
             String projectName);
+
+    /**
+     * Gets a deployment from data source.
+     *
+     * @param deploymentName target deployment name
+     * @param deploymentVersion target version
+     * @return deployment
+     */
+    Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion);
 }

@@ -16,7 +16,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public abstract class AEngineFactory {
 
-    private static final String INCORRECT_RET_TYPE_MSG = "Expected '%s' for the return type of method '%s', but found '%s' type.";
+    private static final String INCORRECT_RET_TYPE_MSG = "Expected return type '%s' for method '%s', but found '%s'.";
 
     public final Object newInstance() {
         return newInstance(getRuntimeEnvBuilder().buildRuntimeEnv());
@@ -29,7 +29,8 @@ public abstract class AEngineFactory {
 
         Class<?>[] proxyInterfaces = prepareInstanceInterfaces();
 
-        return ASMProxyFactory.newProxyInstance(classLoader, prepareMethodHandler(openClassInstance, methodMap, runtimeEnv),
+        return ASMProxyFactory.newProxyInstance(classLoader,
+            prepareMethodHandler(openClassInstance, methodMap, runtimeEnv),
             proxyInterfaces);
     }
 
@@ -76,8 +77,7 @@ public abstract class AEngineFactory {
             // Try to find openClass's method with appropriate name and
             // parameter types.
             //
-            IOpenClass[] params = OpenClassHelper.getOpenClasses(moduleOpenClass, interfaceMethod.getParameterTypes());
-            IOpenMethod rulesMethod = moduleOpenClass.getMethod(interfaceMethodName, params);
+            IOpenMethod rulesMethod = OpenClassHelper.findRulesMethod(moduleOpenClass, interfaceMethod);
 
             if (rulesMethod != null) {
                 validateReturnType(rulesMethod, interfaceMethod);
@@ -106,8 +106,7 @@ public abstract class AEngineFactory {
                         // Cast method return type to appropriate OpenClass
                         // type.
                         //
-                        IOpenClass methodReturnType = OpenClassHelper.getOpenClass(moduleOpenClass,
-                            interfaceMethod.getReturnType());
+                        IOpenClass methodReturnType = moduleOpenClass.getField(fieldName).getType();
 
                         if (methodReturnType.isAssignableFrom(rulesField.getType())) {
                             // If openClass's field type is equal to method
@@ -125,8 +124,8 @@ public abstract class AEngineFactory {
                             // exception.
                             //
                             String message = String.format(INCORRECT_RET_TYPE_MSG,
-                                interfaceMethodName,
                                 rulesField.getType(),
+                                interfaceMethodName,
                                 methodReturnType.getName());
 
                             throw new RuntimeException(message);
@@ -153,8 +152,8 @@ public abstract class AEngineFactory {
         boolean isAssignable = ClassUtils.isAssignable(openClassReturnType, interfaceReturnType);
         if (!isAssignable) {
             String message = String.format(INCORRECT_RET_TYPE_MSG,
-                interfaceMethod.getName(),
                 openClassReturnType.getName(),
+                interfaceMethod.getName(),
                 interfaceReturnType.getName());
             throw new ClassCastException(message);
         }

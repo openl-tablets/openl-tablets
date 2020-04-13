@@ -55,7 +55,7 @@ class ValidationHandler {
         if (!obj.getClass().equals(openType.getInstanceClass())) {
             return;
         }
-        for (IOpenField openField : openType.getFields().values()) {
+        for (IOpenField openField : openType.getFields()) {
             IOpenClass openClass = openField.getType();
             if (openClass instanceof ComponentTypeArrayOpenClass) {
                 Object value = openField.get(obj, env);

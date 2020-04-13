@@ -405,7 +405,7 @@ public final class DecisionTableHelper {
             return false;
         } else {
             int count = 0;
-            for (IOpenField field : compoundType.getFields().values()) {
+            for (IOpenField field : compoundType.getFields()) {
                 if (!field.isConst() && !field.isStatic() && field.isWritable()) {
                     count++;
                 }
@@ -419,7 +419,7 @@ public final class DecisionTableHelper {
             return false;
         }
         int count = 0;
-        for (IOpenField field : type.getFields().values()) {
+        for (IOpenField field : type.getFields()) {
             if (!field.isConst() && !field.isStatic() && field.isReadable()) {
                 count++;
             }
@@ -1926,7 +1926,11 @@ public final class DecisionTableHelper {
             List<List<DTHeader>> fits,
             Set<Integer> failedToFit,
             int numberOfReturns,
-            int fuzzyReturnsFlag) {
+            int fuzzyReturnsFlag,
+            int counter) {
+        if (counter > 500) {
+            System.out.println();
+        }
         if (fits.size() > FITS_MAX_LIMIT) {
             return column >= lastColumn;
         }
@@ -1989,7 +1993,8 @@ public final class DecisionTableHelper {
                             fits,
                             failedToFit,
                             numberOfReturns1,
-                            fuzzyReturnsFlag1);
+                            fuzzyReturnsFlag1,
+                            counter + 1);
                         usedIndexes.remove(usedIndexes.size() - 1);
                         used.remove(used.size() - 1);
                     }
@@ -2017,7 +2022,8 @@ public final class DecisionTableHelper {
                     fits,
                     failedToFit,
                     numberOfReturns,
-                    fuzzyReturnsFlag);
+                    fuzzyReturnsFlag,
+                    counter + 1);
                 used.remove(used.size() - 1);
             }
         }
@@ -2338,6 +2344,7 @@ public final class DecisionTableHelper {
             fits,
             failedToFit,
             0,
+            0,
             0);
         if (fits.size() > FITS_MAX_LIMIT) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
@@ -2545,7 +2552,7 @@ public final class DecisionTableHelper {
                     String titleForColumn = getTitleForColumn(originalTable, firstColumnHeight, column);
                     int width = originalTable.getSource().getCell(column, 0).getWidth();
                     lastSimpleReturnDTHeader = new SimpleReturnDTHeader(null, titleForColumn, column, width);
-                    if (fuzzyContext.isFuzzySupportsForReturnType()) {
+                    if (fuzzyContext != null && fuzzyContext.isFuzzySupportsForReturnType()) {
                         List<FuzzyResult> returnTypeFuzzyExtractResult = OpenLFuzzyUtils
                             .fuzzyExtract(titleForColumn, new Token[] { new Token(returnTokenString, -1) }, true);
                         if (!returnTypeFuzzyExtractResult.isEmpty()) {
@@ -2560,7 +2567,9 @@ public final class DecisionTableHelper {
                                 true));
                         } else if (fuzzyHeaders.stream()
                             .noneMatch(DTHeader::isReturn) && numberOfColumnsUnderTitleCounter
-                                .get(column) == 1 && columnWithFormulas(originalTable, firstColumnHeight, column)) {
+                                .get(column) == 1 && (column + w >= lastColumn || columnWithFormulas(originalTable,
+                                    firstColumnHeight,
+                                    column))) {
                             dtHeaders.add(lastSimpleReturnDTHeader);
                         }
                     } else {
@@ -3226,7 +3235,7 @@ public final class DecisionTableHelper {
             IOpenClass type,
             boolean isArray,
             boolean isMoreThanOneColumnIsUsed) {
-        int v = 0;
+        int v;
         if (isArray) {
             v = isMoreThanOneColumnIsUsed ? 2 : 1;
         } else {

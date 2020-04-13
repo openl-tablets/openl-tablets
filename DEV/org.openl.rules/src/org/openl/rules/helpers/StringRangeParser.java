@@ -3,12 +3,10 @@ package org.openl.rules.helpers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
-
 public final class StringRangeParser extends ARangeParser<String> {
 
     public static final String MAX_VALUE = String.valueOf(Character.MAX_VALUE);
-    public static final String MIN_VALUE = StringUtils.SPACE;
+    public static final String MIN_VALUE = String.valueOf(Character.MIN_VALUE);
 
     private static class StringRangeParserHolder {
         private static final StringRangeParser INSTANCE = new StringRangeParser();

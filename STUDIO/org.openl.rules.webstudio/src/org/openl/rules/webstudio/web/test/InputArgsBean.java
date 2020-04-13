@@ -1,12 +1,26 @@
 package org.openl.rules.webstudio.web.test;
 
+import static org.openl.types.java.JavaOpenClass.BOOLEAN;
+import static org.openl.types.java.JavaOpenClass.BYTE;
+import static org.openl.types.java.JavaOpenClass.CHAR;
+import static org.openl.types.java.JavaOpenClass.DOUBLE;
+import static org.openl.types.java.JavaOpenClass.FLOAT;
+import static org.openl.types.java.JavaOpenClass.INT;
+import static org.openl.types.java.JavaOpenClass.LONG;
+import static org.openl.types.java.JavaOpenClass.SHORT;
+import static org.openl.types.java.JavaOpenClass.STRING;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,6 +28,8 @@ import javax.faces.model.SelectItem;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.helpers.DoubleRange;
+import org.openl.rules.helpers.IntRange;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -25,7 +41,6 @@ import org.openl.rules.serialization.JsonUtils;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.tablewizard.DomainTree;
 import org.openl.rules.ui.tablewizard.WizardUtils;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -33,6 +48,7 @@ import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
@@ -62,9 +78,42 @@ public class InputArgsBean {
     private InputTestCaseType inputTestCaseType = InputTestCaseType.BEAN;
     private String inputTextBean;
 
+    private static final List<IOpenClass> predefinedTypes;
+    static {
+        predefinedTypes = new ArrayList<>();
+
+        // The most popular
+        predefinedTypes.add(STRING);
+        predefinedTypes.add(JavaOpenClass.getOpenClass(Double.class));
+        predefinedTypes.add(JavaOpenClass.getOpenClass(Integer.class));
+        predefinedTypes.add(JavaOpenClass.getOpenClass(Boolean.class));
+        predefinedTypes.add(JavaOpenClass.getOpenClass(Date.class));
+
+        predefinedTypes.add(JavaOpenClass.getOpenClass(BigInteger.class));
+        predefinedTypes.add(JavaOpenClass.getOpenClass(BigDecimal.class));
+
+        predefinedTypes.add(JavaOpenClass.getOpenClass(IntRange.class));
+        predefinedTypes.add(JavaOpenClass.getOpenClass(DoubleRange.class));
+
+        predefinedTypes.add(JavaOpenClass.getOpenClass(Long.class));
+        predefinedTypes.add(JavaOpenClass.getOpenClass(Float.class));
+        predefinedTypes.add(JavaOpenClass.getOpenClass(Short.class));
+        predefinedTypes.add(JavaOpenClass.getOpenClass(Character.class));
+
+        // Less popular
+        predefinedTypes.add(BYTE);
+        predefinedTypes.add(SHORT);
+        predefinedTypes.add(INT);
+        predefinedTypes.add(LONG);
+        predefinedTypes.add(FLOAT);
+        predefinedTypes.add(DOUBLE);
+        predefinedTypes.add(BOOLEAN);
+        predefinedTypes.add(CHAR);
+    }
+
     enum InputTestCaseType {
         TEXT,
-        BEAN
+        BEAN;
     }
 
     public String getClassName() {
@@ -346,7 +395,8 @@ public class InputArgsBean {
 
     public SelectItem[] getPossibleTypes(ParameterDeclarationTreeNode currentNode) {
         try {
-            Collection<IOpenClass> allClasses = getAllClasses(currentNode);
+            IOpenClass parentType = currentNode.getType();
+            Collection<IOpenClass> allClasses = getAllClasses(parentType);
 
             Collection<SelectItem> result = new ArrayList<>();
             for (IOpenClass type : allClasses) {
@@ -360,17 +410,21 @@ public class InputArgsBean {
         }
     }
 
-    private Collection<IOpenClass> getAllClasses(ParameterDeclarationTreeNode currentNode) {
-        IOpenClass parentType = currentNode.getType();
+    private Collection<IOpenClass> getAllClasses(IOpenClass parentType) {
 
-        DomainTree domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
         Collection<IOpenClass> allClasses = new ArrayList<>();
 
-        for (IOpenClass type : domainTree.getAllOpenClasses()) {
-            if (type.isAbstract() || !parentType.isAssignableFrom(type)) {
+        for (IOpenClass type : predefinedTypes) {
+            if (!parentType.isAssignableFrom(type)) {
                 continue;
             }
+            allClasses.add(type);
+        }
 
+        for (IOpenClass type : WizardUtils.getProjectOpenClass().getTypes()) {
+            if (!parentType.isAssignableFrom(type)) {
+                continue;
+            }
             allClasses.add(type);
         }
 
@@ -403,7 +457,8 @@ public class InputArgsBean {
             String row = parts[0];
             String typeName = parts[1];
             ComplexParameterTreeNode node = complexParameters.get(row);
-            for (IOpenClass type : getAllClasses(node)) {
+            IOpenClass parentType = node.getType();
+            for (IOpenClass type : getAllClasses(parentType)) {
                 if (typeName.equals(type.getName())) {
                     node.setTypeToCreate(type);
                     break;

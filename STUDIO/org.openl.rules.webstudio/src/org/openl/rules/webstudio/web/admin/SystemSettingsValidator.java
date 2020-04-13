@@ -13,6 +13,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
 
+import org.openl.rules.webstudio.util.WebStudioValidationUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
@@ -72,20 +73,14 @@ public class SystemSettingsValidator {
 
     // TODO This class shouldn't depend on SystemSettingsBean
     public void workSpaceDirValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String directoryType = "Workspace Directory";
-        validateNotBlank((String) value, directoryType);
+        WebStudioValidationUtils.directoryValidator(value, "Workspace Directory");
         systemSettingsBean.setUserWorkspaceHome((String) value);
-        workingDirValidator(systemSettingsBean.getUserWorkspaceHome());
-
     }
 
     // TODO This class shouldn't depend on SystemSettingsBean
     public void historyDirValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String directoryType = "History Directory";
-        validateNotBlank((String) value, directoryType);
+        WebStudioValidationUtils.directoryValidator(value, "History Directory");
         systemSettingsBean.setProjectHistoryHome((String) value);
-        workingDirValidator(systemSettingsBean.getProjectHistoryHome());
-
     }
 
     public void historyCountValidator(FacesContext context, UIComponent toValidate, Object value) {
@@ -160,8 +155,9 @@ public class SystemSettingsValidator {
             FileUtils.deleteQuietly(root);
         }
         if (!hasAccess) {
-            WebStudioUtils.addErrorMessage(
-                "Cannot get access to the folder ' " + folderPath + " '    Please, contact to your system administrator.");
+            throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                "Cannot get access to the folder ' " + folderPath + " '    Please, contact to your system administrator.",
+                null));
         }
     }
 

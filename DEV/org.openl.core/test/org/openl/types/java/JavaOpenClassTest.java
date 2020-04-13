@@ -3,8 +3,8 @@ package org.openl.types.java;
 import static org.junit.Assert.*;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 import org.openl.meta.DoubleValue;
@@ -147,15 +147,15 @@ public class JavaOpenClassTest {
         IOpenField openField = beanAOpenClass.getField("B");
         assertNotNull(openField);
         // then
-        Map<String, IOpenField> fieldMap = beanAOpenClass.getFields();
-        assertNotNull(fieldMap);
-        assertEquals(6, fieldMap.size());
-        assertNotNull(fieldMap.get("B"));
-        assertNotNull(fieldMap.get("Ba"));
-        assertNotNull(fieldMap.get("BB"));
-        assertNotNull(fieldMap.get("cc"));
-        assertNotNull(fieldMap.get("gg"));
-        for (IOpenField it : fieldMap.values()) {
+        Collection<IOpenField> fields = beanAOpenClass.getFields();
+        assertNotNull(beanAOpenClass.getFields());
+        assertEquals(6, fields.size());
+        assertNotNull(beanAOpenClass.getField("B"));
+        assertNotNull(beanAOpenClass.getField("Ba"));
+        assertNotNull(beanAOpenClass.getField("cc"));
+        assertNotNull(beanAOpenClass.getField("BB"));
+        assertNotNull(beanAOpenClass.getField("gg"));
+        for (IOpenField it : fields) {
             if ("class".equals(it.getName())) {
                 continue;
             }
@@ -169,13 +169,13 @@ public class JavaOpenClassTest {
         JavaOpenClass beanAOpenClass = JavaOpenClass.getOpenClass(BeanXInterface.class);
         IOpenField openField = beanAOpenClass.getField("ba");
         assertNotNull(openField);
-        Map<String, IOpenField> fieldMap = beanAOpenClass.getFields();
-        assertNotNull(fieldMap);
-        assertEquals(5, fieldMap.size());
-        assertNotNull(fieldMap.get("b"));
-        assertNotNull(fieldMap.get("ba"));
-        assertNotNull(fieldMap.get("BB"));
-        assertNotNull(fieldMap.get("x"));
+        Collection<IOpenField> fields = beanAOpenClass.getFields();
+        assertNotNull(fields);
+        assertEquals(5, fields.size());
+        assertNotNull(beanAOpenClass.getField("b"));
+        assertNotNull(beanAOpenClass.getField("ba"));
+        assertNotNull(beanAOpenClass.getField("BB"));
+        assertNotNull(beanAOpenClass.getField("x"));
     }
 
     public static class MyType {

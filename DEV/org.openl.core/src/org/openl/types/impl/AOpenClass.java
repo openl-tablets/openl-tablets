@@ -31,8 +31,7 @@ import org.openl.types.IOpenMethod;
  */
 public abstract class AOpenClass implements IOpenClass {
 
-    protected static final Map<MethodKey, IOpenMethod> STUB = Collections
-        .unmodifiableMap(Collections.<MethodKey, IOpenMethod> emptyMap());
+    protected static final Map<MethodKey, IOpenMethod> STUB = Collections.unmodifiableMap(Collections.emptyMap());
     private IOpenField indexField;
 
     protected IMetaInfo metaInfo;
@@ -63,19 +62,19 @@ public abstract class AOpenClass implements IOpenClass {
     protected abstract Map<String, IOpenField> fieldMap();
 
     @Override
-    public Map<String, IOpenField> getFields() {
-        Map<String, IOpenField> fields = new HashMap<>();
+    public Collection<IOpenField> getFields() {
+        Collection<IOpenField> fields = new ArrayList<>();
         Iterable<IOpenClass> superClasses = superClasses();
         for (IOpenClass superClass : superClasses) {
-            fields.putAll(superClass.getFields());
+            fields.addAll(superClass.getFields());
         }
-        fields.putAll(fieldMap());
+        fields.addAll(fieldMap().values());
         return fields;
     }
 
     @Override
-    public Map<String, IOpenField> getDeclaredFields() {
-        return new HashMap<>(fieldMap());
+    public Collection<IOpenField> getDeclaredFields() {
+        return Collections.unmodifiableCollection(fieldMap().values());
     }
 
     public static IOpenClass getArrayType(IOpenClass openClass, int dim) {
@@ -261,7 +260,7 @@ public abstract class AOpenClass implements IOpenClass {
     private void makeLowerCaseMaps() {
         uniqueLowerCaseFieldMap = new HashMap<>();
 
-        for (IOpenField field : getFields().values()) {
+        for (IOpenField field : getFields()) {
             addFieldToLowerCaseMap(field);
         }
 

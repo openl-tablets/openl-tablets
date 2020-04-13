@@ -41,7 +41,7 @@ public abstract class ASelector<T> implements ISelector<T> {
 
         @Override
         protected boolean equalsSelector(ASelector<T> sel) {
-            BoolBinSelector<?> x = null;
+            BoolBinSelector<?> x;
             if (sel instanceof BoolBinSelector<?>) {
                 x = (BoolBinSelector<?>) sel;
             } else {

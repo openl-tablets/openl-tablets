@@ -49,13 +49,13 @@
                     <xsd:element minOccurs="0" name="moreValues_Step2" type="xsd:int"/>
                     <xsd:element minOccurs="0" name="RowNames" type="ns0:ArrayOfString"/>
                     <xsd:element minOccurs="0" name="TableDetails" type="ns0:ArrayOfArrayOfString"/>
-                    <xsd:element minOccurs="0" name="step1" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="Step1" type="xsd:int"/>
                     <xsd:element minOccurs="0" name="Step1_moreValues" type="xsd:int"/>
                     <xsd:element minOccurs="0" name="Step1_Values" type="xsd:int"/>
                     <xsd:element minOccurs="0" name="Step2_moreValues" type="xsd:int"/>
                     <xsd:element minOccurs="0" name="Step2_Values" type="xsd:int"/>
                     <xsd:element minOccurs="0" name="Step2_Values1" type="xsd:int"/>
-                    <xsd:element minOccurs="0" name="Values_" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="Values" type="xsd:int"/>
                     <xsd:element minOccurs="0" name="Values1_Step2" type="xsd:int"/>
                     <xsd:element minOccurs="0" name="Values2_Step3" type="xsd:int"/>
                     <xsd:element minOccurs="0" name="Values2_Step4" type="xsd:int"/>

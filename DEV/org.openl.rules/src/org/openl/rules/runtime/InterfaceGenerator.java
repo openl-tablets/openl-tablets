@@ -95,8 +95,7 @@ public class InterfaceGenerator {
             }
         }
 
-        final Collection<IOpenField> fields = openClass.getFields().values();
-        for (IOpenField field : fields) {
+        for (IOpenField field : openClass.getFields()) {
             if (!isIgnoredMember(field) && field.isReadable()) {
                 RuleInfo ruleInfo = getRuleInfoForField(field);
                 boolean isMember = isMember(ruleInfo, includes, excludes);

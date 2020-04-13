@@ -4,6 +4,8 @@
 
 package org.openl.rules.datatype.binding;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -21,10 +23,12 @@ import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.gen.ByteCodeGenerationException;
 import org.openl.gen.FieldDescription;
+import org.openl.gen.TypeDescription;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
@@ -54,9 +58,9 @@ import org.openl.types.impl.DatatypeOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ArrayUtils;
 import org.openl.util.ClassUtils;
 import org.openl.util.MessageUtils;
-import org.openl.util.OpenClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
@@ -79,8 +83,14 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private String parentClassName;
     private ModuleOpenClass moduleOpenClass;
 
+    private DatatypeTableBoundNode parentDatatypeTableBoundNode;
+    private boolean generated = false;
+    private boolean byteCodeReadyToLoad = false;
+
     private ILogicalTable table;
     private OpenL openl;
+
+    private Map<String, FieldDescription> fields;
 
     public DatatypeTableBoundNode(TableSyntaxNode tableSyntaxNode,
             DatatypeOpenClass datatype,
@@ -115,14 +125,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     /**
-     * Encapsulates the wrapping the row and bindingContext with the GridCellSourceCodeModule
-     */
-    public static boolean canProcessRow(ILogicalTable row, IBindingContext cxt) {
-        GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), cxt);
-        return canProcessRow(rowSrc);
-    }
-
-    /**
      * Checks if the given row can be processed.
      *
      * @param rowSrc checked row
@@ -132,12 +134,16 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return !ParserUtils.isBlankOrCommented(rowSrc.getCode());
     }
 
+    public String getParentClassName() {
+        return parentClassName;
+    }
+
     /**
      * Process datatype fields from source table.
      *
      * @param bindingContext binding context
      */
-    private void addFields(final IBindingContext bindingContext) throws Exception {
+    private void readFieldsAndGenerateByteCode(final IBindingContext bindingContext) throws Exception {
 
         final ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, bindingContext);
         // Save normalized table to work with it later
@@ -152,43 +158,44 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         // map of fields that will be used for byte code generation.
         // key: name of the field, value: field type.
         //
-        final Map<String, FieldDescription> fields = new LinkedHashMap<>();
+        fields = new LinkedHashMap<>();
         SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         for (int i = 0; i < tableHeight; i++) {
             final int index = i;
             syntaxNodeExceptionCollector
                 .run(() -> processRow(dataTable.getRow(index), bindingContext, fields, index == 0));
         }
-        syntaxNodeExceptionCollector.run(() -> checkInheritedFieldsDuplication(bindingContext));
 
+        syntaxNodeExceptionCollector.run(() -> checkInheritedFieldsDuplication(bindingContext));
         syntaxNodeExceptionCollector.throwIfAny();
 
         if (beanClassCanBeGenerated(bindingContext)) {
-            Class<?> beanClass;
-            String beanName = dataType.getJavaName();
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            String datatypeClassName = dataType.getJavaName();
+            OpenLBundleClassLoader classLoader = (OpenLBundleClassLoader) Thread.currentThread()
+                .getContextClassLoader();
             try {
-                beanClass = classLoader.loadClass(beanName);
-                log.debug("Bean {} is using previously loaded", beanName);
+                Class<?> beanClass = classLoader.loadClass(datatypeClassName);
+                byteCodeReadyToLoad = true;
+                validateDatatypeClass(beanClass, fields);
+                log.debug("Loaded from classloader class '{}' is used.", datatypeClassName);
             } catch (ClassNotFoundException e) {
                 try {
-                    byte[] byteCode = buildByteCodeForDatatype(fields);
-                    beanClass = ClassUtils.defineClass(beanName, byteCode, classLoader);
+                    final byte[] byteCode = buildByteCodeForDatatype(fields);
+                    classLoader.addGeneratedClass(datatypeClassName, byteCode);
                     dataType.setBytecode(byteCode);
-                    log.debug("Bean {} is using generated at runtime", beanName);
+                    byteCodeReadyToLoad = true;
+                    log.debug("Generated at runtime class '{}' is used.", datatypeClassName);
                 } catch (ByteCodeGenerationException e1) {
-                    throw SyntaxNodeExceptionUtils.createError(
-                        String.format("Cannot generate a class for datatype '%s'. %s", beanName, e1.getMessage()),
+                    throw SyntaxNodeExceptionUtils.createError(String
+                        .format("Failed to generate a class for datatype '%s'. %s", datatypeClassName, e1.getMessage()),
                         e1,
                         tableSyntaxNode);
                 } catch (Exception e2) {
                     throw SyntaxNodeExceptionUtils.createError(
-                        String.format("Cannot generate a class for datatype %s.", beanName),
+                        String.format("Failed to generate a class for datatype '%s'.", datatypeClassName),
                         tableSyntaxNode);
                 }
             }
-            dataType.setInstanceClass(beanClass);
-            validateBeanForDatatype(beanClass, fields);
         }
     }
 
@@ -198,7 +205,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
         if (parentClassName != null) {
             IOpenClass parentClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
-            return parentClass.getInstanceClass() != null;
+            return parentClass != null;
         }
         return true;
     }
@@ -210,71 +217,154 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
      * @return Class descriptor of generated bean class.
      */
     private byte[] buildByteCodeForDatatype(Map<String, FieldDescription> fields) {
-        String beanName = dataType.getJavaName();
+        String datatypeClassName = dataType.getJavaName();
         IOpenClass superOpenClass = dataType.getSuperClass();
-        JavaBeanClassBuilder beanBuilder = new JavaBeanClassBuilder(beanName);
+        JavaBeanClassBuilder beanBuilder = new JavaBeanClassBuilder(datatypeClassName);
         if (superOpenClass != null) {
-            Class<?> superClass = superOpenClass.getInstanceClass();
-            beanBuilder.setParentClass(superClass);
-            for (Entry<String, IOpenField> field : superOpenClass.getFields().entrySet()) {
-                beanBuilder.addParentField(field.getKey(), field.getValue().getType().getJavaName());
+            beanBuilder.setParentType(new TypeDescription(superOpenClass.getJavaName()));
+            if (superOpenClass instanceof DatatypeOpenClass) {
+                Map<String, FieldDescription> parentFields;
+                if (parentDatatypeTableBoundNode != null) {
+                    parentFields = parentDatatypeTableBoundNode.getFields();
+                } else {
+                    parentFields = new LinkedHashMap<>();
+                    for (IOpenField field : superOpenClass.getFields()) {
+                        parentFields.put(field.getName(), new FieldDescription(field.getType().getJavaName()));
+                    }
+                }
+                for (Entry<String, FieldDescription> field : parentFields.entrySet()) {
+                    beanBuilder.addParentField(field.getKey(), field.getValue());
+                }
             }
         }
         beanBuilder.addFields(fields);
         return beanBuilder.byteCode();
     }
 
-    private void validateBeanForDatatype(Class<?> beanClass,
+    private Map<String, FieldDescription> getFields() {
+        return fields;
+    }
+
+    public void setFields(Map<String, FieldDescription> fields) {
+        this.fields = fields;
+    }
+
+    private void validateDatatypeClass(Class<?> datatypeClass,
             Map<String, FieldDescription> fields) throws SyntaxNodeException {
-        String beanName = dataType.getJavaName();
+        SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
+        String datatypeClassName = dataType.getJavaName();
         IOpenClass superClass = dataType.getSuperClass();
-        if (superClass != null && !beanClass.getSuperclass().equals(superClass.getInstanceClass())) {
+        if (superClass != null && !datatypeClass.getSuperclass().getName().equals(superClass.getJavaName())) {
+            String errorMessage = String
+                .format("Invalid parent class in class '%s'. Please, regenerate datatype classes.", datatypeClassName);
+            syntaxNodeExceptionCollector
+                .addSyntaxNodeException(SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode));
+        }
+
+        try {
+            datatypeClass.getConstructor();
+        } catch (NoSuchMethodException e) {
             String errorMessage = String.format(
-                "Datatype '%s' validation is failed on missed parent class. Please, regenerate datatype classes.",
-                beanName);
-            throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
+                "Default constructor is not found in class '%s'. Please, regenerate datatype classes.",
+                datatypeClassName);
+            syntaxNodeExceptionCollector
+                .addSyntaxNodeException(SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode));
+        }
+
+        Object instance = null;
+        try {
+            instance = datatypeClass.newInstance();
+        } catch (IllegalAccessException | InstantiationException e) {
+            String errorMessage = String.format(
+                "Default constructor is not found in class '%s' or class is not instantiatable. Please, regenerate datatype classes.",
+                datatypeClassName);
+            syntaxNodeExceptionCollector
+                .addSyntaxNodeException(SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode));
         }
 
         for (Entry<String, FieldDescription> fieldEntry : fields.entrySet()) {
             String fieldName = fieldEntry.getKey();
             FieldDescription fieldDescription = fieldEntry.getValue();
             try {
-                beanClass.getDeclaredField(fieldName);
+                datatypeClass.getDeclaredField(fieldName);
             } catch (NoSuchFieldException e) {
                 String errorMessage = String.format(
-                    "Datatype '%s' validation is failed on missed field '%s'. Please, regenerate your datatype classes.",
-                    beanName,
-                    fieldName);
-                throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
+                    "Field '%s' is not found in class '%s'. Please, regenerate datatype classes.",
+                    fieldName,
+                    datatypeClassName);
+                syntaxNodeExceptionCollector
+                    .addSyntaxNodeException(SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode));
+
             }
 
             String name = ClassUtils.capitalize(fieldName); // According to JavaBeans v1.01
-            Method getterMethod;
+            Method getterMethod = null;
             try {
-                getterMethod = beanClass.getMethod("get" + name);
+                getterMethod = datatypeClass.getMethod("get" + name);
             } catch (NoSuchMethodException e) {
                 String errorMessage = String.format(
-                    "Datatype '%s' validation is failed on missed method 'get%s'. Please, regenerate your datatype classes.",
-                    beanName,
-                    name);
+                    "Method 'get%s' is not found in class '%s'. Please, regenerate datatype classes.",
+                    name,
+                    datatypeClassName);
                 name = StringUtils.capitalize(fieldName); // Try old solution (before 5.21.7)
                 try {
-                    getterMethod = beanClass.getMethod("get" + name);
+                    getterMethod = datatypeClass.getMethod("get" + name);
                 } catch (NoSuchMethodException e1) {
+                    syntaxNodeExceptionCollector
+                        .addSyntaxNodeException(SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode));
+                }
+            }
+            if (getterMethod != null) {
+                if (!getterMethod.getReturnType().getName().equals(fieldDescription.getTypeName())) {
+                    String errorMessage = String.format(
+                        "Unexpected return type for method '%s' in class '%s'. Please, regenerate datatype classes.",
+                        getterMethod.getName(),
+                        datatypeClassName);
                     throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
                 }
-
-            }
-            if (!getterMethod.getReturnType().getName().equals(fieldDescription.getTypeName())) {
-                String errorMessage = String.format(
-                    "Datatype '%s' validation is failed on method 'get%s' with unexpected return type. Please, regenerate your datatype classes.",
-                    beanName,
-                    name);
-                throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
+                if (!Modifier.isPublic(getterMethod.getModifiers())) {
+                    String errorMessage = String.format(
+                        "Unexpected access modifier on method '%s' in class '%s'. Please, regenerate datatype classes.",
+                        getterMethod.getName(),
+                        datatypeClassName);
+                    throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
+                }
+                if (instance != null && fieldEntry.getValue().getDefaultValue() != null) {
+                    boolean f = false;
+                    try {
+                        if (fieldEntry.getValue().hasDefaultKeyWord()) {
+                            Object defaultValue = getterMethod.invoke(instance);
+                            if (defaultValue == null) {
+                                f = true;
+                            }
+                        } else if (fieldEntry.getValue().hasDefaultValue()) {
+                            Object defaultValue = getterMethod.invoke(instance);
+                            if (getterMethod.getReturnType().isArray() && defaultValue.getClass().isArray()) {
+                                if (!ArrayUtils.deepEquals(fieldEntry.getValue().getDefaultValue(), defaultValue)) {
+                                    f = true;
+                                }
+                            } else {
+                                if (!Objects.equals(fieldEntry.getValue().getDefaultValue(), defaultValue)) {
+                                    f = true;
+                                }
+                            }
+                        }
+                    } catch (ReflectiveOperationException | LinkageError ignored) {
+                    }
+                    if (f) {
+                        String errorMessage = String.format(
+                            "Default value for field '%s' in class '%s' mismatches default value is used in datatype '%s'. Please, regenerate datatype classes.",
+                            fieldEntry.getKey(),
+                            datatypeClassName,
+                            dataType.getName());
+                        syntaxNodeExceptionCollector.addSyntaxNodeException(
+                            SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode));
+                    }
+                }
             }
 
             String setterMethodName = "set" + name;
-            Method[] methods = beanClass.getMethods();
+            Method[] methods = datatypeClass.getMethods();
             boolean found = false;
             for (Method method : methods) {
                 if (method.getName().equals(setterMethodName)) {
@@ -287,22 +377,67 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             }
             if (!found) {
                 String errorMessage = String.format(
-                    "Datatype '%s' validation is failed on missed method '%s(%s)'. Please, regenerate your datatype classes.",
-                    beanName,
+                    "Method '%s(%s)' is not found in class '%s'. Please, regenerate datatype classes.",
                     setterMethodName,
-                    fieldDescription.getTypeName());
-                throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
+                    fieldDescription.getTypeName(),
+                    datatypeClassName);
+                syntaxNodeExceptionCollector
+                    .addSyntaxNodeException(SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode));
+
             }
         }
-
-        try {
-            beanClass.getConstructor();
-        } catch (NoSuchMethodException e) {
-            String errorMessage = String.format(
-                "Datatype '%s' validation is failed on missed default constructor. Please, regenerate datatype classes.",
-                beanName);
-            throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
+        if (parentDatatypeTableBoundNode != null) {
+            if (datatypeClass.getSuperclass() == null || !Objects.equals(
+                parentDatatypeTableBoundNode.getDataType().getJavaName(),
+                datatypeClass.getSuperclass().getName())) {
+                String errorMessage = String.format(
+                    "Invalid parent class'%s' is found in class '%s'. Please, regenerate datatype classes.",
+                    datatypeClass.getSuperclass() != null ? " " + datatypeClass.getSuperclass().getTypeName() : "",
+                    datatypeClassName);
+                syntaxNodeExceptionCollector
+                    .addSyntaxNodeException(SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode));
+            }
+            for (Entry<String, FieldDescription> fieldEntry : parentDatatypeTableBoundNode.getFields().entrySet()) {
+                try {
+                    Field f = datatypeClass.getSuperclass().getDeclaredField(fieldEntry.getKey());
+                    if (!Modifier.isPublic(f.getModifiers()) && !Modifier.isProtected(f.getModifiers())) {
+                        String errorMessage = String.format(
+                            "Invalid access modifier is found on field '%s' in class '%s'. Please, regenerate datatype classes.",
+                            fieldEntry.getKey(),
+                            datatypeClass.getSuperclass().getTypeName());
+                        syntaxNodeExceptionCollector.addSyntaxNodeException(
+                            SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode));
+                    }
+                } catch (NoSuchFieldException ignored) {
+                }
+            }
+            boolean g = false;
+            for (Constructor<?> constructor : datatypeClass.getSuperclass().getConstructors()) {
+                if (constructor.getParameterCount() == parentDatatypeTableBoundNode.getFields().size()) {
+                    int i = 0;
+                    boolean f = true;
+                    for (FieldDescription fieldDescription : parentDatatypeTableBoundNode.getFields().values()) {
+                        if (!constructor.getParameterTypes()[i].getName().equals(fieldDescription.getTypeName())) {
+                            f = false;
+                            break;
+                        }
+                        i++;
+                    }
+                    if (f) {
+                        g = true;
+                        break;
+                    }
+                }
+            }
+            if (!g) {
+                String errorMessage = String.format(
+                    "Required constructor with parameters is not found in class '%s'. Please, regenerate datatype classes.",
+                    datatypeClass.getSuperclass().getTypeName());
+                syntaxNodeExceptionCollector
+                    .addSyntaxNodeException(SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode));
+            }
         }
+        syntaxNodeExceptionCollector.throwIfAny();
     }
 
     private Pair<String, String> parseFieldNameCell(ILogicalTable row,
@@ -344,20 +479,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 fieldName,
                 fieldType,
                 fieldNameCellParsed.getValue());
-
-            if (!isRecursiveField(field) && OpenClassUtils.getRootComponentClass(field.getType())
-                .getInstanceClass() == null) {
-                // For example type A depends on B and B depends on A. At this
-                // point B is not generated yet.
-                // TODO Implement circular datatype dependencies support like in
-                // Java.
-                GridCellSourceCodeModule cellSource = getCellSource(row, bindingContext, 0);
-                TextInterval location = LocationUtils.createTextInterval(cellSource.getCode());
-
-                String message = "Type " + OpenClassUtils.getRootComponentClass(field.getType())
-                    .getName() + " is not generated yet";
-                throw SyntaxNodeExceptionUtils.createError(message, null, location, cellSource);
-            }
 
             FieldDescriptionBuilder fieldDescriptionBuilder;
             try {
@@ -511,17 +632,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     }
 
-    /**
-     * Checks if the type of the field is equal to the current datatype.
-     *
-     * @param field checking field
-     * @return true if the type of the field is equal to the given datatype
-     */
-    private boolean isRecursiveField(IOpenField field) {
-        IOpenClass fieldType = OpenClassUtils.getRootComponentClass(field.getType());
-        return fieldType.getName().equals(dataType.getName());
-    }
-
     public static String getDefaultValue(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
         String defaultValue = null;
         GridCellSourceCodeModule defaultValueSrc = getCellSource(row, cxt, 2);
@@ -549,7 +659,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
 
         if (row.getWidth() < 2) {
-            String errorMessage = "Bad table structure: must be {header} / {type | name}.";
+            String errorMessage = "Bad table structure: expected {header} / {type | name}.";
             throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, tableSrc);
         }
         return fieldType;
@@ -562,61 +672,91 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     @Override
-    public void finalizeBind(IBindingContext cxt) throws Exception {
-        if (!cxt.isExecutionMode()) {
-            tableSyntaxNode.setMetaInfoReader(new DatatypeTableMetaInfoReader(this));
-        }
-        if (parentClassName != null) {
-            IOpenClass parentClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
-            if (parentClass == null) {
-                throw new OpenLCompilationException(
-                    String.format("Parent class '%s' is not defined.", parentClassName));
+    public void finalizeBind(IBindingContext bindingContext) throws Exception {
+        try {
+            if (!bindingContext.isExecutionMode()) {
+                tableSyntaxNode.setMetaInfoReader(new DatatypeTableMetaInfoReader(this));
             }
+            if (!byteCodeReadyToLoad) {
+                return;
+            }
+            OpenLBundleClassLoader classLoader = (OpenLBundleClassLoader) Thread.currentThread()
+                .getContextClassLoader();
+            Class<?> datatypeClass = classLoader.loadClass(dataType.getJavaName());
+            dataType.setInstanceClass(datatypeClass);
+            moduleOpenClass.addType(dataType);
+        } catch (ClassNotFoundException | LinkageError e) {
+            throw SyntaxNodeExceptionUtils.createError(
+                String.format("Failed to load a class for datatype '%s'.", dataType.getJavaName()),
+                tableSyntaxNode);
+        } finally {
+            fields = null;
+        }
+    }
 
-            if (parentClass.getInstanceClass() != null) {// parent class has
-                // errors
-                if (Modifier.isFinal(parentClass.getInstanceClass().getModifiers())) {
-                    throw new OpenLCompilationException(
-                        String.format("Cannot inherit from final class '%s'.", parentClassName));
+    public void generateByteCode(IBindingContext bindingContext) throws Exception {
+        if (!generated) {
+            try {
+                if (parentClassName != null) {
+                    IOpenClass parentOpenClass;
+                    DatatypeTableBoundNode parentDatatypeTableBoundNode = getParentDatatypeTableBoundNode();
+                    if (parentDatatypeTableBoundNode != null) {
+                        parentDatatypeTableBoundNode.generateByteCode(bindingContext);
+                        parentOpenClass = parentDatatypeTableBoundNode.getDataType();
+                    } else {
+                        parentOpenClass = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
+                    }
+                    if (parentOpenClass == null) {
+                        byteCodeReadyToLoad = true;
+                        throw new OpenLCompilationException(
+                            String.format("Parent class '%s' is not found.", parentClassName));
+                    }
+
+                    if (parentOpenClass.getInstanceClass() != null) {// parent class has
+                        // errors
+                        if (Modifier.isFinal(parentOpenClass.getInstanceClass().getModifiers())) {
+                            throw new OpenLCompilationException(
+                                String.format("Cannot inherit from final class '%s'.", parentClassName));
+                        }
+                        try {
+                            parentOpenClass.getInstanceClass().getConstructor();
+                        } catch (NoSuchMethodException e) {
+                            throw new OpenLCompilationException(
+                                String.format("Cannot inherit from class '%s'. Default constructor is not found.",
+                                    parentClassName));
+                        }
+                    }
+
+                    if (parentOpenClass instanceof DomainOpenClass) {
+                        throw new OpenLCompilationException(
+                            String.format("Parent class '%s' cannot be domain type.", parentClassName));
+                    }
+                    dataType.setSuperClass(parentOpenClass);
                 }
 
-                if (Modifier.isAbstract(parentClass.getInstanceClass().getModifiers())) {
-                    throw new OpenLCompilationException(
-                        String.format("Cannot inherit from abstract class '%s'.", parentClassName));
-                }
+                readFieldsAndGenerateByteCode(bindingContext);
+            } finally {
+                generated = true;
             }
-
-            if (parentClass instanceof DomainOpenClass) {
-                throw new OpenLCompilationException(
-                    String.format("Parent class '%s' cannot be domain type.", parentClassName));
-            }
-
-            dataType.setSuperClass(parentClass);
         }
-        addFields(cxt);
-        // Add new type to internal types of module.
-        //
-        moduleOpenClass.addType(dataType);
     }
 
     private void checkInheritedFieldsDuplication(final IBindingContext cxt) throws Exception {
         final IOpenClass superClass = dataType.getSuperClass();
         if (superClass != null) {
             SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
-            for (final Entry<String, IOpenField> field : dataType.getDeclaredFields().entrySet()) {
+            for (final IOpenField field : dataType.getDeclaredFields()) {
                 syntaxNodeExceptionCollector.run(() -> {
-                    IOpenField fieldInParent = superClass.getField(field.getKey());
+                    IOpenField fieldInParent = superClass.getField(field.getName());
                     if (fieldInParent != null) {
-                        if (fieldInParent.getType()
-                            .getInstanceClass()
-                            .equals(field.getValue().getType().getInstanceClass())) {
+                        if (fieldInParent.getType().getInstanceClass().equals(field.getType().getInstanceClass())) {
                             BindHelper.processWarn(String.format("Field [%s] has been already defined in class '%s'",
-                                field.getKey(),
+                                field.getName(),
                                 fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
                         } else {
                             throw SyntaxNodeExceptionUtils.createError(
                                 String.format("Field [%s] has been already defined in class '%s' with another type",
-                                    field.getKey(),
+                                    field.getName(),
                                     fieldInParent.getDeclaringClass().getDisplayName(0)),
                                 tableSyntaxNode);
                         }
@@ -646,5 +786,16 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     public IdentifierNode getParentClassIdentifier() {
         return parentClassIdentifier;
+    }
+
+    public DatatypeTableBoundNode getParentDatatypeTableBoundNode() {
+        return parentDatatypeTableBoundNode;
+    }
+
+    public void setParentDatatypeTableBoundNode(DatatypeTableBoundNode parentDatatypeTableBoundNode) {
+        this.parentDatatypeTableBoundNode = parentDatatypeTableBoundNode;
+    }
+
+    public void setByteCodeReadyToLoad(boolean byteCodeReadyToLoad) {
     }
 }

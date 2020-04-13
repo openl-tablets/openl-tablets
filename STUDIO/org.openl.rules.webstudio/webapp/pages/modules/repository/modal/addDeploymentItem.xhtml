@@ -1,9 +1,10 @@
 <ui:composition
-  xmlns:f="http://java.sun.com/jsf/core"
-  xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:a4j="http://richfaces.org/a4j"
-  xmlns:rich="http://richfaces.org/rich"
-  xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:c="http://java.sun.com/jsp/jstl/core"
 >
 
   <rich:popupPanel id="addDeployEntry" autosized="true">
@@ -48,8 +49,16 @@
             	      </rich:columnGroup>
             	    </f:facet>
                   <rich:column style="text-align: center;">
-                    <h:outputText id="short-value-for-deploy" value="#{version.shortVersion}" styleClass="expandable"/>
-                    <h:outputText value="#{version.versionName}" styleClass="hidden"/>
+                      <ui:param name="revisionNo" value="#{version.versionName}" />
+                      <ui:param name="shortRevisionNo" value="#{version.shortVersion}" />
+
+                      <h:panelGroup rendered="#{revisionNo eq shortRevisionNo}">
+                          <h:outputText value="#{revisionNo}"/>
+                      </h:panelGroup>
+                      <h:panelGroup rendered="#{not (revisionNo eq shortRevisionNo)}">
+                          <h:outputText value="#{shortRevisionNo}" styleClass="expandable" />
+                          <h:outputText value="#{revisionNo}" styleClass="hidden"/>
+                      </h:panelGroup>
                   </rich:column>
                   <rich:column>
                     <h:outputText value="#{version.versionInfo.createdBy}" />

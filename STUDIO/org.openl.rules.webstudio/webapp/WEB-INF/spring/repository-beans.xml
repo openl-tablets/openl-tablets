@@ -45,12 +45,18 @@
         <constructor-arg name="prefix" value="deploy-config."/>
     </bean>
 
-    <bean id="projectVersionCacheDB" class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheDB">
+    <bean id="projectVersionCacheDB" class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionH2CacheDB">
         <property name="openLHome" value="${openl.home}"/>
     </bean>
 
     <bean id="projectVersionCacheManager" class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager">
-        <property name="ProjectVersionCacheDB" ref="projectVersionCacheDB"/>
+        <property name="projectVersionCacheDB" ref="projectVersionCacheDB"/>
+        <property name="designRepository" ref="designTimeRepository"/>
+    </bean>
+
+    <bean id="ProjectVersionCacheMonitor" class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheMonitor" destroy-method="release">
+        <property name="projectVersionCacheDB" ref="projectVersionCacheDB"/>
+        <property name="projectVersionCacheManager" ref="projectVersionCacheManager"/>
         <property name="designRepository" ref="designTimeRepository"/>
     </bean>
 

@@ -1,9 +1,11 @@
 package org.openl.rules.calc;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
@@ -61,8 +63,12 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         if (!spreadsheet.isCustomSpreadsheet()) {
             throw new IllegalArgumentException("Only custom spreadsheets are supported.");
         }
-        Map<String, IOpenField> spreadsheetOpenClassFields = spreadsheet.getSpreadsheetType().getFields();
-        spreadsheetOpenClassFields.remove("this");
+        Collection<IOpenField> spreadsheetOpenClassFields = spreadsheet.getSpreadsheetType()
+            .getFields()
+            .stream()
+            .filter(e -> !"this".equals(e.getName()))
+            .collect(Collectors.toList());
+
         String typeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName();
 
         CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
@@ -79,7 +85,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         customSpreadsheetResultOpenClass
             .setMetaInfo(new TableMetaInfo("Spreadsheet", spreadsheet.getName(), spreadsheet.getSourceUrl()));
 
-        for (IOpenField field : spreadsheetOpenClassFields.values()) {
+        for (IOpenField field : spreadsheetOpenClassFields) {
             CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(
                 customSpreadsheetResultOpenClass,
                 field);

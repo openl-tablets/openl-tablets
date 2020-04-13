@@ -26,7 +26,6 @@ class ContextPropertiesInjector {
             try {
                 int paramIndex = i;
                 paramType.getFields()
-                    .values()
                     .stream()
                     .filter(IOpenField::isContextProperty)
                     .forEach(field -> contextPropertyInjections.put(field.getContextProperty(),

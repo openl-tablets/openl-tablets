@@ -18,9 +18,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.hooks.CommitMsgHook;
 import org.eclipse.jgit.hooks.PreCommitHook;
 import org.eclipse.jgit.internal.JGitText;
@@ -1321,7 +1324,20 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     log.debug("Discard commit: {}.", commitToDiscard);
                     resetCommand.setRef(commitToDiscard + "^");
                 }
-                resetCommand.call();
+                try {
+                    resetCommand.call();
+                } catch (JGitInternalException e) {
+                    // check if index file is corrupted
+                    try {
+                        DirCache dc = new DirCache(git.getRepository().getIndexFile(), git.getRepository().getFS());
+                        dc.read();
+                        log.error(e.getMessage(), e);
+                    } catch (CorruptObjectException ex) {
+                        log.error("git index file is corrupted and will be deleted", e);
+                        git.getRepository().getIndexFile().delete();
+                        resetCommand.call();
+                    }
+                }
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -2270,10 +2286,18 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private class ListCommand implements WalkCommand<List<FileData>> {
+
         private final ObjectId start;
+        private final RevCommit revCommit;
 
         private ListCommand(ObjectId start) {
             this.start = start;
+            this.revCommit = null;
+        }
+
+        private ListCommand(RevCommit revCommit) {
+            this.start = revCommit.getId();
+            this.revCommit = revCommit;
         }
 
         @Override
@@ -2292,9 +2316,17 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         try (TreeWalk dirWalk = new TreeWalk(repository)) {
                             dirWalk.addTree(rootWalk.getObjectId(0));
                             dirWalk.setRecursive(true);
-
                             while (dirWalk.next()) {
-                                files.add(createFileData(dirWalk, baseFolder, start));
+                                if (revCommit != null) {
+                                    files.add(new LazyFileData(branch,
+                                        baseFolder + dirWalk.getPathString(),
+                                        new File(localRepositoryPath),
+                                        revCommit,
+                                        getFileId(dirWalk),
+                                        escapedCommentTemplate));
+                                } else {
+                                    files.add(createFileData(dirWalk, baseFolder, start));
+                                }
                             }
                         }
                     }
@@ -2424,7 +2456,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 RevTree tree = commit.getTree();
 
                 try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
-                    history.addAll(new ListCommand(commit.getId()).apply(repository, rootWalk, fullPath));
+                    // TODO ListCommand
+                    history.addAll(new ListCommand(commit).apply(repository, rootWalk, fullPath));
                 } catch (FileNotFoundException ignored) {
                 }
 

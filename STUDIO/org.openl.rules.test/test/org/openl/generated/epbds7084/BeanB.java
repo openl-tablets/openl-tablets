@@ -3,7 +3,7 @@ package org.openl.generated.epbds7084;
 import java.util.Objects;
 
 public class BeanB extends BeanA {
-    String txt = "MyTXT";
+    private String txt = "message";
 
     public BeanB() {
     }

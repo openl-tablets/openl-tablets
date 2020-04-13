@@ -1509,3 +1509,12 @@ form .formfields {
     cursor: pointer;
     border-bottom: 1px dashed #777777;
 }
+
+option[value=""]:disabled {
+    background-color: lightgrey;
+    font-size: 1px;
+}
+
+option[value=""]:disabled + option[value=""]:disabled {
+    display: none;
+}

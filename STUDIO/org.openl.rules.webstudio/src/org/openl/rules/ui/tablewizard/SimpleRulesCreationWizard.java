@@ -1,8 +1,9 @@
 package org.openl.rules.ui.tablewizard;
 
-import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -14,12 +15,6 @@ import javax.faces.validator.ValidatorException;
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotBlank;
-import org.openl.base.INamedThing;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.rules.helpers.DoubleRange;
-import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -31,9 +26,6 @@ import org.openl.rules.table.xls.builder.SimpleRulesTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.ui.tablewizard.util.CellStyleManager;
 import org.openl.rules.ui.tablewizard.util.JSONHolder;
-import org.openl.types.IOpenClass;
-import org.openl.types.impl.DomainOpenClass;
-import org.openl.util.IntegerValuesUtils;
 import org.openl.util.StringUtils;
 import org.richfaces.json.JSONException;
 import org.slf4j.Logger;
@@ -48,7 +40,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     @NotBlank(message = "Cannot be empty")
     @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
     private String tableName;
-    private SelectItem[] domainTypes;
+    private List<String> domainTypes;
     private String jsonTable;
     private JSONHolder table;
     private String restoreTable;
@@ -68,41 +60,20 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     protected void onStart() {
         reset();
 
-        initDomainType();
+        domainTypes = new ArrayList<>(WizardUtils.predefinedTypes());
+        domainTypes.add("");
+        domainTypes.addAll(WizardUtils.declaredDatatypes());
+        domainTypes.add("");
+        domainTypes.addAll(WizardUtils.declaredAliases());
+        domainTypes.add("");
+        domainTypes.addAll(WizardUtils.importedClasses());
+
+        this.typesList = domainTypes.stream()
+            .filter(x -> !x.isEmpty())
+            .map(DomainTypeHolder::new)
+            .collect(Collectors.toList());
+
         initWorkbooks();
-    }
-
-    private void initDomainType() {
-        List<IOpenClass> types = new ArrayList<>(WizardUtils.getProjectOpenClass().getTypes());
-        Collection<IOpenClass> importedClasses = WizardUtils.getImportedClasses();
-        types.addAll(importedClasses);
-
-        List<String> datatypes = new ArrayList<>(types.size());
-        datatypes.add("");
-        for (IOpenClass datatype : types) {
-            if (Modifier.isFinal(datatype.getInstanceClass().getModifiers())) {
-                // cannot inherit from final class
-                continue;
-            }
-
-            if (!(datatype instanceof DomainOpenClass)) {
-                datatypes.add(datatype.getDisplayName(INamedThing.SHORT));
-            }
-        }
-
-        Collection<String> allClasses = DomainTree.buildTree(WizardUtils.getProjectOpenClass()).getAllClasses();
-        for (IOpenClass type : importedClasses) {
-            allClasses.add(type.getDisplayName(INamedThing.SHORT));
-        }
-
-        domainTypes = WizardUtils.createSelectItems(allClasses);
-
-        Collection<IOpenClass> classTypes = DomainTree.buildTree(WizardUtils.getProjectOpenClass()).getAllOpenClasses();
-        this.typesList = new ArrayList<>();
-
-        for (IOpenClass oc : classTypes) {
-            typesList.add(new DomainTypeHolder(oc.getDisplayName(INamedThing.SHORT), oc, false));
-        }
     }
 
     public int getColumnSize() {
@@ -159,7 +130,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         }
 
         if (dth == null) {
-            dth = new DomainTypeHolder(name, "STRING", false);
+            dth = new DomainTypeHolder(name, "STRING");
         }
 
         return dth;
@@ -238,12 +209,8 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         this.tableName = tableName;
     }
 
-    public SelectItem[] getDomainTypes() {
+    public List<String> getDomainTypes() {
         return domainTypes;
-    }
-
-    public void setDomainTypes(SelectItem[] domainTypes) {
-        this.domainTypes = domainTypes;
     }
 
     public String getReturnValueType() {
@@ -292,47 +259,61 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
             this.type = type;
         }
 
-        DomainTypeHolder(String name, IOpenClass openClass, boolean iterable) {
+        DomainTypeHolder(String name) {
             this.name = name;
-            this.iterable = iterable;
-
-            if (openClass != null) {
-                if (openClass.isArray()) {
-                    this.type = "ARRAY";
-                } else if (openClass.toString().equals(Date.class.getCanonicalName())) {
-                    this.type = "DATE";
-                } else if (openClass.toString().equals(boolean.class.getCanonicalName()) || openClass.toString()
-                    .equals(Boolean.class.getCanonicalName())) {
+            switch (name) {
+                case "boolean":
+                case "Boolean":
                     this.type = "BOOLEAN";
-                } else if (IntegerValuesUtils.isIntegerValue(openClass.getInstanceClass())) {
+                    break;
+                case "byte":
+                case "short":
+                case "int":
+                case "long":
+                case "Byte":
+                case "Short":
+                case "Integer":
+                case "Long":
+                case "BigInteger":
+                case "ByteValue":
+                case "ShortValue":
+                case "IntValue":
+                case "LongValue":
+                case "BigIntegerValue":
                     this.type = "INT";
-                } else if (openClass.toString().equals(BigDecimal.class.getCanonicalName()) || openClass.toString()
-                    .equals(BigDecimalValue.class.getCanonicalName()) || openClass.toString()
-                        .equals(DoubleValue.class.getCanonicalName()) || openClass.toString()
-                            .equals(Double.class.getCanonicalName()) || openClass.toString()
-                                .equals(FloatValue.class.getCanonicalName()) || openClass.toString()
-                                    .equals(Float.class.getCanonicalName()) || openClass.toString()
-                                        .equals(double.class.getCanonicalName()) || openClass.toString()
-                                            .equals(float.class.getCanonicalName())) {
-                    this.type = "FLOAT";
-                } else if (openClass.toString().equals(IntRange.class.getCanonicalName()) || openClass.toString()
-                    .equals(DoubleRange.class.getCanonicalName())) {
+                    break;
+                case "Date":
+                    this.type = "DATE";
+                    break;
+                case "IntRange":
+                case "DoubleRange":
                     this.type = "RANGE";
-                } else {
-                    this.type = "STRING";
-                }
+                    break;
+                case "float":
+                case "double":
+                case "BigDecimal":
+                case "Float":
+                case "Double":
+                case "FloatValue":
+                case "DoubleValue":
+                case "BigDecimalValue":
+                    this.type = "FLOAT";
+                    break;
+                default:
+                    this.type = name.contains("[]") ? "ARRAY" : "STRING";
+                    break;
+
             }
         }
 
-        DomainTypeHolder(String name, String type, boolean iterable) {
+        DomainTypeHolder(String name, String type) {
             this.name = name;
-            this.iterable = iterable;
             this.type = type;
         }
 
         @Override
         public DomainTypeHolder clone() {
-            return new DomainTypeHolder(this.name, this.type, this.iterable);
+            return new DomainTypeHolder(this.name, this.type);
         }
 
         public String getTypeName() {

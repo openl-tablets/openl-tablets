@@ -168,4 +168,8 @@ public final class OpenClassUtils {
         //
         return getRootComponentClass(fieldType.getComponentClass());
     }
+
+    public static boolean isVoid(IOpenClass type) {
+        return JavaOpenClass.VOID.equals(type) || JavaOpenClass.CLS_VOID.equals(type);
+    }
 }

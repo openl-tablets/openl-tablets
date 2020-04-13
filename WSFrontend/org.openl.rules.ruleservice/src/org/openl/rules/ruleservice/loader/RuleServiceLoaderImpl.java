@@ -123,7 +123,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             deploymentVersion.getVersionName(),
             projectName);
 
-        Deployment localDeployment = getDeploymentFromStorage(deploymentName, deploymentVersion);
+        Deployment localDeployment = getDeployment(deploymentName, deploymentVersion);
         AProject project = localDeployment.getProject(projectName);
         if (project == null) {
             throw new RuleServiceRuntimeException(
@@ -144,10 +144,11 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         return result;
     }
 
-    private Deployment getDeploymentFromStorage(String deploymentName, CommonVersion commonVersion) {
-        Deployment localDeployment = storage.getDeployment(deploymentName, commonVersion);
+    @Override
+    public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
+        Deployment localDeployment = storage.getDeployment(deploymentName, deploymentVersion);
         if (localDeployment == null) {
-            Deployment deployment = dataSource.getDeployment(deploymentName, commonVersion);
+            Deployment deployment = dataSource.getDeployment(deploymentName, deploymentVersion);
             localDeployment = storage.loadDeployment(deployment);
         }
         return localDeployment;

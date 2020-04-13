@@ -92,7 +92,7 @@ public class JavaInterfaceGenerator {
     }
 
     private void addFieldMethods(StringBuilder buf) {
-        for (IOpenField field : moduleOpenClass.getFields().values()) {
+        for (IOpenField field : moduleOpenClass.getFields()) {
             if (!shouldBeGenerated(field, fieldsToGenerate, ignoreNonJavaTypes, ignoreTestMethods)) {
                 continue;
             }

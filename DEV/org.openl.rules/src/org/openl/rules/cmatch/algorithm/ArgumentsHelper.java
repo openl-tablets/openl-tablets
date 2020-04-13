@@ -34,11 +34,8 @@ public class ArgumentsHelper {
         for (int i = 0; i < methodSignature.getNumberOfParameters(); i++) {
             // TODO add source
             // String paramName = methodSignature.getParameterName(i);
-
             IOpenClass type = paramTypes[i];
-            if (type.isSimple()) {
-                // ignore, already added
-            } else {
+            if (!type.isSimple()) {
                 IOpenField field = type.getField(argName, false);
                 if (field != null) {
                     return new Argument(i, field);
@@ -50,23 +47,20 @@ public class ArgumentsHelper {
     }
 
     public DomainOpenClass generateDomainClassByArgNames() {
-        Set<String> argNames = new HashSet<>();
-        argNames.addAll(argTypes.keySet());
+        Set<String> argNames = new HashSet<>(argTypes.keySet());
 
         IOpenClass[] paramTypes = methodSignature.getParameterTypes();
         for (int i = 0; i < methodSignature.getNumberOfParameters(); i++) {
             IOpenClass type = paramTypes[i];
-            if (type.isSimple()) {
-                // ignore, already added
-            } else {
+            if (!type.isSimple()) {
                 // non simple
-                for (IOpenField field : type.getFields().values()) {
+                for (IOpenField field : type.getFields()) {
                     argNames.add(field.getName());
                 }
             }
         }
 
-        String[] possibleNames = argNames.toArray(new String[argNames.size()]);
+        String[] possibleNames = argNames.toArray(new String[0]);
         return new DomainOpenClass("names", JavaOpenClass.STRING, new EnumDomain<>(possibleNames), null);
     }
 

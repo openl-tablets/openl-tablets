@@ -1,14 +1,13 @@
 package org.openl.gen.writers;
 
-import java.lang.reflect.Constructor;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.openl.gen.FieldDescription;
+import org.openl.gen.TypeDescription;
 
 public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
 
@@ -19,42 +18,33 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
      *
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
      *            (e.g. <code>my/test/TestClass</code>)
-     * @param parentClass class descriptor for super class.
-     * @param beanFields fields of generating class.
+     * @param parentType class descriptor for super class.
+     * @param fields fields of generating class.
      * @param parentFields fields of super class.
-     * @param allFields collection of fields for current class and parent`s ones.
      */
     public ConstructorWithParametersWriter(String beanNameWithPackage,
-            Class<?> parentClass,
-            Map<String, FieldDescription> beanFields,
+            TypeDescription parentType,
             Map<String, FieldDescription> parentFields,
-            Map<String, FieldDescription> allFields) {
-        super(beanNameWithPackage, parentClass, beanFields);
-        this.parentFields = new LinkedHashMap<>(parentFields);
-        this.allFields = new LinkedHashMap<>(allFields);
+            Map<String, FieldDescription> fields) {
+        super(beanNameWithPackage, parentType, fields);
+        this.parentFields = parentFields != null ? new LinkedHashMap<>(parentFields) : new LinkedHashMap<>();
+        this.allFields = new LinkedHashMap<>(this.parentFields);
+        this.allFields.putAll(fields);
     }
 
     @Override
     public void write(ClassWriter classWriter) {
         MethodVisitor methodVisitor;
 
-        Constructor<?> parentConstructor = null;
-        // Find the parent constructor with the appropriate number of fields
-        //
-        for (Constructor<?> constructor : getParentClass().getConstructors()) {
-            if (constructor.getParameterTypes().length == parentFields.size()) {
-                parentConstructor = constructor;
-                break;
-            }
-        }
         int i = 1;
-        String parentName = Type.getInternalName(getParentClass());
-        if (parentConstructor == null) {
+        String parentName = getParentType().getTypeName().replace('.', '/');
+        if (parentFields.isEmpty()) {
             methodVisitor = classWriter
                 .visitMethod(Opcodes.ACC_PUBLIC, "<init>", getMethodSignatureForByteCode(getBeanFields()), null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
             methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, parentName, "<init>", "()V");
         } else {
+            // Parent fields are not empty only if parent class is datatype and constructor exists in generated class.
             methodVisitor = classWriter
                 .visitMethod(Opcodes.ACC_PUBLIC, "<init>", getMethodSignatureForByteCode(allFields), null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);

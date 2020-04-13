@@ -1,61 +1,38 @@
 package org.openl.types.java;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.Method;
+import java.util.Objects;
 
 import org.openl.types.IOpenClass;
-import org.openl.types.impl.DomainOpenClass;
+import org.openl.types.IOpenMethod;
 
 public final class OpenClassHelper {
 
     private OpenClassHelper() {
     }
 
-    public static synchronized IOpenClass getOpenClass(IOpenClass moduleOpenClass, Class<?> classToFind) {
-        IOpenClass result = null;
-        if (classToFind != null) {
-            Iterable<IOpenClass> internalTypes = moduleOpenClass.getTypes();
-            if (classToFind.isArray()) {
-                IOpenClass componentType = findType(classToFind.getComponentType(), internalTypes);
-                if (componentType != null) {
-                    result = componentType.getAggregateInfo().getIndexedAggregateType(componentType);
+    public static IOpenMethod findRulesMethod(IOpenClass openClass, String methodName, Class<?>... methodArgs) {
+        Objects.requireNonNull(openClass, "openClass cannot be null");
+        Objects.requireNonNull(methodName, "methodName cannot be null");
+        for (IOpenMethod m : openClass.getMethods()) {
+            if (methodName.equals(m.getName()) && methodArgs.length == m.getSignature().getNumberOfParameters()) {
+                boolean f = true;
+                for (int i = 0; i < m.getSignature().getNumberOfParameters(); i++) {
+                    if (!Objects.equals(methodArgs[i], m.getSignature().getParameterType(i).getInstanceClass())) {
+                        f = false;
+                        break;
+                    }
                 }
-            } else {
-                result = findType(classToFind, internalTypes);
-            }
-
-            if (result == null) {
-                result = JavaOpenClass.getOpenClass(classToFind);
+                if (f) {
+                    return m;
+                }
             }
         }
-        return result;
+        return null;
     }
 
-    private static IOpenClass findType(Class<?> classToFind, Iterable<IOpenClass> internalTypes) {
-        IOpenClass result = null;
-        for (IOpenClass datatypeClass : internalTypes) {
-            // getInstanceClass() for DomainOpenClass returns simple type == enum type
-            if (!(datatypeClass instanceof DomainOpenClass) && classToFind.equals(datatypeClass.getInstanceClass())) {
-
-                result = datatypeClass;
-                break;
-            }
-        }
-        return result;
+    public static IOpenMethod findRulesMethod(IOpenClass openClass, Method javaMethod) {
+        Objects.requireNonNull(javaMethod, "javaMethod cannot be null");
+        return findRulesMethod(openClass, javaMethod.getName(), javaMethod.getParameterTypes());
     }
-
-    public static synchronized IOpenClass[] getOpenClasses(IOpenClass moduleOpenClass, Class<?>[] classesToFind) {
-        if (classesToFind.length == 0) {
-            return IOpenClass.EMPTY;
-        }
-
-        List<IOpenClass> openClassList = new ArrayList<>();
-
-        for (Class<?> classToFind : classesToFind) {
-            openClassList.add(getOpenClass(moduleOpenClass, classToFind));
-        }
-        return openClassList.toArray(new IOpenClass[openClassList.size()]);
-
-    }
-
 }

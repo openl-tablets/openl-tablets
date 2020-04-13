@@ -68,8 +68,10 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
                         aliasDatatypesCasts = new IOpenCast[header.getSignature().getNumberOfParameters()];
                     }
                     IOpenClass methodParam = header.getSignature().getParameterTypes()[i];
-                    aliasDatatypesCasts[i++] = castFactory
-                        .getCast(JavaOpenClass.getOpenClass(methodParam.getInstanceClass()), methodParam);
+                    if (methodParam.getInstanceClass() != null) {
+                        aliasDatatypesCasts[i++] = castFactory
+                            .getCast(JavaOpenClass.getOpenClass(methodParam.getInstanceClass()), methodParam);
+                    }
                 }
             }
         }

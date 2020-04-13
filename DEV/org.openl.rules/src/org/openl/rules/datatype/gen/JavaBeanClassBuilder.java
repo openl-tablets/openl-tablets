@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import org.openl.gen.FieldDescription;
 import org.openl.gen.POJOByteCodeGenerator;
+import org.openl.gen.TypeDescription;
 
 /**
  * Generates Java byte code to create JavaBean classes with JAXB annotations.
@@ -13,7 +14,7 @@ import org.openl.gen.POJOByteCodeGenerator;
 public class JavaBeanClassBuilder {
 
     protected final String beanName;
-    protected Class<?> parentClass = Object.class;
+    protected TypeDescription parentType = POJOByteCodeGenerator.OBJECT_TYPE_DESCRIPTION;
     protected LinkedHashMap<String, FieldDescription> parentFields = new LinkedHashMap<>(0);
     protected LinkedHashMap<String, FieldDescription> fields = new LinkedHashMap<>(0);
 
@@ -25,8 +26,8 @@ public class JavaBeanClassBuilder {
         this.beanName = beanName.replace('.', '/');
     }
 
-    public JavaBeanClassBuilder setParentClass(Class<?> parentClass) {
-        this.parentClass = parentClass;
+    public JavaBeanClassBuilder setParentType(TypeDescription parentType) {
+        this.parentType = parentType;
         return this;
     }
 
@@ -94,7 +95,7 @@ public class JavaBeanClassBuilder {
     public byte[] byteCode() {
         return new POJOByteCodeGenerator(beanName,
             fields,
-            parentClass,
+            parentType,
             parentFields,
             additionalConstructor,
             equalsHashCodeToStringMethods,

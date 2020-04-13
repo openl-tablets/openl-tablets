@@ -9,7 +9,6 @@ package org.openl.types;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
@@ -206,12 +205,12 @@ public final class NullOpenClass implements IOpenClass {
     }
 
     @Override
-    public Iterable<IOpenClass> superClasses() {
+    public Collection<IOpenClass> superClasses() {
         return Collections.emptyList();
     }
 
     @Override
-    public void addType(IOpenClass type) throws Exception {
+    public void addType(IOpenClass type) {
     }
 
     @Override
@@ -227,15 +226,14 @@ public final class NullOpenClass implements IOpenClass {
     }
 
     @Override
-    public Map<String, IOpenField> getFields() {
-        // Default implementation
-        return Collections.emptyMap();
+    public Collection<IOpenField> getFields() {
+        return Collections.emptyList();
     }
 
     @Override
-    public Map<String, IOpenField> getDeclaredFields() {
+    public Collection<IOpenField> getDeclaredFields() {
         // Default implementation
-        return Collections.emptyMap();
+        return Collections.emptyList();
     }
 
     @Override

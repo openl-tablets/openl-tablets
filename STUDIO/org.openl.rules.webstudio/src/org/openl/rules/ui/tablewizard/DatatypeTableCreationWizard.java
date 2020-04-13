@@ -2,14 +2,12 @@ package org.openl.rules.ui.tablewizard;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
@@ -17,13 +15,10 @@ import javax.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
-import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DatatypeTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
-import org.openl.types.IOpenClass;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
 
 /**
@@ -38,9 +33,8 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
     @Valid
     private List<TypeNamePair> parameters = new ArrayList<>();
 
-    private DomainTree domainTree;
-    private SelectItem[] definedDatatypes;
-    private SelectItem[] domainTypes;
+    private List<String> definedDatatypes;
+    private List<String> domainTypes;
     private String parent;
 
     public String getTechnicalName() {
@@ -59,11 +53,7 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
         this.parameters = parameters;
     }
 
-    public DomainTree getDomainTree() {
-        return domainTree;
-    }
-
-    public SelectItem[] getDefinedDatatypes() {
+    public List<String> getDefinedDatatypes() {
         return definedDatatypes;
     }
 
@@ -75,7 +65,7 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
         this.parent = parent;
     }
 
-    public SelectItem[] getDomainTypes() {
+    public List<String> getDomainTypes() {
         return domainTypes;
     }
 
@@ -88,30 +78,20 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
     protected void onStart() {
         reset();
 
-        domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
+        definedDatatypes = new ArrayList<>(WizardUtils.declaredDatatypes());
+        definedDatatypes.add("");
+        WizardUtils.getImportedClasses().forEach(c -> {
+            if (!Modifier.isFinal(c.getInstanceClass().getModifiers()))
+                definedDatatypes.add(c.getDisplayName(INamedThing.SHORT));
+        });
 
-        List<IOpenClass> types = new ArrayList<>(WizardUtils.getProjectOpenClass().getTypes());
-        Collection<IOpenClass> importedClasses = WizardUtils.getImportedClasses();
-        types.addAll(importedClasses);
-
-        List<String> datatypes = new ArrayList<>(types.size());
-        for (IOpenClass datatype : types) {
-            if (Modifier.isFinal(datatype.getInstanceClass().getModifiers())) {
-                // cannot inherit from final class
-                continue;
-            }
-
-            if (datatype instanceof DatatypeOpenClass || datatype instanceof JavaOpenClass) {
-                datatypes.add(datatype.getDisplayName(INamedThing.SHORT));
-            }
-        }
-
-        definedDatatypes = WizardUtils.createSelectItems(datatypes);
-        Collection<String> allClasses = domainTree.getAllClasses();
-        for (IOpenClass type : importedClasses) {
-            allClasses.add(type.getDisplayName(INamedThing.SHORT));
-        }
-        domainTypes = WizardUtils.createSelectItems(allClasses);
+        domainTypes = new ArrayList<>(WizardUtils.predefinedTypes());
+        domainTypes.add("");
+        domainTypes.addAll(WizardUtils.declaredDatatypes());
+        domainTypes.add("");
+        domainTypes.addAll(WizardUtils.declaredAliases());
+        domainTypes.add("");
+        domainTypes.addAll(WizardUtils.importedClasses());
 
         addParameter();
     }
@@ -175,7 +155,6 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
         technicalName = null;
         parameters = new ArrayList<>();
 
-        domainTree = null;
         domainTypes = null;
 
         super.reset();

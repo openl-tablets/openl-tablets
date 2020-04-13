@@ -1,17 +1,12 @@
 package org.openl.rules.datatype.binding;
 
-import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.*;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.util.StringUtils;
@@ -23,23 +18,14 @@ import org.openl.util.StringUtils;
  * @author Denis Levchuk
  */
 class DependentTypesExtractor {
-    public static final String ALIASDATATYPE_PATTERN = "^.+\\<.+\\>\\s*$";
+    public static final String ALIAS_DATATYPE_PATTERN = "^.+\\<.+\\>\\s*$";
 
     private boolean isAliasDatatype(TableSyntaxNode node) {
         String header = node.getHeader().getSourceString();
-        return header.matches(ALIASDATATYPE_PATTERN);
+        return header.matches(ALIAS_DATATYPE_PATTERN);
     }
 
     public Set<String> extract(TableSyntaxNode node, IBindingContext cxt) {
-        ILogicalTable dataPart = DatatypeHelper
-            .getNormalizedDataPartTable(node.getTable(), OpenL.getInstance(OpenL.OPENL_JAVA_NAME), cxt);
-
-        int tableHeight = 0;
-
-        if (dataPart != null) {
-            tableHeight = dataPart.getHeight();
-        }
-
         Set<String> dependencies = new LinkedHashSet<>();
         if (isAliasDatatype(node)) {
             // Alias datatype doens't have dependencies
@@ -50,17 +36,6 @@ class DependentTypesExtractor {
             dependencies.add(parentType);
         }
 
-        for (int i = 0; i < tableHeight; i++) {
-            ILogicalTable row = dataPart.getRow(i);
-
-            if (canProcessRow(row, cxt)) {
-                String typeName = getType(row, cxt);
-                if (StringUtils.isNotBlank(typeName)) {
-                    dependencies.add(typeName);
-                }
-            }
-
-        }
         return dependencies;
     }
 
@@ -85,33 +60,6 @@ class DependentTypesExtractor {
             }
         }
 
-        return null;
-    }
-
-    private String getType(ILogicalTable row, IBindingContext cxt) {
-        // Get the cell that has index 0. This cell contains the Type name
-        //
-        GridCellSourceCodeModule typeSrc = getCellSource(row, cxt, 0);
-        IdentifierNode[] idn = new IdentifierNode[0];
-        try {
-            idn = getIdentifierNode(typeSrc);
-        } catch (OpenLCompilationException e) {
-            // Suppress the exception
-            //
-        }
-        if (idn.length >= 1) {
-            String type = idn[0].getIdentifier();
-            if (type.contains("[")) {
-                // Use the clean type, without array declarations
-                //
-                type = type.substring(0, type.indexOf("["));
-            }
-            // Return the Type name
-            //
-            return type;
-        }
-        // Alias Datatype don't have Type name
-        //
         return null;
     }
 }

@@ -147,7 +147,7 @@ public class RunWebservicesITest {
 
     @Test
     public void EPBDS_9572() {
-        client.get("/REST/EPBDS-9572/EPBDS-9572/swagger.json", "/EPBDS_9572/EPBDS_9572_swagger.resp.json");
+        client.get("/REST/EPBDS-9572/EPBDS-9572/swagger.json", "/EPBDS-9572/EPBDS-9572_swagger.resp.json");
     }
 
     @Test
@@ -163,4 +163,17 @@ public class RunWebservicesITest {
             "/EPBDS-9453/EPBDS-9453_proxyCustomer.resp.json");
 
     }
+
+    @Test
+    public void EPBDS_9619() {
+        client.get("/REST/EPBDS-9619/EPBDS-9619/swagger.json", "/EPBDS-9619/EPBDS-9619_swagger.resp.json");
+    }
+
+    @Test
+    public void EPBDS_9622() {
+        client.get("/REST/v1/EPBDS-9622/doSomething", "/EPBDS-9622/EPBDS-9622_v1.resp.txt");
+        client.get("/REST/v2/EPBDS-9622/doSomething", "/EPBDS-9622/EPBDS-9622_v2.resp.txt");
+        client.get("/REST/v3/EPBDS-9622/doSomething", "/EPBDS-9622/EPBDS-9622_v3.resp.txt");
+    }
+
 }

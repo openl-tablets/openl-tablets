@@ -3,11 +3,19 @@ package org.openl.itest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runners.model.MultipleFailureException;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
+import org.openl.itest.core.worker.AsyncExecutor;
+import org.openl.itest.core.worker.TaskScheduler;
 import org.openl.itest.response.ServiceInfoResponse;
 import org.openl.itest.response.UiInfoResponse;
 
@@ -124,6 +132,57 @@ public class RunRestRulesDeploymentTest {
         client.get("/admin/services/missing-name/methods", 404);
     }
 
+    @Test
+    public void test_EPBDS_8758_multithread() throws Exception {
+        client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
+        client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v1.resp.txt");
+        AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS, () -> client.get("/REST/EPBDS-8758/doSomething", String.class));
+        TaskScheduler taskScheduler = new TaskScheduler();
+
+        executor.start();
+
+        taskScheduler.schedule(() -> {
+            client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v2.zip", 201);
+            client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v2.resp.txt");
+        }, 1, TimeUnit.SECONDS);
+        taskScheduler.schedule(() -> {
+            client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v3.zip", 201);
+            client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v3.resp.txt");
+        }, 2, TimeUnit.SECONDS);
+
+        List<Throwable> deployErrors = taskScheduler.await();
+        List<Throwable> invocationErrors = executor.stop();
+
+        client.delete("/admin/delete/EPBDS-8758");
+
+        MultipleFailureException.assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream())
+                .collect(Collectors.toList()));
+    }
+
+    @Test
+    public void test_EPBDS_8758_multithread2() throws Exception {
+        client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
+        client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v1.resp.txt");
+        AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS, () -> client.get("/REST/EPBDS-8758/doSomething"));
+        executor.start();
+
+        AsyncExecutor deployers = new AsyncExecutor(() -> {
+            client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v2.zip", 201);
+        }, () -> {
+            client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v3.zip", 201);
+        });
+
+        deployers.start();
+        TimeUnit.SECONDS.sleep(1);
+        List<Throwable> deployErrors = deployers.stop();
+        List<Throwable> invocationErrors = executor.stop();
+
+        client.delete("/admin/delete/EPBDS-8758");
+
+        MultipleFailureException.assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream())
+                .collect(Collectors.toList()));
+    }
+
     private void checkServiceInfo(ServiceInfoResponse service,
             String expectedName,
             String expectedSoap,
@@ -136,4 +195,5 @@ public class RunRestRulesDeploymentTest {
     private void checkServiceTime(long timeToCheckMs, long createServiceTime) {
         assertTrue((timeToCheckMs >= createServiceTime && timeToCheckMs <= System.currentTimeMillis()));
     }
+
 }

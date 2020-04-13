@@ -1,14 +1,12 @@
 package org.openl.rules.ui.tablewizard;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
@@ -20,7 +18,6 @@ import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DatatypeAliasTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.util.StringUtils;
-import org.springframework.util.CollectionUtils;
 
 /**
  * @author Andrei Astrouski
@@ -36,8 +33,7 @@ public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
     @Valid
     private List<AliasValue> values = new ArrayList<>();
 
-    private DomainTree domainTree;
-    private SelectItem[] domainTypes;
+    private final List<String> domainTypes = WizardUtils.predefinedTypes();
 
     public String getTechnicalName() {
         return technicalName;
@@ -63,11 +59,7 @@ public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
         this.values = values;
     }
 
-    public DomainTree getDomainTree() {
-        return domainTree;
-    }
-
-    public SelectItem[] getDomainTypes() {
+    public List<String> getDomainTypes() {
         return domainTypes;
     }
 
@@ -80,13 +72,7 @@ public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
     protected void onStart() {
         reset();
 
-        domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass(), false);
-        Collection<String> allClasses = domainTree.getAllClasses();
-        domainTypes = WizardUtils.createSelectItems(allClasses);
-
-        if (!CollectionUtils.isEmpty(allClasses) && CollectionUtils.contains(allClasses.iterator(), "String")) {
-            setAliasType("String");
-        }
+        setAliasType("String");
 
         addValue();
     }
@@ -160,9 +146,6 @@ public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
     protected void reset() {
         technicalName = null;
         values = new ArrayList<>();
-
-        domainTree = null;
-        domainTypes = null;
 
         super.reset();
     }
