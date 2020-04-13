@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -119,6 +121,17 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
             }
         }
         File file = getFile();
+        file.delete(); // Delete to 'unconfigure' settings for matching with defaults
+
+        Iterator<Map.Entry<Object, Object>> props = properties.entrySet().iterator();
+        while (props.hasNext()) { // Do clean up from default values
+            Map.Entry<Object, Object> e = props.next();
+            String key = e.getKey().toString();
+            if (Objects.equals(resolver.getProperty(key), e.getValue())) {
+                props.remove();
+            }
+        }
+
         File parent = file.getParentFile();
         if (!parent.mkdirs() && !parent.exists()) {
             throw new FileNotFoundException("Can't create the folder " + parent.getAbsolutePath());
