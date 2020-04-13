@@ -24,10 +24,11 @@
                             </div>
                         </h3>
                         <h:panelGrid >
-                        <div>
-                            <h:inputText id="workingDir" value="#{installWizard.workingDir}"
-                            validator="#{installWizard.workingDirValidator}" size="72"/>
-                        </div>
+                            <div>
+                                <h:inputText id="workingDir" value="#{installWizard.workingDir}"
+                                             disabled="#{props.isPropertyDisabled('openl.home')}"
+                                             validator="#{installWizard.workingDirValidator}" size="72"/>
+                            </div>
                         <div >
                             <h:message for="workingDir" class="error" />
                         </div>

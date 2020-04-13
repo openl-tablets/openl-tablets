@@ -151,9 +151,6 @@ public class SystemSettingsBean {
     public void setProjectHistoryCount(String count) {
         properties.setProperty(PROJECT_HISTORY_COUNT, Integer.parseInt(count));
     }
-    public boolean isSystemProp(String name) {
-        return System.getProperty(name) != null;
-    }
 
     public boolean isUnlimitHistory() {
         return Boolean.parseBoolean(properties.getProperty(PROJECT_HISTORY_UNLIMITED));
@@ -216,8 +213,7 @@ public class SystemSettingsBean {
     }
 
     public void setTestRunThreadCount(String testRunThreadCount) {
-        properties.setProperty(TEST_RUN_THREAD_COUNT_PROPERTY,
-            Integer.parseInt(StringUtils.trim(testRunThreadCount)));
+        properties.setProperty(TEST_RUN_THREAD_COUNT_PROPERTY, Integer.parseInt(StringUtils.trim(testRunThreadCount)));
     }
 
     public boolean isAutoCompile() {
@@ -284,7 +280,8 @@ public class SystemSettingsBean {
             // We cannot invoke configManager.restoreDefaults(): in this case some
             // settings (such as user.mode etc) not edited in this page
             // will be reverted too. We should revert only settings edited in Administration page
-            properties.revertProperties(AdministrationSettings.getAllSettings().toArray(StringUtils.EMPTY_STRING_ARRAY));
+            properties
+                .revertProperties(AdministrationSettings.getAllSettings().toArray(StringUtils.EMPTY_STRING_ARRAY));
             saveSystemConfig();
 
             productionRepositoryEditor.reload();
@@ -338,8 +335,8 @@ public class SystemSettingsBean {
 
     private void refreshConfig() {
         WebStudioUtils.getWebStudio(true).setNeedRestart(true);
-        ReloadableDelegatingFilter.reloadApplicationContext(
-            (ServletContext) WebStudioUtils.getExternalContext().getContext());
+        ReloadableDelegatingFilter
+            .reloadApplicationContext((ServletContext) WebStudioUtils.getExternalContext().getContext());
     }
 
 }

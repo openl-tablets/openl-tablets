@@ -64,8 +64,13 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         PreferencePropertySource.THE = preferencePropertySource;
         propertySources.addBefore(DefaultPropertySource.PROPS_NAME, preferencePropertySource);
 
+        ConfigLog.LOG.info("Loading disable properties...");
+        DisablePropertySource disablePropertySource = new DisablePropertySource(propertySources);
+        DisablePropertySource.THE = disablePropertySource;
+        propertySources.addBefore(PreferencePropertySource.PROPS_NAME, disablePropertySource);
+
         ConfigLog.LOG.info("Loading application properties...");
-        propertySources.addBefore(PreferencePropertySource.PROPS_NAME,
+        propertySources.addBefore(DisablePropertySource.PROPS_NAME,
             new ApplicationPropertySource(props, appName, profiles));
 
         ConfigLog.LOG.info("Loading reconfigurable properties...");

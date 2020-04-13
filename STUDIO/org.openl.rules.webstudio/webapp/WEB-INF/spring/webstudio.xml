@@ -6,7 +6,7 @@
        default-autowire="no">
 
     <bean id="versionProperties" class="org.openl.info.OpenLVersion" />
-    <bean class="org.openl.rules.webstudio.web.Props"/>
+    <bean id="props" class="org.openl.rules.webstudio.web.Props"/>
 
     <!-- Either webstudio-true.xml or webstudio-false.xml. -->
     <import resource="webstudio-${webstudio.configured}.xml" />
