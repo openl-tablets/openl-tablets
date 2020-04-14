@@ -817,6 +817,10 @@
                     }).toggleClass("restore-changed-state restore-changed-state-added");
                 });
 
+                callbacks.push(function () {
+                    initPopupPanels();
+                })
+
                 var initUrl = urlRewrite.prefix + "init.xhtml";
                 if (init && init.project) {
                     initUrl += ("?project=" + init.project);
@@ -928,6 +932,7 @@
 
         $j(function () {
             fixTabIndexesInRichPopupPanels();
+            initPopupPanels();
         });
     //]]>
     </script>

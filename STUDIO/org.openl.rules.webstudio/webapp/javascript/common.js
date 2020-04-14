@@ -95,6 +95,15 @@ function fixTabIndexesInRichPopupPanels() {
     };
 }
 
+/**
+ * Add 'popup-panel' class to a parent div of every rich:popupPanel because that div adds 'display: inline-block;'
+ * and it adds unnecessary line break even if "visibility:hidden" is set. We override the style of every .popup-panel
+ * to remove that unnecessary line breaks.
+ */
+function initPopupPanels() {
+    $j('.rf-pp-cntr').parent().addClass('popup-panel');
+}
+
 function updateSubmitListener(listener) {
     if (!$j) {
         return;

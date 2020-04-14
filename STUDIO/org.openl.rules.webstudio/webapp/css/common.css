@@ -1518,3 +1518,18 @@ option[value=""]:disabled {
 option[value=""]:disabled + option[value=""]:disabled {
     display: none;
 }
+
+/**
+ * rich:popupPanel causes a line break because of style="visibility:hidden; display: inline-block;" instead of "display:none".
+ * This breaks top panel rendering and table properties panel.
+ * In previous version of richfaces there was no any "display" attribute and "display: block" was inherited.
+ * As a workaround we override such divs for rich:popupPanel.
+ * We should override it only when "display: inline-block" is exist (visibility attribute can be changed dynamically).
+ * If 'display: none', don't override.
+ * See these links:
+ * https://developer.jboss.org/thread/169474
+ * https://developer.jboss.org/thread/267743
+ */
+.popup-panel[style*="display: inline-block"] {
+    display: block !important;
+}
