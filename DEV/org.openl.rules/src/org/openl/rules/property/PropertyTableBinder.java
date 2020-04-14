@@ -16,6 +16,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
+import org.openl.rules.utils.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -43,13 +44,18 @@ public class PropertyTableBinder extends DataNodeBinder {
 
         PropertyTableBoundNode propertyNode = (PropertyTableBoundNode) makeNode(tsn, module, bindingContext);
 
-        String tableName = parseHeader(tsn);
+        IdentifierNode identifierNode = parseHeader(tsn);
+        String tableName = identifierNode == null ? null : identifierNode.getIdentifier();
         propertyNode.setTableName(tableName);
-
-        if (tableName == null) {
+        if (identifierNode == null) {
             tableName = DEFAULT_TABLE_NAME_PREFIX + tsn.getUri();
+        } else {
+            tableName = identifierNode.getIdentifier();
+            if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
+                String message = "Property table " + tableName + TableNameChecker.NAME_ERROR_MESSAGE;
+                throw SyntaxNodeExceptionUtils.createError(message, null, identifierNode);
+            }
         }
-
         ITable propertyTable = module.getDataBase().registerTable(tableName, tsn);
         IOpenClass propertiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
         ILogicalTable propTableBody = getTableBody(tsn);
@@ -77,15 +83,15 @@ public class PropertyTableBinder extends DataNodeBinder {
      * <b>e.g.: Properties [tableName].</b>
      *
      * @param tsn <code>{@link TableSyntaxNode}</code>
-     * @return table name if exists.
+     * @return identifier node with name if exists.
      */
-    private String parseHeader(TableSyntaxNode tsn) throws Exception {
+    private IdentifierNode parseHeader(TableSyntaxNode tsn) throws Exception {
         IOpenSourceCodeModule src = tsn.getHeader().getModule();
 
         IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");
 
         if (parsedHeader.length > 1) {
-            return parsedHeader[1].getIdentifier();
+            return parsedHeader[1];
         }
 
         return null;
