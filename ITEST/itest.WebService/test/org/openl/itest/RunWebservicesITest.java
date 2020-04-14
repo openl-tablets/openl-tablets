@@ -176,4 +176,12 @@ public class RunWebservicesITest {
         client.get("/REST/v3/EPBDS-9622/doSomething", "/EPBDS-9622/EPBDS-9622_v3.resp.txt");
     }
 
+    @Test
+    public void EPBDS_9576() {
+        client.post("/REST/EPBDS-9576/mySpr", "/EPBDS-9576/EPBDS-9576_mySpr.req.json", "/EPBDS-9576/EPBDS-9576_mySpr.resp.json");
+        client.get("/REST/EPBDS-9576/swagger.json", "/EPBDS-9576/EPBDS-9576_swagger.resp.json");
+        client.get("/REST/EPBDS-9576?_wadl", "/EPBDS-9576/EPBDS-9576_wadl.resp.xml");
+        client.get("/EPBDS-9576?wsdl", "/EPBDS-9576/EPBDS-9576_wsdl.resp.xml");
+    }
+
 }

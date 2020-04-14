@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,6 +34,7 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.TypeResolver;
 import org.openl.rules.ruleservice.core.interceptors.annotations.UseOpenMethodReturnType;
 import org.openl.rules.ruleservice.core.interceptors.converters.SPRToPlainConverterAdvice;
 import org.openl.rules.ruleservice.core.interceptors.converters.VariationResultSPRToPlainConverterAdvice;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
@@ -153,8 +153,7 @@ public final class RuleServiceInstantiationFactoryHelper {
             serviceTarget,
             toServiceClass);
 
-        Set<Method> methodsToRemove = removeServiceExtraMethods ? getMethodsWithServiceExtraMethodAnnotation(
-            serviceClass) : Collections.emptySet();
+        Set<Method> methodsToRemove = getMethodsToRemove(serviceClass, removeServiceExtraMethods);
 
         if (methodsWithReturnTypeNeedsChange.isEmpty() && methodsToRemove.isEmpty()) {
             return serviceClass;
@@ -381,16 +380,17 @@ public final class RuleServiceInstantiationFactoryHelper {
     }
 
     /**
-     * Look through all methods of the specified class in order to find all methods annotated by
-     * {@link ServiceExtraMethod}.
+     * Look through all methods of the specified class in order to find all methods which must be excluded from interface
      *
      * @param serviceClass Class to be analyzed.
+     * @param removeServiceExtraMethods {@code true} if methods annotated by {@link ServiceExtraMethod} must be excluded
      * @return Methods which have after interceptors.
      */
-    public static Set<Method> getMethodsWithServiceExtraMethodAnnotation(Class<?> serviceClass) {
+    private static Set<Method> getMethodsToRemove(Class<?> serviceClass, boolean removeServiceExtraMethods) {
         Set<Method> ret = new HashSet<>();
         for (Method method : serviceClass.getMethods()) {
-            if (isMethodWithServiceExtraMethodAnnotation(method)) {
+            if (ITableProperties.class.isAssignableFrom(method.getReturnType())
+                    || (removeServiceExtraMethods && isMethodWithServiceExtraMethodAnnotation(method))) {
                 ret.add(method);
             }
         }
