@@ -42,7 +42,8 @@ public class CassandraOperations implements InitializingBean {
 
     private void init() {
         Cluster.Builder clusterBuilder = Cluster.builder();
-        clusterBuilder.addContactPoint(contactpoints).withPort(Integer.valueOf(port));
+        clusterBuilder.addContactPoints(contactpoints.split("\\s*,\\s*"));
+        clusterBuilder.withPort(Integer.valueOf(port));
         if (username != null && password != null) {
             clusterBuilder.withCredentials(username, password);
         }
