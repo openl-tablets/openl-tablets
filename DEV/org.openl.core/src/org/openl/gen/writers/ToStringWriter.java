@@ -1,7 +1,5 @@
 package org.openl.gen.writers;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
@@ -17,42 +15,6 @@ import org.openl.gen.FieldDescription;
  */
 public class ToStringWriter extends DefaultBeanByteCodeWriter {
     private static final int MAX_FIELDS = 100;
-
-    private static final Map<String, String> PRIMITIVE_DESCRIPTORS = Collections
-        .unmodifiableMap(new HashMap<String, String>(8, 1) {
-            {
-                put(byte.class, 'I');
-                put(short.class, 'I');
-                put(int.class, 'I');
-                put(char.class, 'C');
-                put(boolean.class, 'Z');
-                put(long.class, 'J');
-                put(float.class, 'F');
-                put(double.class, 'D');
-            }
-
-            private void put(Class<?> clazz, char type) {
-                put(clazz.getName(), "(" + type + ")Ljava/lang/StringBuilder;");
-            }
-        });
-
-    private static final Map<String, String> ARRAY_OF_PRIMITIVES_DESCRIPTORS = Collections
-        .unmodifiableMap(new HashMap<String, String>(8, 1) {
-            {
-                put(byte[].class);
-                put(short[].class);
-                put(int[].class);
-                put(char[].class);
-                put(boolean[].class);
-                put(long[].class);
-                put(float[].class);
-                put(double[].class);
-            }
-
-            private void put(Class<?> clazz) {
-                put(clazz.getName(), "(" + clazz.getName() + ")Ljava/lang/String;");
-            }
-        });
 
     /**
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
@@ -71,95 +33,81 @@ public class ToStringWriter extends DefaultBeanByteCodeWriter {
         // create StringBuilder
         methodVisitor.visitTypeInsn(Opcodes.NEW, "java/lang/StringBuilder");
         methodVisitor.visitInsn(Opcodes.DUP);
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "()V");
+        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "()V", false);
 
-        // write ClassName
-        methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-        invokeAppendClassName(methodVisitor);
-
+        String type = getBeanNameWithPackage().substring(getBeanNameWithPackage().lastIndexOf('/') + 1);
         // write fields
-        invokeAppendValue(methodVisitor, "{ ");
+        invokeAppendValue(methodVisitor, type + "{");
         int i = 0;
         for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
-            invokeAppendValue(methodVisitor, field.getKey() + "=");
-
             String fieldName = field.getKey();
-            methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-            methodVisitor.visitFieldInsn(Opcodes.GETFIELD,
-                getBeanNameWithPackage(),
-                fieldName,
-                getBeanFields().get(fieldName).getTypeDescriptor());
+            FieldDescription fd = field.getValue();
+            String typeName = fd.getTypeName();
+            String typeDescriptor = fd.getTypeDescriptor();
 
-            String type = field.getValue().getTypeName();
-            if (PRIMITIVE_DESCRIPTORS.containsKey(type)) {
-                invokeAppendPrimitive(methodVisitor, type);
-            } else if (type.charAt(0) == '[') {
-                if (ARRAY_OF_PRIMITIVES_DESCRIPTORS.containsKey(type)) {
-                    invokeAppendArrayOfPrimitives(methodVisitor, type);
-                } else {
-                    invokeAppendArrayOfObjects(methodVisitor);
-                }
-            } else {
-                invokeAppendObject(methodVisitor);
-            }
-            if (i >= MAX_FIELDS) {
+            invokeAppendValue(methodVisitor, " " + field.getKey() + "=");
+
+            methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+            methodVisitor.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName, typeDescriptor);
+
+            appendValue(methodVisitor, typeName);
+
+            i++;
+            if (i > MAX_FIELDS) {
                 invokeAppendValue(methodVisitor, "...");
                 break;
-            } else {
-                invokeAppendValue(methodVisitor, " ");
             }
-            i++;
         }
-        invokeAppendValue(methodVisitor, "}");
+        invokeAppendValue(methodVisitor, " }");
 
         // return
-        invokeVirtual(methodVisitor, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;");
+        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+            "java/lang/StringBuilder",
+            "toString",
+            "()Ljava/lang/String;",
+            false);
         methodVisitor.visitInsn(Opcodes.ARETURN);
         methodVisitor.visitMaxs(0, 0);
     }
 
-    private void invokeAppendArrayOfObjects(MethodVisitor methodVisitor) {
-        String desc = "([Ljava/lang/Object;)Ljava/lang/String;";
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, "java/util/Arrays", "deepToString", desc);
-        invokeAppendString(methodVisitor);
-    }
+    private void appendValue(MethodVisitor mv, String type) {
+        if ("double".equals(type)) {
+            invokeAppend(mv, "(D)Ljava/lang/StringBuilder;");
+        } else if ("float".equals(type)) {
+            invokeAppend(mv, "(F)Ljava/lang/StringBuilder;");
+        } else if ("long".equals(type)) {
+            invokeAppend(mv, "(J)Ljava/lang/StringBuilder;");
+        } else if ("int".equals(type) || "short".equals(type) || "byte".equals(type)) {
+            invokeAppend(mv, "(I)Ljava/lang/StringBuilder;");
+        } else if ("char".equals(type)) {
+            invokeAppend(mv, "(C)Ljava/lang/StringBuilder;");
+        } else if ("boolean".equals(type)) {
+            invokeAppend(mv, "(Z)Ljava/lang/StringBuilder;");
+        } else if (type.charAt(0) == '[' && type.length() == 2) { // Array of primitives
+            invoke(mv, "java/util/Arrays", "toString", "(" + type + ")Ljava/lang/String;");
+            invokeAppend(mv, "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+        } else if (type.startsWith("[L")) { // Array of objects
+            invoke(mv, "java/util/Arrays", "toString", "([Ljava/lang/Object;)Ljava/lang/String;");
+            invokeAppend(mv, "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+        } else if (type.startsWith("[[")) { // Multi array
+            invoke(mv, "java/util/Arrays", "deepToString", "([Ljava/lang/Object;)Ljava/lang/String;");
+            invokeAppend(mv, "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+        } else {
+            invokeAppend(mv, "(Ljava/lang/Object;)Ljava/lang/StringBuilder;");
+        }
 
-    private void invokeAppendArrayOfPrimitives(MethodVisitor methodVisitor, String type) {
-        String desc = ARRAY_OF_PRIMITIVES_DESCRIPTORS.get(type);
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, "java/util/Arrays", "toString", desc);
-        invokeAppendString(methodVisitor);
-    }
-
-    private void invokeAppendClassName(MethodVisitor methodVisitor) {
-        invokeVirtual(methodVisitor, "java/lang/Object", "getClass", "()Ljava/lang/Class;");
-        invokeVirtual(methodVisitor, "java/lang/Class", "getSimpleName", "()Ljava/lang/String;");
-        invokeAppendString(methodVisitor);
     }
 
     private void invokeAppendValue(MethodVisitor methodVisitor, String str) {
         methodVisitor.visitLdcInsn(str);
-        invokeAppendString(methodVisitor);
-    }
-
-    private void invokeAppendObject(MethodVisitor methodVisitor) {
-        String desc = "(Ljava/lang/Object;)Ljava/lang/StringBuilder;";
-        invokeAppend(methodVisitor, desc);
-    }
-
-    private void invokeAppendPrimitive(MethodVisitor methodVisitor, String type) {
-        String desc = PRIMITIVE_DESCRIPTORS.get(type);
-        invokeAppend(methodVisitor, desc);
-    }
-
-    private void invokeAppendString(MethodVisitor methodVisitor) {
         invokeAppend(methodVisitor, "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
     }
 
     private void invokeAppend(MethodVisitor methodVisitor, String desc) {
-        invokeVirtual(methodVisitor, "java/lang/StringBuilder", "append", desc);
+        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "append", desc, false);
     }
 
-    private void invokeVirtual(MethodVisitor methodVisitor, String owner, String method, String desc) {
-        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, owner, method, desc);
+    private static void invoke(MethodVisitor mv, String clazz, String methodName, String descriptor) {
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, clazz, methodName, descriptor, false);
     }
 }
