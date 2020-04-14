@@ -1,6 +1,13 @@
 package org.openl.types.java;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -12,6 +19,7 @@ import org.openl.meta.StringValue;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.NullOpenClass;
 
 public class JavaOpenClassTest {
 
@@ -162,6 +170,12 @@ public class JavaOpenClassTest {
             assertTrue(it.isWritable());
             assertTrue(it.isReadable());
         }
+    }
+
+    @Test
+    public void testIsAssignableFromNullOpenClass() {
+        JavaOpenClass beanAOpenClass = JavaOpenClass.getOpenClass(BeanX.class);
+        assertFalse(beanAOpenClass.isAssignableFrom(NullOpenClass.the));
     }
 
     @Test

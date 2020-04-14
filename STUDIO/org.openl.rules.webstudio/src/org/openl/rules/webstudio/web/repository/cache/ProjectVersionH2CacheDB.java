@@ -22,7 +22,7 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
 
     // cache table fields
     private static final String TABLE_NAME = "VERSION_HASHES";
-    private static final int CACHE_VERSION = 1;
+    private static final int CACHE_VERSION = 2;
     private static final String PROJECT_NAME = "project_name";
     private static final String VERSION = "version";
     private static final String HASH = "hash";
