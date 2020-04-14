@@ -283,6 +283,7 @@
                             <goal>clean</goal>
                             <goal>verify</goal>
                         </goals>
+                        <streamLogs>true</streamLogs>
                         <properties>
                             <maven.compiler.source>${java.source.version}</maven.compiler.source>
                             <maven.compiler.target>${java.target.version}</maven.compiler.target>
