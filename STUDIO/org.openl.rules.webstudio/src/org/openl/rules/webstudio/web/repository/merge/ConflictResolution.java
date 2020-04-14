@@ -21,4 +21,11 @@ public class ConflictResolution {
     public void setCustomResolutionFile(ProjectFile customResolutionFile) {
         this.customResolutionFile = customResolutionFile;
     }
+
+    public void destroy() {
+        if (customResolutionFile != null) {
+            customResolutionFile.destroy();
+            customResolutionFile = null;
+        }
+    }
 }

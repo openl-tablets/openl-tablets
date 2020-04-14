@@ -55,8 +55,8 @@ public class MergeConflictBean {
 
     private final MultiUserWorkspaceManager workspaceManager;
 
-    private Map<String, ConflictResolution> conflictResolutions = new HashMap<>();
-    private Map<String, Boolean> existInRepositoryCache = new HashMap<>();
+    private final Map<String, ConflictResolution> conflictResolutions = new HashMap<>();
+    private final Map<String, Boolean> existInRepositoryCache = new HashMap<>();
     private String conflictedFile;
     private String mergeMessage;
     private boolean mergeMessageModified;
@@ -257,8 +257,12 @@ public class MergeConflictBean {
     }
 
     public void uploadListener(FileUploadEvent event) {
-        conflictResolutions.get(conflictedFile).setCustomResolutionFile(new ProjectFile(event.getUploadedFile()));
-        uploadError = null;
+        try {
+            conflictResolutions.get(conflictedFile).setCustomResolutionFile(new ProjectFile(event.getUploadedFile()));
+            uploadError = null;
+        } catch (IOException e) {
+            uploadError = "Can't upload the file. " + e.getMessage();
+        }
     }
 
     public void applyConflictResolution() {
@@ -408,7 +412,7 @@ public class MergeConflictBean {
 
     public void init() {
         try {
-            conflictResolutions.clear();
+            clearConflictResolutions();
             ConflictUtils.saveResolutionsToSession(conflictResolutions);
             conflictedFile = null;
 
@@ -594,11 +598,18 @@ public class MergeConflictBean {
 
     public void clearMergeStatus() {
         ConflictUtils.removeMergeConflict();
-        conflictResolutions.clear();
+        clearConflictResolutions();
         existInRepositoryCache.clear();
         conflictedFile = null;
         mergeMessage = null;
         mergeMessageModified = false;
+    }
+
+    private void clearConflictResolutions() {
+        for (ConflictResolution resolution : conflictResolutions.values()) {
+            resolution.destroy();
+        }
+        conflictResolutions.clear();
     }
 
     public boolean isExcelFile(String file) {

@@ -1,18 +1,18 @@
 package org.openl.rules.webstudio.web.diff;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PreDestroy;
 import javax.faces.context.FacesContext;
 
+import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.FileTool;
-import org.openl.util.FileUtils;
 import org.richfaces.component.UITree;
 import org.richfaces.event.FileUploadEvent;
-import org.richfaces.model.UploadedFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -23,23 +23,18 @@ import org.springframework.web.context.annotation.SessionScope;
 public class UploadExcelDiffController extends ExcelDiffController {
     private final Logger log = LoggerFactory.getLogger(UploadExcelDiffController.class);
 
-    private List<UploadedFile> uploadedFiles = new ArrayList<>();
-
-    public List<UploadedFile> getUploadedFiles() {
-        return uploadedFiles;
-    }
-
-    public void setUploadedFiles(List<UploadedFile> uploadedFiles) {
-        this.uploadedFiles = uploadedFiles;
-    }
+    private final List<ProjectFile> uploadedFiles = new ArrayList<>();
 
     public int getUploadsSize() {
         return uploadedFiles.size();
     }
 
     public void uploadListener(FileUploadEvent event) {
-        UploadedFile file = event.getUploadedFile();
-        uploadedFiles.add(file);
+        try {
+            uploadedFiles.add(new ProjectFile(event.getUploadedFile()));
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     @Override
@@ -55,9 +50,8 @@ public class UploadExcelDiffController extends ExcelDiffController {
 
                 deleteTempFiles();
                 List<File> filesToCompare = new ArrayList<>();
-                for (UploadedFile uploadedFile : uploadedFiles) {
-                    File fileToCompare = FileTool.toTempFile(uploadedFile.getInputStream(),
-                        FileUtils.getName(uploadedFile.getName()));
+                for (ProjectFile uploadedFile : uploadedFiles) {
+                    File fileToCompare = FileTool.toTempFile(uploadedFile.getInput(), uploadedFile.getName());
                     filesToCompare.add(fileToCompare);
                     // Files can be reloaded lazily later. We cannot delete them immediately. Instead delete them when Bean
                     // is destroyed (on session timeout) or before next comparison.
@@ -66,13 +60,13 @@ public class UploadExcelDiffController extends ExcelDiffController {
                 compare(filesToCompare);
 
                 // Clear uploaded files
-                uploadedFiles.clear();
+                clearUploadedFiles();
             }
         } catch (Exception e) {
             log.warn(e.getMessage(), e);
             WebStudioUtils.addErrorMessage(e.getMessage());
             deleteTempFiles();
-            uploadedFiles.clear();
+            clearUploadedFiles();
         }
 
         return null;
@@ -87,5 +81,13 @@ public class UploadExcelDiffController extends ExcelDiffController {
     @PreDestroy
     public void destroy() {
         deleteTempFiles();
+        clearUploadedFiles();
+    }
+
+    private void clearUploadedFiles() {
+        for (ProjectFile uploadedFile : uploadedFiles) {
+            uploadedFile.destroy();
+        }
+        uploadedFiles.clear();
     }
 }

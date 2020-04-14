@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
@@ -146,7 +147,7 @@ public class RepositoryTreeController {
     @Autowired
     private ProjectVersionCacheManager projectVersionCacheManager;
 
-    private WebStudio studio = WebStudioUtils.getWebStudio(true);
+    private final WebStudio studio = WebStudioUtils.getWebStudio(true);
 
     @Autowired
     private PropertyResolver propertyResolver;
@@ -155,7 +156,7 @@ public class RepositoryTreeController {
     private String projectFolder = "";
     private String newProjectTemplate;
     private String folderName;
-    private List<ProjectFile> uploadedFiles = new ArrayList<>();
+    private final List<ProjectFile> uploadedFiles = new ArrayList<>();
     private String fileName;
     private String uploadFrom;
     private String newProjectName;
@@ -167,12 +168,8 @@ public class RepositoryTreeController {
     private boolean openDependencies = true;
     private AProject currentProject;
 
-    private TemplatesResolver predefinedTemplatesResolver = new PredefinedTemplatesResolver();
+    private final TemplatesResolver predefinedTemplatesResolver = new PredefinedTemplatesResolver();
     private TemplatesResolver customTemplatesResolver;
-
-    public PathFilter getZipFilter() {
-        return zipFilter;
-    }
 
     private TreeNode activeProjectNode;
 
@@ -1434,32 +1431,37 @@ public class RepositoryTreeController {
     }
 
     public void uploadListener(FileUploadEvent event) {
-        ProjectFile file = new ProjectFile(event.getUploadedFile());
-        uploadedFiles.add(file);
-        String fileName = file.getName();
+        try {
+            ProjectFile file = new ProjectFile(event.getUploadedFile());
+            uploadedFiles.add(file);
+            String fileName = file.getName();
 
-        setFileName(fileName);
+            setFileName(fileName);
 
-        if (fileName.contains(".")) {
-            setProjectName(fileName.substring(0, fileName.lastIndexOf('.')));
+            if (fileName.contains(".")) {
+                setProjectName(fileName.substring(0, fileName.lastIndexOf('.')));
 
-            if (FileTypeHelper.isZipFile(fileName)) {
-                Charset charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(file));
+                if (FileTypeHelper.isZipFile(fileName)) {
+                    Charset charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(file));
 
-                if (charset == null) {
-                    log.warn("Cannot detect a charset for the zip file");
-                    charset = StandardCharsets.UTF_8;
+                    if (charset == null) {
+                        log.warn("Cannot detect a charset for the zip file");
+                        charset = StandardCharsets.UTF_8;
+                    }
+
+                    ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor
+                        .getProjectDescriptorOrNull(file, zipFilter, charset);
+                    if (projectDescriptor != null) {
+                        setProjectName(projectDescriptor.getName());
+                    }
+                    setCreateProjectComment(designRepoComments.createProject(getProjectName()));
                 }
-
-                ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor
-                    .getProjectDescriptorOrNull(file, zipFilter, charset);
-                if (projectDescriptor != null) {
-                    setProjectName(projectDescriptor.getName());
-                }
-                setCreateProjectComment(designRepoComments.createProject(getProjectName()));
+            } else {
+                setProjectName(fileName);
             }
-        } else {
-            setProjectName(fileName);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            WebStudioUtils.addErrorMessage("Error occurred during uploading file.", e.getMessage());
         }
     }
 
@@ -1567,7 +1569,7 @@ public class RepositoryTreeController {
             resetStudioModel();
             WebStudioUtils.addInfoMessage("File was successfully updated.");
         } else {
-            WebStudioUtils.addErrorMessage(errorMessage, "Error occured during uploading file. " + errorMessage);
+            WebStudioUtils.addErrorMessage(errorMessage, "Error occurred during uploading file. " + errorMessage);
         }
 
         /* Clear the load form */
@@ -1605,7 +1607,7 @@ public class RepositoryTreeController {
         String errorMessage = validateCreateProjectParams(comment);
         if (errorMessage != null) {
             WebStudioUtils.addErrorMessage(errorMessage);
-        } else if (uploadedFiles == null || uploadedFiles.isEmpty()) {
+        } else if (uploadedFiles.isEmpty()) {
             WebStudioUtils.addErrorMessage("There are no uploaded files.");
         } else {
             errorMessage = new ProjectUploader(uploadedFiles,
@@ -1640,7 +1642,7 @@ public class RepositoryTreeController {
         this.setProjectName(null);
         this.setProjectFolder("");
         this.setCreateProjectComment(null);
-        this.uploadedFiles.clear();
+        clearUploadedFiles();
     }
 
     private String uploadAndAddFile() {
@@ -1802,6 +1804,9 @@ public class RepositoryTreeController {
     }
 
     public void clearUploadedFiles() {
+        for (ProjectFile uploadedFile : uploadedFiles) {
+            uploadedFile.destroy();
+        }
         uploadedFiles.clear();
     }
 
@@ -2166,5 +2171,10 @@ public class RepositoryTreeController {
         } else {
             deployConfigCommentValidator = designCommentValidator;
         }
+    }
+
+    @PreDestroy
+    public void destroy() {
+        clearUploadedFiles();
     }
 }
