@@ -58,10 +58,10 @@ public class WebStudioValidationUtils {
                 }
                 boolean hasAccess = directory.mkdirs();
 
-                if (!hasAccess) {
-
+                // for some cases mkdirs can return true without creating directory even if directory does not exist.
+                // ex.: path/NUL (path folder should exists)
+                if (!hasAccess || !directory.exists()) {
                     validateIsWritable(directory);
-
                 } else {
                     deleteFolder(existingFolder, directory);
                 }
@@ -87,7 +87,7 @@ public class WebStudioValidationUtils {
 
         } catch (IOException ioe) {
             throw new ValidatorException(
-                createErrorMessage(String.format("%s for '%s'", ioe.getMessage(), file.getAbsolutePath())));
+                createErrorMessage(String.format("%s for '%s'", ioe.getMessage(), file.getName())));
         }
     }
 
