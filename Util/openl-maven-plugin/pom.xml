@@ -139,6 +139,18 @@
                     </plugin>
                 </plugins>
             </build>
+            <dependencies>
+                <dependency>
+                    <groupId>org.openl.rules</groupId>
+                    <artifactId>org.openl.rules.ruleservice.annotation</artifactId>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.openl.rules</groupId>
+                    <artifactId>org.openl.rules.calculation.result</artifactId>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
 </project>
