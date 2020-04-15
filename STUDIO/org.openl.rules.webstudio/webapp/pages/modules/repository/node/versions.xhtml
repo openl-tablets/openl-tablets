@@ -3,92 +3,97 @@
         xmlns:h="http://java.sun.com/jsf/html"
         xmlns:rich="http://richfaces.org/rich"
         xmlns:ui="http://java.sun.com/jsf/facelets"
-        xmlns:a4j="http://richfaces.org/a4j" xmlns:c="http://java.sun.com/jsp/jstl/core"
+        xmlns:a4j="http://richfaces.org/a4j"
 >
 
-  <style>
-    .padding {
-        padding: 6px 7px !important;
-    }
-  </style>
-  <rich:dataTable value="#{node.versions}" var="version" styleClass="table"
-    columnClasses="padding">
-    <f:facet name="header">
-      <rich:columnGroup>
+    <style>
+        .padding {
+            padding: 6px 7px !important;
+        }
+    </style>
+    <rich:dataTable value="#{node.versions}" var="version" styleClass="table"
+                    columnClasses="padding">
+        <f:facet name="header">
+            <rich:columnGroup>
+                <rich:column>
+                    <h:outputText value="Modified By"/>
+                </rich:column>
+                <rich:column>
+                    <h:outputText value="Modified At"/>
+                </rich:column>
+                <rich:column rendered="#{node.type == 'project'}">
+                    <h:outputText value="Comment"/>
+                </rich:column>
+                <rich:column>
+                    <h:outputText value="Revision ID"/>
+                </rich:column>
+                <rich:column rendered="#{node.type == 'project' and repositoryTreeState.canOpen and !artefact.deleted}">
+                    <h:outputText value="Action"/>
+                </rich:column>
+            </rich:columnGroup>
+        </f:facet>
         <rich:column>
-          <h:outputText value="Revision" />
+            <h:outputText value="#{version.versionInfo.createdBy}"/>
         </rich:column>
         <rich:column>
-          <h:outputText value="Modified By" />
-        </rich:column>
-        <rich:column>
-          <h:outputText value="Modified At" />
+            <h:outputText value="#{version.versionInfo.createdAt}">
+                <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.datetime')}"/>
+            </h:outputText>
         </rich:column>
         <rich:column rendered="#{node.type == 'project'}">
-          <h:outputText value="Comment" />
+            <ui:param name="commentParts" value="#{repositoryTreeController.getCommentParts(artefact, version)}"/>
+            <ui:param name="hasProjectReference" value="#{commentParts.size() == 3}"/>
+            <h:outputText value="#{version.versionComment}" rendered="#{not hasProjectReference}"/>
+            <h:outputText value="#{commentParts[0]}" rendered="#{hasProjectReference}"/>
+            <h:commandLink value="#{commentParts[1]}"
+                           rendered="#{hasProjectReference}"
+                           action="#{repositoryTreeController.selectRulesProject}"
+                           immediate="true">
+                <f:param name="projectName" value="#{commentParts[1]}"/>
+            </h:commandLink>
+            <h:outputText value="#{commentParts[2]}" rendered="#{hasProjectReference}"/>
         </rich:column>
-        <rich:column rendered="#{node.type == 'project' and repositoryTreeState.canOpen and !artefact.deleted}">
-          <h:outputText value="Action" />
+        <rich:column style="text-align: center;">
+            <ui:param name="revisionNo" value="#{version.versionName}"/>
+            <ui:param name="shortRevisionNo" value="#{version.shortVersion}"/>
+
+            <h:panelGroup rendered="#{revisionNo eq shortRevisionNo}">
+                <h:outputText value="#{revisionNo}"/>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{not (revisionNo eq shortRevisionNo)}">
+                <h:outputText value="#{shortRevisionNo}" styleClass="expandable"/>
+                <h:outputText value="#{revisionNo}" styleClass="hidden"/>
+            </h:panelGroup>
         </rich:column>
-      </rich:columnGroup>
-    </f:facet>
-      <rich:column style="text-align: center;">
-        <ui:param name="revisionNo" value="#{version.versionName}" />
-        <ui:param name="shortRevisionNo" value="#{version.shortVersion}" />
+        <rich:column
+                rendered="#{node.type == 'project' and repositoryTreeState.canOpenOtherVersion and !artefact.deleted and !version.deleted}"
+                style="text-align: center;">
+            <a4j:commandLink id="openPrjVersion"
+                             title="Open Revision '#{repositoryTreeController.getDescriptiveVersion(version)}'"
+                             onclick="return backToPropsTab();"
+                             immediate="true"
+                             oncomplete="refreshRulesDeployConfiguration()"
+                             action="#{repositoryTreeController.openProjectVersion(version.versionName)}"
+                             render="nodeView nodeTabPanel projectTree content">
+                <img src="#{request.contextPath}/webresource/images/view.png"/>
+            </a4j:commandLink>
+        </rich:column>
+    </rich:dataTable>
 
-        <h:panelGroup rendered="#{revisionNo eq shortRevisionNo}">
-          <h:outputText value="#{revisionNo}"/>
-        </h:panelGroup>
-        <h:panelGroup rendered="#{not (revisionNo eq shortRevisionNo)}">
-          <h:outputText value="#{shortRevisionNo}" styleClass="expandable" />
-          <h:outputText value="#{revisionNo}" styleClass="hidden"/>
-        </h:panelGroup>
-      </rich:column>
-      <rich:column>
-        <h:outputText value="#{version.versionInfo.createdBy}" />
-      </rich:column>
-      <rich:column>
-        <h:outputText value="#{version.versionInfo.createdAt}">
-        	<f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.datetime')}"/>
-        </h:outputText>
-      </rich:column>
-      <rich:column rendered="#{node.type == 'project'}">
-        <ui:param name="commentParts" value="#{repositoryTreeController.getCommentParts(artefact, version)}"/>
-        <ui:param name="hasProjectReference" value="#{commentParts.size() == 3}"/>
-        <h:outputText value="#{version.versionComment}" rendered="#{not hasProjectReference}" />
-        <h:outputText value="#{commentParts[0]}" rendered="#{hasProjectReference}" />
-        <h:commandLink value="#{commentParts[1]}"
-                       rendered="#{hasProjectReference}"
-                       action="#{repositoryTreeController.selectRulesProject}"
-                       immediate="true">
-          <f:param name="projectName" value="#{commentParts[1]}" />
-        </h:commandLink>
-        <h:outputText value="#{commentParts[2]}" rendered="#{hasProjectReference}" />
-      </rich:column>
-      <rich:column rendered="#{node.type == 'project' and repositoryTreeState.canOpenOtherVersion and !artefact.deleted and !version.deleted}" style="text-align: center;">
-        <a4j:commandLink id="openPrjVersion" title="Open Revision '#{repositoryTreeController.getDescriptiveVersion(version)}'" onclick="return backToPropsTab();"
-            immediate="true"
-            oncomplete="refreshRulesDeployConfiguration()"
-            action="#{repositoryTreeController.openProjectVersion(version.versionName)}" render="nodeView nodeTabPanel projectTree content">
-            <img src="#{request.contextPath}/webresource/images/view.png" />
-        </a4j:commandLink>
-      </rich:column>
-  </rich:dataTable>
+    <h:panelGroup rendered="#{empty node.versions}" styleClass="noEntries">
+        <h:outputText value="No version history"/>
+    </h:panelGroup>
 
-  <h:panelGroup rendered="#{empty node.versions}" styleClass="noEntries">
-    <h:outputText value="No version history" />
-  </h:panelGroup>
-
-  <script>
-  function backToPropsTab(){
-      if (confirm("Project data in the workspace will be replaced by the data of specified revision that will be opened from repository. Dependent projects will be opened too.")) {
-          /*$j("#nodeTabPanel-value").value return undefined */
-          document.getElementById('nodeTabPanel-value').value = "#{repositoryTreeState.defSelectTab}";/*"Properties";*/
-          return true;
-      } else {
-	      return false;
-	  }
-  }
-  </script>
+    <script>
+        function backToPropsTab() {
+            if (confirm("Project data in the workspace will be replaced by the data of specified revision that will be opened from repository. Dependent projects will be opened too.")) {
+                /*$j("#nodeTabPanel-value").value return undefined */
+                document.getElementById('nodeTabPanel-value').value = "#{repositoryTreeState.defSelectTab}";/*"Properties";*/
+                return true;
+            } else {
+                return false;
+            }
+        }
+    </script>
 
 </ui:composition>

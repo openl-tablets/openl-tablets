@@ -110,10 +110,10 @@ public class ProductionRepositoriesTreeController {
         try {
             String businessVersion = projectVersionCacheManager
                 .getDesignBusinessVersionOfDeployedProject(version.getData().getProject());
-            return businessVersion != null ? businessVersion : version.getVersionName();
+            return businessVersion != null ? businessVersion : "No valid revision found";
         } catch (IOException e) {
             log.error("Error during getting project design version", e);
-            return version.getVersionName();
+            return "No valid revision found";
         }
     }
 }

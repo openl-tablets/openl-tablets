@@ -1,38 +1,45 @@
 <ui:composition
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich">
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:c="http://java.sun.com/jsp/jstl/core"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich">
 
     <style>
         .page img {
             vertical-align: -3px;
         }
+
         .list-modules .list-item {
             position: relative;
         }
+
         .list .list-item {
             /* EPBDS-5032: Fix for IE9 */
             width: 104%;
         }
+
         .list-modules .list-item .editable-link-inner {
             position: absolute;
             top: 30%;
         }
+
         .first-button {
             right: -30px;
             padding-left: 11px;
         }
+
         .second-button {
             right: -55px;
             padding-left: 5px;
         }
+
         .third-button {
             right: -80px;
             padding-left: 5px;
         }
+
         .list > .list-item .path {
             color: #999;
             margin-left: 10px;
@@ -60,17 +67,18 @@
         }
     </style>
 
-    <ui:param name="editable" value="#{studio.model.editable}" />
-    <ui:param name="project" value="#{studio.currentProjectDescriptor}" />
-    <ui:param name="projectData" value="#{studio.currentProject}" />
+    <ui:param name="editable" value="#{studio.model.editable}"/>
+    <ui:param name="project" value="#{studio.currentProjectDescriptor}"/>
+    <ui:param name="projectData" value="#{studio.currentProject}"/>
 
     <div class="page">
         <div class="editable">
             <h1 class="page-header">
                 <span>#{project.name}</span>
                 <h:panelGroup rendered="#{editable}">
-                <a href="javascript:void(0)" title="Edit" class="editable-link"
-                   onclick="editProject()"><img src="#{request.contextPath}/webresource/images/edit.png" style="opacity:0.4" /></a>
+                    <a href="javascript:void(0)" title="Edit" class="editable-link"
+                       onclick="editProject()"><img src="#{request.contextPath}/webresource/images/edit.png"
+                                                    style="opacity:0.4"/></a>
                 </h:panelGroup>
             </h1>
 
@@ -91,60 +99,45 @@
                             </tr>
                         </h:panelGroup>
                         <tr>
-                            <td>Revision:</td>
-                            <td>
-                                <ui:param name="revisionNo" value="#{projectData.version.versionName}" />
-                                <ui:param name="shortRevisionNo" value="#{projectData.version.shortVersion}" />
-
-                                <c:choose>
-                                    <c:when test="#{revisionNo eq shortRevisionNo}">
-                                        <span>#{revisionNo}</span>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <span class="expandable">#{shortRevisionNo}</span>
-                                        <span class="hidden">#{revisionNo}</span>
-                                    </c:otherwise>
-                                </c:choose>
-                            </td>
-                        </tr>
-                        <tr>
                             <ui:param name="statusClass"
-                                value="#{projectData.status == 'LOCAL' ? '' : (projectData.status == 'EDITING' ? 'badge-success' : 'badge-info')}" />
+                                      value="#{projectData.status == 'LOCAL' ? '' : (projectData.status == 'EDITING' ? 'badge-success' : 'badge-info')}"/>
                             <td>Status:</td>
                             <td>
                                 <span class="badge #{statusClass}">#{projectData.status.displayValue}</span>
                                 <h:panelGroup styleClass="badge badge-error"
-                                    rendered="#{projectData.status != 'EDITING' and projectData.locked}"
-                                    style="margin-left:3px">Locked by #{projectData.lockedUserName}</h:panelGroup>
+                                              rendered="#{projectData.status != 'EDITING' and projectData.locked}"
+                                              style="margin-left:3px">Locked by #{projectData.lockedUserName}</h:panelGroup>
                             </td>
                         </tr>
                         <h:panelGroup rendered="#{!empty projectData.firstVersion.versionInfo}">
-                        <tr>
+                            <tr>
+                                <td>Modified By:</td>
+                                <td>#{projectData.version.versionInfo.createdBy}</td>
+                            </tr>
+                            <tr>
+                                <td>Modified At:</td>
+                                <td>
+                                    <h:outputText value="#{projectData.version.versionInfo.createdAt}">
+                                        <f:convertDateTime type="date"
+                                                           pattern="#{environment.getProperty('data.format.datetime')}"/>
+                                    </h:outputText>
+                                </td>
+                            </tr>
+                            <tr>
+                            </tr>
+                            <tr>
+                                <td>Created By:</td>
+                                <td>#{projectData.firstVersion.versionInfo.createdBy}</td>
+                            </tr>
                             <td>Created At:</td>
                             <td>
                                 <h:outputText value="#{projectData.firstVersion.versionInfo.createdAt}">
-                                    <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.datetime')}"/>
+                                    <f:convertDateTime type="date"
+                                                       pattern="#{environment.getProperty('data.format.datetime')}"/>
                                 </h:outputText>
                             </td>
-                        </tr>
-                        <tr>
-                            <td>Created By:</td>
-                            <td>#{projectData.firstVersion.versionInfo.createdBy}</td>
-                        </tr>
                         </h:panelGroup>
                         <h:panelGroup rendered="#{!empty projectData.version.versionInfo}">
-                        <tr>
-                            <td>Modified At:</td>
-                            <td>
-                                <h:outputText value="#{projectData.version.versionInfo.createdAt}">
-                                    <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.datetime')}"/>
-                                </h:outputText>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Modified By:</td>
-                            <td>#{projectData.version.versionInfo.createdBy}</td>
-                        </tr>
                         </h:panelGroup>
                     </table>
                 </div>
@@ -155,16 +148,20 @@
                     <span>Modules</span>
                     <h:panelGroup rendered="#{editable}">
                         <a href="javascript:void(0)" title="Add Module" class="editable-link"
-                           onclick="addModule()"><img src="#{request.contextPath}/webresource/images/add.png" style="opacity:0.4" /></a>
+                           onclick="addModule()"><img src="#{request.contextPath}/webresource/images/add.png"
+                                                      style="opacity:0.4"/></a>
                     </h:panelGroup>
                 </h3>
                 <div class="block-content">
                     <div class="list list-modules">
-                        <ui:param name="modulesNumber" value="#{projectBean.modulesWithWildcard.size()}" />
+                        <ui:param name="modulesNumber" value="#{projectBean.modulesWithWildcard.size()}"/>
                         <ui:repeat var="module" value="#{projectBean.modulesWithWildcard}" varStatus="i">
-                            <ui:param name="isModuleWithWildcard" value="#{projectBean.isModuleWithWildcard(module)}" />
-                            <ui:param name="includedInWildcard" value="#{projectBean.isModuleMatchesSomePathPattern(module)}" />
-                            <h:panelGroup layout="block" id="#{i.index}currentModule" styleClass="list-item editable-inner" rendered="#{isModuleWithWildcard or !includedInWildcard}">
+                            <ui:param name="isModuleWithWildcard" value="#{projectBean.isModuleWithWildcard(module)}"/>
+                            <ui:param name="includedInWildcard"
+                                      value="#{projectBean.isModuleMatchesSomePathPattern(module)}"/>
+                            <h:panelGroup layout="block" id="#{i.index}currentModule"
+                                          styleClass="list-item editable-inner"
+                                          rendered="#{isModuleWithWildcard or !includedInWildcard}">
                                 <div>
                                     <h:panelGroup rendered="#{isModuleWithWildcard}">
                                         #{empty module.name ? 'Multiple modules' : module.name}
@@ -174,7 +171,8 @@
                                     </h:panelGroup>
                                     <span class="path">#{projectBean.getModulePath(module)}</span>
                                 </div>
-                                <ui:repeat var="matchedModule" value="#{projectBean.getModulesMatchingPathPattern(module)}">
+                                <ui:repeat var="matchedModule"
+                                           value="#{projectBean.getModulesMatchingPathPattern(module)}">
                                     <div class="nested-item">
                                         <a href="#{utils.toUrl(project.name, matchedModule.name)}">#{matchedModule.name}</a>
                                         <span class="path">#{projectBean.getModulePath(matchedModule)}</span>
@@ -184,8 +182,10 @@
                                     <div style="margin-top:4px">
                                         <h:panelGroup rendered="#{!empty module.methodFilter.includes}">
                                             <div title="Included Methods">
-                                                <img src="#{request.contextPath}/webresource/images/include.png" style="opacity:0.6" />
-                                                <a4j:repeat value="#{module.methodFilter.includes.toArray()}" var="include">
+                                                <img src="#{request.contextPath}/webresource/images/include.png"
+                                                     style="opacity:0.6"/>
+                                                <a4j:repeat value="#{module.methodFilter.includes.toArray()}"
+                                                            var="include">
                                                     #{include}
                                                 </a4j:repeat>
                                             </div>
@@ -193,8 +193,10 @@
 
                                         <h:panelGroup rendered="#{!empty module.methodFilter.excludes}">
                                             <div title="Excluded Methods">
-                                                <img src="#{request.contextPath}/webresource/images/exclude.png" style="opacity:0.6" />
-                                                <a4j:repeat value="#{module.methodFilter.excludes.toArray()}" var="exclude">
+                                                <img src="#{request.contextPath}/webresource/images/exclude.png"
+                                                     style="opacity:0.6"/>
+                                                <a4j:repeat value="#{module.methodFilter.excludes.toArray()}"
+                                                            var="exclude">
                                                     #{exclude}
                                                 </a4j:repeat>
                                             </div>
@@ -202,18 +204,24 @@
                                     </div>
                                 </h:panelGroup>
                                 <h:panelGroup rendered="#{editable}">
-                                    <a href="javascript:void(0)" title="Edit Module" class="editable-link-inner first-button"
-                                        onclick="editModule({index:'#{i.index}',name:'#{module.name}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}'})"><img
-                                            src="#{request.contextPath}/webresource/images/edit.png" style="opacity:0.4" /></a>
+                                    <a href="javascript:void(0)" title="Edit Module"
+                                       class="editable-link-inner first-button"
+                                       onclick="editModule({index:'#{i.index}',name:'#{module.name}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}'})"><img
+                                            src="#{request.contextPath}/webresource/images/edit.png"
+                                            style="opacity:0.4"/></a>
                                     <h:panelGroup>
-                                        <a href="javascript:void(0)" title="Copy Module" class="editable-link-inner second-button"
-                                            onclick="copyModule({isModuleWithWildcard:#{isModuleWithWildcard},index:'#{i.index}',name:'#{module.name}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}'})"><img
-                                                src="#{request.contextPath}/webresource/images/copy.png" style="opacity:0.4" /></a>
+                                        <a href="javascript:void(0)" title="Copy Module"
+                                           class="editable-link-inner second-button"
+                                           onclick="copyModule({isModuleWithWildcard:#{isModuleWithWildcard},index:'#{i.index}',name:'#{module.name}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}'})"><img
+                                                src="#{request.contextPath}/webresource/images/copy.png"
+                                                style="opacity:0.4"/></a>
                                     </h:panelGroup>
                                     <h:panelGroup rendered="#{modulesNumber > 1}">
-                                        <a href="javascript:void(0)" title="Remove Module" class="editable-link-inner third-button"
-                                               onclick="removeModule('#{i.index}')"><img
-                                                    src="#{request.contextPath}/webresource/images/remove.png" style="opacity:0.4" /></a>
+                                        <a href="javascript:void(0)" title="Remove Module"
+                                           class="editable-link-inner third-button"
+                                           onclick="removeModule('#{i.index}')"><img
+                                                src="#{request.contextPath}/webresource/images/remove.png"
+                                                style="opacity:0.4"/></a>
                                     </h:panelGroup>
                                 </h:panelGroup>
                             </h:panelGroup>
@@ -222,444 +230,464 @@
                 </div>
             </div>
 
-            <h:panelGroup rendered="#{projectBean.projectDependenciesSupported and (!empty project.dependencies or editable)}">
-            <div class="block editable">
-                <h3>
-                    <span>Dependencies</span>
-                    <h:panelGroup rendered="#{editable}">
-                        <a href="javascript:void(0)" title="Manage Dependencies" class="editable-link"
-                           onclick="manageDependencies()"><img src="#{request.contextPath}/webresource/images/edit.png" style="opacity:0.4" /></a>
-                    </h:panelGroup>
-                </h3>
-                <div class="block-content">
-                    <h:panelGroup rendered="#{editable and empty project.dependencies}">
-                        <a class="link-ref" href="javascript:void(0)" onclick="manageDependencies()">Click to add dependencies</a>
-                    </h:panelGroup>
-                    <div class="list">
-                        <ui:repeat var="dependency" value="#{project.dependencies}">
-                            <div class="list-item">
-                                <h:panelGroup rendered="#{!empty studio.getProjectByName(dependency.name)}">
-                                <a href="#{utils.toUrl(dependency.name)}">#{dependency.name}</a>
-                                <h:panelGroup rendered="#{dependency.autoIncluded}" styleClass="path">
-                                    All Modules
-                                </h:panelGroup>
-                                </h:panelGroup>
-                                <h:panelGroup rendered="#{empty studio.getProjectByName(dependency.name)}">
-                                    <span>#{dependency.name}</span>
-                                    <span class="path" style="color:red">Could not find the project
+            <h:panelGroup
+                    rendered="#{projectBean.projectDependenciesSupported and (!empty project.dependencies or editable)}">
+                <div class="block editable">
+                    <h3>
+                        <span>Dependencies</span>
+                        <h:panelGroup rendered="#{editable}">
+                            <a href="javascript:void(0)" title="Manage Dependencies" class="editable-link"
+                               onclick="manageDependencies()"><img
+                                    src="#{request.contextPath}/webresource/images/edit.png" style="opacity:0.4"/></a>
+                        </h:panelGroup>
+                    </h3>
+                    <div class="block-content">
+                        <h:panelGroup rendered="#{editable and empty project.dependencies}">
+                            <a class="link-ref" href="javascript:void(0)"
+                               onclick="manageDependencies()">Click to add dependencies</a>
+                        </h:panelGroup>
+                        <div class="list">
+                            <ui:repeat var="dependency" value="#{project.dependencies}">
+                                <div class="list-item">
+                                    <h:panelGroup rendered="#{!empty studio.getProjectByName(dependency.name)}">
+                                        <a href="#{utils.toUrl(dependency.name)}">#{dependency.name}</a>
+                                        <h:panelGroup rendered="#{dependency.autoIncluded}" styleClass="path">
+                                            All Modules
+                                        </h:panelGroup>
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{empty studio.getProjectByName(dependency.name)}">
+                                        <span>#{dependency.name}</span>
+                                        <span class="path" style="color:red">Could not find the project
                                         <h:form style="display: inline;">
                                             <a4j:commandLink action="#{projectBean.removeDependency(dependency.name)}"
-                                                oncomplete="ws.nav.reload()" title="Remove dependency">
-                                                <img src="#{request.contextPath}/webresource/images/remove.png" style="opacity: 0.4;margin-left: 3px; vertical-align: top" />
+                                                             oncomplete="ws.nav.reload()" title="Remove dependency">
+                                                <img src="#{request.contextPath}/webresource/images/remove.png"
+                                                     style="opacity: 0.4;margin-left: 3px; vertical-align: top"/>
                                             </a4j:commandLink>
                                         </h:form>
                                     </span>
-                                </h:panelGroup>
-                            </div>
-                        </ui:repeat>
+                                    </h:panelGroup>
+                                </div>
+                            </ui:repeat>
+                        </div>
                     </div>
                 </div>
-            </div>
             </h:panelGroup>
         </div>
 
         <h:panelGroup rendered="#{!empty project.classpath or editable}">
-        <div class="block-column">
-            <div class="block editable">
-                <h3>
-                    <span>Sources</span>
-                    <h:panelGroup rendered="#{editable}">
-                        <a href="javascript:void(0)" title="Manage Sources" class="editable-link"
-                           onclick="manageSources()"><img src="#{request.contextPath}/webresource/images/edit.png" style="opacity:0.4" /></a>
-                    </h:panelGroup>
-                </h3>
-                <div class="block-content">
-                    <h:panelGroup rendered="#{editable and empty project.classpath}">
-                        <a class="link-ref" href="javascript:void(0)" onclick="manageSources()">Click to add sources</a>
-                    </h:panelGroup>
-                    <ul class="enum">
-                    <ui:repeat var="path" value="#{project.classpath}">
-                        <li>
-                            <h:outputText value="#{path.path}" />
-                        </li>
-                    </ui:repeat>
-                    </ul>
+            <div class="block-column">
+                <div class="block editable">
+                    <h3>
+                        <span>Sources</span>
+                        <h:panelGroup rendered="#{editable}">
+                            <a href="javascript:void(0)" title="Manage Sources" class="editable-link"
+                               onclick="manageSources()"><img src="#{request.contextPath}/webresource/images/edit.png"
+                                                              style="opacity:0.4"/></a>
+                        </h:panelGroup>
+                    </h3>
+                    <div class="block-content">
+                        <h:panelGroup rendered="#{editable and empty project.classpath}">
+                            <a class="link-ref" href="javascript:void(0)"
+                               onclick="manageSources()">Click to add sources</a>
+                        </h:panelGroup>
+                        <ul class="enum">
+                            <ui:repeat var="path" value="#{project.classpath}">
+                                <li>
+                                    <h:outputText value="#{path.path}"/>
+                                </li>
+                            </ui:repeat>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
         </h:panelGroup>
     </div>
 
     <c:if test="#{editable}">
-        <ui:include src="/pages/modules/editModule.xhtml" />
-        <ui:include src="/pages/modules/copyModule.xhtml" />
-        <ui:include src="/pages/modules/propertiesFileNamePatternDescription.xhtml" />
+        <ui:include src="/pages/modules/editModule.xhtml"/>
+        <ui:include src="/pages/modules/copyModule.xhtml"/>
+        <ui:include src="/pages/modules/propertiesFileNamePatternDescription.xhtml"/>
     </c:if>
 
     <h:panelGroup rendered="#{editable}">
 
-    <rich:popupPanel id="editProjectPopup" width="530" autosized="true">
-        <f:facet name="header">
-            <h:outputText value="Edit Project" />
-        </f:facet>
+        <rich:popupPanel id="editProjectPopup" width="530" autosized="true">
+            <f:facet name="header">
+                <h:outputText value="Edit Project"/>
+            </f:facet>
 
-        <f:facet name="controls">
-            <h:graphicImage value="/images/close.gif" class="close"
-                onclick="ws.ui.hide('editProjectPopup')" alt="Close" />
-        </f:facet>
+            <f:facet name="controls">
+                <h:graphicImage value="/images/close.gif" class="close"
+                                onclick="ws.ui.hide('editProjectPopup')" alt="Close"/>
+            </f:facet>
 
-        <h:form prependId="false" id="editProjectForm">
-            <table class="properties properties-form wide">
-                <tr>
-                    <td style="padding-top: 0">OpenL version compatibility:</td>
-                    <td class="aligned-property" style="padding-top: 0">
+            <h:form prependId="false" id="editProjectForm">
+                <table class="properties properties-form wide">
+                    <tr>
+                        <td style="padding-top: 0">OpenL version compatibility:</td>
+                        <td class="aligned-property" style="padding-top: 0">
                         <span id="version-compatibility-short" class="expandable-link">
-                            <h:outputText value="#{projectBean.supportedVersion.lastVersion ? 'Latest version ('.concat(projectBean.supportedVersion.version).concat('+)') : projectBean.supportedVersion.version.concat('+')}" />
+                            <h:outputText
+                                    value="#{projectBean.supportedVersion.lastVersion ? 'Latest version ('.concat(projectBean.supportedVersion.version).concat('+)') : projectBean.supportedVersion.version.concat('+')}"/>
                         </span>
 
-                        <span id="version-compatibility-full">
+                            <span id="version-compatibility-full">
                             <h:selectOneMenu id="supportedVersion" value="#{projectBean.supportedVersion}">
                                 <f:selectItems value="#{projectBean.possibleVersions}" var="version"
                                                itemLabel="#{version.lastVersion ? 'Latest version ('.concat(version.version).concat('+)') : version.version.concat('+')}"
                                                itemValue="#{version}"/>
-                                <a4j:ajax event="change" execute="@this" render="propertiesFileNamePatternSettings" oncomplete="onPropertiesFileNameProcessorCheckboxClick()" />
+                                <a4j:ajax event="change" execute="@this" render="propertiesFileNamePatternSettings"
+                                          oncomplete="onPropertiesFileNameProcessorCheckboxClick()"/>
                             </h:selectOneMenu>
                         </span>
-                    </td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td><a4j:outputPanel ajaxRendered="true">
-                        <h:message for="supportedVersion" styleClass="error" />
-                    </a4j:outputPanel></td>
-                </tr>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><a4j:outputPanel ajaxRendered="true">
+                            <h:message for="supportedVersion" styleClass="error"/>
+                        </a4j:outputPanel></td>
+                    </tr>
 
-                <tr>
-                    <td>Name:</td>
-                    <td class="aligned-property"><h:outputText id="projectName" value="#{project.name}"/></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td><h:panelGroup styleClass="warning" rendered="#{projectData.name != project.name}">
-                        <h:outputText value="Project name in rules.xml is '#{project.name}'. It will be replaced with '#{projectData.name}'."/>
-                    </h:panelGroup>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Description:</td>
-                    <td><h:inputTextarea id="projectDescription" value="#{project.comment}" style="height:150px" /></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td><a4j:outputPanel ajaxRendered="true">
-                        <h:message for="projectDescription" styleClass="error" />
-                    </a4j:outputPanel></td>
-                </tr>
-            </table>
+                    <tr>
+                        <td>Name:</td>
+                        <td class="aligned-property"><h:outputText id="projectName" value="#{project.name}"/></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><h:panelGroup styleClass="warning" rendered="#{projectData.name != project.name}">
+                            <h:outputText
+                                    value="Project name in rules.xml is '#{project.name}'. It will be replaced with '#{projectData.name}'."/>
+                        </h:panelGroup>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Description:</td>
+                        <td><h:inputTextarea id="projectDescription" value="#{project.comment}" style="height:150px"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><a4j:outputPanel ajaxRendered="true">
+                            <h:message for="projectDescription" styleClass="error"/>
+                        </a4j:outputPanel></td>
+                    </tr>
+                </table>
 
-            <h:panelGroup id="propertiesFileNamePatternSettings" styleClass="#{projectBean.propertiesFileNamePatternSupported ? '' : 'hidden'}">
-            <table class="properties properties-form wide">
-                <tr>
-                    <td>Custom file name processor:</td>
-                    <td class="aligned-property">
-                        <input id="customPropertiesFileNameProcessor" type="checkbox" checked="#{empty project.propertiesFileNameProcessor ? '' : 'checked'}"
-                               onclick="$j('#propertiesFileNameProcessor').val(''); $j('.propertiesFileNameProcessorSettings').toggle(this.checked);"/>
-                    </td>
-                </tr>
-                <tr class="propertiesFileNameProcessorSettings">
-                    <td>File name processor class:</td>
-                    <td class="aligned-property"><h:inputText id="propertiesFileNameProcessor" value="#{project.propertiesFileNameProcessor}"
-                                     binding="#{projectBean.propertiesFileNameProcessorInput}"
-                                     validator="#{projectBean.validatePropertiesFileNameProcessor}" /></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td><a4j:outputPanel ajaxRendered="true">
-                        <h:message for="propertiesFileNameProcessor" styleClass="error" />
-                    </a4j:outputPanel></td>
-                </tr>
-                <tr>
-                    <td>Properties pattern for a file name:</td>
-                    <td class="aligned-property">
-                        <h:inputText id="propertiesFileNamePattern" value="#{project.propertiesFileNamePattern}"
-                                     validator="#{projectBean.validatePropertiesFileNamePattern}" />
-                        <a id="patternInfo" onclick="showPatternInfo($j('#propertiesFileNameProcessor').val());" title="Details" class="imageButton"
-                           style="background:url('webresource/images/info.png');display: inline-block;" />
-                    </td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td>
-                        <a4j:outputPanel ajaxRendered="true">
-                            <h:message for="propertiesFileNamePattern" styleClass="error"/>
-                        </a4j:outputPanel>
-                    </td>
-                </tr>
-            </table>
-            </h:panelGroup>
+                <h:panelGroup id="propertiesFileNamePatternSettings"
+                              styleClass="#{projectBean.propertiesFileNamePatternSupported ? '' : 'hidden'}">
+                    <table class="properties properties-form wide">
+                        <tr>
+                            <td>Custom file name processor:</td>
+                            <td class="aligned-property">
+                                <input id="customPropertiesFileNameProcessor" type="checkbox"
+                                       checked="#{empty project.propertiesFileNameProcessor ? '' : 'checked'}"
+                                       onclick="$j('#propertiesFileNameProcessor').val(''); $j('.propertiesFileNameProcessorSettings').toggle(this.checked);"/>
+                            </td>
+                        </tr>
+                        <tr class="propertiesFileNameProcessorSettings">
+                            <td>File name processor class:</td>
+                            <td class="aligned-property"><h:inputText id="propertiesFileNameProcessor"
+                                                                      value="#{project.propertiesFileNameProcessor}"
+                                                                      binding="#{projectBean.propertiesFileNameProcessorInput}"
+                                                                      validator="#{projectBean.validatePropertiesFileNameProcessor}"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><a4j:outputPanel ajaxRendered="true">
+                                <h:message for="propertiesFileNameProcessor" styleClass="error"/>
+                            </a4j:outputPanel></td>
+                        </tr>
+                        <tr>
+                            <td>Properties pattern for a file name:</td>
+                            <td class="aligned-property">
+                                <h:inputText id="propertiesFileNamePattern" value="#{project.propertiesFileNamePattern}"
+                                             validator="#{projectBean.validatePropertiesFileNamePattern}"/>
+                                <a id="patternInfo" onclick="showPatternInfo($j('#propertiesFileNameProcessor').val());"
+                                   title="Details" class="imageButton"
+                                   style="background:url('webresource/images/info.png');display: inline-block;"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <a4j:outputPanel ajaxRendered="true">
+                                    <h:message for="propertiesFileNamePattern" styleClass="error"/>
+                                </a4j:outputPanel>
+                            </td>
+                        </tr>
+                    </table>
+                </h:panelGroup>
 
-            <footer>
-                <a4j:commandButton id="editProjectBtn" value="Update" action="#{projectBean.editName}"
-                    styleClass="button-primary"
-                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editProjectPopup');ws.nav.go('#{utils.toUrl(projectData.name)}', true)}" />
-                <input type="button" value="Cancel" onclick="ws.ui.hide('editProjectPopup');" />
-            </footer>
-        </h:form>
-    </rich:popupPanel>
+                <footer>
+                    <a4j:commandButton id="editProjectBtn" value="Update" action="#{projectBean.editName}"
+                                       styleClass="button-primary"
+                                       oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editProjectPopup');ws.nav.go('#{utils.toUrl(projectData.name)}', true)}"/>
+                    <input type="button" value="Cancel" onclick="ws.ui.hide('editProjectPopup');"/>
+                </footer>
+            </h:form>
+        </rich:popupPanel>
 
-    <rich:popupPanel id="removeModulePopup" width="290" autosized="true">
-        <f:facet name="header">
-            <h:outputText value="Remove Module" />
-        </f:facet>
+        <rich:popupPanel id="removeModulePopup" width="290" autosized="true">
+            <f:facet name="header">
+                <h:outputText value="Remove Module"/>
+            </f:facet>
 
-        <f:facet name="controls">
-            <h:graphicImage value="/images/close.gif" class="close"
-                onclick="ws.ui.hide('removeModulePopup')" alt="Close" />
-        </f:facet>
+            <f:facet name="controls">
+                <h:graphicImage value="/images/close.gif" class="close"
+                                onclick="ws.ui.hide('removeModulePopup')" alt="Close"/>
+            </f:facet>
 
-        <h:form prependId="false">
-            <input type="hidden" id="moduleToRemove" name="moduleToRemove" />
-            <div style="padding-bottom: 1px;">
-                <p>
-                    Are you sure you want to remove this module?
-                </p>
+            <h:form prependId="false">
+                <input type="hidden" id="moduleToRemove" name="moduleToRemove"/>
+                <div style="padding-bottom: 1px;">
+                    <p>
+                        Are you sure you want to remove this module?
+                    </p>
 
-                <p id="leaveExcelFileConfirmation">
+                    <p id="leaveExcelFileConfirmation">
                     <span>
                     <label for="leaveExcelFile">Don't delete Excel file and leave it in project</label>
                     </span>
-                    <span>
+                        <span>
                     <input type="checkbox" id="leaveExcelFile" name="leaveExcelFile"/>
                     </span>
-                </p>
+                    </p>
 
-            </div>
+                </div>
 
-            <footer>
-                <a4j:commandButton value="Remove" action="#{projectBean.removeModule}"
-                    styleClass="button-primary"
-                    id="removeModuleButton"
-                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('removeModulePopup');ws.nav.reload(true);ws.ui.success('Module was removed successfully!');}" />
-                <input type="button" value="Cancel" onclick="ws.ui.hide('removeModulePopup');" />
-            </footer>
-        </h:form>
-    </rich:popupPanel>
+                <footer>
+                    <a4j:commandButton value="Remove" action="#{projectBean.removeModule}"
+                                       styleClass="button-primary"
+                                       id="removeModuleButton"
+                                       oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('removeModulePopup');ws.nav.reload(true);ws.ui.success('Module was removed successfully!');}"/>
+                    <input type="button" value="Cancel" onclick="ws.ui.hide('removeModulePopup');"/>
+                </footer>
+            </h:form>
+        </rich:popupPanel>
 
-    <rich:popupPanel id="manageDependenciesPopup" width="510" autosized="true">
-        <f:facet name="header">
-            <h:outputText value="Manage Dependencies" />
-        </f:facet>
+        <rich:popupPanel id="manageDependenciesPopup" width="510" autosized="true">
+            <f:facet name="header">
+                <h:outputText value="Manage Dependencies"/>
+            </f:facet>
 
-        <f:facet name="controls">
-            <h:graphicImage value="/images/close.gif" class="close"
-                onclick="ws.ui.hide('manageDependenciesPopup')" alt="Close" />
-        </f:facet>
+            <f:facet name="controls">
+                <h:graphicImage value="/images/close.gif" class="close"
+                                onclick="ws.ui.hide('manageDependenciesPopup')" alt="Close"/>
+            </f:facet>
 
-        <h:form prependId="false" id="manageDependenciesForm">
-            <div style="overflow:auto; height:350px">
-                <table id="dependenciesTable" class="table table-over w100">
-                    <thead>
-                    <tr>
-                        <th>Project Name</th>
-                        <th style="width:67px">All Modules</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <ui:repeat value="#{projectBean.dependencies}" var="dependency2">
-                        <tr class="#{dependency2.selected ? 'active' : ''}">
-                            <td><label><h:selectBooleanCheckbox value="#{dependency2.selected}" /> #{dependency2.item.name}</label></td>
-                            <td style="text-align:center"><h:selectBooleanCheckbox value="#{dependency2.item.autoIncluded}"
-                                title="Include all modules" /></td>
+            <h:form prependId="false" id="manageDependenciesForm">
+                <div style="overflow:auto; height:350px">
+                    <table id="dependenciesTable" class="table table-over w100">
+                        <thead>
+                        <tr>
+                            <th>Project Name</th>
+                            <th style="width:67px">All Modules</th>
                         </tr>
-                    </ui:repeat>
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                        <ui:repeat value="#{projectBean.dependencies}" var="dependency2">
+                            <tr class="#{dependency2.selected ? 'active' : ''}">
+                                <td><label><h:selectBooleanCheckbox
+                                        value="#{dependency2.selected}"/> #{dependency2.item.name}</label></td>
+                                <td style="text-align:center"><h:selectBooleanCheckbox
+                                        value="#{dependency2.item.autoIncluded}"
+                                        title="Include all modules"/></td>
+                            </tr>
+                        </ui:repeat>
+                        </tbody>
+                    </table>
+                </div>
 
-            <footer>
-                <a4j:commandButton id="editDependenciesBtn" value="Save" action="#{projectBean.editDependencies}"
-                    styleClass="button-primary"
-                    oncomplete="ws.ui.hide('manageDependenciesPopup');ws.nav.reload()" />
-                <input type="button" value="Cancel" onclick="ws.ui.hide('manageDependenciesPopup');" />
-            </footer>
-        </h:form>
-    </rich:popupPanel>
+                <footer>
+                    <a4j:commandButton id="editDependenciesBtn" value="Save" action="#{projectBean.editDependencies}"
+                                       styleClass="button-primary"
+                                       oncomplete="ws.ui.hide('manageDependenciesPopup');ws.nav.reload()"/>
+                    <input type="button" value="Cancel" onclick="ws.ui.hide('manageDependenciesPopup');"/>
+                </footer>
+            </h:form>
+        </rich:popupPanel>
 
-    <rich:popupPanel id="manageSourcesPopup" width="340" autosized="true">
-        <f:facet name="header">
-            <h:outputText value="Manage Sources" />
-        </f:facet>
+        <rich:popupPanel id="manageSourcesPopup" width="340" autosized="true">
+            <f:facet name="header">
+                <h:outputText value="Manage Sources"/>
+            </f:facet>
 
-        <f:facet name="controls">
-            <h:graphicImage value="/images/close.gif" class="close"
-                onclick="ws.ui.hide('manageSourcesPopup')" alt="Close" />
-        </f:facet>
+            <f:facet name="controls">
+                <h:graphicImage value="/images/close.gif" class="close"
+                                onclick="ws.ui.hide('manageSourcesPopup')" alt="Close"/>
+            </f:facet>
 
-        <h:form prependId="false" id="manageSourcesForm">
-            <h:inputTextarea id="sources" value="#{projectBean.sources}" style="width:310px;height:150px" styleClass="code"/>
-            <footer>
-                <a4j:commandButton id="editSourcesBtn" value="Save" action="#{projectBean.editSources}"
-                    styleClass="button-primary"
-                    oncomplete="ws.ui.hide('manageSourcesPopup');ws.nav.reload()" />
-                <input type="button" value="Cancel" onclick="ws.ui.hide('manageSourcesPopup');" />
-            </footer>
-        </h:form>
-    </rich:popupPanel>
+            <h:form prependId="false" id="manageSourcesForm">
+                <h:inputTextarea id="sources" value="#{projectBean.sources}" style="width:310px;height:150px"
+                                 styleClass="code"/>
+                <footer>
+                    <a4j:commandButton id="editSourcesBtn" value="Save" action="#{projectBean.editSources}"
+                                       styleClass="button-primary"
+                                       oncomplete="ws.ui.hide('manageSourcesPopup');ws.nav.reload()"/>
+                    <input type="button" value="Cancel" onclick="ws.ui.hide('manageSourcesPopup');"/>
+                </footer>
+            </h:form>
+        </rich:popupPanel>
 
-    <script>
-    //<![CDATA[
-        var initProjectDescription = $j("#projectDescription").val(); // Плохо, очень плохо!!!
+        <script>
+            //<![CDATA[
+            var initProjectDescription = $j("#projectDescription").val(); // Плохо, очень плохо!!!
 
-        var initDependencies = $j("#dependenciesTable tr > td:first-child input:checked").get();
-        var initDependencies2 = $j("#dependenciesTable tr.active > td:last-child input").map(function(){return this.checked}).get();
+            var initDependencies = $j("#dependenciesTable tr > td:first-child input:checked").get();
+            var initDependencies2 = $j("#dependenciesTable tr.active > td:last-child input").map(function () {
+                return this.checked
+            }).get();
 
-        var initSources = $j("#sources").val(); // Плохо, очень плохо!!!
-        var initPropertiesFileNamePattern = $j("#propertiesFileNamePattern").val(); // Плохо, очень плохо!!!
-        var initPropertiesFileNameProcessor = $j("#propertiesFileNameProcessor").val(); // Плохо, очень плохо!!!
+            var initSources = $j("#sources").val(); // Плохо, очень плохо!!!
+            var initPropertiesFileNamePattern = $j("#propertiesFileNamePattern").val(); // Плохо, очень плохо!!!
+            var initPropertiesFileNameProcessor = $j("#propertiesFileNameProcessor").val(); // Плохо, очень плохо!!!
 
-        var initSupportedVersion = $j("#supportedVersion").val();
+            var initSupportedVersion = $j("#supportedVersion").val();
 
-        function onPropertiesFileNameProcessorCheckboxClick() {
-            $j('.propertiesFileNameProcessorSettings').toggle($j("#customPropertiesFileNameProcessor").is(':checked'))
-        }
-
-        function editProject() {
-            if (!canOverwriteRevision()) {
-                return false;
+            function onPropertiesFileNameProcessorCheckboxClick() {
+                $j('.propertiesFileNameProcessorSettings').toggle($j("#customPropertiesFileNameProcessor").is(':checked'))
             }
 
-            $j("#editProjectForm")[0].reset();
-            var btn = $j("#editProjectBtn");
+            function editProject() {
+                if (!canOverwriteRevision()) {
+                    return false;
+                }
 
-            btn.prop("disabled", true);
-            $j("#projectDescription").val(initProjectDescription);
-            $j("#propertiesFileNamePattern").val(initPropertiesFileNamePattern);
-            $j("#propertiesFileNameProcessor").val(initPropertiesFileNameProcessor);
-            $j("#editProjectForm span.error").remove();
-            onPropertiesFileNameProcessorCheckboxClick();
+                $j("#editProjectForm")[0].reset();
+                var btn = $j("#editProjectBtn");
 
-            initExpandableLink('#version-compatibility-short', '#version-compatibility-full');
+                btn.prop("disabled", true);
+                $j("#projectDescription").val(initProjectDescription);
+                $j("#propertiesFileNamePattern").val(initPropertiesFileNamePattern);
+                $j("#propertiesFileNameProcessor").val(initPropertiesFileNameProcessor);
+                $j("#editProjectForm span.error").remove();
+                onPropertiesFileNameProcessorCheckboxClick();
 
-            ws.ui.show("editProjectPopup");
+                initExpandableLink('#version-compatibility-short', '#version-compatibility-full');
 
-            var updateButtonState = function () {
-                var description = $j("#projectDescription").val();
-                var propertiesFileNamePattern = $j("#propertiesFileNamePattern").val();
-                var propertiesFileNameProcessor = $j("#propertiesFileNameProcessor").val();
-                var supportedVersion = $j("#supportedVersion").val();
-                btn.prop("disabled", description == initProjectDescription &&
+                ws.ui.show("editProjectPopup");
+
+                var updateButtonState = function () {
+                    var description = $j("#projectDescription").val();
+                    var propertiesFileNamePattern = $j("#propertiesFileNamePattern").val();
+                    var propertiesFileNameProcessor = $j("#propertiesFileNameProcessor").val();
+                    var supportedVersion = $j("#supportedVersion").val();
+                    btn.prop("disabled", description == initProjectDescription &&
                         propertiesFileNamePattern == initPropertiesFileNamePattern &&
                         propertiesFileNameProcessor == initPropertiesFileNameProcessor &&
                         supportedVersion == initSupportedVersion);
-            };
+                };
 
-            $j("#projectDescription, #propertiesFileNamePattern, #propertiesFileNameProcessor").on("change keyup cut paste", updateButtonState);
-            $j("#customPropertiesFileNameProcessor").click(updateButtonState);
-            $j("#supportedVersion").change(updateButtonState);
-        }
-
-        function addModule() {
-            editModule();
-        }
-
-        function removeModule(module) {
-            if (!canOverwriteRevision()) {
-                return false;
+                $j("#projectDescription, #propertiesFileNamePattern, #propertiesFileNameProcessor").on("change keyup cut paste", updateButtonState);
+                $j("#customPropertiesFileNameProcessor").click(updateButtonState);
+                $j("#supportedVersion").change(updateButtonState);
             }
 
-            $j("#moduleToRemove").val(module);
-            ws.ui.show("removeModulePopup");
-            $j("#removeModuleButton").focus();
-        }
-
-        function manageDependencies() {
-            if (!canOverwriteRevision()) {
-                return false;
+            function addModule() {
+                editModule();
             }
 
-            var btn = $j("#editDependenciesBtn");
-
-            btn.prop("disabled", true);
-            $j("#dependenciesTable tr > td:first-child input").each(function() {
-                var init = initDependencies.indexOf(this) > -1;
-                this.checked = init;
-                var row = $j(this).closest("tr");
-                row.toggleClass("active", init);
-                row.find("td:last-child input").prop("disabled", !init);
-                if (init) {
-                    row.find("td:last-child input").prop("checked", initDependencies2[initDependencies.indexOf(this)]);
-                } else {
-                    row.find("td:last-child input").prop("checked", true);
+            function removeModule(module) {
+                if (!canOverwriteRevision()) {
+                    return false;
                 }
-            });
 
-            $j("#dependenciesTable tr > td:first-child input").on("change", function() {
-                var row = $j(this).closest("tr");
-                row.toggleClass("active", this.checked);
-                row.find("td:last-child input").prop("disabled", !this.checked);
-
-                var changed = false;
-                var checked = $j("#dependenciesTable tr > td:first-child input:checked");
-                if (checked.length != initDependencies.length) {
-                    changed = true;
-                } else {
-                    checked.each(function() {
-                        if (!(initDependencies.indexOf(this) > -1)) {
-                            changed = true;
-                        }
-                    });
-                }
-                btn.prop("disabled", !changed);
-            });
-
-            $j("#dependenciesTable tr > td:last-child input").on("change", function() {
-                var projectCheck = $j(this).closest("tr").find("td:first-child input").get(0);
-                btn.prop("disabled", initDependencies2[initDependencies.indexOf(projectCheck)] == this.checked);
-            });
-
-            ws.ui.show("manageDependenciesPopup");
-        }
-
-        function manageSources() {
-            if (!canOverwriteRevision()) {
-                return false;
+                $j("#moduleToRemove").val(module);
+                ws.ui.show("removeModulePopup");
+                $j("#removeModuleButton").focus();
             }
 
-            var btn = $j("#editSourcesBtn");
-
-            btn.prop("disabled", true);
-            $j("#sources").val(initSources);
-
-            ws.ui.show("manageSourcesPopup");
-
-            $j("#sources").on("keyup", function() {
-                btn.prop("disabled", $j("#sources").val() == initSources);
-            })
-        }
-
-        function initExpandableLink(divWithLink, divToShow) {
-            $j(divWithLink).show();
-            $j(divToShow).hide();
-
-            $j(divWithLink).off().click(function () {
-                if (!$j(this).hasClass('disabled-link')) {
-                    $j(divToShow).show();
-                    $j(divWithLink).hide();
+            function manageDependencies() {
+                if (!canOverwriteRevision()) {
+                    return false;
                 }
-            })
-        }
 
-        function canOverwriteRevision() {
-            var confirmNeeded = #{studio.model.confirmOverwriteNewerRevision};
-            return !confirmNeeded || confirm("#{msg['ws.project.warning.version.old']}");
-        }
+                var btn = $j("#editDependenciesBtn");
 
-        $j(function () {
-            initExpandableLinks();
-        });
+                btn.prop("disabled", true);
+                $j("#dependenciesTable tr > td:first-child input").each(function () {
+                    var init = initDependencies.indexOf(this) > -1;
+                    this.checked = init;
+                    var row = $j(this).closest("tr");
+                    row.toggleClass("active", init);
+                    row.find("td:last-child input").prop("disabled", !init);
+                    if (init) {
+                        row.find("td:last-child input").prop("checked", initDependencies2[initDependencies.indexOf(this)]);
+                    } else {
+                        row.find("td:last-child input").prop("checked", true);
+                    }
+                });
 
-    //]]>
-    </script>
+                $j("#dependenciesTable tr > td:first-child input").on("change", function () {
+                    var row = $j(this).closest("tr");
+                    row.toggleClass("active", this.checked);
+                    row.find("td:last-child input").prop("disabled", !this.checked);
+
+                    var changed = false;
+                    var checked = $j("#dependenciesTable tr > td:first-child input:checked");
+                    if (checked.length != initDependencies.length) {
+                        changed = true;
+                    } else {
+                        checked.each(function () {
+                            if (!(initDependencies.indexOf(this) > -1)) {
+                                changed = true;
+                            }
+                        });
+                    }
+                    btn.prop("disabled", !changed);
+                });
+
+                $j("#dependenciesTable tr > td:last-child input").on("change", function () {
+                    var projectCheck = $j(this).closest("tr").find("td:first-child input").get(0);
+                    btn.prop("disabled", initDependencies2[initDependencies.indexOf(projectCheck)] == this.checked);
+                });
+
+                ws.ui.show("manageDependenciesPopup");
+            }
+
+            function manageSources() {
+                if (!canOverwriteRevision()) {
+                    return false;
+                }
+
+                var btn = $j("#editSourcesBtn");
+
+                btn.prop("disabled", true);
+                $j("#sources").val(initSources);
+
+                ws.ui.show("manageSourcesPopup");
+
+                $j("#sources").on("keyup", function () {
+                    btn.prop("disabled", $j("#sources").val() == initSources);
+                })
+            }
+
+            function initExpandableLink(divWithLink, divToShow) {
+                $j(divWithLink).show();
+                $j(divToShow).hide();
+
+                $j(divWithLink).off().click(function () {
+                    if (!$j(this).hasClass('disabled-link')) {
+                        $j(divToShow).show();
+                        $j(divWithLink).hide();
+                    }
+                })
+            }
+
+            function canOverwriteRevision() {
+                var confirmNeeded = #{studio.model.confirmOverwriteNewerRevision};
+                return !confirmNeeded || confirm("#{msg['ws.project.warning.version.old']}");
+            }
+
+            $j(function () {
+                initExpandableLinks();
+            });
+
+            //]]>
+        </script>
 
     </h:panelGroup>
 
