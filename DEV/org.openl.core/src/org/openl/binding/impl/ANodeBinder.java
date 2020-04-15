@@ -230,37 +230,6 @@ public abstract class ANodeBinder implements INodeBinder {
         return new ErrorBoundNode(node);
     }
 
-    /**
-     * Binds method which defines by header descriptor.
-     *
-     * @param boundCode bound code that contains method bound code
-     * @param header method header descriptor
-     * @param bindingContext binding context
-     * @return node of bound code that contains information about method
-     */
-    public static IBoundMethodNode bindMethod(IBoundCode boundCode,
-            IOpenMethodHeader header,
-            IBindingContext bindingContext) {
-
-        try {
-            IBoundMethodNode boundMethodNode = (IBoundMethodNode) boundCode.getTopNode();
-            IOpenClass type = header.getType();
-
-            if (type != JavaOpenClass.VOID && type != NullOpenClass.the) {
-
-                IOpenCast cast = getCast(boundMethodNode, type, bindingContext);
-
-                if (cast != null) {
-                    boundMethodNode = new MethodCastNode(boundMethodNode, cast, type);
-                }
-            }
-            return boundMethodNode;
-        } catch (TypeCastException ex) {
-            throw new CompositeSyntaxNodeException(StringUtils.EMPTY, new SyntaxNodeException[] { ex });
-        }
-
-    }
-
     protected static IOpenClass getType(ISyntaxNode node,
             IBindingContext bindingContext) throws ClassNotFoundException {
         if (node.getType().equals("type.name")) {

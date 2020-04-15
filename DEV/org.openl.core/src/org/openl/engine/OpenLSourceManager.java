@@ -14,7 +14,6 @@ import org.openl.dependency.IDependencyManager;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.SourceType;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.code.IParsedCode;
@@ -29,7 +28,7 @@ import org.openl.util.CollectionUtils;
  * Class that defines OpenL engine manager implementation for source processing operations.
  *
  */
-public class OpenLSourceManager extends OpenLHolder {
+public class OpenLSourceManager {
 
     public static final String EXTERNAL_DEPENDENCIES_KEY = "external-dependencies";
 
@@ -38,7 +37,7 @@ public class OpenLSourceManager extends OpenLHolder {
     private static final Pattern ASTERIX_SIGN = Pattern.compile("\\*");
     private static final Pattern QUESTION_SIGN = Pattern.compile("\\?");
 
-    private OpenLParseManager parseManager;
+    private OpenL openl;
 
     /**
      * Create new instance of OpenL engine manager.
@@ -46,35 +45,7 @@ public class OpenLSourceManager extends OpenLHolder {
      * @param openl {@link OpenL} instance
      */
     public OpenLSourceManager(OpenL openl) {
-
-        super(openl);
-
-        parseManager = new OpenLParseManager(openl);
-
-    }
-
-    /**
-     * Parses and binds source.
-     *
-     * @param source source
-     * @param sourceType type of source
-     * @return processed code descriptor
-     */
-    public ProcessedCode processSource(IOpenSourceCodeModule source, SourceType sourceType) {
-        return processSource(source, sourceType, null, false, null);
-    }
-
-    /**
-     * Parses and binds source.
-     *
-     * @param source source
-     * @param sourceType type of source
-     * @return processed code descriptor
-     */
-    public ProcessedCode processSource(IOpenSourceCodeModule source,
-            SourceType sourceType,
-            IDependencyManager dependencyManager) {
-        return processSource(source, sourceType, null, false, dependencyManager);
+        this.openl = openl;
     }
 
     private Collection<IDependency> getDependencies(IDependencyManager dependencyManager, IDependency[] dependencies) {
@@ -119,19 +90,17 @@ public class OpenLSourceManager extends OpenLHolder {
      * Parses and binds source.
      *
      * @param source source
-     * @param sourceType type of source
      * @param bindingContext binding context
      * @param ignoreErrors define a flag that indicates to suppress errors or break source processing when an error has
      *            occurred
      * @return processed code descriptor
      */
     public ProcessedCode processSource(IOpenSourceCodeModule source,
-            SourceType sourceType,
-            IBindingContext bindingContext,
-            boolean ignoreErrors,
-            IDependencyManager dependencyManager) {
+                                       IBindingContext bindingContext,
+                                       boolean ignoreErrors,
+                                       IDependencyManager dependencyManager) {
 
-        IParsedCode parsedCode = parseManager.parseSource(source, sourceType);
+        IParsedCode parsedCode = openl.getParser().parseAsModule(source);
         SyntaxNodeException[] parsingErrors = parsedCode.getErrors();
 
         if (!ignoreErrors && parsingErrors.length > 0) {
@@ -141,7 +110,6 @@ public class OpenLSourceManager extends OpenLHolder {
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
 
         // compile source dependencies
-        if (SourceType.MODULE.equals(sourceType)) {
 
             Collection<IDependency> dependencyManagerDependencies = getDependencies(dependencyManager,
                 parsedCode.getDependencies());
@@ -189,7 +157,6 @@ public class OpenLSourceManager extends OpenLHolder {
             }
 
             parsedCode.setCompiledDependencies(compiledDependencies);
-        }
 
         Map<String, Object> externalParams = source.getParams();
 
@@ -215,7 +182,7 @@ public class OpenLSourceManager extends OpenLHolder {
         // packages.
         FullClassnameSupport.transformIdentifierBindersWithBindingContextInfo(bindingContext, parsedCode);
 
-        IOpenBinder binder = getOpenL().getBinder();
+        IOpenBinder binder = openl.getBinder();
         IBoundCode boundCode = binder.bind(parsedCode, bindingContext);
         messages.addAll(boundCode.getMessages());
 
@@ -245,4 +212,5 @@ public class OpenLSourceManager extends OpenLHolder {
         }
         return dependencies == null ? Collections.emptyList() : dependencies;
     }
+
 }

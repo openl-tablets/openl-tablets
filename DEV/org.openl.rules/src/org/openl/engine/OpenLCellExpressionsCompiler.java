@@ -39,10 +39,7 @@ public class OpenLCellExpressionsCompiler {
             IOpenSourceCodeModule source,
             CompositeMethod compositeMethod,
             IBindingContext bindingContext) {
-
-        OpenLCompileManager compileManager = new OpenLCompileManager(openl);
-
-        compileManager.compileMethod(source, compositeMethod, bindingContext);
+        OpenLManager.compileMethod(openl, source, compositeMethod, bindingContext);
     }
 
     /**
@@ -58,10 +55,8 @@ public class OpenLCellExpressionsCompiler {
             IOpenSourceCodeModule source,
             IOpenMethodHeader methodHeader,
             IBindingContext bindingContext) {
+        return OpenLManager.makeMethod(openl, source, methodHeader, bindingContext);
 
-        OpenLCodeManager codeManager = new OpenLCodeManager(openl);
-
-        return codeManager.makeMethod(source, methodHeader, bindingContext);
     }
 
     /**
@@ -84,9 +79,7 @@ public class OpenLCellExpressionsCompiler {
             IOpenClass declaringClass,
             IBindingContext bindingContext) {
 
-        OpenLCodeManager codeManager = new OpenLCodeManager(openl);
-
-        return codeManager.makeMethodWithUnknownType(source, methodName, signature, declaringClass, bindingContext);
+        return OpenLManager.makeMethodWithUnknownType(openl, source, methodName, signature, declaringClass, bindingContext);
     }
 
     public static List<CellMetaInfo> getMetaInfo(IOpenSourceCodeModule source, CompositeMethod method) {

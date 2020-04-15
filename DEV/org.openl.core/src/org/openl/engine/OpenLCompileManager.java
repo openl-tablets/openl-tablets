@@ -1,33 +1,33 @@
 package org.openl.engine;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.openl.CompiledOpenClass;
+import org.openl.ICompileContext;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBoundCode;
-import org.openl.binding.IBoundMethodNode;
-import org.openl.binding.impl.ANodeBinder;
-import org.openl.binding.impl.module.MethodBindingContext;
 import org.openl.dependency.IDependencyManager;
 import org.openl.message.OpenLMessage;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.SourceType;
 import org.openl.syntax.code.ProcessedCode;
 import org.openl.types.IOpenClass;
-import org.openl.types.impl.CompositeMethod;
+import org.openl.validation.IOpenLValidator;
 import org.openl.validation.ValidationResult;
 
 /**
  * Class that defines OpenL engine manager implementation for compilation operations.
  *
  */
-public class OpenLCompileManager extends OpenLHolder {
+public class OpenLCompileManager {
 
+    private static ThreadLocal<Boolean> validationEnabled = new ThreadLocal<>(); // Workaroung
     private OpenLSourceManager sourceManager;
-    private OpenLValidationManager validationManager;
+    private OpenL openl;
 
     /**
      * Construct new instance of manager.
@@ -35,9 +35,21 @@ public class OpenLCompileManager extends OpenLHolder {
      * @param openl {@link OpenL} instance
      */
     public OpenLCompileManager(OpenL openl) {
-        super(openl);
+        this.openl = openl;
         sourceManager = new OpenLSourceManager(openl);
-        validationManager = new OpenLValidationManager(openl);
+    }
+
+    public static boolean isValidationEnabled() {
+        Boolean validationIsOn = validationEnabled.get();
+        return validationIsOn == null || validationIsOn;
+    }
+
+    public static void turnOffValidation() {
+        validationEnabled.set(Boolean.FALSE);
+    }
+
+    public static void turnOnValidation() {
+        validationEnabled.remove();
     }
 
     /**
@@ -50,15 +62,7 @@ public class OpenLCompileManager extends OpenLHolder {
     public IOpenClass compileModule(IOpenSourceCodeModule source,
             boolean executionMode,
             IDependencyManager dependencyManager) {
-        ProcessedCode processedCode;
-        if (executionMode) {
-            IBindingContext bindingContext = sourceManager.getOpenL().getBinder().makeBindingContext();
-            bindingContext.setExecutionMode(true);
-            processedCode = sourceManager
-                .processSource(source, SourceType.MODULE, bindingContext, false, dependencyManager);
-        } else {
-            processedCode = sourceManager.processSource(source, SourceType.MODULE, dependencyManager);
-        }
+        ProcessedCode processedCode = getProcessedCode(source, executionMode, dependencyManager, false);
 
         return processedCode.getBoundCode().getTopNode().getType();
     }
@@ -74,20 +78,12 @@ public class OpenLCompileManager extends OpenLHolder {
     public CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule source,
             boolean executionMode,
             IDependencyManager dependencyManager) {
-        ProcessedCode processedCode;
-        if (executionMode) {
-            IBindingContext bindingContext = sourceManager.getOpenL().getBinder().makeBindingContext();
-            bindingContext.setExecutionMode(true);
-            processedCode = sourceManager
-                .processSource(source, SourceType.MODULE, bindingContext, true, dependencyManager);
-        } else {
-            processedCode = sourceManager.processSource(source, SourceType.MODULE, null, true, dependencyManager);
-        }
+        ProcessedCode processedCode = getProcessedCode(source, executionMode, dependencyManager, true);
         IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
         if (!executionMode) {
             // for WebStudio
-            List<ValidationResult> validationResults = validationManager.validate(openClass);
+            List<ValidationResult> validationResults = validate(openClass);
             for (ValidationResult result : validationResults) {
                 messages.addAll(result.getMessages());
             }
@@ -98,35 +94,51 @@ public class OpenLCompileManager extends OpenLHolder {
         return new CompiledOpenClass(openClass, messages);
     }
 
+    private ProcessedCode getProcessedCode(IOpenSourceCodeModule source,
+            boolean executionMode,
+            IDependencyManager dependencyManager,
+            boolean ignoreErrors) {
+        ProcessedCode processedCode;
+        IBindingContext bindingContext = null;
+        if (executionMode) {
+            bindingContext = openl.getBinder().makeBindingContext();
+            bindingContext.setExecutionMode(true);
+        }
+        processedCode = sourceManager
+            .processSource(source, bindingContext, ignoreErrors, dependencyManager);
+        return processedCode;
+    }
+
     /**
-     * Compiles a method.
+     * Invokes validation process for each registered validator.
      *
-     * @param source method source
-     * @param compositeMethod {@link CompositeMethod} instance
-     * @param bindingContext binding context
+     * @param openClass openClass to validate
+     * @return list of validation results
      */
-    public void compileMethod(IOpenSourceCodeModule source,
-            CompositeMethod compositeMethod,
-            IBindingContext bindingContext) {
+    private List<ValidationResult> validate(IOpenClass openClass) {
+        if (OpenLCompileManager.isValidationEnabled()) {
+            List<ValidationResult> results = new ArrayList<>();
 
-        try {
+            ICompileContext context = openl.getCompileContext();
 
-            bindingContext.pushErrors();
+            // Check that compile context initialized. If context is null or
+            // validation switched off then skip validation process.
+            //
+            if (context != null) {
 
-            MethodBindingContext methodBindingContext = new MethodBindingContext(compositeMethod.getHeader(),
-                bindingContext);
+                Set<IOpenLValidator> validators = context.getValidators();
 
-            ProcessedCode processedCode = sourceManager
-                .processSource(source, SourceType.METHOD_BODY, methodBindingContext, false, null);
+                for (IOpenLValidator validator : validators) {
 
-            IBoundCode boundCode = processedCode.getBoundCode();
+                    ValidationResult result = validator.validate(openl, openClass);
 
-            IBoundMethodNode boundMethodNode = ANodeBinder
-                .bindMethod(boundCode, compositeMethod.getHeader(), bindingContext);
+                    results.add(result);
+                }
 
-            compositeMethod.setMethodBodyBoundNode(boundMethodNode);
-        } finally {
-            bindingContext.popErrors();
+            }
+            return results;
+        } else {
+            return Collections.emptyList();
         }
     }
 }

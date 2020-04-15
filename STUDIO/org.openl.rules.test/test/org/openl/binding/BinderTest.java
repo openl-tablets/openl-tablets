@@ -39,7 +39,7 @@ public class BinderTest extends TestCase {
 
     public void _testMethodHeader(String code, IOpenClass type, String openlName, int numPar) {
         OpenL openl = OpenL.getInstance(openlName);
-        IOpenMethodHeader header = OpenLManager.makeMethodHeader(openl, new StringSourceCodeModule(code, null), null);
+        IOpenMethodHeader header = OpenLManager.makeMethodHeader(openl, new StringSourceCodeModule(code, null), openl.getBinder().makeBindingContext());
         Assert.assertEquals(type, header.getType());
         Assert.assertEquals(numPar, header.getSignature().getParameterTypes().length);
     }
