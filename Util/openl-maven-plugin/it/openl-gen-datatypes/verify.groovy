@@ -13,6 +13,7 @@ try {
     assert new File(basedir, 'target/classes/org/openl/generated/beans/Person.class').exists()
     assert new File(basedir, 'target/classes/org/openl/generated/beans/Primitives.class').exists()
     assert new File(basedir, 'target/classes/org/openl/generated/beans/Primitives2.class').exists()
+    assert new File(basedir, 'target/classes/org/openl/generated/beans/Megatype.class').exists()
 
     assert new File(basedir, 'target/openl-gen-datatypes-0.0.0.zip').exists()
 
