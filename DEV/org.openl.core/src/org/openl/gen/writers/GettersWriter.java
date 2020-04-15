@@ -33,7 +33,7 @@ public class GettersWriter extends DefaultBeanByteCodeWriter {
          * cell with void type.
          */
         for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
-            generateGetter(classWriter, field);
+            generateGetter(classWriter, field.getKey(), field.getValue());
         }
     }
 
@@ -41,26 +41,23 @@ public class GettersWriter extends DefaultBeanByteCodeWriter {
      * Generates getter for the fieldEntry.
      *
      * @param classWriter
-     * @param fieldEntry
+     * @param fieldName
+     * @param fieldDescription
      */
-    protected void generateGetter(ClassWriter classWriter, Map.Entry<String, FieldDescription> fieldEntry) {
+    protected void generateGetter(ClassWriter classWriter, String fieldName, FieldDescription fieldDescription) {
         MethodVisitor methodVisitor;
-        String fieldName = fieldEntry.getKey();
-        FieldDescription field = fieldEntry.getValue();
         String getterName = ClassUtils.getter(fieldName);
 
-        final String javaType = field.getTypeDescriptor();
+        final String javaType = fieldDescription.getTypeDescriptor();
         final String format = "()" + javaType;
         methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, getterName, format, null, null);
 
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
         methodVisitor.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName, javaType);
-        String retClass = field.getTypeDescriptor();
+        String retClass = fieldDescription.getTypeDescriptor();
         Type type = Type.getType(retClass);
         methodVisitor.visitInsn(type.getOpcode(Opcodes.IRETURN));
         methodVisitor.visitMaxs(0, 0);
     }
-
-
 
 }

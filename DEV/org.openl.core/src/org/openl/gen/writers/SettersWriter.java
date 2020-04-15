@@ -18,7 +18,7 @@ public class SettersWriter extends DefaultBeanByteCodeWriter {
     @Override
     public void write(ClassWriter classWriter) {
         for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
-            generateSetter(classWriter, field);
+            generateSetter(classWriter, field.getKey(), field.getValue());
         }
     }
 
@@ -26,12 +26,11 @@ public class SettersWriter extends DefaultBeanByteCodeWriter {
      * Generates setter for the fieldEntry.
      *
      * @param classWriter
-     * @param fieldEntry
+     * @param fieldName
+     * @param fieldDescription
      */
-    protected void generateSetter(ClassWriter classWriter, Map.Entry<String, FieldDescription> fieldEntry) {
-        String fieldName = fieldEntry.getKey();
-        FieldDescription field = fieldEntry.getValue();
-        final String fieldType = field.getTypeDescriptor();
+    protected void generateSetter(ClassWriter classWriter, String fieldName, FieldDescription fieldDescription) {
+        final String fieldType = fieldDescription.getTypeDescriptor();
 
         String setterName = ClassUtils.setter(fieldName);
         String methodDescriptor = "(" + fieldType + ")V";
@@ -43,7 +42,7 @@ public class SettersWriter extends DefaultBeanByteCodeWriter {
 
         // this.fieldName = arg0
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-        methodVisitor.visitVarInsn(getConstantForVarInsn(field), 1);
+        methodVisitor.visitVarInsn(getConstantForVarInsn(fieldDescription), 1);
         methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), fieldName, fieldType);
         methodVisitor.visitInsn(Opcodes.RETURN);
 
