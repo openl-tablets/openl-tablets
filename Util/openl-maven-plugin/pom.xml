@@ -62,11 +62,6 @@
             <artifactId>slf4j-simple</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>org.jboss.windup.decompiler.fernflower</groupId>
-            <artifactId>windup-fernflower</artifactId>
-            <version>1.0.0.20171018</version>
-        </dependency>
     </dependencies>
 
     <reporting>
