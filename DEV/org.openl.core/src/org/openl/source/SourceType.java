@@ -6,6 +6,4 @@ public enum SourceType {
     METHOD_HEADER,
     METHOD_BODY,
     TYPE,
-    INT_RANGE,
-    DOUBLE_RANGE
 }

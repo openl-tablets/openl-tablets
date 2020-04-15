@@ -44,11 +44,6 @@ public class OpenLParseManager extends OpenLHolder {
                 return parser.parseAsMethodBody(source);
             case TYPE:
                 return parser.parseAsType(source);
-            case INT_RANGE:
-                return parser.parseAsIntegerRange(source);
-            case DOUBLE_RANGE:
-                return parser.parseAsFloatRange(source);
-
             default:
                 return getInvalidCode(source);
         }
