@@ -55,4 +55,11 @@ public class RunSpreadsheetResultITest {
         client.post("/EPBDS-9437", "/EPBDS-9437_tiktak.req.xml", "/EPBDS-9437_tiktak.resp.xml");
         client.post("/EPBDS-9437", "/EPBDS-9437_arr.req.xml", "/EPBDS-9437_arr.resp.xml");
     }
+
+    @Test
+    public void performance() {
+        client.post("/EPBDS-9644/mySpr1",
+                "/EPBDS-9644_mySpr1.req.json",
+                "/EPBDS-9644_mySpr1.resp.json");
+    }
 }
