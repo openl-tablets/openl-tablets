@@ -64,8 +64,8 @@ public class HttpClient {
 
     private static ClientHttpRequestFactory getClientHttpFactory() {
         SimpleClientHttpRequestFactory httpRequestFactory = new SimpleClientHttpRequestFactory();
-        httpRequestFactory.setConnectTimeout(200);
-        httpRequestFactory.setReadTimeout(2000);
+        httpRequestFactory.setConnectTimeout(300);
+        httpRequestFactory.setReadTimeout(3000);
         return httpRequestFactory;
     }
 
