@@ -640,10 +640,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         .equals(t)) {
                         continue; // IGNORE VOID FIELDS
                     } else {
-                        if (field.getType().getInstanceClass().isPrimitive()) {
-                            typeName = ClassUtils.primitiveToWrapper(field.getType().getInstanceClass()).getName();
+                        Class<?> instanceClass = field.getType().getInstanceClass();
+                        if (instanceClass == null) {
+                            typeName = NullOpenClass.class.getName();
+                        } else if (instanceClass.isPrimitive()) {
+                            typeName = ClassUtils.primitiveToWrapper(instanceClass).getName();
                         } else {
-                            typeName = field.getType().getInstanceClass().getName();
+                            typeName = instanceClass.getName();
                         }
                     }
                     if (!usedXmlNames.containsKey(fieldName) && !usedXmlNames.containsValue(xmlName)) {
