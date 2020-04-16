@@ -28,7 +28,7 @@
             <h:graphicImage value="/images/close.gif" class="close" onclick="hideNewProjectDialog()" alt="Close" />
         </f:facet>
 
-        <rich:tabPanel id="projectType" switchType="client">
+        <rich:tabPanel id="projectType" switchType="client" onitemchange="resizePopupPanel('modalNewProject')">
 
             <rich:tab id="template" header="Template">
                 <h:form id="createProjectFormTempl" style="padding-top: 4px">

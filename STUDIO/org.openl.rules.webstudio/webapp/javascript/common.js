@@ -170,3 +170,14 @@ function initExpandableLinks() {
         $j(this).hide();
     })
 }
+
+/**
+ * Resize the panel when it's content is changed. Works only for panels with autosized="true".
+ *
+ * @param panelName panel name to risize
+ */
+function resizePopupPanel(panelName) {
+    const panel = RichFaces.$(panelName);
+    panel.hide();
+    panel.show();
+}

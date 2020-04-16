@@ -20,7 +20,7 @@
             <input style="display:none" type="text" name="fake-username-field" class="fake-autofill-field"/>
             <input style="display:none" type="password" name="fake-password-field" class="fake-autofill-field"/>
 
-            <rich:tabPanel switchType="client" id="userProfileTab">
+            <rich:tabPanel switchType="client" id="userProfileTab" onitemchange="resizePopupPanel('modalUserProfile')">
                 <rich:tab header="Details" name="userProfileDetails">
                     <div class="fields">
                         <section>
