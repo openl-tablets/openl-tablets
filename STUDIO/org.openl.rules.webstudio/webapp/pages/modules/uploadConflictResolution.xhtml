@@ -18,7 +18,7 @@
     </f:facet>
 
     <h:form id="uploadFileForm">
-      <rich:fileUpload fileUploadListener="#{mergeConflictBean.uploadListener}" render="errorMessage"/>
+      <rich:fileUpload fileUploadListener="#{mergeConflictBean.uploadListener}" maxFilesQuantity="1" render="errorMessage"/>
 
       <h:panelGroup id="modalUploadFileData">
 
