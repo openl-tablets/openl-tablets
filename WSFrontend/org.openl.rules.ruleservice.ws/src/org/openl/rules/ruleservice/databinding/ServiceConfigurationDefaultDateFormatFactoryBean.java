@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.ruleservice.databinding.util.ExtendedStdDateFormat;
 
 public class ServiceConfigurationDefaultDateFormatFactoryBean extends ServiceConfigurationFactoryBean<DateFormat> {
-    private static final String DEFAULT_DATE_FORMAT = "jacksondatabinding.defaultDateFormat";
+    private static final String DEFAULT_DATE_FORMAT = "jackson.defaultDateFormat";
 
     private String defaultDateFormat;
 

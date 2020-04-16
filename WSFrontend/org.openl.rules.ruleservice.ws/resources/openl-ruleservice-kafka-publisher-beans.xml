@@ -64,14 +64,14 @@
     <bean id="kafkaProducerFailOnMissPropertiesFactoryBean"
           class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationBooleanFactoryBean">
         <property name="type" value="PRODUCER"/>
-        <property name="propertyName" value="jacksondatabinding.failOnUnknownProperties"/>
+        <property name="propertyName" value="jackson.failOnUnknownProperties"/>
         <property name="defaultValue" value="${ruleservice.jackson.failOnUnknownProperties}"/>
     </bean>
 
     <bean id="kafkaConsumerFailOnMissPropertiesFactoryBean"
           class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationBooleanFactoryBean">
         <property name="type" value="CONSUMER"/>
-        <property name="propertyName" value="jacksondatabinding.failOnUnknownProperties"/>
+        <property name="propertyName" value="jackson.failOnUnknownProperties"/>
         <property name="defaultValue" value="${ruleservice.jackson.failOnUnknownProperties}"/>
     </bean>
 
@@ -79,7 +79,7 @@
           class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationBooleanFactoryBean"
           scope="prototype">
         <property name="type" value="PRODUCER"/>
-        <property name="propertyName" value="jacksondatabinding.caseInsensitiveProperties"/>
+        <property name="propertyName" value="jackson.caseInsensitiveProperties"/>
         <property name="defaultValue" value="${ruleservice.jackson.caseInsensitiveProperties}"/>
     </bean>
 
@@ -87,7 +87,7 @@
           class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationBooleanFactoryBean"
           scope="prototype">
         <property name="type" value="CONSUMER"/>
-        <property name="propertyName" value="jacksondatabinding.caseInsensitiveProperties"/>
+        <property name="propertyName" value="jackson.caseInsensitiveProperties"/>
         <property name="defaultValue" value="${ruleservice.jackson.caseInsensitiveProperties}"/>
     </bean>
 

@@ -67,7 +67,7 @@ public class InputArgsBean {
     private final Logger log = LoggerFactory.getLogger(InputArgsBean.class);
 
     private static final String ROOT_CLASS_NAMES_BINDING = "rootClassNamesBinding";
-    private static final String CASE_INSENSITIVE_PROPERTIES = "jacksondatabinding.caseInsensitiveProperties";
+    private static final String CASE_INSENSITIVE_PROPERTIES = "jackson.caseInsensitiveProperties";
 
     private String uri;
     private UITree currentTreeNode;

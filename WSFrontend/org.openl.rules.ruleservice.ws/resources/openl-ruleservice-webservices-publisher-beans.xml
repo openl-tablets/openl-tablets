@@ -5,14 +5,14 @@
     <!-- Data binding type in WebServices(set it to the "serverPrototype" bean). -->
     <bean id="jaxwsServiceConfigurationReadXsiTypesFactoryBean"
           class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean" scope="prototype">
-        <property name="propertyName" value="aegisdatabinding.readXsiTypes"/>
-        <property name="defaultValue" value="${ruleservice.aegisbinding.readXsiTypes}"/>
+        <property name="propertyName" value="aegis.readXsiTypes"/>
+        <property name="defaultValue" value="${ruleservice.aegis.readXsiTypes}"/>
     </bean>
 
     <bean id="jaxwsServiceConfigurationWriteXsiTypesFactoryBean"
           class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean" scope="prototype">
-        <property name="propertyName" value="aegisdatabinding.writeXsiTypes"/>
-        <property name="defaultValue" value="${ruleservice.aegisbinding.writeXsiTypes}"/>
+        <property name="propertyName" value="aegis.writeXsiTypes"/>
+        <property name="defaultValue" value="${ruleservice.aegis.writeXsiTypes}"/>
     </bean>
 
     <bean id="jaxwsServiceConfigurationResolveMethodParameterNamesFactoryBean"

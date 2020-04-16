@@ -8,7 +8,7 @@
             http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
 
     <util:map id="uiConfig" key-type="java.lang.String">
-        <entry key="deployerEnabled" value="${ruleservice.deployer.enable}" value-type="java.lang.Boolean"/>
+        <entry key="deployerEnabled" value="${ruleservice.deployer.enabled}" value-type="java.lang.Boolean"/>
         <entry key="url" value="#{T(org.openl.info.OpenLVersion).getUrl()}" value-type="java.lang.String"/>
         <entry key="version" value="#{T(org.openl.info.OpenLVersion).getVersion()}" value-type="java.lang.String"/>
         <entry key="buildDate" value="#{T(org.openl.info.OpenLVersion).getBuildDate()}" value-type="java.lang.String"/>
@@ -21,7 +21,7 @@
     <jaxrs:server address="/admin">
         <jaxrs:serviceBeans>
             <bean class="org.openl.rules.ruleservice.rest.AdminRestController"/>
-            <ref bean="#{ ${ruleservice.deployer.enable} ? 'deployer' : 'emptyEndPoint'}"/>
+            <ref bean="#{ ${ruleservice.deployer.enabled} ? 'deployer' : 'emptyEndPoint'}"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"/>

@@ -8,7 +8,7 @@
 
     <configuration>
         <entry>
-            <string>jacksondatabinding.caseInsensitiveProperties</string>
+            <string>jackson.caseInsensitiveProperties</string>
             <string>true</string>
         </entry>
     </configuration>

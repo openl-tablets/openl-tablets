@@ -65,7 +65,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     private static final String GROUP_ID = "group.id";
     private static final String CLIENT_ID = "client.id";
 
-    private static final String[] CLEAN_UP_PROPERTIES = { "jacksondatabinding.defaultTypingMode",
+    private static final String[] CLEAN_UP_PROPERTIES = { "jackson.defaultTypingMode",
             "rootClassNamesBinding",
             CLIENT_ID_GENERATOR };
 
