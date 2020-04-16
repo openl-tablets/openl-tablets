@@ -641,9 +641,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         continue; // IGNORE VOID FIELDS
                     } else {
                         Class<?> instanceClass = field.getType().getInstanceClass();
-                        if (instanceClass == null) {
-                            typeName = NullOpenClass.class.getName();
-                        } else if (instanceClass.isPrimitive()) {
+                         if (instanceClass.isPrimitive()) {
                             typeName = ClassUtils.primitiveToWrapper(instanceClass).getName();
                         } else {
                             typeName = instanceClass.getName();
