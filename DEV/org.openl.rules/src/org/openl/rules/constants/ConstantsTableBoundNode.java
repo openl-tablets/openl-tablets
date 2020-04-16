@@ -131,22 +131,18 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                 objectValue = constantType.newInstance(openl.getVm().getRuntimeEnv());
             } else if (RuleRowHelper.isFormula(value)) {
                 objectValue = OpenLManager.run(openl, new SubTextSourceCodeModule(defaultValueSrc, 1));
+            } else if (String.class == constantType.getInstanceClass()) {
+                objectValue = value;
+            } else if (value == null) {
+                objectValue = null;
+            } else if (constantType.getName().startsWith("[[")) {
+                throw SyntaxNodeExceptionUtils.createError("Multi-dimensional arrays are not supported.",
+                    defaultValueSrc);
             } else {
-
                 try {
-                    if (constantType.getName().startsWith("[[")) {
-                        throw new IllegalStateException("Multi-dimensional arrays are not supported.");
-                    }
-
-                    if (String.class == constantType.getInstanceClass()) {
-                        objectValue = String2DataConvertorFactory.parse(String.class, value, cxt);
-                    } else {
-                        objectValue = RuleRowHelper.loadNativeValue(row.getColumn(2).getCell(0, 0), constantType);
-                        if (objectValue == null) {
-                            objectValue = String2DataConvertorFactory.parse(constantType.getInstanceClass(), value, cxt);
-                        } else {
-                            RuleRowHelper.validateValue(objectValue, constantType);
-                        }
+                    objectValue = RuleRowHelper.loadNativeValue(row.getColumn(2).getCell(0, 0), constantType);
+                    if (objectValue == null) {
+                        objectValue = String2DataConvertorFactory.parse(constantType.getInstanceClass(), value, cxt);
                     }
                 } catch (RuntimeException e) {
                     String message = String.format("Cannot parse cell value '%s'", value);
@@ -157,7 +153,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                         if (exception.getErrors() != null && exception.getErrors().length == 1) {
                             SyntaxNodeException syntaxNodeException = exception.getErrors()[0];
                             throw SyntaxNodeExceptionUtils
-                                    .createError(message, null, syntaxNodeException.getLocation(), cellSourceCodeModule);
+                                .createError(message, null, syntaxNodeException.getLocation(), cellSourceCodeModule);
                         }
                         throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
                     } else {
@@ -186,17 +182,6 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
             } catch (Exception t) {
                 throw SyntaxNodeExceptionUtils
                     .createError(t.getMessage(), t, null, DatatypeTableBoundNode.getCellSource(row, cxt, 1));
-            }
-
-            if (objectValue != null && !constantType.isArray()) {
-                // Validate not null default value
-                // The null value is allowed for alias types
-                try {
-                    RuleRowHelper.validateValue(value, constantType);
-                } catch (Exception e) {
-                    throw SyntaxNodeExceptionUtils
-                        .createError(e.getMessage(), e, null, DatatypeTableBoundNode.getCellSource(row, cxt, 2));
-                }
             }
         }
     }
