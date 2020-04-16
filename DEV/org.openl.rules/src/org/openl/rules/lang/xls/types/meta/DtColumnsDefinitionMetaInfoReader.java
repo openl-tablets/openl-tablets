@@ -8,7 +8,6 @@ import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
-import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.dt.ADtColumnsDefinitionTableBoundNode;
@@ -60,7 +59,7 @@ public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtCol
                 nodeUsages = new ArrayList<>();
                 CompositeMethod method = value.getKey();
                 int startIndex = 0;
-                List<NodeUsage> parsedNodeUsages = OpenLCellExpressionsCompiler
+                List<NodeUsage> parsedNodeUsages = MetaInfoReaderUtils
                     .getNodeUsages(method, stringValue.substring(startIndex), startIndex);
                 nodeUsages.addAll(parsedNodeUsages);
                 return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages, false);

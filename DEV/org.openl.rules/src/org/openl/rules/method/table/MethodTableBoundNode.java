@@ -10,7 +10,7 @@ import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.engine.OpenLCellExpressionsCompiler;
+import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.MethodTableMetaInfoReader;
@@ -73,8 +73,7 @@ public class MethodTableBoundNode extends AMethodBasedNode {
 
             IOpenSourceCodeModule src = new CompositeSourceCodeModule(cellSources, "\n");
 
-            OpenLCellExpressionsCompiler
-                .compileMethod(getOpenl(), src, getTableMethod().getCompositeMethod(), bindingContext);
+            OpenLManager.compileMethod(getOpenl(), src, getTableMethod().getCompositeMethod(), bindingContext);
         }
     }
 

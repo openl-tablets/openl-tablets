@@ -1,86 +1,28 @@
-package org.openl.engine;
+package org.openl.rules.lang.xls.types.meta;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.openl.OpenL;
-import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.*;
+import org.openl.binding.impl.FieldUsageSearcher;
+import org.openl.binding.impl.MethodUsagesSearcher;
 import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
+import org.openl.binding.impl.NodeUsage;
+import org.openl.binding.impl.NodeUsageComparator;
+import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.CompositeSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
 
 /**
  * Compiles OpenL expressions from the cells and sets meta info about used methods.
- *
- * @author PUdalau
  */
-public class OpenLCellExpressionsCompiler {
-
-    /**
-     * Compiles a method and sets meta info to the cells.
-     *
-     * @param openl OpenL engine context
-     * @param source method source
-     * @param compositeMethod {@link CompositeMethod} instance
-     * @param bindingContext binding context
-     */
-    public static void compileMethod(OpenL openl,
-            IOpenSourceCodeModule source,
-            CompositeMethod compositeMethod,
-            IBindingContext bindingContext) {
-        OpenLManager.compileMethod(openl, source, compositeMethod, bindingContext);
-    }
-
-    /**
-     * Makes a method from source using method header descriptor and sets meta info to the cells.
-     *
-     * @param openl OpenL engine context
-     * @param source source
-     * @param methodHeader method header descriptor
-     * @param bindingContext binding context
-     * @return {@link CompositeMethod} instance
-     */
-    public static CompositeMethod makeMethod(OpenL openl,
-            IOpenSourceCodeModule source,
-            IOpenMethodHeader methodHeader,
-            IBindingContext bindingContext) {
-        return OpenLManager.makeMethod(openl, source, methodHeader, bindingContext);
-
-    }
-
-    /**
-     * Makes method with unknown return type from source using method name and method signature. This method used to
-     * create open class that hasn't information of return type at compile time. Return type can be recognized at
-     * runtime time. Sets meta info to the cells.
-     *
-     * @param openl OpenL engine context
-     * @param source source
-     * @param methodName method name
-     * @param signature method signature
-     * @param declaringClass open class that declare method
-     * @param bindingContext binding context
-     * @return {@link IOpenMethodHeader} instance
-     */
-    public static CompositeMethod makeMethodWithUnknownType(OpenL openl,
-            IOpenSourceCodeModule source,
-            String methodName,
-            IMethodSignature signature,
-            IOpenClass declaringClass,
-            IBindingContext bindingContext) {
-
-        return OpenLManager.makeMethodWithUnknownType(openl, source, methodName, signature, declaringClass, bindingContext);
-    }
+public class MetaInfoReaderUtils {
 
     public static List<CellMetaInfo> getMetaInfo(IOpenSourceCodeModule source, CompositeMethod method) {
         int startIndex = 0;
