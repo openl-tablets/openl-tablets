@@ -101,9 +101,9 @@
             <script>
                 var groups = {};
 
-                <c:forEach items="#{groupsBean.groups}" var="group">
+                <ui:repeat value="#{groupsBean.groups}" var="group">
                 groups["#{utils.toJSText(group.name)}"] = [<ui:repeat value="#{groupsBean.getPrivileges(group)}" var="p">'#{p}',</ui:repeat>];
-                </c:forEach>
+                </ui:repeat>
             </script>
 
             </h:panelGroup>
