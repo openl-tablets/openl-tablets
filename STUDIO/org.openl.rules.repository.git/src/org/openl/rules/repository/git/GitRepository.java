@@ -19,6 +19,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
+import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
 import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
@@ -622,8 +623,14 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     continue;
                 }
                 String branchName = remoteBranch.getName().substring(remotePrefix.length());
-                if (!localBranches.contains(branchName)) {
-                    createRemoteTrackingBranch(branchName);
+                try {
+                    if (!localBranches.contains(branchName)) {
+                        createRemoteTrackingBranch(branchName);
+                    }
+                } catch (RefAlreadyExistsException e) {
+                    // the error may appear on non-case sensitive OS
+                    log.warn("The branch {} will not be tracked because a branch with the same name already exists. Branches with the same name, but different capitalization do not work on non-case sensitive OS.",
+                        remoteBranch.getName());
                 }
             }
 

@@ -4,7 +4,7 @@ import org.openl.rules.serialization.DefaultTypingMode;
 
 public class ServiceConfigurationDefaultTypingModeFactoryBean extends ServiceConfigurationFactoryBean<DefaultTypingMode> {
 
-    public static final String DEFAULT_TYPING_TYPE = "jacksondatabinding.defaultTypingMode";
+    public static final String DEFAULT_TYPING_TYPE = "jackson.defaultTypingMode";
 
     @Override
     protected DefaultTypingMode createInstance() throws Exception {
