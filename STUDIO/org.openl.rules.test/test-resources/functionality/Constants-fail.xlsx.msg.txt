@@ -1,2 +1,6 @@
 ERROR: Field 'D_1' has already been defined.
 ERROR: Field 'Const27' has already been defined.
+ERROR: Lexical error at line 1, column 6.  Encountered: "^" (94), after : "^"
+ERROR: Identifier 'hello' is not found.
+ERROR: Cannot parse cell value 'I_STR'
+ERROR: Cannot convert from 'java.lang.String' to 'java.lang.Double'.

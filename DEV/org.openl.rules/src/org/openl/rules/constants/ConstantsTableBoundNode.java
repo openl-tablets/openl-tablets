@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.IBoundNode;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
@@ -31,6 +32,8 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.FieldMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
+import org.openl.types.impl.MethodSignature;
+import org.openl.types.impl.OpenMethodHeader;
 import org.openl.util.MessageUtils;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
@@ -130,7 +133,10 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
             if (DefaultValue.DEFAULT.equals(value)) {
                 objectValue = constantType.newInstance(openl.getVm().getRuntimeEnv());
             } else if (RuleRowHelper.isFormula(value)) {
-                objectValue = OpenLManager.run(openl, new SubTextSourceCodeModule(defaultValueSrc, 1));
+                SubTextSourceCodeModule source = new SubTextSourceCodeModule(defaultValueSrc, 1);
+                OpenMethodHeader methodHeader = new OpenMethodHeader(constantName, constantType, new MethodSignature(), null);
+                objectValue = OpenLManager.makeMethod(openl, source, methodHeader, cxt)
+                    .invoke(null, IBoundNode.EMPTY_RESULT, openl.getVm().getRuntimeEnv());
             } else if (String.class == constantType.getInstanceClass()) {
                 objectValue = value;
             } else if (value == null) {
