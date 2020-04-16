@@ -18,11 +18,11 @@ public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethod
         WrapperLogic.validateWrapperClass(DeferredMethodWrapper.class, DeferredMethodWrapper.class.getSuperclass());
     }
 
-    private DeferredMethod delegate;
-    private XlsModuleOpenClass xlsModuleOpenClass;
-    private ContextPropertiesInjector contextPropertiesInjector;
-    private IOpenClass type;
-    private IMethodSignature methodSignature;
+    private final DeferredMethod delegate;
+    private final XlsModuleOpenClass xlsModuleOpenClass;
+    private final ContextPropertiesInjector contextPropertiesInjector;
+    private final IOpenClass type;
+    private final IMethodSignature methodSignature;
 
     public DeferredMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             DeferredMethod delegate,
@@ -127,7 +127,7 @@ public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethod
         return delegate.isConstructor();
     }
 
-    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
+    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {

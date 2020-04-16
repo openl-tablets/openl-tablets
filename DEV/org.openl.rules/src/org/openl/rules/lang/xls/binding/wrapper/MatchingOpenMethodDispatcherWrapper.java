@@ -18,11 +18,11 @@ public class MatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispa
         WrapperLogic.validateWrapperClass(MatchingOpenMethodDispatcherWrapper.class, MatchingOpenMethodDispatcherWrapper.class.getSuperclass());
     }
 
-    private MatchingOpenMethodDispatcher delegate;
-    private XlsModuleOpenClass xlsModuleOpenClass;
-    private ContextPropertiesInjector contextPropertiesInjector;
-    private IOpenClass type;
-    private IMethodSignature methodSignature;
+    private final MatchingOpenMethodDispatcher delegate;
+    private final XlsModuleOpenClass xlsModuleOpenClass;
+    private final ContextPropertiesInjector contextPropertiesInjector;
+    private final IOpenClass type;
+    private final IMethodSignature methodSignature;
 
     public MatchingOpenMethodDispatcherWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             MatchingOpenMethodDispatcher delegate,
@@ -137,7 +137,7 @@ public class MatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispa
         return ((OpenMethodDispatcher) openMethod).findMatchingMethod(env);
     }
 
-    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
+    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {

@@ -79,9 +79,9 @@ class ContextPropertiesInjector {
     }
 
     private static class ContextPropertyInjection {
-        private int paramIndex;
-        private IOpenField field;
-        private IOpenCast openCast;
+        private final int paramIndex;
+        private final IOpenField field;
+        private final IOpenCast openCast;
 
         public ContextPropertyInjection(int paramIndex, IOpenField field, IOpenCast openCast) {
             super();
@@ -101,7 +101,7 @@ class ContextPropertiesInjector {
                     IRulesRuntimeContext currentRuntimeContext = (IRulesRuntimeContext) simpleRulesRuntimeEnv
                         .getContext();
                     try {
-                        rulesRuntimeContext = (IRulesRuntimeContext) currentRuntimeContext.clone();
+                        rulesRuntimeContext = currentRuntimeContext.clone();
                         rulesRuntimeContext.setValue(field.getContextProperty(), value);
                     } catch (CloneNotSupportedException e) {
                         throw new OpenlNotCheckedException(e);

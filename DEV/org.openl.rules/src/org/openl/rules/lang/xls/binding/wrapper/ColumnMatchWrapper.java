@@ -27,11 +27,11 @@ public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrappe
         WrapperLogic.validateWrapperClass(ColumnMatchWrapper.class, ColumnMatchWrapper.class.getSuperclass());
     }
 
-    private ColumnMatch delegate;
-    private XlsModuleOpenClass xlsModuleOpenClass;
-    private ContextPropertiesInjector contextPropertiesInjector;
-    private IOpenClass type;
-    private IMethodSignature methodSignature;
+    private final ColumnMatch delegate;
+    private final XlsModuleOpenClass xlsModuleOpenClass;
+    private final ContextPropertiesInjector contextPropertiesInjector;
+    private final IOpenClass type;
+    private final IMethodSignature methodSignature;
 
     public ColumnMatchWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             ColumnMatch delegate,
@@ -240,7 +240,7 @@ public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrappe
         return delegate.isConstructor();
     }
 
-    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
+    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {

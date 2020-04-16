@@ -28,11 +28,11 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
         WrapperLogic.validateWrapperClass(SpreadsheetWrapper.class, SpreadsheetWrapper.class.getSuperclass());
     }
 
-    private Spreadsheet delegate;
-    private XlsModuleOpenClass xlsModuleOpenClass;
-    private ContextPropertiesInjector contextPropertiesInjector;
-    private IOpenClass type;
-    private IMethodSignature methodSignature;
+    private final Spreadsheet delegate;
+    private final XlsModuleOpenClass xlsModuleOpenClass;
+    private final ContextPropertiesInjector contextPropertiesInjector;
+    private final IOpenClass type;
+    private final IMethodSignature methodSignature;
 
     public SpreadsheetWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             Spreadsheet delegate,
@@ -297,7 +297,7 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
         return delegate.getFieldsCoordinates();
     }
 
-    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
+    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {

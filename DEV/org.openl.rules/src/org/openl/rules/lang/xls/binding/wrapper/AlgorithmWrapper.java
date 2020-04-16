@@ -25,11 +25,11 @@ public class AlgorithmWrapper extends Algorithm implements IOpenMethodWrapper {
         WrapperLogic.validateWrapperClass(AlgorithmWrapper.class, AlgorithmWrapper.class.getSuperclass());
     }
 
-    private Algorithm delegate;
-    private XlsModuleOpenClass xlsModuleOpenClass;
-    private ContextPropertiesInjector contextPropertiesInjector;
-    private IOpenClass type;
-    private IMethodSignature methodSignature;
+    private final Algorithm delegate;
+    private final XlsModuleOpenClass xlsModuleOpenClass;
+    private final ContextPropertiesInjector contextPropertiesInjector;
+    private final IOpenClass type;
+    private final IMethodSignature methodSignature;
 
     public AlgorithmWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             Algorithm delegate,
@@ -188,7 +188,7 @@ public class AlgorithmWrapper extends Algorithm implements IOpenMethodWrapper {
         return delegate.isConstructor();
     }
 
-    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
+    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {

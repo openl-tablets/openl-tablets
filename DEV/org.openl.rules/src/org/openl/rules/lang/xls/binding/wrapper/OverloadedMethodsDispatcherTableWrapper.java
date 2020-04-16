@@ -19,11 +19,11 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
             OverloadedMethodsDispatcherTableWrapper.class.getSuperclass());
     }
 
-    private OverloadedMethodsDispatcherTable delegate;
-    private XlsModuleOpenClass xlsModuleOpenClass;
-    private ContextPropertiesInjector contextPropertiesInjector;
-    private IOpenClass type;
-    private IMethodSignature methodSignature;
+    private final OverloadedMethodsDispatcherTable delegate;
+    private final XlsModuleOpenClass xlsModuleOpenClass;
+    private final ContextPropertiesInjector contextPropertiesInjector;
+    private final IOpenClass type;
+    private final IMethodSignature methodSignature;
 
     public OverloadedMethodsDispatcherTableWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             OverloadedMethodsDispatcherTable delegate,
@@ -138,7 +138,7 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
         return ((OpenMethodDispatcher) openMethod).findMatchingMethod(env);
     }
 
-    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
+    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {

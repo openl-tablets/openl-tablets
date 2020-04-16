@@ -20,11 +20,11 @@ public class CompositeMethodWrapper extends CompositeMethod implements IOpenMeth
         WrapperLogic.validateWrapperClass(CompositeMethodWrapper.class, CompositeMethodWrapper.class.getSuperclass());
     }
 
-    private CompositeMethod delegate;
-    private XlsModuleOpenClass xlsModuleOpenClass;
-    private ContextPropertiesInjector contextPropertiesInjector;
-    private IOpenClass type;
-    private IMethodSignature methodSignature;
+    private final CompositeMethod delegate;
+    private final XlsModuleOpenClass xlsModuleOpenClass;
+    private final ContextPropertiesInjector contextPropertiesInjector;
+    private final IOpenClass type;
+    private final IMethodSignature methodSignature;
 
     public CompositeMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             CompositeMethod delegate,
@@ -169,7 +169,7 @@ public class CompositeMethodWrapper extends CompositeMethod implements IOpenMeth
         return delegate.isConstructor();
     }
 
-    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
+    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {

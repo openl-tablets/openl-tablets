@@ -26,11 +26,11 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
             AlgorithmSubroutineMethodWrapper.class.getSuperclass());
     }
 
-    private AlgorithmSubroutineMethod delegate;
-    private XlsModuleOpenClass xlsModuleOpenClass;
-    private ContextPropertiesInjector contextPropertiesInjector;
-    private IOpenClass type;
-    private IMethodSignature methodSignature;
+    private final AlgorithmSubroutineMethod delegate;
+    private final XlsModuleOpenClass xlsModuleOpenClass;
+    private final ContextPropertiesInjector contextPropertiesInjector;
+    private final IOpenClass type;
+    private final IMethodSignature methodSignature;
 
     public AlgorithmSubroutineMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             AlgorithmSubroutineMethod delegate,
@@ -185,7 +185,7 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
         return delegate.isConstructor();
     }
 
-    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
+    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {

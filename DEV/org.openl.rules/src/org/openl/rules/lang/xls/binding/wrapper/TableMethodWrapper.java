@@ -23,11 +23,11 @@ public class TableMethodWrapper extends TableMethod implements IOpenMethodWrappe
         WrapperLogic.validateWrapperClass(TableMethodWrapper.class, TableMethodWrapper.class.getSuperclass());
     }
 
-    private TableMethod delegate;
-    private XlsModuleOpenClass xlsModuleOpenClass;
-    private ContextPropertiesInjector contextPropertiesInjector;
-    private IOpenClass type;
-    private IMethodSignature methodSignature;
+    private final TableMethod delegate;
+    private final XlsModuleOpenClass xlsModuleOpenClass;
+    private final ContextPropertiesInjector contextPropertiesInjector;
+    private final IOpenClass type;
+    private final IMethodSignature methodSignature;
 
     public TableMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             TableMethod delegate,
@@ -171,7 +171,7 @@ public class TableMethodWrapper extends TableMethod implements IOpenMethodWrappe
         return delegate.isConstructor();
     }
 
-    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
+    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {

@@ -32,11 +32,11 @@ public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodW
         WrapperLogic.validateWrapperClass(DecisionTable2Wrapper.class, DecisionTable2Wrapper.class.getSuperclass());
     }
 
-    private DecisionTable delegate;
-    private XlsModuleOpenClass xlsModuleOpenClass;
-    private ContextPropertiesInjector contextPropertiesInjector;
-    private IOpenClass type;
-    private IMethodSignature methodSignature;
+    private final DecisionTable delegate;
+    private final XlsModuleOpenClass xlsModuleOpenClass;
+    private final ContextPropertiesInjector contextPropertiesInjector;
+    private final IOpenClass type;
+    private final IMethodSignature methodSignature;
 
     public DecisionTable2Wrapper(XlsModuleOpenClass xlsModuleOpenClass,
             DecisionTable delegate,
@@ -281,7 +281,7 @@ public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodW
         return delegate.getNumberOfActions();
     }
 
-    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
+    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
