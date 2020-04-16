@@ -6,7 +6,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
-import org.openl.engine.OpenLSourceManager;
+import org.openl.engine.OpenLCompileManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
@@ -78,13 +78,13 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
         if (getExternalParameters() != null) {
             params.putAll(getExternalParameters());
         }
-        if (params.get(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY) != null) {
+        if (params.get(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY) != null) {
             @SuppressWarnings("unchecked")
             List<IDependency> externalDependencies = (List<IDependency>) params
-                .get(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY);
+                .get(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY);
             dependencies.addAll(externalDependencies);
         }
-        params.put(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY, dependencies);
+        params.put(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY, dependencies);
         IOpenSourceCodeModule source = new VirtualSourceCodeModule();
         source.setParams(params);
 

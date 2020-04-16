@@ -11,7 +11,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentOpenClass;
-import org.openl.engine.OpenLCellExpressionsCompiler;
+import org.openl.engine.OpenLManager;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.IMetaInfo;
@@ -254,15 +254,12 @@ public class SpreadsheetStructureBuilder {
             try {
                 IOpenMethod method;
                 if (header.getType() == null) {
-                    method = OpenLCellExpressionsCompiler.makeMethodWithUnknownType(openl,
-                        srcCode,
-                        name,
-                        signature,
-                        declaringClass,
-                        columnBindingContext);
+
+                    method = OpenLManager.makeMethodWithUnknownType(openl, srcCode, name, signature, declaringClass, columnBindingContext);
                     spreadsheetCell.setType(method.getType());
                 } else {
-                    method = OpenLCellExpressionsCompiler.makeMethod(openl, srcCode, header, columnBindingContext);
+
+                    method = OpenLManager.makeMethod(openl, srcCode, header, columnBindingContext);
                 }
                 spreadsheetCell.setValue(method);
             } catch (CompositeSyntaxNodeException e) {

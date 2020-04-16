@@ -408,6 +408,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         } catch (InstantiationException | IllegalAccessException ignore) {
             return null;
         }
+
         for (SpreadsheetResultSetter spreadsheetResultSetter : spreadsheetResultSetters) {
             spreadsheetResultSetter.set(spreadsheetResult, target);
         }
@@ -416,6 +417,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
     public boolean isBeanClassInitialized() {
         return beanClass != null;
+
     }
 
     public Class<?> getBeanClass() {
@@ -430,13 +432,16 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             if (!field.isSynthetic()) {// SONAR adds synthetic fields
                                 List<IOpenField> openFields = beanFieldsMap.get(field.getName());
                                 if (openFields != null) {
+                                    List<SpreadsheetResultFieldValueSetter> sprSettersForFiled = new ArrayList<>();
                                     for (IOpenField openField : openFields) {
-                                        SpreadsheetResultValueSetter spreadsheetResultValueSetter = new SpreadsheetResultValueSetter(
+                                        SpreadsheetResultFieldValueSetter spreadsheetResultValueSetter = new SpreadsheetResultFieldValueSetter(
                                             module,
                                             field,
                                             openField);
-                                        sprSetters.add(spreadsheetResultValueSetter);
+                                        sprSettersForFiled.add(spreadsheetResultValueSetter);
                                     }
+                                    sprSetters.add(new SpreadsheetResultValueSetter(
+                                        sprSettersForFiled.toArray(new SpreadsheetResultFieldValueSetter[0])));
                                 } else if (field.getName().equals(sprStructureFieldNames[0])) {
                                     sprSetters.add(new SpreadsheetResultRowNamesSetter(field));
                                 } else if (field.getName().equals(sprStructureFieldNames[1])) {
@@ -447,7 +452,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                                 }
                             }
                         }
-                        spreadsheetResultSetters = sprSetters.toArray(new SpreadsheetResultSetter[] {});
+                        spreadsheetResultSetters = sprSetters.toArray(new SpreadsheetResultSetter[0]);
                     } catch (Exception | LinkageError e) {
                         throw new IllegalStateException(
                             String.format("Failed to create bean class for '%s' spreadsheet result.", getName()),
@@ -635,10 +640,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         .equals(t)) {
                         continue; // IGNORE VOID FIELDS
                     } else {
-                        if (field.getType().getInstanceClass().isPrimitive()) {
-                            typeName = ClassUtils.primitiveToWrapper(field.getType().getInstanceClass()).getName();
+                        Class<?> instanceClass = field.getType().getInstanceClass();
+                        if (instanceClass == null) {
+                            typeName = NullOpenClass.class.getName();
+                        } else if (instanceClass.isPrimitive()) {
+                            typeName = ClassUtils.primitiveToWrapper(instanceClass).getName();
                         } else {
-                            typeName = field.getType().getInstanceClass().getName();
+                            typeName = instanceClass.getName();
                         }
                     }
                     if (!usedXmlNames.containsKey(fieldName) && !usedXmlNames.containsValue(xmlName)) {
@@ -743,37 +751,53 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     }
 
     private static class SpreadsheetResultValueSetter implements SpreadsheetResultSetter {
-        private Field field;
-        private IOpenField openField;
-        private XlsModuleOpenClass module;
+        private final SpreadsheetResultFieldValueSetter[] spreadsheetResultFieldValueSetters;
 
-        private SpreadsheetResultValueSetter(XlsModuleOpenClass module, Field field, IOpenField openField) {
+        private SpreadsheetResultValueSetter(SpreadsheetResultFieldValueSetter[] spreadsheetResultFieldValueSetters) {
+            this.spreadsheetResultFieldValueSetters = Objects.requireNonNull(spreadsheetResultFieldValueSetters);
+        }
+
+        @Override
+        public void set(SpreadsheetResult spreadsheetResult, Object target) {
+            for (SpreadsheetResultFieldValueSetter spreadsheetResultFieldValueSetter : spreadsheetResultFieldValueSetters) {
+                if (spreadsheetResultFieldValueSetter.set(spreadsheetResult, target)) {
+                    return;
+                }
+            }
+        }
+    }
+
+    private static class SpreadsheetResultFieldValueSetter {
+        private final Field field;
+        private final IOpenField openField;
+        private final XlsModuleOpenClass module;
+
+        private SpreadsheetResultFieldValueSetter(XlsModuleOpenClass module, Field field, IOpenField openField) {
             this.field = Objects.requireNonNull(field);
             this.openField = Objects.requireNonNull(openField);
             this.module = Objects.requireNonNull(module);
             this.field.setAccessible(true);
         }
 
-        @Override
-        public void set(SpreadsheetResult spreadsheetResult, Object target) {
+        public boolean set(SpreadsheetResult spreadsheetResult, Object target) {
             if (!spreadsheetResult.isFieldUsedInModel(openField.getName())) {
-                return;
+                return false;
             }
             Object v = openField.get(spreadsheetResult, null);
             try {
-                if (v == null) {
-                    field.set(target, null);
-                } else {
+                if (v != null) {
                     Object cv = SpreadsheetResult.convertSpreadsheetResult(module, v, field.getType());
                     field.set(target, cv);
+                    return true;
                 }
             } catch (IllegalAccessException ignore) {
             }
+            return false;
         }
     }
 
     private static class SpreadsheetResultColumnNamesSetter implements SpreadsheetResultSetter {
-        private Field field;
+        private final Field field;
 
         public SpreadsheetResultColumnNamesSetter(Field field) {
             this.field = Objects.requireNonNull(field);
@@ -789,11 +813,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             } catch (IllegalAccessException ignore) {
             }
         }
-
     }
 
     private static class SpreadsheetResultRowNamesSetter implements SpreadsheetResultSetter {
-        private Field field;
+        private final Field field;
 
         public SpreadsheetResultRowNamesSetter(Field field) {
             this.field = Objects.requireNonNull(field);
@@ -812,9 +835,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     }
 
     private static class SpreadsheetResultFieldNamesSetter implements SpreadsheetResultSetter {
-        private Field field;
-        private Map<String, List<IOpenField>> beanFieldsMap;
-        private Map<String, String> xmlNamesMap;
+        private final Field field;
+        private final Map<String, List<IOpenField>> beanFieldsMap;
+        private final Map<String, String> xmlNamesMap;
 
         public SpreadsheetResultFieldNamesSetter(Field field,
                 Map<String, List<IOpenField>> beanFieldsMap,

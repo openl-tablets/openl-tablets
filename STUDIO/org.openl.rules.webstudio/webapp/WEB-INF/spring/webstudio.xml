@@ -6,7 +6,7 @@
        default-autowire="no">
 
     <bean id="versionProperties" class="org.openl.info.OpenLVersion" />
-    <bean class="org.openl.rules.webstudio.web.Props"/>
+    <bean id="props" class="org.openl.rules.webstudio.web.Props"/>
 
     <bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
         <property name="scopes">

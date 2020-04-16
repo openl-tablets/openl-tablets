@@ -3,7 +3,7 @@
     <modules>
         <module>
             <name>DatatypeRules</name>
-            <rules-root path="rules/Datatype.xlsx"/>
+            <rules-root path="rules/*.xlsx"/>
         </module>
     </modules>
     <classpath>

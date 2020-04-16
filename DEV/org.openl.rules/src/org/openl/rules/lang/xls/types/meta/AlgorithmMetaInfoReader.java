@@ -3,7 +3,6 @@ package org.openl.rules.lang.xls.types.meta;
 import java.util.List;
 
 import org.openl.binding.impl.NodeUsage;
-import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
@@ -94,7 +93,7 @@ public class AlgorithmMetaInfoReader extends AMethodMetaInfoReader<AlgorithmBoun
                 if (step instanceof OpenLEvaluationOperation) {
                     IMethodCaller methodCaller = ((OpenLEvaluationOperation) step).getOpenLStatement();
                     if (methodCaller instanceof CompositeMethod) {
-                        List<NodeUsage> nodeUsages = OpenLCellExpressionsCompiler
+                        List<NodeUsage> nodeUsages = MetaInfoReaderUtils
                             .getNodeUsages((CompositeMethod) methodCaller, sourceModule.getCode(), 0);
 
                         return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);

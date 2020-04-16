@@ -6,6 +6,8 @@
 
 package org.openl.rules.data;
 
+import static org.openl.rules.utils.TableNameChecker.NAME_ERROR_MESSAGE;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -28,6 +30,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.testmethod.TestMethodOpenClass;
+import org.openl.rules.utils.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -89,6 +92,10 @@ public class DataNodeBinder extends AXlsTableBinder {
 
         String typeName = parsedHeader[TYPE_INDEX].getText();
         String tableName = parsedHeader[TABLE_NAME_INDEX].getText();
+        if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
+            String message = "Data table " + tableName + NAME_ERROR_MESSAGE;
+            throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TABLE_NAME_INDEX]);
+        }
         IOpenClass tableType = RuleRowHelper.getType(typeName, parsedHeader[TYPE_INDEX], bindingContext);
 
         // Check that table type loaded properly.
@@ -204,8 +211,8 @@ public class DataNodeBinder extends AXlsTableBinder {
                     if (fields[1].isContextProperty()) {
                         String contextProperty = fields[1].getContextProperty();
                         if (props.contains(contextProperty)) {
-                            throw SyntaxNodeExceptionUtils.createError(
-                                    String.format("Multiple fields refer to the same context property '%s'.", contextProperty),
+                            throw SyntaxNodeExceptionUtils.createError(String
+                                .format("Multiple fields refer to the same context property '%s'.", contextProperty),
                                 tableToProcess.getTableSyntaxNode());
                         }
                         props.add(contextProperty);

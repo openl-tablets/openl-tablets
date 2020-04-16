@@ -18,7 +18,9 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
@@ -53,11 +55,18 @@ public class HttpClient {
     }
 
     static HttpClient create(String baseURI) {
-        RestTemplate rest = new RestTemplate();
+        RestTemplate rest = new RestTemplate(getClientHttpFactory());
 
         rest.setUriTemplateHandler(new DefaultUriBuilderFactory(baseURI));
         rest.setErrorHandler(NO_ERROR_HANDLER);
         return new HttpClient(rest);
+    }
+
+    private static ClientHttpRequestFactory getClientHttpFactory() {
+        SimpleClientHttpRequestFactory httpRequestFactory = new SimpleClientHttpRequestFactory();
+        httpRequestFactory.setConnectTimeout(300);
+        httpRequestFactory.setReadTimeout(5000);
+        return httpRequestFactory;
     }
 
     private static final ResponseErrorHandler NO_ERROR_HANDLER = new ResponseErrorHandler() {

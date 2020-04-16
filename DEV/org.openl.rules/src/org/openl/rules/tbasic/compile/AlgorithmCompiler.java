@@ -5,7 +5,7 @@ import java.util.*;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.component.ComponentBindingContext;
-import org.openl.engine.OpenLCellExpressionsCompiler;
+import org.openl.engine.OpenLManager;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.*;
 import org.openl.source.IOpenSourceCodeModule;
@@ -247,13 +247,8 @@ public class AlgorithmCompiler {
         IOpenSourceCodeModule src = fieldContent.asSourceCodeModule();
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
-        return OpenLCellExpressionsCompiler
-            .makeMethodWithUnknownType(openl,
-                src,
-                "cell_" + fieldContent.getValue(),
-                signature,
-                thisTargetClass,
-                getAlgorithmBindingContext())
+
+        return OpenLManager.makeMethodWithUnknownType(openl, src, "cell_" + fieldContent.getValue(), signature, thisTargetClass, getAlgorithmBindingContext())
             .getMethod()
             .getType();
     }
@@ -282,8 +277,8 @@ public class AlgorithmCompiler {
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
         IBindingContext cxt = getAlgorithmBindingContext();
-        return OpenLCellExpressionsCompiler
-            .makeMethodWithUnknownType(openl, src, methodName, signature, thisTargetClass, cxt);
+
+        return OpenLManager.makeMethodWithUnknownType(openl, src, methodName, signature, thisTargetClass, cxt);
     }
 
     public IMethodCaller makeMethodWithCast(IOpenSourceCodeModule src, String methodName, IOpenClass returnType) {
@@ -293,7 +288,8 @@ public class AlgorithmCompiler {
         OpenMethodHeader header = new OpenMethodHeader(methodName, returnType, signature, thisTargetClass);
 
         IBindingContext cxt = getAlgorithmBindingContext();
-        return OpenLCellExpressionsCompiler.makeMethod(openl, src, header, cxt);
+        return OpenLManager.makeMethod(openl, src, header, cxt);
+
     }
 
     private void postprocess(Algorithm algorithm) {

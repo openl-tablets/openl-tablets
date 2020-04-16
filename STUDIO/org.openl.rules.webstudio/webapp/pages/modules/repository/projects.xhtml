@@ -24,9 +24,6 @@
                 <rich:column rendered="#{repositoryTreeController.supportsBranches}">
                   <h:outputText value="Branch" />
                 </rich:column>
-                <rich:column>
-                  <h:outputText value="Revision" />
-                </rich:column>
                 <rich:column style="min-width: 90px">
                   <h:outputText value="Status" />
                 </rich:column>
@@ -49,18 +46,6 @@
               </rich:column>
               <rich:column style="text-align:center" rendered="#{repositoryTreeController.supportsBranches}">
                 <h:outputText value="#{prj.data.branch}" />
-              </rich:column>
-              <rich:column style="text-align:center">
-                  <ui:param name="revisionNo" value="#{prj.version}" />
-                  <ui:param name="shortRevisionNo" value="#{prj.shortVersion}" />
-
-                  <h:panelGroup rendered="#{revisionNo eq shortRevisionNo}">
-                      <h:outputText value="#{revisionNo}"/>
-                  </h:panelGroup>
-                  <h:panelGroup rendered="#{not (revisionNo eq shortRevisionNo)}">
-                      <h:outputText value="#{shortRevisionNo}" styleClass="expandable" />
-                      <h:outputText value="#{revisionNo}" styleClass="hidden"/>
-                  </h:panelGroup>
               </rich:column>
               <rich:column style="text-align:center">
                 <h:outputText value="#{prj.status}" />

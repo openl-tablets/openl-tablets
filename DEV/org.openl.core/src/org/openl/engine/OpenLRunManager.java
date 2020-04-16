@@ -2,6 +2,7 @@ package org.openl.engine;
 
 import java.util.List;
 
+import org.openl.IOpenBinder;
 import org.openl.IOpenVM;
 import org.openl.OpenL;
 import org.openl.binding.IBoundCode;
@@ -9,11 +10,10 @@ import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.MethodNotFoundException;
-import org.openl.binding.impl.LiteralBoundNode;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.SourceType;
-import org.openl.syntax.code.ProcessedCode;
+import org.openl.syntax.code.IParsedCode;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -23,10 +23,10 @@ import org.openl.util.CollectionUtils;
  * Class that defines OpenL engine manager implementation for evaluate/run operations.
  *
  */
-public class OpenLRunManager extends OpenLHolder {
+public class OpenLRunManager {
 
-    private OpenLSourceManager sourceManager;
     private OpenLCompileManager compileManager;
+    private OpenL openl;
 
     /**
      * Creates new instance of OpenL engine manager.
@@ -34,8 +34,7 @@ public class OpenLRunManager extends OpenLHolder {
      * @param openl {@link OpneL} instance
      */
     public OpenLRunManager(OpenL openl) {
-        super(openl);
-        sourceManager = new OpenLSourceManager(openl);
+        this.openl = openl;
         compileManager = new OpenLCompileManager(openl);
     }
 
@@ -57,7 +56,7 @@ public class OpenLRunManager extends OpenLHolder {
             Object[] params) throws AmbiguousMethodException {
 
         IOpenClass openClass = compileManager.compileModule(source, false, null);
-        IOpenVM vm = getOpenL().getVm();
+        IOpenVM vm = openl.getVm();
 
         Object target = openClass.newInstance(vm.getRuntimeEnv());
 
@@ -83,47 +82,32 @@ public class OpenLRunManager extends OpenLHolder {
     }
 
     /**
-     * Compiles and runs OpenL script.
-     *
-     * @param source source
-     * @return result of script execution
-     * @throws OpenLRuntimeException
-     */
-    public Object runScript(IOpenSourceCodeModule source) {
-
-        return run(source, SourceType.METHOD_BODY);
-    }
-
-    /**
      * Compiles source and runs code.
      *
      * @param source source
-     * @param sourceType type of source
      * @return result of execution
      * @throws OpenLRuntimeException
      */
-    public Object run(IOpenSourceCodeModule source, SourceType sourceType) {
+    public Object run(IOpenSourceCodeModule source) {
 
-        ProcessedCode processedCode = sourceManager.processSource(source, sourceType, null);
+        IParsedCode parsedCode = openl.getParser().parseAsMethodBody(source);
+        SyntaxNodeException[] parsingErrors = parsedCode.getErrors();
+        if (parsingErrors.length > 0) {
+            throw new CompositeSyntaxNodeException("Parsing Error:", parsingErrors);
+        }
+        IOpenBinder binder = openl.getBinder();
+        IBoundCode boundCode = binder.bind(parsedCode, null);
+        SyntaxNodeException[] bindingErrors = boundCode.getErrors();
 
-        IBoundCode boundCode = processedCode.getBoundCode();
+        if (bindingErrors.length > 0) {
+            throw new CompositeSyntaxNodeException("Binding Error:", bindingErrors);
+        }
+
         IBoundNode boundNode = boundCode.getTopNode();
 
-        IOpenVM vm = getOpenL().getVm();
+        IOpenVM vm = openl.getVm();
 
-        if (boundNode instanceof IBoundMethodNode) {
-            return vm.getRunner().run((IBoundMethodNode) boundNode, new Object[0]);
-        }
-
-        if (boundNode instanceof LiteralBoundNode) {
-            return ((LiteralBoundNode) boundNode).getValue();
-        }
-
-        try {
-            throw new Exception("Unrunnable Bound Node Type:" + boundNode.getClass().getName());
-        } catch (Exception ex) {
-            throw new OpenLRuntimeException(ex, boundNode);
-        }
+        return vm.getRunner().run((IBoundMethodNode) boundNode, new Object[0]);
     }
 
 }

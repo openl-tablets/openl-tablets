@@ -5,7 +5,7 @@ import java.util.Set;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.engine.OpenLCellExpressionsCompiler;
+import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
@@ -396,7 +396,8 @@ public abstract class FunctionalRow implements IDecisionRow {
         IMethodSignature newSignature = ((MethodSignature) signature).merge(methodParams);
         OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, newSignature, null);
 
-        return OpenLCellExpressionsCompiler.makeMethod(openl, source, methodHeader, bindingContext);
+        return OpenLManager.makeMethod(openl, source, methodHeader, bindingContext);
+
     }
 
     protected IOpenSourceCodeModule getExpressionSource(TableSyntaxNode tableSyntaxNode,
@@ -453,8 +454,8 @@ public abstract class FunctionalRow implements IDecisionRow {
             if (allowEmpty) {
                 try {
                     OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, signature, declaringClass);
-                    CompositeMethod method = OpenLCellExpressionsCompiler
-                        .makeMethod(openl, methodSource, methodHeader, bindingContext);
+
+                    CompositeMethod method = OpenLManager.makeMethod(openl, methodSource, methodHeader, bindingContext);
 
                     IOpenClass type = method.getBodyType();
 

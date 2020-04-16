@@ -1,0 +1,8 @@
+<project>
+    <name>EPBDS-EPBDS-9576</name>
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+        </module>
+    </modules>
+</project>

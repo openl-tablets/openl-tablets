@@ -11,13 +11,13 @@
         <property name="defaultValue" value="${ruleservice.jackson.defaultTypingMode}"/> 
     </bean>
     
-    <bean id="jaxrsSserviceConfigurationFailOnMissPropertiesFactoryBean"
+    <bean id="jaxrsServiceConfigurationFailOnMissPropertiesFactoryBean"
         class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean" scope="prototype">
         <property name="propertyName" value="jacksondatabinding.failOnUnknownProperties"/>
         <property name="defaultValue" value="${ruleservice.jackson.failOnUnknownProperties}"/> 
     </bean>
 
-    <bean id="jaxrsSserviceConfigurationCaseInsensitivePropertiesFactoryBean"
+    <bean id="jaxrsServiceConfigurationCaseInsensitivePropertiesFactoryBean"
           class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean" scope="prototype">
         <property name="propertyName" value="jacksondatabinding.caseInsensitiveProperties"/>
         <property name="defaultValue" value="${ruleservice.jackson.caseInsensitiveProperties}"/>
@@ -47,8 +47,8 @@
         <property name="supportVariations" ref="serviceConfigurationSupportVariationsFactoryBean"/>
         <property name="defaultDateFormat" ref="jaxrsServiceConfigurationDefaultDateFormatFactoryBean"/>
         <property name="serializationInclusion" ref="jaxrsServiceConfigurationSerializationInclusionFactoryBean"/>
-        <property name="failOnUnknownProperties" ref="jaxrsSserviceConfigurationFailOnMissPropertiesFactoryBean"/>
-        <property name="caseInsensitiveProperties" ref="jaxrsSserviceConfigurationCaseInsensitivePropertiesFactoryBean"/>
+        <property name="failOnUnknownProperties" ref="jaxrsServiceConfigurationFailOnMissPropertiesFactoryBean"/>
+        <property name="caseInsensitiveProperties" ref="jaxrsServiceConfigurationCaseInsensitivePropertiesFactoryBean"/>
         <property name="polymorphicTypeValidation" value="true"/>
     </bean>
 

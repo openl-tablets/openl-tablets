@@ -3,7 +3,6 @@ package org.openl.gen.writers;
 import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.openl.gen.FieldDescription;
@@ -14,7 +13,7 @@ import org.openl.gen.FieldDescription;
  * <pre>
  * {@code
  *     int hash = 5;
- *     hash = 31 * hash + field.hashCode()
+ *     hash = 31 * hash + hashCode(field)
  * }
  * </pre>
  *
@@ -41,68 +40,21 @@ public class HashCodeWriter extends DefaultBeanByteCodeWriter {
 
         // generating hash code by fields
         for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
+            String fieldName = field.getKey();
+            FieldDescription fd = field.getValue();
+            String typeDescriptor = fd.getTypeDescriptor();
+            String typeName = fd.getTypeName();
+
             // hash *= 31
             mv.visitIntInsn(Opcodes.BIPUSH, 31);
             mv.visitInsn(Opcodes.IMUL);
-            mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] { Opcodes.INTEGER });
 
             // getField
-            String fieldName = field.getKey();
             mv.visitVarInsn(Opcodes.ALOAD, 0);
-            mv.visitFieldInsn(Opcodes.GETFIELD,
-                getBeanNameWithPackage(),
-                fieldName,
-                getBeanFields().get(fieldName).getTypeDescriptor());
+            mv.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName, typeDescriptor);
 
             // c = ?
-            final String type = field.getValue().getTypeName();
-            if ("double".equals(type)) {
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "doubleToLongBits", "(D)J");
-                hash64bits(mv);
-            } else if ("long".equals(type)) {
-                hash64bits(mv);
-            } else if ("float".equals(type)) {
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "floatToIntBits", "(F)I");
-            } else if ("int".equals(type) || "short".equals(type) || "byte".equals(type) || "char".equals(type)) {
-                // No conversions
-            } else if ("boolean".equals(type)) {
-                Label zero = new Label();
-                mv.visitJumpInsn(Opcodes.IFEQ, zero);
-                mv.visitInsn(Opcodes.ICONST_1);
-                Label end = new Label();
-                mv.visitJumpInsn(Opcodes.GOTO, end);
-                mv.visitLabel(zero);
-                mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] { Opcodes.INTEGER });
-                mv.visitInsn(Opcodes.ICONST_0);
-                mv.visitLabel(end);
-            } else if (type.charAt(0) == '[' && type.length() == 2) { // Array of primitives
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/util/Arrays", "hashCode", "(" + type + ")I");
-            } else if (type.startsWith("[L")) { // Array of objects
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/util/Arrays", "hashCode", "([Ljava/lang/Object;)I");
-            } else if (type.startsWith("[[")) { // Multi array
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/util/Arrays", "deepHashCode", "([Ljava/lang/Object;)I");
-            } else {
-                mv.visitInsn(Opcodes.DUP);
-                Label isNull = new Label();
-                mv.visitJumpInsn(Opcodes.IFNULL, isNull);
-                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Object", "hashCode", "()I");
-                Label end = new Label();
-                mv.visitJumpInsn(Opcodes.GOTO, end);
-                mv.visitLabel(isNull);
-                mv.visitFrame(Opcodes.F_FULL,
-                    1,
-                    new Object[] { getBeanNameWithPackage() },
-                    2,
-                    new Object[] { Opcodes.INTEGER, type.replace('.', '/') });
-                mv.visitInsn(Opcodes.POP);
-                mv.visitInsn(Opcodes.ICONST_0); // Replace null with zero
-                mv.visitLabel(end);
-            }
-            mv.visitFrame(Opcodes.F_FULL,
-                1,
-                new Object[] { getBeanNameWithPackage() },
-                2,
-                new Object[] { Opcodes.INTEGER, Opcodes.INTEGER });
+            calculateHashCode(mv, typeName);
 
             // hash += c
             mv.visitInsn(Opcodes.IADD);
@@ -111,11 +63,29 @@ public class HashCodeWriter extends DefaultBeanByteCodeWriter {
         mv.visitMaxs(0, 0);
     }
 
-    private void hash64bits(MethodVisitor mv) {
-        mv.visitInsn(Opcodes.DUP2);
-        mv.visitIntInsn(Opcodes.BIPUSH, 32);
-        mv.visitInsn(Opcodes.LUSHR);
-        mv.visitInsn(Opcodes.LXOR);
-        mv.visitInsn(Opcodes.L2I);
+    private void calculateHashCode(MethodVisitor mv, String type) {
+        if ("double".equals(type)) {
+            invoke(mv, "java/lang/Double", "hashCode", "(D)I");
+        } else if ("float".equals(type)) {
+            invoke(mv, "java/lang/Float", "hashCode", "(F)I");
+        } else if ("long".equals(type)) {
+            invoke(mv, "java/lang/Long", "hashCode", "(J)I");
+        } else if ("int".equals(type) || "short".equals(type) || "byte".equals(type) || "char".equals(type)) {
+            // No conversions
+        } else if ("boolean".equals(type)) {
+            invoke(mv, "java/lang/Boolean", "hashCode", "(Z)I");
+        } else if (type.charAt(0) == '[' && type.length() == 2) { // Array of primitives
+            invoke(mv, "java/util/Arrays", "hashCode", "(" + type + ")I");
+        } else if (type.startsWith("[L")) { // Array of objects
+            invoke(mv, "java/util/Arrays", "hashCode", "([Ljava/lang/Object;)I");
+        } else if (type.startsWith("[[")) { // Multi array
+            invoke(mv, "java/util/Arrays", "deepHashCode", "([Ljava/lang/Object;)I");
+        } else {
+            invoke(mv, "java/util/Objects", "hashCode", "(Ljava/lang/Object;)I");
+        }
+    }
+
+    private static void invoke(MethodVisitor mv, String clazz, String methodName, String descriptor) {
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, clazz, methodName, descriptor, false);
     }
 }

@@ -41,14 +41,6 @@ public class NumericComparableString implements Comparable<NumericComparableStri
         initSplitsNumbers();
     }
 
-    public static void main(String[] args) {
-        System.out.println("AAA".compareTo("DDD"));
-        System.out.println("AAA".compareTo("DD"));
-        System.out.println("DD".compareTo("DDD"));
-        System.out.println("DE".compareTo("DDD"));
-        System.out.println("DD ".compareTo("DDD"));
-    }
-
     private NumericComparableString(String value, String[] splits, BigInteger[] splitsNumbers) {
         this.value = Objects.requireNonNull(value,
             "Error initializing StringRangeValue class. Parameter 'value' cannot be null");

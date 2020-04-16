@@ -6,27 +6,24 @@ import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.maven.model.Resource;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
-import org.openl.OpenL;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
-import org.openl.rules.maven.decompiler.BytecodeDecompiler;
-import org.openl.rules.maven.gen.GenerateInterface;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
@@ -84,6 +81,15 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private String interfaceClass;
 
     /**
+     * Rules module from which Java Beans and the interface are generated. Usually it corresponds to the Excel file name
+     * without an extension. If this parameter is not defined, the whole project is used for generating Java classes.
+     *
+     * @since 5.23.2
+     */
+    @Parameter
+    private String moduleName;
+
+    /**
      * Parameter that adds the IRulesRuntimeContext arguments to the generated interface.
      *
      * @since 5.19.1
@@ -114,147 +120,6 @@ public final class GenerateMojo extends BaseOpenLMojo {
     @Parameter
     private Map<String, Object> externalParameters;
 
-    /**
-     * Tasks that will generate classes or data type.
-     * <p>
-     * <b>Object Properties</b>
-     * <table border="1">
-     * <tr>
-     * <th>Name</th>
-     * <th>Type</th>
-     * <th>Required</th>
-     * <th>Description</th>
-     * </tr>
-     * <tr>
-     * <td>srcFile</td>
-     * <td>String</td>
-     * <td>false</td>
-     * <td>Reference to the Excel file for which an interface class must be generated.</td>
-     * </tr>
-     * <tr>
-     * <td>targetClass</td>
-     * <td>String</td>
-     * <td>false</td>
-     * <td>Full name of the interface class to be generated. This parameter is optional if a missed interface is not
-     * generated. OpenL Tablets WebStudio recognizes modules in projects by interface classes and uses their names in
-     * user interface. If there are multiple wrappers with identical names, only one of them is recognized as a module
-     * in OpenL Tablets WebStudio.</td>
-     * </tr>
-     * <tr>
-     * <td>isUsedRuleXmlForGenerate</td>
-     * <td>boolean (true/false)</td>
-     * <td>false</td>
-     * <td>Parameter to enable class and datatype generation from rules.xml. If it is set to yes, srcFile is ignored.
-     * targetClass is required for this parameter.</td>
-     * </tr>
-     * <tr>
-     * <td>displayName</td>
-     * <td>String</td>
-     * <td>false</td>
-     * <td>End user-oriented title of the file that appears in OpenL Tablets WebStudio. The default value is the Excel
-     * file name without extension.</td>
-     * </tr>
-     * <tr>
-     * <td>targetSrcDir</td>
-     * <td>String</td>
-     * <td>false</td>
-     * <td>Folder where the generated interface class must be saved. Example: "src/main/java". Default value:
-     * "${project.build.sourceDirectory}"</td>
-     * </tr>
-     * <tr>
-     * <td>openlName</td>
-     * <td>String</td>
-     * <td>false</td>
-     * <td>OpenL Tablets configuration to be used. For OpenL Tablets, the following value must always be used:
-     * org.openl.xls. Default value: "org.openl.xls"</td>
-     * </tr>
-     * <tr>
-     * <td>userHome</td>
-     * <td>String</td>
-     * <td>false</td>
-     * <td>Location of user-defined resources related to the current OpenL Tablets project. Default value: "."</td>
-     * </tr>
-     * <tr>
-     * <td>userClassPath</td>
-     * <td>String</td>
-     * <td>false</td>
-     * <td>Reference to the folder with additional compiled classes imported by the module when the interface is
-     * generated. Default value: null.</td>
-     * </tr>
-     * <tr>
-     * <td>ignoreTestMethods</td>
-     * <td>boolean</td>
-     * <td>false</td>
-     * <td>Parameter that denotes, if set to true, that test methods will not be added to interface class. It is used
-     * only in GenerateInterface. Default value: true.</td>
-     * </tr>
-     * <tr>
-     * <td>generateDataType</td>
-     * <td>boolean</td>
-     * <td>false</td>
-     * <td>Parameter that denotes whether dataType must be generated for the current task.</td>
-     * </tr>
-     * </table>
-     * <p>
-     *
-     * @deprecated It is replaced with the smart generator. Use interfaceClass instead.
-     */
-    @Parameter
-    @Deprecated
-    private GenerateInterface[] generateInterfaces;
-
-    /**
-     * If this parameter is set to true, rules.xml is generated if it does not exist. If this parameter is set to false,
-     * rules.xml is not generated.
-     *
-     * @see #overwriteProjectDescriptor
-     * @deprecated There is no needs to generate rules.xml from Maven.
-     */
-    @Parameter(defaultValue = "true")
-    @Deprecated
-    private boolean createProjectDescriptor;
-
-    /**
-     * If it is set to true, rules.xml are overwritten on each run. If it is set to false, rules.xml generation is
-     * skipped if it exists. Using this parameter makes sense only if createProjectDescriptor == true.
-     *
-     * @see #createProjectDescriptor
-     * @deprecated There is no needs to generate rules.xml from Maven.
-     */
-    @Parameter(defaultValue = "true")
-    @Deprecated
-    private boolean overwriteProjectDescriptor;
-
-    /**
-     * This parameter identifies a default project name in rules.xml. If omitted, the name of the first module in the
-     * project is used. This parameter is used only if createProjectDescriptor == true.
-     *
-     * @deprecated There is no needs to generate rules.xml from Maven.
-     */
-    @Parameter
-    @Deprecated
-    private String projectName;
-
-    /**
-     * Default classpath entries in rules.xml. Default value is {"."} It is used only if createProjectDescriptor ==
-     * true.
-     *
-     * @deprecated There is no needs to generate rules.xml from Maven.
-     */
-    @Parameter
-    @Deprecated
-    private String[] classpaths = { "." };
-
-    @Override
-    @Deprecated
-    public void execute() throws MojoExecutionException, MojoFailureException {
-        if (generateInterfaces != null) {
-            useGenerateInterface();
-        } else {
-            super.execute();
-        }
-    }
-
     @Override
     public void execute(String sourcePath, boolean hasDependencies) throws Exception {
         if (outputDirectory.isDirectory()) {
@@ -268,6 +133,9 @@ public final class GenerateMojo extends BaseOpenLMojo {
             SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
             if (hasDependencies) {
                 builder.setWorkspace(workspaceFolder.getPath());
+            }
+            if (StringUtils.isNotEmpty(moduleName)) {
+                builder.setModule(moduleName);
             }
             SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
                 .setClassLoader(classLoader)
@@ -297,9 +165,9 @@ public final class GenerateMojo extends BaseOpenLMojo {
                 Class<?> interfaceClass = factory.getInterfaceClass();
                 IOpenClass openClass = openLRules.getOpenClass();
                 writeInterface(interfaceClass, openClass);
+                project.addCompileSourceRoot(outputDirectory.getPath());
             }
 
-            project.addCompileSourceRoot(outputDirectory.getPath());
         } finally {
             OpenClassUtil.releaseClassLoader(classLoader);
         }
@@ -342,115 +210,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
         return "OPENL JAVA SOURCES GENERATION";
     }
 
-    @Deprecated
-    private void useGenerateInterface() throws MojoExecutionException {
-        if (getLog().isInfoEnabled()) {
-            getLog().info("Running OpenL GenerateMojo...");
-        }
-        boolean isUsedRuleXmlForGenerate = false;
-        for (GenerateInterface task : generateInterfaces) {
-            if (task.isUsedRuleXmlForGenerate()) {
-                isUsedRuleXmlForGenerate = true;
-                break;
-            }
-        }
-        for (GenerateInterface task : generateInterfaces) {
-            if (getLog().isInfoEnabled()) {
-                getLog().info(String.format("Generating classes for module '%s'...", task.getDisplayName()));
-            }
-            initDefaultValues(task, isUsedRuleXmlForGenerate);
-            try {
-                task.execute();
-            } catch (Exception e) {
-                throw new MojoExecutionException("Exception during generation: ", e);
-            }
-        }
-        project.addCompileSourceRoot(outputDirectory.getPath());
-    }
-
-    private void initDefaultValues(GenerateInterface task, boolean isUsedRuleXmlForGenerate) {
-        if (StringUtils.isBlank(task.getResourcesPath())) {
-            task.setResourcesPath(getSourceDirectory());
-        }
-        if (!task.isUsedRuleXmlForGenerate() && isUsedRuleXmlForGenerate) {
-            task.setGenerateDataType(false);
-        }
-        if (task.getOpenlName() == null) {
-            task.setOpenlName(OpenL.OPENL_JAVA_RULE_NAME);
-        }
-        if (task.getTargetSrcDir() == null) {
-            task.setTargetSrcDir(outputDirectory.getPath());
-        }
-
-        if (task.getDisplayName() == null) {
-            task.setDisplayName(FileUtils.getBaseName(task.getSrcFile()));
-        }
-
-        if (task.getSrcFile() != null) {
-            initResourcePath(task);
-        }
-
-        initCreateProjectDescriptorState(task);
-        task.setDefaultProjectName(projectName);
-        task.setDefaultClasspaths(classpaths);
-
-        task.setLog(getLog());
-    }
-
-    private void initCreateProjectDescriptorState(GenerateInterface task) {
-        if (createProjectDescriptor) {
-            if (new File(task.getResourcesPath(), "rules.xml").exists()) {
-                task.setCreateProjectDescriptor(overwriteProjectDescriptor);
-                return;
-            }
-        }
-        task.setCreateProjectDescriptor(createProjectDescriptor);
-    }
-
-    private void initResourcePath(GenerateInterface task) {
-        String srcFile = task.getSrcFile().replace("\\", "/");
-        String baseDir = project.getBasedir().getAbsolutePath();
-
-        String directory = getSubDirectory(baseDir, getSourceDirectory()).replace("\\", "/");
-        if (srcFile.startsWith(directory)) {
-            srcFile = getSubDirectory(directory, srcFile);
-            task.setResourcesPath(directory);
-            task.setSrcFile(srcFile);
-            return;
-        }
-
-        List<Resource> resources = project.getResources();
-        for (Resource resource : resources) {
-            String resourceDirectory = resource.getDirectory();
-            resourceDirectory = getSubDirectory(baseDir, resourceDirectory).replace("\\", "/");
-
-            if (srcFile.startsWith(resourceDirectory)) {
-                srcFile = getSubDirectory(resourceDirectory, srcFile);
-                task.setResourcesPath(resourceDirectory);
-                task.setSrcFile(srcFile);
-                break;
-            }
-        }
-    }
-
-    private String getSubDirectory(String baseDir, String resourceDirectory) {
-        if (resourceDirectory.startsWith(baseDir)) {
-            resourceDirectory = resourceDirectory.substring(resourceDirectory.lastIndexOf(baseDir) + baseDir.length());
-            resourceDirectory = removeSlashFromBeginning(resourceDirectory);
-        }
-        return resourceDirectory;
-    }
-
-    private String removeSlashFromBeginning(String resourceDirectory) {
-        if (resourceDirectory.startsWith("/") || resourceDirectory.startsWith("\\")) {
-            resourceDirectory = resourceDirectory.substring(1);
-        }
-        return resourceDirectory;
-    }
-
-    private void writeJavaBeans(Collection<IOpenClass> types) {
+    private void writeJavaBeans(Collection<IOpenClass> types) throws IOException {
         if (CollectionUtils.isNotEmpty(types)) {
-            BytecodeDecompiler decompiler = new BytecodeDecompiler(getLog(), outputDirectory);
             for (IOpenClass openClass : types) {
                 // Skip java code generation for types what is defined
                 // thru DomainOpenClass (skip java code generation for alias
@@ -460,22 +221,25 @@ public final class GenerateMojo extends BaseOpenLMojo {
                     Class<?> datatypeClass = openClass.getInstanceClass();
                     String dataType = datatypeClass.getName();
                     info("Java Bean for Datatype: " + dataType);
-                    decompiler.decompile(dataType, ((DatatypeOpenClass) openClass).getBytecode());
+                    Path filePath = Paths.get(classesDirectory, dataType.replace('.', '/') + ".class");
+                    Files.createDirectories(filePath.getParent());
+                    Files.write(filePath, ((DatatypeOpenClass) openClass).getBytecode());
                 }
             }
         }
     }
 
-    private void writeCustomSpreadsheetResultBeans(Collection<IOpenClass> types) {
+    private void writeCustomSpreadsheetResultBeans(Collection<IOpenClass> types) throws IOException {
         if (CollectionUtils.isNotEmpty(types)) {
-            BytecodeDecompiler decompiler = new BytecodeDecompiler(getLog(), outputDirectory);
             for (IOpenClass openClass : types) {
                 // Skip java code generation for other types
                 if (openClass instanceof CustomSpreadsheetResultOpenClass) {
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
                     Class<?> cls = customSpreadsheetResultOpenClass.getBeanClass();
                     info("Java Bean for Spreadsheet Result: " + cls.getName());
-                    decompiler.decompile(cls.getName(), customSpreadsheetResultOpenClass.getBeanClassByteCode());
+                    Path filePath = Paths.get(classesDirectory, cls.getName().replace('.', '/') + ".class");
+                    Files.createDirectories(filePath.getParent());
+                    Files.write(filePath, ((CustomSpreadsheetResultOpenClass) openClass).getBeanClassByteCode());
                 }
             }
         }
@@ -517,6 +281,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
         }
 
         // Write the generated source code
+        outputDirectory.mkdirs();
         model.build(outputDirectory, (PrintStream) null);
     }
 

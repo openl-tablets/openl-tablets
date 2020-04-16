@@ -7,7 +7,7 @@ package org.openl.rules;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.engine.OpenLCellExpressionsCompiler;
+import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenMethodHeader;
@@ -54,11 +54,13 @@ public class OpenlToolAdaptor {
     }
 
     public CompositeMethod makeMethod(IOpenSourceCodeModule src) {
-        return OpenLCellExpressionsCompiler.makeMethod(openl, src, header, bindingContext);
+        return OpenLManager.makeMethod(openl, src, header, bindingContext);
+
     }
 
     public CompositeMethod makeMethod(IOpenSourceCodeModule src, IOpenMethodHeader h2) {
-        return OpenLCellExpressionsCompiler.makeMethod(openl, src, h2, bindingContext);
+        return OpenLManager.makeMethod(openl, src, h2, bindingContext);
+
     }
 
 }

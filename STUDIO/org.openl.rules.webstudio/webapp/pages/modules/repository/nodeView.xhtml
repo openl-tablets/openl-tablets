@@ -1,303 +1,386 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:c="http://java.sun.com/jsp/jstl/core">
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <style>
         .hideHeader {
-            display:none;
+            display: none;
         }
+
         .showHeader {
-            display:table-cell;
+            display: table-cell;
         }
+
         .nav-panel {
             padding: 9px 9px 7px;
         }
     </style>
 
     <h:panelGroup layout="block" rendered="#{node.type == 'repository'}">
-        <ui:include src="/pages/modules/repository/projects.xhtml" />
+        <ui:include src="/pages/modules/repository/projects.xhtml"/>
     </h:panelGroup>
 
     <h:panelGroup layout="block" rendered="#{node.type == 'prodrepository' || node.type == 'proddeployment'}">
-        <ui:include src="/pages/modules/repository/projectsProduction.xhtml" />
+        <ui:include src="/pages/modules/repository/projectsProduction.xhtml"/>
     </h:panelGroup>
 
-	<c:set var="deleteMessage" value="Archive project" />
-	<c:set var="addFolderMessage" value="Create a new folder in the project" />
-	<c:set var="uploadFileMessage" value="Upload a file to the project folder" />
-	<c:set var="undeleteMessage" value="Restore the project in Repository" />
-	<c:set var="eraseMessage" value="Permanently delete the project from repository" />
-	<c:set var="openMessage" value="Open project for viewing in rules editor" />
-    <c:set var="openVersionMessage" value="Open the latest project revision" />
-    <c:set var="closeMessage" value="Close the project and make it unavailable in Rules editor" />
-    <c:set var="unlockMessage" value="Unlock the project and make it available for editing" />
-    <c:set var="saveMessage" value="Save the project changes in Design Repository as a new revision and make it available for editing to other users" />
-    <c:set var="mergeMessage" value="Synchronize updates" />
-    <c:set var="copyMessage" value="Create a new project in Design Repository with a different project name but the same content " />
+    <c:set var="deleteMessage" value="Archive project"/>
+    <c:set var="addFolderMessage" value="Create a new folder in the project"/>
+    <c:set var="uploadFileMessage" value="Upload a file to the project folder"/>
+    <c:set var="undeleteMessage" value="Restore the project in Repository"/>
+    <c:set var="eraseMessage" value="Permanently delete the project from repository"/>
+    <c:set var="openMessage" value="Open project for viewing in rules editor"/>
+    <c:set var="openVersionMessage" value="Open the latest project revision"/>
+    <c:set var="closeMessage" value="Close the project and make it unavailable in Rules editor"/>
+    <c:set var="unlockMessage" value="Unlock the project and make it available for editing"/>
+    <c:set var="saveMessage"
+           value="Save the project changes in Design Repository as a new revision and make it available for editing to other users"/>
+    <c:set var="mergeMessage" value="Synchronize updates"/>
+    <c:set var="copyMessage"
+           value="Create a new project in Design Repository with a different project name but the same content "/>
 
     <h:panelGroup rendered="#{node.type != 'deployment'}">
-    <div class="nav-panel">
-  <h:panelGroup rendered="#{node.type == 'file'}">
-      <h:commandButton id="updateId" rendered="#{repositoryTreeState.canModify}" value="Update file" onclick="if (!canOverwriteRevision()) return false; openUpdateFileDialog();return false;" title="Upload the updated file"/>
-      <h:commandButton id="exportId" rendered="#{repositoryTreeState.canExport and node.hasVersions()}" value="Export file" onclick="openExportFileDialog();return false;" title="Export file"/>
-      <h:commandButton id="copyId" rendered="#{repositoryTreeState.canModify}" value="Copy file" onclick="if (!canOverwriteRevision()) return false; openCopyFileDialog();return false;" title="Copy file"/>
-      <h:commandButton id="deleteFileId" rendered="#{repositoryTreeState.canModify}" value="Delete" onclick="if (!canOverwriteRevision()) return false; #{rich:component('modalDeleteNode')}.show();return false;" title="Delete the file"/>
-  </h:panelGroup>
-
-  <h:panelGroup rendered="#{node.type == 'folder' and repositoryTreeState.canModify}">
-      <h:commandButton id="addFolder1" value="Add Folder" onclick="if (!canOverwriteRevision()) return false; openNewFolderDialog();return false;" title="#{addFolderMessage}"/>
-      <h:commandButton id="uploadFile1" value="Upload File" onclick="if (!canOverwriteRevision()) return false; openNewFileDialog();return false;" title="#{uploadFileMessage}"/>
-      <h:commandButton id="deleteFolderId" value="Delete" onclick="if (!canOverwriteRevision()) return false; #{rich:component('modalDeleteNode')}.show();return false;" title="Delete the folder"/>
-  </h:panelGroup>
-
-  <h:panelGroup rendered="#{node.type == 'project'}">
-    <h:panelGroup rendered="#{artefact.deleted}">
-        <h:commandButton id="undeleteId1" rendered="#{repositoryTreeState.canUndelete}" value="Undelete" onclick="confirmUndeleteProject();return false;" title="#{undeleteMessage}"/>
-        <h:commandButton id="eraseId1" rendered="#{repositoryTreeState.canErase}" value="Erase" onclick="confirmEraseProject();return false;" title="#{eraseMessage}"/>
-    </h:panelGroup>
-
-    <h:panelGroup rendered="#{!artefact.deleted}">
-      <h:panelGroup>
-        <h:panelGroup rendered="#{not (environment.getProperty('user.mode') == 'single' and artefact.opened)}">
-          <h:commandButton id="openId1" rendered="#{repositoryTreeState.canOpen}" value="Open" action="#{repositoryTreeController.openProject}" title="#{openMessage}"
-                           onclick="#{repositoryTreeController.hasDependencies ? rich:component('modalOpenProject').concat('.show();return false;') : ''}"/>
-          <h:commandButton id="openVersionId1" rendered="#{repositoryTreeState.canOpenOtherVersion}" value="Open Revision"
-                           type="button" onclick="openOpenVersionDialog()" title="#{openVersionMessage}">
-              <f:ajax listener="#{repositoryTreeController.selectCurrentProjectForOpen}" render=":openVersionForm"/>
-          </h:commandButton>
-            <!-- We don't need forms validation when we are closing the project. So use immediate="true" to bypass validation -->
-          <h:commandButton id="closeId1" rendered="#{repositoryTreeState.canClose}" value="Close" action="#{repositoryTreeController.closeProject}" title="#{closeMessage}"
-                           immediate="true"
-                           onclick="#{repositoryTreeController.hasDependingProjects || repositoryTreeState.selectedProjectModified ? rich:component('modalCloseProject').concat('.show();return false;') : ''}"/>
-        </h:panelGroup>
-
-        <h:panelGroup rendered="#{environment.getProperty('user.mode') == 'single' and artefact.opened}">
-          <h:commandButton id="openId2" rendered="#{repositoryTreeState.canOpen}" value="Open" onclick="#{rich:component('modalOpenProject')}.show();return false;" title="#{openMessage}"/>
-	      <h:commandButton id="openVersionId2" rendered="#{repositoryTreeState.canOpenOtherVersion}" value="Open Revision" onclick="openOpenVersionDialog();" title="#{openVersionMessage}">
-              <f:ajax listener="#{repositoryTreeController.selectCurrentProjectForOpen}" render=":openVersionForm"/>
-	      </h:commandButton>
-          <h:commandButton id="closeId2" rendered="#{repositoryTreeState.canClose}" value="Close" onclick="#{rich:component('modalCloseProject')}.show();return false;" title="#{closeMessage}"/>
-        </h:panelGroup>
-
-        <h:commandButton  id="saveId1" rendered="#{repositoryTreeState.canSaveProject and !repositoryTreeState.localOnly}" value="Save" onclick="openSaveDialog();return false;" title="#{saveMessage}"/>
-        <h:commandButton rendered="#{repositoryTreeState.canMerge}" value="Sync" title="#{mergeMessage}" onclick="openMergeBranchesDialog('#{node.name}'); return false;"/>
-
-        <h:commandButton id="copyId1" rendered="#{repositoryTreeState.canCreate}" value="Copy" onclick="openCopyProjectDialog('#{artefact.name}', function() {location.href = location.href;});return false;" title="#{copyMessage}"/>
-        <h:commandButton id="deleteId2" rendered="#{repositoryTreeState.canDelete}" value="Delete" onclick="#{rich:component('modalDeleteNode')}.show();return false;" title="#{deleteMessage}"/>
-
-        <h:commandButton id="unlockId1" rendered="#{repositoryTreeController.canUnlock and node.data.locked and not node.data.lockedByMe}" value="Unlock" onclick="openUnlockDialog('project');return false;" title="#{unlockMessage}">
-            <f:ajax render="unlockId1"/>
-        </h:commandButton>
-
-        <h:commandButton id="deployId1" rendered="#{repositoryTreeState.canRedeploy}" value="Deploy" onclick="openSmartRedeployDialog();"
-                         title="Deploy selected deployments with the latest version of this project">
-            <f:ajax listener="#{smartRedeployController.openDialogListener}" render=":smartRedeployForm"/>
-        </h:commandButton>
-        
-        <h:commandButton id="compareId" rendered="#{repositoryTreeState.canCompare}" value="Compare" onclick="window.open('#{contextPath}/faces/pages/modules/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=1240,height=700,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');return false;"
-                         title="Compare tables in Excel file between two project versions"/>
-        <h:commandButton id="addFolder2" rendered="#{artefact.openedForEditing}" value="Add Folder" onclick="if (!canOverwriteRevision()) return false; openNewFolderDialog();return false;" title="#{addFolderMessage}"/>
-        <h:commandButton id="uploadFile2" rendered="#{artefact.openedForEditing}" value="Upload File" onclick="if (!canOverwriteRevision()) return false; openNewFileDialog();return false;" title="#{uploadFileMessage}"/>
-        <h:commandButton id="exportVersionId" rendered="#{repositoryTreeState.canExport}" value="Export" onclick="openExportVersionDialog();return false;" title="Download the project as a zip archive"/>
-      </h:panelGroup>
-
-    </h:panelGroup>
-  </h:panelGroup>
-    </div>
-    </h:panelGroup>
-
-  <rich:tabPanel id="nodeTabPanel" switchType="client"
-    rendered="#{node.type == 'file' || node.type == 'folder' || node.type == 'project' || node.type == 'prodproject' || node.type == 'prodfolder' || node.type == 'prodfile'}">
-    <rich:tab id="properties" name="Properties" header="Properties" >
-        <table class="formfields" style="max-width: 500px;">
-            <tr>
-                <td class="label">
-                    <h:outputText value="File Name:" rendered="#{node.type == 'file' || node.type == 'prodfile' }"/>
-                    <h:outputText value="Folder Name:" rendered="#{node.type == 'folder' || node.type == 'prodfolder' }"/>
-                    <h:outputText value="Name:" rendered="#{node.type == 'project' || node.type == 'prodproject' }"/>
-                </td>
-                <td>
-                    <h:outputText value="#{node.name}" style="font-weight: bold" rendered="#{node.type != 'project' or not node.renamed}" />
-                    <h:outputText value="#{node.logicalName} (#{node.name})" rendered="#{node.type == 'project' and node.renamed}"/>
-                </td>
-            </tr>
-            <h:panelGroup rendered="#{node.type == 'project' and repositoryTreeState.supportsBranches}">
-            <tr>
-                <td class="label">
-                    <h:outputText value="Branch:" />
-                </td>
-                <td>
-                    <h:selectOneMenu value="#{repositoryTreeController.projectBranch}"
-                                     title="#{repositoryTreeController.projectBranch}"
-                                     validator="#{repositoryTreeController.validateProjectForBranch}"
-                                     id="branchSelector"
-                                     onchange="return canOpenOtherBranch(this);">
-                        <f:selectItems value="#{repositoryTreeController.projectBranches}"/>
-                        <f:ajax event="change" immediate="true" render="projectTree nodeView :eraseProjectForm"/>
-                    </h:selectOneMenu>
-                    <input type="button" value="..." title="Manage project branches"
-                           onclick="openEditBranchesDialog('#{node.name}');" style="height: 23px;padding: 0px 5px;"/>
-                    <a4j:outputPanel ajaxRendered="true" id="branchSelectorError" style="display: grid;">
-                        <h:message for="branchSelector" styleClass="error" style="padding-top: 10px;"/>
-                    </a4j:outputPanel>
-                </td>
-            </tr>
+        <div class="nav-panel">
+            <h:panelGroup rendered="#{node.type == 'file'}">
+                <h:commandButton id="updateId" rendered="#{repositoryTreeState.canModify}" value="Update file"
+                                 onclick="if (!canOverwriteRevision()) return false; openUpdateFileDialog();return false;"
+                                 title="Upload the updated file"/>
+                <h:commandButton id="exportId" rendered="#{repositoryTreeState.canExport and node.hasVersions()}"
+                                 value="Export file" onclick="openExportFileDialog();return false;"
+                                 title="Export file"/>
+                <h:commandButton id="copyId" rendered="#{repositoryTreeState.canModify}" value="Copy file"
+                                 onclick="if (!canOverwriteRevision()) return false; openCopyFileDialog();return false;"
+                                 title="Copy file"/>
+                <h:commandButton id="deleteFileId" rendered="#{repositoryTreeState.canModify}" value="Delete"
+                                 onclick="if (!canOverwriteRevision()) return false; #{rich:component('modalDeleteNode')}.show();return false;"
+                                 title="Delete the file"/>
             </h:panelGroup>
-            <h:panelGroup rendered="#{node.type == 'project' || node.type == 'prodproject' }">
-            <tr>
-                <td class="label">
-                    <h:outputText value="Revision:" />
-                </td>
-                <h:panelGroup rendered="#{node.type == 'prodproject' }">
-                    <td>
-                        <h:outputText value="#{repositoryTreeController.getBusinessVersion(node)}"/>
-                    </td>
-                </h:panelGroup>
-                <h:panelGroup rendered="#{node.type == 'project' }">
-                    <td>
-                        <ui:param name="revisionNo" value="#{artefact.version.versionName}" />
-                        <ui:param name="shortRevisionNo" value="#{artefact.version.shortVersion}" />
 
-                        <c:choose>
-                            <c:when test="#{revisionNo eq shortRevisionNo}">
-                                <h:outputText value="#{revisionNo}"/>
-                            </c:when>
-                            <c:otherwise>
-                                <h:outputText value="#{shortRevisionNo}" styleClass="expandable"/>
-                                <h:outputText value="#{revisionNo}" styleClass="hidden"/>
-                            </c:otherwise>
-                        </c:choose>
-                    </td>
+            <h:panelGroup rendered="#{node.type == 'folder' and repositoryTreeState.canModify}">
+                <h:commandButton id="addFolder1" value="Add Folder"
+                                 onclick="if (!canOverwriteRevision()) return false; openNewFolderDialog();return false;"
+                                 title="#{addFolderMessage}"/>
+                <h:commandButton id="uploadFile1" value="Upload File"
+                                 onclick="if (!canOverwriteRevision()) return false; openNewFileDialog();return false;"
+                                 title="#{uploadFileMessage}"/>
+                <h:commandButton id="deleteFolderId" value="Delete"
+                                 onclick="if (!canOverwriteRevision()) return false; #{rich:component('modalDeleteNode')}.show();return false;"
+                                 title="Delete the folder"/>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{node.type == 'project'}">
+                <h:panelGroup rendered="#{artefact.deleted}">
+                    <h:commandButton id="undeleteId1" rendered="#{repositoryTreeState.canUndelete}" value="Undelete"
+                                     onclick="confirmUndeleteProject();return false;" title="#{undeleteMessage}"/>
+                    <h:commandButton id="eraseId1" rendered="#{repositoryTreeState.canErase}" value="Erase"
+                                     onclick="confirmEraseProject();return false;" title="#{eraseMessage}"/>
                 </h:panelGroup>
-            </tr>
-            <tr>
-                <td class="label">
-                    <h:outputText value="Status:" />
-                </td>
-                <td>
-                    <h:outputText value="#{node.status}" />
-                </td>
-            </tr>
-            <tr>
-                <td class="label">
-                    <h:outputText value="Created At:" />
-                </td>
-                <td>
-                    <h:outputText value="#{node.createdAt}">
-                        <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.datetime')}"/>
-                    </h:outputText>
-                </td>
-            </tr>
-            <tr>
-                <td class="label">Created By:</td>
-                <td>
-                    <h:outputText value="#{node.createdBy}" />
-                </td>
-            </tr>
-            <h:panelGroup rendered="#{node.hasModifications}">
+
+                <h:panelGroup rendered="#{!artefact.deleted}">
+                    <h:panelGroup>
+                        <h:panelGroup
+                                rendered="#{not (environment.getProperty('user.mode') == 'single' and artefact.opened)}">
+                            <h:commandButton id="openId1" rendered="#{repositoryTreeState.canOpen}" value="Open"
+                                             action="#{repositoryTreeController.openProject}" title="#{openMessage}"
+                                             onclick="#{repositoryTreeController.hasDependencies ? rich:component('modalOpenProject').concat('.show();return false;') : ''}"/>
+                            <h:commandButton id="openVersionId1" rendered="#{repositoryTreeState.canOpenOtherVersion}"
+                                             value="Open Revision"
+                                             type="button" onclick="openOpenVersionDialog()"
+                                             title="#{openVersionMessage}">
+                                <f:ajax listener="#{repositoryTreeController.selectCurrentProjectForOpen}"
+                                        render=":openVersionForm"/>
+                            </h:commandButton>
+                            <!-- We don't need forms validation when we are closing the project. So use immediate="true" to bypass validation -->
+                            <h:commandButton id="closeId1" rendered="#{repositoryTreeState.canClose}" value="Close"
+                                             action="#{repositoryTreeController.closeProject}" title="#{closeMessage}"
+                                             immediate="true"
+                                             onclick="#{repositoryTreeController.hasDependingProjects || repositoryTreeState.selectedProjectModified ? rich:component('modalCloseProject').concat('.show();return false;') : ''}"/>
+                        </h:panelGroup>
+
+                        <h:panelGroup
+                                rendered="#{environment.getProperty('user.mode') == 'single' and artefact.opened}">
+                            <h:commandButton id="openId2" rendered="#{repositoryTreeState.canOpen}" value="Open"
+                                             onclick="#{rich:component('modalOpenProject')}.show();return false;"
+                                             title="#{openMessage}"/>
+                            <h:commandButton id="openVersionId2" rendered="#{repositoryTreeState.canOpenOtherVersion}"
+                                             value="Open Revision" onclick="openOpenVersionDialog();"
+                                             title="#{openVersionMessage}">
+                                <f:ajax listener="#{repositoryTreeController.selectCurrentProjectForOpen}"
+                                        render=":openVersionForm"/>
+                            </h:commandButton>
+                            <h:commandButton id="closeId2" rendered="#{repositoryTreeState.canClose}" value="Close"
+                                             onclick="#{rich:component('modalCloseProject')}.show();return false;"
+                                             title="#{closeMessage}"/>
+                        </h:panelGroup>
+
+                        <h:commandButton id="saveId1"
+                                         rendered="#{repositoryTreeState.canSaveProject and !repositoryTreeState.localOnly}"
+                                         value="Save" onclick="openSaveDialog();return false;" title="#{saveMessage}"/>
+                        <h:commandButton rendered="#{repositoryTreeState.canMerge}" value="Sync" title="#{mergeMessage}"
+                                         onclick="openMergeBranchesDialog('#{node.name}'); return false;"/>
+
+                        <h:commandButton id="copyId1" rendered="#{repositoryTreeState.canCreate}" value="Copy"
+                                         onclick="openCopyProjectDialog('#{artefact.name}', function() {location.href = location.href;});return false;"
+                                         title="#{copyMessage}"/>
+                        <h:commandButton id="deleteId2" rendered="#{repositoryTreeState.canDelete}" value="Delete"
+                                         onclick="#{rich:component('modalDeleteNode')}.show();return false;"
+                                         title="#{deleteMessage}"/>
+
+                        <h:commandButton id="unlockId1"
+                                         rendered="#{repositoryTreeController.canUnlock and node.data.locked and not node.data.lockedByMe}"
+                                         value="Unlock" onclick="openUnlockDialog('project');return false;"
+                                         title="#{unlockMessage}">
+                            <f:ajax render="unlockId1"/>
+                        </h:commandButton>
+
+                        <h:commandButton id="deployId1" rendered="#{repositoryTreeState.canRedeploy}" value="Deploy"
+                                         onclick="openSmartRedeployDialog();"
+                                         title="Deploy selected deployments with the latest version of this project">
+                            <f:ajax listener="#{smartRedeployController.openDialogListener}"
+                                    render=":smartRedeployForm"/>
+                        </h:commandButton>
+
+                        <h:commandButton id="compareId" rendered="#{repositoryTreeState.canCompare}" value="Compare"
+                                         onclick="window.open('#{contextPath}/faces/pages/modules/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=1240,height=700,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');return false;"
+                                         title="Compare tables in Excel file between two project versions"/>
+                        <h:commandButton id="addFolder2" rendered="#{artefact.openedForEditing}" value="Add Folder"
+                                         onclick="if (!canOverwriteRevision()) return false; openNewFolderDialog();return false;"
+                                         title="#{addFolderMessage}"/>
+                        <h:commandButton id="uploadFile2" rendered="#{artefact.openedForEditing}" value="Upload File"
+                                         onclick="if (!canOverwriteRevision()) return false; openNewFileDialog();return false;"
+                                         title="#{uploadFileMessage}"/>
+                        <h:commandButton id="exportVersionId" rendered="#{repositoryTreeState.canExport}" value="Export"
+                                         onclick="openExportVersionDialog();return false;"
+                                         title="Download the project as a zip archive"/>
+                    </h:panelGroup>
+
+                </h:panelGroup>
+            </h:panelGroup>
+        </div>
+    </h:panelGroup>
+
+    <rich:tabPanel id="nodeTabPanel" switchType="client"
+                   rendered="#{node.type == 'file' || node.type == 'folder' || node.type == 'project' || node.type == 'prodproject' || node.type == 'prodfolder' || node.type == 'prodfile'}">
+        <rich:tab id="properties" name="Properties" header="Properties">
+            <table class="formfields" style="max-width: 500px;">
                 <tr>
-                    <td class="label">Modified At:</td>
+                    <td class="label">
+                        <h:outputText value="File Name:" rendered="#{node.type == 'file' || node.type == 'prodfile' }"/>
+                        <h:outputText value="Folder Name:"
+                                      rendered="#{node.type == 'folder' || node.type == 'prodfolder' }"/>
+                        <h:outputText value="Name:"
+                                      rendered="#{node.type == 'project' || node.type == 'prodproject' }"/>
+                    </td>
                     <td>
-                        <h:outputText value="#{node.modifiedAt}">
-                            <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.datetime')}"/>
-                        </h:outputText>
+                        <h:outputText value="#{node.name}" style="font-weight: bold"
+                                      rendered="#{node.type != 'project' or not node.renamed}"/>
+                        <h:outputText value="#{node.logicalName} (#{node.name})"
+                                      rendered="#{node.type == 'project' and node.renamed}"/>
                     </td>
                 </tr>
-            </h:panelGroup>
-            <h:panelGroup rendered="#{node.hasModifications}">
-                <tr>
-                    <td class="label">Modified By:</td>
-                    <td>#{node.modifiedBy}</td>
-                </tr>
-            </h:panelGroup>
-            </h:panelGroup>
-        </table>
-    </rich:tab>
-      <ui:remove><!--
+                <h:panelGroup rendered="#{node.type == 'project' and repositoryTreeState.supportsBranches}">
+                    <tr>
+                        <td class="label">
+                            <h:outputText value="Branch:"/>
+                        </td>
+                        <td>
+                            <h:selectOneMenu value="#{repositoryTreeController.projectBranch}"
+                                             title="#{repositoryTreeController.projectBranch}"
+                                             validator="#{repositoryTreeController.validateProjectForBranch}"
+                                             id="branchSelector"
+                                             onchange="return canOpenOtherBranch(this);">
+                                <f:selectItems value="#{repositoryTreeController.projectBranches}"/>
+                                <f:ajax event="change" immediate="true"
+                                        render="projectTree nodeView :eraseProjectForm"/>
+                            </h:selectOneMenu>
+                            <input type="button" value="..." title="Manage project branches"
+                                   onclick="openEditBranchesDialog('#{node.name}');"
+                                   style="height: 23px;padding: 0px 5px;"/>
+                            <a4j:outputPanel ajaxRendered="true" id="branchSelectorError" style="display: grid;">
+                                <h:message for="branchSelector" styleClass="error" style="padding-top: 10px;"/>
+                            </a4j:outputPanel>
+                        </td>
+                    </tr>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{node.type == 'project' || node.type == 'prodproject' }">
+                    <h:panelGroup rendered="#{node.type == 'prodproject' }">
+                        <tr>
+                            <td class="label">
+                                <h:outputText value="Revision in Design Repository:"/>
+                            </td>
+                            <td>
+                                <h:outputText value="#{repositoryTreeController.getBusinessVersion(node)}"/>
+                            </td>
+                        </tr>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{node.type == 'project' }">
+                        <tr>
+                            <td class="label">
+                                <h:outputText value="Status:"/>
+                            </td>
+                            <td>
+                                <h:outputText value="#{node.status}"/>
+                            </td>
+                        </tr>
+                    </h:panelGroup>
+                    <tr>
+                        <td class="label">Modified By:</td>
+                        <td>#{node.modifiedBy}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Modified At:</td>
+                        <td>
+                            <h:outputText value="#{node.modifiedAt}">
+                                <f:convertDateTime type="date"
+                                                   pattern="#{environment.getProperty('data.format.datetime')}"/>
+                            </h:outputText>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">Created By:</td>
+                        <td>
+                            <h:outputText value="#{node.createdBy}"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            <h:outputText value="Created At:"/>
+                        </td>
+                        <td>
+                            <h:outputText value="#{node.createdAt}">
+                                <f:convertDateTime type="date"
+                                                   pattern="#{environment.getProperty('data.format.datetime')}"/>
+                            </h:outputText>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            <h:outputText value="Revision ID:"/>
+                        </td>
+                        <td>
+                            <ui:param name="revisionNo" value="#{artefact.version.versionName}"/>
+                            <ui:param name="shortRevisionNo" value="#{artefact.version.shortVersion}"/>
+
+                            <c:choose>
+                                <c:when test="#{revisionNo eq shortRevisionNo}">
+                                    <h:outputText value="#{revisionNo}"/>
+                                </c:when>
+                                <c:otherwise>
+                                    <h:outputText value="#{shortRevisionNo}" styleClass="expandable"/>
+                                    <h:outputText value="#{revisionNo}" styleClass="hidden"/>
+                                </c:otherwise>
+                            </c:choose>
+                        </td>
+                    </tr>
+                </h:panelGroup>
+            </table>
+        </rich:tab>
+        <ui:remove><!--
          FIXME: because of the bug: https://issues.jboss.org/browse/RF-10961
          "render" attribute cannot be used for rich:tab (NullPointerException will be thrown in some cases).
          As a workaround "disabled" attribute in conjunction with "hideHeader"/"showHeader" styles is used.
     --></ui:remove>
-    <rich:tab id="revisions" name="Revisions" header="Revisions"
-              disabled="#{node.type == 'prodproject' or node.type == 'prodfile' or node.type == 'prodfolder'}"
-              headerClass="#{node.type == 'prodproject' or node.type == 'prodfile' or node.type == 'prodfolder' ? 'hideHeader' : 'showHeader'}" >
-      <ui:include src="/pages/modules/repository/node/versions.xhtml" />
-    </rich:tab>
-      <ui:remove><!--
+        <rich:tab id="revisions" name="Revisions" header="Revisions"
+                  disabled="#{node.type == 'prodproject' or node.type == 'prodfile' or node.type == 'prodfolder'}"
+                  headerClass="#{node.type == 'prodproject' or node.type == 'prodfile' or node.type == 'prodfolder' ? 'hideHeader' : 'showHeader'}">
+            <ui:include src="/pages/modules/repository/node/versions.xhtml"/>
+        </rich:tab>
+        <ui:remove><!--
          FIXME: because of the bug: https://issues.jboss.org/browse/RF-10961
          "render" attribute cannot be used for rich:tab (NullPointerException will be thrown in some cases).
          As a workaround "disabled" attribute in conjunction with "hideHeader"/"showHeader" styles is used.
     --></ui:remove>
-    <rich:tab id="elements" name="Elements" header="Elements"
-              disabled="#{node.type == 'file' or node.type == 'prodfile'}"
-              headerClass="#{node.type == 'file' or node.type == 'prodfile' ? 'hideHeader' : 'showHeader'}">
-      <ui:include src="/pages/modules/repository/node/elements.xhtml" />
-    </rich:tab>
+        <rich:tab id="elements" name="Elements" header="Elements"
+                  disabled="#{node.type == 'file' or node.type == 'prodfile'}"
+                  headerClass="#{node.type == 'file' or node.type == 'prodfile' ? 'hideHeader' : 'showHeader'}">
+            <ui:include src="/pages/modules/repository/node/elements.xhtml"/>
+        </rich:tab>
 
-    <ui:remove><!--
+        <ui:remove><!--
          FIXME: because of the bug: https://issues.jboss.org/browse/RF-10961 
          "render" attribute cannot be used for rich:tab (NullPointerException will be thrown in some cases).
          As a workaround "disabled" attribute in conjunction with "hideHeader"/"showHeader" styles is used.   
     --></ui:remove>
-    <rich:tab id="rulesDeployConfiguration" name="RulesDeployConfiguration" header="Rules Deploy Configuration"
-              onenter="#{artefact.project.openedForEditing ? '' : 'refreshRulesDeployConfiguration()'}"
-              disabled="#{node.type != 'project'}" headerClass="#{node.type == 'project' ? 'showHeader' : 'hideHeader'}">
-      <h:panelGroup id="rulesDeployConfigurationContent">
-        <h:panelGroup rendered="#{node.type == 'project' and (artefact.project.openedForEditing or repositoryTreeController.currentProjectSelected)}">
-          <ui:include src="/pages/modules/repository/node/rulesDeployConfiguration.xhtml" />
-        </h:panelGroup>
-      </h:panelGroup>
-      <a4j:jsFunction name="refreshRulesDeployConfiguration" action="#{repositoryTreeController.selectCurrentProjectForOpen('')}" render="rulesDeployConfigurationContent"/>
-    </rich:tab>
-  </rich:tabPanel>
+        <rich:tab id="rulesDeployConfiguration" name="RulesDeployConfiguration" header="Rules Deploy Configuration"
+                  onenter="#{artefact.project.openedForEditing ? '' : 'refreshRulesDeployConfiguration()'}"
+                  disabled="#{node.type != 'project'}"
+                  headerClass="#{node.type == 'project' ? 'showHeader' : 'hideHeader'}">
+            <h:panelGroup id="rulesDeployConfigurationContent">
+                <h:panelGroup
+                        rendered="#{node.type == 'project' and (artefact.project.openedForEditing or repositoryTreeController.currentProjectSelected)}">
+                    <ui:include src="/pages/modules/repository/node/rulesDeployConfiguration.xhtml"/>
+                </h:panelGroup>
+            </h:panelGroup>
+            <a4j:jsFunction name="refreshRulesDeployConfiguration"
+                            action="#{repositoryTreeController.selectCurrentProjectForOpen('')}"
+                            render="rulesDeployConfigurationContent"/>
+        </rich:tab>
+    </rich:tabPanel>
 
     <h:panelGroup layout="block" rendered="#{node.type == 'drepository'}">
-        <ui:include src="/pages/modules/repository/projectsD.xhtml" />
+        <ui:include src="/pages/modules/repository/projectsD.xhtml"/>
     </h:panelGroup>
 
-  <h:panelGroup rendered="#{node.type == 'deployment'}">
-      <f:event type="preRenderView" listener="#{deploymentController.onPageLoad()}" />
-      <div class="nav-panel">
-    <h:panelGroup rendered="#{artefact.deleted}">
-        <h:commandButton id="undeleteId2" rendered="#{repositoryTreeState.canUndelete}" value="Undelete" onclick="confirmUndeleteProject();return false;" title="#{undeleteMessage}"/>
-        <h:commandButton id="eraseId2" rendered="#{repositoryTreeState.canErase}" value="Erase" onclick="confirmEraseProject();return false;" title="#{eraseMessage}"/>
+    <h:panelGroup rendered="#{node.type == 'deployment'}">
+        <f:event type="preRenderView" listener="#{deploymentController.onPageLoad()}"/>
+        <div class="nav-panel">
+            <h:panelGroup rendered="#{artefact.deleted}">
+                <h:commandButton id="undeleteId2" rendered="#{repositoryTreeState.canUndelete}" value="Undelete"
+                                 onclick="confirmUndeleteProject();return false;" title="#{undeleteMessage}"/>
+                <h:commandButton id="eraseId2" rendered="#{repositoryTreeState.canErase}" value="Erase"
+                                 onclick="confirmEraseProject();return false;" title="#{eraseMessage}"/>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{not artefact.deleted}">
+                <h:commandButton id="deployId" rendered="#{deploymentController.canDeploy}" value="Deploy"
+                                 onclick="openSelectRepositoryDialog();return false;"
+                                 title="Deploy into operations or staging"/>
+                <h:commandButton id="openVersionId3" rendered="#{repositoryTreeState.canOpen}" value="Open Revision"
+                                 onclick="openOpenVersionDialog();" title="Open the specified project revision">
+                    <f:ajax listener="#{repositoryTreeController.selectCurrentProjectForOpen}"
+                            render=":openVersionForm"/>
+                </h:commandButton>
+
+                <h:commandButton id="closeId3" rendered="#{repositoryTreeState.canClose}" value="Close"
+                                 action="#{deploymentController.close}"
+                                 title="Close Deploy Configuration and make it unavailable for editing"
+                                 onclick="if (#{deploymentController.modified}) {#{rich:component('modalCloseDeployConfiguration')}.show();return false;}"/>
+                <h:commandButton id="editDeployId" rendered="#{repositoryTreeState.canEditDeployment}" value="Open"
+                                 action="#{deploymentController.open}"
+                                 title="Make project available for editing and lock it from editing by other users"/>
+                <h:commandButton id="saveDeployId" rendered="#{repositoryTreeState.canSaveDeployment}" value="Save"
+                                 action="#{deploymentController.save}" title="#{saveMessage}"/>
+                <h:commandButton id="copyId2" rendered="#{repositoryTreeState.canCreateDeployment}" value="Copy"
+                                 onclick="openCopyDeploymentProjectDialog();return false;" title="#{copyMessage}"/>
+                <h:commandButton id="deleteId3" rendered="#{repositoryTreeState.canDeleteDeployment}" value="Delete"
+                                 onclick="#{rich:component('modalDeleteNode')}.show();return false;"
+                                 title="#{deleteMessage}"/>
+
+                <h:commandButton id="unlockId2"
+                                 rendered="#{repositoryTreeController.canUnlockDeployment and node.data.locked and not node.data.lockedByMe}"
+                                 value="Unlock Deploy Configuration"
+                                 onclick="openUnlockDialog('deployment');return false;" title="#{unlockMessage}">
+                    <f:ajax render="unlockId2"/>
+                </h:commandButton>
+            </h:panelGroup>
+        </div>
+
+        <rich:tabPanel switchType="client">
+            <rich:tab header="Properties">
+                <ui:include src="node/deployment.xhtml"/>
+            </rich:tab>
+            <rich:tab header="Revisions">
+                <ui:include src="/pages/modules/repository/node/versions.xhtml"/>
+            </rich:tab>
+            <rich:tab header="Projects to Deploy">
+                <ui:include src="/pages/modules/repository/node/descriptors.xhtml"/>
+            </rich:tab>
+        </rich:tabPanel>
     </h:panelGroup>
-    <h:panelGroup rendered="#{not artefact.deleted}">
-      <h:commandButton id="deployId" rendered="#{deploymentController.canDeploy}" value="Deploy" onclick="openSelectRepositoryDialog();return false;" title="Deploy into operations or staging"/>
-      <h:commandButton id="openVersionId3" rendered="#{repositoryTreeState.canOpen}" value="Open Revision" onclick="openOpenVersionDialog();" title="Open the specified project revision">
-          <f:ajax listener="#{repositoryTreeController.selectCurrentProjectForOpen}" render=":openVersionForm"/>
-      </h:commandButton>
-
-      <h:commandButton id="closeId3" rendered="#{repositoryTreeState.canClose}" value="Close" action="#{deploymentController.close}" title="Close Deploy Configuration and make it unavailable for editing"
-                       onclick="if (#{deploymentController.modified}) {#{rich:component('modalCloseDeployConfiguration')}.show();return false;}" />
-      <h:commandButton id="editDeployId" rendered="#{repositoryTreeState.canEditDeployment}" value="Open" action="#{deploymentController.open}" title="Make project available for editing and lock it from editing by other users"/>
-      <h:commandButton id="saveDeployId" rendered="#{repositoryTreeState.canSaveDeployment}" value="Save" action="#{deploymentController.save}" title="#{saveMessage}"/>
-      <h:commandButton id="copyId2" rendered="#{repositoryTreeState.canCreateDeployment}" value="Copy" onclick="openCopyDeploymentProjectDialog();return false;" title="#{copyMessage}"/>
-      <h:commandButton id="deleteId3" rendered="#{repositoryTreeState.canDeleteDeployment}" value="Delete" onclick="#{rich:component('modalDeleteNode')}.show();return false;" title="#{deleteMessage}"/>
-
-      <h:commandButton id="unlockId2" rendered="#{repositoryTreeController.canUnlockDeployment and node.data.locked and not node.data.lockedByMe}" value="Unlock Deploy Configuration" onclick="openUnlockDialog('deployment');return false;" title="#{unlockMessage}">
-          <f:ajax render="unlockId2"/>
-       </h:commandButton>
-    </h:panelGroup>
-      </div>
-
-    <rich:tabPanel switchType="client">
-      <rich:tab header="Properties">
-        <ui:include src="node/deployment.xhtml" />
-      </rich:tab>
-      <rich:tab header="Revisions">
-        <ui:include src="/pages/modules/repository/node/versions.xhtml" />
-      </rich:tab>
-      <rich:tab header="Projects to Deploy">
-        <ui:include src="/pages/modules/repository/node/descriptors.xhtml" />
-      </rich:tab>
-    </rich:tabPanel>
-  </h:panelGroup>
 
     <script>
         //<![CDATA[
@@ -334,6 +417,7 @@
                 return false;
             }
         }
+
         //]]>
     </script>
 
