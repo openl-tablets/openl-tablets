@@ -9,6 +9,7 @@ import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.gen.writers.DefaultValue;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.datatype.binding.DatatypeHelper;
@@ -21,6 +22,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.utils.ParserUtils;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
@@ -112,39 +114,56 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
             IOpenClass constantType = getConstantType(cxt, row, rowSrc);
 
-            String value = DatatypeTableBoundNode.getDefaultValue(row, cxt);
             Object objectValue;
-
-            try {
-                if (constantType.getName().startsWith("[[")) {
-                    throw new IllegalStateException("Multi-dimensional arrays are not supported.");
+            String defaultValue = null;
+            GridCellSourceCodeModule defaultValueSrc = DatatypeTableBoundNode.getCellSource(row, cxt, 2);
+            if (!ParserUtils.isCommented(defaultValueSrc.getCode())) {
+                IdentifierNode[] idn = DatatypeTableBoundNode.getIdentifierNode(defaultValueSrc);
+                if (idn.length > 0) {
+                    // if there is any valid identifier, consider it is a default
+                    // value
+                    //
+                    defaultValue = defaultValueSrc.getCode();
                 }
+            }
+            String value = defaultValue;
+            if (DefaultValue.DEFAULT.equals(value)) {
+                objectValue = constantType.newInstance(openl.getVm().getRuntimeEnv());
+            } else if (RuleRowHelper.isFormula(value)) {
+                objectValue = OpenLManager.run(openl, new SubTextSourceCodeModule(defaultValueSrc, 1));
+            } else {
 
-                if (String.class == constantType.getInstanceClass()) {
-                    objectValue = String2DataConvertorFactory.parse(String.class, value, cxt);
-                } else {
-                    objectValue = RuleRowHelper.loadNativeValue(row.getColumn(2).getCell(0, 0), constantType);
-                    if (objectValue == null) {
-                        objectValue = String2DataConvertorFactory.parse(constantType.getInstanceClass(), value, cxt);
+                try {
+                    if (constantType.getName().startsWith("[[")) {
+                        throw new IllegalStateException("Multi-dimensional arrays are not supported.");
+                    }
+
+                    if (String.class == constantType.getInstanceClass()) {
+                        objectValue = String2DataConvertorFactory.parse(String.class, value, cxt);
                     } else {
-                        RuleRowHelper.validateValue(objectValue, constantType);
+                        objectValue = RuleRowHelper.loadNativeValue(row.getColumn(2).getCell(0, 0), constantType);
+                        if (objectValue == null) {
+                            objectValue = String2DataConvertorFactory.parse(constantType.getInstanceClass(), value, cxt);
+                        } else {
+                            RuleRowHelper.validateValue(objectValue, constantType);
+                        }
                     }
-                }
-            } catch (RuntimeException e) {
-                String message = String.format("Cannot parse cell value '%s'", value);
-                IOpenSourceCodeModule cellSourceCodeModule = DatatypeTableBoundNode.getCellSource(row, cxt, 2);
+                } catch (RuntimeException e) {
+                    String message = String.format("Cannot parse cell value '%s'", value);
+                    IOpenSourceCodeModule cellSourceCodeModule = DatatypeTableBoundNode.getCellSource(row, cxt, 2);
 
-                if (e instanceof CompositeSyntaxNodeException) {
-                    CompositeSyntaxNodeException exception = (CompositeSyntaxNodeException) e;
-                    if (exception.getErrors() != null && exception.getErrors().length == 1) {
-                        SyntaxNodeException syntaxNodeException = exception.getErrors()[0];
-                        throw SyntaxNodeExceptionUtils
-                            .createError(message, null, syntaxNodeException.getLocation(), cellSourceCodeModule);
+                    if (e instanceof CompositeSyntaxNodeException) {
+                        CompositeSyntaxNodeException exception = (CompositeSyntaxNodeException) e;
+                        if (exception.getErrors() != null && exception.getErrors().length == 1) {
+                            SyntaxNodeException syntaxNodeException = exception.getErrors()[0];
+                            throw SyntaxNodeExceptionUtils
+                                    .createError(message, null, syntaxNodeException.getLocation(), cellSourceCodeModule);
+                        }
+                        throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
+                    } else {
+                        TextInterval location = value == null ? null : LocationUtils.createTextInterval(value);
+                        throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
                     }
-                    throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
-                } else {
-                    TextInterval location = value == null ? null : LocationUtils.createTextInterval(value);
-                    throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
                 }
             }
 
