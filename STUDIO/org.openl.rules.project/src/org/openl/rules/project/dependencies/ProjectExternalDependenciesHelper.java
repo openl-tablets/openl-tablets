@@ -2,7 +2,7 @@ package org.openl.rules.project.dependencies;
 
 import java.util.*;
 
-import org.openl.engine.OpenLSourceManager;
+import org.openl.engine.OpenLCompileManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -30,7 +30,7 @@ public final class ProjectExternalDependenciesHelper {
             parameters.putAll(externalParams);
         }
         if (modules == null) {
-            parameters.put(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY, null);
+            parameters.put(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY, null);
             return parameters;
         }
         Set<String> virtualModules = new HashSet<>();
@@ -50,7 +50,7 @@ public final class ProjectExternalDependenciesHelper {
                 .add(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, virualModule, null)));
         }
 
-        parameters.put(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY, externalDependencies);
+        parameters.put(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY, externalDependencies);
 
         return parameters;
     }

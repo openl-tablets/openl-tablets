@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
-import org.openl.engine.OpenLSourceManager;
+import org.openl.engine.OpenLCompileManager;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -101,8 +101,8 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                         LOG.warn("Failed to load custom file name processor.", e);
                         moduleErrorMessages.add("Failed to load custom file name processor.");
                     }
-                    params.put(OpenLSourceManager.ADDITIONAL_ERROR_MESSAGES_KEY, moduleErrorMessages);
-                    params.put(OpenLSourceManager.ADDITIONAL_WARN_MESSAGES_KEY, moduleWarnMessages);
+                    params.put(OpenLCompileManager.ADDITIONAL_ERROR_MESSAGES_KEY, moduleErrorMessages);
+                    params.put(OpenLCompileManager.ADDITIONAL_WARN_MESSAGES_KEY, moduleWarnMessages);
                     module.setProperties(params);
                 }
             }
