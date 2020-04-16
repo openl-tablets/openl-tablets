@@ -20,6 +20,7 @@
             <h:panelGrid id="updateProjectFormData" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                 <h:outputLabel for="projectUpload" styleClass="required" value="File:" />
                 <rich:fileUpload id="projectUpload" fileUploadListener="#{studio.uploadListener}"
+                                 immediateUpload="true"
                                  onfilesubmit="ws.ui.showLoader();" oncomplete="ws.ui.hideLoader();"
                                  acceptedTypes="zip" maxFilesQuantity="1">
                     <a4j:ajax event="uploadcomplete" execute="@none"

@@ -131,6 +131,7 @@
 
                         <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                             onfilesubmit="showLoader();" oncomplete="hideLoader();"
+                            immediateUpload="true"
                             acceptedTypes="xls, xlsx, xlsm" />
 
                         <h:outputLabel for="projectName" styleClass="required" value="Project Name:" />
@@ -174,6 +175,7 @@
 
                     <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                         onfilesubmit="showLoader();" oncomplete="hideLoader();"
+                        immediateUpload="true"
                         acceptedTypes="zip" maxFilesQuantity="1" >
                             <a4j:ajax event="uploadcomplete"
                                 execute="@none"

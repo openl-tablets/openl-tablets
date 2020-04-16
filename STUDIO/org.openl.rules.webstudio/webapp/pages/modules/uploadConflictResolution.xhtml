@@ -18,7 +18,11 @@
     </f:facet>
 
     <h:form id="uploadFileForm">
-      <rich:fileUpload fileUploadListener="#{mergeConflictBean.uploadListener}" maxFilesQuantity="1" render="errorMessage"/>
+      <rich:fileUpload fileUploadListener="#{mergeConflictBean.uploadListener}"
+                       maxFilesQuantity="1"
+                       immediateUpload="true"
+                       onfilesubmit="ws.ui.showLoader();" oncomplete="ws.ui.hideLoader();"
+                       render="errorMessage"/>
 
       <h:panelGroup id="modalUploadFileData">
 
