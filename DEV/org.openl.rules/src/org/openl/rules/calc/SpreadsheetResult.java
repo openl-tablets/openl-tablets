@@ -107,14 +107,14 @@ public class SpreadsheetResult implements Serializable {
                     if (columnNames[j] != null && rowNames[i] != null) {
                         fieldsCoordinates.put(
                             SpreadsheetStructureBuilder.getSpreadsheetCellFieldName(columnNames[j], rowNames[i]),
-                            new Point(j, i));
+                            Point.get(j, i));
                         if (isSingleColumn) {
                             fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + rowNames[i],
-                                new Point(j, i));
+                                Point.get(j, i));
                         } else {
                             if (isSingleRow) {
                                 fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + columnNames[j],
-                                    new Point(j, i));
+                                    Point.get(j, i));
                             }
                         }
                     }
@@ -375,8 +375,7 @@ public class SpreadsheetResult implements Serializable {
             final boolean isSingleRow = nonNullsRowsCount == 1;
             final boolean isSingleColumn = nonNullsColumnsCount == 1;
             final boolean isDetailedPlainModel = detailedPlainModel;
-            String[][] TableDetails = isDetailedPlainModel ? new String[rowNames.length][columnNames.length]
-                                                                         : null;
+            String[][] TableDetails = isDetailedPlainModel ? new String[rowNames.length][columnNames.length] : null;
             if (customSpreadsheetResultOpenClass != null) {
                 CustomSpreadsheetResultOpenClass csrt;
                 if (module != null) {
@@ -429,8 +428,8 @@ public class SpreadsheetResult implements Serializable {
                 }
             }
             if (detailedPlainModel) {
-                values.put(CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(),
-                    "TableDetails"), TableDetails);
+                values.put(CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(), "TableDetails"),
+                    TableDetails);
                 values.put(CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(), "RowNames"),
                     rowNames);
                 values.put(CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(), "ColumnNames"),
