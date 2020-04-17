@@ -218,7 +218,14 @@
           "format": "double"
         },
         "Value_Step3": {
-          "type": "object"
+          "type": "array",
+          "items": {
+            "type": "number",
+            "format": "double",
+            "xml": {
+              "name": "Value_Step3"
+            }
+          }
         },
         "Value3_Step4": {
           "type": "number",
