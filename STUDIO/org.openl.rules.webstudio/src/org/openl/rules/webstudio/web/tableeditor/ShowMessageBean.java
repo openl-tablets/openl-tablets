@@ -4,9 +4,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
