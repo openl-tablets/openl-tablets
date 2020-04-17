@@ -7,7 +7,28 @@
         <h:outputText value="Name:"/>
         <h:outputText value="#{node.name}" style="font-weight: bold"/>
 
-        <h:outputText value="Revision:"/>
+        <h:outputText value="Status:"/>
+        <h:outputText value="#{node.status}"/>
+
+        <h:outputText value="Modified By:"/>
+        <h:outputText value="#{node.modifiedBy}"/>
+
+        <h:outputText value="Modified At:"/>
+        <h:outputText value="#{node.modifiedAt}">
+            <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.datetime')}"/>
+        </h:outputText>
+        
+        <h:outputText value="Created By:"/>
+        <h:outputText value="#{node.createdBy}"/>
+
+        <h:outputText value="Created At:"/>
+        <h:outputText value="#{node.createdAt}">
+            <f:convertDateTime type="date"
+                               pattern="#{environment.getProperty('data.format.datetime')}"/>
+        </h:outputText>
+
+
+        <h:outputText value="Revision ID:"/>
         <h:panelGroup>
             <ui:param name="revisionNo" value="#{artefact.version.versionName}" />
             <ui:param name="shortRevisionNo" value="#{artefact.version.shortVersion}" />
@@ -22,26 +43,6 @@
                 </c:otherwise>
             </c:choose>
         </h:panelGroup>
-
-        <h:outputText value="Status:"/>
-        <h:outputText value="#{node.status}"/>
-
-        <h:outputText value="Created By:"/>
-        <h:outputText value="#{node.createdBy}"/>
-
-        <h:outputText value="Created At:"/>
-        <h:outputText value="#{node.createdAt}">
-            <f:convertDateTime type="date"
-                               pattern="#{environment.getProperty('data.format.datetime')}"/>
-        </h:outputText>
-
-        <h:outputText value="Modified By:" rendered="#{node.hasModifications}"/>
-        <h:outputText value="#{node.modifiedBy}" rendered="#{node.hasModifications}"/>
-
-        <h:outputText value="Modified At:" rendered="#{node.hasModifications}"/>
-        <h:outputText value="#{node.modifiedAt}" rendered="#{node.hasModifications}">
-            <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.datetime')}"/>
-        </h:outputText>
     </h:panelGrid>
 
 </ui:composition>
