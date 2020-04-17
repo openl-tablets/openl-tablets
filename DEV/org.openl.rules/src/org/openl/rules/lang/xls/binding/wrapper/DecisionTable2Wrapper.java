@@ -16,6 +16,7 @@ import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
+import org.openl.rules.lang.xls.binding.ModuleRelatedType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
@@ -45,8 +46,12 @@ public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodW
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = Objects.requireNonNull(contextPropertiesInjector,
             "contextPropertiesInjector cannot be null");
-        IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
-        this.type = type != null ? type : delegate.getType();
+        if (delegate.getType() instanceof ModuleRelatedType) {
+            IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
+            this.type = type != null ? type : delegate.getType();
+        } else {
+            this.type = delegate.getType();
+        }
         this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
     }
 
@@ -281,7 +286,8 @@ public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodW
         return delegate.getNumberOfActions();
     }
 
-    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
+    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
+        this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {

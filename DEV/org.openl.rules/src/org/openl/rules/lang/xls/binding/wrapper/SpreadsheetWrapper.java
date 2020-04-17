@@ -12,6 +12,7 @@ import org.openl.rules.calc.SpreadsheetOpenClass;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
+import org.openl.rules.lang.xls.binding.ModuleRelatedType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.Point;
@@ -42,8 +43,12 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = Objects.requireNonNull(contextPropertiesInjector,
             "contextPropertiesInjector cannot be null");
-        IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
-        this.type = type != null ? type : delegate.getType();
+        if (delegate.getType() instanceof ModuleRelatedType) {
+            IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
+            this.type = type != null ? type : delegate.getType();
+        } else {
+            this.type = delegate.getType();
+        }
         this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
     }
 

@@ -22,6 +22,7 @@ import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
+import org.openl.rules.lang.xls.binding.ModuleRelatedType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAdvice;
@@ -56,8 +57,8 @@ public final class RuleServiceInstantiationFactoryHelper {
      * @author PUdalau
      */
     private static class RuleServiceInterceptorsSupportClassVisitor extends ClassVisitor {
-        private Map<Method, Pair<Class<?>, Boolean>> methodsWithReturnTypeNeedsChange;
-        private Collection<Method> methodsToRemove;
+        private final Map<Method, Pair<Class<?>, Boolean>> methodsWithReturnTypeNeedsChange;
+        private final Collection<Method> methodsToRemove;
 
         /**
          * Constructs instance with delegated {@link ClassVisitor} and set of methods.
@@ -212,6 +213,7 @@ public final class RuleServiceInstantiationFactoryHelper {
     }
 
     private static Class<?> notNullIfNewMethodReturnTypeWithAnnotations(ServiceDescription serviceDescription,
+            IOpenClass openClass,
             Method method,
             Object serviceTarget,
             boolean toServiceClass) {
@@ -222,7 +224,11 @@ public final class RuleServiceInstantiationFactoryHelper {
             Class<? extends ServiceMethodAfterAdvice<?>> lastServiceMethodAfterAdvice = getLastServiceMethodAfterAdvice(
                 serviceCallAfterInterceptor);
             if (lastServiceMethodAfterAdvice != null) {
-                return extractTypeForMethod(method, serviceTarget, toServiceClass, lastServiceMethodAfterAdvice);
+                return extractTypeForMethod(openClass,
+                    method,
+                    serviceTarget,
+                    toServiceClass,
+                    lastServiceMethodAfterAdvice);
             }
         }
 
@@ -232,13 +238,13 @@ public final class RuleServiceInstantiationFactoryHelper {
             .isProvideVariations() || !method.getReturnType().equals(VariationsResult.class))) {
             Class<? extends ServiceMethodAroundAdvice<?>> serviceMethodAroundAdvice = serviceCallAroundInterceptor
                 .value();
-            return extractTypeForMethod(method, serviceTarget, toServiceClass, serviceMethodAroundAdvice);
+            return extractTypeForMethod(openClass, method, serviceTarget, toServiceClass, serviceMethodAroundAdvice);
         }
-
         return null;
     }
 
-    private static Class<?> extractTypeForMethod(Method method,
+    private static Class<?> extractTypeForMethod(IOpenClass openClass,
+            Method method,
             Object serviceTarget,
             boolean toServiceClass,
             Class<? extends ServiceMethodAdvice> serviceMethodAdvice) {
@@ -246,7 +252,8 @@ public final class RuleServiceInstantiationFactoryHelper {
             UseOpenMethodReturnType useOpenMethodReturnType = serviceMethodAdvice
                 .getAnnotation(UseOpenMethodReturnType.class);
             if (useOpenMethodReturnType != null) {
-                Class<?> t = extractOpenMethodReturnType(method,
+                Class<?> t = extractOpenMethodReturnType(openClass,
+                    method,
                     serviceTarget,
                     serviceMethodAdvice,
                     useOpenMethodReturnType.value());
@@ -262,7 +269,8 @@ public final class RuleServiceInstantiationFactoryHelper {
         return Object.class;
     }
 
-    private static Class<?> extractOpenMethodReturnType(Method method,
+    private static Class<?> extractOpenMethodReturnType(IOpenClass openClass,
+            Method method,
             Object serviceTarget,
             Class<?> interceptorClass,
             TypeResolver typeResolver) {
@@ -282,15 +290,22 @@ public final class RuleServiceInstantiationFactoryHelper {
                     type = type.getComponentClass();
                     dim++;
                 }
+                XlsModuleOpenClass module = (XlsModuleOpenClass) openClass;
                 if (type instanceof CustomSpreadsheetResultOpenClass) {
-                    Class<?> t = ((CustomSpreadsheetResultOpenClass) type).getBeanClass();
+                    Class<?> t = ((CustomSpreadsheetResultOpenClass) module.findType(type.getName())).getBeanClass();
                     return dim > 0 ? Array.newInstance(t, dim).getClass() : t;
                 } else if (type instanceof SpreadsheetResultOpenClass) {
-                    Class<?> t = ((SpreadsheetResultOpenClass) type).toCustomSpreadsheetResultOpenClass()
+                    Class<?> t = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                        .toCustomSpreadsheetResultOpenClass()
                         .getBeanClass();
                     return dim > 0 ? Array.newInstance(t, dim).getClass() : t;
                 } else {
-                    return returnType.getInstanceClass();
+                    if (type instanceof ModuleRelatedType) {
+                        Class<?> t = module.findType(type.getName()).getInstanceClass();
+                        return dim > 0 ? Array.newInstance(t, dim).getClass() : t;
+                    } else {
+                        return returnType.getInstanceClass();
+                    }
                 }
             default:
                 throw new IllegalStateException();
@@ -334,6 +349,7 @@ public final class RuleServiceInstantiationFactoryHelper {
         Map<Method, Pair<Class<?>, Boolean>> ret = new HashMap<>();
         for (Method method : serviceClass.getMethods()) {
             Class<?> newReturnType = notNullIfNewMethodReturnTypeWithAnnotations(serviceDescription,
+                openClass,
                 method,
                 serviceTarget,
                 toServiceClass);
@@ -365,7 +381,9 @@ public final class RuleServiceInstantiationFactoryHelper {
                     }
                     ret.put(method, Pair.of(t, Boolean.FALSE));
                 } else if (type instanceof SpreadsheetResultOpenClass) {
-                    Class<?> t = ((SpreadsheetResultOpenClass) type).toCustomSpreadsheetResultOpenClass()
+                    XlsModuleOpenClass module = (XlsModuleOpenClass) openClass;
+                    Class<?> t = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                        .toCustomSpreadsheetResultOpenClass()
                         .getBeanClass();
                     if (dim > 0) {
                         t = Array.newInstance(t, new int[dim]).getClass();
@@ -380,7 +398,8 @@ public final class RuleServiceInstantiationFactoryHelper {
     }
 
     /**
-     * Look through all methods of the specified class in order to find all methods which must be excluded from interface
+     * Look through all methods of the specified class in order to find all methods which must be excluded from
+     * interface
      *
      * @param serviceClass Class to be analyzed.
      * @param removeServiceExtraMethods {@code true} if methods annotated by {@link ServiceExtraMethod} must be excluded
@@ -389,8 +408,8 @@ public final class RuleServiceInstantiationFactoryHelper {
     private static Set<Method> getMethodsToRemove(Class<?> serviceClass, boolean removeServiceExtraMethods) {
         Set<Method> ret = new HashSet<>();
         for (Method method : serviceClass.getMethods()) {
-            if (ITableProperties.class.isAssignableFrom(method.getReturnType())
-                    || (removeServiceExtraMethods && isMethodWithServiceExtraMethodAnnotation(method))) {
+            if (ITableProperties.class.isAssignableFrom(method
+                .getReturnType()) || (removeServiceExtraMethods && isMethodWithServiceExtraMethodAnnotation(method))) {
                 ret.add(method);
             }
         }

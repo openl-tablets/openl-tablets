@@ -3,6 +3,7 @@ package org.openl.rules.lang.xls.binding.wrapper;
 import java.util.List;
 import java.util.Objects;
 
+import org.openl.rules.lang.xls.binding.ModuleRelatedType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.types.OpenMethodDispatcher;
@@ -31,8 +32,12 @@ public class MatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispa
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = Objects.requireNonNull(contextPropertiesInjector,
             "contextPropertiesInjector cannot be null");
-        IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
-        this.type = type != null ? type : delegate.getType();
+        if (delegate.getType() instanceof ModuleRelatedType) {
+            IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
+            this.type = type != null ? type : delegate.getType();
+        } else {
+            this.type = delegate.getType();
+        }
         this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
     }
 

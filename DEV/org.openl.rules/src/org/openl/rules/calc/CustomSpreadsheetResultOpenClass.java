@@ -14,6 +14,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.gen.FieldDescription;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
+import org.openl.rules.lang.xls.binding.ModuleRelatedType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
@@ -27,7 +28,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
-public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
+public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements ModuleRelatedType {
 
     private static final String[] EMPTY_STRING_ARRAY = new String[] {};
     private static final Comparator<String> FIELD_COMPARATOR = (o1, o2) -> {
@@ -57,11 +58,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     private String[] columnNames;
     private String[] rowNamesForResultModel;
     private String[] columnNamesForResultModel;
-    private List<Pair<String[], String[]>> rowAndColumnNamesForResultModelHistory;
+    private final List<Pair<String[], String[]>> rowAndColumnNamesForResultModelHistory;
     private String[] rowTitles;
     private String[] columnTitles;
     private Map<String, Point> fieldsCoordinates;
-    private XlsModuleOpenClass module;
+    private final XlsModuleOpenClass module;
     private volatile Class<?> beanClass;
     private volatile SpreadsheetResultSetter[] spreadsheetResultSetters;
     private boolean simpleRefBeanByRow;
@@ -291,11 +292,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return columnTitles.clone();
     }
 
-    public void extendWith(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
-        if (beanClass != null) {
+    @Override
+    public void extendWith(IOpenClass openClass) {
+        if (beanClassByteCode != null) {
             throw new IllegalStateException(
                 "Java bean class for custom spreadsheet result is loaded to classloader. Custom spreadsheet result cannot be extended.");
         }
+        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
         this.extendSpreadsheetResult(customSpreadsheetResultOpenClass.rowNames,
             customSpreadsheetResultOpenClass.columnNames,
             customSpreadsheetResultOpenClass.rowNamesForResultModel,
@@ -308,8 +311,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             customSpreadsheetResultOpenClass.detailedPlainModel);
     }
 
-    public void fixCSRFields() {
-        if (beanClass != null) {
+    public void fixModuleFieldTypes() {
+        if (beanClassByteCode != null) {
             throw new IllegalStateException(
                 "Java bean class for custom spreadsheet result is loaded to classloader. Custom spreadsheet result cannot be extended.");
         }
@@ -321,25 +324,21 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                 type = type.getComponentClass();
                 dim++;
             }
-            if (type instanceof CustomSpreadsheetResultOpenClass) {
-                IOpenClass openClass = module.findType(type.getName());
-                if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-                    IOpenClass t = openClass;
-                    if (dim > 0) {
-                        t = t.getArrayType(dim);
-                    }
-                    fieldMap().put(fieldName, new CustomSpreadsheetResultField(module, fieldName, t));
-                } else if (openClass != null) {
-                    throw new IllegalStateException(String.format("Expected type '%s', but found type '%s'.",
-                        CustomSpreadsheetResultOpenClass.class.getTypeName(),
-                        openClass.getName()));
-                }
-            } else if (type instanceof SpreadsheetResultOpenClass) {
+            if (type instanceof SpreadsheetResultOpenClass) {
                 IOpenClass t = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes();
                 if (dim > 0) {
                     t = t.getArrayType(dim);
                 }
                 fieldMap().put(fieldName, new CustomSpreadsheetResultField(module, fieldName, t));
+            } else if (type instanceof ModuleRelatedType) {
+                IOpenClass openClass = module.findType(type.getName());
+                if (openClass != null) {
+                    IOpenClass t = openClass;
+                    if (dim > 0) {
+                        t = t.getArrayType(dim);
+                    }
+                    fieldMap().put(fieldName, new CustomSpreadsheetResultField(module, fieldName, t));
+                }
             }
         }
     }
@@ -356,6 +355,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return field instanceof CustomSpreadsheetResultField;
     }
 
+    @Override
     public CustomSpreadsheetResultOpenClass makeCopyForModule(XlsModuleOpenClass module) {
         CustomSpreadsheetResultOpenClass type = new CustomSpreadsheetResultOpenClass(getName(),
             rowNames,
@@ -641,7 +641,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         continue; // IGNORE VOID FIELDS
                     } else {
                         Class<?> instanceClass = field.getType().getInstanceClass();
-                         if (instanceClass.isPrimitive()) {
+                        if (instanceClass.isPrimitive()) {
                             typeName = ClassUtils.primitiveToWrapper(instanceClass).getName();
                         } else {
                             typeName = instanceClass.getName();
