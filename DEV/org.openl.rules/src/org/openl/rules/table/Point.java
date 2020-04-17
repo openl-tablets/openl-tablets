@@ -14,9 +14,6 @@ public final class Point {
         this.row = row;
     }
 
-    public Point() {
-    }
-
     public int getColumn() {
         return column;
     }

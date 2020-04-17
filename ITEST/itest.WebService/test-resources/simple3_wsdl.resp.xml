@@ -1,11 +1,19 @@
-<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://DefaultNamespace" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="simple3" targetNamespace="http://DefaultNamespace">
+<?xml version='1.0' encoding='UTF-8'?>
+<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:tns="http://DefaultNamespace" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="simple3"
+                  targetNamespace="http://DefaultNamespace">
     <wsdl:types>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://runtime.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://runtime.openl.org">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://runtime.openl.org"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://runtime.openl.org">
             <xsd:complexType name="IRuntimeContext">
                 <xsd:sequence/>
             </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://cxf.apache.org/arrays" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://cxf.apache.org/arrays">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://cxf.apache.org/arrays"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://cxf.apache.org/arrays">
             <xsd:complexType name="ArrayOfAnyType">
                 <xsd:sequence>
                     <xsd:element maxOccurs="unbounded" minOccurs="0" name="anyType" nillable="true" type="xsd:anyType"/>
@@ -13,13 +21,16 @@
             </xsd:complexType>
             <xsd:complexType name="ArrayOfArrayOfAnyType">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfAnyType" nillable="true" type="tns:ArrayOfAnyType"/>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfAnyType" type="tns:ArrayOfAnyType"/>
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://DefaultNamespace" xmlns:ns2="http://cxf.apache.org/arrays" xmlns:ns1="http://csr.generated.openl.org" xmlns:ns0="http://context.rules.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://DefaultNamespace">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://DefaultNamespace"
+                    xmlns:ns2="http://cxf.apache.org/arrays" xmlns:ns1="http://spreadsheetresults.generated.openl.org"
+                    xmlns:ns0="http://context.rules.openl.org" attributeFormDefault="qualified"
+                    elementFormDefault="qualified" targetNamespace="http://DefaultNamespace">
             <xsd:import namespace="http://context.rules.openl.org"/>
-            <xsd:import namespace="http://csr.generated.openl.org"/>
+            <xsd:import namespace="http://spreadsheetresults.generated.openl.org"/>
             <xsd:import namespace="http://cxf.apache.org/arrays"/>
             <xsd:complexType name="anyType2anyTypeMap">
                 <xsd:sequence>
@@ -35,17 +46,17 @@
             </xsd:complexType>
             <xsd:complexType name="ArrayOfString">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="string" nillable="true" type="xsd:string"/>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="string" type="xsd:string"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="ArrayOfDouble">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="double" nillable="true" type="xsd:double"/>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="double" type="xsd:double"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="ArrayOfArrayOfString">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfString" nillable="true" type="tns:ArrayOfString"/>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfString" type="tns:ArrayOfString"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:element name="arrSpreadsheetResultspr1" type="tns:arrSpreadsheetResultspr1"/>
@@ -68,6 +79,18 @@
             </xsd:complexType>
             <xsd:element name="arrSpreadsheetResultResponse" type="tns:arrSpreadsheetResultResponse"/>
             <xsd:complexType name="arrSpreadsheetResultResponse">
+                <xsd:sequence>
+                    <xsd:element name="return" nillable="true" type="ns1:ArrayOfAnySpreadsheetResult"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="arrObjSpreadsheetResult" type="tns:arrObjSpreadsheetResult"/>
+            <xsd:complexType name="arrObjSpreadsheetResult">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="runtimeContext" type="ns0:IRulesRuntimeContext"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="arrObjSpreadsheetResultResponse" type="tns:arrObjSpreadsheetResultResponse"/>
+            <xsd:complexType name="arrObjSpreadsheetResultResponse">
                 <xsd:sequence>
                     <xsd:element name="return" nillable="true" type="ns2:ArrayOfAnyType"/>
                 </xsd:sequence>
@@ -109,138 +132,194 @@
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://csr.generated.openl.org" xmlns:ns1="http://DefaultNamespace" xmlns:ns0="http://cxf.apache.org/arrays" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://csr.generated.openl.org">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                    xmlns:tns="http://spreadsheetresults.generated.openl.org" xmlns:ns1="http://cxf.apache.org/arrays"
+                    xmlns:ns0="http://DefaultNamespace" attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://spreadsheetresults.generated.openl.org">
             <xsd:import namespace="http://cxf.apache.org/arrays"/>
             <xsd:import namespace="http://DefaultNamespace"/>
             <xsd:complexType name="ArrayOfArrayOfSpr1">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfSpr1" nillable="true" type="tns:ArrayOfSpr1"/>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfSpr1" type="tns:ArrayOfSpr1"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="Spr1">
                 <xsd:sequence>
-                    <xsd:element minOccurs="0" name="step1" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="step2" type="tns:Spr"/>
+                    <xsd:element minOccurs="0" name="Step1" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Step2" type="tns:Spr"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="Spr">
                 <xsd:sequence>
-                    <xsd:element minOccurs="0" name="step1" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="step10" type="ns0:ArrayOfArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="step11" type="ns0:ArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="step13" type="xsd:anyType"/>
-                    <xsd:element minOccurs="0" name="step14" type="xsd:anyType"/>
-                    <xsd:element minOccurs="0" name="step15" type="xsd:anyType"/>
-                    <xsd:element minOccurs="0" name="step16" type="ns1:anyType2anyTypeMap"/>
-                    <xsd:element minOccurs="0" name="step17" type="ns0:ArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="step18" type="ns0:ArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="step19" type="ns0:ArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="step2" type="tns:Spr1"/>
-                    <xsd:element minOccurs="0" name="step20" type="tns:Spr1"/>
-                    <xsd:element minOccurs="0" name="step21" type="tns:ArrayOfSpr1"/>
-                    <xsd:element minOccurs="0" name="step22" type="ns0:ArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="step23" type="ns0:ArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="step3" type="ns1:ArrayOfDouble"/>
-                    <xsd:element minOccurs="0" name="step4" type="tns:ArrayOfSpr1"/>
-                    <xsd:element minOccurs="0" name="step5" type="tns:ArrayOfSpr1"/>
-                    <xsd:element minOccurs="0" name="step6" type="tns:ArrayOfArrayOfSpr1"/>
-                    <xsd:element minOccurs="0" name="step7" type="ns0:ArrayOfArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="step8" type="ns0:ArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="step9" type="ns0:ArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="Step1" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Step10" type="tns:ArrayOfArrayOfAnySpreadsheetResult"/>
+                    <xsd:element minOccurs="0" name="Step11" type="tns:ArrayOfAnySpreadsheetResult"/>
+                    <xsd:element minOccurs="0" name="Step13" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Step14" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Step15" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Step16" type="ns0:anyType2anyTypeMap"/>
+                    <xsd:element minOccurs="0" name="Step17" type="ns1:ArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="Step18" type="ns1:ArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="Step19" type="ns1:ArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="Step2" type="tns:Spr1"/>
+                    <xsd:element minOccurs="0" name="Step20" type="tns:Spr1"/>
+                    <xsd:element minOccurs="0" name="Step21" type="tns:ArrayOfSpr1"/>
+                    <xsd:element minOccurs="0" name="Step22" type="ns1:ArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="Step23" type="ns1:ArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="Step3" type="ns0:ArrayOfDouble"/>
+                    <xsd:element minOccurs="0" name="Step4" type="tns:ArrayOfSpr1"/>
+                    <xsd:element minOccurs="0" name="Step5" type="tns:ArrayOfSpr1"/>
+                    <xsd:element minOccurs="0" name="Step6" type="tns:ArrayOfArrayOfSpr1"/>
+                    <xsd:element minOccurs="0" name="Step7" type="ns1:ArrayOfArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="Step8" type="ns1:ArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="Step9" type="ns1:ArrayOfAnyType"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="ArrayOfSpr1">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="Spr1" nillable="true" type="tns:Spr1"/>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="Spr1" type="tns:Spr1"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="Main">
                 <xsd:sequence>
                     <xsd:element minOccurs="0" name="AAA" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="columnNames" type="ns1:ArrayOfString"/>
-                    <xsd:element minOccurs="0" name="fieldNames" type="ns1:ArrayOfArrayOfString"/>
-                    <xsd:element minOccurs="0" name="rowNames" type="ns1:ArrayOfString"/>
-                    <xsd:element minOccurs="0" name="step1" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="step10" type="ns0:ArrayOfArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="step11" type="ns0:ArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="step13" type="xsd:anyType"/>
-                    <xsd:element minOccurs="0" name="step14" type="xsd:anyType"/>
-                    <xsd:element minOccurs="0" name="step15" type="xsd:anyType"/>
-                    <xsd:element minOccurs="0" name="step16" type="ns1:anyType2anyTypeMap"/>
-                    <xsd:element minOccurs="0" name="step17" type="ns0:ArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="step18" type="ns0:ArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="step19" type="ns0:ArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="step2" type="tns:Spr"/>
-                    <xsd:element minOccurs="0" name="step20" type="xsd:anyType"/>
-                    <xsd:element minOccurs="0" name="step21" type="tns:ArrayOfSpr"/>
-                    <xsd:element minOccurs="0" name="step22" type="ns0:ArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="step23" type="ns0:ArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="step3" type="ns1:ArrayOfDouble"/>
-                    <xsd:element minOccurs="0" name="step4" type="tns:ArrayOfSpr"/>
-                    <xsd:element minOccurs="0" name="step5" type="tns:ArrayOfSpr"/>
-                    <xsd:element minOccurs="0" name="step6" type="tns:ArrayOfArrayOfSpr"/>
-                    <xsd:element minOccurs="0" name="step7" type="ns0:ArrayOfArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="step8" type="ns0:ArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="step9" type="ns0:ArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="ColumnNames" type="ns0:ArrayOfString"/>
+                    <xsd:element minOccurs="0" name="RowNames" type="ns0:ArrayOfString"/>
+                    <xsd:element minOccurs="0" name="Step1" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Step10" type="tns:ArrayOfArrayOfAnySpreadsheetResult"/>
+                    <xsd:element minOccurs="0" name="Step11" type="tns:ArrayOfAnySpreadsheetResult"/>
+                    <xsd:element minOccurs="0" name="Step13" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Step14" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Step15" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Step16" type="ns0:anyType2anyTypeMap"/>
+                    <xsd:element minOccurs="0" name="Step17" type="ns1:ArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="Step18" type="ns1:ArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="Step19" type="ns1:ArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="Step2" type="tns:Spr"/>
+                    <xsd:element minOccurs="0" name="Step20" type="tns:AnySpreadsheetResult"/>
+                    <xsd:element minOccurs="0" name="Step21" type="tns:ArrayOfSpr"/>
+                    <xsd:element minOccurs="0" name="Step22" type="ns1:ArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="Step23" type="ns1:ArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="Step3" type="ns0:ArrayOfDouble"/>
+                    <xsd:element minOccurs="0" name="Step4" type="tns:ArrayOfSpr"/>
+                    <xsd:element minOccurs="0" name="Step5" type="tns:ArrayOfSpr"/>
+                    <xsd:element minOccurs="0" name="Step6" type="tns:ArrayOfArrayOfSpr"/>
+                    <xsd:element minOccurs="0" name="Step7" type="ns1:ArrayOfArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="Step8" type="ns1:ArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="Step9" type="ns1:ArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="TableDetails" type="ns0:ArrayOfArrayOfString"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="RunMain">
                 <xsd:sequence>
-                    <xsd:element minOccurs="0" name="step0" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="step1" type="tns:Main"/>
-                    <xsd:element minOccurs="0" name="step10" type="xsd:boolean"/>
-                    <xsd:element minOccurs="0" name="step11" type="xsd:boolean"/>
-                    <xsd:element minOccurs="0" name="step12" type="xsd:boolean"/>
-                    <xsd:element minOccurs="0" name="step13" type="xsd:boolean"/>
-                    <xsd:element minOccurs="0" name="step14" type="xsd:boolean"/>
-                    <xsd:element minOccurs="0" name="step15" type="xsd:boolean"/>
-                    <xsd:element minOccurs="0" name="step16" type="xsd:boolean"/>
-                    <xsd:element minOccurs="0" name="step17" type="xsd:boolean"/>
-                    <xsd:element minOccurs="0" name="step18" type="xsd:boolean"/>
-                    <xsd:element minOccurs="0" name="step19" type="xsd:boolean"/>
-                    <xsd:element minOccurs="0" name="step2" type="ns1:anyType2anyTypeMap"/>
-                    <xsd:element minOccurs="0" name="step3" type="xsd:anyType"/>
-                    <xsd:element minOccurs="0" name="step4" type="xsd:boolean"/>
-                    <xsd:element minOccurs="0" name="step5" type="xsd:boolean"/>
-                    <xsd:element minOccurs="0" name="step6" type="xsd:boolean"/>
-                    <xsd:element minOccurs="0" name="step7" type="xsd:boolean"/>
-                    <xsd:element minOccurs="0" name="step8" type="xsd:boolean"/>
-                    <xsd:element minOccurs="0" name="step9" type="xsd:boolean"/>
+                    <xsd:element minOccurs="0" name="Step0" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Step1" type="tns:Main"/>
+                    <xsd:element minOccurs="0" name="Step10" type="xsd:boolean"/>
+                    <xsd:element minOccurs="0" name="Step11" type="xsd:boolean"/>
+                    <xsd:element minOccurs="0" name="Step12" type="xsd:boolean"/>
+                    <xsd:element minOccurs="0" name="Step13" type="xsd:boolean"/>
+                    <xsd:element minOccurs="0" name="Step14" type="xsd:boolean"/>
+                    <xsd:element minOccurs="0" name="Step15" type="xsd:boolean"/>
+                    <xsd:element minOccurs="0" name="Step16" type="xsd:boolean"/>
+                    <xsd:element minOccurs="0" name="Step17" type="xsd:boolean"/>
+                    <xsd:element minOccurs="0" name="Step18" type="xsd:boolean"/>
+                    <xsd:element minOccurs="0" name="Step19" type="xsd:boolean"/>
+                    <xsd:element minOccurs="0" name="Step2" type="ns0:anyType2anyTypeMap"/>
+                    <xsd:element minOccurs="0" name="Step4" type="xsd:boolean"/>
+                    <xsd:element minOccurs="0" name="Step5" type="xsd:boolean"/>
+                    <xsd:element minOccurs="0" name="Step6" type="xsd:boolean"/>
+                    <xsd:element minOccurs="0" name="Step7" type="xsd:boolean"/>
+                    <xsd:element minOccurs="0" name="Step8" type="xsd:boolean"/>
+                    <xsd:element minOccurs="0" name="Step9" type="xsd:boolean"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="ArrayOfArrayOfAnySpreadsheetResult">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfAnySpreadsheetResult"
+                                 type="tns:ArrayOfAnySpreadsheetResult"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="ArrayOfArrayOfSpr">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfSpr" nillable="true" type="tns:ArrayOfSpr"/>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfSpr" type="tns:ArrayOfSpr"/>
                 </xsd:sequence>
             </xsd:complexType>
-            <xsd:complexType name="ArrayOfSpr">
+            <xsd:complexType name="MySpr">
                 <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="Spr" nillable="true" type="tns:Spr"/>
+                    <xsd:element minOccurs="0" name="Step1" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Step2" type="xsd:double"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="AnySpreadsheetResult">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="ColumnNames" type="ns0:ArrayOfString"/>
+                    <xsd:element minOccurs="0" name="RowNames" type="ns0:ArrayOfString"/>
+                    <xsd:element minOccurs="0" name="TableDetails" type="ns0:ArrayOfArrayOfString"/>
+                    <xsd:element minOccurs="0" name="Value1_Step1" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value1_Step2" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value2_Step1" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value2_Step2" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value3_Step3" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value3_Step4" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value4_Step3" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value4_Step4" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value_AAA" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value_Step0" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value_Step1" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Value_Step10" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Value_Step11" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Value_Step12" type="xsd:boolean"/>
+                    <xsd:element minOccurs="0" name="Value_Step13" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Value_Step14" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Value_Step15" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Value_Step16" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Value_Step17" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Value_Step18" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Value_Step19" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Value_Step2" type="tns:AnySpreadsheetResult"/>
+                    <xsd:element minOccurs="0" name="Value_Step20" type="tns:AnySpreadsheetResult"/>
+                    <xsd:element minOccurs="0" name="Value_Step21" type="tns:ArrayOfAnySpreadsheetResult"/>
+                    <xsd:element minOccurs="0" name="Value_Step22" type="ns1:ArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="Value_Step23" type="ns1:ArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="Value_Step3" type="ns0:ArrayOfDouble"/>
+                    <xsd:element minOccurs="0" name="Value_Step4" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Value_Step5" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Value_Step6" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Value_Step7" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="Value_Step8" type="ns1:ArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="Value_Step9" type="ns1:ArrayOfAnyType"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="ArrSpreadsheetResult">
                 <xsd:sequence/>
             </xsd:complexType>
-            <xsd:complexType name="MySpr">
+            <xsd:complexType name="ArrayOfSpr">
                 <xsd:sequence>
-                    <xsd:element minOccurs="0" name="step1" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="step2" type="xsd:double"/>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="Spr" type="tns:Spr"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="ArrayOfAnySpreadsheetResult">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="AnySpreadsheetResult"
+                                 type="tns:AnySpreadsheetResult"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="MySpr2">
                 <xsd:sequence>
-                    <xsd:element minOccurs="0" name="value1Step1" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="value1Step2" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="value2Step1" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="value2Step2" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="value3Step3" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="value3Step4" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="value4Step3" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="value4Step4" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value1_Step1" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value1_Step2" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value2_Step1" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value2_Step2" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value3_Step3" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value3_Step4" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value4_Step3" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value4_Step4" type="xsd:double"/>
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://enumeration.rules.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://enumeration.rules.openl.org">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://enumeration.rules.openl.org"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://enumeration.rules.openl.org">
             <xsd:simpleType name="UsStatesEnum">
                 <xsd:restriction base="xsd:string">
                     <xsd:enumeration value="AL"/>
@@ -550,51 +629,51 @@
                 </xsd:restriction>
             </xsd:simpleType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://itest.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://itest.openl.org">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://itest.openl.org"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://itest.openl.org">
             <xsd:complexType name="Error">
                 <xsd:sequence>
-                    <xsd:element minOccurs="0" name="message" nillable="true" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="message" type="xsd:string"/>
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://table.rules.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://table.rules.openl.org">
-            <xsd:complexType name="Point">
-                <xsd:sequence>
-                    <xsd:element minOccurs="0" name="column" type="xsd:int"/>
-                    <xsd:element minOccurs="0" name="row" type="xsd:int"/>
-                </xsd:sequence>
-            </xsd:complexType>
-        </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://calc.rules.openl.org" xmlns:ns1="http://cxf.apache.org/arrays" xmlns:ns0="http://DefaultNamespace" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://calc.rules.openl.org">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://calc.rules.openl.org"
+                    xmlns:ns1="http://cxf.apache.org/arrays" xmlns:ns0="http://DefaultNamespace"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://calc.rules.openl.org">
             <xsd:import namespace="http://DefaultNamespace"/>
             <xsd:import namespace="http://cxf.apache.org/arrays"/>
             <xsd:complexType name="SpreadsheetResult">
                 <xsd:sequence>
-                    <xsd:element minOccurs="0" name="columnNames" nillable="true" type="ns0:ArrayOfString"/>
-                    <xsd:element minOccurs="0" name="results" nillable="true" type="ns1:ArrayOfArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="rowNames" nillable="true" type="ns0:ArrayOfString"/>
+                    <xsd:element minOccurs="0" name="columnNames" type="ns0:ArrayOfString"/>
+                    <xsd:element minOccurs="0" name="results" type="ns1:ArrayOfArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="rowNames" type="ns0:ArrayOfString"/>
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://context.rules.openl.org" xmlns:ns1="http://enumeration.rules.openl.org" xmlns:ns0="http://runtime.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://context.rules.openl.org">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://context.rules.openl.org"
+                    xmlns:ns1="http://enumeration.rules.openl.org" xmlns:ns0="http://runtime.openl.org"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://context.rules.openl.org">
             <xsd:import namespace="http://enumeration.rules.openl.org"/>
             <xsd:import namespace="http://runtime.openl.org"/>
             <xsd:complexType name="IRulesRuntimeContext">
                 <xsd:complexContent>
                     <xsd:extension base="ns0:IRuntimeContext">
                         <xsd:sequence>
-                            <xsd:element minOccurs="0" name="caProvince" nillable="true" type="ns1:CaProvincesEnum"/>
-                            <xsd:element minOccurs="0" name="caRegion" nillable="true" type="ns1:CaRegionsEnum"/>
-                            <xsd:element minOccurs="0" name="country" nillable="true" type="ns1:CountriesEnum"/>
-                            <xsd:element minOccurs="0" name="currency" nillable="true" type="ns1:CurrenciesEnum"/>
+                            <xsd:element minOccurs="0" name="caProvince" type="ns1:CaProvincesEnum"/>
+                            <xsd:element minOccurs="0" name="caRegion" type="ns1:CaRegionsEnum"/>
+                            <xsd:element minOccurs="0" name="country" type="ns1:CountriesEnum"/>
+                            <xsd:element minOccurs="0" name="currency" type="ns1:CurrenciesEnum"/>
                             <xsd:element minOccurs="0" name="currentDate" type="xsd:dateTime"/>
-                            <xsd:element minOccurs="0" name="lang" nillable="true" type="ns1:LanguagesEnum"/>
-                            <xsd:element minOccurs="0" name="lob" nillable="true" type="xsd:string"/>
-                            <xsd:element minOccurs="0" name="nature" nillable="true" type="xsd:string"/>
-                            <xsd:element minOccurs="0" name="region" nillable="true" type="ns1:RegionsEnum"/>
+                            <xsd:element minOccurs="0" name="lang" type="ns1:LanguagesEnum"/>
+                            <xsd:element minOccurs="0" name="lob" type="xsd:string"/>
+                            <xsd:element minOccurs="0" name="nature" type="xsd:string"/>
+                            <xsd:element minOccurs="0" name="region" type="ns1:RegionsEnum"/>
                             <xsd:element minOccurs="0" name="requestDate" type="xsd:dateTime"/>
-                            <xsd:element minOccurs="0" name="usRegion" nillable="true" type="ns1:UsRegionsEnum"/>
-                            <xsd:element minOccurs="0" name="usState" nillable="true" type="ns1:UsStatesEnum"/>
+                            <xsd:element minOccurs="0" name="usRegion" type="ns1:UsRegionsEnum"/>
+                            <xsd:element minOccurs="0" name="usState" type="ns1:UsStatesEnum"/>
                         </xsd:sequence>
                     </xsd:extension>
                 </xsd:complexContent>
@@ -621,8 +700,16 @@
         <wsdl:part element="tns:arrSpreadsheetResultspr1Response" name="parameters">
         </wsdl:part>
     </wsdl:message>
+    <wsdl:message name="arrObjSpreadsheetResultResponse">
+        <wsdl:part element="tns:arrObjSpreadsheetResultResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
     <wsdl:message name="mySpr2Response">
         <wsdl:part element="tns:mySpr2Response" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="arrObjSpreadsheetResult">
+        <wsdl:part element="tns:arrObjSpreadsheetResult" name="parameters">
         </wsdl:part>
     </wsdl:message>
     <wsdl:message name="main">
@@ -666,6 +753,12 @@
             <wsdl:output message="tns:mySprResponse" name="mySprResponse">
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="arrObjSpreadsheetResult">
+            <wsdl:input message="tns:arrObjSpreadsheetResult" name="arrObjSpreadsheetResult">
+            </wsdl:input>
+            <wsdl:output message="tns:arrObjSpreadsheetResultResponse" name="arrObjSpreadsheetResultResponse">
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="mySpr2">
             <wsdl:input message="tns:mySpr2" name="mySpr2">
             </wsdl:input>
@@ -690,6 +783,15 @@
                 <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output name="arrSpreadsheetResultResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="arrObjSpreadsheetResult">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="arrObjSpreadsheetResult">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="arrObjSpreadsheetResultResponse">
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
