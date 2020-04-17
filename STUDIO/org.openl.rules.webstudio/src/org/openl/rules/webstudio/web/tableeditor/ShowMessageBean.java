@@ -4,6 +4,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -26,7 +29,10 @@ public class ShowMessageBean {
         }
 
         Collection<OpenLMessage> moduleMessages = WebStudioUtils.getWebStudio().getModel().getModuleMessages();
-        OpenLMessage openLMessage = moduleMessages.stream().filter(m -> m.getId() == openLMessageId).findFirst().get();
+        OpenLMessage openLMessage = moduleMessages.stream()
+            .filter(m -> m.getId() == openLMessageId)
+            .findFirst()
+            .orElse(null);
 
         Severity severity;
         if (StringUtils.isNotBlank(type)) {

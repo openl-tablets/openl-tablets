@@ -1,0 +1,3 @@
+ERROR: Cyclic inheritance involving 'TypeB'
+ERROR: Type 'TypeA' is defined with errors.
+ERROR: Type 'TypeB' is defined with errors.

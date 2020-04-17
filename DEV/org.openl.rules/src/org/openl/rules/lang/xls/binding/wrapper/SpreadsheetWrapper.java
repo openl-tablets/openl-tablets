@@ -12,6 +12,7 @@ import org.openl.rules.calc.SpreadsheetOpenClass;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
+import org.openl.rules.lang.xls.binding.ModuleRelatedType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.Point;
@@ -28,11 +29,11 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
         WrapperLogic.validateWrapperClass(SpreadsheetWrapper.class, SpreadsheetWrapper.class.getSuperclass());
     }
 
-    private Spreadsheet delegate;
-    private XlsModuleOpenClass xlsModuleOpenClass;
-    private ContextPropertiesInjector contextPropertiesInjector;
-    private IOpenClass type;
-    private IMethodSignature methodSignature;
+    private final Spreadsheet delegate;
+    private final XlsModuleOpenClass xlsModuleOpenClass;
+    private final ContextPropertiesInjector contextPropertiesInjector;
+    private final IOpenClass type;
+    private final IMethodSignature methodSignature;
 
     public SpreadsheetWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             Spreadsheet delegate,
@@ -42,8 +43,12 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = Objects.requireNonNull(contextPropertiesInjector,
             "contextPropertiesInjector cannot be null");
-        IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
-        this.type = type != null ? type : delegate.getType();
+        if (delegate.getType() instanceof ModuleRelatedType) {
+            IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
+            this.type = type != null ? type : delegate.getType();
+        } else {
+            this.type = delegate.getType();
+        }
         this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
     }
 
@@ -297,7 +302,7 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
         return delegate.getFieldsCoordinates();
     }
 
-    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
+    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {

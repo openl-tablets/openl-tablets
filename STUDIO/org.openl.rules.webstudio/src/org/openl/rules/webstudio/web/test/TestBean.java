@@ -288,7 +288,7 @@ public class TestBean {
                 int column = getColumn(sourceTable, j);
                 int row = getRow(sourceTable, i);
                 ICell cell = sourceTable.getCell(column, row);
-                Point absolute = new Point(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
+                Point absolute = Point.get(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
                 String sb = SpreadsheetStructureBuilder.DOLLAR_SIGN + columnNames[j] + SpreadsheetStructureBuilder.DOLLAR_SIGN + rowNames[i];
                 absoluteCoordinates.put(sb, absolute);
             }

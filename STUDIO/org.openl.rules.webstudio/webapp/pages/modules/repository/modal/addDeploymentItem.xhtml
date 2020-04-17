@@ -24,14 +24,14 @@
             </h:selectOneMenu>
         </h:panelGrid>
 
-        <div style="margin-top: 13px; max-height: 270px; overflow: auto;">
+        <div style="margin-top: 13px; max-height: 280px; overflow: auto;">
             <h:panelGrid styleClass="formfields" rendered="#{not empty availableProjects}" >
                 <rich:dataTable id="projectVersion" value="#{deploymentController.projectVersions}" var="version" styleClass="table"
             	    columnClasses="padding" style="width: 100%">
             	    <f:facet name="header">
             	      <rich:columnGroup>
-            	        <rich:column>
-            	          <h:outputText value="Revision" />
+            	        <rich:column style="min-width: 70px">
+            	          <h:outputText value="Revision ID" />
             	        </rich:column>
             	        <rich:column style="min-width: 70px">
             	          <h:outputText value="Modified By"/>

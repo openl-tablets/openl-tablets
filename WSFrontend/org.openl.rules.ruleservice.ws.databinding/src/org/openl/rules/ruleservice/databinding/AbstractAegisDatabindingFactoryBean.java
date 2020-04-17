@@ -28,7 +28,6 @@ import org.apache.cxf.aegis.type.TypeCreationOptions;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.ruleservice.databinding.annotation.JacksonBindingConfigurationUtils;
-import org.openl.rules.table.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -219,7 +218,6 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         }
 
         overrideTypes.add(SpreadsheetResult.class.getName());
-        overrideTypes.add(Point.class.getName());
 
         if (supportVariations) {
             tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.VariationsResult");

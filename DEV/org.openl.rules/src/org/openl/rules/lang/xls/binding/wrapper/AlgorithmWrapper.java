@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
+import org.openl.rules.lang.xls.binding.ModuleRelatedType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
@@ -25,11 +26,11 @@ public class AlgorithmWrapper extends Algorithm implements IOpenMethodWrapper {
         WrapperLogic.validateWrapperClass(AlgorithmWrapper.class, AlgorithmWrapper.class.getSuperclass());
     }
 
-    private Algorithm delegate;
-    private XlsModuleOpenClass xlsModuleOpenClass;
-    private ContextPropertiesInjector contextPropertiesInjector;
-    private IOpenClass type;
-    private IMethodSignature methodSignature;
+    private final Algorithm delegate;
+    private final XlsModuleOpenClass xlsModuleOpenClass;
+    private final ContextPropertiesInjector contextPropertiesInjector;
+    private final IOpenClass type;
+    private final IMethodSignature methodSignature;
 
     public AlgorithmWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             Algorithm delegate,
@@ -38,8 +39,12 @@ public class AlgorithmWrapper extends Algorithm implements IOpenMethodWrapper {
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = Objects.requireNonNull(contextPropertiesInjector,
             "contextPropertiesInjector cannot be null");
-        IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
-        this.type = type != null ? type : delegate.getType();
+        if (delegate.getType() instanceof ModuleRelatedType) {
+            IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
+            this.type = type != null ? type : delegate.getType();
+        } else {
+            this.type = delegate.getType();
+        }
         this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
     }
 
@@ -188,7 +193,8 @@ public class AlgorithmWrapper extends Algorithm implements IOpenMethodWrapper {
         return delegate.isConstructor();
     }
 
-    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
+    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
+        this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {

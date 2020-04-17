@@ -2,6 +2,8 @@ FROM openjdk:11.0.5-stretch
 
 ENV TOMCAT_VERSION=9.0.30
 
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=90.0"
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
       bash \
       unzip \

@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundMethodNode;
+import org.openl.rules.lang.xls.binding.ModuleRelatedType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
@@ -20,11 +21,11 @@ public class CompositeMethodWrapper extends CompositeMethod implements IOpenMeth
         WrapperLogic.validateWrapperClass(CompositeMethodWrapper.class, CompositeMethodWrapper.class.getSuperclass());
     }
 
-    private CompositeMethod delegate;
-    private XlsModuleOpenClass xlsModuleOpenClass;
-    private ContextPropertiesInjector contextPropertiesInjector;
-    private IOpenClass type;
-    private IMethodSignature methodSignature;
+    private final CompositeMethod delegate;
+    private final XlsModuleOpenClass xlsModuleOpenClass;
+    private final ContextPropertiesInjector contextPropertiesInjector;
+    private final IOpenClass type;
+    private final IMethodSignature methodSignature;
 
     public CompositeMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             CompositeMethod delegate,
@@ -34,8 +35,12 @@ public class CompositeMethodWrapper extends CompositeMethod implements IOpenMeth
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = Objects.requireNonNull(contextPropertiesInjector,
             "contextPropertiesInjector cannot be null");
-        IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
-        this.type = type != null ? type : delegate.getType();
+        if (delegate.getType() instanceof ModuleRelatedType) {
+            IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
+            this.type = type != null ? type : delegate.getType();
+        } else {
+            this.type = delegate.getType();
+        }
         this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
     }
 
@@ -169,7 +174,8 @@ public class CompositeMethodWrapper extends CompositeMethod implements IOpenMeth
         return delegate.isConstructor();
     }
 
-    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
+    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
+        this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {

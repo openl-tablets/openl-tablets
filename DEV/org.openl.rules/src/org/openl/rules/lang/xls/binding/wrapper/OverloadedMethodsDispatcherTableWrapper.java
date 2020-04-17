@@ -3,6 +3,7 @@ package org.openl.rules.lang.xls.binding.wrapper;
 import java.util.List;
 import java.util.Objects;
 
+import org.openl.rules.lang.xls.binding.ModuleRelatedType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.types.OpenMethodDispatcher;
@@ -19,11 +20,11 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
             OverloadedMethodsDispatcherTableWrapper.class.getSuperclass());
     }
 
-    private OverloadedMethodsDispatcherTable delegate;
-    private XlsModuleOpenClass xlsModuleOpenClass;
-    private ContextPropertiesInjector contextPropertiesInjector;
-    private IOpenClass type;
-    private IMethodSignature methodSignature;
+    private final OverloadedMethodsDispatcherTable delegate;
+    private final XlsModuleOpenClass xlsModuleOpenClass;
+    private final ContextPropertiesInjector contextPropertiesInjector;
+    private final IOpenClass type;
+    private final IMethodSignature methodSignature;
 
     public OverloadedMethodsDispatcherTableWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             OverloadedMethodsDispatcherTable delegate,
@@ -32,8 +33,12 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = Objects.requireNonNull(contextPropertiesInjector,
             "contextPropertiesInjector cannot be null");
-        IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
-        this.type = type != null ? type : delegate.getType();
+        if (delegate.getType() instanceof ModuleRelatedType) {
+            IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
+            this.type = type != null ? type : delegate.getType();
+        } else {
+            this.type = delegate.getType();
+        }
         this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
     }
 
@@ -138,7 +143,7 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
         return ((OpenMethodDispatcher) openMethod).findMatchingMethod(env);
     }
 
-    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
+    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {

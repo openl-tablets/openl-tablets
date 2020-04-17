@@ -225,7 +225,7 @@
                             <ns2:Value_Step21/>
                             <ns2:Value_Step22/>
                             <ns2:Value_Step23/>
-                            <ns2:Value_Step3 xsi:type="ns1:ArrayOfDouble">
+                            <ns2:Value_Step3>
                                 <ns1:double>1.0</ns1:double>
                                 <ns1:double>2.0</ns1:double>
                             </ns2:Value_Step3>
@@ -403,7 +403,7 @@
                             <ns2:Value_Step21/>
                             <ns2:Value_Step22/>
                             <ns2:Value_Step23/>
-                            <ns2:Value_Step3 xsi:type="ns1:ArrayOfDouble">
+                            <ns2:Value_Step3>
                                 <ns1:double>1.0</ns1:double>
                                 <ns1:double>2.0</ns1:double>
                             </ns2:Value_Step3>
@@ -583,7 +583,7 @@
                             <ns2:Value_Step21/>
                             <ns2:Value_Step22/>
                             <ns2:Value_Step23/>
-                            <ns2:Value_Step3 xsi:type="ns1:ArrayOfDouble">
+                            <ns2:Value_Step3>
                                 <ns1:double>1.0</ns1:double>
                                 <ns1:double>2.0</ns1:double>
                             </ns2:Value_Step3>
@@ -761,7 +761,7 @@
                             <ns2:Value_Step21/>
                             <ns2:Value_Step22/>
                             <ns2:Value_Step23/>
-                            <ns2:Value_Step3 xsi:type="ns1:ArrayOfDouble">
+                            <ns2:Value_Step3>
                                 <ns1:double>1.0</ns1:double>
                                 <ns1:double>2.0</ns1:double>
                             </ns2:Value_Step3>
@@ -940,7 +940,7 @@
                         <ns2:Value_Step21/>
                         <ns2:Value_Step22/>
                         <ns2:Value_Step23/>
-                        <ns2:Value_Step3 xsi:type="ns1:ArrayOfDouble">
+                        <ns2:Value_Step3>
                             <ns1:double>1.0</ns1:double>
                             <ns1:double>2.0</ns1:double>
                         </ns2:Value_Step3>
@@ -1116,7 +1116,7 @@
                         <ns2:Value_Step21/>
                         <ns2:Value_Step22/>
                         <ns2:Value_Step23/>
-                        <ns2:Value_Step3 xsi:type="ns1:ArrayOfDouble">
+                        <ns2:Value_Step3>
                             <ns1:double>1.0</ns1:double>
                             <ns1:double>2.0</ns1:double>
                         </ns2:Value_Step3>

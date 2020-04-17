@@ -64,8 +64,6 @@ public class RunWebservicesITest {
     }
 
     @Test
-    @Ignore
-    // Test is correct but result comparision doesn't work.
     public void testWSDLSchemaSimple3() {
         client.get("/deployment3/simple3?wsdl", "/simple3_wsdl.resp.xml");
     }

@@ -7,6 +7,7 @@ import org.openl.binding.impl.module.DeferredMethod;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.lang.xls.binding.ModuleRelatedType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
 import org.openl.rules.method.table.TableMethod;
@@ -66,7 +67,8 @@ public final class WrapperLogic {
 
     static void validateWrapperClass(Class<?> methodWrapperClass, Class<?> methodClass) {
         if (Arrays.stream(methodClass.getDeclaredMethods())
-            .filter(e -> !e.isSynthetic() && Modifier.isPublic(e.getModifiers()) && !Modifier.isStatic(e.getModifiers()))
+            .filter(
+                e -> !e.isSynthetic() && Modifier.isPublic(e.getModifiers()) && !Modifier.isStatic(e.getModifiers()))
             .anyMatch(e -> {
                 try {
                     methodWrapperClass.getDeclaredMethod(e.getName(), e.getParameterTypes());
@@ -98,8 +100,13 @@ public final class WrapperLogic {
         IOpenClass[] parameterTypes = openMethod.getSignature().getParameterTypes();
         IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[parameterTypes.length];
         for (int i = 0; i < parameterTypes.length; i++) {
-            IOpenClass t = xlsModuleOpenClass.findType(parameterTypes[i].getName());
-            t = t != null ? t : parameterTypes[i];
+            IOpenClass t;
+            if (parameterTypes[i] instanceof ModuleRelatedType) {
+                t = xlsModuleOpenClass.findType(parameterTypes[i].getName());
+                t = t != null ? t : parameterTypes[i];
+            } else {
+                t = parameterTypes[i];
+            }
             parameterDeclarations[i] = new ParameterDeclaration(t, openMethod.getSignature().getParameterName(i));
         }
         return new MethodSignature(parameterDeclarations);

@@ -26,7 +26,6 @@ import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean;
 import org.openl.rules.serialization.DefaultTypingMode;
-import org.openl.rules.table.Point;
 import org.openl.rules.variation.ArgumentReplacementVariation;
 import org.openl.rules.variation.ComplexVariation;
 import org.openl.rules.variation.DeepCloningVariation;
@@ -221,12 +220,6 @@ public class JacksonObjectMapperFactoryBeanTest {
         String text = objectMapper.writeValueAsString(value);
         SpreadsheetResult result = objectMapper.readValue(text, SpreadsheetResult.class);
         Assert.assertTrue(result instanceof SpreadsheetResult);
-
-        text = objectMapper.writeValueAsString(new Point(1, 1));
-        Point p = objectMapper.readValue(text, Point.class);
-        Assert.assertTrue(p instanceof Point);
-        Assert.assertEquals(1, p.getColumn());
-        Assert.assertEquals(1, p.getRow());
     }
 
     @Test
