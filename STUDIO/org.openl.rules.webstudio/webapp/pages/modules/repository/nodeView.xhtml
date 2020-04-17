@@ -142,6 +142,7 @@
                                          onclick="openSmartRedeployDialog();"
                                          title="Deploy selected deployments with the latest version of this project">
                             <f:ajax listener="#{smartRedeployController.openDialogListener}"
+                                    onevent="resizeSmartRedeployPanel"
                                     render=":smartRedeployForm"/>
                         </h:commandButton>
 

@@ -117,5 +117,14 @@
             return true;
         }
 
+        function resizeSmartRedeployPanel(data) {
+             // Can be "begin", "complete" or "success".
+            switch (data.status) {
+                case "success":
+                    resizePopupPanel('modalSmartRedeploy');
+                    break;
+            }
+        }
+
     </script>
 </ui:composition>
