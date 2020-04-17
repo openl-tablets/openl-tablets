@@ -1,5 +1,6 @@
 package org.openl.rules.vm;
 
+import java.util.ArrayDeque;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.RecursiveAction;
@@ -7,7 +8,6 @@ import java.util.concurrent.RecursiveAction;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenClass;
-import org.openl.util.fast.FastStack;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM.SimpleRuntimeEnv;
 
@@ -36,8 +36,8 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
         return new SimpleRulesRuntimeEnv(this);
     }
 
-    public FastStack cloneContextStack() {
-        return (FastStack) contextStack.clone();
+    public ArrayDeque<IRuntimeContext> cloneContextStack() {
+        return new ArrayDeque<>(contextStack);
     }
 
     @Override
