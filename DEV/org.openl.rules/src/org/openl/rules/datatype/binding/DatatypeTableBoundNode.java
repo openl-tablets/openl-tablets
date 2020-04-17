@@ -85,6 +85,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     private DatatypeTableBoundNode parentDatatypeTableBoundNode;
     private boolean generated = false;
+    private boolean generatingInProcess = false;
     private boolean byteCodeReadyToLoad = false;
 
     private ILogicalTable table;
@@ -696,6 +697,10 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     public void generateByteCode(IBindingContext bindingContext) throws Exception {
         if (!generated) {
+            if (generatingInProcess) {
+                throw new OpenLCompilationException(String.format("Cyclic inheritance involving '%s'", parentClassName));
+            }
+            generatingInProcess = true;
             try {
                 if (parentClassName != null) {
                     IOpenClass parentOpenClass;
@@ -737,6 +742,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 readFieldsAndGenerateByteCode(bindingContext);
             } finally {
                 generated = true;
+                generatingInProcess = false;
             }
         }
     }
