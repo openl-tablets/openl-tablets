@@ -19,7 +19,7 @@ import org.openl.types.IOpenMethod;
  * @author PUdalau
  */
 public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
-    private IPrebindHandler prebindHandler;
+    private final IPrebindHandler prebindHandler;
 
     public XlsLazyModuleOpenClass(String name,
             XlsMetaInfo metaInfo,
