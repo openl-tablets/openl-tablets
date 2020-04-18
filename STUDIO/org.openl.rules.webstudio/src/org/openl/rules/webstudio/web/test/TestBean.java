@@ -281,7 +281,7 @@ public class TestBean {
                 int column = getColumn(sourceTable, j);
                 int row = getRow(sourceTable, i);
                 ICell cell = sourceTable.getCell(column, row);
-                Point absolute = new Point(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
+                Point absolute = Point.get(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
                 StringBuilder sb = new StringBuilder();
                 sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
                     .append(columnNames[j])
