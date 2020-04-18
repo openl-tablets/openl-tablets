@@ -21,7 +21,7 @@ public class AssignNode extends MethodBoundNode {
      * @param method
      */
     public AssignNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller method, IOpenCast cast) {
-        super(syntaxNode, child, method);
+        super(syntaxNode, method, child);
         this.cast = cast;
     }
 

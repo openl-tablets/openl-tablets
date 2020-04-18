@@ -97,7 +97,7 @@ public class MethodNodeBinder extends ANodeBinder {
 
         if (methodCaller != null) {
             log(methodName, parameterTypes, "entirely appropriate by signature method");
-            return new MethodBoundNode(node, children, methodCaller);
+            return new MethodBoundNode(node, methodCaller, children);
         }
 
         // can`t find directly the method with given name and parameters. so,
@@ -222,7 +222,7 @@ public class MethodNodeBinder extends ANodeBinder {
         if (errorNode != null) {
             return errorNode;
         }
-        return new MethodBoundNode(node, children, methodCaller, target);
+        return new MethodBoundNode(node, target, methodCaller, children);
     }
 
     private IBoundNode validateMethod(ISyntaxNode node,

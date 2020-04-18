@@ -17,14 +17,12 @@ public class MethodBoundNode extends ATargetBoundNode {
 
     protected IMethodCaller boundMethod;
 
-    public MethodBoundNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller methodCaller) {
-        this(syntaxNode, child, methodCaller, null);
+    public MethodBoundNode(ISyntaxNode syntaxNode, IMethodCaller methodCaller, IBoundNode... child) {
+        this(syntaxNode, null, methodCaller, child);
     }
 
     public MethodBoundNode(ISyntaxNode syntaxNode,
-            IBoundNode[] child,
-            IMethodCaller methodCaller,
-            IBoundNode targetNode) {
+                           IBoundNode targetNode, IMethodCaller methodCaller, IBoundNode... child) {
         super(syntaxNode, targetNode, child);
         this.boundMethod = methodCaller;
     }

@@ -27,7 +27,7 @@ public class BinaryOpNode extends MethodBoundNode {
      * @param method
      */
     public BinaryOpNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller method) {
-        super(syntaxNode, child, method);
+        super(syntaxNode, method, child);
         useBinaryMethod = method.getMethod().getSignature().getParameterTypes().length == 2;
     }
 
