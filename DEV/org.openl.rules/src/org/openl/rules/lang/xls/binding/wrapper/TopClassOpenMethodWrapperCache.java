@@ -9,9 +9,9 @@ import org.openl.types.IOpenMethod;
 
 class TopClassOpenMethodWrapperCache {
 
-    private final IExecutableRulesMethodWrapper methodWrapper;
+    private final IOpenMethodWrapper methodWrapper;
 
-    public TopClassOpenMethodWrapperCache(IExecutableRulesMethodWrapper methodWrapper) {
+    public TopClassOpenMethodWrapperCache(IOpenMethodWrapper methodWrapper) {
         this.methodWrapper = methodWrapper;
     }
 

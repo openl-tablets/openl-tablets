@@ -17,7 +17,7 @@ import org.openl.vm.IRuntimeEnv;
  * @author PUdalau, Marat Kamalov
  */
 public abstract class LazyField extends LazyMember<IOpenField> implements IOpenField {
-    private final String fieldName;
+    private String fieldName;
 
     private LazyField(String fieldName,
             IOpenField original,

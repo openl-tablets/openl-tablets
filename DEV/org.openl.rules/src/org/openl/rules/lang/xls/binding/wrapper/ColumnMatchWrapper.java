@@ -23,7 +23,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class ColumnMatchWrapper extends ColumnMatch implements IExecutableRulesMethodWrapper {
+public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrapper {
     static {
         WrapperLogic.validateWrapperClass(ColumnMatchWrapper.class, ColumnMatchWrapper.class.getSuperclass());
     }

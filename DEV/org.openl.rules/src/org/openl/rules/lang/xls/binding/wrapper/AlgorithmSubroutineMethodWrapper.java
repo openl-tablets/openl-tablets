@@ -20,7 +20,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod implements IExecutableRulesMethodWrapper {
+public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod implements IOpenMethodWrapper {
 
     static {
         WrapperLogic.validateWrapperClass(AlgorithmSubroutineMethodWrapper.class,

@@ -14,7 +14,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDispatcherTable implements IExecutableRulesMethodWrapper {
+public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDispatcherTable implements IOpenMethodWrapper {
     static {
         WrapperLogic.validateWrapperClass(OverloadedMethodsDispatcherTableWrapper.class,
             OverloadedMethodsDispatcherTableWrapper.class.getSuperclass());

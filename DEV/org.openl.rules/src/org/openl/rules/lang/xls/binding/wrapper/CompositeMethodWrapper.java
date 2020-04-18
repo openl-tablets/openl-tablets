@@ -16,7 +16,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class CompositeMethodWrapper extends CompositeMethod implements IExecutableRulesMethodWrapper {
+public class CompositeMethodWrapper extends CompositeMethod implements IOpenMethodWrapper {
     static {
         WrapperLogic.validateWrapperClass(CompositeMethodWrapper.class, CompositeMethodWrapper.class.getSuperclass());
     }

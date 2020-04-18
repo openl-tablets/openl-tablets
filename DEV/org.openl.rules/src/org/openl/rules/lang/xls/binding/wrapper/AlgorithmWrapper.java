@@ -21,7 +21,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class AlgorithmWrapper extends Algorithm implements IExecutableRulesMethodWrapper {
+public class AlgorithmWrapper extends Algorithm implements IOpenMethodWrapper {
     static {
         WrapperLogic.validateWrapperClass(AlgorithmWrapper.class, AlgorithmWrapper.class.getSuperclass());
     }

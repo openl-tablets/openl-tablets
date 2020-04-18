@@ -12,7 +12,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public abstract class RulesMethodInvoker<T extends ExecutableRulesMethod> implements Invokable {
 
-    private final T invokableMethod;
+    private T invokableMethod;
 
     protected RulesMethodInvoker(T invokableMethod) {
         this.invokableMethod = invokableMethod;

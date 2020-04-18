@@ -28,7 +28,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class DecisionTable2Wrapper extends DecisionTable implements IExecutableRulesMethodWrapper {
+public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodWrapper {
     static {
         WrapperLogic.validateWrapperClass(DecisionTable2Wrapper.class, DecisionTable2Wrapper.class.getSuperclass());
     }
