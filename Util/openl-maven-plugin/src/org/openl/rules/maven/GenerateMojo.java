@@ -174,7 +174,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     }
 
     private ClassLoader composeClassLoader() throws Exception {
-        info("Composing the classloader for the folloving sources:");
+        info("Composing the classloader for the following sources:");
         for (String dir : sourceRoots) {
             info("  # source roots > ", dir);
         }

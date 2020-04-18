@@ -126,17 +126,17 @@ public final class PackageMojo extends BaseOpenLMojo {
             throw new MojoFailureException("It is not possible to replace the main artifact.");
         }
         Set<Artifact> dependencies = getDependencies();
-        int dependensiesSize = dependencies.size();
-        if (dependensiesSize > dependenciesThreshold) {
+        int dependenciesSize = dependencies.size();
+        if (dependenciesSize > dependenciesThreshold) {
             error("The quantity of dependencies (",
-                dependensiesSize,
-                ") exceedes the defined threshold in 'dependenciesThreshold=",
+                dependenciesSize,
+                ") exceeds the defined threshold in 'dependenciesThreshold=",
                 dependenciesThreshold,
                 "' parameter.");
             for (Artifact artifact : dependencies) {
                 error("    : ", artifact);
             }
-            throw new MojoFailureException("The quantity of dependencies exceedes the limit");
+            throw new MojoFailureException("The quantity of dependencies exceeds the limit");
         }
         if (!mainArtifactExists && CollectionUtils.isNotEmpty(classesDirectory.list())) {
             // create a jar file with compiled Java sources for OpenL rules
