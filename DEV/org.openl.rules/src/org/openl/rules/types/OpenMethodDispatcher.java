@@ -7,8 +7,8 @@ import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContextOptimizationForOpenMethodDispatcher;
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
-import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
-import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.IExecutableRulesMethodWrapper;
+import org.openl.rules.lang.xls.prebind.ILazyMethod;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
@@ -201,9 +201,9 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             throw new OpenLRuntimeException(message);
         }
 
-        while (method instanceof LazyMethodWrapper || method instanceof MethodDelegator) {
-            if (method instanceof LazyMethodWrapper) {
-                method = ((LazyMethodWrapper) method).getCompiledMethod(env);
+        while (method instanceof ILazyMethod || method instanceof MethodDelegator) {
+            if (method instanceof ILazyMethod) {
+                method = ((ILazyMethod) method).getCompiledMethod(env);
             }
             if (method instanceof MethodDelegator) {
                 MethodDelegator methodDelegator = (MethodDelegator) method;
@@ -211,8 +211,8 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             }
         }
 
-        if (method instanceof IOpenMethodWrapper) {
-            method = ((IOpenMethodWrapper) method).getDelegate();
+        if (method instanceof IExecutableRulesMethodWrapper) {
+            method = ((IExecutableRulesMethodWrapper) method).getDelegate();
         }
 
         return method;

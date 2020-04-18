@@ -14,7 +14,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethodWrapper {
+public class DeferredMethodWrapper extends DeferredMethod implements IExecutableRulesMethodWrapper {
     static {
         WrapperLogic.validateWrapperClass(DeferredMethodWrapper.class, DeferredMethodWrapper.class.getSuperclass());
     }

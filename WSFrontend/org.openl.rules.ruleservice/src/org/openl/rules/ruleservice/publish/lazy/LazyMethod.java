@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
-import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
+import org.openl.rules.lang.xls.prebind.ILazyMethod;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.project.model.Module;
@@ -23,10 +23,10 @@ import org.openl.vm.IRuntimeEnv;
  *
  * @author Marat Kamalov
  */
-public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod, IUriMember, LazyMethodWrapper {
-    private String methodName;
+public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod, IUriMember, ILazyMethod {
+    private final String methodName;
 
-    private Class<?>[] argTypes;
+    private final Class<?>[] argTypes;
 
     private LazyMethod(String methodName,
             Class<?>[] argTypes,

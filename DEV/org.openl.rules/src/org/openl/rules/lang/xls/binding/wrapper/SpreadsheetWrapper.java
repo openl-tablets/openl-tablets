@@ -24,7 +24,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrapper {
+public class SpreadsheetWrapper extends Spreadsheet implements IExecutableRulesMethodWrapper {
     static {
         WrapperLogic.validateWrapperClass(SpreadsheetWrapper.class, SpreadsheetWrapper.class.getSuperclass());
     }

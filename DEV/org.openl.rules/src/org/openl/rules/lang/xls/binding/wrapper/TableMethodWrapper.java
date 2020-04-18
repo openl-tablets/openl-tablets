@@ -19,7 +19,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class TableMethodWrapper extends TableMethod implements IOpenMethodWrapper {
+public class TableMethodWrapper extends TableMethod implements IExecutableRulesMethodWrapper {
     static {
         WrapperLogic.validateWrapperClass(TableMethodWrapper.class, TableMethodWrapper.class.getSuperclass());
     }
