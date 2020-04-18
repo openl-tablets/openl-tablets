@@ -59,4 +59,20 @@ public class MethodBoundNode extends ATargetBoundNode {
     public IMethodCaller getMethodCaller() {
         return boundMethod;
     }
+
+    protected Object[] evaluateChildren(IRuntimeEnv env) {
+        if (children == null) {
+            return null;
+        } else if (children == EMPTY) {
+            return EMPTY_RESULT;
+        }
+
+        Object[] ch = new Object[children.length];
+
+        for (int i = 0; i < ch.length; i++) {
+            ch[i] = children[i].evaluate(env);
+        }
+
+        return ch;
+    }
 }

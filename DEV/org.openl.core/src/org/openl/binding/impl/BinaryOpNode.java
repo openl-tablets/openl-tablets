@@ -20,25 +20,24 @@ public class BinaryOpNode extends MethodBoundNode {
     }
 
     private boolean useBinaryMethod;
+    private IBoundNode left, right;
 
-    /**
-     * @param syntaxNode
-     * @param child
-     * @param method
-     */
-    public BinaryOpNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller method) {
-        super(syntaxNode, method, child);
+    public BinaryOpNode(ISyntaxNode syntaxNode, IBoundNode left, IBoundNode right, IMethodCaller method) {
+        super(syntaxNode, method, left, right);
+        this.left = left;
+        this.right = right;
         useBinaryMethod = method.getMethod().getSignature().getParameterTypes().length == 2;
     }
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object[] pars = evaluateChildren(env);
+        Object leftValue = left.evaluate(env);
+        Object rightValue = right.evaluate(env);
 
         if (useBinaryMethod) {
-            return boundMethod.invoke(null, pars, env);
+            return boundMethod.invoke(null, new Object[] { leftValue, rightValue }, env);
         }
-        return boundMethod.invoke(pars[0], new Object[] { pars[1] }, env);
+        return boundMethod.invoke(leftValue, new Object[] { rightValue }, env);
 
     }
 }

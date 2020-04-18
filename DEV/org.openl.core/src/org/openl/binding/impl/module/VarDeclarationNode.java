@@ -7,28 +7,22 @@ import org.openl.binding.impl.ABoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.impl.DynamicObjectField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
-/**
- * @author snshor
- *
- */
-public class VarDeclarationNode extends ABoundNode implements IMemberBoundNode {
+public final class VarDeclarationNode extends ABoundNode implements IMemberBoundNode {
 
-    IOpenField field;
+    DynamicObjectField field;
 
     IOpenCast cast;
 
-    /**
-     * @param syntaxNode
-     * @param children
-     */
-    public VarDeclarationNode(ISyntaxNode syntaxNode, IBoundNode[] children, IOpenField field, IOpenCast cast) {
-        super(syntaxNode, children);
+    IBoundNode initNode;
 
+    VarDeclarationNode(ISyntaxNode syntaxNode, IBoundNode initNode, DynamicObjectField field, IOpenCast cast) {
+        super(syntaxNode, initNode);
+
+        this.initNode = initNode;
         this.field = field;
         this.cast = cast;
     }
@@ -40,20 +34,16 @@ public class VarDeclarationNode extends ABoundNode implements IMemberBoundNode {
      */
     @Override
     public void addTo(ModuleOpenClass openClass) {
-
         openClass.addField(field);
         openClass.addInitializerNode(this);
-        if (field instanceof DynamicObjectField) {
-            ((DynamicObjectField) field).setDeclaringClass(openClass);
-        }
-
+        field.setDeclaringClass(openClass);
     }
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object[] init = evaluateChildren(env);
+        Object init = initNode == null ? null : initNode.evaluate(env);
 
-        Object initObj = init == null || init.length == 0 ? field.getType().nullObject() : init[0];
+        Object initObj = init == null ? field.getType().nullObject() : init;
 
         initObj = cast == null ? initObj : cast.convert(initObj);
 
@@ -84,5 +74,4 @@ public class VarDeclarationNode extends ABoundNode implements IMemberBoundNode {
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
         // nothing to remove
     }
-
 }
