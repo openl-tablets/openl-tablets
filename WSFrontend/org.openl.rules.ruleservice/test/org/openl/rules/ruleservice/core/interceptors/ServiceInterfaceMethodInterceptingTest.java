@@ -42,24 +42,21 @@ import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 public class ServiceInterfaceMethodInterceptingTest {
     public static class ResultConverter extends AbstractServiceMethodAfterReturningAdvice<Double> {
         @Override
-        public Double afterReturning(Method method, Object result, Object... args) throws Exception {
+        public Double afterReturning(Method method, Object result, Object... args) {
             return ((IntValue) result).doubleValue();
         }
     }
 
     public static class ResultConverter1 extends AbstractServiceMethodAfterReturningAdvice<Double> {
         @Override
-        public Double afterReturning(Method method, Object result, Object... args) throws Exception {
+        public Double afterReturning(Method method, Object result, Object... args) {
             return ((DoubleValue) result).doubleValue();
         }
     }
 
     public static class AroundInterceptor implements ServiceMethodAroundAdvice<IntValue> {
         @Override
-        public IntValue around(Method interfaceMethod,
-                Method beanMethod,
-                Object proxy,
-                Object... args) throws Exception {
+        public IntValue around(Method interfaceMethod, Method beanMethod, Object proxy, Object... args) {
             return new IntValue(-1);
         }
 
@@ -139,7 +136,8 @@ public class ServiceInterfaceMethodInterceptingTest {
         when(deployment.getProjects()).thenReturn(projects);
         when(deployment.getDeploymentName()).thenReturn(deploymentDescription.getName());
         when(deployment.getCommonVersion()).thenReturn(deploymentDescription.getVersion());
-        when(ruleServiceLoader.getDeployment(eq(deploymentDescription.getName()), eq(deploymentDescription.getVersion()))).thenReturn(deployment);
+        when(ruleServiceLoader.getDeployment(eq(deploymentDescription.getName()),
+            eq(deploymentDescription.getVersion()))).thenReturn(deployment);
         when(ruleServiceLoader
             .resolveModulesForProject(deploymentDescription.getName(), deploymentDescription.getVersion(), "service"))
                 .thenReturn(modules);

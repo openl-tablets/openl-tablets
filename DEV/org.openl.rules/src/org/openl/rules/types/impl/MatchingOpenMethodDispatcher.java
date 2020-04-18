@@ -43,8 +43,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     private IOpenMethod decisionTableOpenMethod;
 
-    private IOpenClass type;
-
     public IOpenMethod getDecisionTableOpenMethod() {
         return decisionTableOpenMethod;
     }
@@ -53,16 +51,12 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         this.decisionTableOpenMethod = decisionTableOpenMethod;
     }
 
-    public MatchingOpenMethodDispatcher() { // For CGLIB proxing
+    public MatchingOpenMethodDispatcher() {
     }
 
     public MatchingOpenMethodDispatcher(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {
-        super();
-        Objects.requireNonNull(method, "method cannot be null");
-        decorate(method);
+        super(method);
         this.moduleOpenClass = Objects.requireNonNull(moduleOpenClass, "moduleOpenClass cannot be null");
-        IOpenClass type = moduleOpenClass.findType(method.getType().getName());
-        this.type = type != null ? type : method.getType();
     }
 
     @Override
@@ -312,11 +306,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             candidatesSorted = prioritySorter.sort(super.getCandidates());
         }
         return candidatesSorted;
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return type;
     }
 
     // <<< INSERT MatchingProperties >>>

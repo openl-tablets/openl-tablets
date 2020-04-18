@@ -2,8 +2,8 @@ package org.openl.rules.lang.xls.binding;
 
 import org.openl.types.IOpenClass;
 
-public interface ModuleRelatedType {
+public interface ModuleSpecificType {
     IOpenClass makeCopyForModule(XlsModuleOpenClass module);
 
-    void extendWith(IOpenClass openClass);
+    void updateWithType(IOpenClass openClass);
 }

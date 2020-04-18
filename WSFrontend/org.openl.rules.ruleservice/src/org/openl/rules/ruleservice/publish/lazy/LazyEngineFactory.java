@@ -15,11 +15,11 @@ import org.openl.engine.OpenLCompileManager;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
-import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
+import org.openl.rules.ruleservice.publish.lazy.wrapper.LazyWrapperLogic;
 import org.openl.rules.runtime.AOpenLRulesEngineFactory;
 import org.openl.rules.runtime.InterfaceClassGenerator;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
@@ -176,41 +176,14 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
             Object openClassInstance = openClass.newInstance(runtimeEnv);
             Map<Method, IOpenMember> methodMap = prepareMethodMap(getInterfaceClass(), openClass);
 
-            return prepareProxyInstance(openClassInstance, methodMap, runtimeEnv, getCompiledOpenClass().getClassLoader());
+            return prepareProxyInstance(openClassInstance,
+                methodMap,
+                runtimeEnv,
+                getCompiledOpenClass().getClassLoader());
         } catch (Exception ex) {
             String errorMessage = "Failed to instantiate engine instance.";
             throw new OpenlNotCheckedException(errorMessage, ex);
         }
-    }
-
-    private LazyMethod makeLazyMethod(XlsLazyModuleOpenClass xlsLazyModuleOpenClass, IOpenMethod method) {
-        final Module declaringModule = ModuleUtils.getModuleForMember(method, modules);
-        Class<?>[] argTypes = new Class<?>[method.getSignature().getNumberOfParameters()];
-        for (int i = 0; i < argTypes.length; i++) {
-            argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
-        }
-
-        return LazyMethod.getLazyMethod(xlsLazyModuleOpenClass,
-            deployment,
-            declaringModule,
-            argTypes,
-            method,
-            dependencyManager,
-            Thread.currentThread().getContextClassLoader(),
-            true,
-            externalParameters);
-    }
-
-    private LazyField makeLazyField(XlsLazyModuleOpenClass xlsLazyModuleOpenClass, IOpenField field) {
-        Module declaringModule = ModuleUtils.getModuleForMember(field, modules);
-        return LazyField.getLazyField(xlsLazyModuleOpenClass,
-            deployment,
-            declaringModule,
-            field,
-            dependencyManager,
-            Thread.currentThread().getContextClassLoader(),
-            true,
-            externalParameters);
     }
 
     private CompiledOpenClass initializeOpenClass() {
@@ -218,15 +191,28 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
         try {
             LazyBinderMethodHandler.setPrebindHandler(new IPrebindHandler() {
-
                 @Override
-                public IOpenMethod processMethodAdded(IOpenMethod method, XlsLazyModuleOpenClass moduleOpenClass) {
-                    return makeLazyMethod(moduleOpenClass, method);
+                public IOpenMethod processPrebindMethod(IOpenMethod method) {
+                    final Module module = ModuleUtils.getModuleForMember(method, modules);
+                    final LazyMethod lazyMethod = LazyMethod.createLazyMethod(method,
+                        dependencyManager,
+                        deployment,
+                        module,
+                        Thread.currentThread().getContextClassLoader(),
+                        externalParameters);
+                    return LazyWrapperLogic.wrapMethod(lazyMethod, method);
                 }
 
                 @Override
-                public IOpenField processFieldAdded(IOpenField field, XlsLazyModuleOpenClass moduleOpenClass) {
-                    return makeLazyField(moduleOpenClass, field);
+                public IOpenField processPrebindField(IOpenField field) {
+                    final Module module = ModuleUtils.getModuleForMember(field, modules);
+                    final LazyField lazyField = LazyField.createLazyField(field,
+                        dependencyManager,
+                        deployment,
+                        module,
+                        Thread.currentThread().getContextClassLoader(),
+                        externalParameters);
+                    return LazyWrapperLogic.wrapField(lazyField, field);
                 }
             });
 

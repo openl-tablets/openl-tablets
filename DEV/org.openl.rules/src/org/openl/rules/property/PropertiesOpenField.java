@@ -11,7 +11,7 @@ import org.openl.vm.IRuntimeEnv;
 public class PropertiesOpenField extends AOpenField {
 
     private TableProperties propertiesInstance;
-    private ModuleOpenClass declaringClass;
+    private final ModuleOpenClass declaringClass;
 
     public PropertiesOpenField(String name, TableProperties propertiesInstance, ModuleOpenClass declaringClass) {
         super(name, JavaOpenClass.getOpenClass(propertiesInstance.getClass()));
@@ -39,6 +39,10 @@ public class PropertiesOpenField extends AOpenField {
     @Override
     public boolean isWritable() {
         return true;
+    }
+
+    public TableProperties getPropertiesInstance() {
+        return propertiesInstance;
     }
 
     @Override
