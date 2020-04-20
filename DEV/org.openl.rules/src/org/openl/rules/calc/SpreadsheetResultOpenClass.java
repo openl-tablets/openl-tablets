@@ -146,7 +146,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                     for (IOpenClass openClass : module.getTypes()) {
                         if (openClass instanceof CustomSpreadsheetResultOpenClass && this.customSpreadsheetResultOpenClass == null) {
                             CustomSpreadsheetResultOpenClass csrop = (CustomSpreadsheetResultOpenClass) openClass;
-                            customSpreadsheetResultOpenClass.extendWith(csrop);
+                            customSpreadsheetResultOpenClass.updateWithType(csrop);
                         }
                     }
                     if (this.customSpreadsheetResultOpenClass == null) {

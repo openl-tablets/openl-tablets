@@ -40,11 +40,11 @@ import org.openl.util.text.TextInterval;
 
 public class ConstantsTableBoundNode implements IMemberBoundNode {
 
-    private TableSyntaxNode tableSyntaxNode;
-    private ModuleOpenClass moduleOpenClass;
-    private ILogicalTable table;
+    private final TableSyntaxNode tableSyntaxNode;
+    private final ModuleOpenClass moduleOpenClass;
+    private final ILogicalTable table;
     private ILogicalTable normalizedData;
-    private OpenL openl;
+    private final OpenL openl;
     private Collection<ConstantOpenField> constantOpenFields = new ArrayList<>();
 
     public ConstantsTableBoundNode(TableSyntaxNode syntaxNode,
@@ -163,7 +163,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                         }
                         throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
                     } else {
-                        TextInterval location = value == null ? null : LocationUtils.createTextInterval(value);
+                        TextInterval location = LocationUtils.createTextInterval(value);
                         throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
                     }
                 }
@@ -192,8 +192,8 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
         }
     }
 
-    private void addConstants(final IBindingContext cxt) throws Exception {
-        final ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
+    private void addConstants(final IBindingContext bindingContext) throws Exception {
+        final ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, bindingContext);
         normalizedData = dataTable;
 
         int tableHeight = 0;
@@ -204,26 +204,26 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
         SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         for (int i = 0; i < tableHeight; i++) {
             final int index = i;
-            syntaxNodeExceptionCollector.run(() -> processRow(dataTable.getRow(index), cxt));
+            syntaxNodeExceptionCollector.run(() -> processRow(dataTable.getRow(index), bindingContext));
         }
         syntaxNodeExceptionCollector.throwIfAny();
     }
 
     @Override
-    public void finalizeBind(IBindingContext cxt) throws Exception {
-        if (!cxt.isExecutionMode()) {
+    public void finalizeBind(IBindingContext bindingContext) throws Exception {
+        if (!bindingContext.isExecutionMode()) {
             getTableSyntaxNode().setMetaInfoReader(new ConstantsTableMetaInfoReader(this));
         }
 
-        addConstants(cxt);
+        addConstants(bindingContext);
 
         ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
     }
 
     @Override
-    public void removeDebugInformation(IBindingContext cxt) {
-        if (cxt.isExecutionMode()) {
+    public void removeDebugInformation(IBindingContext bindingContext) {
+        if (bindingContext.isExecutionMode()) {
             for (ConstantOpenField constantOpenField : constantOpenFields) {
                 constantOpenField.setMemberMetaInfo(null);
             }
