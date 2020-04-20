@@ -6,7 +6,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
@@ -180,6 +179,11 @@ public class RunWebservicesITest {
         client.get("/REST/EPBDS-9576/swagger.json", "/EPBDS-9576/EPBDS-9576_swagger.resp.json");
         client.get("/REST/EPBDS-9576?_wadl", "/EPBDS-9576/EPBDS-9576_wadl.resp.xml");
         client.get("/EPBDS-9576?wsdl", "/EPBDS-9576/EPBDS-9576_wsdl.resp.xml");
+    }
+
+    @Test
+    public void EPBDS_9665() {
+        client.post("/REST/EPBDS-9665/EPBDS-9665/anotherSpr", "/EPBDS-9665/EPBDS-9665_anotherSpr.req.json", "/EPBDS-9665/EPBDS-9665_anotherSpr.resp.txt");
     }
 
 }
