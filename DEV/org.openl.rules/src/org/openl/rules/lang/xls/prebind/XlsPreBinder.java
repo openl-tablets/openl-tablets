@@ -8,7 +8,6 @@ import org.openl.binding.IMemberBoundNode;
 import org.openl.conf.IUserContext;
 import org.openl.dependency.CompiledDependency;
 import org.openl.rules.binding.RulesModuleBindingContext;
-import org.openl.rules.calc.SpreadsheetBoundNode;
 import org.openl.rules.constants.ConstantsTableBoundNode;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.datatype.binding.AliasDatatypeBoundNode;
@@ -17,7 +16,6 @@ import org.openl.rules.dt.ADtColumnsDefinitionTableBoundNode;
 import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.property.PropertyTableBoundNode;
@@ -42,7 +40,7 @@ public class XlsPreBinder extends XlsBinder {
     protected void finalizeBind(IMemberBoundNode memberBoundNode,
             TableSyntaxNode tableSyntaxNode,
             RulesModuleBindingContext rulesModuleBindingContext) {
-        if (memberBoundNode instanceof DatatypeTableBoundNode || memberBoundNode instanceof AliasDatatypeBoundNode || memberBoundNode instanceof PropertyTableBoundNode || memberBoundNode instanceof ConstantsTableBoundNode || memberBoundNode instanceof ADtColumnsDefinitionTableBoundNode || memberBoundNode instanceof SpreadsheetBoundNode) {
+        if (memberBoundNode instanceof DatatypeTableBoundNode || memberBoundNode instanceof AliasDatatypeBoundNode || memberBoundNode instanceof PropertyTableBoundNode || memberBoundNode instanceof ConstantsTableBoundNode || memberBoundNode instanceof ADtColumnsDefinitionTableBoundNode) {
             try {
                 memberBoundNode.finalizeBind(rulesModuleBindingContext);
             } catch (SyntaxNodeException error) {
@@ -59,28 +57,19 @@ public class XlsPreBinder extends XlsBinder {
     }
 
     @Override
-    protected XlsModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode,
+    protected XlsLazyModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode,
             OpenL openl,
             IDataBase dbase,
             Set<CompiledDependency> moduleDependencies,
             IBindingContext bindingContext) {
-        if (prebindHandler != null) {
-            return new XlsLazyModuleOpenClass(XlsHelper.getModuleName(moduleNode),
-                new XlsMetaInfo(moduleNode),
-                openl,
-                dbase,
-                moduleDependencies,
-                Thread.currentThread().getContextClassLoader(),
-                bindingContext,
-                prebindHandler);
-        } else {
-            return new XlsModuleOpenClass(XlsHelper.getModuleName(moduleNode),
-                new XlsMetaInfo(moduleNode),
-                openl,
-                dbase,
-                moduleDependencies,
-                Thread.currentThread().getContextClassLoader(),
-                bindingContext);
-        }
+
+        return new XlsLazyModuleOpenClass(XlsHelper.getModuleName(moduleNode),
+            new XlsMetaInfo(moduleNode),
+            openl,
+            dbase,
+            prebindHandler,
+            moduleDependencies,
+            Thread.currentThread().getContextClassLoader(),
+            bindingContext);
     }
 }

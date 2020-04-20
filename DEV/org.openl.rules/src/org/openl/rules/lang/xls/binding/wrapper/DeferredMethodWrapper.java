@@ -1,34 +1,34 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
-import java.util.List;
 import java.util.Objects;
 
+import org.openl.binding.IBoundMethodNode;
+import org.openl.binding.impl.module.DeferredMethod;
 import org.openl.rules.lang.xls.binding.ModuleRelatedType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDispatcherTable implements IOpenMethodWrapper {
+public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethodWrapper {
     static {
-        WrapperLogic.validateWrapperClass(OverloadedMethodsDispatcherTableWrapper.class,
-            OverloadedMethodsDispatcherTableWrapper.class.getSuperclass());
+        WrapperLogic.validateWrapperClass(DeferredMethodWrapper.class, DeferredMethodWrapper.class.getSuperclass());
     }
 
-    private final OverloadedMethodsDispatcherTable delegate;
+    private final DeferredMethod delegate;
     private final XlsModuleOpenClass xlsModuleOpenClass;
     private final ContextPropertiesInjector contextPropertiesInjector;
     private final IOpenClass type;
     private final IMethodSignature methodSignature;
 
-    public OverloadedMethodsDispatcherTableWrapper(XlsModuleOpenClass xlsModuleOpenClass,
-            OverloadedMethodsDispatcherTable delegate,
+    public DeferredMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass,
+            DeferredMethod delegate,
             ContextPropertiesInjector contextPropertiesInjector) {
+        super(null, null, null, null, null);
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = Objects.requireNonNull(contextPropertiesInjector,
@@ -53,23 +53,8 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
     }
 
     @Override
-    public IOpenMethod getDecisionTableOpenMethod() {
-        return delegate.getDecisionTableOpenMethod();
-    }
-
-    @Override
-    public void setDecisionTableOpenMethod(IOpenMethod decisionTableOpenMethod) {
-        delegate.setDecisionTableOpenMethod(decisionTableOpenMethod);
-    }
-
-    @Override
-    public TableSyntaxNode getDispatcherTable() {
-        return delegate.getDispatcherTable();
-    }
-
-    @Override
-    public IMethodSignature getSignature() {
-        return methodSignature;
+    public IOpenClass getDeclaringClass() {
+        return delegate.getDeclaringClass();
     }
 
     @Override
@@ -78,13 +63,38 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
     }
 
     @Override
-    public IOpenClass getDeclaringClass() {
-        return delegate.getDeclaringClass();
+    public String getDisplayName(int mode) {
+        return delegate.getDisplayName(mode);
     }
 
     @Override
-    public void addMethod(IOpenMethod candidate) {
-        delegate.addMethod(candidate);
+    public IOpenMethodHeader getHeader() {
+        return this;
+    }
+
+    @Override
+    public IMemberMetaInfo getInfo() {
+        return delegate.getInfo();
+    }
+
+    @Override
+    public IOpenMethod getMethod() {
+        return this;
+    }
+
+    @Override
+    public ISyntaxNode getMethodBodyNode() {
+        return delegate.getMethodBodyNode();
+    }
+
+    @Override
+    public String getName() {
+        return delegate.getName();
+    }
+
+    @Override
+    public IMethodSignature getSignature() {
+        return methodSignature;
     }
 
     @Override
@@ -98,23 +108,8 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
     }
 
     @Override
-    public String getDisplayName(int mode) {
-        return delegate.getDisplayName(mode);
-    }
-
-    @Override
-    public String getName() {
-        return delegate.getName();
-    }
-
-    @Override
-    public IOpenMethod getMethod() {
-        return this;
-    }
-
-    @Override
-    public IMemberMetaInfo getInfo() {
-        return delegate.getInfo();
+    public void setMethodBodyBoundNode(IBoundMethodNode bnode) {
+        delegate.setMethodBodyBoundNode(bnode);
     }
 
     @Override
@@ -123,13 +118,13 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
     }
 
     @Override
-    public IOpenMethod getTargetMethod() {
-        return delegate.getTargetMethod();
+    public String getModuleName() {
+        return delegate.getModuleName();
     }
 
     @Override
-    public List<IOpenMethod> getCandidates() {
-        return delegate.getCandidates();
+    public void setModuleName(String dependencyName) {
+        delegate.setModuleName(dependencyName);
     }
 
     @Override
@@ -137,13 +132,8 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
         return delegate.isConstructor();
     }
 
-    @Override
-    public IOpenMethod findMatchingMethod(IRuntimeEnv env) {
-        IOpenMethod openMethod = WrapperLogic.getTopClassMethod(this, env);
-        return ((OpenMethodDispatcher) openMethod).findMatchingMethod(env);
-    }
-
-    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
+    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
+        this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
@@ -161,7 +151,7 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        OverloadedMethodsDispatcherTableWrapper that = (OverloadedMethodsDispatcherTableWrapper) o;
+        DeferredMethodWrapper that = (DeferredMethodWrapper) o;
         return delegate.equals(that.delegate);
     }
 

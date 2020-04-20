@@ -48,8 +48,8 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * Key: type name.<br>
      * Value: {@link IOpenClass} for datatype.
      */
-    private final ConcurrentHashMap<String, IOpenClass> internalTypes = new ConcurrentHashMap<>();
-    private final Collection<IOpenClass> types = Collections.unmodifiableCollection(internalTypes.values());
+    private ConcurrentHashMap<String, IOpenClass> internalTypes = new ConcurrentHashMap<>();
+    private Collection<IOpenClass> types = Collections.unmodifiableCollection(internalTypes.values());
 
     /**
      * Set of dependencies for current module.
@@ -60,7 +60,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     private Set<CompiledDependency> usingModules = new LinkedHashSet<>();
 
-    private final List<Exception> errors = new ArrayList<>();
+    private List<Exception> errors = new ArrayList<>();
 
     private volatile Collection<IOpenField> dependencyFields = null;
 

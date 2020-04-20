@@ -1,21 +1,26 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
-import org.openl.rules.cmatch.ColumnMatch;
-import org.openl.rules.cmatch.MatchNode;
-import org.openl.rules.cmatch.TableColumn;
-import org.openl.rules.cmatch.TableRow;
-import org.openl.rules.cmatch.algorithm.IMatchAlgorithmExecutor;
+import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.component.ComponentOpenClass;
+import org.openl.rules.dt.DTInfo;
+import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.IBaseAction;
+import org.openl.rules.dt.IBaseCondition;
+import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
+import org.openl.rules.dt.element.IAction;
+import org.openl.rules.dt.element.ICondition;
+import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.ModuleRelatedType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -23,19 +28,19 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrapper {
+public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodWrapper {
     static {
-        WrapperLogic.validateWrapperClass(ColumnMatchWrapper.class, ColumnMatchWrapper.class.getSuperclass());
+        WrapperLogic.validateWrapperClass(DecisionTable2Wrapper.class, DecisionTable2Wrapper.class.getSuperclass());
     }
 
-    private final ColumnMatch delegate;
+    private final DecisionTable delegate;
     private final XlsModuleOpenClass xlsModuleOpenClass;
     private final ContextPropertiesInjector contextPropertiesInjector;
     private final IOpenClass type;
     private final IMethodSignature methodSignature;
 
-    public ColumnMatchWrapper(XlsModuleOpenClass xlsModuleOpenClass,
-            ColumnMatch delegate,
+    public DecisionTable2Wrapper(XlsModuleOpenClass xlsModuleOpenClass,
+            DecisionTable delegate,
             ContextPropertiesInjector contextPropertiesInjector) {
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
@@ -61,18 +66,8 @@ public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrappe
     }
 
     @Override
-    public String toString() {
-        return delegate.toString();
-    }
-
-    @Override
     public IOpenClass getDeclaringClass() {
         return delegate.getDeclaringClass();
-    }
-
-    @Override
-    public String getDisplayName(int mode) {
-        return delegate.getDisplayName(mode);
     }
 
     @Override
@@ -86,28 +81,8 @@ public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrappe
     }
 
     @Override
-    public IOpenSourceCodeModule getAlgorithm() {
-        return delegate.getAlgorithm();
-    }
-
-    @Override
-    public IOpenMethod getDelegate() {
-        return delegate;
-    }
-
-    @Override
-    public IOpenMethod getMethod() {
-        return this;
-    }
-
-    @Override
     public String getName() {
         return delegate.getName();
-    }
-
-    @Override
-    public MatchNode getCheckTree() {
-        return delegate.getCheckTree();
     }
 
     @Override
@@ -116,18 +91,8 @@ public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrappe
     }
 
     @Override
-    public List<TableColumn> getColumns() {
-        return delegate.getColumns();
-    }
-
-    @Override
     public IOpenClass getType() {
         return type;
-    }
-
-    @Override
-    public int[] getColumnScores() {
-        return delegate.getColumnScores();
     }
 
     @Override
@@ -136,18 +101,58 @@ public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrappe
     }
 
     @Override
-    public BindingDependencies getDependencies() {
-        return delegate.getDependencies();
+    public IOpenMethod getDelegate() {
+        return delegate;
     }
 
     @Override
-    public Object[] getReturnValues() {
-        return delegate.getReturnValues();
+    public IBaseAction[] getActionRows() {
+        return delegate.getActionRows();
     }
 
     @Override
-    public List<TableRow> getRows() {
-        return delegate.getRows();
+    public IDecisionTableAlgorithm getAlgorithm() {
+        return delegate.getAlgorithm();
+    }
+
+    @Override
+    public int getColumns() {
+        return delegate.getColumns();
+    }
+
+    @Override
+    public IBaseCondition[] getConditionRows() {
+        return delegate.getConditionRows();
+    }
+
+    @Override
+    public String getDisplayName(int mode) {
+        return delegate.getDisplayName(mode);
+    }
+
+    @Override
+    public IOpenMethod getMethod() {
+        return this;
+    }
+
+    @Override
+    public int getNumberOfRules() {
+        return delegate.getNumberOfRules();
+    }
+
+    @Override
+    public String getRuleName(int col) {
+        return delegate.getRuleName(col);
+    }
+
+    @Override
+    public RuleRow getRuleRow() {
+        return delegate.getRuleRow();
+    }
+
+    @Override
+    public ILogicalTable getRuleTable(int ruleIndex) {
+        return delegate.getRuleTable(ruleIndex);
     }
 
     @Override
@@ -156,48 +161,34 @@ public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrappe
     }
 
     @Override
-    public MatchNode getTotalScore() {
-        return delegate.getTotalScore();
+    public void setActionRows(IAction[] actionRows) {
+        delegate.setActionRows(actionRows);
     }
 
     @Override
-    public void setAlgorithmExecutor(IMatchAlgorithmExecutor algorithmExecutor) {
-        delegate.setAlgorithmExecutor(algorithmExecutor);
-    }
-
-    @Override
-    public void setCheckTree(MatchNode checkTree) {
-        delegate.setCheckTree(checkTree);
-    }
-
-    @Override
-    public void setColumns(List<TableColumn> columns) {
+    public void setColumns(int columns) {
         delegate.setColumns(columns);
     }
 
     @Override
-    public void setColumnScores(int[] columnScores) {
-        delegate.setColumnScores(columnScores);
+    public void setConditionRows(IBaseCondition[] conditionRows) {
+        delegate.setConditionRows(conditionRows);
     }
 
     @Override
-    public void setReturnValues(Object[] returnValues) {
-        delegate.setReturnValues(returnValues);
+    public void setRuleRow(RuleRow ruleRow) {
+        delegate.setRuleRow(ruleRow);
     }
 
     @Override
-    public void setRows(List<TableRow> rows) {
-        delegate.setRows(rows);
-    }
-
-    @Override
-    public void setTotalScore(MatchNode totalScore) {
-        delegate.setTotalScore(totalScore);
-    }
-
-    @Override
-    public IMatchAlgorithmExecutor getAlgorithmExecutor() {
-        return delegate.getAlgorithmExecutor();
+    public void bindTable(IBaseCondition[] conditionRows,
+            IBaseAction[] actionRows,
+            RuleRow ruleRow,
+            OpenL openl,
+            ComponentOpenClass componentOpenClass,
+            IBindingContext bindingContext,
+            int columns) throws Exception {
+        delegate.bindTable(conditionRows, actionRows, ruleRow, openl, componentOpenClass, bindingContext, columns);
     }
 
     @Override
@@ -208,6 +199,11 @@ public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrappe
     @Override
     public ATableBoundNode getBoundNode() {
         return delegate.getBoundNode();
+    }
+
+    @Override
+    public BindingDependencies getDependencies() {
+        return delegate.getDependencies();
     }
 
     @Override
@@ -226,8 +222,48 @@ public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrappe
     }
 
     @Override
+    public boolean shouldFailOnMiss() {
+        return delegate.shouldFailOnMiss();
+    }
+
+    @Override
     public TableSyntaxNode getSyntaxNode() {
         return delegate.getSyntaxNode();
+    }
+
+    @Override
+    public String toString() {
+        return delegate.toString();
+    }
+
+    @Override
+    public void updateDependency(BindingDependencies dependencies) {
+        delegate.updateDependency(dependencies);
+    }
+
+    @Override
+    public ICondition getCondition(int n) {
+        return delegate.getCondition(n);
+    }
+
+    @Override
+    public IAction getAction(int n) {
+        return delegate.getAction(n);
+    }
+
+    @Override
+    public DTInfo getDtInfo() {
+        return delegate.getDtInfo();
+    }
+
+    @Override
+    public void setDtInfo(DTInfo dtInfo) {
+        delegate.setDtInfo(dtInfo);
+    }
+
+    @Override
+    public int getNumberOfConditions() {
+        return delegate.getNumberOfConditions();
     }
 
     @Override
@@ -243,6 +279,11 @@ public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrappe
     @Override
     public boolean isConstructor() {
         return delegate.isConstructor();
+    }
+
+    @Override
+    public int getNumberOfActions() {
+        return delegate.getNumberOfActions();
     }
 
     private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
@@ -264,7 +305,7 @@ public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrappe
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        ColumnMatchWrapper that = (ColumnMatchWrapper) o;
+        DecisionTable2Wrapper that = (DecisionTable2Wrapper) o;
         return delegate.equals(that.delegate);
     }
 

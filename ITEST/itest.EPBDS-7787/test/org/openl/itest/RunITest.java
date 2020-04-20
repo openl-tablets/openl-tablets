@@ -13,7 +13,7 @@ public class RunITest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = JettyServer.startSharingClassLoader();
+        server = JettyServer.start();
         client = server.client();
     }
 

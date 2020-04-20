@@ -14,10 +14,6 @@ public class DataOpenField extends AOpenField implements IUriMember {
     private ModuleOpenClass declaringClass;
     private String uri;
 
-    public DataOpenField() {
-        super(null, null);
-    }
-
     public DataOpenField(ITable table, ModuleOpenClass declaringClass) {
 
         super(table.getDataModel().getName(),

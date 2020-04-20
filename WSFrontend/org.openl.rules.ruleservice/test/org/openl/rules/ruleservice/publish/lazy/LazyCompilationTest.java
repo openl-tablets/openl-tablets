@@ -23,7 +23,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
 public class LazyCompilationTest {
 
-    private static final Logger log = LoggerFactory.getLogger(LazyCompilationTest.class);
+    private static Logger log = LoggerFactory.getLogger(LazyCompilationTest.class);
 
     private static final int MAX_THREADS = Runtime.getRuntime().availableProcessors();
 
@@ -54,8 +54,8 @@ public class LazyCompilationTest {
     }
 
     public class LazyCompilationTestRunnable implements Runnable {
-        private final RulesFrontend frontend;
-        private final CountDownLatch countDownLatch;
+        private RulesFrontend frontend;
+        private CountDownLatch countDownLatch;
 
         LazyCompilationTestRunnable(RulesFrontend frontend, CountDownLatch countDownLatch) {
             this.frontend = frontend;

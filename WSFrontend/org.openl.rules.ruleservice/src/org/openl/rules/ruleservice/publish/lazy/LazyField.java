@@ -9,34 +9,36 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
 import org.openl.types.IOpenField;
+import org.openl.vm.IRuntimeEnv;
 
 /**
  * Lazy field that will compile module declaring it and will get real field to do operations with it.
  *
- * @author Marat Kamalov
+ * @author PUdalau, Marat Kamalov
  */
-public abstract class LazyField extends LazyMember<IOpenField> {
-
-    private final String fieldName;
+public abstract class LazyField extends LazyMember<IOpenField> implements IOpenField {
+    private String fieldName;
 
     private LazyField(String fieldName,
+            IOpenField original,
             IDependencyManager dependencyManager,
             ClassLoader classLoader,
+            boolean executionMode,
             Map<String, Object> externalParameters) {
-        super(dependencyManager, classLoader, externalParameters);
+        super(dependencyManager, executionMode, classLoader, original, externalParameters);
         this.fieldName = fieldName;
     }
 
-    public static LazyField createLazyField(final IOpenField prebindedMethod,
-            final IDependencyManager dependencyManager,
+    public static LazyField getLazyField(final XlsLazyModuleOpenClass xlsLazyModuleOpenClass,
             final DeploymentDescription deployment,
             final Module module,
-            final ClassLoader classLoader,
-            final Map<String, Object> externalParameters) {
-        final LazyField lazyField = new LazyField(prebindedMethod.getName(),
-            dependencyManager,
-            classLoader,
-            externalParameters) {
+            IOpenField original,
+            IDependencyManager dependencyManager,
+            ClassLoader classLoader,
+            boolean executionMode,
+            Map<String, Object> externalParameters) {
+        LazyField lazyField = new LazyField(original
+            .getName(), original, dependencyManager, classLoader, executionMode, externalParameters) {
             @Override
             public DeploymentDescription getDeployment() {
                 return deployment;
@@ -49,7 +51,7 @@ public abstract class LazyField extends LazyMember<IOpenField> {
 
             @Override
             public XlsLazyModuleOpenClass getXlsLazyModuleOpenClass() {
-                return (XlsLazyModuleOpenClass) prebindedMethod.getDeclaringClass();
+                return xlsLazyModuleOpenClass;
             }
         };
         CompiledOpenClassCache.getInstance()
@@ -63,13 +65,40 @@ public abstract class LazyField extends LazyMember<IOpenField> {
         if (cachedMember != null) {
             return cachedMember;
         }
+
         try {
             CompiledOpenClass compiledOpenClass = getCompiledOpenClassWithThrowErrorExceptionsIfAny();
             IOpenField openField = compiledOpenClass.getOpenClass().getField(fieldName);
             setCachedMember(openField);
             return openField;
         } catch (Exception e) {
-            throw new RuleServiceOpenLCompilationException("Failed to load a lazy field.", e);
+            throw new RuleServiceOpenLCompilationException("Failed to load lazy field.", e);
         }
     }
+
+    @Override
+    public Object get(Object target, IRuntimeEnv env) {
+        return getMember().get(target, env);
+    }
+
+    @Override
+    public void set(Object target, Object value, IRuntimeEnv env) {
+        getMember().set(target, value, env);
+    }
+
+    @Override
+    public boolean isConst() {
+        return getOriginal().isConst();
+    }
+
+    @Override
+    public boolean isReadable() {
+        return getOriginal().isReadable();
+    }
+
+    @Override
+    public boolean isWritable() {
+        return getOriginal().isWritable();
+    }
+
 }

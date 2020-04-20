@@ -23,7 +23,7 @@ import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
-import org.openl.rules.lang.xls.binding.ModuleSpecificType;
+import org.openl.rules.lang.xls.binding.ModuleRelatedType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -157,8 +157,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     @Override
     public IOpenClass addType(String namespace, IOpenClass type) throws DuplicatedTypeException {
         final String typeName = type.getName();
-        if (type instanceof ModuleSpecificType) {
-            ModuleSpecificType moduleRelatedType = (ModuleSpecificType) type;
+        if (type instanceof ModuleRelatedType) {
+            ModuleRelatedType moduleRelatedType = (ModuleRelatedType) type;
             IOpenClass openClass = super.findType(namespace, typeName);
             if (openClass == moduleRelatedType) {
                 return openClass;
@@ -168,8 +168,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 getModule().addType(copyOfType);
                 return copyOfType;
             } else {
-                ModuleSpecificType existingModuleRelatedOpenClass = (ModuleSpecificType) openClass;
-                existingModuleRelatedOpenClass.updateWithType(type);
+                ModuleRelatedType existingModuleRelatedOpenClass = (ModuleRelatedType) openClass;
+                existingModuleRelatedOpenClass.extendWith(type);
                 return openClass;
             }
         } else {

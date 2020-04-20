@@ -1,32 +1,22 @@
 package org.openl.rules.types;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContextOptimizationForOpenMethodDispatcher;
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
-import org.openl.rules.lang.xls.binding.wrapper.IRulesMethodWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
+import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
+import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.types.Invokable;
+import org.openl.types.*;
+import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodKey;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
@@ -53,10 +43,8 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     /**
      * List of method candidates.
      */
-    private final List<IOpenMethod> candidates = new ArrayList<>();
-    private final Map<Integer, DimensionPropertiesMethodKey> candidatesToDimensionKey = new HashMap<>();
-
-    private final Set<MethodKey> candidateKeys = new HashSet<>();
+    private List<IOpenMethod> candidates = new ArrayList<>();
+    private Map<Integer, DimensionPropertiesMethodKey> candidatesToDimensionKey = new HashMap<>();
 
     private final Invokable invokeInner = new Invokable() {
         @Override
@@ -65,14 +53,21 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         }
     };
 
-    protected OpenMethodDispatcher() {
-    }
+    /**
+     * Creates new instance of decorator.
+     *
+     * @param delegate method to decorate
+     */
+    protected void decorate(IOpenMethod delegate) {
 
-    public OpenMethodDispatcher(IOpenMethod delegate) {
+        // Check that IOpenMethod object is not null.
+        //
+        Objects.requireNonNull(delegate, "Method cannot be null");
+
         // Save method as delegate. It used by decorator to delegate requests
         // about method info such as signature, name, etc.
         //
-        this.delegate = Objects.requireNonNull(delegate, "Method cannot be null");
+        this.delegate = delegate;
 
         // Evaluate method key.
         //
@@ -176,7 +171,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
         // Get matching method.
         //
-        IOpenMethod method;
+        IOpenMethod method = null;
 
         if (context instanceof IRulesRuntimeContextOptimizationForOpenMethodDispatcher) {
             IRulesRuntimeContextOptimizationForOpenMethodDispatcher rulesRuntimeContextOptimizationForOpenMethodDispatcher = (IRulesRuntimeContextOptimizationForOpenMethodDispatcher) context;
@@ -206,10 +201,18 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             throw new OpenLRuntimeException(message);
         }
 
-        method = WrapperLogic.extractMethod(method);
+        while (method instanceof LazyMethodWrapper || method instanceof MethodDelegator) {
+            if (method instanceof LazyMethodWrapper) {
+                method = ((LazyMethodWrapper) method).getCompiledMethod(env);
+            }
+            if (method instanceof MethodDelegator) {
+                MethodDelegator methodDelegator = (MethodDelegator) method;
+                method = methodDelegator.getMethod();
+            }
+        }
 
-        if (method instanceof IRulesMethodWrapper) {
-            method = ((IRulesMethodWrapper) method).getDelegate();
+        if (method instanceof IOpenMethodWrapper) {
+            method = ((IOpenMethodWrapper) method).getDelegate();
         }
 
         return method;
@@ -251,6 +254,8 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         }
         return -1;
     }
+
+    private Set<MethodKey> candidateKeys = new HashSet<>();
 
     /**
      * Try to add method as overloaded version of decorated method.

@@ -13,8 +13,8 @@ import org.openl.types.java.JavaOpenClass;
  *
  */
 public final class MethodKey {
-    private final String name;
-    private final IOpenClass[] internalParameters;
+    private String name;
+    private IOpenClass[] internalParameters;
 
     public MethodKey(IOpenMethod om) {
         IOpenClass[] pars = om.getSignature().getParameterTypes();

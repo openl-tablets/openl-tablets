@@ -17,7 +17,7 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
 
     private final Logger log = LoggerFactory.getLogger(OverloadedMethodsDispatcherTable.class);
 
-    protected OverloadedMethodsDispatcherTable() {
+    public OverloadedMethodsDispatcherTable() { // For CGLIB proxing
     }
 
     public OverloadedMethodsDispatcherTable(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {

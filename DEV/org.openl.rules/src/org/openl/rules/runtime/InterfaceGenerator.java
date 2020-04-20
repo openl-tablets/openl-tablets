@@ -227,8 +227,8 @@ public class InterfaceGenerator {
 
         StringBuilder builder = new StringBuilder("(");
 
-        for (Class<?> paramType : paramTypes) {
-            builder.append(Type.getType(paramType));
+        for (int i = 0; i < paramTypes.length; i++) {
+            builder.append(Type.getType(paramTypes[i]));
         }
 
         builder.append(")");
@@ -255,6 +255,6 @@ public class InterfaceGenerator {
             }
         }
 
-        return classes.toArray(new Class<?>[0]);
+        return classes.toArray(new Class<?>[classes.size()]);
     }
 }

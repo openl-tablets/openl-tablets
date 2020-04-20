@@ -12,7 +12,7 @@ import org.openl.util.StringUtils;
  * @author NSamatov
  */
 public abstract class DataTableField {
-    private final String name;
+    private String name;
     private String businessName;
     private String foreignKeyTable;
     private String foreignKeyColumn;
@@ -154,7 +154,7 @@ public abstract class DataTableField {
      * @see #useAggregatedFields()
      */
     public void useForeignKey() {
-        setAggregatedFields(Collections.emptyList());
+        setAggregatedFields(Collections.<DataTableField> emptyList());
     }
 
     /**

@@ -22,7 +22,7 @@ import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
-import org.openl.rules.lang.xls.binding.ModuleSpecificType;
+import org.openl.rules.lang.xls.binding.ModuleRelatedType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAdvice;
@@ -300,7 +300,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                         .getBeanClass();
                     return dim > 0 ? Array.newInstance(t, dim).getClass() : t;
                 } else {
-                    if (type instanceof ModuleSpecificType) {
+                    if (type instanceof ModuleRelatedType) {
                         Class<?> t = module.findType(type.getName()).getInstanceClass();
                         return dim > 0 ? Array.newInstance(t, dim).getClass() : t;
                     } else {

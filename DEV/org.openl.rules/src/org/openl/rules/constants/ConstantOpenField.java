@@ -9,11 +9,11 @@ import org.openl.vm.IRuntimeEnv;
 
 public class ConstantOpenField extends AOpenField implements IUriMember {
 
-    private final ModuleOpenClass declaringClass;
-    private final Object value;
-    private final String valueAsString;
+    private ModuleOpenClass declaringClass;
+    private Object value;
+    private String valueAsString;
     private IMemberMetaInfo memberMetaInfo;
-    private final String uri;
+    private String uri;
 
     public ConstantOpenField(String name,
             Object value,

@@ -11,7 +11,7 @@ import org.openl.types.IOpenMethod;
  * @author PUdalau
  */
 public interface IPrebindHandler {
-    IOpenMethod processPrebindMethod(IOpenMethod method);
+    IOpenMethod processMethodAdded(IOpenMethod method, XlsLazyModuleOpenClass moduleOpenClass);
 
-    IOpenField processPrebindField(IOpenField field);
+    IOpenField processFieldAdded(IOpenField field, XlsLazyModuleOpenClass moduleOpenClass);
 }

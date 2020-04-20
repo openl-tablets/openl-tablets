@@ -6,7 +6,7 @@ import org.openl.types.IOpenMember;
 
 public class LazyMemberEvent implements Event {
 
-    private final LazyMember<? extends IOpenMember> lazyMember;
+    private LazyMember<? extends IOpenMember> lazyMember;
 
     public LazyMemberEvent(LazyMember<? extends IOpenMember> lazyMember) {
         if (lazyMember == null) {
