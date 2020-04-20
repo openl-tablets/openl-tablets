@@ -34,41 +34,47 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
         String methodName = node.getType().substring(index + 1);
         IBoundNode[] children = bindChildren(node, bindingContext);
 
-        if (!children[0].isLvalue()) {
+        IBoundNode target = children[0];
+        IBoundNode source = children[1];
+        if (!target.isLvalue()) {
             return makeErrorNode("Impossible to assign value", node, bindingContext);
         }
 
-        IOpenClass[] types = getTypes(children);
-        IOpenClass leftType = types[0];
+        IOpenClass targetType = target.getType();
+        IOpenClass sourceType = source.getType();
         IMethodCaller methodCaller = null;
 
         if (!"assign".equals(methodName)) {
 
-            methodCaller = BinaryOperatorNodeBinder.findBinaryOperatorMethodCaller(methodName, types, bindingContext);
+            methodCaller = BinaryOperatorNodeBinder.findBinaryOperatorMethodCaller(methodName, new IOpenClass[]{targetType, sourceType}, bindingContext);
 
             if (methodCaller == null) {
 
-                String message = BinaryOperatorNodeBinder.errorMsg(methodName, types[0], types[1]);
+                String message = BinaryOperatorNodeBinder.errorMsg(methodName, targetType, sourceType);
                 return makeErrorNode(message, node, bindingContext);
             }
         }
 
-        IOpenClass rightType = methodCaller == null ? types[1] : methodCaller.getMethod().getType();
+        IOpenClass rightType = methodCaller == null ? sourceType : methodCaller.getMethod().getType();
         IOpenCast cast = null;
 
-        if (!rightType.equals(leftType)) {
+        if (!rightType.equals(targetType)) {
 
-            cast = bindingContext.getCast(rightType, leftType);
+            cast = bindingContext.getCast(rightType, targetType);
 
             // only implicit casts and explicit casts for literal are allowed for right part
-            if (cast == null || !cast.isImplicit() && !(children[1] instanceof LiteralBoundNode)) {
+            if (cast == null || !cast.isImplicit() && !(source instanceof LiteralBoundNode)) {
                 String message = String
-                    .format("Cannot convert from '%s' to '%s'.", rightType.getName(), leftType.getName());
+                    .format("Cannot convert from '%s' to '%s'.", rightType.getName(), targetType.getName());
                 return makeErrorNode(message, node, bindingContext);
             }
         }
 
-        return new AssignNode(node, children, methodCaller, cast);
+        /*
+         * target = source - simple assign
+         * target += source - assign with operation through methodCaller
+         */
+        return new AssignNode(node, target, source, methodCaller, cast);
     }
 
 }

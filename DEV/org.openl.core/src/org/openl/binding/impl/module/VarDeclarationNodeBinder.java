@@ -36,10 +36,7 @@ public class VarDeclarationNodeBinder extends ANodeBinder {
             cast = getCast(init, varType, bindingContext);
         }
 
-        return new VarDeclarationNode(node,
-            init == null ? null : new IBoundNode[] { init },
-            new DynamicObjectField(name, varType),
-            cast);
+        return new VarDeclarationNode(node, init, new DynamicObjectField(name, varType), cast);
     }
 
     @Override
