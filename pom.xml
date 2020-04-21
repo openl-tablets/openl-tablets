@@ -108,6 +108,7 @@
         <!-- 48MB Should be enough to don't fall in OutOfMemoryError -->
         <surefire.argLine>-Xms8m -Xmx48m</surefire.argLine>
         <openl.home>${project.build.directory}/openl-test</openl.home>
+        <openl.info>main</openl.info>
     </properties>
 
     <modules>
@@ -217,6 +218,7 @@
                     <configuration>
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
+                            <openl.info>${openl.info}</openl.info>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
@@ -309,6 +311,10 @@
                             <systemProperty>
                                 <name>openl.home</name>
                                 <value>${project.build.directory}/openl-jetty</value>
+                            </systemProperty>
+                            <systemProperty>
+                                <name>openl.info</name>
+                                <value>${openl.info}</value>
                             </systemProperty>
                         </systemProperties>
                     </configuration>
