@@ -105,9 +105,8 @@
         <elasticsearch.version>6.8.8</elasticsearch.version>
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
-        <surefire.argLine>-Xms8m -Xmx40m</surefire.argLine>
-        <invoker.mavenOpts>-Xms16m -Xmx40m</invoker.mavenOpts>
-        <invoker.timeoutInSeconds>30</invoker.timeoutInSeconds>
+        <!-- 48MB Should be enough to don't fall in OutOfMemoryError -->
+        <surefire.argLine>-Xms8m -Xmx48m</surefire.argLine>
         <openl.home>${project.build.directory}/openl-test</openl.home>
     </properties>
 
@@ -272,31 +271,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-invoker-plugin</artifactId>
                     <version>3.2.1</version>
-                    <configuration>
-                        <projectsDirectory>it</projectsDirectory>
-                        <pomIncludes>
-                            <pomInclude>*/pom.xml</pomInclude>
-                        </pomIncludes>
-                        <preBuildHookScript>setup</preBuildHookScript>
-                        <postBuildHookScript>verify</postBuildHookScript>
-                        <goals>
-                            <goal>clean</goal>
-                            <goal>verify</goal>
-                        </goals>
-                        <streamLogs>true</streamLogs>
-                        <useLocalRepository>true</useLocalRepository>
-                        <properties>
-                            <maven.compiler.source>${java.source.version}</maven.compiler.source>
-                            <maven.compiler.target>${java.target.version}</maven.compiler.target>
-                        </properties>
-                        <showErrors>true</showErrors>
-                        <!-- Estimated test's time should not take more than 10 sec on 4х CPU (2GHz) -->
-                        <!-- with limited amount of memory. It allows to detect memory leaks. -->
-                        <!-- Special cases should be defined in invoker.properties file. -->
-                        <!-- !!! Don't increase these parameters without special need !!! -->
-                        <timeoutInSeconds>${invoker.timeoutInSeconds}</timeoutInSeconds>
-                        <mavenOpts>${jacoco.argLine} ${invoker.mavenOpts}</mavenOpts>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.gmaven</groupId>
@@ -392,6 +366,18 @@
             <modules>
                 <module>ITEST</module>
             </modules>
+        </profile>
+        <profile>
+            <id>perf</id>
+            <activation>
+                <property>
+                    <name>!noPerf</name>
+                </property>
+            </activation>
+            <properties>
+                <!-- Fine tuned settings to detects memory and performance issues -->
+                <surefire.argLine>-Xms8m -Xmx41m</surefire.argLine>
+            </properties>
         </profile>
         <profile>
             <id>no-sonar</id>
