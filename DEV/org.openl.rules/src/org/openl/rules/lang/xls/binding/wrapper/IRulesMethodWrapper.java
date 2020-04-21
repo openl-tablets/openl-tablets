@@ -7,7 +7,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 public interface IRulesMethodWrapper extends IOpenMethodWrapper {
-    default Object invokeDelegate(Object target,
+    default Object invokeDelegateWithContextPropertiesInjector(Object target,
             Object[] params,
             IRuntimeEnv env,
             SimpleRulesRuntimeEnv simpleRulesRuntimeEnv) {

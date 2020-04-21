@@ -25,8 +25,7 @@ public final class SpreadsheetWrapper extends AbstractSpreadsheetWrapper impleme
             ContextPropertiesInjector contextPropertiesInjector) {
         super(delegate);
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
-        this.contextPropertiesInjector = Objects.requireNonNull(contextPropertiesInjector,
-            "contextPropertiesInjector cannot be null");
+        this.contextPropertiesInjector = contextPropertiesInjector;
         if (delegate.getType() instanceof ModuleSpecificType) {
             IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
             this.type = type != null ? type : delegate.getType();

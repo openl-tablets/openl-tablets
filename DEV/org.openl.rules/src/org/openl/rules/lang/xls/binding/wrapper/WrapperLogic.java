@@ -101,9 +101,12 @@ public final class WrapperLogic {
         if (openMethod instanceof TestSuiteMethod) {
             return openMethod;
         }
-        ContextPropertiesInjector contextPropertiesInjector = new ContextPropertiesInjector(
-            openMethod.getSignature().getParameterTypes(),
-            xlsModuleOpenClass.getRulesModuleBindingContext());
+
+        ContextPropertiesInjector contextPropertiesInjector = null;
+        if (!(openMethod instanceof ILazyMethod)) {
+            contextPropertiesInjector = new ContextPropertiesInjector(openMethod.getSignature().getParameterTypes(),
+                xlsModuleOpenClass.getRulesModuleBindingContext());
+        }
 
         if (openMethod instanceof OverloadedMethodsDispatcherTable) {
             return new OverloadedMethodsDispatcherTableWrapper(xlsModuleOpenClass,
@@ -140,6 +143,9 @@ public final class WrapperLogic {
     }
 
     public static Object invoke(IRulesMethodWrapper wrapper, Object target, Object[] params, IRuntimeEnv env) {
+        if (wrapper.getDelegate() instanceof ILazyMethod) {
+            return wrapper.getDelegate().invoke(target, params, env);
+        }
         SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
         IOpenClass topClass = simpleRulesRuntimeEnv.getTopClass();
         if (topClass == null) {
@@ -168,7 +174,7 @@ public final class WrapperLogic {
                 }
                 simpleRulesRuntimeEnv.setTopClass(typeClass);
                 Thread.currentThread().setContextClassLoader(wrapper.getXlsModuleOpenClass().getClassLoader());
-                return wrapper.invokeDelegate(target, params, env, simpleRulesRuntimeEnv);
+                return wrapper.invokeDelegateWithContextPropertiesInjector(target, params, env, simpleRulesRuntimeEnv);
             } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
                 simpleRulesRuntimeEnv.setTopClass(null);
@@ -184,6 +190,6 @@ public final class WrapperLogic {
                 }
             }
         }
-        return wrapper.invokeDelegate(target, params, env, simpleRulesRuntimeEnv);
+        return wrapper.invokeDelegateWithContextPropertiesInjector(target, params, env, simpleRulesRuntimeEnv);
     }
 }
