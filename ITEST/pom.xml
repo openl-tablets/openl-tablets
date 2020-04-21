@@ -93,6 +93,7 @@
                             </webservice-webapp>
                             <openl.config.location>file:./openl-repository/application.properties
                             </openl.config.location>
+                            <server.responses>${project.build.directory}/responses/</server.responses>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
