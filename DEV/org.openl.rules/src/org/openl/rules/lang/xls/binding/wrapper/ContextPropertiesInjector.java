@@ -70,8 +70,10 @@ class ContextPropertiesInjector {
         }
         if (rulesRuntimeContext != null) {
             env.pushContext(rulesRuntimeContext);
+            return true;
+        } else {
+            return false;
         }
-        return rulesRuntimeContext != null;
     }
 
     public void pop(SimpleRulesRuntimeEnv env) {
