@@ -103,6 +103,8 @@
         <awaitility.version>3.1.6</awaitility.version>
         <elasticsearch-cluster-runner.version>6.8.1.0</elasticsearch-cluster-runner.version>
         <elasticsearch.version>6.8.8</elasticsearch.version>
+        <tinkerpop.gremlin.version>3.4.6</tinkerpop.gremlin.version>
+        <codehaus.groovy.version>3.0.3</codehaus.groovy.version>
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
         <!-- 48MB Should be enough to don't fall in OutOfMemoryError -->
@@ -1100,6 +1102,36 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <!-- override gremlin version-->
+            <dependency>
+                <groupId>org.apache.tinkerpop</groupId>
+                <artifactId>gremlin-core</artifactId>
+                <version>${tinkerpop.gremlin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tinkerpop</groupId>
+                <artifactId>gremlin-driver</artifactId>
+                <version>${tinkerpop.gremlin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tinkerpop</groupId>
+                <artifactId>tinkergraph-gremlin</artifactId>
+                <version>${tinkerpop.gremlin.version}</version>
+            </dependency>
+            <!-- override groovy version-->
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-json</artifactId>
+                <version>${codehaus.groovy.version}</version>
+                <classifier>indy</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy</artifactId>
+                <version>${codehaus.groovy.version}</version>
+                <classifier>indy</classifier>
+            </dependency>
+
             <dependency>
                 <groupId>com.datastax.oss</groupId>
                 <artifactId>java-driver-mapper-processor</artifactId>
