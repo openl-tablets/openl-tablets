@@ -7,6 +7,9 @@ import static org.junit.Assert.fail;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -21,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
@@ -181,21 +185,40 @@ public class HttpClient {
         ResponseEntity<Resource> response = rest.exchange(url, method, file(requestFile, responseFile), Resource.class);
         assertEquals("URL :" + url, status, response.getStatusCodeValue());
         Resource body = response.getBody();
-        switch (responseFile.substring(responseFile.lastIndexOf('.') + 1)) {
-            case NO_BODY:
-                assertNull("Expected empty body for URL :" + url, body);
-                break;
-            case ANY_BODY:
-                // Skip checcking of a response body
-                break;
-            case "xml":
-                compareXML(responseFile, body);
-                break;
-            case "json":
-                compareJson(responseFile, body);
-                break;
-            default:
-                compareBinary(responseFile, body);
+        try {
+            switch (responseFile.substring(responseFile.lastIndexOf('.') + 1)) {
+                case NO_BODY:
+                    assertNull("Expected empty body for URL :" + url, body);
+                    break;
+                case ANY_BODY:
+                    // Skip checcking of a response body
+                    break;
+                case "xml":
+                    compareXML(responseFile, body);
+                    break;
+                case "json":
+                    compareJson(responseFile, body);
+                    break;
+                default:
+                    compareBinary(responseFile, body);
+            }
+        } catch (Exception | AssertionError ex) {
+            if (body != null) {
+                try (InputStream actual = body.getInputStream()) {
+                    byte[] bytes = StreamUtils.copyToByteArray(actual);
+                    System.err.println("--------------------");
+                    StreamUtils.copy(bytes, System.err);
+                    System.err.println("\n--------------------");
+
+                    String path = System.getProperty("server.responses") + responseFile;
+                    Path responsePath = Paths.get(path);
+                    Files.createDirectories(responsePath.getParent());
+                    Files.write(responsePath, bytes);
+                } catch (Exception ignored) {
+                    // Ignored
+                }
+            }
+            throw ex;
         }
     }
 

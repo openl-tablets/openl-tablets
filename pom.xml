@@ -87,7 +87,7 @@
         <cglib.version>3.3.0</cglib.version>
         <kafka.version>2.4.0</kafka.version>
         <kafka-junit.version>2.4.0</kafka-junit.version>
-        <cassandra.driver.version>4.5.1</cassandra.driver.version>
+        <cassandra.driver.version>4.3.1</cassandra.driver.version>
         <cassandra.unit.version>3.11.2.0</cassandra.unit.version>
         <cassandra.unit.driver.version>3.8.0</cassandra.unit.driver.version>
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
@@ -105,10 +105,11 @@
         <elasticsearch.version>6.8.8</elasticsearch.version>
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
-        <surefire.argLine>-Xms8m -Xmx40m</surefire.argLine>
-        <invoker.mavenOpts>-Xms16m -Xmx40m</invoker.mavenOpts>
-        <invoker.timeoutInSeconds>30</invoker.timeoutInSeconds>
+        <!-- 48MB Should be enough to don't fall in OutOfMemoryError. It equals to MaxNonGCSize=30MB + ~50%-->
+        <!-- 128MB allows do not worry about OutOfMemoryError. It equals to MaxNonGCSize=30MB + ~350% -->
+        <surefire.argLine>-Xms8m -Xmx128m</surefire.argLine>
         <openl.home>${project.build.directory}/openl-test</openl.home>
+        <openl.info>main</openl.info>
     </properties>
 
     <modules>
@@ -218,6 +219,7 @@
                     <configuration>
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
+                            <openl.info>${openl.info}</openl.info>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
@@ -272,31 +274,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-invoker-plugin</artifactId>
                     <version>3.2.1</version>
-                    <configuration>
-                        <projectsDirectory>it</projectsDirectory>
-                        <pomIncludes>
-                            <pomInclude>*/pom.xml</pomInclude>
-                        </pomIncludes>
-                        <preBuildHookScript>setup</preBuildHookScript>
-                        <postBuildHookScript>verify</postBuildHookScript>
-                        <goals>
-                            <goal>clean</goal>
-                            <goal>verify</goal>
-                        </goals>
-                        <streamLogs>true</streamLogs>
-                        <useLocalRepository>true</useLocalRepository>
-                        <properties>
-                            <maven.compiler.source>${java.source.version}</maven.compiler.source>
-                            <maven.compiler.target>${java.target.version}</maven.compiler.target>
-                        </properties>
-                        <showErrors>true</showErrors>
-                        <!-- Estimated test's time should not take more than 10 sec on 4х CPU (2GHz) -->
-                        <!-- with limited amount of memory. It allows to detect memory leaks. -->
-                        <!-- Special cases should be defined in invoker.properties file. -->
-                        <!-- !!! Don't increase these parameters without special need !!! -->
-                        <timeoutInSeconds>${invoker.timeoutInSeconds}</timeoutInSeconds>
-                        <mavenOpts>${jacoco.argLine} ${invoker.mavenOpts}</mavenOpts>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.gmaven</groupId>
@@ -335,6 +312,10 @@
                             <systemProperty>
                                 <name>openl.home</name>
                                 <value>${project.build.directory}/openl-jetty</value>
+                            </systemProperty>
+                            <systemProperty>
+                                <name>openl.info</name>
+                                <value>${openl.info}</value>
                             </systemProperty>
                         </systemProperties>
                     </configuration>
@@ -392,6 +373,18 @@
             <modules>
                 <module>ITEST</module>
             </modules>
+        </profile>
+        <profile>
+            <id>perf</id>
+            <activation>
+                <property>
+                    <name>!noPerf</name>
+                </property>
+            </activation>
+            <properties>
+                <!-- Fine tuned settings to detects memory and performance issues -->
+                <surefire.argLine>-Xms8m -Xmx41m</surefire.argLine>
+            </properties>
         </profile>
         <profile>
             <id>no-sonar</id>
@@ -1101,12 +1094,6 @@
                 <groupId>com.datastax.oss</groupId>
                 <artifactId>java-driver-core-shaded</artifactId>
                 <version>${cassandra.driver.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>jcl-over-slf4j</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.datastax.oss</groupId>
