@@ -105,8 +105,9 @@
         <elasticsearch.version>6.8.8</elasticsearch.version>
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
-        <!-- 48MB Should be enough to don't fall in OutOfMemoryError -->
-        <surefire.argLine>-Xms8m -Xmx48m</surefire.argLine>
+        <!-- 48MB Should be enough to don't fall in OutOfMemoryError. It equals to MaxNonGCSize=30MB + ~50%-->
+        <!-- 128MB allows do not worry about OutOfMemoryError. It equals to MaxNonGCSize=30MB + ~350% -->
+        <surefire.argLine>-Xms8m -Xmx128m</surefire.argLine>
         <openl.home>${project.build.directory}/openl-test</openl.home>
         <openl.info>main</openl.info>
     </properties>
