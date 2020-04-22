@@ -26,11 +26,10 @@ public final class LazyWrapperLogic {
             return openMethod;
         }
         if (openMethod instanceof OverloadedMethodsDispatcherTable) {
-            return new OverloadedMethodsDispatcherTableLazyWrapper(lazyMethod,
-                (OverloadedMethodsDispatcherTable) openMethod);
+            return openMethod;
         }
         if (openMethod instanceof MatchingOpenMethodDispatcher) {
-            return new MatchingOpenMethodDispatcherLazyWrapper(lazyMethod, (MatchingOpenMethodDispatcher) openMethod);
+            return openMethod;
         }
         if (openMethod instanceof Algorithm) {
             return new AlgorithmLazyWrapper(lazyMethod, (Algorithm) openMethod);
