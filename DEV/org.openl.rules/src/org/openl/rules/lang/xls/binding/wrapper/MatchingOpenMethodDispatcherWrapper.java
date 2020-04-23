@@ -5,7 +5,6 @@ import java.util.Objects;
 import org.openl.rules.lang.xls.binding.ModuleSpecificType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.binding.wrapper.base.AbstractMatchingOpenMethodDispatcherWrapper;
-import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -59,12 +58,6 @@ public final class MatchingOpenMethodDispatcherWrapper extends AbstractMatchingO
     @Override
     public IOpenClass getType() {
         return type;
-    }
-
-    @Override
-    public IOpenMethod findMatchingMethod(IRuntimeEnv env) {
-        IOpenMethod openMethod = WrapperLogic.getTopClassMethod(this, env);
-        return ((OpenMethodDispatcher) openMethod).findMatchingMethod(env);
     }
 
     @Override
