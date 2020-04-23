@@ -32,21 +32,6 @@ public final class WrapperLogic {
     private WrapperLogic() {
     }
 
-    public static IOpenMethod getTopClassMethod(IRulesMethodWrapper wrapper, IRuntimeEnv env) {
-        SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
-        IOpenClass topClass = simpleRulesRuntimeEnv.getTopClass();
-        if (topClass != null && topClass != wrapper.getXlsModuleOpenClass()) {
-            IOpenMethod method = wrapper.getTopOpenClassMethod(topClass);
-            if (method != null) {
-                method = extractMethod(method);
-                if (method != wrapper) {
-                    return method;
-                }
-            }
-        }
-        return wrapper.getDelegate();
-    }
-
     private static SimpleRulesRuntimeEnv extractSimpleRulesRuntimeEnv(IRuntimeEnv env) {
         IRuntimeEnv env1 = env;
         if (env instanceof TBasicContextHolderEnv) {
