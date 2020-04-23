@@ -17,6 +17,7 @@ import java.util.Set;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.message.OpenLWarnMessage;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.binding.RulesModuleBindingContext;
@@ -177,7 +178,7 @@ public class DataNodeBinder extends AXlsTableBinder {
                     dataWithTitleRows);
 
                 if (tableType instanceof TestMethodOpenClass) {
-                    validateTestTableDescriptors(descriptors, tableToProcess);
+                    validateTestTableDescriptors(descriptors, tableToProcess, bindingContext);
                 }
 
                 OpenlBasedDataTableModel dataModel = new OpenlBasedDataTableModel(tableName,
@@ -197,7 +198,8 @@ public class DataNodeBinder extends AXlsTableBinder {
     }
 
     private void validateTestTableDescriptors(ColumnDescriptor[] descriptors,
-            ITable tableToProcess) throws SyntaxNodeException {
+            ITable tableToProcess,
+            IBindingContext bindingContext) throws SyntaxNodeException {
         Set<String> props = new HashSet<>();
         for (ColumnDescriptor descriptor : descriptors) {
             if (descriptor != null) {
@@ -208,12 +210,13 @@ public class DataNodeBinder extends AXlsTableBinder {
                     if (fields.length != 2) {
                         continue;
                     }
+
                     if (fields[1].isContextProperty()) {
                         String contextProperty = fields[1].getContextProperty();
                         if (props.contains(contextProperty)) {
-                            throw SyntaxNodeExceptionUtils.createError(String
+                            bindingContext.addMessage(new OpenLWarnMessage(String
                                 .format("Multiple fields refer to the same context property '%s'.", contextProperty),
-                                tableToProcess.getTableSyntaxNode());
+                                tableToProcess.getTableSyntaxNode()));
                         }
                         props.add(contextProperty);
                     }

@@ -21,6 +21,6 @@ public class UnaryOpNode extends MethodBoundNode {
      * @param method
      */
     public UnaryOpNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller method) {
-        super(syntaxNode, child, method);
+        super(syntaxNode, method, child);
     }
 }

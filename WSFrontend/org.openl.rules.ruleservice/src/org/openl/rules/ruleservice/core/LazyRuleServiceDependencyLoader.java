@@ -10,7 +10,6 @@ import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
-import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.IDependencyLoader;
@@ -28,6 +27,7 @@ import org.openl.rules.ruleservice.publish.lazy.LazyInstantiationStrategy;
 import org.openl.rules.ruleservice.publish.lazy.LazyMember.EmptyInterface;
 import org.openl.rules.ruleservice.publish.lazy.LazyMethod;
 import org.openl.rules.ruleservice.publish.lazy.ModuleUtils;
+import org.openl.rules.ruleservice.publish.lazy.wrapper.LazyWrapperLogic;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.impl.IdentifierNode;
@@ -133,35 +133,27 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
             LazyBinderMethodHandler.setPrebindHandler(new IPrebindHandler() {
 
                 @Override
-                public IOpenMethod processMethodAdded(IOpenMethod method, XlsLazyModuleOpenClass moduleOpenClass) {
+                public IOpenMethod processPrebindMethod(IOpenMethod method) {
                     final Module declaringModule = ModuleUtils.getModuleForMember(method, modules);
-                    Class<?>[] argTypes = new Class<?>[method.getSignature().getNumberOfParameters()];
-                    for (int i = 0; i < argTypes.length; i++) {
-                        argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
-                    }
-
-                    return LazyMethod.getLazyMethod(moduleOpenClass,
+                    LazyMethod lazyMethod = LazyMethod.createLazyMethod(method,
+                        dependencyManager,
                         deployment,
                         declaringModule,
-                        argTypes,
-                        method,
-                        dependencyManager,
                         classLoader,
-                        true,
                         parameters);
+                    return LazyWrapperLogic.wrapMethod(lazyMethod, method);
                 }
 
                 @Override
-                public IOpenField processFieldAdded(IOpenField field, XlsLazyModuleOpenClass moduleOpenClass) {
-                    Module declaringModule = ModuleUtils.getModuleForMember(field, modules);
-                    return LazyField.getLazyField(moduleOpenClass,
+                public IOpenField processPrebindField(IOpenField field) {
+                    final Module declaringModule = ModuleUtils.getModuleForMember(field, modules);
+                    final LazyField lazyField = LazyField.createLazyField(field,
+                        dependencyManager,
                         deployment,
                         declaringModule,
-                        field,
-                        dependencyManager,
                         classLoader,
-                        true,
                         parameters);
+                    return LazyWrapperLogic.wrapField(lazyField, field);
                 }
             });
             try {
@@ -169,10 +161,10 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                 lazyCompiledOpenClass = rulesInstantiationStrategy.compile();
                 if (!isProject() && realCompileRequired) {
                     compileAfterLazyCompile(lazyCompiledOpenClass,
-                        dependencyName,
                         dependencyManager,
-                        classLoader,
-                        modules.iterator().next());
+                        dependencyName,
+                        modules.iterator().next(),
+                        classLoader);
                 }
                 dependencyManager.compilationCompleted(this,
                     realCompileRequired ? DependencyCompilationType.UNLOADABLE : DependencyCompilationType.LAZY,
@@ -193,10 +185,10 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
     }
 
     private void compileAfterLazyCompile(CompiledOpenClass lazyCompiledOpenClass,
-            final String dependencyName,
             final RuleServiceDeploymentRelatedDependencyManager dependencyManager,
-            final ClassLoader classLoader,
-            final Module module) throws OpenLCompilationException {
+            final String dependencyName,
+            final Module module,
+            final ClassLoader classLoader) throws OpenLCompilationException {
         synchronized (lazyCompiledOpenClass) {
             CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependencyName);
             if (compiledOpenClass != null) {

@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.internal</groupId>
-    <artifactId>openl-gen-datatypes</artifactId>
+    <artifactId>openl-gen-datatypes-from-module</artifactId>
     <version>0.0.0</version>
     <packaging>openl</packaging>
     <name>OpenL Plugin: Mixed datatypes</name>
@@ -32,6 +32,11 @@
         </plugins>
     </build>
     <dependencies>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules</artifactId>
+            <version>${org.openl.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>

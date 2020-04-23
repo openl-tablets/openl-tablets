@@ -4,18 +4,16 @@ import java.util.Map;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
-import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
-import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
+import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.types.IUriMember;
-import org.openl.types.IMethodSignature;
+import org.openl.rules.table.properties.PropertiesHelper;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.OpenClassHelper;
-import org.openl.vm.IRuntimeEnv;
 
 /**
  * Lazy method that will return real object from dependency manager. Dependency Manager is responsible for
@@ -23,71 +21,54 @@ import org.openl.vm.IRuntimeEnv;
  *
  * @author Marat Kamalov
  */
-public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod, IUriMember, LazyMethodWrapper {
-    private String methodName;
+public abstract class LazyMethod extends LazyMember<IOpenMethod> {
+    private final String methodName;
+    private final Class<?>[] argTypes;
+    private final Map<String, Object> dimensionProperties;
 
-    private Class<?>[] argTypes;
-
-    private LazyMethod(String methodName,
+    private LazyMethod(IOpenMethod prebindMethod,
             Class<?>[] argTypes,
-            IOpenMethod original,
             IDependencyManager dependencyManager,
             ClassLoader classLoader,
-            boolean executionMode,
             Map<String, Object> externalParameters) {
-        super(dependencyManager, executionMode, classLoader, original, externalParameters);
-        this.methodName = methodName;
+        super(dependencyManager, classLoader, externalParameters);
+        this.methodName = prebindMethod.getName();
+        this.dimensionProperties = (prebindMethod instanceof ITableProperties) ? PropertiesHelper
+            .getTableProperties(prebindMethod)
+            .getAllDimensionalProperties() : null;
         this.argTypes = argTypes;
     }
 
-    public static LazyMethod getLazyMethod(final XlsLazyModuleOpenClass xlsLazyModuleOpenClass,
+    public static LazyMethod createLazyMethod(final IOpenMethod prebindedMethod,
+            final IDependencyManager dependencyManager,
             final DeploymentDescription deployment,
             final Module module,
-            Class<?>[] argTypes,
-            IOpenMethod original,
-            IDependencyManager dependencyManager,
-            ClassLoader classLoader,
-            boolean executionMode,
-            Map<String, Object> externalParameters) {
-        LazyMethod lazyMethod;
-
-        if (original instanceof ITablePropertiesMethod) {
-            lazyMethod = new TablePropertiesLazyMethod(original
-                .getName(), argTypes, original, dependencyManager, classLoader, executionMode, externalParameters) {
-                @Override
-                public DeploymentDescription getDeployment() {
-                    return deployment;
-                }
-
-                @Override
-                public Module getModule() {
-                    return module;
-                }
-
-                @Override
-                public XlsLazyModuleOpenClass getXlsLazyModuleOpenClass() {
-                    return xlsLazyModuleOpenClass;
-                }
-            };
-        } else {
-            lazyMethod = new LazyMethod(original
-                .getName(), argTypes, original, dependencyManager, classLoader, executionMode, externalParameters) {
-                @Override
-                public DeploymentDescription getDeployment() {
-                    return deployment;
-                }
-
-                @Override
-                public Module getModule() {
-                    return module;
-                }
-
-                @Override
-                public XlsLazyModuleOpenClass getXlsLazyModuleOpenClass() {
-                    return xlsLazyModuleOpenClass;
-                }
-            };
+            final ClassLoader classLoader,
+            final Map<String, Object> externalParameters) {
+        Class<?>[] argTypes = new Class<?>[prebindedMethod.getSignature().getNumberOfParameters()];
+        for (int i = 0; i < argTypes.length; i++) {
+            argTypes[i] = prebindedMethod.getSignature().getParameterType(i).getInstanceClass();
         }
+        final LazyMethod lazyMethod = new LazyMethod(prebindedMethod,
+            argTypes,
+            dependencyManager,
+            classLoader,
+            externalParameters) {
+            @Override
+            public DeploymentDescription getDeployment() {
+                return deployment;
+            }
+
+            @Override
+            public Module getModule() {
+                return module;
+            }
+
+            @Override
+            public XlsLazyModuleOpenClass getXlsLazyModuleOpenClass() {
+                return (XlsLazyModuleOpenClass) prebindedMethod.getDeclaringClass();
+            }
+        };
         CompiledOpenClassCache.getInstance()
             .registerEvent(deployment, module.getName(), new LazyMemberEvent(lazyMethod));
         return lazyMethod;
@@ -108,75 +89,25 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
             CompiledOpenClass compiledOpenClass = getCompiledOpenClassWithThrowErrorExceptionsIfAny();
             IOpenMethod openMethod = OpenClassHelper
                 .findRulesMethod(compiledOpenClass.getOpenClass(), methodName, argTypes);
+            if (openMethod instanceof OpenMethodDispatcher && dimensionProperties != null) {
+                OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) openMethod;
+                for (IOpenMethod candidate : openMethodDispatcher.getCandidates()) {
+                    if (candidate instanceof ITableProperties) {
+                        Map<String, Object> candidateDimensionProperties = PropertiesHelper
+                            .getTableProperties(candidate)
+                            .getAllDimensionalProperties();
+                        if (DimensionPropertiesMethodKey.compareMethodDimensionProperties(dimensionProperties,
+                            candidateDimensionProperties)) {
+                            openMethod = candidate;
+                            break;
+                        }
+                    }
+                }
+            }
             setCachedMember(openMethod);
             return openMethod;
         } catch (Exception e) {
             throw new RuleServiceOpenLCompilationException("Failed to load lazy method.", e);
         }
     }
-
-    @Override
-    public IMethodSignature getSignature() {
-        return getOriginal().getSignature();
-    }
-
-    @Override
-    public boolean isConstructor() {
-        return getOriginal().isConstructor();
-    }
-
-    @Override
-    public IOpenMethod getCompiledMethod(IRuntimeEnv env) {
-        return getMember();
-    }
-
-    @Override
-    public String getUri() {
-        if (getOriginal() instanceof IUriMember) {
-            return ((IUriMember) getOriginal()).getUri();
-        } else {
-            throw new IllegalStateException(
-                "Implementation does not support methods other than ExecutableRulesMethod.");
-        }
-    }
-
-    @Override
-    public IOpenMethod getMethod() {
-        return this;
-    }
-
-    @Override
-    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return getMember().invoke(target, params, env);
-    }
-
-    private abstract static class TablePropertiesLazyMethod extends LazyMethod implements ITablePropertiesMethod {
-
-        private TablePropertiesLazyMethod(String methodName,
-                Class<?>[] argTypes,
-                IOpenMethod original,
-                IDependencyManager dependencyManager,
-                ClassLoader classLoader,
-                boolean executionMode,
-                Map<String, Object> externalParameters) {
-            super(methodName, argTypes, original, dependencyManager, classLoader, executionMode, externalParameters);
-        }
-
-        @Override
-        public Map<String, Object> getProperties() {
-            if (getOriginal() instanceof ITablePropertiesMethod) {
-                return ((ITablePropertiesMethod) getOriginal()).getProperties();
-            }
-            throw new IllegalStateException("Original method must be the instance of ITablePropertiesMethod.");
-        }
-
-        @Override
-        public ITableProperties getMethodProperties() {
-            if (getOriginal() instanceof ITablePropertiesMethod) {
-                return ((ITablePropertiesMethod) getOriginal()).getMethodProperties();
-            }
-            throw new IllegalStateException("Original method must be the instance of ITablePropertiesMethod.");
-        }
-    }
-
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openl.rules</groupId>
@@ -15,6 +16,18 @@
         <name>OpenL Tablets</name>
         <url>https://openl-tablets.org</url>
     </organization>
+    <properties>
+        <!-- 512MB Should be enough to don't fall in OutOfMemoryError -->
+        <invoker.mavenOpts>-Xms16m -Xmx512m</invoker.mavenOpts>
+        <invoker.timeoutInSeconds>0</invoker.timeoutInSeconds>
+        <big-tableparts.mavenOpts>${invoker.mavenOpts}</big-tableparts.mavenOpts>
+        <big-tableparts.timeoutInSeconds>${invoker.timeoutInSeconds}</big-tableparts.timeoutInSeconds>
+        <big-testsuite.mavenOpts>${invoker.mavenOpts}</big-testsuite.mavenOpts>
+        <big-testsuite.timeoutInSeconds>${invoker.timeoutInSeconds}</big-testsuite.timeoutInSeconds>
+        <gen-spreadsheetresult.mavenOpts>${invoker.mavenOpts}</gen-spreadsheetresult.mavenOpts>
+        <gen-spreadsheetresult.timeoutInSeconds>${invoker.timeoutInSeconds}</gen-spreadsheetresult.timeoutInSeconds>
+        <recompile.timeoutInSeconds>${invoker.timeoutInSeconds}</recompile.timeoutInSeconds>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -77,7 +90,7 @@
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <reportSets>
                     <reportSet>
-                        <reports />
+                        <reports/>
                     </reportSet>
                 </reportSets>
             </plugin>
@@ -131,6 +144,31 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <projectsDirectory>it</projectsDirectory>
+                            <pomIncludes>
+                                <pomInclude>*/pom.xml</pomInclude>
+                            </pomIncludes>
+                            <preBuildHookScript>setup</preBuildHookScript>
+                            <postBuildHookScript>verify</postBuildHookScript>
+                            <goals>
+                                <goal>clean</goal>
+                                <goal>verify</goal>
+                            </goals>
+                            <streamLogs>true</streamLogs>
+                            <useLocalRepository>true</useLocalRepository>
+                            <properties>
+                                <maven.compiler.source>${java.source.version}</maven.compiler.source>
+                                <maven.compiler.target>${java.target.version}</maven.compiler.target>
+                            </properties>
+                            <showErrors>true</showErrors>
+                            <!-- Estimated test's time should not take more than 10 sec on 4х CPU (2GHz) -->
+                            <!-- with limited amount of memory. It allows to detect memory leaks. -->
+                            <!-- Special cases should be defined in invoker.properties file. -->
+                            <!-- !!! Don't increase these parameters without special need !!! -->
+                            <timeoutInSeconds>${invoker.timeoutInSeconds}</timeoutInSeconds>
+                            <mavenOpts>${jacoco.argLine} ${invoker.mavenOpts}</mavenOpts>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
@@ -146,6 +184,27 @@
                     <scope>test</scope>
                 </dependency>
             </dependencies>
+        </profile>
+        <profile>
+            <id>perf</id>
+            <activation>
+                <property>
+                    <name>!noPerf</name>
+                </property>
+            </activation>
+            <properties>
+                <!-- Fine tuned settings to detects memory and performance issues -->
+                <invoker.mavenOpts>-Xms16m -Xmx40m</invoker.mavenOpts>
+                <invoker.timeoutInSeconds>30</invoker.timeoutInSeconds>
+                <big-tableparts.mavenOpts>${jacoco.argLine} -Xms32m -Xmx256m</big-tableparts.mavenOpts>
+                <big-tableparts.timeoutInSeconds>60</big-tableparts.timeoutInSeconds>
+                <big-testsuite.mavenOpts>${jacoco.argLine} -Xms32m -Xmx96m</big-testsuite.mavenOpts>
+                <big-testsuite.timeoutInSeconds>120</big-testsuite.timeoutInSeconds>
+                <gen-spreadsheetresult.mavenOpts>${jacoco.argLine} -Xms32m -Xmx256m</gen-spreadsheetresult.mavenOpts>
+                <gen-spreadsheetresult.timeoutInSeconds>60</gen-spreadsheetresult.timeoutInSeconds>
+                <!-- due double work of packaging: 30s * 2 -->
+                <recompile.timeoutInSeconds>60</recompile.timeoutInSeconds>
+            </properties>
         </profile>
     </profiles>
 </project>

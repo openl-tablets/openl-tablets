@@ -17,14 +17,12 @@ public class MethodBoundNode extends ATargetBoundNode {
 
     protected IMethodCaller boundMethod;
 
-    public MethodBoundNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller methodCaller) {
-        this(syntaxNode, child, methodCaller, null);
+    public MethodBoundNode(ISyntaxNode syntaxNode, IMethodCaller methodCaller, IBoundNode... child) {
+        this(syntaxNode, null, methodCaller, child);
     }
 
     public MethodBoundNode(ISyntaxNode syntaxNode,
-            IBoundNode[] child,
-            IMethodCaller methodCaller,
-            IBoundNode targetNode) {
+                           IBoundNode targetNode, IMethodCaller methodCaller, IBoundNode... child) {
         super(syntaxNode, targetNode, child);
         this.boundMethod = methodCaller;
     }
@@ -60,5 +58,21 @@ public class MethodBoundNode extends ATargetBoundNode {
 
     public IMethodCaller getMethodCaller() {
         return boundMethod;
+    }
+
+    protected Object[] evaluateChildren(IRuntimeEnv env) {
+        if (children == null) {
+            return null;
+        } else if (children == EMPTY) {
+            return EMPTY_RESULT;
+        }
+
+        Object[] ch = new Object[children.length];
+
+        for (int i = 0; i < ch.length; i++) {
+            ch[i] = children[i].evaluate(env);
+        }
+
+        return ch;
     }
 }

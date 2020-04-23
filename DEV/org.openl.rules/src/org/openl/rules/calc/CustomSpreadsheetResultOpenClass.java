@@ -14,7 +14,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.gen.FieldDescription;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
-import org.openl.rules.lang.xls.binding.ModuleRelatedType;
+import org.openl.rules.lang.xls.binding.ModuleSpecificType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
@@ -28,7 +28,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
-public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements ModuleRelatedType {
+public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements ModuleSpecificType {
 
     private static final String[] EMPTY_STRING_ARRAY = new String[] {};
     private static final Comparator<String> FIELD_COMPARATOR = (o1, o2) -> {
@@ -293,7 +293,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     }
 
     @Override
-    public void extendWith(IOpenClass openClass) {
+    public void updateWithType(IOpenClass openClass) {
         if (beanClassByteCode != null) {
             throw new IllegalStateException(
                 "Java bean class for custom spreadsheet result is loaded to classloader. Custom spreadsheet result cannot be extended.");
@@ -330,7 +330,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                     t = t.getArrayType(dim);
                 }
                 fieldMap().put(fieldName, new CustomSpreadsheetResultField(module, fieldName, t));
-            } else if (type instanceof ModuleRelatedType) {
+            } else if (type instanceof ModuleSpecificType) {
                 IOpenClass openClass = module.findType(type.getName());
                 if (openClass != null) {
                     IOpenClass t = openClass;

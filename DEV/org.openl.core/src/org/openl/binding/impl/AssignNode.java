@@ -12,32 +12,33 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor
  *
  */
-public class AssignNode extends MethodBoundNode {
+public final class AssignNode extends MethodBoundNode {
     private IOpenCast cast;
+    private IBoundNode target, source;
 
     /**
-     * @param syntaxNode
-     * @param child
-     * @param method
+     * target = source - simple assign.
+     *
+     * target += source - assign with operation through method.
      */
-    public AssignNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller method, IOpenCast cast) {
-        super(syntaxNode, child, method);
+    AssignNode(ISyntaxNode syntaxNode, IBoundNode target, IBoundNode source, IMethodCaller method, IOpenCast cast) {
+        super(syntaxNode, method, target, source);
+        this.target = target;
+        this.source = source;
         this.cast = cast;
     }
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object res;
+        Object res = source.evaluate(env);
         if (boundMethod != null) {
-            Object[] pars = evaluateChildren(env);
+            Object targetValue = target.evaluate(env);
 
-            res = BinaryOpNode.evaluateBinaryMethod(env, pars, boundMethod);
-        } else {
-            res = children[1].evaluate(env);
+            res = BinaryOpNode.evaluateBinaryMethod(env, new Object[] { targetValue, res }, boundMethod);
         }
 
         res = cast == null ? res : cast.convert(res);
-        children[0].assign(res, env);
+        target.assign(res, env);
 
         return res;
     }
@@ -47,12 +48,11 @@ public class AssignNode extends MethodBoundNode {
         if (boundMethod != null) {
             return super.getType();
         }
-        return children[0].getType();
+        return target.getType();
     }
 
     @Override
     public void updateDependency(BindingDependencies dependencies) {
-        dependencies.addAssign(children[0], this);
+        dependencies.addAssign(target, this);
     }
-
 }

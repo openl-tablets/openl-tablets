@@ -8,7 +8,6 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 
@@ -25,10 +24,10 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
             XlsMetaInfo metaInfo,
             OpenL openl,
             IDataBase dbase,
-            IPrebindHandler prebindHandler,
             Set<CompiledDependency> usingModules,
             ClassLoader classLoader,
-            IBindingContext bindingContext) {
+            IBindingContext bindingContext,
+            IPrebindHandler prebindHandler) {
         super(name, metaInfo, openl, dbase, usingModules, classLoader, bindingContext);
         this.prebindHandler = prebindHandler;
     }
@@ -36,8 +35,10 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
     @Override
     public void addMethod(IOpenMethod method) {
         if (prebindHandler != null) {
-            super.addMethod(prebindHandler.processMethodAdded(method, this));
+            // Add this module methods
+            super.addMethod(prebindHandler.processPrebindMethod(method));
         } else {
+            // Add methods from dependencies
             super.addMethod(method);
         }
     }
@@ -45,17 +46,11 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
     @Override
     public void addField(IOpenField field) {
         if (prebindHandler != null) {
-            super.addField(prebindHandler.processFieldAdded(field, this));
+            // Add this module fields
+            super.addField(prebindHandler.processPrebindField(field));
         } else {
+            // Add fields from dependencies
             super.addField(field);
         }
-    }
-
-    @Override
-    protected IOpenMethod decorateForMultimoduleDispatching(IOpenMethod openMethod) {
-        if (openMethod instanceof OpenMethodDispatcher) {
-            return super.decorateForMultimoduleDispatching(openMethod);
-        }
-        return openMethod;
     }
 }

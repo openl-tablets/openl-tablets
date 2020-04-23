@@ -48,6 +48,11 @@ public final class DimensionPropertiesMethodKey {
         Map<String, Object> otherMethodProperties = PropertiesHelper.getTableProperties(key.getMethod())
             .getAllDimensionalProperties();
 
+        return compareMethodDimensionProperties(thisMethodProperties, otherMethodProperties);
+    }
+
+    public static boolean compareMethodDimensionProperties(Map<String, Object> thisMethodProperties,
+            Map<String, Object> otherMethodProperties) {
         if (thisMethodProperties.size() != otherMethodProperties.size()) {
             return false;
         }
@@ -113,7 +118,7 @@ public final class DimensionPropertiesMethodKey {
      * @return true if propertyValue is null or it contains only null values. If it contains any not null value -
      *         falseT;
      */
-    private boolean isEmpty(Object propertyValue) {
+    private static boolean isEmpty(Object propertyValue) {
         if (propertyValue == null) {
             return true;
         }

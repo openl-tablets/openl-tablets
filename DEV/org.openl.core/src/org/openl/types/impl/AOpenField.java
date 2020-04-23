@@ -16,7 +16,7 @@ import org.openl.types.java.JavaOpenClass;
  *
  */
 public abstract class AOpenField implements IOpenField {
-    private String name;
+    private final String name;
 
     private IOpenClass type = JavaOpenClass.OBJECT;
 
