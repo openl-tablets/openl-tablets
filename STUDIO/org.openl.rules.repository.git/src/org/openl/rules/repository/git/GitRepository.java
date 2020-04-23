@@ -1335,13 +1335,16 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     resetCommand.call();
                 } catch (JGitInternalException e) {
                     // check if index file is corrupted
+                    File indexFile = git.getRepository().getIndexFile();
                     try {
-                        DirCache dc = new DirCache(git.getRepository().getIndexFile(), git.getRepository().getFS());
+                        DirCache dc = new DirCache(indexFile, git.getRepository().getFS());
                         dc.read();
                         log.error(e.getMessage(), e);
                     } catch (CorruptObjectException ex) {
                         log.error("git index file is corrupted and will be deleted", e);
-                        git.getRepository().getIndexFile().delete();
+                        if (!indexFile.delete() && indexFile.exists()) {
+                            log.warn("Can't delete corrupted index file {}.", indexFile);
+                        }
                         resetCommand.call();
                     }
                 }
