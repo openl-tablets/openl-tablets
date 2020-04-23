@@ -889,7 +889,6 @@ public class GitRepositoryTest {
         assertEquals(BRANCH, repo.getBranch());
         assertEquals("project1/test1", repoTest1.getBranch());
         assertEquals("project1/test2", repoTest2.getBranch());
-        assertSame(repoTest1, repo.forBranch("project1/test1"));
 
         repoTest1.deleteBranch("project1", "project1/test1");
         branches = repo.getBranches("project1");

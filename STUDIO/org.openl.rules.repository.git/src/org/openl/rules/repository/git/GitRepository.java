@@ -91,11 +91,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private Map<String, List<String>> branches = new HashMap<>();
 
-    /**
-     * Holds secondary repositories for other branches.
-     */
-    private Map<String, GitRepository> branchRepos = new HashMap<>();
-
     @Override
     public List<FileData> list(String path) throws IOException {
         if (isEmpty()) {
@@ -685,10 +680,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             readBranches();
 
             monitor = new ChangesMonitor(new GitRevisionGetter(), listenerTimerPeriod);
-
-            for (String branch : getAvailableBranches()) {
-                branchRepos.put(branch, createRepository(branch));
-            }
         } catch (Exception e) {
             Throwable cause = ExceptionUtils.getRootCause(e);
             if (cause == null) {
@@ -1943,7 +1934,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 git.checkout().setName(baseBranch).call();
                 git.branchDelete().setBranchNames(branch).setForce(true).call();
                 pushBranch(new RefSpec().setSource(null).setDestination(Constants.R_HEADS + branch));
-                branchRepos.remove(branch);
             } else {
                 // Remove branch mapping for specific project only.
                 List<String> projectBranches = branches.get(projectName);
@@ -2002,14 +1992,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public GitRepository forBranch(String branch) throws IOException {
-        GitRepository repository;
-
         Lock readLock = repositoryLock.readLock();
         try {
             log.debug("forBranch(): read: lock");
             readLock.lock();
-            repository = branchRepos.get(branch);
-            if (repository == null && git.getRepository().findRef(branch) == null) {
+            if (git.getRepository().findRef(branch) == null) {
                 List<Ref> refs = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
 
                 boolean branchExist = false;
@@ -2032,28 +2019,20 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             readLock.unlock();
             log.debug("forBranch(): read: unlock");
         }
-        if (repository == null) {
-            Lock writeLock = repositoryLock.writeLock();
-            try {
-                log.debug("forBranch(): write: lock");
-                writeLock.lock();
+        Lock writeLock = repositoryLock.writeLock();
+        try {
+            log.debug("forBranch(): write: lock");
+            writeLock.lock();
 
-                repository = branchRepos.get(branch);
-                if (repository == null) {
-                    repository = createRepository(branch);
-                    branchRepos.put(branch, repository);
-                }
-            } catch (IOException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new IOException(e);
-            } finally {
-                writeLock.unlock();
-                log.debug("forBranch(): write: unlock");
-            }
+            return createRepository(branch);
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IOException(e);
+        } finally {
+            writeLock.unlock();
+            log.debug("forBranch(): write: unlock");
         }
-
-        return repository;
     }
 
     private GitRepository createRepository(String branch) throws IOException, GitAPIException {
