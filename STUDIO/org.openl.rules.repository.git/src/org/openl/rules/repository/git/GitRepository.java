@@ -964,14 +964,26 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         Ref advertisedRef = fetchResult.getAdvertisedRef(Constants.R_HEADS + branch);
         Ref localRef = git.getRepository().findRef(branch);
         if (localRef != null && advertisedRef != null && !localRef.getObjectId().equals(advertisedRef.getObjectId())) {
-            // Typically this shouldn't occur. But if found such case, should fast-forward local repository and write
-            // warning for future investigation.
-            log.warn("Found commits that are not fast forwarded in branch '{}'. Current HEAD: {}, advertised ref: {}",
-                branch,
-                localRef.getObjectId().name(),
-                advertisedRef.getObjectId().name());
-            git.checkout().setName(branch).call();
-            git.merge().include(advertisedRef).setFastForward(MergeCommand.FastForwardMode.FF_ONLY).call();
+            if (isMergedInto(advertisedRef.getObjectId(), localRef.getObjectId())) {
+                // We enter here only if we have inconsistent repository state. Need additional investigation if this
+                // occurred. For example this can happen if we discarded locally some commit but the branch didn't move
+                // to the desired new HEAD.
+                log.warn(
+                    "Advertised commit is already merged into current head in branch '{}'. Current HEAD: {}, advertised ref: {}",
+                    branch,
+                    localRef.getObjectId().name(),
+                    advertisedRef.getObjectId().name());
+            } else {
+                // Typically this shouldn't occur. But if found such case, should fast-forward local repository and write
+                // warning for future investigation.
+                log.warn(
+                    "Found commits that are not fast forwarded in branch '{}'. Current HEAD: {}, advertised ref: {}",
+                    branch,
+                    localRef.getObjectId().name(),
+                    advertisedRef.getObjectId().name());
+                git.checkout().setName(branch).call();
+                git.merge().include(advertisedRef).setFastForward(MergeCommand.FastForwardMode.FF_ONLY).call();
+            }
         }
     }
 
@@ -1312,6 +1324,16 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
+    private void resetToCommit(String refToResetTo) {
+        try {
+            if (refToResetTo != null) {
+                git.reset().setMode(ResetCommand.ResetType.HARD).setRef(refToResetTo).call();
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
     private boolean isCommitMerged(String commitId) throws IOException {
         Repository repository = git.getRepository();
         try (RevWalk revWalk = new RevWalk(repository)) {
@@ -1518,6 +1540,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("pull(author): lock");
             writeLock.lock();
 
+            reset();
+            if (!isEmpty()) {
+                git.checkout().setName(branch).call();
+            }
+
             pull(null, author);
         } catch (IOException e) {
             throw e;
@@ -1533,23 +1560,22 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     @Override
     public void merge(String branchFrom, String author, ConflictResolveData conflictResolveData) throws IOException {
         Lock writeLock = repositoryLock.writeLock();
-        String mergeCommitId = null;
+        String refToResetTo = null;
         try {
             log.debug("merge(): lock");
             writeLock.lock();
 
             reset();
+            git.checkout().setName(branch).call();
+
             if (conflictResolveData == null) {
                 pull(null, author);
             }
+            refToResetTo = git.getRepository().findRef(branch).getObjectId().getName();
 
-            git.checkout().setName(branch).call();
             Ref branchRef = git.getRepository().findRef(branchFrom);
             String mergeMessage = getMergeMessage(author, branchRef);
             MergeResult mergeResult = git.merge().include(branchRef).setMessage(mergeMessage).call();
-            if (mergeResult.getMergeStatus().isSuccessful()) {
-                mergeCommitId = mergeResult.getNewHead().getName();
-            }
 
             if (conflictResolveData != null) {
                 resolveConflict(mergeResult, conflictResolveData, author);
@@ -1560,10 +1586,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             pull(null, author);
             push();
         } catch (IOException e) {
-            reset(mergeCommitId);
+            resetToCommit(refToResetTo);
             throw e;
         } catch (Exception e) {
-            reset(mergeCommitId);
+            resetToCommit(refToResetTo);
             throw new IOException(e.getMessage(), e);
         } finally {
             writeLock.unlock();
@@ -1580,24 +1606,27 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("isMergedInto(): lock");
             readLock.lock();
             Repository repository = git.getRepository();
-
-            try (RevWalk revWalk = new RevWalk(repository)) {
-                ObjectId fromId = repository.resolve(from);
-                ObjectId toId = repository.resolve(to);
-                if (fromId == null || toId == null) {
-                    return false;
-                }
-                RevCommit fromCommit = revWalk.parseCommit(fromId);
-                RevCommit toCommit = revWalk.parseCommit(toId);
-                return revWalk.isMergedInto(fromCommit, toCommit);
-            } catch (IOException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new IOException(e.getMessage(), e);
-            }
+            return isMergedInto(repository.resolve(from), repository.resolve(to));
         } finally {
             readLock.unlock();
             log.debug("isMergedInto(): unlock");
+        }
+    }
+
+    private boolean isMergedInto(ObjectId fromId, ObjectId toId) throws IOException {
+        Repository repository = git.getRepository();
+
+        try (RevWalk revWalk = new RevWalk(repository)) {
+            if (fromId == null || toId == null) {
+                return false;
+            }
+            RevCommit fromCommit = revWalk.parseCommit(fromId);
+            RevCommit toCommit = revWalk.parseCommit(toId);
+            return revWalk.isMergedInto(fromCommit, toCommit);
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IOException(e.getMessage(), e);
         }
     }
 

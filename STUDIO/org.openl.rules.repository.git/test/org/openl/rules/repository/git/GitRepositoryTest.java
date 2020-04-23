@@ -990,6 +990,77 @@ public class GitRepositoryTest {
         }
     }
 
+    @Test
+    public void testPullDoesntAutoMerge() throws IOException {
+        final String newBranch = "new-branch";
+        repo.createBranch("project1", newBranch);
+        GitRepository newBranchRepo = repo.forBranch(newBranch);
+
+        // Add a new commit in the new branch.
+        final String newPath = "rules/project1/folder/file-in-new-branch";
+        String newText = "File located in " + newPath;
+        newBranchRepo.save(createFileData(newPath, newText), IOUtils.toInputStream(newText));
+
+        // Add a new commit in 'test' branch after 'new-branch' was created. Forces invocation of 'git checkout test' to
+        // switch branch.
+        String mainText = "Modify";
+        repo.save(createFileData("rules/project1/folder/file4", mainText), IOUtils.toInputStream(mainText));
+
+        // After current branch was switched to 'test', invoke pull on 'new-branch'.
+        newBranchRepo.pull("John Smith");
+
+        assertNotNull("The file '" + newPath + "' must exist in '" + newBranch + "'", newBranchRepo.check(newPath));
+        // Check that pull is invoked on correct branch and that 'new-branch' isn't merged into 'test'.
+        assertNull(
+            "The file '" + newPath + "' must be absent in '" + BRANCH + "', because the branch '" + newBranch + "' wasn't merged yet.",
+            repo.check(newPath));
+    }
+
+
+    @Test
+    public void testOnlySpecifiedBranchesAreMerged() throws IOException {
+        final String branch1 = "branch1";
+        repo.createBranch("project1", branch1);
+        GitRepository branch1Repo = repo.forBranch(branch1);
+
+        final String branch2 = "branch2";
+        repo.createBranch("project1", branch2);
+        GitRepository branch2Repo = repo.forBranch(branch2);
+
+        // Add commits in the new branches.
+        final String path1 = "rules/project1/folder/new-file1";
+        String text1 = "Text1";
+        branch1Repo.save(createFileData(path1, text1), IOUtils.toInputStream(text1));
+
+        final String path2 = "rules/project1/folder/new-file2";
+        String text2 = "Text2";
+        branch2Repo.save(createFileData(path2, text2), IOUtils.toInputStream(text2));
+
+        // Add a new commit in 'test' branch after new branches were created. Forces invocation of 'git checkout test'
+        // to switch branch.
+        String mainText = "Modify";
+        repo.save(createFileData("rules/project1/folder/file4", mainText), IOUtils.toInputStream(mainText));
+
+        // After current branch was switched to 'test', merge 'branch1' to 'branch2'.
+        branch2Repo.merge(branch1, "John Smith", null);
+
+        // Check that 'branch1' and 'branch2' aren't merged into 'test'
+        assertNull(
+            "The file '" + path1 + "' must be absent in '" + BRANCH + "', because the branch '" + branch1 + "' wasn't merged yet.",
+            repo.check(path1));
+        assertNull(
+            "The file '" + path2 + "' must be absent in '" + BRANCH + "', because the branch '" + branch2 + "' wasn't merged yet.",
+            repo.check(path2));
+
+        // Check that ''branch2' isn't merged into 'branch1'
+        assertNotNull("The file '" + path1 + "' must exist in '" + branch1 + "'", branch1Repo.check(path1));
+        assertNull("The file '" + path2 + "' must be absent in '" + branch1 + "'", branch1Repo.check(path2));
+
+        // Check that 'branch1 is merged into 'branch2'
+        assertNotNull("The file '" + path1 + "' must exist in '" + branch2 + "'", branch2Repo.check(path1));
+        assertNotNull("The file '" + path2 + "' must exist in '" + branch2 + "'", branch2Repo.check(path2));
+    }
+
     private GitRepository createRepository(File remote, File local) throws RRepositoryException {
         return createRepository(remote, local, BRANCH);
     }
