@@ -719,9 +719,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             git.close();
             git = null;
         }
-        for (GitRepository repository : branchRepos.values()) {
-            repository.close();
-        }
     }
 
     public void setUri(String uri) {
@@ -2080,7 +2077,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         repo.setConnectionTimeout(connectionTimeout);
         repo.setCommentTemplate(commentTemplate);
         repo.setGitSettingsPath(gitSettingsPath);
-        repo.git = Git.open(new File(localRepositoryPath));
+        repo.git = git;
         repo.repositoryLock = repositoryLock; // must be common for all instances because git
         // repository is same
         repo.remoteRepoLock = remoteRepoLock; // must be common for all instances because git
