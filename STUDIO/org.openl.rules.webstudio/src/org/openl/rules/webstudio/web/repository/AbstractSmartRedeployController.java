@@ -26,6 +26,7 @@ import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
@@ -109,7 +110,7 @@ public abstract class AbstractSmartRedeployController {
     }
 
     private AProject getDeployedProject(AProject wsProject, String deployConfigName) throws IOException {
-        Repository deployRepo = null;
+        Repository deployRepo;
         try {
             deployRepo = deploymentManager.getDeployRepository(repositoryConfigName);
         } catch (RRepositoryException e) {
@@ -139,6 +140,7 @@ public abstract class AbstractSmartRedeployController {
         if (userWorkspace == null) {
             return result; // must never happen
         }
+        String dateTimeFormat = WebStudioFormats.getInstance().dateTime();
         // get all deployment projects
         List<TreeNode> nodes = repositoryTreeState.getDeploymentRepository().getChildNodes();
         for (TreeNode node : nodes) {
@@ -235,7 +237,7 @@ public abstract class AbstractSmartRedeployController {
                     // overwrite settings
                     checker.addProject(project);
                     if (checker.check()) {
-                        String to = RepositoryTreeController.getDescriptiveVersion(project.getVersion());
+                        String to = RepositoryTreeController.getDescriptiveVersion(project.getVersion(), dateTimeFormat);
                         if (deployedProject == null) {
                             item.setMessages("Can be deployed");
                         } else if (lastDeployedVersion == null) {
@@ -251,7 +253,7 @@ public abstract class AbstractSmartRedeployController {
                                 .getDescriptiveVersion(userWorkspace.getDesignTimeRepository()
                                     .getProject(projectDescriptor.getProjectName(),
                                         new CommonVersionImpl(lastDeployedVersion))
-                                    .getVersion());
+                                    .getVersion(), dateTimeFormat);
                             item.setMessages("Can be updated to '" + to + "' from '" + from + "' and then deployed");
                         }
                     } else {

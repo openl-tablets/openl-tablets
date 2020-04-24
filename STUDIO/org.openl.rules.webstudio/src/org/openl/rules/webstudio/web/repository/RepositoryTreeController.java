@@ -182,6 +182,8 @@ public class RepositoryTreeController {
     private String restoreProjectComment;
     private String eraseProjectComment;
 
+    private String dateTimeFormat;
+
     public void setZipFilter(PathFilter zipFilter) {
         this.zipFilter = zipFilter;
     }
@@ -1319,12 +1321,16 @@ public class RepositoryTreeController {
         return selectItems.toArray(new SelectItem[0]);
     }
 
-    public static String getDescriptiveVersion(ProjectVersion version) {
+    public String getDescriptiveVersion(ProjectVersion version) {
+        return getDescriptiveVersion(version, dateTimeFormat);
+    }
+
+    public static String getDescriptiveVersion(ProjectVersion version, String dateTimeFormat) {
         VersionInfo versionInfo = version.getVersionInfo();
         if (versionInfo == null) {
             return "Version not found";
         }
-        String modifiedOnStr = WebStudioFormats.getInstance().formatDateTime(versionInfo.getCreatedAt());
+        String modifiedOnStr = new SimpleDateFormat(dateTimeFormat).format(versionInfo.getCreatedAt());
         return versionInfo.getCreatedBy() + ": " + modifiedOnStr;
     }
 
@@ -2163,5 +2169,6 @@ public class RepositoryTreeController {
         } else {
             deployConfigCommentValidator = designCommentValidator;
         }
+        dateTimeFormat = WebStudioFormats.getInstance().dateTime();
     }
 }
