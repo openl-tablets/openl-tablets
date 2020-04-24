@@ -91,6 +91,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private Map<String, List<String>> branches = new HashMap<>();
 
+    private boolean closed;
+
     @Override
     public List<FileData> list(String path) throws IOException {
         if (isEmpty()) {
@@ -702,6 +704,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public void close() {
+        closed = true;
+
         if (monitor != null) {
             monitor.release();
             monitor = null;
@@ -796,7 +800,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         String fullPath = baseFolder + dirWalk.getPathString();
         return new LazyFileData(branch,
             fullPath,
-            new File(localRepositoryPath),
+            this,
             start,
             getFileId(dirWalk),
             escapedCommentTemplate);
@@ -820,7 +824,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
         return new LazyFileData(branch,
             fullPath,
-            new File(localRepositoryPath),
+            this,
             fileCommit,
             getFileId(dirWalk),
             escapedCommentTemplate);
@@ -2254,6 +2258,22 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return false;
     }
 
+    /**
+     * Returns Git repository that can safely be closed.<br/>
+     * If our instance of GitRepository isn't closed, returns Git object that reuses existing Repository instance. In
+     * this case close() method does nothing: Repository object is managed by GitRepository.<br/>
+     * If our instance of GitRepository is closed, returns Git object with a new Repository instance so the caller must
+     * close it.<br/>
+     * So we have a general rule: when you use getClosableGit(), you must always close returned object.
+     */
+    Git getClosableGit() throws IOException {
+        if (closed) {
+            return Git.open(new File(localRepositoryPath));
+        } else {
+            return new Git(git.getRepository());
+        }
+    }
+
     private CredentialsProvider getCredentialsProvider() throws IOException {
         if (credentialsProvider != null && credentialsProvider.isHasAuthorizationFailure()) {
             // We cannot use this credentials provider anymore. If we continue, the server can lock us for brute
@@ -2333,7 +2353,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                 if (revCommit != null) {
                                     files.add(new LazyFileData(branch,
                                         baseFolder + dirWalk.getPathString(),
-                                        new File(localRepositoryPath),
+                                        GitRepository.this,
                                         revCommit,
                                         getFileId(dirWalk),
                                         escapedCommentTemplate));
@@ -2433,7 +2453,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 log.debug("File '{}' is absent in the commit {}", fullPath, commitVersion, e);
                 FileData data = new LazyFileData(branch,
                     fullPath,
-                    new File(localRepositoryPath),
+                    GitRepository.this,
                     commit,
                     null,
                     escapedCommentTemplate);
