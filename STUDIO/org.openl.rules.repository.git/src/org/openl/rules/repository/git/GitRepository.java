@@ -875,8 +875,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 projectBranches.removeIf(branch -> !availableBranches.contains(branch));
             }
             saveBranches();
-
-            reset();
         } finally {
             writeLock.unlock();
             log.debug("getLastRevision(): unlock write");
