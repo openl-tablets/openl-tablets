@@ -23,7 +23,8 @@ public class SwaggerAndOpenApiHackContainerRequestFilter implements ContainerReq
 
     private final ObjectMapper objectMapper;
 
-    private static final ReentrantLock lock = new ReentrantLock();
+    private static final ReentrantLock swaggerLock = new ReentrantLock();
+    private static final ReentrantLock openApiLock = new ReentrantLock();
 
     public SwaggerAndOpenApiHackContainerRequestFilter(ObjectMapper objectMapper) {
         this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper cannot be null");
@@ -45,6 +46,8 @@ public class SwaggerAndOpenApiHackContainerRequestFilter implements ContainerReq
         UriInfo ui = requestContext.getUriInfo();
         SwaggerAndOpenApiObjectMapperHack swaggerAndOpenApiObjectMapperHack = getSwaggerAndOpenApiObjectMapperHack(ui);
         if (swaggerAndOpenApiObjectMapperHack != null) {
+            ReentrantLock lock = swaggerAndOpenApiObjectMapperHack instanceof OpenApiObjectMapperHack ? openApiLock
+                                                                                                      : swaggerLock;
             requestContext.setProperty("SwaggerAndOpenApiHackContainerRequestFilterLock", lock);
             lock.lock();
             OpenApiRulesCacheWorkaround.reset();

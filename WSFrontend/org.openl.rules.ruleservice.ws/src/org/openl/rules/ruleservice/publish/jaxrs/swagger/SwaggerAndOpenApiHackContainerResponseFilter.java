@@ -13,16 +13,17 @@ import javax.ws.rs.container.PreMatching;
 public class SwaggerAndOpenApiHackContainerResponseFilter implements ContainerResponseFilter {
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
+        Object swaggerAndOpenApiObjectMapperHack = requestContext.getProperty("SwaggerAndOpenApiObjectMapperHack");
+        if (swaggerAndOpenApiObjectMapperHack instanceof SwaggerAndOpenApiObjectMapperHack) {
+            ((SwaggerAndOpenApiObjectMapperHack) swaggerAndOpenApiObjectMapperHack).revert();
+            requestContext.removeProperty("SwaggerAndOpenApiObjectMapperHack");
+        }
+
         Object lock = requestContext.getProperty("SwaggerAndOpenApiHackContainerRequestFilterLock");
         if (lock instanceof ReentrantLock) {
             ReentrantLock reentrantLock = (ReentrantLock) lock;
             reentrantLock.unlock();
             requestContext.removeProperty("SwaggerAndOpenApiHackContainerRequestFilterLock");
-        }
-        Object swaggerAndOpenApiObjectMapperHack = requestContext.getProperty("SwaggerAndOpenApiObjectMapperHack");
-        if (swaggerAndOpenApiObjectMapperHack instanceof SwaggerAndOpenApiObjectMapperHack) {
-            ((SwaggerAndOpenApiObjectMapperHack) swaggerAndOpenApiObjectMapperHack).revert();
-            requestContext.removeProperty("SwaggerAndOpenApiObjectMapperHack");
         }
     }
 }
