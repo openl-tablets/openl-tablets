@@ -827,11 +827,11 @@ public final class Strings {
         List<String> list = new ArrayList<>();
         final int len = str.length();
         final int lenDelim = delimiter.length();
-        int start = 0;
-        int pos = 0;
+        int start = 0, pos = 0;
         while (pos < len) {
             int posDelim = 0;
             boolean matched = true;
+            int end = pos;
             while (posDelim < lenDelim && pos < len) {
                 if (delimiter.charAt(posDelim++) != str.charAt(pos++)) {
                     matched = false;
@@ -839,8 +839,7 @@ public final class Strings {
                 }
             }
             if (matched) {
-                int end = pos - lenDelim;
-                if (end - start > 0) {
+                if (start < end) {
                     list.add(str.substring(start, end));
                 }
                 start = pos;
