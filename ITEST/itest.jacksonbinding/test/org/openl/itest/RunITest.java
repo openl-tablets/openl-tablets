@@ -24,7 +24,7 @@ public class RunITest {
         TimeZone defaultTimeZone = TimeZone.getTimeZone("Europe/Helsinki");
         TimeZone.setDefault(defaultTimeZone);
 
-        server = JettyServer.start();
+        server = JettyServer.startSharingClassLoader();
         client = server.client();
     }
 
