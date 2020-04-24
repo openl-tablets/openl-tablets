@@ -3,6 +3,8 @@ package org.openl.rules.util;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -752,5 +754,101 @@ public final class Strings {
         }
 
         return regex.toString();
+    }
+
+    /**
+     * Joins an array of objects by the given delimiter to the single string. Blank strings will be ignored.</br>
+     * <br/>
+     * Examples:<br/>
+     * <br/>
+     * <code>
+     *     textJoin(null, null)                       = null<br/>
+     *     textJoin(",", null)                        = null<br/>
+     *     textJoin(",", [])                          = ""<br/>
+     *     textJoin(null, ["a,b,c"])                  = "a,b,c"<br/>
+     *     textJoin(", ", ["a", "b", "c"])            = "a, b, c"<br/>
+     *     textJoin(",", ["a", "", "b", null, "c"])   = "a, b, c"<br/>
+     * </code>
+     * @param delimiter the delimiting string
+     * @param values an array of objects to join by target delimiter
+     * @return the single string computing by joining of each array element
+     */
+    public static String textJoin(String delimiter, Object... values) {
+        if (values == null) {
+            return null;
+        }
+        if (values.length == 0) {
+            return "";
+        }
+        boolean hasDelimiter = !isEmpty0(delimiter);
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        for (Object o : values) {
+            if (o == null) {
+                continue;
+            }
+            String str = String.valueOf(o);
+            if (isEmpty0(str)) {
+                continue;
+            }
+            if (hasDelimiter && i > 0) {
+                sb.append(delimiter);
+            }
+            sb.append(str);
+            i++;
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Splits string by given delimiter.<br/>
+     * <br/>
+     * Examples:<br/>
+     * <br/>
+     * <code>
+     *     textSplit(null, null)           = null<br/>
+     *     textSplit(",", null)            = null<br/>
+     *     textSplit(null, "a,b,c")        = ["a,b,c"]<br/>
+     *     textSplit(",", "a,b,c")         = ["a", "b", "c"]<br/>
+     *     textSplit(",", ",,a,,b,,c,,")   = ["a", "b", "c"]<br/>
+     * </code>
+     *
+     * @param delimiter the delimiting string
+     * @param str string to split
+     * @return the array of strings computing by splitting target string by given delimiter
+     */
+    public static String[] textSplit(String delimiter, String str) {
+        if (str == null) {
+            return null;
+        }
+        if (isEmpty0(str) || isEmpty0(delimiter)) {
+            return new String[] {str};
+        }
+        List<String> list = new ArrayList<>();
+        final int len = str.length();
+        final int lenDelim = delimiter.length();
+        int start = 0;
+        int pos = 0;
+        while (pos < len) {
+            int posDelim = 0;
+            boolean matched = true;
+            while (posDelim < lenDelim && pos < len) {
+                if (delimiter.charAt(posDelim++) != str.charAt(pos++)) {
+                    matched = false;
+                    break;
+                }
+            }
+            if (matched) {
+                int end = pos - lenDelim;
+                if (end - start > 0) {
+                    list.add(str.substring(start, end));
+                }
+                start = pos;
+            }
+        }
+        if (start < len) {
+            list.add(str.substring(start, len));
+        }
+        return list.toArray(new String[0]);
     }
 }

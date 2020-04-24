@@ -10,10 +10,24 @@ public interface Formats {
 
     String dateTime();
 
+    /**
+     * Format date object to have date info (without time). Note: you should not use it in a loop because date format
+     * retrieving can be slow. Instead, you should retrieve format once and use preconfigured SimpleDateFormat in the
+     * loop.
+     *
+     * @see #date()
+     */
     default String formatDate(Date date) {
         return new SimpleDateFormat(date()).format(date);
     }
 
+    /**
+     * Format date object to have date and time info. Note: you should not use it in a loop because dateTime format
+     * retrieving can be slow. Instead, you should retrieve format once and use preconfigured SimpleDateFormat in the
+     * loop.
+     * 
+     * @see #dateTime()
+     */
     default String formatDateTime(Date date) {
         return new SimpleDateFormat(dateTime()).format(date);
     }

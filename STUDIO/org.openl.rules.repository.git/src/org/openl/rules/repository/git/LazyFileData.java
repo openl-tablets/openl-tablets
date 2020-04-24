@@ -1,6 +1,5 @@
 package org.openl.rules.repository.git;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.ParseException;
@@ -22,7 +21,7 @@ class LazyFileData extends FileData {
     private final Logger log = LoggerFactory.getLogger(GitRepository.class);
 
     private final String fullPath;
-    private final File repoFolder;
+    private final GitRepository gitRepo;
     private ObjectId fromCommit;
     private RevCommit fileCommit;
     private ObjectId fileId;
@@ -32,7 +31,7 @@ class LazyFileData extends FileData {
 
     LazyFileData(String branch,
             String fullPath,
-            File repoFolder,
+            GitRepository gitRepo,
             ObjectId fromCommit,
             ObjectId fileId,
             String commentTemplate) {
@@ -43,7 +42,7 @@ class LazyFileData extends FileData {
         }
 
         this.fullPath = fullPath;
-        this.repoFolder = repoFolder;
+        this.gitRepo = gitRepo;
         this.commentTemplate = commentTemplate;
         this.fromCommit = fromCommit;
         this.fileId = fileId;
@@ -51,7 +50,7 @@ class LazyFileData extends FileData {
 
     LazyFileData(String branch,
             String fullPath,
-            File repoFolder,
+            GitRepository gitRepo,
             RevCommit fileCommit,
             ObjectId fileId,
             String commentTemplate) {
@@ -62,7 +61,7 @@ class LazyFileData extends FileData {
         }
 
         this.fullPath = fullPath;
-        this.repoFolder = repoFolder;
+        this.gitRepo = gitRepo;
         this.commentTemplate = commentTemplate;
         this.fileCommit = fileCommit;
         this.fileId = fileId;
@@ -71,7 +70,7 @@ class LazyFileData extends FileData {
     @Override
     public long getSize() {
         if (fileId != null) {
-            try (Git git = Git.open(repoFolder)) {
+            try (Git git = gitRepo.getClosableGit()) {
                 ObjectLoader loader = git.getRepository().open(fileId);
                 super.setSize(loader.getSize());
                 fileId = null;
@@ -155,7 +154,7 @@ class LazyFileData extends FileData {
             return;
         }
 
-        try (Git git = Git.open(repoFolder)) {
+        try (Git git = gitRepo.getClosableGit()) {
             if (fileCommit == null) {
                 try {
                     fileCommit = GitRepository.findFirstCommit(git, fromCommit, fullPath);

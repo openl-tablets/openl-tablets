@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository.merge;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -191,11 +192,12 @@ public class MergeConflictBean {
         try {
             UserWorkspace userWorkspace = getUserWorkspace();
 
+            SimpleDateFormat formatter = new SimpleDateFormat(WebStudioFormats.getInstance().dateTime());
             Repository designRepository = userWorkspace.getDesignTimeRepository().getRepository();
             for (String file : mergeConflict.getException().getConflictedFiles()) {
                 FileData fileData = designRepository.checkHistory(file, commit);
                 if (fileData != null) {
-                    String modifiedOnStr = WebStudioFormats.getInstance().formatDateTime(fileData.getModifiedAt());
+                    String modifiedOnStr = formatter.format(fileData.getModifiedAt());
                     return fileData.getAuthor() + ": " + modifiedOnStr;
                 }
             }
