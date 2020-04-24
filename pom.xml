@@ -108,6 +108,8 @@
         <!-- 48MB Should be enough to don't fall in OutOfMemoryError. It equals to MaxNonGCSize=30MB + ~50%-->
         <!-- 128MB allows do not worry about OutOfMemoryError. It equals to MaxNonGCSize=30MB + ~350% -->
         <surefire.argLine>-Xms8m -Xmx128m</surefire.argLine>
+        <!-- Fine tuned settings to detects memory and performance issues -->
+        <surefire.argLine.perf>-Xms8m -Xmx41m</surefire.argLine.perf>
         <openl.home>${project.build.directory}/openl-test</openl.home>
         <openl.info>main</openl.info>
     </properties>
@@ -382,8 +384,7 @@
                 </property>
             </activation>
             <properties>
-                <!-- Fine tuned settings to detects memory and performance issues -->
-                <surefire.argLine>-Xms8m -Xmx41m</surefire.argLine>
+                <surefire.argLine>${surefire.argLine.perf}</surefire.argLine>
             </properties>
         </profile>
         <profile>
