@@ -255,10 +255,14 @@
             <artifactId>jakarta.activation-api</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
     </dependencies>
     <profiles>
         <profile>
-            <id>java11</id> <!-- Additional libs for java 11 if it is compiled from java 8 -->
+            <id>qsgvosavun</id>
             <activation>
                 <jdk>[1.8,9)</jdk>
             </activation>
