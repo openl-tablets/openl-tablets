@@ -1,0 +1,63 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "mixins-test",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/proxyCustomer": {
+      "post": {
+        "summary": "Customer proxyCustomer(Customer c)",
+        "description": "Rules method: Customer proxyCustomer(Customer c)",
+        "operationId": "proxyCustomer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Customer"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Customer"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Customer": {
+        "type": "object",
+        "properties": {
+          "cusomerID": {
+            "type": "string"
+          },
+          "genderCd": {
+            "type": "string",
+            "xml": {
+              "name": "gender"
+            },
+            "default": "other"
+          },
+          "dob": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "xml": {
+          "name": "Customer",
+          "namespace": "http://beans.generated.openl.org"
+        }
+      }
+    }
+  }
+}

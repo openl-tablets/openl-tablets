@@ -2,17 +2,14 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "mixins-test",
-    "contact": {
-      "name": "OpenL Tablets team"
-    }
+    "title": "mixins-test"
   },
   "basePath": "/EPBDS-9581/EPBDS-9581",
   "paths": {
     "/proxyCustomer": {
       "post": {
-        "summary": "Method: proxyCustomer(Customer c)",
-        "description": "",
+        "summary": "Customer proxyCustomer(Customer c)",
+        "description": "Rules method: Customer proxyCustomer(Customer c)",
         "operationId": "proxyCustomer",
         "consumes": [
           "application/json"

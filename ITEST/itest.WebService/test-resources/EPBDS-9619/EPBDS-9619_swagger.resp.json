@@ -2,18 +2,15 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "EPBDS-9619_EPBDS-9619",
-    "contact": {
-      "name": "OpenL Tablets team"
-    }
+    "title": "EPBDS-9619_EPBDS-9619"
   },
   "basePath": "/REST/EPBDS-9619/EPBDS-9619",
   "paths": {
-    "/myCalc6": {
+    "/myCalc4": {
       "post": {
-        "summary": "Method: myCalc6(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "myCalc6",
+        "summary": "MyCalc4 myCalc4(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc4 myCalc4(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc4",
         "consumes": [
           "application/json"
         ],
@@ -34,17 +31,17 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/MyCalc6"
+              "$ref": "#/definitions/MyCalc4"
             }
           }
         }
       }
     },
-    "/myCalc7": {
+    "/myCalc5": {
       "post": {
-        "summary": "Method: myCalc7(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "myCalc7",
+        "summary": "MyCalc5 myCalc5(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc5 myCalc5(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc5",
         "consumes": [
           "application/json"
         ],
@@ -65,69 +62,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/MyCalc7"
-            }
-          }
-        }
-      }
-    },
-    "/myCalc8": {
-      "post": {
-        "summary": "Method: myCalc8(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "myCalc8",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MyCalc8"
-            }
-          }
-        }
-      }
-    },
-    "/myCalc2": {
-      "post": {
-        "summary": "Method: myCalc2(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "myCalc2",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MyCalc2"
+              "$ref": "#/definitions/MyCalc5"
             }
           }
         }
@@ -135,8 +70,8 @@
     },
     "/getMyCalcs3": {
       "post": {
-        "summary": "Method: getMyCalcs3(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
+        "summary": "MyCalc3[] getMyCalcs3(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc3[] getMyCalcs3(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "getMyCalcs3",
         "consumes": [
           "application/json"
@@ -167,106 +102,10 @@
         }
       }
     },
-    "/myCalc9": {
-      "post": {
-        "summary": "Method: myCalc9(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "myCalc9",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MyCalc9"
-            }
-          }
-        }
-      }
-    },
-    "/myCalc": {
-      "post": {
-        "summary": "Method: myCalc(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "myCalc",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MyCalc"
-            }
-          }
-        }
-      }
-    },
-    "/getMyCalcs6": {
-      "post": {
-        "summary": "Method: getMyCalcs6(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "getMyCalcs6",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/MyCalc6"
-              }
-            }
-          }
-        }
-      }
-    },
     "/getMyCalcs7": {
       "post": {
-        "summary": "Method: getMyCalcs7(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
+        "summary": "MyCalc7[] getMyCalcs7(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc7[] getMyCalcs7(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "getMyCalcs7",
         "consumes": [
           "application/json"
@@ -297,78 +136,10 @@
         }
       }
     },
-    "/getMyCalcs10": {
-      "post": {
-        "summary": "Method: getMyCalcs10(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "getMyCalcs10",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/MyCalc10"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/getMyCalcs4": {
-      "post": {
-        "summary": "Method: getMyCalcs4(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "getMyCalcs4",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/MyCalc4"
-              }
-            }
-          }
-        }
-      }
-    },
     "/getMyCalcs": {
       "post": {
-        "summary": "Method: getMyCalcs(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
+        "summary": "MyCalc[] getMyCalcs(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc[] getMyCalcs(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "getMyCalcs",
         "consumes": [
           "application/json"
@@ -399,11 +170,104 @@
         }
       }
     },
-    "/getMyCalcs2": {
+    "/myCalc3": {
       "post": {
-        "summary": "Method: getMyCalcs2(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "getMyCalcs2",
+        "summary": "MyCalc3 myCalc3(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc3 myCalc3(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc3",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MyCalc3"
+            }
+          }
+        }
+      }
+    },
+    "/myCalc2": {
+      "post": {
+        "summary": "MyCalc2 myCalc2(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc2 myCalc2(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc2",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MyCalc2"
+            }
+          }
+        }
+      }
+    },
+    "/myCalc7": {
+      "post": {
+        "summary": "MyCalc7 myCalc7(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc7 myCalc7(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc7",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MyCalc7"
+            }
+          }
+        }
+      }
+    },
+    "/getMyCalcs8": {
+      "post": {
+        "summary": "MyCalc8[] getMyCalcs8(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc8[] getMyCalcs8(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs8",
         "consumes": [
           "application/json"
         ],
@@ -426,7 +290,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/MyCalc2"
+                "$ref": "#/definitions/MyCalc8"
               }
             }
           }
@@ -435,8 +299,8 @@
     },
     "/getMyCalcs11": {
       "post": {
-        "summary": "Method: getMyCalcs11(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
+        "summary": "MyCalc11[] getMyCalcs11(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc11[] getMyCalcs11(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "getMyCalcs11",
         "consumes": [
           "application/json"
@@ -467,10 +331,72 @@
         }
       }
     },
+    "/myCalc10": {
+      "post": {
+        "summary": "MyCalc10 myCalc10(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc10 myCalc10(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc10",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MyCalc10"
+            }
+          }
+        }
+      }
+    },
+    "/myCalc8": {
+      "post": {
+        "summary": "MyCalc8 myCalc8(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc8 myCalc8(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc8",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MyCalc8"
+            }
+          }
+        }
+      }
+    },
     "/getMyCalcs5": {
       "post": {
-        "summary": "Method: getMyCalcs5(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
+        "summary": "MyCalc5[] getMyCalcs5(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc5[] getMyCalcs5(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "getMyCalcs5",
         "consumes": [
           "application/json"
@@ -501,10 +427,239 @@
         }
       }
     },
+    "/getMyCalcs4": {
+      "post": {
+        "summary": "MyCalc4[] getMyCalcs4(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc4[] getMyCalcs4(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs4",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MyCalc4"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/myCalc9": {
+      "post": {
+        "summary": "MyCalc9 myCalc9(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc9 myCalc9(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc9",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MyCalc9"
+            }
+          }
+        }
+      }
+    },
+    "/getMyCalcs10": {
+      "post": {
+        "summary": "MyCalc10[] getMyCalcs10(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc10[] getMyCalcs10(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs10",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MyCalc10"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getMyCalcs2": {
+      "post": {
+        "summary": "MyCalc2[] getMyCalcs2(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc2[] getMyCalcs2(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs2",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MyCalc2"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getMyCalcs6": {
+      "post": {
+        "summary": "MyCalc6[] getMyCalcs6(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc6[] getMyCalcs6(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs6",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MyCalc6"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/myCalc": {
+      "post": {
+        "summary": "MyCalc myCalc(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc myCalc(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MyCalc"
+            }
+          }
+        }
+      }
+    },
+    "/myCalc11": {
+      "post": {
+        "summary": "MyCalc11 myCalc11(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc11 myCalc11(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc11",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MyCalc11"
+            }
+          }
+        }
+      }
+    },
     "/getMyCalcs9": {
       "post": {
-        "summary": "Method: getMyCalcs9(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
+        "summary": "MyCalc9[] getMyCalcs9(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc9[] getMyCalcs9(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "getMyCalcs9",
         "consumes": [
           "application/json"
@@ -535,11 +690,11 @@
         }
       }
     },
-    "/myCalc4": {
+    "/myCalc6": {
       "post": {
-        "summary": "Method: myCalc4(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "myCalc4",
+        "summary": "MyCalc6 myCalc6(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MyCalc6 myCalc6(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc6",
         "consumes": [
           "application/json"
         ],
@@ -560,165 +715,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/MyCalc4"
-            }
-          }
-        }
-      }
-    },
-    "/myCalc10": {
-      "post": {
-        "summary": "Method: myCalc10(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "myCalc10",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MyCalc10"
-            }
-          }
-        }
-      }
-    },
-    "/myCalc3": {
-      "post": {
-        "summary": "Method: myCalc3(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "myCalc3",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MyCalc3"
-            }
-          }
-        }
-      }
-    },
-    "/myCalc11": {
-      "post": {
-        "summary": "Method: myCalc11(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "myCalc11",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MyCalc11"
-            }
-          }
-        }
-      }
-    },
-    "/myCalc5": {
-      "post": {
-        "summary": "Method: myCalc5(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "myCalc5",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MyCalc5"
-            }
-          }
-        }
-      }
-    },
-    "/getMyCalcs8": {
-      "post": {
-        "summary": "Method: getMyCalcs8(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "getMyCalcs8",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/MyCalc8"
-              }
+              "$ref": "#/definitions/MyCalc6"
             }
           }
         }
@@ -726,7 +723,7 @@
     }
   },
   "definitions": {
-    "MyCalc6": {
+    "MyCalc4": {
       "type": "object",
       "properties": {
         "Step1": {
@@ -735,7 +732,7 @@
         }
       },
       "xml": {
-        "name": "MyCalc6",
+        "name": "MyCalc4",
         "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
@@ -1074,7 +1071,7 @@
         }
       }
     },
-    "MyCalc7": {
+    "MyCalc5": {
       "type": "object",
       "properties": {
         "Step1": {
@@ -1083,33 +1080,7 @@
         }
       },
       "xml": {
-        "name": "MyCalc7",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
-      }
-    },
-    "MyCalc8": {
-      "type": "object",
-      "properties": {
-        "Step1": {
-          "type": "number",
-          "format": "double"
-        }
-      },
-      "xml": {
-        "name": "MyCalc8",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
-      }
-    },
-    "MyCalc2": {
-      "type": "object",
-      "properties": {
-        "Step1": {
-          "type": "number",
-          "format": "double"
-        }
-      },
-      "xml": {
-        "name": "MyCalc2",
+        "name": "MyCalc5",
         "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
@@ -1126,7 +1097,7 @@
         "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
-    "MyCalc9": {
+    "MyCalc7": {
       "type": "object",
       "properties": {
         "Step1": {
@@ -1135,7 +1106,7 @@
         }
       },
       "xml": {
-        "name": "MyCalc9",
+        "name": "MyCalc7",
         "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
@@ -1152,7 +1123,7 @@
         "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
-    "MyCalc10": {
+    "MyCalc2": {
       "type": "object",
       "properties": {
         "Step1": {
@@ -1161,11 +1132,11 @@
         }
       },
       "xml": {
-        "name": "MyCalc10",
+        "name": "MyCalc2",
         "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
-    "MyCalc4": {
+    "MyCalc8": {
       "type": "object",
       "properties": {
         "Step1": {
@@ -1174,7 +1145,7 @@
         }
       },
       "xml": {
-        "name": "MyCalc4",
+        "name": "MyCalc8",
         "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
@@ -1191,7 +1162,7 @@
         "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
-    "MyCalc5": {
+    "MyCalc10": {
       "type": "object",
       "properties": {
         "Step1": {
@@ -1200,7 +1171,33 @@
         }
       },
       "xml": {
-        "name": "MyCalc5",
+        "name": "MyCalc10",
+        "namespace": "http://spreadsheetresults.generated.openl.org"
+      }
+    },
+    "MyCalc9": {
+      "type": "object",
+      "properties": {
+        "Step1": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "xml": {
+        "name": "MyCalc9",
+        "namespace": "http://spreadsheetresults.generated.openl.org"
+      }
+    },
+    "MyCalc6": {
+      "type": "object",
+      "properties": {
+        "Step1": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "xml": {
+        "name": "MyCalc6",
         "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     }

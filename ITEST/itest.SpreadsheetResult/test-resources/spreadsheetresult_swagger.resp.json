@@ -2,17 +2,14 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "spreadsheetresult",
-    "contact": {
-      "name": "OpenL Tablets team"
-    }
+    "title": "spreadsheetresult"
   },
   "basePath": "/REST/spreadsheetresult",
   "paths": {
     "/tiktak": {
       "post": {
-        "summary": "Method: tiktak(int i, String j)",
-        "description": "",
+        "summary": "SpreadsheetResulttiktak tiktak(int i, String j)",
+        "description": "Rules method: SpreadsheetResulttiktak tiktak(int i, String j)",
         "operationId": "tiktak",
         "consumes": [
           "application/json"

@@ -318,12 +318,12 @@
                    targetNamespace="http://spreadsheetresults.generated.openl.org" version="1.0">
             <xs:element name="AnySpreadsheetResult" type="tns:AnySpreadsheetResult"/>
             <xs:element name="MySpr" type="tns:MySpr"/>
-            <xs:complexType name="MySpr">
+            <xs:complexType name="AnySpreadsheetResult">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="Stepa" type="xs:int"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType name="AnySpreadsheetResult">
+            <xs:complexType name="MySpr">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="Stepa" type="xs:int"/>
                 </xs:sequence>
@@ -400,12 +400,33 @@
         <resource path="/swagger.{type:json|yaml}">
             <param name="type" style="template" type="xs:string"/>
             <method name="GET">
-                <request/>
+                <request></request>
                 <response>
                     <representation mediaType="application/json"/>
                     <representation mediaType="application/yaml"/>
                 </response>
             </method>
+        </resource>
+        <resource path="/openapi.{type:json|yaml}">
+            <param name="type" style="template" type="xs:string"/>
+            <method name="GET">
+                <request></request>
+                <response>
+                    <representation mediaType="application/json"/>
+                    <representation mediaType="application/yaml"/>
+                </response>
+            </method>
+        </resource>
+        <resource path="/api-docs">
+            <resource path="/{resource:.*}">
+                <param name="resource" style="template" type="xs:string"/>
+                <method name="GET">
+                    <request></request>
+                    <response>
+                        <representation mediaType="*/*"/>
+                    </response>
+                </method>
+            </resource>
         </resource>
     </resources>
 </application>

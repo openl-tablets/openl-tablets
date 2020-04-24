@@ -16,7 +16,7 @@ public class SwaggerInitializationBean implements InitializingBean {
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         initializeSwagger();
     }
 

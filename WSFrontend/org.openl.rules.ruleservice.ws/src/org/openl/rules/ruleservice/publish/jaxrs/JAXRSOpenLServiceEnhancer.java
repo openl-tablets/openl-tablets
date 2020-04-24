@@ -44,6 +44,13 @@ import org.openl.util.generation.InterfaceTransformer;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 /**
  * Utility class for generate JAXRS annotations for service interface.
@@ -52,6 +59,8 @@ import io.swagger.annotations.ApiOperation;
  *
  */
 public final class JAXRSOpenLServiceEnhancer {
+
+    private static final String DEFAULT_VERSION = "1.0.0";
 
     private boolean resolveMethodParameterNamesEnabled = true;
 
@@ -73,8 +82,8 @@ public final class JAXRSOpenLServiceEnhancer {
 
     private static class ParamAnnotationValue {
 
-        private Class<?> annotationClass;
-        private String fieldName;
+        private final Class<?> annotationClass;
+        private final String fieldName;
 
         public ParamAnnotationValue(Class<?> withPathParamValues, String fieldName) {
             this.annotationClass = withPathParamValues;
@@ -98,9 +107,9 @@ public final class JAXRSOpenLServiceEnhancer {
 
         private static final String REQUEST_PARAMETER_SUFFIX = "Request";
 
-        private Class<?> originalClass;
-        private OpenLService service;
-        private ClassLoader classLoader;
+        private final Class<?> originalClass;
+        private final OpenLService service;
+        private final ClassLoader classLoader;
         private Map<Method, String> paths = null;
         private Map<Method, String> nicknames = null;
         private Map<Method, String> methodRequests = null;
@@ -125,22 +134,41 @@ public final class JAXRSOpenLServiceEnhancer {
             super.visit(version, access, name, signature, superName, interfaces);
 
             // Swagger annotation
-            if (originalClass.getAnnotation(Api.class) == null) {
+            if (!originalClass.isAnnotationPresent(Api.class)) {
                 this.visitAnnotation(Type.getDescriptor(Api.class), true);
             }
+            if (!originalClass.isAnnotationPresent(SwaggerDefinition.class)) {
+                AnnotationVisitor av = this.visitAnnotation(Type.getDescriptor(SwaggerDefinition.class), true);
+                AnnotationVisitor av1 = av.visitAnnotation("info",
+                    Type.getDescriptor(io.swagger.annotations.Info.class));
+                av1.visit("title", service.getName());
+                av1.visit("version", DEFAULT_VERSION);
+                av1.visitEnd();
+                av.visitEnd();
+            }
 
-            if (originalClass.getAnnotation(Path.class) == null) {
+            // OpenAPI annotation
+            if (originalClass.getAnnotation(OpenAPIDefinition.class) == null) {
+                AnnotationVisitor av = this.visitAnnotation(Type.getDescriptor(OpenAPIDefinition.class), true);
+                AnnotationVisitor av1 = av.visitAnnotation("info", Type.getDescriptor(Info.class));
+                av1.visit("title", service.getName());
+                av1.visit("version", DEFAULT_VERSION);
+                av1.visitEnd();
+                av.visitEnd();
+            }
+
+            if (!originalClass.isAnnotationPresent(Path.class)) {
                 AnnotationVisitor annotationVisitor = this.visitAnnotation(Type.getDescriptor(Path.class), true);
                 annotationVisitor.visit("value", "/");
                 annotationVisitor.visitEnd();
             }
 
             // Consumes annotation
-            if (originalClass.getAnnotation(Consumes.class) == null) {
+            if (!originalClass.isAnnotationPresent(Consumes.class)) {
                 addConsumesAnnotation(this);
             }
             // Produces annotation
-            if (originalClass.getAnnotation(Produces.class) == null) {
+            if (!originalClass.isAnnotationPresent(Produces.class)) {
                 addProducesAnnotation(this);
             }
         }
@@ -459,19 +487,46 @@ public final class JAXRSOpenLServiceEnhancer {
         }
 
         private void addSwaggerMethodAnnotation(MethodVisitor mv, Method originalMethod, String nickname) {
-            if (!originalMethod.isAnnotationPresent(ApiOperation.class)) {
-                AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ApiOperation.class), true);
+            if (!originalMethod.isAnnotationPresent(ApiOperation.class) || !originalMethod
+                .isAnnotationPresent(Operation.class)) {
+                String operationSummary;
                 IOpenMethod openMethod = MethodUtils.getRulesMethod(originalMethod, service);
                 if (openMethod != null) {
-                    av.visit("value", "Method: " + MethodUtil.printSignature(openMethod, INamedThing.SHORT));
+                    operationSummary = openMethod.getType().getDisplayName(INamedThing.SHORT) + " " + MethodUtil
+                        .printSignature(openMethod, INamedThing.SHORT);
                 } else {
-                    av.visit("value",
-                        "Method: " + MethodUtil.printMethod(originalMethod.getName(),
-                            originalMethod.getParameterTypes()));
+                    operationSummary = originalMethod.getReturnType().getSimpleName() + " " + MethodUtil
+                        .printMethod(originalMethod.getName(), originalMethod.getParameterTypes());
                 }
-                av.visit("response", Type.getType(originalMethod.getReturnType()));
-                av.visit("nickname", nickname);
-                av.visitEnd();
+                if (!originalMethod.isAnnotationPresent(ApiOperation.class)) {
+                    AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ApiOperation.class), true);
+                    av.visit("value", operationSummary.substring(0, Math.min(operationSummary.length(), 120)));
+                    av.visit("notes", (openMethod != null ? "Rules method: " : "Method: ") + operationSummary);
+                    av.visit("response", Type.getType(originalMethod.getReturnType()));
+                    av.visit("nickname", nickname);
+                    av.visitEnd();
+                }
+                if (!originalMethod.isAnnotationPresent(Operation.class)) {
+                    AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Operation.class), true);
+                    av.visit("summary", operationSummary.substring(0, Math.min(operationSummary.length(), 120)));
+                    av.visit("description", (openMethod != null ? "Rules method: " : "Method: ") + operationSummary);
+
+                    if (!originalMethod.isAnnotationPresent(ApiResponse.class)) {
+                        AnnotationVisitor av1 = av.visitArray("responses");
+                        AnnotationVisitor av2 = av1.visitAnnotation("responses", Type.getDescriptor(ApiResponse.class));
+                        AnnotationVisitor av3 = av2.visitArray("content");
+                        AnnotationVisitor av4 = av3.visitAnnotation("responses", Type.getDescriptor(Content.class));
+                        AnnotationVisitor av5 = av4.visitAnnotation("schema", Type.getDescriptor(Schema.class));
+                        av5.visit("implementation", Type.getType(originalMethod.getReturnType()));
+                        av5.visitEnd();
+                        av4.visitEnd();
+                        av3.visitEnd();
+                        av2.visitEnd();
+                        av1.visitEnd();
+                    }
+
+                    av.visitEnd();
+                }
             }
         }
 
@@ -514,15 +569,14 @@ public final class JAXRSOpenLServiceEnhancer {
             service);
         String enhancedClassName = serviceClass
             .getName() + JAXRSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
-        // Fix an NPE issue JAXRSUtil with no package class
-        if (serviceClass.getPackage() == null) {
-            enhancedClassName = "default." + enhancedClassName;
-        }
         InterfaceTransformer transformer = new InterfaceTransformer(serviceClass, enhancedClassName, false);
         transformer.accept(jaxrsAnnotationEnhancerClassVisitor);
         cw.visitEnd();
 
         Class<?> proxyInterface = ClassUtils.defineClass(enhancedClassName, cw.toByteArray(), classLoader);
+        if (proxyInterface.getPackage() == null) {
+            throw new IllegalStateException("Package cannot be null");
+        }
         Map<Method, Method> methodMap = new HashMap<>();
         for (Method method : proxyInterface.getMethods()) {
             String methodName = method.getName();

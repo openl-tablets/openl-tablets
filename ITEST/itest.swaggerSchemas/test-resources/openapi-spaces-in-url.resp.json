@@ -1,0 +1,156 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "service name with spaces",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/calVehicleYear": {
+      "post": {
+        "summary": "Integer calVehicleYear(CalVehicleYearRequest v, Double a)",
+        "description": "Rules method: Integer calVehicleYear(CalVehicleYearRequest v, Double a)",
+        "operationId": "calVehicleYear",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalVehicleYearRequest1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bar": {
+      "post": {
+        "summary": "String bar(SumTwoDoublesRequest bar)",
+        "description": "Rules method: String bar(SumTwoDoublesRequest bar)",
+        "operationId": "bar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SumTwoDoublesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sumTwoDoubles": {
+      "post": {
+        "summary": "Double sumTwoDoubles(Double a, Double b)",
+        "description": "Rules method: Double sumTwoDoubles(Double a, Double b)",
+        "operationId": "sumTwoDoubles",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SumTwoDoublesRequest1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CalVehicleYearRequest": {
+        "type": "object",
+        "properties": {
+          "modelYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "vehEffectiveYear": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "xml": {
+          "name": "CalVehicleYearRequest",
+          "namespace": "http://beans.generated.openl.org"
+        }
+      },
+      "CalVehicleYearRequest1": {
+        "type": "object",
+        "properties": {
+          "v": {
+            "$ref": "#/components/schemas/CalVehicleYearRequest"
+          },
+          "a": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "xml": {
+          "name": "CalVehicleYearRequest1",
+          "namespace": "http://jaxrs.openl.org"
+        }
+      },
+      "SumTwoDoublesRequest": {
+        "type": "object",
+        "properties": {
+          "foo": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "SumTwoDoublesRequest",
+          "namespace": "http://beans.generated.openl.org"
+        }
+      },
+      "SumTwoDoublesRequest1": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "number",
+            "format": "double"
+          },
+          "b": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "xml": {
+          "name": "SumTwoDoublesRequest1",
+          "namespace": "http://jaxrs.openl.org"
+        }
+      }
+    }
+  }
+}

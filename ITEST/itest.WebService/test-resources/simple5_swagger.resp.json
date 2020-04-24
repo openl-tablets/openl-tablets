@@ -2,17 +2,14 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "simple5",
-    "contact": {
-      "name": "OpenL Tablets team"
-    }
+    "title": "simple5"
   },
   "basePath": "/REST/deployment5/simple5",
   "paths": {
     "/calc": {
       "post": {
-        "summary": "Method: calc(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyDatatype)",
-        "description": "",
+        "summary": "Calc calc(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyDatatype)",
+        "description": "Method: Calc calc(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyDatatype)",
         "operationId": "calc",
         "consumes": [
           "application/json"

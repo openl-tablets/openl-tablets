@@ -1016,6 +1016,11 @@
             <!-- CXF Runtime CORBA Binding -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-service-description-openapi-v3</artifactId>
+                <version>${org.apache.cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-rs-service-description-swagger</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>

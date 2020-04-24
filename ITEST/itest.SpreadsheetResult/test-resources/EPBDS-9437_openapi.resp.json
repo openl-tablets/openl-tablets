@@ -1,0 +1,131 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "EPBDS-9437",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/tiktak": {
+      "post": {
+        "summary": "SpreadsheetResulttiktak tiktak(int i, String j)",
+        "description": "Rules method: SpreadsheetResulttiktak tiktak(int i, String j)",
+        "operationId": "tiktak",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TiktakRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tiktak"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/EPBDS_9437": {
+      "post": {
+        "summary": "SpreadsheetResultEPBDS_9437 EPBDS_9437(Integer driver)",
+        "description": "Rules method: SpreadsheetResultEPBDS_9437 EPBDS_9437(Integer driver)",
+        "operationId": "EPBDS_9437",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EPBDS_9437"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Tiktak": {
+        "type": "object",
+        "properties": {
+          "INT": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "String": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "Tiktak",
+          "namespace": "http://spreadsheetresults.generated.openl.org"
+        }
+      },
+      "TiktakRequest": {
+        "type": "object",
+        "properties": {
+          "i": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "j": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "TiktakRequest",
+          "namespace": "http://jaxrs.openl.org"
+        }
+      },
+      "AnySpreadsheetResult": {
+        "type": "object",
+        "properties": {
+          "INT": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "String": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "AnySpreadsheetResult",
+          "namespace": "http://spreadsheetresults.generated.openl.org"
+        }
+      },
+      "EPBDS_9437": {
+        "type": "object",
+        "properties": {
+          "Driver_Forms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          }
+        },
+        "xml": {
+          "name": "EPBDS_9437",
+          "namespace": "http://spreadsheetresults.generated.openl.org"
+        }
+      }
+    }
+  }
+}

@@ -2,17 +2,14 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "EPBDS-9519_2_EPBDS-9519",
-    "contact": {
-      "name": "OpenL Tablets team"
-    }
+    "title": "EPBDS-9519_2_EPBDS-9519"
   },
   "basePath": "/REST/EPBDS-9519_2/EPBDS-9519",
   "paths": {
     "/someRules": {
       "post": {
-        "summary": "Method: someRules(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.String)",
-        "description": "",
+        "summary": "MyType someRules(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer, java.lang.Integer, java.lang.Integer, ",
+        "description": "Method: MyType someRules(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.String)",
         "operationId": "someRules",
         "consumes": [
           "application/json"
@@ -42,8 +39,8 @@
     },
     "/myType1": {
       "post": {
-        "summary": "Method: myType1(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyType)",
-        "description": "",
+        "summary": "MyType1 myType1(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyType)",
+        "description": "Method: MyType1 myType1(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyType)",
         "operationId": "myType1",
         "consumes": [
           "application/json"

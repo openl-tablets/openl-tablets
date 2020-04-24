@@ -31,7 +31,9 @@ public class RunSpreadsheetResultITest {
     @Test
     public void SpreadsheetResult_Swagger() {
         client.get("/REST/spreadsheetresult/swagger.json", "/spreadsheetresult_swagger.resp.json");
+        client.get("/REST/spreadsheetresult/openapi.json", "/spreadsheetresult_openapi.resp.json");
         client.get("/REST/EPBDS-9437/swagger.json", "/EPBDS-9437_swagger.resp.json");
+        client.get("/REST/EPBDS-9437/openapi.json", "/EPBDS-9437_openapi.resp.json");
     }
 
     @Test
@@ -58,8 +60,6 @@ public class RunSpreadsheetResultITest {
 
     @Test
     public void performance() {
-        client.post("/EPBDS-9644/mySpr1",
-                "/EPBDS-9644_mySpr1.req.json",
-                "/EPBDS-9644_mySpr1.resp.json");
+        client.post("/EPBDS-9644/mySpr1", "/EPBDS-9644_mySpr1.req.json", "/EPBDS-9644_mySpr1.resp.json");
     }
 }

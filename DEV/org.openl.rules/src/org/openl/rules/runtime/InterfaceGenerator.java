@@ -1,6 +1,10 @@
 package org.openl.rules.runtime;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.objectweb.asm.ClassWriter;
@@ -74,7 +78,9 @@ public class InterfaceGenerator {
             ClassLoader classLoader,
             String[] includes,
             String[] excludes) throws Exception {
-
+        if (!className.contains(".")) {
+            className = "org.openl.generated.interfaces." + className;
+        }
         if (openClass == null) {
             return generateInterface(className, EMPTY_RULES, classLoader);
         }

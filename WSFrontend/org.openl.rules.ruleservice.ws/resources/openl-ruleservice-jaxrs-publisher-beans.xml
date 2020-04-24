@@ -8,13 +8,13 @@
 
     <bean id="jaxrsServiceConfigurationDefaultTypingModeFactoryBean"
         class="org.openl.rules.ruleservice.databinding.ServiceConfigurationDefaultTypingModeFactoryBean" scope="prototype">
-        <property name="defaultValue" value="${ruleservice.jackson.defaultTypingMode}"/> 
+        <property name="defaultValue" value="${ruleservice.jackson.defaultTypingMode}"/>
     </bean>
-    
+
     <bean id="jaxrsServiceConfigurationFailOnMissPropertiesFactoryBean"
         class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean" scope="prototype">
         <property name="propertyName" value="jackson.failOnUnknownProperties"/>
-        <property name="defaultValue" value="${ruleservice.jackson.failOnUnknownProperties}"/> 
+        <property name="defaultValue" value="${ruleservice.jackson.failOnUnknownProperties}"/>
     </bean>
 
     <bean id="jaxrsServiceConfigurationCaseInsensitivePropertiesFactoryBean"
@@ -115,6 +115,9 @@
     <bean id="swaggerInitializationBean"
         class="org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerInitializationBean"/>
 
+    <bean id="openApiInitializationBean"
+          class="org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiInitializationBean"/>
+
     <!-- Initializes OpenL Engine instances according to web services configuration description and calls RuleServicePublisher 
         to expose corresponding web service -->
     <!-- Exposes web services. -->
@@ -123,7 +126,7 @@
     </bean>
 
     <bean id="jaxrsServicesRuleServicePublisher" class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher"
-          depends-on="swaggerInitializationBean">
+          depends-on="swaggerInitializationBean, openApiInitializationBean">
         <property name="storeLogDataEnabled" value="${ruleservice.store.logs.enabled}"/>
         <property name="swaggerPrettyPrint" value="${ruleservice.jaxrs.swagger.prettyprint}"/>
     </bean>

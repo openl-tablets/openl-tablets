@@ -2,17 +2,14 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "EPBDS-9437",
-    "contact": {
-      "name": "OpenL Tablets team"
-    }
+    "title": "EPBDS-9437"
   },
   "basePath": "/REST/EPBDS-9437",
   "paths": {
     "/tiktak": {
       "post": {
-        "summary": "Method: tiktak(int i, String j)",
-        "description": "",
+        "summary": "SpreadsheetResulttiktak tiktak(int i, String j)",
+        "description": "Rules method: SpreadsheetResulttiktak tiktak(int i, String j)",
         "operationId": "tiktak",
         "consumes": [
           "application/json"
@@ -42,8 +39,8 @@
     },
     "/EPBDS_9437": {
       "post": {
-        "summary": "Method: EPBDS_9437(Integer driver)",
-        "description": "",
+        "summary": "SpreadsheetResultEPBDS_9437 EPBDS_9437(Integer driver)",
+        "description": "Rules method: SpreadsheetResultEPBDS_9437 EPBDS_9437(Integer driver)",
         "operationId": "EPBDS_9437",
         "consumes": [
           "text/plain"

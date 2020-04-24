@@ -4,6 +4,7 @@ import static java.util.Locale.ENGLISH;
 
 import java.beans.Introspector;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
@@ -18,37 +19,61 @@ import java.util.regex.Pattern;
 public class ClassUtils {
 
     private static final Method DEFINE_CLASS;
+    private static final Method DEFINE_PACKAGE;
+    private static final Method GET_PACKAGE;
     private static final ProtectionDomain PROTECTION_DOMAIN;
     private static final Throwable THROWABLE;
 
     static {
         ProtectionDomain pd;
         Method dc;
+        Method dp;
+        Method gp;
         Throwable ex = null;
         try {
             pd = (ProtectionDomain) AccessController
                 .doPrivileged((PrivilegedAction) () -> ClassUtils.class.getProtectionDomain());
-            dc = (Method) AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
-                @Override
-                public Object run() throws Exception {
-                    Class<?> loader = Class.forName("java.lang.ClassLoader");
-                    Method defineClass = loader.getDeclaredMethod("defineClass",
-                        String.class,
-                        byte[].class,
-                        int.class,
-                        int.class,
-                        ProtectionDomain.class);
-                    defineClass.setAccessible(true);
-                    return defineClass;
-                }
+            dc = (Method) AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
+                Class<?> loader = Class.forName("java.lang.ClassLoader");
+                Method defineClass = loader.getDeclaredMethod("defineClass",
+                    String.class,
+                    byte[].class,
+                    int.class,
+                    int.class,
+                    ProtectionDomain.class);
+                defineClass.setAccessible(true);
+                return defineClass;
+            });
+            dp = (Method) AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
+                Class<?> loader = Class.forName("java.lang.ClassLoader");
+                Method defineClass = loader.getDeclaredMethod("definePackage",
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    URL.class);
+                defineClass.setAccessible(true);
+                return defineClass;
+            });
+            gp = (Method) AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
+                Class<?> loader = Class.forName("java.lang.ClassLoader");
+                Method defineClass = loader.getDeclaredMethod("getPackage", String.class);
+                defineClass.setAccessible(true);
+                return defineClass;
             });
         } catch (NoClassDefFoundError | Exception e) {
             ex = e;
             dc = null;
             pd = null;
-
+            dp = null;
+            gp = null;
         }
         DEFINE_CLASS = dc;
+        DEFINE_PACKAGE = dp;
+        GET_PACKAGE = gp;
         PROTECTION_DOMAIN = pd;
         THROWABLE = ex;
     }
@@ -58,9 +83,16 @@ public class ClassUtils {
      */
     public static Class<?> defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
         Class<?> clazz;
-        if (DEFINE_CLASS != null) {
+        if (DEFINE_CLASS != null && DEFINE_PACKAGE != null) {
             Object[] args = new Object[] { className, b, 0, b.length, PROTECTION_DOMAIN };
             clazz = (Class<?>) DEFINE_CLASS.invoke(loader, args);
+            String pkgName = className.substring(0, className.lastIndexOf("."));
+            if (StringUtils.isNotEmpty(pkgName)) {
+                if (GET_PACKAGE.invoke(loader, pkgName) == null) {
+                    Object[] args1 = new Object[] { pkgName, null, null, null, null, null, null, null };
+                    DEFINE_PACKAGE.invoke(loader, args1);
+                }
+            }
         } else {
             throw new IllegalStateException(THROWABLE);
         }

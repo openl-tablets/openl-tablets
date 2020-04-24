@@ -2,17 +2,14 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "simple3",
-    "contact": {
-      "name": "OpenL Tablets team"
-    }
+    "title": "simple3"
   },
   "basePath": "/REST/deployment3/simple3",
   "paths": {
     "/main": {
       "post": {
-        "summary": "Method: main(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
+        "summary": "Main main(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: Main main(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "main",
         "consumes": [
           "application/json"
@@ -40,106 +37,10 @@
         }
       }
     },
-    "/mySpr2": {
-      "post": {
-        "summary": "Method: mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "mySpr2",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MySpr2"
-            }
-          }
-        }
-      }
-    },
-    "/mySpr": {
-      "post": {
-        "summary": "Method: mySpr(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "mySpr",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MySpr"
-            }
-          }
-        }
-      }
-    },
-    "/arrSpreadsheetResult": {
-      "post": {
-        "summary": "Method: arrSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "arrSpreadsheetResult",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/AnySpreadsheetResult"
-              }
-            }
-          }
-        }
-      }
-    },
     "/arrSpreadsheetResultspr1": {
       "post": {
-        "summary": "Method: arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
+        "summary": "Spr1[] arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: Spr1[] arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "arrSpreadsheetResultspr1",
         "consumes": [
           "application/json"
@@ -172,8 +73,8 @@
     },
     "/arrObjSpreadsheetResult": {
       "post": {
-        "summary": "Method: arrObjSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
+        "summary": "Object[] arrObjSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: Object[] arrObjSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "arrObjSpreadsheetResult",
         "consumes": [
           "application/json"
@@ -199,6 +100,102 @@
               "items": {
                 "type": "object"
               }
+            }
+          }
+        }
+      }
+    },
+    "/arrSpreadsheetResult": {
+      "post": {
+        "summary": "AnySpreadsheetResult[] arrSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: AnySpreadsheetResult[] arrSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "arrSpreadsheetResult",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/AnySpreadsheetResult"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mySpr": {
+      "post": {
+        "summary": "MySpr mySpr(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MySpr mySpr(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "mySpr",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MySpr"
+            }
+          }
+        }
+      }
+    },
+    "/mySpr2": {
+      "post": {
+        "summary": "MySpr2 mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
+        "description": "Method: MySpr2 mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "mySpr2",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MySpr2"
             }
           }
         }
@@ -1136,6 +1133,23 @@
         }
       }
     },
+    "MySpr": {
+      "type": "object",
+      "properties": {
+        "Step1": {
+          "type": "number",
+          "format": "double"
+        },
+        "Step2": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "xml": {
+        "name": "MySpr",
+        "namespace": "http://spreadsheetresults.generated.openl.org"
+      }
+    },
     "MySpr2": {
       "type": "object",
       "properties": {
@@ -1174,23 +1188,6 @@
       },
       "xml": {
         "name": "MySpr2",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
-      }
-    },
-    "MySpr": {
-      "type": "object",
-      "properties": {
-        "Step1": {
-          "type": "number",
-          "format": "double"
-        },
-        "Step2": {
-          "type": "number",
-          "format": "double"
-        }
-      },
-      "xml": {
-        "name": "MySpr",
         "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     }

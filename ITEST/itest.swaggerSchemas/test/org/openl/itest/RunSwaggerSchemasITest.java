@@ -1,7 +1,5 @@
 package org.openl.itest;
 
-import java.io.IOException;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -15,7 +13,7 @@ public class RunSwaggerSchemasITest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = JettyServer.start();
+        server = JettyServer.startSharingClassLoader();
         client = server.client();
     }
 
@@ -25,17 +23,20 @@ public class RunSwaggerSchemasITest {
     }
 
     @Test
-    public void testSwaggerSchemaWithRuntimeContext() throws IOException {
+    public void testSwaggerSchemaWithRuntimeContext() {
         client.get("/rules-with-runtime-context/swagger.json", "/swagger-context.resp.json");
+        client.get("/rules-with-runtime-context/openapi.json", "/openapi-context.resp.json");
     }
 
     @Test
-    public void testSwaggerSchemaWithSpacesInUrl() {
-        client.get("/service%20name%20with%20spaces/swagger.json", "/swagger-spaces-in-url.resp.json");
+    public void testSwaggerSchemaWithSpacesInUrl() throws Exception {
+        client.get("/service name with spaces/swagger.json", "/swagger-spaces-in-url.resp.json");
+        client.get("/service name with spaces/openapi.json", "/openapi-spaces-in-url.resp.json");
     }
 
     @Test
-    public void testSwaggerSchemaWithoutRuntimeContext() throws IOException {
+    public void testSwaggerSchemaWithoutRuntimeContext() {
         client.get("/rules-without-runtime-context/swagger.json", "/swagger-no-context.resp.json");
+        client.get("/rules-without-runtime-context/openapi.json", "/openapi-no-context.resp.json");
     }
 }

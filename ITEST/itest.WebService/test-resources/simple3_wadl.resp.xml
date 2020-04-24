@@ -14,8 +14,11 @@
             <xs:element name="RunMain" type="tns:RunMain"/>
             <xs:element name="Spr" type="tns:Spr"/>
             <xs:element name="Spr1" type="tns:Spr1"/>
-            <xs:complexType name="ArrSpreadsheetResult">
-                <xs:all/>
+            <xs:complexType name="Spr1">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Step1" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Step2" type="tns:Spr"/>
+                </xs:sequence>
             </xs:complexType>
             <xs:complexType name="Spr">
                 <xs:sequence>
@@ -54,12 +57,6 @@
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="Step21" type="tns:Spr1"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="Step22" type="xs:anyType"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="Step23" type="xs:anyType"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="Spr1">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="Step1" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Step2" type="tns:Spr"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="AnySpreadsheetResult">
@@ -146,12 +143,6 @@
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="TableDetails" type="ns1:stringArray"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType name="MySpr">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="Step1" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Step2" type="xs:double"/>
-                </xs:sequence>
-            </xs:complexType>
             <xs:complexType name="MySpr2">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="Value3_Step3" type="xs:double"/>
@@ -163,6 +154,9 @@
                     <xs:element minOccurs="0" name="Value1_Step2" type="xs:double"/>
                     <xs:element minOccurs="0" name="Value2_Step2" type="xs:double"/>
                 </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="ArrSpreadsheetResult">
+                <xs:all/>
             </xs:complexType>
             <xs:complexType name="RunMain">
                 <xs:sequence>
@@ -198,6 +192,12 @@
                     <xs:element minOccurs="0" name="Step17" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="Step18" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="Step19" type="xs:boolean"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="MySpr">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Step1" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Step2" type="xs:double"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType final="#all" name="Spr1Array">
@@ -313,6 +313,27 @@
                     <representation mediaType="application/yaml"/>
                 </response>
             </method>
+        </resource>
+        <resource path="/openapi.{type:json|yaml}">
+            <param name="type" style="template" type="xs:string"/>
+            <method name="GET">
+                <request></request>
+                <response>
+                    <representation mediaType="application/json"/>
+                    <representation mediaType="application/yaml"/>
+                </response>
+            </method>
+        </resource>
+        <resource path="/api-docs">
+            <resource path="/{resource:.*}">
+                <param name="resource" style="template" type="xs:string"/>
+                <method name="GET">
+                    <request></request>
+                    <response>
+                        <representation mediaType="*/*"/>
+                    </response>
+                </method>
+            </resource>
         </resource>
     </resources>
 </application>

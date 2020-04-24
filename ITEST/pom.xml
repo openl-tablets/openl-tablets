@@ -16,14 +16,12 @@
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
-        <!-- TODO: Investigate why OpenAPI requires so much memory -->
-        <surefire.argLine.perf>-Xms8m -Xmx512m</surefire.argLine.perf>
     </properties>
 
     <modules>
         <module>server-core</module>
         <module>itest.smoke</module>
-        <module>itest.kafka.smoke</module>
+        <module>itest.kafka.smoke</module> 
         <module>itest.jacksonbinding</module>
         <module>itest.WebServiceAnnotation</module>
         <module>itest.ws-rest-rules-deploy</module>

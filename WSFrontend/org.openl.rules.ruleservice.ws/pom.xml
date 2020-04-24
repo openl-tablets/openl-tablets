@@ -61,6 +61,21 @@
                                 <class>org.xmlpull.v1.XmlPullParserException</class>
                             </classes>
                         </exception>
+                        <exception>
+                            <conflictingDependencies>
+                                <dependency>
+                                    <groupId>io.github.classgraph</groupId>
+                                    <artifactId>classgraph</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>org.apache.logging.log4j</groupId>
+                                    <artifactId>log4j-api</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                            <classes>
+                                <class>META-INF.versions.9.module-info</class>
+                            </classes>
+                        </exception>
                     </exceptions>
                     <ignoredResourcePatterns>
                         <ignoredResourcePattern>org/apache/cxf/endpoint/dynamic/simple-binding.xjb</ignoredResourcePattern>
@@ -170,6 +185,10 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-rs-service-description</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-service-description-openapi-v3</artifactId>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>

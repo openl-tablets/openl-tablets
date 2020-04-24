@@ -18,9 +18,9 @@ import org.openl.util.ClassUtils;
  */
 public class OpenLBundleClassLoader extends OpenLClassLoader {
 
-    private Set<ClassLoader> bundleClassLoaders = new LinkedHashSet<>();
+    private final Set<ClassLoader> bundleClassLoaders = new LinkedHashSet<>();
 
-    private Map<String, byte[]> generatedClasses = new ConcurrentHashMap<>();
+    private final Map<String, byte[]> generatedClasses = new ConcurrentHashMap<>();
 
     public OpenLBundleClassLoader(ClassLoader parent) {
         super(new URL[0], parent);
@@ -133,7 +133,7 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
 
     private URL findResourceInBundleClassLoader(String name) {
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
-            URL url = null;
+            URL url;
             if (bundleClassLoader instanceof OpenLBundleClassLoader && bundleClassLoader.getParent() == this) {
                 OpenLBundleClassLoader sbcl = (OpenLBundleClassLoader) bundleClassLoader;
                 url = sbcl.findResourceInBundleClassLoader(name);
@@ -180,4 +180,5 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
         }
         return super.getResourceAsStream(name);
     }
+
 }

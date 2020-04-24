@@ -2,17 +2,14 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "EPBDS-9572_EPBDS-9572",
-    "contact": {
-      "name": "OpenL Tablets team"
-    }
+    "title": "EPBDS-9572_EPBDS-9572"
   },
   "basePath": "/REST/EPBDS-9572/EPBDS-9572",
   "paths": {
     "/mySpr": {
       "post": {
-        "summary": "Method: mySpr(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyDatatype)",
-        "description": "",
+        "summary": "String mySpr(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyDatatype)",
+        "description": "Method: String mySpr(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyDatatype)",
         "operationId": "mySpr",
         "consumes": [
           "application/json"

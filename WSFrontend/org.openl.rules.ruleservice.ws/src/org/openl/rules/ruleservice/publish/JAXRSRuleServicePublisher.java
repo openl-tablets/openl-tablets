@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.publish;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -12,6 +13,7 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.jaxrs.model.wadl.WadlGenerator;
+import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
 import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -20,10 +22,11 @@ import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.databinding.annotation.JacksonBindingConfigurationUtils;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer;
 import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerHackContainerRequestFilter;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerHackContainerResponseFilter;
+import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
+import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerAndOpenApiHackContainerRequestFilter;
+import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerAndOpenApiHackContainerResponseFilter;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerObjectMapperHack;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerStaticFieldsWorkaround;
+import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerRulesRedeployWorkaround;
 import org.openl.rules.ruleservice.publish.jaxrs.wadl.DisableWADLInterceptor;
 import org.openl.rules.ruleservice.storelogdata.CollectObjectSerializerInterceptor;
 import org.openl.rules.ruleservice.storelogdata.CollectOpenLServiceInterceptor;
@@ -50,8 +53,8 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
     private final Logger log = LoggerFactory.getLogger(JAXRSRuleServicePublisher.class);
 
-    private Map<OpenLService, Server> runningServices = new ConcurrentHashMap<>();
-    private Set<String> noWadlServices = new ConcurrentSkipListSet<>();
+    private final Map<OpenLService, Server> runningServices = new ConcurrentHashMap<>();
+    private final Set<String> noWadlServices = new ConcurrentSkipListSet<>();
 
     private boolean storeLogDataEnabled = false;
     private boolean swaggerPrettyPrint = false;
@@ -125,6 +128,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         Objects.requireNonNull(service, "service cannot be null");
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         SwaggerObjectMapperHack swaggerObjectMapperHack = null;
+        OpenApiObjectMapperHack openApiObjectMapperHack = null;
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
             JAXRSServerFactoryBean svrFactory = getServerFactoryBeanObjectFactory().getObject();
@@ -157,10 +161,17 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             // Swagger support
             swaggerObjectMapperHack = new SwaggerObjectMapperHack();
             swaggerObjectMapperHack.apply(getObjectMapper(svrFactory));
-            ((List) svrFactory.getProviders()).add(new SwaggerHackContainerRequestFilter(getObjectMapper(svrFactory)));
-            ((List) svrFactory.getProviders()).add(new SwaggerHackContainerResponseFilter());
-            Swagger2Feature swagger2Feature = getSwagger2Feature(service, serviceClass);
+            openApiObjectMapperHack = new OpenApiObjectMapperHack();
+            openApiObjectMapperHack.apply(getObjectMapper(svrFactory));
+            ((List) svrFactory.getProviders())
+                .add(new SwaggerAndOpenApiHackContainerRequestFilter(getObjectMapper(svrFactory)));
+            ((List) svrFactory.getProviders()).add(new SwaggerAndOpenApiHackContainerResponseFilter());
+
+            Swagger2Feature swagger2Feature = getSwagger2Feature(serviceClass);
             svrFactory.getFeatures().add(swagger2Feature);
+
+            OpenApiFeature openApiFeature = getOpenAPIv3Feature(serviceClass);
+            svrFactory.getFeatures().add(openApiFeature);
 
             // Wadl Support
             WadlGenerator wadlGenerator = getWadlGeneratorObjectFactory().getObject();
@@ -192,11 +203,10 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
             if (swaggerObjectMapperHack != null) {
-                try {
-                    swaggerObjectMapperHack.revert();
-                } catch (Exception e) {
-                    log.debug(e.getMessage(), e);
-                }
+                swaggerObjectMapperHack.revert();
+            }
+            if (openApiObjectMapperHack != null) {
+                openApiObjectMapperHack.revert();
             }
         }
     }
@@ -215,7 +225,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         return null;
     }
 
-    private Swagger2Feature getSwagger2Feature(final OpenLService service, Class<?> serviceClass) {
+    private Swagger2Feature getSwagger2Feature(final Class<?> serviceClass) {
         Swagger2Feature swagger2Feature = new Swagger2Feature();
         swagger2Feature.setRunAsFilter(true);
         swagger2Feature.setScan(false);
@@ -226,8 +236,21 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         } else {
             swagger2Feature.setResourcePackage(serviceClass.getPackage().getName());
         }
-        swagger2Feature.setTitle(service.getName());
         return swagger2Feature;
+    }
+
+    private OpenApiFeature getOpenAPIv3Feature(final Class<?> serviceClass) {
+        final OpenApiFeature openApiFeature = new OpenApiFeature();
+        openApiFeature.setRunAsFilter(false);
+        openApiFeature.setScan(false);
+        openApiFeature.setPrettyPrint(isSwaggerPrettyPrint());
+        openApiFeature.setUseContextBasedConfig(false);
+        if (serviceClass.getPackage() != null) {
+            openApiFeature.setResourcePackages(Collections.singleton(serviceClass.getPackage().getName()));
+        } else {
+            openApiFeature.setResourcePackages(Collections.singleton("default"));
+        }
+        return openApiFeature;
     }
 
     @Override
@@ -250,7 +273,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
                 String.format("There is no running service with name '%s'.", service.getName()));
         }
         try {
-            SwaggerStaticFieldsWorkaround.reset();
+            SwaggerRulesRedeployWorkaround.reset();
             server.destroy();
             runningServices.remove(service);
             noWadlServices.remove(service.getName());
