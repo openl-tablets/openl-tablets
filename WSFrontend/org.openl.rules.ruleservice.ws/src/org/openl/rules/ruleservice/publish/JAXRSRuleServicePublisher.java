@@ -231,11 +231,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         swagger2Feature.setScan(false);
         swagger2Feature.setPrettyPrint(isSwaggerPrettyPrint());
         swagger2Feature.setUsePathBasedConfig(true);
-        if (serviceClass.getPackage() == null) {
-            swagger2Feature.setResourcePackage("default");
-        } else {
-            swagger2Feature.setResourcePackage(serviceClass.getPackage().getName());
-        }
+        swagger2Feature.setResourcePackage(serviceClass.getPackage().getName());
         return swagger2Feature;
     }
 
@@ -244,12 +240,10 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         openApiFeature.setRunAsFilter(false);
         openApiFeature.setScan(false);
         openApiFeature.setPrettyPrint(isSwaggerPrettyPrint());
+        openApiFeature.setScanKnownConfigLocations(false);
         openApiFeature.setUseContextBasedConfig(false);
-        if (serviceClass.getPackage() != null) {
-            openApiFeature.setResourcePackages(Collections.singleton(serviceClass.getPackage().getName()));
-        } else {
-            openApiFeature.setResourcePackages(Collections.singleton("default"));
-        }
+        openApiFeature.setScannerClass("io.swagger.v3.jaxrs2.integration.JaxrsApplicationScanner");
+        openApiFeature.setResourcePackages(Collections.singleton(serviceClass.getPackage().getName()));
         return openApiFeature;
     }
 

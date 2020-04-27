@@ -52,7 +52,7 @@ public class HttpClient {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private RestTemplate rest;
+    private final RestTemplate rest;
 
     private HttpClient(RestTemplate rest) {
         this.rest = rest;
