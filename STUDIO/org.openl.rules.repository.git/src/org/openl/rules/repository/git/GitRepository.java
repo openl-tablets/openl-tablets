@@ -1560,6 +1560,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public void pull(String author) throws IOException {
+        if (uri == null) {
+            return;
+        }
+
         Lock writeLock = repositoryLock.writeLock();
         try {
             log.debug("pull(author): lock");
