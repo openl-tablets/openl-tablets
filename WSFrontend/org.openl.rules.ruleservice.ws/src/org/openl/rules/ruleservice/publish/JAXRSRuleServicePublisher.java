@@ -242,7 +242,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         openApiFeature.setPrettyPrint(isSwaggerPrettyPrint());
         openApiFeature.setScanKnownConfigLocations(false);
         openApiFeature.setUseContextBasedConfig(false);
-        openApiFeature.setScannerClass("io.swagger.v3.jaxrs2.integration.JaxrsApplicationScanner");
+        openApiFeature.setScannerClass(io.swagger.v3.jaxrs2.integration.JaxrsApplicationScanner.class.getName());
         openApiFeature.setResourcePackages(Collections.singleton(serviceClass.getPackage().getName()));
         return openApiFeature;
     }
