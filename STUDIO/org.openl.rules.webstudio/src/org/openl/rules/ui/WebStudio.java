@@ -1172,7 +1172,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     project.releaseMyLock();
                     project.setBranch(branch);
 
-                    if (project.getFileData() == null) {
+                    if (project.getLastHistoryVersion() == null) {
                         // move back to previous branch! Because the project is not present in new branch
                         project.setBranch(previousBranch);
                         log.warn(
