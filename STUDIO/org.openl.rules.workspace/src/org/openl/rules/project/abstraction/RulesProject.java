@@ -340,21 +340,13 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     @Override
-    public FileData getFileData() {
-        FileData fileData = super.getFileData();
-
-        Repository designRepo = getDesignRepository();
-        if (fileData != null && designRepo.supports().branches()) {
-            fileData.setBranch(((BranchRepository) designRepo).getBranch());
-        }
-
-        return fileData;
-    }
-
-    @Override
     protected FileData getFileDataForUnversionableRepo(Repository repository) {
         if (designFolderName == null) {
-            return super.getFileDataForUnversionableRepo(repository);
+            FileData fileData = super.getFileDataForUnversionableRepo(repository);
+            if (designRepository.supports().branches()) {
+                fileData.setBranch(((BranchRepository) designRepository).getBranch());
+            }
+            return fileData;
         }
 
         String version = getHistoryVersion();

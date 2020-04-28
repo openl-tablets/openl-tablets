@@ -76,7 +76,14 @@ public class AProject extends AProjectFolder {
 
     protected FileData getFileDataForUnversionableRepo(Repository repository) {
         try {
-            return repository.check(getFolderPath());
+            FileData fileData = repository.check(getFolderPath());
+            if (fileData == null) {
+                // A project doesn't exist yet. Probably we are creating it now.
+                fileData = new FileData();
+                fileData.setName(getFolderPath());
+                fileData.setVersion(getHistoryVersion());
+            }
+            return fileData;
         } catch (IOException e) {
             throw new IllegalStateException(e.getMessage(), e);
         }
