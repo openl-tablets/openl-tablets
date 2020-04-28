@@ -74,8 +74,24 @@ public class AProject extends AProjectFolder {
 
     private String getLastHistoryVersion() {
         if (lastHistoryVersion == null) {
-            List<FileData> fileDatas = getHistoryFileDatas();
-            lastHistoryVersion = fileDatas.isEmpty() ? null : fileDatas.get(fileDatas.size() - 1).getVersion();
+            // Retrieving all history is expensive. If it's retrieved already, use it, otherwise detect last version
+            // from the repository directly.
+            List<FileData> fileDatas = historyFileDatas;
+            if (fileDatas != null) {
+                lastHistoryVersion = fileDatas.isEmpty() ? null : fileDatas.get(fileDatas.size() - 1).getVersion();
+            } else {
+                String folderPath = getFolderPath();
+                if (folderPath != null && isRepositoryVersionable()) {
+                    try {
+                        FileData fileData = getRepository().check(folderPath);
+                        if (fileData != null) {
+                            lastHistoryVersion = fileData.getVersion();
+                        }
+                    } catch (IOException e) {
+                        log.error(e.getMessage(), e);
+                    }
+                }
+            }
         }
         return lastHistoryVersion;
     }
