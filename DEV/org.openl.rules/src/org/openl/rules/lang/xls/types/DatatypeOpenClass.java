@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
+import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -282,6 +283,14 @@ public class DatatypeOpenClass extends ADynamicClass {
             }
         }
         return method;
+    }
+
+    @Override
+    public String getDisplayName(int mode) {
+        if (mode == INamedThing.LONG) {
+            return getPackageName() + "." + getName();
+        }
+        return getName();
     }
 
     public byte[] getBytecode() {

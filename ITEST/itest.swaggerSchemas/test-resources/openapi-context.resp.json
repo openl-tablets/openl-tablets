@@ -13,8 +13,8 @@
   "paths": {
     "/calVehicleYear": {
       "post": {
-        "summary": "Integer calVehicleYear(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.CalVehicleYearRequest)",
-        "description": "Method: Integer calVehicleYear(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.CalVehicleYearRequest)",
+        "summary": "Integer calVehicleYear(IRulesRuntimeContext, CalVehicleYearRequest)",
+        "description": "Method: java.lang.Integer calVehicleYear(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.CalVehicleYearRequest)",
         "operationId": "calVehicleYear",
         "requestBody": {
           "content": {

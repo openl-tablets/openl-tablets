@@ -83,23 +83,26 @@ public final class MethodUtil {
         endPrintingMethodName(buf);
     }
 
-    public static String printMethod(String name, Class<?>[] params) {
-        return printMethod(name, params, new StringBuilder()).toString();
+    public static String printMethod(String name, Class<?>[] params, boolean shortClassNames) {
+        return printMethod(name, params, shortClassNames, new StringBuilder()).toString();
     }
 
-    public static StringBuilder printMethod(String name, Class<?>[] params, StringBuilder buf) {
+    public static String printMethod(String name, Class<?>[] params) {
+        return printMethod(name, params, false, new StringBuilder()).toString();
+    }
+
+    public static StringBuilder printMethod(String name,
+            Class<?>[] params,
+            boolean shortClassNames,
+            StringBuilder buf) {
         startPrintingMethodName(name, buf);
 
         for (int i = 0; i < params.length; i++) {
-            String type = params[i].getName();
+            String type = shortClassNames ? params[i].getSimpleName() : params[i].getTypeName();
             if (i != 0) {
                 buf.append(", ");
             }
-
-            if (type != null) {
-                buf.append(type);
-            }
-
+            buf.append(type);
         }
 
         endPrintingMethodName(buf);

@@ -8,8 +8,8 @@
   "paths": {
     "/tiktak": {
       "post": {
-        "summary": "SpreadsheetResulttiktak tiktak(int i, String j)",
-        "description": "Rules method: SpreadsheetResulttiktak tiktak(int i, String j)",
+        "summary": "SpreadsheetResult tiktak(int, String)",
+        "description": "Rules method: SpreadsheetResulttiktak tiktak(int i, java.lang.String j)",
         "operationId": "tiktak",
         "consumes": [
           "application/json"

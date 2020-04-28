@@ -8,8 +8,8 @@
   "paths": {
     "/tiktak": {
       "post": {
-        "summary": "SpreadsheetResulttiktak tiktak(int i, String j)",
-        "description": "Rules method: SpreadsheetResulttiktak tiktak(int i, String j)",
+        "summary": "Tiktak tiktak(int, String)",
+        "description": "Rules method: SpreadsheetResulttiktak tiktak(int i, java.lang.String j)",
         "operationId": "tiktak",
         "consumes": [
           "application/json"
@@ -39,8 +39,8 @@
     },
     "/EPBDS_9437": {
       "post": {
-        "summary": "SpreadsheetResultEPBDS_9437 EPBDS_9437(Integer driver)",
-        "description": "Rules method: SpreadsheetResultEPBDS_9437 EPBDS_9437(Integer driver)",
+        "summary": "EPBDS_9437 EPBDS_9437(Integer)",
+        "description": "Rules method: SpreadsheetResultEPBDS_9437 EPBDS_9437(java.lang.Integer driver)",
         "operationId": "EPBDS_9437",
         "consumes": [
           "text/plain"

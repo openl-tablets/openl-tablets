@@ -13,8 +13,8 @@
   "paths": {
     "/mySpr": {
       "post": {
-        "summary": "String mySpr(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyDatatype)",
-        "description": "Method: String mySpr(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyDatatype)",
+        "summary": "String mySpr(IRulesRuntimeContext, MyDatatype)",
+        "description": "Method: java.lang.String mySpr(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyDatatype)",
         "operationId": "mySpr",
         "requestBody": {
           "content": {

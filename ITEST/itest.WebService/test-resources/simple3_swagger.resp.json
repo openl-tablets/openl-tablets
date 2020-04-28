@@ -8,8 +8,8 @@
   "paths": {
     "/main": {
       "post": {
-        "summary": "Main main(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "Method: Main main(org.openl.rules.context.IRulesRuntimeContext)",
+        "summary": "Main main(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.Main main(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "main",
         "consumes": [
           "application/json"
@@ -37,11 +37,11 @@
         }
       }
     },
-    "/arrSpreadsheetResultspr1": {
+    "/mySpr2": {
       "post": {
-        "summary": "Spr1[] arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "Method: Spr1[] arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "arrSpreadsheetResultspr1",
+        "summary": "MySpr2 mySpr2(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MySpr2 mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "mySpr2",
         "consumes": [
           "application/json"
         ],
@@ -62,10 +62,38 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Spr1"
-              }
+              "$ref": "#/definitions/MySpr2"
+            }
+          }
+        }
+      }
+    },
+    "/mySpr": {
+      "post": {
+        "summary": "MySpr mySpr(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MySpr mySpr(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "mySpr",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MySpr"
             }
           }
         }
@@ -73,8 +101,8 @@
     },
     "/arrObjSpreadsheetResult": {
       "post": {
-        "summary": "Object[] arrObjSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "Method: Object[] arrObjSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
+        "summary": "Object[] arrObjSpreadsheetResult(IRulesRuntimeContext)",
+        "description": "Method: java.lang.Object[] arrObjSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "arrObjSpreadsheetResult",
         "consumes": [
           "application/json"
@@ -107,8 +135,8 @@
     },
     "/arrSpreadsheetResult": {
       "post": {
-        "summary": "AnySpreadsheetResult[] arrSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "Method: AnySpreadsheetResult[] arrSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
+        "summary": "AnySpreadsheetResult[] arrSpreadsheetResult(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.AnySpreadsheetResult[] arrSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "arrSpreadsheetResult",
         "consumes": [
           "application/json"
@@ -139,11 +167,11 @@
         }
       }
     },
-    "/mySpr": {
+    "/arrSpreadsheetResultspr1": {
       "post": {
-        "summary": "MySpr mySpr(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "Method: MySpr mySpr(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "mySpr",
+        "summary": "Spr1[] arrSpreadsheetResultspr1(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.Spr1[] arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "arrSpreadsheetResultspr1",
         "consumes": [
           "application/json"
         ],
@@ -164,38 +192,10 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/MySpr"
-            }
-          }
-        }
-      }
-    },
-    "/mySpr2": {
-      "post": {
-        "summary": "MySpr2 mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "Method: MySpr2 mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "mySpr2",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MySpr2"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Spr1"
+              }
             }
           }
         }
@@ -1133,23 +1133,6 @@
         }
       }
     },
-    "MySpr": {
-      "type": "object",
-      "properties": {
-        "Step1": {
-          "type": "number",
-          "format": "double"
-        },
-        "Step2": {
-          "type": "number",
-          "format": "double"
-        }
-      },
-      "xml": {
-        "name": "MySpr",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
-      }
-    },
     "MySpr2": {
       "type": "object",
       "properties": {
@@ -1188,6 +1171,23 @@
       },
       "xml": {
         "name": "MySpr2",
+        "namespace": "http://spreadsheetresults.generated.openl.org"
+      }
+    },
+    "MySpr": {
+      "type": "object",
+      "properties": {
+        "Step1": {
+          "type": "number",
+          "format": "double"
+        },
+        "Step2": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "xml": {
+        "name": "MySpr",
         "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     }

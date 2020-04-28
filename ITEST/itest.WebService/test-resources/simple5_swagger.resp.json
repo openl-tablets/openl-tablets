@@ -8,8 +8,8 @@
   "paths": {
     "/calc": {
       "post": {
-        "summary": "Calc calc(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyDatatype)",
-        "description": "Method: Calc calc(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyDatatype)",
+        "summary": "Calc calc(IRulesRuntimeContext, MyDatatype)",
+        "description": "Method: org.openl.generated.spreadsheetresults.Calc calc(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyDatatype)",
         "operationId": "calc",
         "consumes": [
           "application/json"

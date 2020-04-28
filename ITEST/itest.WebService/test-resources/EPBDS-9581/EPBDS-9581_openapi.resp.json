@@ -13,8 +13,8 @@
   "paths": {
     "/proxyCustomer": {
       "post": {
-        "summary": "Customer proxyCustomer(Customer c)",
-        "description": "Rules method: Customer proxyCustomer(Customer c)",
+        "summary": "Customer proxyCustomer(Customer)",
+        "description": "Rules method: org.openl.generated.beans.Customer proxyCustomer(org.openl.generated.beans.Customer c)",
         "operationId": "proxyCustomer",
         "requestBody": {
           "content": {

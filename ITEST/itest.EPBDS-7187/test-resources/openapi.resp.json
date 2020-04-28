@@ -11,37 +11,10 @@
     }
   ],
   "paths": {
-    "/MixedCase": {
-      "post": {
-        "summary": "boolean MixedCase(Double numBer, String String)",
-        "description": "Rules method: boolean MixedCase(Double numBer, String String)",
-        "operationId": "MixedCase",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MixedCaseRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/eDGECase": {
       "post": {
-        "summary": "boolean eDGECase(String sTring, double NUMBer)",
-        "description": "Rules method: boolean eDGECase(String sTring, double NUMBer)",
+        "summary": "boolean eDGECase(String, double)",
+        "description": "Rules method: boolean eDGECase(java.lang.String sTring, double NUMBer)",
         "operationId": "eDGECase",
         "requestBody": {
           "content": {
@@ -65,16 +38,70 @@
         }
       }
     },
-    "/mixes2": {
+    "/lowCase": {
       "post": {
-        "summary": "Mixes[] mixes2(Mixes m1, Mixes m2)",
-        "description": "Rules method: Mixes[] mixes2(Mixes m1, Mixes m2)",
-        "operationId": "mixes2",
+        "summary": "boolean lowCase(Double, String)",
+        "description": "Rules method: boolean lowCase(java.lang.Double number, java.lang.String string)",
+        "operationId": "lowCase",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Mixes2Request"
+                "$ref": "#/components/schemas/LowCaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/MixedCase": {
+      "post": {
+        "summary": "boolean MixedCase(Double, String)",
+        "description": "Rules method: boolean MixedCase(java.lang.Double numBer, java.lang.String String)",
+        "operationId": "MixedCase",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MixedCaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mixes": {
+      "post": {
+        "summary": "Mixes mixes(Mixes)",
+        "description": "Rules method: org.openl.generated.beans.Mixes mixes(org.openl.generated.beans.Mixes m)",
+        "operationId": "mixes",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Mixes"
               }
             }
           }
@@ -83,6 +110,35 @@
           "default": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Mixes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/overload2/{I}": {
+      "get": {
+        "summary": "boolean overload(int)",
+        "description": "Rules method: boolean overload(int I)",
+        "operationId": "overload_2",
+        "parameters": [
+          {
+            "name": "I",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
                 "schema": {
                   "type": "string"
                 }
@@ -110,65 +166,9 @@
         }
       }
     },
-    "/overload2/{I}": {
-      "get": {
-        "summary": "boolean overload(int I)",
-        "description": "Rules method: boolean overload(int I)",
-        "operationId": "overload_2",
-        "parameters": [
-          {
-            "name": "I",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/overload3": {
-      "post": {
-        "summary": "boolean overload(int i, String J)",
-        "description": "Rules method: boolean overload(int i, String J)",
-        "operationId": "overload_3",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/OverloadRequest3"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/overload1": {
       "post": {
-        "summary": "boolean overload(Bean b)",
+        "summary": "boolean overload(Bean)",
         "description": "Rules method: boolean overload(Bean b)",
         "operationId": "overload_1",
         "requestBody": {
@@ -193,10 +193,37 @@
         }
       }
     },
+    "/overload3": {
+      "post": {
+        "summary": "boolean overload(int, String)",
+        "description": "Rules method: boolean overload(int i, java.lang.String J)",
+        "operationId": "overload_3",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OverloadRequest3"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/overload4": {
       "post": {
-        "summary": "boolean overload(Integer I, String J)",
-        "description": "Rules method: boolean overload(Integer I, String J)",
+        "summary": "boolean overload(Integer, String)",
+        "description": "Rules method: boolean overload(java.lang.Integer I, java.lang.String J)",
         "operationId": "overload_4",
         "requestBody": {
           "content": {
@@ -220,16 +247,16 @@
         }
       }
     },
-    "/lowCase": {
+    "/mixes2": {
       "post": {
-        "summary": "boolean lowCase(Double number, String string)",
-        "description": "Rules method: boolean lowCase(Double number, String string)",
-        "operationId": "lowCase",
+        "summary": "Mixes[] mixes2(Mixes, Mixes)",
+        "description": "Rules method: org.openl.generated.beans.Mixes[] mixes2(org.openl.generated.beans.Mixes m1, org.openl.generated.beans.Mixes m2)",
+        "operationId": "mixes2",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/LowCaseRequest"
+                "$ref": "#/components/schemas/Mixes2Request"
               }
             }
           }
@@ -237,7 +264,7 @@
         "responses": {
           "default": {
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "string"
                 }
@@ -249,8 +276,8 @@
     },
     "/UPCase": {
       "post": {
-        "summary": "boolean UPCase(String STRING, double NUMBER)",
-        "description": "Rules method: boolean UPCase(String STRING, double NUMBER)",
+        "summary": "boolean UPCase(String, double)",
+        "description": "Rules method: boolean UPCase(java.lang.String STRING, double NUMBER)",
         "operationId": "UPCase",
         "requestBody": {
           "content": {
@@ -273,53 +300,10 @@
           }
         }
       }
-    },
-    "/mixes": {
-      "post": {
-        "summary": "Mixes mixes(Mixes m)",
-        "description": "Rules method: Mixes mixes(Mixes m)",
-        "operationId": "mixes",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Mixes"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Mixes"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
     "schemas": {
-      "MixedCaseRequest": {
-        "type": "object",
-        "properties": {
-          "numBer": {
-            "type": "number",
-            "format": "double"
-          },
-          "String": {
-            "type": "string"
-          }
-        },
-        "xml": {
-          "name": "MixedCaseRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
-      },
       "EDGECaseRequest": {
         "type": "object",
         "properties": {
@@ -333,6 +317,38 @@
         },
         "xml": {
           "name": "EDGECaseRequest",
+          "namespace": "http://jaxrs.openl.org"
+        }
+      },
+      "LowCaseRequest": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "number",
+            "format": "double"
+          },
+          "string": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "LowCaseRequest",
+          "namespace": "http://jaxrs.openl.org"
+        }
+      },
+      "MixedCaseRequest": {
+        "type": "object",
+        "properties": {
+          "numBer": {
+            "type": "number",
+            "format": "double"
+          },
+          "String": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "MixedCaseRequest",
           "namespace": "http://jaxrs.openl.org"
         }
       },
@@ -368,37 +384,6 @@
           "namespace": "http://beans.generated.openl.org"
         }
       },
-      "Mixes2Request": {
-        "type": "object",
-        "properties": {
-          "m1": {
-            "$ref": "#/components/schemas/Mixes"
-          },
-          "m2": {
-            "$ref": "#/components/schemas/Mixes"
-          }
-        },
-        "xml": {
-          "name": "Mixes2Request",
-          "namespace": "http://jaxrs.openl.org"
-        }
-      },
-      "OverloadRequest3": {
-        "type": "object",
-        "properties": {
-          "i": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "J": {
-            "type": "string"
-          }
-        },
-        "xml": {
-          "name": "OverloadRequest3",
-          "namespace": "http://jaxrs.openl.org"
-        }
-      },
       "Bean": {
         "required": [
           "I"
@@ -427,6 +412,22 @@
           }
         }
       },
+      "OverloadRequest3": {
+        "type": "object",
+        "properties": {
+          "i": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "J": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "OverloadRequest3",
+          "namespace": "http://jaxrs.openl.org"
+        }
+      },
       "OverloadRequest4": {
         "type": "object",
         "properties": {
@@ -443,19 +444,18 @@
           "namespace": "http://jaxrs.openl.org"
         }
       },
-      "LowCaseRequest": {
+      "Mixes2Request": {
         "type": "object",
         "properties": {
-          "number": {
-            "type": "number",
-            "format": "double"
+          "m1": {
+            "$ref": "#/components/schemas/Mixes"
           },
-          "string": {
-            "type": "string"
+          "m2": {
+            "$ref": "#/components/schemas/Mixes"
           }
         },
         "xml": {
-          "name": "LowCaseRequest",
+          "name": "Mixes2Request",
           "namespace": "http://jaxrs.openl.org"
         }
       },

@@ -6,10 +6,41 @@
   },
   "basePath": "/rules-without-runtime-context",
   "paths": {
+    "/bar": {
+      "post": {
+        "summary": "String bar(SumTwoDoublesRequest)",
+        "description": "Rules method: java.lang.String bar(org.openl.generated.beans.SumTwoDoublesRequest bar)",
+        "operationId": "bar",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plain"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/SumTwoDoublesRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
     "/calVehicleYear": {
       "post": {
-        "summary": "Integer calVehicleYear(CalVehicleYearRequest v, Double a)",
-        "description": "Rules method: Integer calVehicleYear(CalVehicleYearRequest v, Double a)",
+        "summary": "Integer calVehicleYear(CalVehicleYearRequest, Double)",
+        "description": "Rules method: java.lang.Integer calVehicleYear(org.openl.generated.beans.CalVehicleYearRequest v, java.lang.Double a)",
         "operationId": "calVehicleYear",
         "consumes": [
           "application/json"
@@ -40,8 +71,8 @@
     },
     "/sumTwoDoubles": {
       "post": {
-        "summary": "Double sumTwoDoubles(Double a, Double b)",
-        "description": "Rules method: Double sumTwoDoubles(Double a, Double b)",
+        "summary": "Double sumTwoDoubles(Double, Double)",
+        "description": "Rules method: java.lang.Double sumTwoDoubles(java.lang.Double a, java.lang.Double b)",
         "operationId": "sumTwoDoubles",
         "consumes": [
           "application/json"
@@ -69,40 +100,21 @@
           }
         }
       }
-    },
-    "/bar": {
-      "post": {
-        "summary": "String bar(SumTwoDoublesRequest bar)",
-        "description": "Rules method: String bar(SumTwoDoublesRequest bar)",
-        "operationId": "bar",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "text/plain"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/SumTwoDoublesRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            }
-          }
-        }
-      }
     }
   },
   "definitions": {
+    "SumTwoDoublesRequest": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
+      },
+      "xml": {
+        "name": "SumTwoDoublesRequest",
+        "namespace": "http://beans.generated.openl.org"
+      }
+    },
     "CalVehicleYearRequest": {
       "type": "object",
       "properties": {
@@ -151,18 +163,6 @@
       "xml": {
         "name": "SumTwoDoublesRequest1",
         "namespace": "http://jaxrs.openl.org"
-      }
-    },
-    "SumTwoDoublesRequest": {
-      "type": "object",
-      "properties": {
-        "foo": {
-          "type": "string"
-        }
-      },
-      "xml": {
-        "name": "SumTwoDoublesRequest",
-        "namespace": "http://beans.generated.openl.org"
       }
     }
   }

@@ -14,7 +14,7 @@
     "/getObject": {
       "get": {
         "summary": "MyType getObject()",
-        "description": "Rules method: MyType getObject()",
+        "description": "Rules method: org.openl.generated.beans.MyType getObject()",
         "operationId": "getObject",
         "responses": {
           "default": {

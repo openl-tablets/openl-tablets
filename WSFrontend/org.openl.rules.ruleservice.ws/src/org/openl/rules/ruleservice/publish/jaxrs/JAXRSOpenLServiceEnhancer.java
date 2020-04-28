@@ -502,19 +502,18 @@ public final class JAXRSOpenLServiceEnhancer {
         private void addSwaggerMethodAnnotation(MethodVisitor mv, Method originalMethod, String nickname) {
             if (!originalMethod.isAnnotationPresent(ApiOperation.class) || !originalMethod
                 .isAnnotationPresent(Operation.class)) {
-                String operationSummary;
+                String summary = originalMethod.getReturnType().getSimpleName() + " " + MethodUtil
+                    .printMethod(originalMethod.getName(), originalMethod.getParameterTypes(), true);
+
                 IOpenMethod openMethod = MethodUtils.getRulesMethod(originalMethod, service);
-                if (openMethod != null) {
-                    operationSummary = openMethod.getType().getDisplayName(INamedThing.SHORT) + " " + MethodUtil
-                        .printSignature(openMethod, INamedThing.SHORT);
-                } else {
-                    operationSummary = originalMethod.getReturnType().getSimpleName() + " " + MethodUtil
-                        .printMethod(originalMethod.getName(), originalMethod.getParameterTypes());
-                }
+                String detailedSummary = openMethod != null ? openMethod.getType()
+                    .getDisplayName(INamedThing.LONG) + " " + MethodUtil.printSignature(openMethod, INamedThing.LONG)
+                                                            : originalMethod.getReturnType().getTypeName() + " " + MethodUtil
+                        .printMethod(originalMethod.getName(), originalMethod.getParameterTypes(), false);
                 if (!originalMethod.isAnnotationPresent(ApiOperation.class)) {
                     AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ApiOperation.class), true);
-                    av.visit("value", operationSummary.substring(0, Math.min(operationSummary.length(), 120)));
-                    av.visit("notes", (openMethod != null ? "Rules method: " : "Method: ") + operationSummary);
+                    av.visit("value", summary.substring(0, Math.min(summary.length(), 120)));
+                    av.visit("notes", (openMethod != null ? "Rules method: " : "Method: ") + detailedSummary);
                     av.visit("response", Type.getType(originalMethod.getReturnType()));
                     av.visit("nickname", nickname);
                     av.visitEnd();
@@ -522,8 +521,8 @@ public final class JAXRSOpenLServiceEnhancer {
                 if (!originalMethod.isAnnotationPresent(Operation.class)) {
                     AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Operation.class), true);
                     av.visit("operationId", nickname);
-                    av.visit("summary", operationSummary.substring(0, Math.min(operationSummary.length(), 120)));
-                    av.visit("description", (openMethod != null ? "Rules method: " : "Method: ") + operationSummary);
+                    av.visit("summary", summary.substring(0, Math.min(summary.length(), 120)));
+                    av.visit("description", (openMethod != null ? "Rules method: " : "Method: ") + detailedSummary);
 
                     if (!originalMethod.isAnnotationPresent(ApiResponse.class)) {
                         AnnotationVisitor av1 = av.visitArray("responses");

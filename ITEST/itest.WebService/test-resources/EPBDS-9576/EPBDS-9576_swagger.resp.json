@@ -8,8 +8,8 @@
   "paths": {
     "/getMyData": {
       "post": {
-        "summary": "Integer[] getMyData(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "Method: Integer[] getMyData(org.openl.rules.context.IRulesRuntimeContext)",
+        "summary": "Integer[] getMyData(IRulesRuntimeContext)",
+        "description": "Method: java.lang.Integer[] getMyData(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "getMyData",
         "consumes": [
           "application/json"
@@ -43,8 +43,8 @@
     },
     "/mySpr": {
       "post": {
-        "summary": "MySpr mySpr(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer)",
-        "description": "Method: MySpr mySpr(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer)",
+        "summary": "MySpr mySpr(IRulesRuntimeContext, Integer)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MySpr mySpr(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer)",
         "operationId": "mySpr",
         "consumes": [
           "application/json"
@@ -440,3 +440,4 @@
     }
   }
 }
+

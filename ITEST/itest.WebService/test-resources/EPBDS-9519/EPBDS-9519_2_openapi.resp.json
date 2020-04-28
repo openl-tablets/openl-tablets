@@ -13,8 +13,8 @@
   "paths": {
     "/someRules": {
       "post": {
-        "summary": "MyType someRules(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer, java.lang.Integer, java.lang.Integer, ",
-        "description": "Method: MyType someRules(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.String)",
+        "summary": "MyType someRules(IRulesRuntimeContext, Integer, Integer, Integer, String)",
+        "description": "Method: org.openl.generated.beans.MyType someRules(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.String)",
         "operationId": "someRules",
         "requestBody": {
           "content": {
@@ -40,8 +40,8 @@
     },
     "/myType1": {
       "post": {
-        "summary": "MyType1 myType1(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyType)",
-        "description": "Method: MyType1 myType1(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyType)",
+        "summary": "MyType1 myType1(IRulesRuntimeContext, MyType)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyType1 myType1(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyType)",
         "operationId": "myType1",
         "requestBody": {
           "content": {
