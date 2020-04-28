@@ -4,6 +4,12 @@
     "title": "EPBDS-9437",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "url": "/REST/EPBDS-9437",
+      "variables": {}
+    }
+  ],
   "paths": {
     "/tiktak": {
       "post": {

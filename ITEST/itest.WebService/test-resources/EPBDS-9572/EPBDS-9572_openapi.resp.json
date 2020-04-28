@@ -4,6 +4,12 @@
     "title": "EPBDS-9572_EPBDS-9572",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "url": "/REST/EPBDS-9572/EPBDS-9572",
+      "variables": {}
+    }
+  ],
   "paths": {
     "/mySpr": {
       "post": {

@@ -4,6 +4,12 @@
     "title": "spreadsheetresult",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "url": "/REST/spreadsheetresult",
+      "variables": {}
+    }
+  ],
   "paths": {
     "/tiktak": {
       "post": {

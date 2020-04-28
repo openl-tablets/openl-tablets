@@ -4,6 +4,12 @@
     "title": "EPBDS-9576",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "url": "/REST/EPBDS-9576",
+      "variables": {}
+    }
+  ],
   "paths": {
     "/mySpr": {
       "post": {

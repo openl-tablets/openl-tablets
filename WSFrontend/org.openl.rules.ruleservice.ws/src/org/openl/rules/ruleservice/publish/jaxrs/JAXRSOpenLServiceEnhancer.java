@@ -51,6 +51,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.servers.Server;
 
 /**
  * Utility class for generate JAXRS annotations for service interface.
@@ -113,15 +114,18 @@ public final class JAXRSOpenLServiceEnhancer {
         private Map<Method, String> paths = null;
         private Map<Method, String> nicknames = null;
         private Map<Method, String> methodRequests = null;
+        private final String serviceExposedUrl;
 
         JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                 Class<?> originalClass,
                 ClassLoader classLoader,
-                OpenLService service) {
+                OpenLService service,
+                String serviceExposedUrl) {
             super(Opcodes.ASM5, arg0);
             this.originalClass = originalClass;
             this.classLoader = classLoader;
             this.service = service;
+            this.serviceExposedUrl = serviceExposedUrl;
         }
 
         @Override
@@ -154,6 +158,15 @@ public final class JAXRSOpenLServiceEnhancer {
                 av1.visit("title", service.getName());
                 av1.visit("version", DEFAULT_VERSION);
                 av1.visitEnd();
+
+                if (serviceExposedUrl != null) {
+                    AnnotationVisitor av2 = av.visitArray("servers");
+                    AnnotationVisitor av3 = av2.visitAnnotation("servers", Type.getDescriptor(Server.class));
+                    av3.visit("url", serviceExposedUrl);
+                    av3.visitEnd();
+                    av2.visitEnd();
+                }
+
                 av.visitEnd();
             }
 
@@ -508,6 +521,7 @@ public final class JAXRSOpenLServiceEnhancer {
                 }
                 if (!originalMethod.isAnnotationPresent(Operation.class)) {
                     AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Operation.class), true);
+                    av.visit("operationId", nickname);
                     av.visit("summary", operationSummary.substring(0, Math.min(operationSummary.length(), 120)));
                     av.visit("description", (openMethod != null ? "Rules method: " : "Method: ") + operationSummary);
 
@@ -553,7 +567,7 @@ public final class JAXRSOpenLServiceEnhancer {
         }
     }
 
-    public Object decorateServiceBean(OpenLService service) throws Exception {
+    public Object decorateServiceBean(OpenLService service, String serviceExposedUrl) throws Exception {
         Class<?> serviceClass = service.getServiceClass();
         Objects.requireNonNull(serviceClass, "Service class cannot be null");
         if (!serviceClass.isInterface()) {
@@ -566,7 +580,8 @@ public final class JAXRSOpenLServiceEnhancer {
             cw,
             serviceClass,
             classLoader,
-            service);
+            service,
+            serviceExposedUrl);
         String enhancedClassName = serviceClass
             .getName() + JAXRSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
         InterfaceTransformer transformer = new InterfaceTransformer(serviceClass, enhancedClassName, false);

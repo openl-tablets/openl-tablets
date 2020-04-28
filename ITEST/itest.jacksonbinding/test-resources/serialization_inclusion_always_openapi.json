@@ -4,6 +4,12 @@
     "title": "rules-serializationInclusionAlways",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "url": "/rules-serializationInclusionAlways",
+      "variables": {}
+    }
+  ],
   "paths": {
     "/getObject": {
       "get": {

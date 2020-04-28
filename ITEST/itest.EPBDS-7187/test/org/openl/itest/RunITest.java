@@ -57,11 +57,7 @@ public class RunITest {
     public void testSchemas() {
         client.get("/upcs?_wadl", "/wadl.resp.xml");
         client.get("/upcs/swagger.json", "/swagger.resp.json");
-
-        // To reproduce an issue with classloader uncomment next line
-        // io.swagger.v3.jaxrs2.integration.resources.BaseOpenApiResource:49 set breakpoint here and go into the method
-        // to see exception
-        // client.get("/upcs/openapi.json", "/openapi.resp.json");
+        client.get("/upcs/openapi.json", "/openapi.resp.json");
     }
 
 }
