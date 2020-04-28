@@ -4,6 +4,12 @@
     "title": "EPBDS-9519_3_EPBDS-9519",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "url": "/REST/EPBDS-9519_3/EPBDS-9519",
+      "variables": {}
+    }
+  ],
   "paths": {
     "/someRules": {
       "post": {

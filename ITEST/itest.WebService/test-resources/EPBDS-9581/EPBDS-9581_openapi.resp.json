@@ -4,6 +4,12 @@
     "title": "mixins-test",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "url": "/EPBDS-9581/EPBDS-9581",
+      "variables": {}
+    }
+  ],
   "paths": {
     "/proxyCustomer": {
       "post": {

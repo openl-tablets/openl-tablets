@@ -4,34 +4,13 @@
     "title": "service name with spaces",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "url": "/service%20name%20with%20spaces",
+      "variables": {}
+    }
+  ],
   "paths": {
-    "/calVehicleYear": {
-      "post": {
-        "summary": "Integer calVehicleYear(CalVehicleYearRequest v, Double a)",
-        "description": "Rules method: Integer calVehicleYear(CalVehicleYearRequest v, Double a)",
-        "operationId": "calVehicleYear",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CalVehicleYearRequest1"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/bar": {
       "post": {
         "summary": "String bar(SumTwoDoublesRequest bar)",
@@ -52,6 +31,33 @@
               "text/plain": {
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calVehicleYear": {
+      "post": {
+        "summary": "Integer calVehicleYear(CalVehicleYearRequest v, Double a)",
+        "description": "Rules method: Integer calVehicleYear(CalVehicleYearRequest v, Double a)",
+        "operationId": "calVehicleYear",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalVehicleYearRequest1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer"
                 }
               }
             }
@@ -89,6 +95,18 @@
   },
   "components": {
     "schemas": {
+      "SumTwoDoublesRequest": {
+        "type": "object",
+        "properties": {
+          "foo": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "SumTwoDoublesRequest",
+          "namespace": "http://beans.generated.openl.org"
+        }
+      },
       "CalVehicleYearRequest": {
         "type": "object",
         "properties": {
@@ -120,18 +138,6 @@
         "xml": {
           "name": "CalVehicleYearRequest1",
           "namespace": "http://jaxrs.openl.org"
-        }
-      },
-      "SumTwoDoublesRequest": {
-        "type": "object",
-        "properties": {
-          "foo": {
-            "type": "string"
-          }
-        },
-        "xml": {
-          "name": "SumTwoDoublesRequest",
-          "namespace": "http://beans.generated.openl.org"
         }
       },
       "SumTwoDoublesRequest1": {

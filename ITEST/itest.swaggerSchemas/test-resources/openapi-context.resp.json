@@ -4,6 +4,12 @@
     "title": "rules-with-runtime-context",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "url": "/rules-with-runtime-context",
+      "variables": {}
+    }
+  ],
   "paths": {
     "/calVehicleYear": {
       "post": {

@@ -4,6 +4,12 @@
     "title": "rules-without-runtime-context",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "url": "/rules-without-runtime-context",
+      "variables": {}
+    }
+  ],
   "paths": {
     "/bar": {
       "post": {
@@ -25,33 +31,6 @@
               "text/plain": {
                 "schema": {
                   "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/sumTwoDoubles": {
-      "post": {
-        "summary": "Double sumTwoDoubles(Double a, Double b)",
-        "description": "Rules method: Double sumTwoDoubles(Double a, Double b)",
-        "operationId": "sumTwoDoubles",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SumTwoDoublesRequest1"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "double"
                 }
               }
             }
@@ -85,6 +64,33 @@
           }
         }
       }
+    },
+    "/sumTwoDoubles": {
+      "post": {
+        "summary": "Double sumTwoDoubles(Double a, Double b)",
+        "description": "Rules method: Double sumTwoDoubles(Double a, Double b)",
+        "operationId": "sumTwoDoubles",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SumTwoDoublesRequest1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "double"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -99,23 +105,6 @@
         "xml": {
           "name": "SumTwoDoublesRequest",
           "namespace": "http://beans.generated.openl.org"
-        }
-      },
-      "SumTwoDoublesRequest1": {
-        "type": "object",
-        "properties": {
-          "a": {
-            "type": "number",
-            "format": "double"
-          },
-          "b": {
-            "type": "number",
-            "format": "double"
-          }
-        },
-        "xml": {
-          "name": "SumTwoDoublesRequest1",
-          "namespace": "http://jaxrs.openl.org"
         }
       },
       "CalVehicleYearRequest": {
@@ -148,6 +137,23 @@
         },
         "xml": {
           "name": "CalVehicleYearRequest1",
+          "namespace": "http://jaxrs.openl.org"
+        }
+      },
+      "SumTwoDoublesRequest1": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "number",
+            "format": "double"
+          },
+          "b": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "xml": {
+          "name": "SumTwoDoublesRequest1",
           "namespace": "http://jaxrs.openl.org"
         }
       }

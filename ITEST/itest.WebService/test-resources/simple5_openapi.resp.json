@@ -4,6 +4,12 @@
     "title": "simple5",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "url": "/REST/deployment5/simple5",
+      "variables": {}
+    }
+  ],
   "paths": {
     "/calc": {
       "post": {
