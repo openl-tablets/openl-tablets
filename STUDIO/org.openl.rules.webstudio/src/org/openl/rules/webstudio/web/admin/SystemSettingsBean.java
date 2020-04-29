@@ -89,7 +89,7 @@ public class SystemSettingsBean {
 
             productionRepositoryEditor = new ProductionRepositoryEditor(productionRepositoryFactoryProxy, properties);
 
-            validator = new SystemSettingsValidator(this);
+            validator = new SystemSettingsValidator();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             WebStudioUtils.addErrorMessage(e.getMessage());

@@ -6,6 +6,7 @@ import java.io.IOException;
 import javax.faces.application.FacesMessage;
 import javax.faces.validator.ValidatorException;
 
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,13 +37,13 @@ public class WebStudioValidationUtils {
                          */
                         validateIsWritable(directory);
                     } else {
-                        throw new ValidatorException(createErrorMessage(String.format(
+                        WebStudioUtils.throwValidationError(String.format(
                             "There is not enough access rights for installing '%s' into the folder: '%s'.",
                             directoryType,
-                            dirPath)));
+                            dirPath));
                     }
                 } else {
-                    throw new ValidatorException(createErrorMessage(String.format("'%s' is not a folder.", dirPath)));
+                    WebStudioUtils.throwValidationError(String.format("'%s' is not a folder.", dirPath));
                 }
             } else {
                 File parentFolder = directory.getAbsoluteFile().getParentFile();
@@ -68,7 +69,7 @@ public class WebStudioValidationUtils {
             }
 
         } else {
-            throw new ValidatorException(createErrorMessage(String.format("'%s' cannot be blank", directoryType)));
+            WebStudioUtils.throwValidationError(String.format("'%s' cannot be blank", directoryType));
         }
     }
 
@@ -86,8 +87,7 @@ public class WebStudioValidationUtils {
             }
 
         } catch (IOException ioe) {
-            throw new ValidatorException(
-                createErrorMessage(String.format("%s for '%s'", ioe.getMessage(), file.getName())));
+            WebStudioUtils.throwValidationError(String.format("%s for '%s'", ioe.getMessage(), file.getName()));
         }
     }
 
@@ -112,9 +112,5 @@ public class WebStudioValidationUtils {
             }
             studioFolder = studioFolder.getAbsoluteFile().getParentFile();
         }
-    }
-
-    private static FacesMessage createErrorMessage(String summary) {
-        return new FacesMessage(FacesMessage.SEVERITY_ERROR, summary, null);
     }
 }

@@ -19,12 +19,6 @@ import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
 public class SystemSettingsValidator {
-    private final SystemSettingsBean systemSettingsBean;
-
-    // TODO This class shouldn't depend on SystemSettingsBean
-    public SystemSettingsValidator(SystemSettingsBean systemSettingsBean) {
-        this.systemSettingsBean = systemSettingsBean;
-    }
 
     public void dateFormatValidator(FacesContext context, UIComponent toValidate, Object value) {
         String inputDate = (String) value;
@@ -43,7 +37,6 @@ public class SystemSettingsValidator {
             WebStudioUtils.validate(parsedDate.equals(date), "format is incomplete.");
         } catch (Exception e) {
             String message = "Incorrect date format: " + e.getMessage();
-            WebStudioUtils.addErrorMessage(message);
             WebStudioUtils.throwValidationError(message);
         }
     }
@@ -66,21 +59,16 @@ public class SystemSettingsValidator {
             WebStudioUtils.validate(parsedDate.equals(date), "format is incomplete.");
         } catch (Exception e) {
             String message = "Incorrect time format: " + e.getMessage();
-            WebStudioUtils.addErrorMessage(message);
             WebStudioUtils.throwValidationError(message);
         }
     }
 
-    // TODO This class shouldn't depend on SystemSettingsBean
     public void workSpaceDirValidator(FacesContext context, UIComponent toValidate, Object value) {
         WebStudioValidationUtils.directoryValidator(value, "Workspace Directory");
-        systemSettingsBean.setUserWorkspaceHome((String) value);
     }
 
-    // TODO This class shouldn't depend on SystemSettingsBean
     public void historyDirValidator(FacesContext context, UIComponent toValidate, Object value) {
         WebStudioValidationUtils.directoryValidator(value, "History Directory");
-        systemSettingsBean.setProjectHistoryHome((String) value);
     }
 
     public void historyCountValidator(FacesContext context, UIComponent toValidate, Object value) {
@@ -92,8 +80,7 @@ public class SystemSettingsValidator {
         }
 
         if (errorMessage != null) {
-            WebStudioUtils.addErrorMessage(errorMessage);
-            throw new ValidatorException(new FacesMessage(errorMessage));
+            WebStudioUtils.throwValidationError(errorMessage);
         }
     }
 
@@ -108,11 +95,11 @@ public class SystemSettingsValidator {
             int v = Integer.parseInt(StringUtils.trim(count));
             if (v < 0) {
                 WebStudioUtils.addErrorMessage(message);
-                throw new ValidatorException(new FacesMessage(message));
+                WebStudioUtils.throwValidationError(message);
             }
         } catch (NumberFormatException e) {
             WebStudioUtils.addErrorMessage(message);
-            throw new ValidatorException(new FacesMessage(message));
+            WebStudioUtils.throwValidationError(message);
         }
     }
 
@@ -121,12 +108,10 @@ public class SystemSettingsValidator {
         try {
             int v = Integer.parseInt(StringUtils.trim(count));
             if (v <= 0) {
-                WebStudioUtils.addErrorMessage(message);
-                throw new ValidatorException(new FacesMessage(message));
+                WebStudioUtils.throwValidationError(message);
             }
         } catch (NumberFormatException e) {
-            WebStudioUtils.addErrorMessage(message);
-            throw new ValidatorException(new FacesMessage(message));
+            WebStudioUtils.throwValidationError(message);
         }
     }
 
@@ -155,17 +140,16 @@ public class SystemSettingsValidator {
             FileUtils.deleteQuietly(root);
         }
         if (!hasAccess) {
-            throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                "Cannot get access to the folder ' " + folderPath + " '    Please, contact to your system administrator.",
-                null));
+            String errorMessage = String.format("Cannot get access to the folder '%s'. Please, contact to your system administrator.", folderPath);
+            WebStudioUtils.addErrorMessage(errorMessage);
+            WebStudioUtils.throwValidationError(errorMessage);
         }
     }
 
     private void validateNotBlank(String value, String folderType) {
         if (StringUtils.isBlank(value)) {
             String errorMessage = folderType + " could not be empty";
-            WebStudioUtils.addErrorMessage(errorMessage);
-            throw new ValidatorException(new FacesMessage(errorMessage));
+            WebStudioUtils.throwValidationError(errorMessage);
         }
     }
 }
