@@ -30,7 +30,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string"
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
                 }
               }
             }

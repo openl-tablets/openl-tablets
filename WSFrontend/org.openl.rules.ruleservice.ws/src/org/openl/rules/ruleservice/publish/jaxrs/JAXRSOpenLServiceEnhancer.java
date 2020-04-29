@@ -2,15 +2,7 @@ package org.openl.rules.ruleservice.publish.jaxrs;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -48,6 +40,7 @@ import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -508,8 +501,11 @@ public final class JAXRSOpenLServiceEnhancer {
                 IOpenMethod openMethod = MethodUtils.getRulesMethod(originalMethod, service);
                 String detailedSummary = openMethod != null ? openMethod.getType()
                     .getDisplayName(INamedThing.LONG) + " " + MethodUtil.printSignature(openMethod, INamedThing.LONG)
-                                                            : originalMethod.getReturnType().getTypeName() + " " + MethodUtil
-                        .printMethod(originalMethod.getName(), originalMethod.getParameterTypes(), false);
+                                                            : originalMethod.getReturnType()
+                                                                .getTypeName() + " " + MethodUtil.printMethod(
+                                                                    originalMethod.getName(),
+                                                                    originalMethod.getParameterTypes(),
+                                                                    false);
                 if (!originalMethod.isAnnotationPresent(ApiOperation.class)) {
                     AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ApiOperation.class), true);
                     av.visit("value", summary.substring(0, Math.min(summary.length(), 120)));
@@ -523,15 +519,28 @@ public final class JAXRSOpenLServiceEnhancer {
                     av.visit("operationId", nickname);
                     av.visit("summary", summary.substring(0, Math.min(summary.length(), 120)));
                     av.visit("description", (openMethod != null ? "Rules method: " : "Method: ") + detailedSummary);
-
-                    if (!originalMethod.isAnnotationPresent(ApiResponse.class)) {
+                    Class<?> t = originalMethod.getReturnType();
+                    int dim = 0;
+                    while (t.isArray()) {
+                        t = t.getComponentType();
+                        dim++;
+                    }
+                    if (!originalMethod.isAnnotationPresent(ApiResponse.class) && dim < 2) {
                         AnnotationVisitor av1 = av.visitArray("responses");
                         AnnotationVisitor av2 = av1.visitAnnotation("responses", Type.getDescriptor(ApiResponse.class));
                         AnnotationVisitor av3 = av2.visitArray("content");
                         AnnotationVisitor av4 = av3.visitAnnotation("responses", Type.getDescriptor(Content.class));
-                        AnnotationVisitor av5 = av4.visitAnnotation("schema", Type.getDescriptor(Schema.class));
-                        av5.visit("implementation", Type.getType(originalMethod.getReturnType()));
-                        av5.visitEnd();
+                        AnnotationVisitor av6;
+                        if (originalMethod.getReturnType().isArray()) {
+                            av6 = av4.visitAnnotation("array", Type.getDescriptor(ArraySchema.class));
+                            AnnotationVisitor av7 = av6.visitAnnotation("schema", Type.getDescriptor(Schema.class));
+                            av7.visit("implementation", Type.getType(originalMethod.getReturnType().getComponentType()));
+                            av7.visitEnd();
+                        } else {
+                            av6 = av4.visitAnnotation("schema", Type.getDescriptor(Schema.class));
+                            av6.visit("implementation", Type.getType(originalMethod.getReturnType()));
+                        }
+                        av6.visitEnd();
                         av4.visitEnd();
                         av3.visitEnd();
                         av2.visitEnd();
