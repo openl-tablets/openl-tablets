@@ -92,7 +92,7 @@
         <cassandra.unit.driver.version>3.8.0</cassandra.unit.driver.version>
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
         <org.apache.cxf.version>3.3.6</org.apache.cxf.version>
-        <log4j.version>2.13.1</log4j.version>
+        <log4j.version>2.13.2</log4j.version>
         <org.slf4j.version>1.7.30</org.slf4j.version>
         <org.apache.poi.version>4.1.2</org.apache.poi.version>
         <org.bouncycastle.version>1.62</org.bouncycastle.version>
