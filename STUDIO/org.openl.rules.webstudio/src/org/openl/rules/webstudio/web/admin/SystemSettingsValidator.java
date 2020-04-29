@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.admin;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,14 +7,11 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.regex.Pattern;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.validator.ValidatorException;
 
 import org.openl.rules.webstudio.util.WebStudioValidationUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
 public class SystemSettingsValidator {
@@ -89,20 +85,6 @@ public class SystemSettingsValidator {
         validateGreaterThanZero(count, "Number of threads");
     }
 
-    private void validateNotNegativeInteger(String count, String target) {
-        String message = target + " must be positive integer or zero";
-        try {
-            int v = Integer.parseInt(StringUtils.trim(count));
-            if (v < 0) {
-                WebStudioUtils.addErrorMessage(message);
-                WebStudioUtils.throwValidationError(message);
-            }
-        } catch (NumberFormatException e) {
-            WebStudioUtils.addErrorMessage(message);
-            WebStudioUtils.throwValidationError(message);
-        }
-    }
-
     private void validateGreaterThanZero(String count, String target) {
         String message = target + " must be positive integer";
         try {
@@ -112,37 +94,6 @@ public class SystemSettingsValidator {
             }
         } catch (NumberFormatException e) {
             WebStudioUtils.throwValidationError(message);
-        }
-    }
-
-    /**
-     * Check permission on folder creation
-     *
-     * This method deletes only created folders.
-     */
-    private void workingDirValidator(String folderPath) {
-        File folder = new File(folderPath);
-        File root = null; // will be deleted, it is the first absent folder
-        while (folder != null && !folder.exists()) {
-            root = folder; // keep current not created
-            folder = folder.getParentFile(); // get parent
-        }
-
-        File tmp = null; // temp file to check access
-        boolean hasAccess = false;
-        try {
-            // check access
-            tmp = new File(folderPath, ".openl-tmp");
-            hasAccess = tmp.mkdirs();
-        } finally {
-            // delete all created files
-            FileUtils.deleteQuietly(tmp);
-            FileUtils.deleteQuietly(root);
-        }
-        if (!hasAccess) {
-            String errorMessage = String.format("Cannot get access to the folder '%s'. Please, contact to your system administrator.", folderPath);
-            WebStudioUtils.addErrorMessage(errorMessage);
-            WebStudioUtils.throwValidationError(errorMessage);
         }
     }
 
