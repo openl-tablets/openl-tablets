@@ -64,7 +64,19 @@ public abstract class SimpleTracerObject implements ITracerObject {
     }
 
     public void setResult(Object result) {
-        this.result = result;
+        if (result != null) {
+            CachingArgumentsCloner cloner = CachingArgumentsCloner.getInstance();
+            Object clonedResult;
+            try {
+                clonedResult = cloner.deepClone(result);
+            } catch (Throwable e) {
+                // ignore cloning exception if any, use params itself
+                clonedResult = result;
+            }
+            this.result = clonedResult;
+        } else {
+            this.result = null;
+        }
     }
 
     public Throwable getError() {

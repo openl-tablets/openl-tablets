@@ -48,31 +48,53 @@ public class AProject extends AProjectFolder {
         if (fileData == null) {
             Repository repository = getRepository();
             if (isRepositoryVersionable()) {
-                // In the case of FolderRepository we can retrieve FileData using check()/checkHistory() for a folder.
-                try {
-                    if (!isHistoric() || isLastVersion()) {
-                        fileData = repository.check(getFolderPath());
-                        if (fileData == null) {
-                            fileData = new LazyFileData(getFolderPath(), getHistoryVersion(), this);
-                        }
-                    } else {
-                        fileData = repository.checkHistory(getFolderPath(), getHistoryVersion());
-                    }
-                    if (fileData != null && repository.supports().branches()) {
-                        fileData.setBranch(((BranchRepository) repository).getBranch());
-                    }
-                } catch (IOException ex) {
-                    throw new IllegalStateException(ex.getMessage(), ex);
-                }
+                fileData = getFileDataForVersionableRepo(repository);
             } else {
-                fileData = new LazyFileData(getFolderPath(), getHistoryVersion(), this);
+                fileData = getFileDataForUnversionableRepo(repository);
             }
             setFileData(fileData);
         }
         return fileData;
     }
 
-    private String getLastHistoryVersion() {
+    private FileData getFileDataForVersionableRepo(Repository repository) {
+        FileData fileData;// In the case of FolderRepository we can retrieve FileData using check()/checkHistory() for a folder.
+        try {
+            if (!isHistoric() || isLastVersion()) {
+                fileData = repository.check(getFolderPath());
+                if (fileData == null) {
+                    // A project or deploy configuration doesn't exist yet. Probably we are creating it now.
+                    fileData = new FileData();
+                    fileData.setName(getFolderPath());
+                }
+            } else {
+                fileData = repository.checkHistory(getFolderPath(), getHistoryVersion());
+            }
+            if (fileData != null && repository.supports().branches()) {
+                fileData.setBranch(((BranchRepository) repository).getBranch());
+            }
+        } catch (IOException ex) {
+            throw new IllegalStateException(ex.getMessage(), ex);
+        }
+        return fileData;
+    }
+
+    protected FileData getFileDataForUnversionableRepo(Repository repository) {
+        try {
+            FileData fileData = repository.check(getFolderPath());
+            if (fileData == null) {
+                // A project doesn't exist yet. Probably we are creating it now.
+                fileData = new FileData();
+                fileData.setName(getFolderPath());
+                fileData.setVersion(getHistoryVersion());
+            }
+            return fileData;
+        } catch (IOException e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
+    }
+
+    public String getLastHistoryVersion() {
         if (lastHistoryVersion == null) {
             // Retrieving all history is expensive. If it's retrieved already, use it, otherwise detect last version
             // from the repository directly.
@@ -80,20 +102,25 @@ public class AProject extends AProjectFolder {
             if (fileDatas != null) {
                 lastHistoryVersion = fileDatas.isEmpty() ? null : fileDatas.get(fileDatas.size() - 1).getVersion();
             } else {
-                String folderPath = getFolderPath();
-                if (folderPath != null && isRepositoryVersionable()) {
-                    try {
-                        FileData fileData = getRepository().check(folderPath);
-                        if (fileData != null) {
-                            lastHistoryVersion = fileData.getVersion();
-                        }
-                    } catch (IOException e) {
-                        log.error(e.getMessage(), e);
-                    }
-                }
+                lastHistoryVersion = findLastHistoryVersion();
             }
         }
         return lastHistoryVersion;
+    }
+
+    protected String findLastHistoryVersion() {
+        String folderPath = getFolderPath();
+        if (folderPath != null && isRepositoryVersionable()) {
+            try {
+                FileData fileData = getRepository().check(folderPath);
+                if (fileData != null) {
+                    return fileData.getVersion();
+                }
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+        return null;
     }
 
     final protected void setLastHistoryVersion(String lastHistoryVersion) {
@@ -483,113 +510,6 @@ public class AProject extends AProjectFolder {
     @Override
     public boolean hasArtefacts() {
         return isFolder() ? super.hasArtefacts() : getFileData().getSize() != 0;
-    }
-
-    private static class LazyFileData extends FileData {
-        private AProject project;
-
-        private LazyFileData(String name, String version, AProject project) {
-            setName(name);
-            setVersion(version == null ? project.getLastHistoryVersion() : version);
-            this.project = project;
-        }
-
-        @Override
-        public long getSize() {
-            verifyInitialized();
-            return super.getSize();
-        }
-
-        @Override
-        public void setSize(long size) {
-            verifyInitialized();
-            super.setSize(size);
-        }
-
-        @Override
-        public String getAuthor() {
-            verifyInitialized();
-            return super.getAuthor();
-        }
-
-        @Override
-        public void setAuthor(String author) {
-            verifyInitialized();
-            super.setAuthor(author);
-        }
-
-        @Override
-        public String getComment() {
-            verifyInitialized();
-            return super.getComment();
-        }
-
-        @Override
-        public void setComment(String comment) {
-            verifyInitialized();
-            super.setComment(comment);
-        }
-
-        @Override
-        public Date getModifiedAt() {
-            verifyInitialized();
-            return super.getModifiedAt();
-        }
-
-        @Override
-        public void setModifiedAt(Date modifiedAt) {
-            verifyInitialized();
-            super.setModifiedAt(modifiedAt);
-        }
-
-        @Override
-        public boolean isDeleted() {
-            verifyInitialized();
-            return super.isDeleted();
-        }
-
-        @Override
-        public void setDeleted(boolean deleted) {
-            verifyInitialized();
-            super.setDeleted(deleted);
-        }
-
-        @Override
-        public String getUniqueId() {
-            verifyInitialized();
-            return super.getUniqueId();
-        }
-
-        private void verifyInitialized() {
-            if (project != null) {
-                List<FileData> fileDatas = project.getHistoryFileDatas();
-                if (!fileDatas.isEmpty()) {
-                    FileData repoData = null;
-
-                    String version = getVersion();
-                    if (version == null) {
-                        repoData = fileDatas.get(fileDatas.size() - 1);
-                    } else {
-                        for (FileData data : fileDatas) {
-                            if (data.getVersion().equals(version)) {
-                                repoData = data;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (repoData != null) {
-                        super.setAuthor(repoData.getAuthor());
-                        super.setModifiedAt(repoData.getModifiedAt());
-                        super.setComment(repoData.getComment());
-                        super.setSize(repoData.getSize());
-                        super.setDeleted(repoData.isDeleted());
-                        super.setUniqueId(repoData.getUniqueId());
-                    }
-                }
-                project = null;
-            }
-        }
     }
 
 }

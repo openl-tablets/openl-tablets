@@ -340,15 +340,58 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     @Override
-    public FileData getFileData() {
-        FileData fileData = super.getFileData();
+    protected FileData getFileDataForUnversionableRepo(Repository repository) {
+        if (designFolderName == null) {
+            FileData fileData = super.getFileDataForUnversionableRepo(repository);
+            if (designRepository.supports().branches()) {
+                fileData.setBranch(((BranchRepository) designRepository).getBranch());
+            }
+            return fileData;
+        }
 
-        Repository designRepo = getDesignRepository();
-        if (fileData != null && designRepo.supports().branches()) {
-            fileData.setBranch(((BranchRepository) designRepo).getBranch());
+        String version = getHistoryVersion();
+        String actualVersion = version == null ? getLastHistoryVersion() : version;
+
+        FileData fileData = new FileData();
+        fileData.setName(getFolderPath());
+        fileData.setVersion(actualVersion);
+
+        if (designRepository.supports().branches()) {
+            fileData.setBranch(((BranchRepository) designRepository).getBranch());
+        }
+
+        if (actualVersion != null) {
+            try {
+                FileData repoData = designRepository.checkHistory(designFolderName, actualVersion);
+                if (repoData != null) {
+                    fileData.setAuthor(repoData.getAuthor());
+                    fileData.setModifiedAt(repoData.getModifiedAt());
+                    fileData.setComment(repoData.getComment());
+                    fileData.setSize(repoData.getSize());
+                    fileData.setDeleted(repoData.isDeleted());
+                    fileData.setUniqueId(repoData.getUniqueId());
+                }
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+            }
         }
 
         return fileData;
+    }
+
+    @Override
+    protected String findLastHistoryVersion() {
+        if (designFolderName != null) {
+            try {
+                FileData fileData = designRepository.check(designFolderName);
+                if (fileData != null) {
+                    return fileData.getVersion();
+                }
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+        return null;
     }
 
     private void resetLocalFileData(boolean needUpdateUniqueId) {

@@ -763,7 +763,7 @@ public class RepositoryTreeController {
         }
         AProject p = projectArtefact.getProject();
         boolean localOnly = p instanceof UserWorkspaceProject && ((UserWorkspaceProject) p).isLocalOnly();
-        if (isSupportsBranches() && projectArtefact.getFileData() == null && !localOnly) {
+        if (isSupportsBranches() && projectArtefact.getVersion() == null && !localOnly) {
             activeProjectNode = null;
             WebStudioUtils.addErrorMessage("Failed to delete the node. Project does not exist in the branch.");
             return null;
@@ -1953,7 +1953,7 @@ public class RepositoryTreeController {
             }
 
             selectedProject.setBranch(branch);
-            if (selectedProject.getFileData() == null) {
+            if (selectedProject.getLastHistoryVersion() == null) {
                 // move back to previous branch! Because the project is not present in new branch
                 selectedProject.setBranch(previousBranch);
                 log.warn(
