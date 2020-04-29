@@ -62,6 +62,11 @@ public class AProject extends AProjectFolder {
         try {
             if (!isHistoric() || isLastVersion()) {
                 fileData = repository.check(getFolderPath());
+                if (fileData == null) {
+                    // A project or deploy configuration doesn't exist yet. Probably we are creating it now.
+                    fileData = new FileData();
+                    fileData.setName(getFolderPath());
+                }
             } else {
                 fileData = repository.checkHistory(getFolderPath(), getHistoryVersion());
             }
