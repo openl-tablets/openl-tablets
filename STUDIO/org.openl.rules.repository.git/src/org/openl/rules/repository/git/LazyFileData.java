@@ -1,8 +1,6 @@
 package org.openl.rules.repository.git;
 
 import java.io.IOException;
-import java.text.MessageFormat;
-import java.text.ParseException;
 import java.util.Date;
 
 import org.eclipse.jgit.api.Git;
@@ -14,6 +12,7 @@ import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.git.CommitMessageParser.CommitMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +24,7 @@ class LazyFileData extends FileData {
     private ObjectId fromCommit;
     private RevCommit fileCommit;
     private ObjectId fileId;
-    private final String commentTemplate;
+    private final CommitMessageParser commitMessageParser;
 
     private boolean loaded = false;
 
@@ -34,7 +33,7 @@ class LazyFileData extends FileData {
             GitRepository gitRepo,
             ObjectId fromCommit,
             ObjectId fileId,
-            String commentTemplate) {
+            CommitMessageParser commitMessageParser) {
         setBranch(branch);
         setName(fullPath);
         if (fileId != null) {
@@ -43,7 +42,7 @@ class LazyFileData extends FileData {
 
         this.fullPath = fullPath;
         this.gitRepo = gitRepo;
-        this.commentTemplate = commentTemplate;
+        this.commitMessageParser = commitMessageParser;
         this.fromCommit = fromCommit;
         this.fileId = fileId;
     }
@@ -53,7 +52,7 @@ class LazyFileData extends FileData {
             GitRepository gitRepo,
             RevCommit fileCommit,
             ObjectId fileId,
-            String commentTemplate) {
+            CommitMessageParser commitMessageParser) {
         setBranch(branch);
         setName(fullPath);
         if (fileId != null) {
@@ -62,7 +61,7 @@ class LazyFileData extends FileData {
 
         this.fullPath = fullPath;
         this.gitRepo = gitRepo;
-        this.commentTemplate = commentTemplate;
+        this.commitMessageParser = commitMessageParser;
         this.fileCommit = fileCommit;
         this.fileId = fileId;
     }
@@ -173,19 +172,19 @@ class LazyFileData extends FileData {
             super.setAuthor(committerIdent.getName());
             super.setModifiedAt(committerIdent.getWhen());
             String message = fileCommit.getFullMessage();
-            try {
-                Object[] parse = new MessageFormat(commentTemplate).parse(message);
-                if (parse.length >= 2) {
-                    CommitType commitType = CommitType.valueOf(String.valueOf(parse[0]));
-                    if (commitType == CommitType.ARCHIVE || commitType == CommitType.ERASE) {
-                        super.setDeleted(true);
-                    }
-                    message = String.valueOf(parse[1]);
-                    if (parse.length > 2) {
-                        super.setAuthor(String.valueOf(parse[2]));
-                    }
+
+            CommitMessage commitMessage = commitMessageParser.parse(message);
+            if (commitMessage != null) {
+                CommitType commitType = commitMessage.getCommitType();
+                if (commitType == CommitType.ARCHIVE || commitType == CommitType.ERASE) {
+                    super.setDeleted(true);
                 }
-            } catch (ParseException | IllegalArgumentException ignored) {
+                if (commitMessage.getMessage() != null) {
+                    message = commitMessage.getMessage();
+                }
+                if (commitMessage.getAuthor() != null) {
+                    super.setAuthor(commitMessage.getAuthor());
+                }
             }
             super.setComment(message);
 
