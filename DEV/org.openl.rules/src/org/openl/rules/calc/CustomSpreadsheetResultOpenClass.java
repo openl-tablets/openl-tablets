@@ -426,16 +426,16 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                             if (!field.isSynthetic()) {// SONAR adds synthetic fields
                                 List<IOpenField> openFields = beanFieldsMap.get(field.getName());
                                 if (openFields != null) {
-                                    List<SpreadsheetResultFieldValueSetter> sprSettersForFiled = new ArrayList<>();
+                                    List<SpreadsheetResultFieldValueSetter> sprSettersForField = new ArrayList<>();
                                     for (IOpenField openField : openFields) {
                                         SpreadsheetResultFieldValueSetter spreadsheetResultValueSetter = new SpreadsheetResultFieldValueSetter(
                                             module,
                                             field,
                                             openField);
-                                        sprSettersForFiled.add(spreadsheetResultValueSetter);
+                                        sprSettersForField.add(spreadsheetResultValueSetter);
                                     }
                                     sprSetters.add(new SpreadsheetResultValueSetter(
-                                        sprSettersForFiled.toArray(new SpreadsheetResultFieldValueSetter[0])));
+                                        sprSettersForField.toArray(new SpreadsheetResultFieldValueSetter[0])));
                                 } else if (field.getName().equals(sprStructureFieldNames[0])) {
                                     sprSetters.add(new SpreadsheetResultRowNamesSetter(field));
                                 } else if (field.getName().equals(sprStructureFieldNames[1])) {
