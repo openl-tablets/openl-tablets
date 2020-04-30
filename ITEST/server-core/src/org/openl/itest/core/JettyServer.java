@@ -7,6 +7,9 @@ import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 /**
  * Simple wrapper for Jetty Server
  *
@@ -48,6 +51,12 @@ public class JettyServer {
     }
 
     public HttpClient client() {
-        return HttpClient.create("http://localhost:" + ((ServerConnector) server.getConnectors()[0]).getLocalPort());
+        int port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
+        try {
+            URL url = new URL("http", "localhost", port, "");
+            return HttpClient.create(url);
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 }

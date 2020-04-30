@@ -1,0 +1,2 @@
+GET /REST/simple/ping HTTP/1.1
+

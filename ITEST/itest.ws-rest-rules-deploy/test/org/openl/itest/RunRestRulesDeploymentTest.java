@@ -163,7 +163,7 @@ public class RunRestRulesDeploymentTest {
     public void test_EPBDS_8758_multithread2() throws Exception {
         client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
         client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v1.resp.txt");
-        AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS, () -> client.get("/REST/EPBDS-8758/doSomething"));
+        AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS, () -> client.send("EPBDS-8758/doSomething.get"));
         executor.start();
 
         AsyncExecutor deployers = new AsyncExecutor(() -> {
