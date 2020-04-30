@@ -141,23 +141,11 @@ public class SystemSettingsBean {
     }
 
     public String getProjectHistoryCount() {
-        if (isUnlimitHistory()) {
-            return "0";
-        } else {
-            return properties.getProperty(PROJECT_HISTORY_COUNT);
-        }
+        return properties.getProperty(PROJECT_HISTORY_COUNT);
     }
 
     public void setProjectHistoryCount(String count) {
-        properties.setProperty(PROJECT_HISTORY_COUNT, Integer.parseInt(count));
-    }
-
-    public boolean isUnlimitHistory() {
-        return Boolean.parseBoolean(properties.getProperty(PROJECT_HISTORY_UNLIMITED));
-    }
-
-    public void setUnlimitHistory(boolean unlimited) {
-        properties.setProperty(PROJECT_HISTORY_UNLIMITED, unlimited);
+        properties.setProperty(PROJECT_HISTORY_COUNT, count);
     }
 
     public RepositoryConfiguration getDesignRepositoryConfiguration() {

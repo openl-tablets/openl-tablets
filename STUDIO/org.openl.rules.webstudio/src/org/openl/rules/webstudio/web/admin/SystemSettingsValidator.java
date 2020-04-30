@@ -70,8 +70,7 @@ public class SystemSettingsValidator {
     public void historyCountValidator(FacesContext context, UIComponent toValidate, Object value) {
         String errorMessage = null;
         String count = (String) value;
-        validateNotBlank(count, "The maximum count of saved changes");
-        if (!Pattern.matches("[0-9]+", count)) {
+        if (!Pattern.matches("[0-9]*", count)) {
             errorMessage = "The maximum count of saved changes should be positive integer";
         }
 

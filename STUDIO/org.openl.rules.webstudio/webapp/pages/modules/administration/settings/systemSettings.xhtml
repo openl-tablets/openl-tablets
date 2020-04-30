@@ -94,7 +94,7 @@
         function hideMaxCountInHistory() {
             if ($j("#systemSettingsForm\\:unlimitHistory").is(':checked')) {
                 $j("#systemSettingsForm\\:maxCountInHistory").hide();
-                $j("#systemSettingsForm\\:history-count").val("0");
+                $j("#systemSettingsForm\\:history-count").val("");
             }
         }
 
@@ -212,7 +212,7 @@
                                         </h:panelGrid>
                                         <h:message for="history-dir" class="error" />
                                         <h:panelGrid id="maxCountInHistory" columns="2" columnClasses="titleColumn"
-                                                     style="#{systemSettingsBean.unlimitHistory ? 'display:none' : ''}">
+                                                     style="#{empty systemSettingsBean.projectHistoryCount ? 'display:none' : ''}">
                                             <h:outputText value="The maximum count of saved changes for each project:"/>
                                             <h:inputText id="history-count"
                                                          value="#{systemSettingsBean.projectHistoryCount}"
@@ -220,13 +220,22 @@
                                                          validator="#{validator.historyCountValidator}"/>
                                         </h:panelGrid>
                                         <h:message for="history-count" class="error" />
-                                        <h:panelGrid columns="2" columnClasses="titleColumn">
-                                            <h:outputText value="Unlimited numbers of copies"/>
-                                            <h:selectBooleanCheckbox id="unlimitHistory"
-                                                                     value="#{systemSettingsBean.unlimitHistory}"
-                                                                     disabled="#{props.isPropertyDisabled('project.history.unlimited')}"
-                                                                     onclick="showMaxCountInHistory()"/>
-                                        </h:panelGrid>
+                                        <table>
+                                            <tbody>
+                                            <tr>
+                                                <td class="titleColumn">Unlimited numbers of copies</td>
+                                                <td>
+                                                    <input id="systemSettingsForm:unlimitHistory" type="checkbox"
+                                                           onclick="showMaxCountInHistory()"
+                                                           class="#{props.isPropertyDisabled('project.history.count') ? 'disabled' : ''}"
+                                                    />
+                                                    <script>
+                                                        $j("#systemSettingsForm\\:unlimitHistory").prop('checked', #{empty systemSettingsBean.projectHistoryCount});
+                                                    </script>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
                                         <h:panelGrid rendered="#{!emptyHistoryDir}">
                                             <a href="javascript:void(0)" id="cleanHistoryHref" title="Clean history"
                                                onclick="showAvailableProjectsInHistory(true)">Clean history</a>
