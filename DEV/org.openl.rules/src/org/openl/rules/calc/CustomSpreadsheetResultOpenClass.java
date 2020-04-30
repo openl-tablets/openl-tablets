@@ -258,17 +258,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
         for (IOpenField field : fields) {
             IOpenField thisField = getField(field.getName());
-
             if (thisField == null) {
-                addField(field);
+                addField(new CustomSpreadsheetResultField(this, field));
             } else {
-                if (thisField instanceof CustomSpreadsheetResultField && field instanceof CustomSpreadsheetResultField) {
-                    fieldMap().put(field.getName(),
-                        new CastingCustomSpreadsheetResultField(this,
-                            field.getName(),
-                            (CustomSpreadsheetResultField) thisField,
-                            (CustomSpreadsheetResultField) field));
-                }
+                fieldMap().put(field.getName(),
+                    new CastingCustomSpreadsheetResultField(this, field.getName(), thisField, field));
             }
         }
 
