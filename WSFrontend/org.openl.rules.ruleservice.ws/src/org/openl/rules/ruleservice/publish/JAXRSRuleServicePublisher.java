@@ -24,9 +24,11 @@ import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.databinding.annotation.JacksonBindingConfigurationUtils;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer;
 import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
+import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiHackContainerRequestFilter;
+import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiHackContainerResponseFilter;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerAndOpenApiHackContainerRequestFilter;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerAndOpenApiHackContainerResponseFilter;
+import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerHackContainerRequestFilter;
+import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerHackContainerResponseFilter;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerObjectMapperHack;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerRulesRedeployWorkaround;
 import org.openl.rules.ruleservice.publish.jaxrs.wadl.DisableWADLInterceptor;
@@ -161,20 +163,23 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, ServletC
             }
 
             JAXRSOpenLServiceEnhancer jaxrsOpenLServiceEnhancer = getServiceEnhancerObjectFactory().getObject();
-            Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service, servletContext.getContextPath() + url);
-            Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0]; // The first is a decorated
-            // interface
+            Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service,
+                servletContext.getContextPath() + url);
+            // The first one is a decorated interface
+            Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0];
 
             svrFactory.setResourceClasses(serviceClass);
 
             // Swagger support
+            ObjectMapper objectMapper = getObjectMapper(svrFactory);
             swaggerObjectMapperHack = new SwaggerObjectMapperHack();
-            swaggerObjectMapperHack.apply(getObjectMapper(svrFactory));
+            swaggerObjectMapperHack.apply(objectMapper);
             openApiObjectMapperHack = new OpenApiObjectMapperHack();
-            openApiObjectMapperHack.apply(getObjectMapper(svrFactory));
-            ((List) svrFactory.getProviders())
-                .add(new SwaggerAndOpenApiHackContainerRequestFilter(getObjectMapper(svrFactory)));
-            ((List) svrFactory.getProviders()).add(new SwaggerAndOpenApiHackContainerResponseFilter());
+            openApiObjectMapperHack.apply(objectMapper);
+            ((List) svrFactory.getProviders()).add(new SwaggerHackContainerRequestFilter(objectMapper));
+            ((List) svrFactory.getProviders()).add(new SwaggerHackContainerResponseFilter());
+            ((List) svrFactory.getProviders()).add(new OpenApiHackContainerRequestFilter(objectMapper));
+            ((List) svrFactory.getProviders()).add(new OpenApiHackContainerResponseFilter());
 
             Swagger2Feature swagger2Feature = getSwagger2Feature(serviceClass);
             svrFactory.getFeatures().add(swagger2Feature);

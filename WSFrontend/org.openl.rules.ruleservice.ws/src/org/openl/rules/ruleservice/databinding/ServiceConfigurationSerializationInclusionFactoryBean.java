@@ -10,7 +10,7 @@ public class ServiceConfigurationSerializationInclusionFactoryBean extends Servi
 
     @Override
     protected JsonInclude.Include createInstance() throws Exception {
-        JsonInclude.Include serializationInclusion = null;
+        JsonInclude.Include serializationInclusion;
         Object value = getValue(SERIALIZATION_INCLUSION);
         if (value != null) {
             if (value instanceof String) {
