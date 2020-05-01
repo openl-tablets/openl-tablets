@@ -1,3 +1,6 @@
+HTTP/1.1 200
+Content-Type: text/xml;charset=utf-8
+
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
     <soap:Body>
         <ns1:twiceResponse xmlns:ns1="http://DefaultNamespace">

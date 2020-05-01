@@ -94,7 +94,7 @@
         function hideMaxCountInHistory() {
             if ($j("#systemSettingsForm\\:unlimitHistory").is(':checked')) {
                 $j("#systemSettingsForm\\:maxCountInHistory").hide();
-                $j("#systemSettingsForm\\:history-count").val("0");
+                $j("#systemSettingsForm\\:history-count").val("");
             }
         }
 
@@ -212,20 +212,30 @@
                                         </h:panelGrid>
                                         <h:message for="history-dir" class="error" />
                                         <h:panelGrid id="maxCountInHistory" columns="2" columnClasses="titleColumn"
-                                                     style="#{systemSettingsBean.unlimitHistory ? 'display:none' : ''}">
+                                                     style="#{empty systemSettingsBean.projectHistoryCount ? 'display:none' : ''}">
                                             <h:outputText value="The maximum count of saved changes for each project:"/>
                                             <h:inputText id="history-count"
                                                          value="#{systemSettingsBean.projectHistoryCount}"
                                                          disabled="#{props.isPropertyDisabled('project.history.count')}"
                                                          validator="#{validator.historyCountValidator}"/>
                                         </h:panelGrid>
-                                        <h:panelGrid columns="2" columnClasses="titleColumn">
-                                            <h:outputText value="Unlimited numbers of copies"/>
-                                            <h:selectBooleanCheckbox id="unlimitHistory"
-                                                                     value="#{systemSettingsBean.unlimitHistory}"
-                                                                     disabled="#{props.isPropertyDisabled('project.history.unlimited')}"
-                                                                     onclick="showMaxCountInHistory()"/>
-                                        </h:panelGrid>
+                                        <h:message for="history-count" class="error" />
+                                        <table>
+                                            <tbody>
+                                            <tr>
+                                                <td class="titleColumn">Unlimited numbers of copies</td>
+                                                <td>
+                                                    <input id="systemSettingsForm:unlimitHistory" type="checkbox"
+                                                           onclick="showMaxCountInHistory()"
+                                                           class="#{props.isPropertyDisabled('project.history.count') ? 'disabled' : ''}"
+                                                    />
+                                                    <script>
+                                                        $j("#systemSettingsForm\\:unlimitHistory").prop('checked', #{empty systemSettingsBean.projectHistoryCount});
+                                                    </script>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
                                         <h:panelGrid rendered="#{!emptyHistoryDir}">
                                             <a href="javascript:void(0)" id="cleanHistoryHref" title="Clean history"
                                                onclick="showAvailableProjectsInHistory(true)">Clean history</a>
@@ -275,15 +285,21 @@
                                             <h:selectBooleanCheckbox
                                                     value="#{systemSettingsBean.updateSystemProperties}"
                                                     disabled="#{props.isPropertyDisabled('update.system.properties')}"/>
+                                        </h:panelGrid>
+                                        <h:panelGrid columns="2" columnClasses="titleColumn">
                                             <h:outputText value="Date Format:"/>
                                             <h:inputText id="date-format" value="#{systemSettingsBean.datePattern}"
                                                          disabled="#{props.isPropertyDisabled('data.format.date')}"
                                                          validator="#{validator.dateFormatValidator}"/>
+                                        </h:panelGrid>
+                                        <h:message for="date-format" class="error" />
+                                        <h:panelGrid columns="2" columnClasses="titleColumn">
                                             <h:outputText value="Time Format:"/>
                                             <h:inputText id="time-format" value="#{systemSettingsBean.timePattern}"
                                                          disabled="#{props.isPropertyDisabled('data.format.time')}"
                                                          validator="#{validator.timeFormatValidator}"/>
                                         </h:panelGrid>
+                                        <h:message for="time-format" class="error" />
                                     </div>
                                 </section>
                             </h:panelGroup>
@@ -588,9 +604,10 @@
                                         <h:panelGrid id="testRunThreadCount" columns="2" columnClasses="titleColumn"
                                                      style="#{systemSettingsBean.runTestsInParallel ?'' : 'display:none'}">
                                             <h:outputText value="Thread number for tests:"/>
-                                            <h:inputText value="#{systemSettingsBean.testRunThreadCount}"
+                                            <h:inputText id="test-nThreads" value="#{systemSettingsBean.testRunThreadCount}"
                                                          validator="#{validator.testRunThreadCountValidator}"/>
                                         </h:panelGrid>
+                                        <h:message for="test-nThreads" class="error" />
                                     </div>
                                 </section>
                             </h:panelGroup>

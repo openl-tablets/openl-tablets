@@ -1,0 +1,2 @@
+GET /REST/ws-serviceclass-positive/voidMethod HTTP/1.1
+

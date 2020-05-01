@@ -20,38 +20,26 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
 
     private ProjectModel projectModel;
     private FileStorage storage;
-    private int maxFilesInStorage;
-    private boolean unlimitedStorage;
 
-    public FileBasedProjectHistoryManager(ProjectModel projectModel,
+    FileBasedProjectHistoryManager(ProjectModel projectModel,
             String storagePath,
-            Integer maxFilesInStorage,
-            boolean unlimitedStorage) {
+            Integer maxFilesInStorage) {
         if (projectModel == null) {
             throw new IllegalArgumentException();
         }
         if (storagePath == null) {
             throw new IllegalArgumentException();
         }
-        if (!unlimitedStorage && maxFilesInStorage == null) {
-            throw new IllegalArgumentException();
-        }
         this.projectModel = projectModel;
         this.storage = new FileStorage(storagePath);
-        this.unlimitedStorage = unlimitedStorage;
-        this.maxFilesInStorage = maxFilesInStorage;
-        if (!this.unlimitedStorage) {
-            delete();
+        if (maxFilesInStorage != null) {
+            storage.delete(maxFilesInStorage);
         }
     }
 
     @Override
     public void save(File source) {
         storage.add(source);
-    }
-
-    public final void delete() {
-        storage.delete(maxFilesInStorage);
     }
 
     @Override

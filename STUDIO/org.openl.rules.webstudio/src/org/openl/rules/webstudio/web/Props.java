@@ -15,6 +15,11 @@ public class Props implements EnvironmentAware {
         return Boolean.parseBoolean(text(key));
     }
 
+    public static Integer integer(String key) {
+        String text = text(key);
+        return text != null ? Integer.valueOf(text) : null;
+    }
+
     @Override
     public void setEnvironment(Environment environment) {
         env = environment;

@@ -71,8 +71,7 @@
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalMergeBranches').hide();"/>
             </footer>
 
-            <a4j:jsFunction name="renderMergeBranchesForm" render="mergeBranchesForm"
-                            oncomplete="showMergeBranchesDialog()">
+            <a4j:jsFunction name="renderMergeBranchesForm" render="@form" oncomplete="showMergeBranchesDialog()">
                 <a4j:param name="projectName" assignTo="#{branchesBean.initProject}"/>
             </a4j:jsFunction>
 
@@ -96,6 +95,7 @@
 
         function showMessageAfterMerge(wasMerged) {
             if (wasMerged) {
+                goToNewProject();
                 ws.ui.success('Branches were merged successfully.');
             }
         }

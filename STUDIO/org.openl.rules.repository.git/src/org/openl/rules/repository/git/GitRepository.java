@@ -28,8 +28,8 @@ import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.hooks.CommitMsgHook;
 import org.eclipse.jgit.hooks.PreCommitHook;
 import org.eclipse.jgit.internal.JGitText;
-import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.merge.MergeMessageFormatter;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -78,6 +78,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private int connectionTimeout = 60;
     private String commentTemplate;
     private String escapedCommentTemplate;
+    private CommitMessageParser commitMessageParser;
     private String gitSettingsPath;
     private boolean noVerify;
     private Boolean gcAutoDetach;
@@ -747,6 +748,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             .replaceAll("\\{user-message}", "{1}")
             .replaceAll("\\{username}", "{2}");
         this.escapedCommentTemplate = escapeCurlyBrackets(ct);
+        this.commitMessageParser = new CommitMessageParser(commentTemplate);
     }
 
     public void setGitSettingsPath(String gitSettingsPath) {
@@ -787,7 +789,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             this,
             start,
             getFileId(dirWalk),
-            escapedCommentTemplate);
+            commitMessageParser);
     }
 
     private boolean isEmpty() throws IOException {
@@ -811,7 +813,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             this,
             fileCommit,
             getFileId(dirWalk),
-            escapedCommentTemplate);
+            commitMessageParser);
     }
 
     private ObjectId getFileId(TreeWalk dirWalk) {
@@ -2347,7 +2349,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                         GitRepository.this,
                                         revCommit,
                                         getFileId(dirWalk),
-                                        escapedCommentTemplate));
+                                        commitMessageParser));
                                 } else {
                                     files.add(createFileData(dirWalk, baseFolder, start));
                                 }
@@ -2447,7 +2449,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     GitRepository.this,
                     commit,
                     null,
-                    escapedCommentTemplate);
+                    commitMessageParser);
                 // Must mark it as deleted explicitly because the file can be erased outside of WebStudio.
                 data.setDeleted(true);
 
