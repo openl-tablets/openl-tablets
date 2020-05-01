@@ -10,7 +10,9 @@ import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.jackson.ModelResolver;
 
 @SuppressWarnings("rawtypes")
-public class OpenApiObjectMapperHack extends AbstractSwaggerAndOpenApiObjectMapperHack {
+public final class OpenApiObjectMapperHack {
+    private final List converters;
+    private List<Object> oldConverters;
 
     public OpenApiObjectMapperHack() {
         try {
@@ -33,6 +35,12 @@ public class OpenApiObjectMapperHack extends AbstractSwaggerAndOpenApiObjectMapp
         }
         converters.clear();
         converters.addAll(hackedConverters);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void revert() {
+        converters.clear();
+        converters.addAll(oldConverters);
     }
 
 }

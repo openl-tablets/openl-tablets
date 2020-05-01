@@ -10,20 +10,20 @@ import javax.ws.rs.container.PreMatching;
 
 @PreMatching
 @Priority(Integer.MIN_VALUE)
-public class SwaggerAndOpenApiHackContainerResponseFilter implements ContainerResponseFilter {
+public class OpenApiHackContainerResponseFilter implements ContainerResponseFilter {
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
-        Object swaggerAndOpenApiObjectMapperHack = requestContext.getProperty("SwaggerAndOpenApiObjectMapperHack");
-        if (swaggerAndOpenApiObjectMapperHack instanceof SwaggerAndOpenApiObjectMapperHack) {
-            ((SwaggerAndOpenApiObjectMapperHack) swaggerAndOpenApiObjectMapperHack).revert();
-            requestContext.removeProperty("SwaggerAndOpenApiObjectMapperHack");
+        Object openApiObjectMapperHack = requestContext.getProperty("OpenApiObjectMapperHack");
+        if (openApiObjectMapperHack instanceof OpenApiObjectMapperHack) {
+            ((OpenApiObjectMapperHack) openApiObjectMapperHack).revert();
+            requestContext.removeProperty("OpenApiObjectMapperHack");
         }
 
-        Object lock = requestContext.getProperty("SwaggerAndOpenApiHackContainerRequestFilterLock");
+        Object lock = requestContext.getProperty("OpenApiHackContainerRequestFilterLock");
         if (lock instanceof ReentrantLock) {
             ReentrantLock reentrantLock = (ReentrantLock) lock;
             reentrantLock.unlock();
-            requestContext.removeProperty("SwaggerAndOpenApiHackContainerRequestFilterLock");
+            requestContext.removeProperty("OpenApiHackContainerRequestFilterLock");
         }
     }
 }

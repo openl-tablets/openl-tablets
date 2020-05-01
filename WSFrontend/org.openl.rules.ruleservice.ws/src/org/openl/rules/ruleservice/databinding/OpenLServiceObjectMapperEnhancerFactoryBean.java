@@ -10,7 +10,7 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class ServiceJacksonObjectMapperFactoryBean extends AbstractFactoryBean<ObjectMapper> {
+public class OpenLServiceObjectMapperEnhancerFactoryBean extends AbstractFactoryBean<ObjectMapper> {
 
     private JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean;
 
