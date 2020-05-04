@@ -53,8 +53,10 @@ public class HttpClient {
 
     private static ClientHttpRequestFactory getClientHttpFactory() {
         SimpleClientHttpRequestFactory httpRequestFactory = new SimpleClientHttpRequestFactory();
-        httpRequestFactory.setConnectTimeout(300);
-        httpRequestFactory.setReadTimeout(5000);
+        int connectTimeout = Integer.parseInt(System.getProperty("http.timeout.connect"));
+        int readTimeout = Integer.parseInt(System.getProperty("http.timeout.read"));
+        httpRequestFactory.setConnectTimeout(connectTimeout);
+        httpRequestFactory.setReadTimeout(readTimeout);
         return httpRequestFactory;
     }
 
