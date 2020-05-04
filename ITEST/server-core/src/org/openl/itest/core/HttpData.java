@@ -55,8 +55,11 @@ class HttpData {
     static HttpData send(URL baseURL, String resource) throws IOException {
         try (Socket socket = new Socket()) {
 
-            socket.setSoTimeout(5000);
-            socket.connect(new InetSocketAddress(baseURL.getHost(), baseURL.getPort()), 300);
+            int readTimeout = Integer.parseInt(System.getProperty("http.timeout.read"));
+            int connectTimeout = Integer.parseInt(System.getProperty("http.timeout.connect"));
+
+            socket.setSoTimeout(readTimeout);
+            socket.connect(new InetSocketAddress(baseURL.getHost(), baseURL.getPort()), connectTimeout);
             OutputStream outputStream = socket.getOutputStream();
             write(outputStream, resource);
             InputStream input = socket.getInputStream();

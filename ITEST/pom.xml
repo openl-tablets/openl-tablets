@@ -16,6 +16,8 @@
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
+        <http.timeout.connect>0</http.timeout.connect>
+        <http.timeout.read>0</http.timeout.read>
     </properties>
 
     <modules>
@@ -94,10 +96,26 @@
                             <openl.config.location>file:./openl-repository/application.properties
                             </openl.config.location>
                             <server.responses>${project.build.directory}/responses/</server.responses>
+                            <http.timeout.connect>${http.timeout.connect}</http.timeout.connect>
+                            <http.timeout.read>${http.timeout.read}</http.timeout.read>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
     </build>
+    <profiles>
+        <profile>
+            <id>perf</id>
+            <activation>
+                <property>
+                    <name>!noPerf</name>
+                </property>
+            </activation>
+            <properties>
+                <http.timeout.connect>300</http.timeout.connect>
+                <http.timeout.read>5000</http.timeout.read>
+            </properties>
+        </profile>
+    </profiles>
 </project>
