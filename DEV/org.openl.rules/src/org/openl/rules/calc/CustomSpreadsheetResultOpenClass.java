@@ -582,7 +582,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         xmlName = columnName;
                     } else if (absentInHistory(rowName, columnName)) {
                         continue;
-                    } else if (StringUtils.isBlank(columnName)) { // * in the cloumn
+                    } else if (StringUtils.isBlank(columnName)) { // * in the column
                         fieldName = ClassUtils.decapitalize(rowName);
                         xmlName = rowName;
                     } else if (StringUtils.isBlank(rowName)) { // * in the row

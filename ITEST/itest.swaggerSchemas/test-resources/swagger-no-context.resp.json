@@ -6,6 +6,38 @@
   },
   "basePath": "/rules-without-runtime-context",
   "paths": {
+    "/sumTwoDoubles": {
+      "post": {
+        "summary": "Double sumTwoDoubles(Double, Double)",
+        "description": "Rules method: java.lang.Double sumTwoDoubles(java.lang.Double a, java.lang.Double b)",
+        "operationId": "sumTwoDoubles",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plain"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/SumTwoDoublesRequest1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          }
+        }
+      }
+    },
     "/bar": {
       "post": {
         "summary": "String bar(SumTwoDoublesRequest)",
@@ -68,51 +100,28 @@
           }
         }
       }
-    },
-    "/sumTwoDoubles": {
-      "post": {
-        "summary": "Double sumTwoDoubles(Double, Double)",
-        "description": "Rules method: java.lang.Double sumTwoDoubles(java.lang.Double a, java.lang.Double b)",
-        "operationId": "sumTwoDoubles",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "text/plain"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/SumTwoDoublesRequest1"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "number",
-              "format": "double"
-            }
-          }
-        }
-      }
     }
   },
   "definitions": {
+    "SumTwoDoublesRequest1": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "type": "number",
+          "format": "double"
+        },
+        "b": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
     "SumTwoDoublesRequest": {
       "type": "object",
       "properties": {
         "foo": {
           "type": "string"
         }
-      },
-      "xml": {
-        "name": "SumTwoDoublesRequest",
-        "namespace": "http://beans.generated.openl.org"
       }
     },
     "CalVehicleYearRequest": {
@@ -126,10 +135,6 @@
           "type": "string",
           "format": "date-time"
         }
-      },
-      "xml": {
-        "name": "CalVehicleYearRequest",
-        "namespace": "http://beans.generated.openl.org"
       }
     },
     "CalVehicleYearRequest1": {
@@ -142,27 +147,6 @@
           "type": "number",
           "format": "double"
         }
-      },
-      "xml": {
-        "name": "CalVehicleYearRequest1",
-        "namespace": "http://jaxrs.openl.org"
-      }
-    },
-    "SumTwoDoublesRequest1": {
-      "type": "object",
-      "properties": {
-        "a": {
-          "type": "number",
-          "format": "double"
-        },
-        "b": {
-          "type": "number",
-          "format": "double"
-        }
-      },
-      "xml": {
-        "name": "SumTwoDoublesRequest1",
-        "namespace": "http://jaxrs.openl.org"
       }
     }
   }

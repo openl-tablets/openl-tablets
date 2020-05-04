@@ -70,20 +70,14 @@
           "type": "array",
           "items": {
             "type": "integer",
-            "format": "int32",
-            "xml": {
-              "name": "intArr"
-            }
+            "format": "int32"
           }
         },
         "intArr2": {
           "type": "array",
           "items": {
             "type": "integer",
-            "format": "int32",
-            "xml": {
-              "name": "intArr2"
-            }
+            "format": "int32"
           }
         },
         "opt": {
@@ -110,10 +104,6 @@
         "b": {
           "type": "boolean"
         }
-      },
-      "xml": {
-        "name": "MyType",
-        "namespace": "http://beans.generated.openl.org"
       }
     }
   }

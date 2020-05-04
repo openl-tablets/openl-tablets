@@ -11,6 +11,33 @@
     }
   ],
   "paths": {
+    "/mySpr": {
+      "post": {
+        "summary": "MySpr mySpr(IRulesRuntimeContext, Integer)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MySpr mySpr(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer)",
+        "operationId": "mySpr",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MySprRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MySpr"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/getMyData": {
       "post": {
         "summary": "Integer[] getMyData(IRulesRuntimeContext)",
@@ -40,37 +67,19 @@
           }
         }
       }
-    },
-    "/mySpr": {
-      "post": {
-        "summary": "MySpr mySpr(IRulesRuntimeContext, Integer)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MySpr mySpr(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer)",
-        "operationId": "mySpr",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MySprRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MySpr"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
     "schemas": {
+      "MySpr": {
+        "type": "object",
+        "properties": {
+          "Stepa": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "DefaultRulesRuntimeContext": {
         "type": "object",
         "properties": {
@@ -406,19 +415,6 @@
           }
         }
       },
-      "MySpr": {
-        "type": "object",
-        "properties": {
-          "Stepa": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "xml": {
-          "name": "MySpr",
-          "namespace": "http://spreadsheetresults.generated.openl.org"
-        }
-      },
       "MySprRequest": {
         "type": "object",
         "properties": {
@@ -429,10 +425,6 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "xml": {
-          "name": "MySprRequest",
-          "namespace": "http://jaxrs.openl.org"
         }
       }
     }

@@ -391,10 +391,6 @@
           "IB": {
             "type": "string"
           }
-        },
-        "xml": {
-          "name": "MyDatatype",
-          "namespace": "http://beans.generated.openl.org"
         }
       },
       "MySprRequest": {
@@ -406,10 +402,6 @@
           "a": {
             "$ref": "#/components/schemas/MyDatatype"
           }
-        },
-        "xml": {
-          "name": "MySprRequest",
-          "namespace": "http://jaxrs.openl.org"
         }
       }
     }

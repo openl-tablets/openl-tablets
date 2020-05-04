@@ -40,6 +40,8 @@ public class SwaggerObjectMapperHack {
     @SuppressWarnings("unchecked")
     public void revert() {
         converters.clear();
-        converters.addAll(oldConverters);
+        if (oldConverters != null) {
+            converters.addAll(oldConverters);
+        }
     }
 }

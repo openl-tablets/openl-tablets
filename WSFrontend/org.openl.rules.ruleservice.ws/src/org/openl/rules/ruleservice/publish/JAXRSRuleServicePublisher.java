@@ -83,12 +83,36 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, ServletC
     @Autowired
     private ObjectFactory<WadlGenerator> wadlGeneratorObjectFactory;
 
+    @Autowired
+    @Qualifier("jaxrsSwaggerObjectMapper")
+    private ObjectFactory<ObjectMapper> jaxrsSwaggerObjectMapper;
+
+    @Autowired
+    @Qualifier("jaxrsOpenApiObjectMapper")
+    private ObjectFactory<ObjectMapper> jaxrsOpenApiObjectMapper;
+
     public boolean isStoreLogDataEnabled() {
         return storeLogDataEnabled;
     }
 
     public void setStoreLogDataEnabled(boolean storeLogDataEnabled) {
         this.storeLogDataEnabled = storeLogDataEnabled;
+    }
+
+    public ObjectFactory<ObjectMapper> getJaxrsSwaggerObjectMapper() {
+        return jaxrsSwaggerObjectMapper;
+    }
+
+    public void setJaxrsSwaggerObjectMapper(ObjectFactory<ObjectMapper> jaxrsSwaggerObjectMapper) {
+        this.jaxrsSwaggerObjectMapper = jaxrsSwaggerObjectMapper;
+    }
+
+    public ObjectFactory<ObjectMapper> getJaxrsOpenApiObjectMapper() {
+        return jaxrsOpenApiObjectMapper;
+    }
+
+    public void setJaxrsOpenApiObjectMapper(ObjectFactory<ObjectMapper> jaxrsOpenApiObjectMapper) {
+        this.jaxrsOpenApiObjectMapper = jaxrsOpenApiObjectMapper;
     }
 
     public ObjectFactory<JAXRSServerFactoryBean> getServerFactoryBeanObjectFactory() {
@@ -171,14 +195,15 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, ServletC
             svrFactory.setResourceClasses(serviceClass);
 
             // Swagger support
-            ObjectMapper objectMapper = getObjectMapper(svrFactory);
+            ObjectMapper swaggerObjectMapper;
+            ObjectMapper openApiObjectMapper;
             swaggerObjectMapperHack = new SwaggerObjectMapperHack();
-            swaggerObjectMapperHack.apply(objectMapper);
+            swaggerObjectMapperHack.apply(swaggerObjectMapper = getJaxrsSwaggerObjectMapper().getObject());
             openApiObjectMapperHack = new OpenApiObjectMapperHack();
-            openApiObjectMapperHack.apply(objectMapper);
-            ((List) svrFactory.getProviders()).add(new SwaggerHackContainerRequestFilter(objectMapper));
+            openApiObjectMapperHack.apply(openApiObjectMapper = getJaxrsOpenApiObjectMapper().getObject());
+            ((List) svrFactory.getProviders()).add(new SwaggerHackContainerRequestFilter(swaggerObjectMapper));
             ((List) svrFactory.getProviders()).add(new SwaggerHackContainerResponseFilter());
-            ((List) svrFactory.getProviders()).add(new OpenApiHackContainerRequestFilter(objectMapper));
+            ((List) svrFactory.getProviders()).add(new OpenApiHackContainerRequestFilter(openApiObjectMapper));
             ((List) svrFactory.getProviders()).add(new OpenApiHackContainerResponseFilter());
 
             Swagger2Feature swagger2Feature = getSwagger2Feature(serviceClass);

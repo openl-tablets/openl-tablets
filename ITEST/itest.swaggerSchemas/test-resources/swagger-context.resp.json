@@ -51,10 +51,6 @@
           "type": "string",
           "format": "date-time"
         }
-      },
-      "xml": {
-        "name": "CalVehicleYearRequest",
-        "namespace": "http://beans.generated.openl.org"
       }
     },
     "CalVehicleYearRequest1": {
@@ -66,10 +62,6 @@
         "v": {
           "$ref": "#/definitions/CalVehicleYearRequest"
         }
-      },
-      "xml": {
-        "name": "CalVehicleYearRequest1",
-        "namespace": "http://jaxrs.openl.org"
       }
     },
     "DefaultRulesRuntimeContext": {

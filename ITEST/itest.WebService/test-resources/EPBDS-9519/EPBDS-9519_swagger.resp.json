@@ -82,10 +82,6 @@
         "BaRFoO": {
           "type": "string"
         }
-      },
-      "xml": {
-        "name": "SprMyType",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
     "MyType": {
@@ -103,10 +99,6 @@
           "type": "string",
           "default": "Allo"
         }
-      },
-      "xml": {
-        "name": "MyType",
-        "namespace": "http://beans.generated.openl.org"
       }
     }
   }

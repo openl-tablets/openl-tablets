@@ -77,10 +77,6 @@
           "j": {
             "type": "string"
           }
-        },
-        "xml": {
-          "name": "TiktakRequest",
-          "namespace": "http://jaxrs.openl.org"
         }
       }
     }

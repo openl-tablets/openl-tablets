@@ -49,37 +49,24 @@
         "RowNames": {
           "type": "array",
           "items": {
-            "type": "string",
-            "xml": {
-              "name": "RowNames"
-            }
+            "type": "string"
           }
         },
         "ColumnNames": {
           "type": "array",
           "items": {
-            "type": "string",
-            "xml": {
-              "name": "ColumnNames"
-            }
+            "type": "string"
           }
         },
         "TableDetails": {
           "type": "array",
           "items": {
             "type": "array",
-            "xml": {
-              "name": "TableDetails"
-            },
             "items": {
               "type": "string"
             }
           }
         }
-      },
-      "xml": {
-        "name": "Calc",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
     "CalcRequest": {
@@ -91,10 +78,6 @@
         "myDatatype": {
           "$ref": "#/definitions/MyDatatype"
         }
-      },
-      "xml": {
-        "name": "CalcRequest",
-        "namespace": "http://jaxrs.openl.org"
       }
     },
     "Comparable": {
@@ -451,38 +434,26 @@
           "type": "array",
           "uniqueItems": true,
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "setField"
-            }
+            "type": "object"
           }
         },
         "collectionField": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "collectionField"
-            }
+            "type": "object"
           }
         },
         "listField": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "listField"
-            }
+            "type": "object"
           }
         },
         "sortedSetField": {
           "type": "array",
           "uniqueItems": true,
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "sortedSetField"
-            }
+            "type": "object"
           }
         },
         "sortedMapField": {
@@ -491,10 +462,6 @@
             "type": "object"
           }
         }
-      },
-      "xml": {
-        "name": "MyDatatype",
-        "namespace": "http://beans.generated.openl.org"
       }
     }
   }

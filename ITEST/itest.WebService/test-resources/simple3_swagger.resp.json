@@ -37,37 +37,6 @@
         }
       }
     },
-    "/mySpr2": {
-      "post": {
-        "summary": "MySpr2 mySpr2(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MySpr2 mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "mySpr2",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MySpr2"
-            }
-          }
-        }
-      }
-    },
     "/mySpr": {
       "post": {
         "summary": "MySpr mySpr(IRulesRuntimeContext)",
@@ -94,6 +63,40 @@
             "description": "successful operation",
             "schema": {
               "$ref": "#/definitions/MySpr"
+            }
+          }
+        }
+      }
+    },
+    "/arrSpreadsheetResultspr1": {
+      "post": {
+        "summary": "Spr1[] arrSpreadsheetResultspr1(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.Spr1[] arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "arrSpreadsheetResultspr1",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Spr1"
+              }
             }
           }
         }
@@ -167,11 +170,11 @@
         }
       }
     },
-    "/arrSpreadsheetResultspr1": {
+    "/mySpr2": {
       "post": {
-        "summary": "Spr1[] arrSpreadsheetResultspr1(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.Spr1[] arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "arrSpreadsheetResultspr1",
+        "summary": "MySpr2 mySpr2(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MySpr2 mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "mySpr2",
         "consumes": [
           "application/json"
         ],
@@ -192,10 +195,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Spr1"
-              }
+              "$ref": "#/definitions/MySpr2"
             }
           }
         }
@@ -218,10 +218,7 @@
           "type": "array",
           "items": {
             "type": "number",
-            "format": "double",
-            "xml": {
-              "name": "Value_Step3"
-            }
+            "format": "double"
           }
         },
         "Value3_Step4": {
@@ -269,19 +266,13 @@
         "Value_Step8": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Value_Step8"
-            }
+            "type": "object"
           }
         },
         "Value_Step9": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Value_Step9"
-            }
+            "type": "object"
           }
         },
         "Value_Step10": {
@@ -317,28 +308,19 @@
         "Value_Step21": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Value_Step21"
-            },
             "$ref": "#/definitions/AnySpreadsheetResult"
           }
         },
         "Value_Step22": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Value_Step22"
-            }
+            "type": "object"
           }
         },
         "Value_Step23": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Value_Step23"
-            }
+            "type": "object"
           }
         },
         "Value_AAA": {
@@ -355,37 +337,24 @@
         "RowNames": {
           "type": "array",
           "items": {
-            "type": "string",
-            "xml": {
-              "name": "RowNames"
-            }
+            "type": "string"
           }
         },
         "ColumnNames": {
           "type": "array",
           "items": {
-            "type": "string",
-            "xml": {
-              "name": "ColumnNames"
-            }
+            "type": "string"
           }
         },
         "TableDetails": {
           "type": "array",
           "items": {
             "type": "array",
-            "xml": {
-              "name": "TableDetails"
-            },
             "items": {
               "type": "string"
             }
           }
         }
-      },
-      "xml": {
-        "name": "AnySpreadsheetResult",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
     "Main": {
@@ -402,27 +371,18 @@
           "type": "array",
           "items": {
             "type": "number",
-            "format": "double",
-            "xml": {
-              "name": "Step3"
-            }
+            "format": "double"
           }
         },
         "Step4": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Step4"
-            },
             "$ref": "#/definitions/Spr"
           }
         },
         "Step5": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Step5"
-            },
             "$ref": "#/definitions/Spr"
           }
         },
@@ -430,9 +390,6 @@
           "type": "array",
           "items": {
             "type": "array",
-            "xml": {
-              "name": "Step6"
-            },
             "items": {
               "$ref": "#/definitions/Spr"
             }
@@ -442,9 +399,6 @@
           "type": "array",
           "items": {
             "type": "array",
-            "xml": {
-              "name": "Step7"
-            },
             "items": {
               "type": "object"
             }
@@ -453,28 +407,19 @@
         "Step8": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step8"
-            }
+            "type": "object"
           }
         },
         "Step9": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step9"
-            }
+            "type": "object"
           }
         },
         "Step10": {
           "type": "array",
           "items": {
             "type": "array",
-            "xml": {
-              "name": "Step10"
-            },
             "items": {
               "$ref": "#/definitions/AnySpreadsheetResult"
             }
@@ -483,9 +428,6 @@
         "Step11": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Step11"
-            },
             "$ref": "#/definitions/AnySpreadsheetResult"
           }
         },
@@ -507,29 +449,20 @@
         "Step17": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step17"
-            }
+            "type": "object"
           }
         },
         "Step18": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step18"
-            }
+            "type": "object"
           }
         },
         "Step19": {
           "type": "array",
           "uniqueItems": true,
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step19"
-            }
+            "type": "object"
           }
         },
         "Step20": {
@@ -538,28 +471,19 @@
         "Step21": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Step21"
-            },
             "$ref": "#/definitions/Spr"
           }
         },
         "Step22": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step22"
-            }
+            "type": "object"
           }
         },
         "Step23": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step23"
-            }
+            "type": "object"
           }
         },
         "AAA": {
@@ -569,37 +493,24 @@
         "RowNames": {
           "type": "array",
           "items": {
-            "type": "string",
-            "xml": {
-              "name": "RowNames"
-            }
+            "type": "string"
           }
         },
         "ColumnNames": {
           "type": "array",
           "items": {
-            "type": "string",
-            "xml": {
-              "name": "ColumnNames"
-            }
+            "type": "string"
           }
         },
         "TableDetails": {
           "type": "array",
           "items": {
             "type": "array",
-            "xml": {
-              "name": "TableDetails"
-            },
             "items": {
               "type": "string"
             }
           }
         }
-      },
-      "xml": {
-        "name": "Main",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
     "Spr": {
@@ -616,27 +527,18 @@
           "type": "array",
           "items": {
             "type": "number",
-            "format": "double",
-            "xml": {
-              "name": "Step3"
-            }
+            "format": "double"
           }
         },
         "Step4": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Step4"
-            },
             "$ref": "#/definitions/Spr1"
           }
         },
         "Step5": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Step5"
-            },
             "$ref": "#/definitions/Spr1"
           }
         },
@@ -644,9 +546,6 @@
           "type": "array",
           "items": {
             "type": "array",
-            "xml": {
-              "name": "Step6"
-            },
             "items": {
               "$ref": "#/definitions/Spr1"
             }
@@ -656,9 +555,6 @@
           "type": "array",
           "items": {
             "type": "array",
-            "xml": {
-              "name": "Step7"
-            },
             "items": {
               "type": "object"
             }
@@ -667,28 +563,19 @@
         "Step8": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step8"
-            }
+            "type": "object"
           }
         },
         "Step9": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step9"
-            }
+            "type": "object"
           }
         },
         "Step10": {
           "type": "array",
           "items": {
             "type": "array",
-            "xml": {
-              "name": "Step10"
-            },
             "items": {
               "$ref": "#/definitions/AnySpreadsheetResult"
             }
@@ -697,9 +584,6 @@
         "Step11": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Step11"
-            },
             "$ref": "#/definitions/AnySpreadsheetResult"
           }
         },
@@ -721,29 +605,20 @@
         "Step17": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step17"
-            }
+            "type": "object"
           }
         },
         "Step18": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step18"
-            }
+            "type": "object"
           }
         },
         "Step19": {
           "type": "array",
           "uniqueItems": true,
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step19"
-            }
+            "type": "object"
           }
         },
         "Step20": {
@@ -752,34 +627,21 @@
         "Step21": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Step21"
-            },
             "$ref": "#/definitions/Spr1"
           }
         },
         "Step22": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step22"
-            }
+            "type": "object"
           }
         },
         "Step23": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step23"
-            }
+            "type": "object"
           }
         }
-      },
-      "xml": {
-        "name": "Spr",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
     "Spr1": {
@@ -792,10 +654,6 @@
         "Step2": {
           "$ref": "#/definitions/Spr"
         }
-      },
-      "xml": {
-        "name": "Spr1",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
     "DefaultRulesRuntimeContext": {
@@ -1133,6 +991,19 @@
         }
       }
     },
+    "MySpr": {
+      "type": "object",
+      "properties": {
+        "Step1": {
+          "type": "number",
+          "format": "double"
+        },
+        "Step2": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
     "MySpr2": {
       "type": "object",
       "properties": {
@@ -1168,27 +1039,6 @@
           "type": "number",
           "format": "double"
         }
-      },
-      "xml": {
-        "name": "MySpr2",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
-      }
-    },
-    "MySpr": {
-      "type": "object",
-      "properties": {
-        "Step1": {
-          "type": "number",
-          "format": "double"
-        },
-        "Step2": {
-          "type": "number",
-          "format": "double"
-        }
-      },
-      "xml": {
-        "name": "MySpr",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     }
   }

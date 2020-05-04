@@ -51,40 +51,24 @@
           "RowNames": {
             "type": "array",
             "items": {
-              "type": "string",
-              "xml": {
-                "name": "RowNames"
-              }
+              "type": "string"
             }
           },
           "ColumnNames": {
             "type": "array",
             "items": {
-              "type": "string",
-              "xml": {
-                "name": "ColumnNames"
-              }
+              "type": "string"
             }
           },
           "TableDetails": {
             "type": "array",
             "items": {
               "type": "array",
-              "xml": {
-                "name": "TableDetails"
-              },
               "items": {
-                "type": "string",
-                "xml": {
-                  "name": "ColumnNames"
-                }
+                "type": "string"
               }
             }
           }
-        },
-        "xml": {
-          "name": "Calc",
-          "namespace": "http://spreadsheetresults.generated.openl.org"
         }
       },
       "CalcRequest": {
@@ -96,10 +80,6 @@
           "myDatatype": {
             "$ref": "#/components/schemas/MyDatatype"
           }
-        },
-        "xml": {
-          "name": "CalcRequest",
-          "namespace": "http://jaxrs.openl.org"
         }
       },
       "DefaultRulesRuntimeContext": {
@@ -481,10 +461,6 @@
               "type": "object"
             }
           }
-        },
-        "xml": {
-          "name": "MyDatatype",
-          "namespace": "http://beans.generated.openl.org"
         }
       }
     }

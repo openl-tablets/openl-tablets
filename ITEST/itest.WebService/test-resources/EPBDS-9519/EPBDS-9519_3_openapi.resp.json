@@ -72,24 +72,14 @@
         "type": "object",
         "properties": {
           "getmYSPR1": {
-            "type": "string",
-            "xml": {
-              "name": "mYSPR1"
-            }
+            "type": "string"
           },
           "getySrp2": {
-            "type": "string",
-            "xml": {
-              "name": "ySrp2"
-            }
+            "type": "string"
           },
           "MYSPR": {
             "type": "string"
           }
-        },
-        "xml": {
-          "name": "MyType",
-          "namespace": "http://beans.generated.openl.org"
         }
       },
       "DefaultRulesRuntimeContext": {
@@ -448,10 +438,6 @@
           "dddd": {
             "type": "string"
           }
-        },
-        "xml": {
-          "name": "SomeRulesRequest",
-          "namespace": "http://jaxrs.openl.org"
         }
       },
       "MyType1": {
@@ -481,10 +467,6 @@
             "type": "number",
             "format": "double"
           }
-        },
-        "xml": {
-          "name": "MyType1",
-          "namespace": "http://spreadsheetresults.generated.openl.org"
         }
       },
       "MyType1Request": {
@@ -496,10 +478,6 @@
           "a": {
             "$ref": "#/components/schemas/MyType"
           }
-        },
-        "xml": {
-          "name": "MyType1Request",
-          "namespace": "http://jaxrs.openl.org"
         }
       }
     }

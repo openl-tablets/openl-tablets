@@ -42,7 +42,21 @@
         <property name="defaultValue" value="${ruleservice.jaxrs.resolveMethodParameterNames:true}"/>
     </bean>
 
-     <bean id="jaxrsJacksonDatabindingFactoryBean"
+    <bean id="jaxrsSchemaDatabindingFactoryBeanParent"
+          class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean" abstract="true">
+        <property name="defaultTypingMode" value="DISABLED"/>
+        <property name="overrideTypes" ref="serviceConfigurationRootClassNamesBindingFactoryBean"/>
+        <property name="supportVariations" ref="serviceConfigurationSupportVariationsFactoryBean"/>
+        <property name="defaultDateFormat">
+            <null/>
+        </property>
+        <property name="serializationInclusion" value="NON_NULL"/>
+        <property name="failOnUnknownProperties" value="false"/>
+        <property name="caseInsensitiveProperties" value="false"/>
+        <property name="polymorphicTypeValidation" value="false"/>
+    </bean>
+
+    <bean id="jaxrsJacksonDatabindingFactoryBean"
           class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean" scope="prototype">
         <property name="defaultTypingMode" ref="jaxrsServiceConfigurationDefaultTypingModeFactoryBean"/>
         <property name="overrideTypes" ref="serviceConfigurationRootClassNamesBindingFactoryBean"/>
@@ -57,6 +71,38 @@
     <bean id="jaxrsJacksonObjectMapper"
           class="org.openl.rules.ruleservice.databinding.OpenLServiceObjectMapperEnhancerFactoryBean" scope="prototype">
         <property name="jacksonObjectMapperFactoryBean" ref="jaxrsJacksonDatabindingFactoryBean"/>
+    </bean>
+
+    <bean id="jaxrsSwaggerObjectMapper"
+          class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.SwaggerObjectMapperConfigurationFactoryBean" scope="prototype">
+        <property name="objectMapper">
+            <bean class="org.openl.rules.ruleservice.databinding.OpenLServiceObjectMapperEnhancerFactoryBean">
+                <property name="jacksonObjectMapperFactoryBean">
+                    <bean class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
+                          parent="jaxrsSchemaDatabindingFactoryBeanParent">
+                        <property name="objectMapperFactory">
+                            <bean class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.SwaggerObjectMapperFactory"/>
+                        </property>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="jaxrsOpenApiObjectMapper"
+          class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperConfigurationFactoryBean" scope="prototype">
+        <property name="objectMapper">
+            <bean class="org.openl.rules.ruleservice.databinding.OpenLServiceObjectMapperEnhancerFactoryBean">
+                <property name="jacksonObjectMapperFactoryBean">
+                    <bean class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
+                          parent="jaxrsSchemaDatabindingFactoryBeanParent">
+                        <property name="objectMapperFactory">
+                            <bean class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperFactory"/>
+                        </property>
+                    </bean>
+                </property>
+            </bean>
+        </property>
     </bean>
 
     <bean id="jaxrsTextPlainDateMessageBodyWriter"

@@ -11,11 +11,11 @@
     }
   ],
   "paths": {
-    "/myCalc9": {
+    "/myCalc11": {
       "post": {
-        "summary": "MyCalc9 myCalc9(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc9 myCalc9(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "myCalc9",
+        "summary": "MyCalc11 myCalc11(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc11 myCalc11(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc11",
         "requestBody": {
           "content": {
             "application/json": {
@@ -30,7 +30,37 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MyCalc9"
+                  "$ref": "#/components/schemas/MyCalc11"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getMyCalcs2": {
+      "post": {
+        "summary": "MyCalc2[] getMyCalcs2(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc2[] getMyCalcs2(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyCalc2"
+                  }
                 }
               }
             }
@@ -68,36 +98,6 @@
         }
       }
     },
-    "/getMyCalcs4": {
-      "post": {
-        "summary": "MyCalc4[] getMyCalcs4(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc4[] getMyCalcs4(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyCalcs4",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MyCalc4"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/getMyCalcs5": {
       "post": {
         "summary": "MyCalc5[] getMyCalcs5(IRulesRuntimeContext)",
@@ -120,6 +120,291 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/MyCalc5"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getMyCalcs8": {
+      "post": {
+        "summary": "MyCalc8[] getMyCalcs8(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc8[] getMyCalcs8(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs8",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyCalc8"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/myCalc8": {
+      "post": {
+        "summary": "MyCalc8 myCalc8(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc8 myCalc8(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc8",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCalc8"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/myCalc5": {
+      "post": {
+        "summary": "MyCalc5 myCalc5(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc5 myCalc5(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc5",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCalc5"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/myCalc7": {
+      "post": {
+        "summary": "MyCalc7 myCalc7(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc7 myCalc7(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc7",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCalc7"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getMyCalcs9": {
+      "post": {
+        "summary": "MyCalc9[] getMyCalcs9(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc9[] getMyCalcs9(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs9",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyCalc9"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/myCalc9": {
+      "post": {
+        "summary": "MyCalc9 myCalc9(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc9 myCalc9(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc9",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCalc9"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/myCalc10": {
+      "post": {
+        "summary": "MyCalc10 myCalc10(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc10 myCalc10(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc10",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCalc10"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getMyCalcs10": {
+      "post": {
+        "summary": "MyCalc10[] getMyCalcs10(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc10[] getMyCalcs10(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs10",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyCalc10"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getMyCalcs": {
+      "post": {
+        "summary": "MyCalc[] getMyCalcs(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc[] getMyCalcs(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyCalc"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getMyCalcs4": {
+      "post": {
+        "summary": "MyCalc4[] getMyCalcs4(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc4[] getMyCalcs4(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs4",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyCalc4"
                   }
                 }
               }
@@ -188,11 +473,11 @@
         }
       }
     },
-    "/getMyCalcs8": {
+    "/getMyCalcs11": {
       "post": {
-        "summary": "MyCalc8[] getMyCalcs8(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc8[] getMyCalcs8(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyCalcs8",
+        "summary": "MyCalc11[] getMyCalcs11(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc11[] getMyCalcs11(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs11",
         "requestBody": {
           "content": {
             "application/json": {
@@ -209,62 +494,8 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/MyCalc8"
+                    "$ref": "#/components/schemas/MyCalc11"
                   }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/myCalc7": {
-      "post": {
-        "summary": "MyCalc7 myCalc7(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc7 myCalc7(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "myCalc7",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyCalc7"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/myCalc5": {
-      "post": {
-        "summary": "MyCalc5 myCalc5(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc5 myCalc5(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "myCalc5",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyCalc5"
                 }
               }
             }
@@ -292,33 +523,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MyCalc3"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/myCalc11": {
-      "post": {
-        "summary": "MyCalc11 myCalc11(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc11 myCalc11(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "myCalc11",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyCalc11"
                 }
               }
             }
@@ -433,225 +637,17 @@
           }
         }
       }
-    },
-    "/myCalc10": {
-      "post": {
-        "summary": "MyCalc10 myCalc10(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc10 myCalc10(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "myCalc10",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyCalc10"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/myCalc8": {
-      "post": {
-        "summary": "MyCalc8 myCalc8(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc8 myCalc8(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "myCalc8",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyCalc8"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/getMyCalcs2": {
-      "post": {
-        "summary": "MyCalc2[] getMyCalcs2(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc2[] getMyCalcs2(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyCalcs2",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MyCalc2"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/getMyCalcs10": {
-      "post": {
-        "summary": "MyCalc10[] getMyCalcs10(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc10[] getMyCalcs10(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyCalcs10",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MyCalc10"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/getMyCalcs": {
-      "post": {
-        "summary": "MyCalc[] getMyCalcs(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc[] getMyCalcs(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyCalcs",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MyCalc"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/getMyCalcs11": {
-      "post": {
-        "summary": "MyCalc11[] getMyCalcs11(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc11[] getMyCalcs11(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyCalcs11",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MyCalc11"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/getMyCalcs9": {
-      "post": {
-        "summary": "MyCalc9[] getMyCalcs9(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc9[] getMyCalcs9(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyCalcs9",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MyCalc9"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
     "schemas": {
-      "MyCalc9": {
+      "MyCalc11": {
         "type": "object",
         "properties": {
           "Step1": {
             "type": "number",
             "format": "double"
           }
-        },
-        "xml": {
-          "name": "MyCalc9",
-          "namespace": "http://spreadsheetresults.generated.openl.org"
         }
       },
       "DefaultRulesRuntimeContext": {
@@ -989,6 +985,15 @@
           }
         }
       },
+      "MyCalc2": {
+        "type": "object",
+        "properties": {
+          "Step1": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
       "MyCalc3": {
         "type": "object",
         "properties": {
@@ -996,23 +1001,6 @@
             "type": "number",
             "format": "double"
           }
-        },
-        "xml": {
-          "name": "MyCalc3",
-          "namespace": "http://spreadsheetresults.generated.openl.org"
-        }
-      },
-      "MyCalc4": {
-        "type": "object",
-        "properties": {
-          "Step1": {
-            "type": "number",
-            "format": "double"
-          }
-        },
-        "xml": {
-          "name": "MyCalc4",
-          "namespace": "http://spreadsheetresults.generated.openl.org"
         }
       },
       "MyCalc5": {
@@ -1022,36 +1010,6 @@
             "type": "number",
             "format": "double"
           }
-        },
-        "xml": {
-          "name": "MyCalc5",
-          "namespace": "http://spreadsheetresults.generated.openl.org"
-        }
-      },
-      "MyCalc6": {
-        "type": "object",
-        "properties": {
-          "Step1": {
-            "type": "number",
-            "format": "double"
-          }
-        },
-        "xml": {
-          "name": "MyCalc6",
-          "namespace": "http://spreadsheetresults.generated.openl.org"
-        }
-      },
-      "MyCalc7": {
-        "type": "object",
-        "properties": {
-          "Step1": {
-            "type": "number",
-            "format": "double"
-          }
-        },
-        "xml": {
-          "name": "MyCalc7",
-          "namespace": "http://spreadsheetresults.generated.openl.org"
         }
       },
       "MyCalc8": {
@@ -1061,49 +1019,24 @@
             "type": "number",
             "format": "double"
           }
-        },
-        "xml": {
-          "name": "MyCalc8",
-          "namespace": "http://spreadsheetresults.generated.openl.org"
         }
       },
-      "MyCalc11": {
+      "MyCalc7": {
         "type": "object",
         "properties": {
           "Step1": {
             "type": "number",
             "format": "double"
           }
-        },
-        "xml": {
-          "name": "MyCalc11",
-          "namespace": "http://spreadsheetresults.generated.openl.org"
         }
       },
-      "MyCalc": {
+      "MyCalc9": {
         "type": "object",
         "properties": {
           "Step1": {
             "type": "number",
             "format": "double"
           }
-        },
-        "xml": {
-          "name": "MyCalc",
-          "namespace": "http://spreadsheetresults.generated.openl.org"
-        }
-      },
-      "MyCalc2": {
-        "type": "object",
-        "properties": {
-          "Step1": {
-            "type": "number",
-            "format": "double"
-          }
-        },
-        "xml": {
-          "name": "MyCalc2",
-          "namespace": "http://spreadsheetresults.generated.openl.org"
         }
       },
       "MyCalc10": {
@@ -1113,10 +1046,33 @@
             "type": "number",
             "format": "double"
           }
-        },
-        "xml": {
-          "name": "MyCalc10",
-          "namespace": "http://spreadsheetresults.generated.openl.org"
+        }
+      },
+      "MyCalc": {
+        "type": "object",
+        "properties": {
+          "Step1": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "MyCalc4": {
+        "type": "object",
+        "properties": {
+          "Step1": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "MyCalc6": {
+        "type": "object",
+        "properties": {
+          "Step1": {
+            "type": "number",
+            "format": "double"
+          }
         }
       }
     }

@@ -49,19 +49,12 @@
           },
           "genderCd": {
             "type": "string",
-            "xml": {
-              "name": "gender"
-            },
             "default": "other"
           },
           "dob": {
             "type": "string",
             "format": "date-time"
           }
-        },
-        "xml": {
-          "name": "Customer",
-          "namespace": "http://beans.generated.openl.org"
         }
       }
     }

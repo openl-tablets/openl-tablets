@@ -40,7 +40,9 @@ public final class OpenApiObjectMapperHack {
     @SuppressWarnings("unchecked")
     public void revert() {
         converters.clear();
-        converters.addAll(oldConverters);
+        if (oldConverters != null) {
+            converters.addAll(oldConverters);
+        }
     }
 
 }

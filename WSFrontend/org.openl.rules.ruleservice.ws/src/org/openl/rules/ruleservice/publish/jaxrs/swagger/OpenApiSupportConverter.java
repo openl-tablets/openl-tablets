@@ -16,7 +16,9 @@ import io.swagger.v3.core.converter.ModelConverterContext;
 import io.swagger.v3.oas.models.media.Schema;
 
 public class OpenApiSupportConverter implements ModelConverter {
-    public Schema resolve(AnnotatedType annotatedType, ModelConverterContext context, Iterator<ModelConverter> chain) {
+    public Schema<?> resolve(AnnotatedType annotatedType,
+            ModelConverterContext context,
+            Iterator<ModelConverter> chain) {
         if (annotatedType.getCtxAnnotations() != null) {
             if (Arrays.stream(annotatedType.getCtxAnnotations()).anyMatch(e -> e instanceof XmlTransient)) {
                 return null;
