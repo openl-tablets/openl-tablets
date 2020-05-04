@@ -285,7 +285,7 @@ public class ClassUtils {
             return true;
         }
         if (cls.isPrimitive()) {
-            if (toClass.isPrimitive() == false) {
+            if (!toClass.isPrimitive()) {
                 return false;
             }
             if (Integer.TYPE.equals(cls)) {

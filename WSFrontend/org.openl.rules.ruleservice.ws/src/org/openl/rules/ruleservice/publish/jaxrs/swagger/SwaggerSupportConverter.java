@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.publish.jaxrs.swagger;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -55,11 +54,7 @@ public class SwaggerSupportConverter implements ModelConverter {
             t = null;
         }
         if (model != null && model.getProperties() != null && t != null) {
-            List<Method> methods = new ArrayList<>();
-            while (!Object.class.equals(t) && t != null) {
-                methods.addAll(Arrays.asList(t.getDeclaredMethods()));
-                t = t.getSuperclass();
-            }
+            List<Method> methods = SupportConverterHelper.getAllMethods(t);
             Set<String> methodNames = methods.stream().map(Method::getName).collect(Collectors.toSet());
             for (Method m : methods) {
                 if (m.getName().startsWith("get") || m.getName().startsWith("is")) {

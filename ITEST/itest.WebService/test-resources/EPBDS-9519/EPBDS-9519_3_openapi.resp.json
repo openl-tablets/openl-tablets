@@ -11,33 +11,6 @@
     }
   ],
   "paths": {
-    "/someRules": {
-      "post": {
-        "summary": "MyType someRules(IRulesRuntimeContext, Integer, Integer, Integer, String)",
-        "description": "Method: org.openl.generated.beans.MyType someRules(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.String)",
-        "operationId": "someRules",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SomeRulesRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyType"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/myType1": {
       "post": {
         "summary": "MyType1 myType1(IRulesRuntimeContext, MyType)",
@@ -64,21 +37,63 @@
           }
         }
       }
+    },
+    "/someRules": {
+      "post": {
+        "summary": "MyType someRules(IRulesRuntimeContext, Integer, Integer, Integer, String)",
+        "description": "Method: org.openl.generated.beans.MyType someRules(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.String)",
+        "operationId": "someRules",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SomeRulesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyType"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
-      "MyType": {
+      "MyType1": {
         "type": "object",
         "properties": {
-          "getmYSPR1": {
-            "type": "string"
+          "Test_sTep": {
+            "type": "number",
+            "format": "double"
           },
-          "getySrp2": {
-            "type": "string"
+          "mYStep_sTep": {
+            "type": "number",
+            "format": "double"
           },
-          "MYSPR": {
-            "type": "string"
+          "Test_stepchik": {
+            "type": "number",
+            "format": "double"
+          },
+          "mYStep_stepchik": {
+            "type": "number",
+            "format": "double"
+          },
+          "Test_Stepic": {
+            "type": "number",
+            "format": "double"
+          },
+          "mYStep_Stepic": {
+            "type": "number",
+            "format": "double"
           }
         }
       },
@@ -417,6 +432,31 @@
           }
         }
       },
+      "MyType": {
+        "type": "object",
+        "properties": {
+          "MYSPR": {
+            "type": "string"
+          },
+          "ySrp2": {
+            "type": "string"
+          },
+          "mYSPR1": {
+            "type": "string"
+          }
+        }
+      },
+      "MyType1Request": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "a": {
+            "$ref": "#/components/schemas/MyType"
+          }
+        }
+      },
       "SomeRulesRequest": {
         "type": "object",
         "properties": {
@@ -437,46 +477,6 @@
           },
           "dddd": {
             "type": "string"
-          }
-        }
-      },
-      "MyType1": {
-        "type": "object",
-        "properties": {
-          "Test_sTep": {
-            "type": "number",
-            "format": "double"
-          },
-          "mYStep_sTep": {
-            "type": "number",
-            "format": "double"
-          },
-          "Test_stepchik": {
-            "type": "number",
-            "format": "double"
-          },
-          "mYStep_stepchik": {
-            "type": "number",
-            "format": "double"
-          },
-          "Test_Stepic": {
-            "type": "number",
-            "format": "double"
-          },
-          "mYStep_Stepic": {
-            "type": "number",
-            "format": "double"
-          }
-        }
-      },
-      "MyType1Request": {
-        "type": "object",
-        "properties": {
-          "runtimeContext": {
-            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "a": {
-            "$ref": "#/components/schemas/MyType"
           }
         }
       }
