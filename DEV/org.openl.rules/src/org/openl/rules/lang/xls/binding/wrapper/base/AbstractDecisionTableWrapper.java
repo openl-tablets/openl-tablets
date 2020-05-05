@@ -190,6 +190,11 @@ public abstract class AbstractDecisionTableWrapper extends DecisionTable {
     }
 
     @Override
+    public void removeDebugInformation() {
+        delegate.removeDebugInformation();
+    }
+
+    @Override
     public ATableBoundNode getBoundNode() {
         return delegate.getBoundNode();
     }

@@ -95,10 +95,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
         if (cxt.isExecutionMode()) {
             if (getMethod() != null) {
-                getMethod().setBoundNode(null);
-                getMethod().getMethodProperties().setModulePropertiesTableSyntaxNode(null);
-                getMethod().getMethodProperties().setCategoryPropertiesTableSyntaxNode(null);
-                getMethod().getMethodProperties().setPropertiesSection(null);
+                getMethod().removeDebugInformation();
             }
             if (header instanceof OpenMethodHeader) {
                 OpenMethodHeader tableHeader = (OpenMethodHeader) header;

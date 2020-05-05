@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.openl.binding.BindingDependencies;
+import org.openl.binding.IBindingContext;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.MatchNode;
 import org.openl.rules.cmatch.TableColumn;
@@ -131,6 +132,11 @@ public abstract class AbstractColumnMatchWrapper extends ColumnMatch {
     @Override
     public void setBoundNode(ATableBoundNode node) {
         delegate.setBoundNode(node);
+    }
+
+    @Override
+    public void removeDebugInformation() {
+        delegate.removeDebugInformation();
     }
 
     @Override
