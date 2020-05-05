@@ -24,6 +24,7 @@ import org.openl.rules.property.PropertyTableBoundNode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.xls.RulesCompileContext;
 
 /**
  * Serves to prebind code. Prebind means to process all datatypes, properties and headers for another table types.
@@ -34,7 +35,7 @@ public class XlsPreBinder extends XlsBinder {
     private final IPrebindHandler prebindHandler;
 
     public XlsPreBinder(IUserContext userContext, IPrebindHandler prebindHandler) {
-        super(userContext);
+        super(new RulesCompileContext(), userContext);
         this.prebindHandler = prebindHandler;
     }
 

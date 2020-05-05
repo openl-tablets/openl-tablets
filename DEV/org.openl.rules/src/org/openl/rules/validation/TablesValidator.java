@@ -21,10 +21,12 @@ public abstract class TablesValidator implements IOpenLValidator {
                 findAllTableSyntaxNodes(tableSyntaxNodes, dependencyOpenClass);
             }
             XlsMetaInfo xlsMetaInfo = ((XlsModuleOpenClass) openClass).getXlsMetaInfo();
-            TableSyntaxNode[] xlsTableSyntaxNodes = xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();
-            for (TableSyntaxNode tableSyntaxNode : xlsTableSyntaxNodes) {
-                if (!DispatcherTablesBuilder.isDispatcherTable(tableSyntaxNode)) {
-                    tableSyntaxNodes.add(tableSyntaxNode);
+            if (xlsMetaInfo != null) {
+                TableSyntaxNode[] xlsTableSyntaxNodes = xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();
+                for (TableSyntaxNode tableSyntaxNode : xlsTableSyntaxNodes) {
+                    if (!DispatcherTablesBuilder.isDispatcherTable(tableSyntaxNode)) {
+                        tableSyntaxNodes.add(tableSyntaxNode);
+                    }
                 }
             }
         }

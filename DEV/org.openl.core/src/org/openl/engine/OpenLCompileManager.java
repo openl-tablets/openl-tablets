@@ -23,8 +23,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
-import org.openl.validation.ValidationManager;
-import org.openl.validation.ValidationResult;
 
 /**
  * Class that defines OpenL engine manager implementation for compilation operations.
@@ -75,18 +73,7 @@ public class OpenLCompileManager {
             IDependencyManager dependencyManager) {
         ProcessedCode processedCode = getProcessedCode(source, executionMode, dependencyManager, true);
         IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
-        Collection<OpenLMessage> messages = new LinkedHashSet<>();
-        if (!executionMode) {
-            // for WebStudio
-            List<ValidationResult> validationResults = ValidationManager.processValidation(openl.getCompileContext(), openClass);
-            for (ValidationResult result : validationResults) {
-                messages.addAll(result.getMessages());
-            }
-        }
-
-        messages.addAll(processedCode.getMessages());
-
-        return new CompiledOpenClass(openClass, messages);
+        return new CompiledOpenClass(openClass, processedCode.getMessages());
     }
 
     private ProcessedCode getProcessedCode(IOpenSourceCodeModule source,
