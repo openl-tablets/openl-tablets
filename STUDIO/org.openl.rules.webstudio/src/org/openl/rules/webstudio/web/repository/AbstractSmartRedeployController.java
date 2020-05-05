@@ -15,6 +15,7 @@ import javax.faces.bean.ManagedProperty;
 
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
@@ -238,7 +239,8 @@ public abstract class AbstractSmartRedeployController {
                     // overwrite settings
                     checker.addProject(project);
                     if (checker.check()) {
-                        String to = RepositoryTreeController.getDescriptiveVersion(project.getVersion(), dateTimeFormat);
+                        String to = RepositoryTreeController.getDescriptiveVersion(project.getVersion(),
+                            dateTimeFormat);
                         if (deployedProject == null) {
                             item.setMessages("Can be deployed");
                         } else if (lastDeployedVersion == null) {
@@ -250,12 +252,19 @@ public abstract class AbstractSmartRedeployController {
                                     "Can be updated to " + to + " and then deployed. Deployed version is being defined");
                             }
                         } else {
-                            String from = RepositoryTreeController
-                                .getDescriptiveVersion(userWorkspace.getDesignTimeRepository()
-                                    .getProject(projectDescriptor.getProjectName(),
-                                        new CommonVersionImpl(lastDeployedVersion))
-                                    .getVersion(), dateTimeFormat);
-                            item.setMessages("Can be updated to '" + to + "' from '" + from + "' and then deployed");
+                            ProjectVersion version = userWorkspace.getDesignTimeRepository()
+                                .getProject(projectDescriptor.getProjectName(),
+                                    new CommonVersionImpl(lastDeployedVersion))
+                                .getVersion();
+
+                            if (version.getVersionInfo() == null) {
+                                item.setMessages(
+                                    "Can be updated to '" + to + "' and then deployed. Deployed version not defined");
+                            } else {
+                                String from = RepositoryTreeController.getDescriptiveVersion(version, dateTimeFormat);
+                                item.setMessages(
+                                    "Can be updated to '" + to + "' from '" + from + "' and then deployed");
+                            }
                         }
                     } else {
                         item.setMessages(
