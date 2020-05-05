@@ -3,7 +3,6 @@ package org.openl.rules.validation;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.openl.OpenL;
 import org.openl.dependency.CompiledDependency;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -32,7 +31,7 @@ public abstract class TablesValidator implements IOpenLValidator {
     }
 
     @Override
-    public ValidationResult validate(OpenL openl, IOpenClass openClass) {
+    public ValidationResult validate(IOpenClass openClass) {
 
         if (openClass instanceof XlsModuleOpenClass) {
 
@@ -42,7 +41,7 @@ public abstract class TablesValidator implements IOpenLValidator {
 
             findAllTableSyntaxNodes(tableSyntaxNodes, openClass);
 
-            return validateTables(openl, tableSyntaxNodes.toArray(new TableSyntaxNode[] {}), openClass);
+            return validateTables(tableSyntaxNodes.toArray(new TableSyntaxNode[]{}), openClass);
         }
 
         // Skip validation if passed open class is not instance of
@@ -51,7 +50,5 @@ public abstract class TablesValidator implements IOpenLValidator {
         return ValidationUtils.validationSuccess();
     }
 
-    public abstract ValidationResult validateTables(OpenL openl,
-            TableSyntaxNode[] tableSyntaxNodes,
-            IOpenClass openClass);
+    public abstract ValidationResult validateTables(TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass);
 }
