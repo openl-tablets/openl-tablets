@@ -25,11 +25,12 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.errors.CorruptObjectException;
+import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.hooks.CommitMsgHook;
 import org.eclipse.jgit.hooks.PreCommitHook;
 import org.eclipse.jgit.internal.JGitText;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.merge.MergeMessageFormatter;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -1283,6 +1284,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 historyVisitor.visit(name, commit, getVersionName(git.getRepository(), tags, commit));
                 return historyVisitor.getResult();
             }
+        } catch (MissingObjectException e) {
+            log.error(e.getMessage());
+            return null;
         } catch (IOException e) {
             throw e;
         } catch (Exception e) {
