@@ -843,7 +843,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         @Override
         public void set(SpreadsheetResult spreadsheetResult, Object target) {
             if (spreadsheetResult.isDetailedPlainModel()) {
-                String[][] TableDetails = new String[spreadsheetResult.getRowNames().length][spreadsheetResult
+                String[][] plainModelDetails = new String[spreadsheetResult.getRowNames().length][spreadsheetResult
                     .getColumnNames().length];
                 for (Map.Entry<String, List<IOpenField>> e : beanFieldsMap.entrySet()) {
                     List<IOpenField> openFields = e.getValue();
@@ -851,12 +851,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         Point p = spreadsheetResult.fieldsCoordinates.get(openField.getName());
                         if (p != null && spreadsheetResult.rowNamesForResultModel[p
                             .getRow()] != null && spreadsheetResult.columnNamesForResultModel[p.getColumn()] != null) {
-                            TableDetails[p.getRow()][p.getColumn()] = xmlNamesMap.get(e.getKey());
+                            plainModelDetails[p.getRow()][p.getColumn()] = xmlNamesMap.get(e.getKey());
                         }
                     }
                 }
                 try {
-                    field.set(target, TableDetails);
+                    field.set(target, plainModelDetails);
                 } catch (IllegalAccessException ignore) {
                 }
             }
