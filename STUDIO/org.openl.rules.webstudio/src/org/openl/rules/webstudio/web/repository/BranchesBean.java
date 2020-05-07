@@ -13,6 +13,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.ui.Message;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
@@ -35,6 +36,8 @@ public class BranchesBean {
     private String currentBranch;
 
     private String branchToMerge;
+
+    private boolean editorMode;
 
     public String getCurrentProjectName() {
         return currentProjectName;
@@ -103,11 +106,11 @@ public class BranchesBean {
     private void merge(String branchToMergeFrom, String branchToMergeTo) {
         try {
             if (branchToMergeFrom == null || branchToMergeTo == null) {
-                WebStudioUtils.addErrorMessage("Choose the branches to merge.");
+                showErrorMessage("Choose the branches to merge.");
                 return;
             }
             if (branchToMergeFrom.equals(branchToMergeTo)) {
-                WebStudioUtils.addErrorMessage("Can't merge the branch '" + branchToMergeFrom + "' to itself.");
+                showErrorMessage("Can't merge the branch '" + branchToMergeFrom + "' to itself.");
                 return;
             }
             RulesProject project = getProject(currentProjectName);
@@ -139,7 +142,7 @@ public class BranchesBean {
                 msg = "Error during merge operation.";
             }
             log.error(msg, e);
-            WebStudioUtils.addErrorMessage(msg);
+            showErrorMessage(msg);
         }
     }
 
@@ -151,7 +154,7 @@ public class BranchesBean {
 
     public void save() {
         if (branches == null || branches.isEmpty()) {
-            WebStudioUtils.addErrorMessage("At least one branch must be selected.");
+            showErrorMessage("At least one branch must be selected.");
             return;
         }
         try {
@@ -174,7 +177,7 @@ public class BranchesBean {
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            WebStudioUtils.addErrorMessage("Cannot copy the project: " + e.getMessage());
+            showErrorMessage("Cannot save the branches: " + e.getMessage());
         }
     }
 
@@ -197,6 +200,10 @@ public class BranchesBean {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    public void setEditorMode(boolean editorMode) {
+        this.editorMode = editorMode;
     }
 
     private void initBranchToMerge(String currentProjectName, BranchRepository repository) throws
@@ -255,7 +262,7 @@ public class BranchesBean {
             }
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            WebStudioUtils.addErrorMessage("Cannot determine if the branches are merged: " + e.getMessage());
+            showErrorMessage("Cannot determine if the branches are merged: " + e.getMessage());
         }
 
         return false;
@@ -308,5 +315,12 @@ public class BranchesBean {
     private UserWorkspace getUserWorkspace() throws WorkspaceException {
         RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(WebStudioUtils.getSession());
         return rulesUserSession.getUserWorkspace();
+    }
+
+    private void showErrorMessage(String msg) {
+        WebStudioUtils.addErrorMessage(msg);
+        if (editorMode) {
+            throw new Message(msg);
+        }
     }
 }
