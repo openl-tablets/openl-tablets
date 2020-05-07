@@ -108,7 +108,7 @@ public class JacksonObjectMapperFactoryBean {
         mapper.setAnnotationIntrospector(introspector);
 
         Builder basicPolymorphicTypeValidatorBuilder = null;
-        final boolean polymorphicTypeValidation = Boolean.TRUE.equals(isPolymorphicTypeValidation());
+        final boolean polymorphicTypeValidation = isPolymorphicTypeValidation();
         if (polymorphicTypeValidation) {
             basicPolymorphicTypeValidatorBuilder = BasicPolymorphicTypeValidator.builder();
             basicPolymorphicTypeValidatorBuilder.allowIfSubTypeIsArray();
