@@ -56,6 +56,7 @@ import org.openl.rules.property.PropertyTableBinder;
 import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.testmethod.TestMethodNodeBinder;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
@@ -331,9 +332,7 @@ public class XlsBinder implements IOpenBinder {
                 if (bindingContext.isExecutionMode()) {
                     XlsModuleOpenClass openClass = (XlsModuleOpenClass) topNode.getType();
                     for (IOpenMethod openMethod : openClass.getMethods()) {
-                        if (openMethod instanceof ExecutableRulesMethod) {
-                            ((ExecutableRulesMethod) openMethod).removeDebugInformation();
-                        }
+                        removeDebugInformation(openMethod);
                     }
                 }
             }
@@ -341,6 +340,16 @@ public class XlsBinder implements IOpenBinder {
             return topNode;
         } finally {
             OpenLFuzzyUtils.clearCaches();
+        }
+    }
+
+    private void removeDebugInformation(IOpenMethod openMethod) {
+        if (openMethod instanceof OpenMethodDispatcher) {
+            for (IOpenMethod candidate : ((OpenMethodDispatcher) openMethod).getCandidates()) {
+                removeDebugInformation(candidate);
+            }
+        } else if (openMethod instanceof ExecutableRulesMethod) {
+            ((ExecutableRulesMethod) openMethod).removeDebugInformation();
         }
     }
 
