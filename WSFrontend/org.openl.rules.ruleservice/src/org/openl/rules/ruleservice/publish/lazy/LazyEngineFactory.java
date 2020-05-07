@@ -163,6 +163,10 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         return interfaceClass;
     }
 
+    public void setInterfaceClass(Class<T> interfaceClass) {
+        this.interfaceClass = interfaceClass;
+    }
+
     @Override
     protected Class<?>[] prepareInstanceInterfaces() {
         return new Class[] { getInterfaceClass(), IEngineWrapper.class, IRulesRuntimeContextProvider.class };
