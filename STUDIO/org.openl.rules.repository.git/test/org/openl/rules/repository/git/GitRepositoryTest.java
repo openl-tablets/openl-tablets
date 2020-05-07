@@ -1066,6 +1066,25 @@ public class GitRepositoryTest {
         assertNotNull("The file '" + path2 + "' must exist in '" + branch2 + "'", branch2Repo.check(path2));
     }
 
+    @Test
+    public void testResetUncommittedChanges() throws IOException {
+        File parent = repo.getClosableGit().getRepository().getDirectory().getParentFile();
+        File existingFile = new File(parent, "file-in-master");
+        assertTrue(existingFile.exists());
+
+        // Delete the file but don't commit it. Changes in not committed (modified externally for example or after unsuccessful operation)
+        // files must be aborted after repo.save() method.
+        FileUtils.delete(existingFile);
+        assertFalse(existingFile.exists());
+
+        // Save other file.
+        String text = "Some text";
+        repo.save(createFileData("folder/any-file", text), IOUtils.toInputStream(text));
+
+        // Not committed changes should be aborted
+        assertTrue(existingFile.exists());
+    }
+
     private GitRepository createRepository(File remote, File local) throws RRepositoryException {
         return createRepository(remote, local, BRANCH);
     }
