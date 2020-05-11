@@ -10,11 +10,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -38,7 +36,6 @@ import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.datatype.gen.FieldDescriptionBuilder;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.types.AliasDatatypeOpenField;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenField;
 import org.openl.rules.lang.xls.types.TransientOpenField;
@@ -80,6 +77,8 @@ import org.slf4j.LoggerFactory;
  */
 public class DatatypeTableBoundNode implements IMemberBoundNode {
 
+    public static final String NON_TRANSIENT_FIELD_SUFFIX = "*";
+    public static final String TRANSIENT_FIELD_SUFFIX = "~";
     private final Logger log = LoggerFactory.getLogger(DatatypeTableBoundNode.class);
 
     private final TableSyntaxNode tableSyntaxNode;
@@ -166,11 +165,19 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         //
         fields = new LinkedHashMap<>();
         SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
+        boolean useTransientSuffix = true;
+        for (int i = 0; i < tableHeight; i++) {
+            if (fieldNameEndsWithNonTransientSuffix(dataTable.getRow(i), bindingContext)) {
+                useTransientSuffix = false;
+                break;
+            }
+        }
         MutableBoolean firstNonTransientField = new MutableBoolean(true);
         for (int i = 0; i < tableHeight; i++) {
             final int index = i;
-            syntaxNodeExceptionCollector
-                .run(() -> processRow(dataTable.getRow(index), bindingContext, fields, firstNonTransientField));
+            final boolean withTransientSuffix = useTransientSuffix;
+            syntaxNodeExceptionCollector.run(() -> processRow(dataTable
+                .getRow(index), bindingContext, fields, firstNonTransientField, withTransientSuffix));
         }
 
         syntaxNodeExceptionCollector.run(() -> checkInheritedFieldsDuplication(bindingContext));
@@ -447,7 +454,24 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         syntaxNodeExceptionCollector.throwIfAny();
     }
 
-    private Pair<String[], String> parseFieldNameCell(ILogicalTable row,
+    private boolean fieldNameEndsWithNonTransientSuffix(ILogicalTable row,
+            IBindingContext bindingContext) throws OpenLCompilationException {
+        GridCellSourceCodeModule nameCellSource = getCellSource(row, bindingContext, 1);
+        IdentifierNode[] idn = getIdentifierNode(nameCellSource);
+        final String code = Arrays.stream(idn).map(IdentifierNode::getIdentifier).collect(Collectors.joining());
+        if (code.contains(":context")) {
+            int c = code.indexOf(":context");
+            return code.substring(0, c).endsWith(NON_TRANSIENT_FIELD_SUFFIX);
+        } else {
+            if (idn.length != 1) {
+                return false;
+            } else {
+                return idn[0].getIdentifier().endsWith(NON_TRANSIENT_FIELD_SUFFIX);
+            }
+        }
+    }
+
+    private Pair<String, String> parseFieldNameCell(ILogicalTable row,
             IBindingContext bindingContext) throws OpenLCompilationException {
         GridCellSourceCodeModule nameCellSource = getCellSource(row, bindingContext, 1);
         IdentifierNode[] idn = getIdentifierNode(nameCellSource);
@@ -458,45 +482,29 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             if (contextPropertyName.startsWith(".")) {
                 contextPropertyName = contextPropertyName.substring(1);
             }
-            return Pair.of(resolveFieldNames(code.substring(0, c)),
+            return Pair.of(code.substring(0, c),
                 contextPropertyName.isEmpty() ? code.substring(0, c) : contextPropertyName);
         } else {
             if (idn.length != 1) {
                 String errorMessage = String.format("Bad field name: '%s'.", nameCellSource.getCode());
                 throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, nameCellSource);
             } else {
-                return Pair.of(resolveFieldNames(idn[0].getIdentifier()), null);
+                return Pair.of(idn[0].getIdentifier(), null);
             }
         }
-    }
-
-    private String[] resolveFieldNames(String fieldNamesCode) {
-        Set<String> fieldNames = new LinkedHashSet<>(Arrays.asList(fieldNamesCode.split(",")));
-        String[] orderedFieldNames = new String[fieldNames.size()];
-        int i = 0;
-        int j = orderedFieldNames.length - 1;
-        for (String currentFieldName : fieldNames) {
-            if (currentFieldName.endsWith("~")) {
-                orderedFieldNames[j--] = currentFieldName;
-            } else {
-                orderedFieldNames[i++] = currentFieldName;
-            }
-        }
-        return orderedFieldNames;
     }
 
     private void processRow(ILogicalTable row,
             IBindingContext bindingContext,
             Map<String, FieldDescription> fields,
-            MutableBoolean firstNonTransientField) throws OpenLCompilationException {
-
+            MutableBoolean firstNonTransientField,
+            boolean useTransientSuffix) throws OpenLCompilationException {
         GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), bindingContext);
-
         if (canProcessRow(rowSrc)) {
-            Pair<String[], String> fieldNameCellParsed = parseFieldNameCell(row, bindingContext);
-            final String[] fieldNames = fieldNameCellParsed.getLeft();
-            final boolean isTransient = fieldNames[0].endsWith("~");
-            final String fieldName = extractFieldName(fieldNames[0]);
+            Pair<String, String> fieldNameCellParsed = parseFieldNameCell(row, bindingContext);
+            final boolean isTransient = useTransientSuffix ? fieldNameCellParsed.getLeft()
+                .endsWith(TRANSIENT_FIELD_SUFFIX) : !fieldNameCellParsed.getLeft().endsWith(NON_TRANSIENT_FIELD_SUFFIX);
+            final String fieldName = extractFieldName(fieldNameCellParsed.getLeft());
             final IOpenClass fieldType = getFieldType(bindingContext, row, rowSrc);
             FieldDescriptionBuilder fieldDescriptionBuilder = null;
             final String contextPropertyName = fieldNameCellParsed.getValue();
@@ -635,18 +643,13 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             if (fieldDescription != null) {
                 fields.put(fieldName, fieldDescription);
             }
-
-            for (int i = 1; i < fieldNames.length; i++) {
-                String aliasFieldName = extractFieldName(fieldNames[i]);
-                AliasDatatypeOpenField aliasDatatypeOpenField = new AliasDatatypeOpenField(aliasFieldName, field);
-                dataType.addField(aliasDatatypeOpenField);
-            }
         }
 
     }
 
     private String extractFieldName(String fieldName) {
-        return fieldName.endsWith("~") ? fieldName.substring(0, fieldName.length() - 1) : fieldName;
+        return fieldName.endsWith(NON_TRANSIENT_FIELD_SUFFIX) || fieldName.endsWith(TRANSIENT_FIELD_SUFFIX) ? fieldName
+            .substring(0, fieldName.length() - 1) : fieldName;
     }
 
     private void validateContextPropertyName(final ILogicalTable row,
