@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 
 import org.openl.base.INamedThing;
+import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -23,9 +24,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ADynamicClass;
-import org.openl.types.impl.DatatypeOpenConstructor;
-import org.openl.types.impl.DatatypeOpenField;
-import org.openl.types.impl.DatatypeOpenMethod;
+
 import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.impl.ParameterDeclaration;
@@ -145,8 +144,14 @@ public class DatatypeOpenClass extends ADynamicClass {
                 fields.put(field.getName(), field);
             }
         }
-        fields.putAll(fieldMap());
+        fieldMap().forEach(fields::putIfAbsent);
         return fields;
+    }
+
+    @Override
+    public void addField(IOpenField field) throws DuplicatedFieldException {
+        this.fields = null;
+        super.addField(field);
     }
 
     @Override

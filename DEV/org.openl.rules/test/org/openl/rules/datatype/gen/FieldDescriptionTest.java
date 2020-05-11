@@ -6,8 +6,8 @@ import org.junit.Test;
 import org.openl.gen.FieldDescription;
 import org.openl.gen.writers.DefaultValue;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
+import org.openl.rules.lang.xls.types.DatatypeOpenField;
 import org.openl.types.IOpenClass;
-import org.openl.types.impl.DatatypeOpenField;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
 
 /**

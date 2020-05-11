@@ -1,4 +1,4 @@
-package org.openl.types.impl;
+package org.openl.rules.lang.xls.types;
 
 import java.lang.reflect.Method;
 
