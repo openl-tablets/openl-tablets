@@ -29,7 +29,7 @@ public class IntRange implements INumberRange {
      */
     public IntRange(long min, long max) {
         if (min > max) {
-            throw new RuntimeException(max + " must be more or equal than " + min);
+            throw new IllegalArgumentException(max + " must be greater or equal than " + min);
         }
         this.min = min;
         this.max = max;
