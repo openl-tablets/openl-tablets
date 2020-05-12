@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.application.FacesMessage;
-import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
@@ -22,6 +21,7 @@ import org.openl.rules.table.xls.builder.DataTableField;
 import org.openl.rules.table.xls.builder.DataTablePredefinedTypeVariable;
 import org.openl.rules.table.xls.builder.DataTableUserDefinedTypeField;
 import org.openl.rules.table.xls.builder.TableBuilder;
+import org.openl.rules.ui.validation.TableNameConstraint;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -36,7 +36,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
     private String tableType;
 
     @NotBlank(message = "Cannot be empty")
-    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
+    @TableNameConstraint
     private String tableName;
     private IOpenClass tableOpenClass;
     private DataTableTree tree = new DataTableTree();

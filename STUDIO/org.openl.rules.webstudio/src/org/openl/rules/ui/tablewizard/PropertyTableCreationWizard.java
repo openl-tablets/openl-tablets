@@ -1,13 +1,18 @@
 package org.openl.rules.ui.tablewizard;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
-import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -21,6 +26,7 @@ import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.PropertiesTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
+import org.openl.rules.ui.validation.TableNameConstraint;
 import org.openl.util.StringUtils;
 
 public class PropertyTableCreationWizard extends TableCreationWizard {
@@ -29,7 +35,7 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
 
     private String scopeType;
     @NotBlank(message = "Cannot be empty")
-    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
+    @TableNameConstraint
     private String tableName;
     private String categoryName;
 

@@ -6,8 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.validation.constraints.Pattern;
-
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -36,6 +34,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.PropertiesBean;
 import org.openl.rules.ui.tablewizard.TableCreationWizard;
+import org.openl.rules.ui.validation.TableNameConstraint;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
@@ -61,7 +60,7 @@ public class TableCopier extends TableCreationWizard {
      * Table technical name
      */
     @NotBlank(message = "Cannot be empty")
-    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
+    @TableNameConstraint
     private String tableTechnicalName;
 
     /**

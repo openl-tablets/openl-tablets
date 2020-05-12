@@ -9,7 +9,6 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
 import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -17,6 +16,7 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DatatypeAliasTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
+import org.openl.rules.ui.validation.TableNameConstraint;
 import org.openl.util.StringUtils;
 
 /**
@@ -25,7 +25,7 @@ import org.openl.util.StringUtils;
 public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
 
     @NotBlank(message = "Cannot be empty")
-    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
+    @TableNameConstraint
     private String technicalName;
 
     private String aliasType;
