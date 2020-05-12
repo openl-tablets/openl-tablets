@@ -86,7 +86,7 @@
             if (!$j("#systemSettingsForm\\:unlimitHistory").is(':checked')) {
                 $j("#systemSettingsForm\\:maxCountInHistory").show();
                 maxNumberHistory.focus();
-                maxNumberHistory.val("30");
+                maxNumberHistory.val("#{systemSettingsBean.projectHistoryCount}");
                 maxNumberHistory.select();
             }
         }
