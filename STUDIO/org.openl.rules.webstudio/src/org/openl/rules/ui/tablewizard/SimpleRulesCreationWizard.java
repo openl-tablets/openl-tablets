@@ -26,6 +26,7 @@ import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.ui.tablewizard.util.CellStyleManager;
 import org.openl.rules.ui.tablewizard.util.JSONHolder;
 import org.openl.rules.ui.validation.TableNameConstraint;
+import org.openl.rules.utils.TableNameChecker;
 import org.openl.util.StringUtils;
 import org.richfaces.json.JSONException;
 import org.slf4j.Logger;
@@ -428,7 +429,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
             throw new ValidatorException(new FacesMessage("Cannot be empty"));
         }
 
-        if (!name.matches("([a-zA-Z_][a-zA-Z_0-9]*)?")) {
+        if (TableNameChecker.isInvalidJavaIdentifier(name)) {
             throw new ValidatorException(new FacesMessage(INVALID_NAME_MESSAGE));
         }
     }

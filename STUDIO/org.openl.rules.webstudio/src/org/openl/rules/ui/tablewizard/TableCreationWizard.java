@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  *         TODO Rename Workbook and Worksheet to Module and Category correspondently
  */
 public abstract class TableCreationWizard extends BaseWizard {
-    protected static final String INVALID_NAME_MESSAGE = "Invalid name: only latin letters, numbers and _ are allowed, name cannot begin with a number";
+    protected static final String INVALID_NAME_MESSAGE = "Invalid name: it can only have letters, digits, _, $ and should not start with a digit.";
 
     private final Logger log = LoggerFactory.getLogger(TableCreationWizard.class);
 
