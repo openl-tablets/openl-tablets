@@ -3,7 +3,7 @@ package org.openl.rules.webstudio.web.trace.node;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.rules.table.OpenLArgumentsCloner;
+import org.openl.rules.table.OpenLCloner;
 
 /**
  * This cloner is based on assumption that hashCode() and equals() methods are cheaper than cloning huge objects.
@@ -20,10 +20,10 @@ import org.openl.rules.table.OpenLArgumentsCloner;
  * and show them to the user later. In this case we can safely reuse already cloned object in other method invocation if
  * it's not changed since that.
  */
-public class CachingArgumentsCloner extends OpenLArgumentsCloner {
-    private static ThreadLocal<CachingArgumentsCloner> instance = new ThreadLocal<>();
+public class CachingArgumentsCloner extends OpenLCloner {
+    private static final ThreadLocal<CachingArgumentsCloner> instance = new ThreadLocal<>();
 
-    private Map<Object, Object> cache = new HashMap<>();
+    private final Map<Object, Object> cache = new HashMap<>();
 
     private CachingArgumentsCloner() {
     }

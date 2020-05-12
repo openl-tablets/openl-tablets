@@ -30,6 +30,7 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.gen.ByteCodeGenerationException;
 import org.openl.gen.FieldDescription;
 import org.openl.gen.TypeDescription;
+import org.openl.gen.writers.DefaultValue;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
@@ -44,6 +45,7 @@ import org.openl.rules.lang.xls.types.meta.DatatypeTableMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.OpenLCloner;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.utils.ParserUtils;
 import org.openl.source.IOpenSourceCodeModule;
@@ -77,9 +79,11 @@ import org.slf4j.LoggerFactory;
  */
 public class DatatypeTableBoundNode implements IMemberBoundNode {
 
-    public static final String NON_TRANSIENT_FIELD_SUFFIX = "*";
-    public static final String TRANSIENT_FIELD_SUFFIX = "~";
+    private static final String NON_TRANSIENT_FIELD_SUFFIX = "*";
+    private static final String TRANSIENT_FIELD_SUFFIX = "~";
     private final Logger log = LoggerFactory.getLogger(DatatypeTableBoundNode.class);
+
+    private static OpenLCloner cloner = new OpenLCloner();
 
     private final TableSyntaxNode tableSyntaxNode;
     private final DatatypeOpenClass dataType;
@@ -636,7 +640,19 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         }
                     }
                 }
+                if (defaultValue != null && field instanceof TransientOpenField) {
+                    TransientOpenField transientOpenField = (TransientOpenField) field;
+                    if (DefaultValue.DEFAULT.equals(defaultValue)) {
+                        transientOpenField.getTransientFieldsValues()
+                            .setDefaultValueSupplier(() -> field.getType().newInstance(null));
+                    } else {
+                        final Object dfv = defaultValue;
+                        transientOpenField.getTransientFieldsValues()
+                            .setDefaultValueSupplier(() -> cloner.deepClone(dfv));
+                    }
+                }
             }
+
             if (fieldDescription == null && fieldDescriptionBuilder != null) {
                 fieldDescription = fieldDescriptionBuilder.build();
             }

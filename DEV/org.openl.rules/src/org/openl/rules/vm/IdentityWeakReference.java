@@ -8,7 +8,7 @@ class IdentityWeakReference<K> extends WeakReference<K> {
 
     IdentityWeakReference(K obj, ReferenceQueue<K> queue) {
         super(obj, queue);
-        hash = System.identityHashCode(obj);
+        this.hash = System.identityHashCode(obj);
     }
 
     public int hashCode() {

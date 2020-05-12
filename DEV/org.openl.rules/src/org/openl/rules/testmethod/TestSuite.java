@@ -4,7 +4,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 import org.openl.base.INamedThing;
-import org.openl.rules.table.OpenLArgumentsCloner;
+import org.openl.rules.table.OpenLCloner;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -15,7 +15,7 @@ public class TestSuite implements INamedThing {
     private TestSuiteMethod testSuiteMethod;
     private TestDescription[] tests;
     private TestRunner testRunner = new TestRunner(TestUnit.Builder.getInstance());
-    private OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
+    private OpenLCloner cloner = new OpenLCloner();
 
     public TestSuite(TestSuiteMethod testSuiteMethod) {
         this.testSuiteMethod = testSuiteMethod;
@@ -164,7 +164,7 @@ public class TestSuite implements INamedThing {
         }
     }
 
-    public OpenLArgumentsCloner getArgumentsCloner() {
+    public OpenLCloner getArgumentsCloner() {
         return cloner;
     }
 }

@@ -1,10 +1,12 @@
 package org.openl.rules.lang.xls.types;
 
-import org.openl.rules.vm.SimpleRulesRuntimeEnv;
+import org.openl.rules.vm.TransientFieldsValues;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 public class TransientOpenField extends ADatatypeOpenField {
+    private final TransientFieldsValues transientFieldsValues = new TransientFieldsValues();
+
     public TransientOpenField(IOpenClass declaringClass, String name, IOpenClass type, String contextProperty) {
         super(declaringClass, name, type, contextProperty);
     }
@@ -14,8 +16,12 @@ public class TransientOpenField extends ADatatypeOpenField {
         if (target == null) {
             return null;
         }
-        Object res = ((SimpleRulesRuntimeEnv) env).getTransientFieldValue(target, getName());
+        Object res = transientFieldsValues.getValue(target);
         return res != null ? res : getType().nullObject();
+    }
+
+    public TransientFieldsValues getTransientFieldsValues() {
+        return transientFieldsValues;
     }
 
     @Override
@@ -26,7 +32,7 @@ public class TransientOpenField extends ADatatypeOpenField {
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         if (target != null) {
-            ((SimpleRulesRuntimeEnv) env).setTransientFieldValue(target, getName(), value);
+            transientFieldsValues.setValue(target, value);
         }
     }
 

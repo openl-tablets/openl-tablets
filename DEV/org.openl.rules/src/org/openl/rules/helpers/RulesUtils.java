@@ -32,7 +32,7 @@ import org.openl.meta.BigDecimalValue;
 import org.openl.meta.BigIntegerValue;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.LongValue;
-import org.openl.rules.table.OpenLArgumentsCloner;
+import org.openl.rules.table.OpenLCloner;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.ArrayTool;
@@ -3667,6 +3667,6 @@ public final class RulesUtils {
             }
         }
         // FIXME: Needless memory consumption - no needs to create 'cloner' instance every time.
-        return new OpenLArgumentsCloner().deepClone(origin);
+        return new OpenLCloner().deepClone(origin);
     }
 }

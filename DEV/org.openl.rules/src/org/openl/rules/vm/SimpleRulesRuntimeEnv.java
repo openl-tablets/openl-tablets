@@ -1,15 +1,9 @@
 package org.openl.rules.vm;
 
-import java.lang.ref.ReferenceQueue;
 import java.util.ArrayDeque;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.RecursiveAction;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.runtime.IRuntimeContext;
@@ -23,9 +17,6 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
     private volatile boolean ignoreRecalculate = true;
     private volatile boolean originalCalculation = true;
     private ArgumentCachingStorage argumentCachingStorage;
-    private ReferenceQueue<Object> queue = new ReferenceQueue<>();
-    private Map<Object, Map<String, Object>> transientFieldValues = new HashMap<>();
-    private final ReadWriteLock transientFieldValuesLock = new ReentrantReadWriteLock();
 
     public SimpleRulesRuntimeEnv() {
         super();
@@ -38,8 +29,6 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
         this.cacheMode = env.cacheMode;
         this.ignoreRecalculate = env.ignoreRecalculate;
         this.originalCalculation = env.originalCalculation;
-        this.transientFieldValues = env.transientFieldValues;
-        this.queue = env.queue;
     }
 
     @Override
@@ -86,36 +75,6 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
 
     public void setOriginalCalculation(boolean originalCalculation) {
         this.originalCalculation = originalCalculation;
-    }
-
-    public Object getTransientFieldValue(Object instance, String fieldName) {
-        final Lock readLock = transientFieldValuesLock.readLock();
-        try {
-            readLock.lock();
-            Map<String, Object> values = transientFieldValues.get(new IdentityWeakReference<>(instance, queue));
-            return values != null ? values.get(fieldName) : null;
-        } finally {
-            readLock.unlock();
-        }
-    }
-
-    public void setTransientFieldValue(Object instance, String fieldName, Object value) {
-        if (value != null) {
-            final Lock writeLock = transientFieldValuesLock.writeLock();
-            try {
-                writeLock.lock();
-                Object zombie = queue.poll();
-                while (zombie != null) {
-                    transientFieldValues.remove(zombie);
-                    zombie = queue.poll();
-                }
-                Map<String, Object> values = transientFieldValues
-                    .computeIfAbsent(new IdentityWeakReference<>(instance, queue), e -> new HashMap<>());
-                values.put(fieldName, value);
-            } finally {
-                writeLock.unlock();
-            }
-        }
     }
 
     public ArgumentCachingStorage getArgumentCachingStorage() {
