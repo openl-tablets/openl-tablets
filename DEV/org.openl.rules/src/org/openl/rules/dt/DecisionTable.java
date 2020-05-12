@@ -275,4 +275,11 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         return actionRows.length;
     }
 
+    @Override
+    public void removeDebugInformation() {
+        super.removeDebugInformation();
+        if (algorithm != null) {
+            algorithm.cleanParamValuesForIndexedConditions();
+        }
+    }
 }

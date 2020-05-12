@@ -194,4 +194,14 @@ public class RunWebservicesITest {
         client.post("/REST/EPBDS-9665/EPBDS-9665/anotherSpr", "/EPBDS-9665/EPBDS-9665_anotherSpr.req.json", "/EPBDS-9665/EPBDS-9665_anotherSpr.resp.txt");
     }
 
+    @Test
+    public void EPBDS_9678() {
+        client.post("/REST/EPBDS-9678/EPBDS-9678/someRule", "/EPBDS-9678/EPBDS-9678_someRule.req.json", 404);
+        client.get("/admin/services/EPBDS-9678_EPBDS-9678/errors", "/EPBDS-9678/EPBDS-9678_comopilation_errors.json");
+
+        client.get("/admin/services/EPBDS-9678-project1/errors", "/EPBDS-9678/multi/EPBDS-9678-project1_compilation_validation_errors.json");
+        client.post("/EPBDS-9678-project2/someRule", "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.req.json", "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.resp.txt");
+        client.post("/EPBDS-9678-project2/test1", "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.req.json", "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.resp.txt");
+    }
+
 }

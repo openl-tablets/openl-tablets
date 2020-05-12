@@ -25,9 +25,8 @@ public class OpenLBuilder extends BaseOpenLBuilder {
         OpenL openl = new OpenL();
 
         openl.setParser(createParser());
-        openl.setBinder(new XlsBinder(getUserEnvironmentContext()));
+        openl.setBinder(new XlsBinder(new RulesCompileContext(), getUserEnvironmentContext()));
         openl.setVm(new XlsVM());
-        openl.setCompileContext(new RulesCompileContext());
 
         return openl;
     }

@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.openl.OpenL;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLWarnMessage;
@@ -34,10 +33,10 @@ public class UniquePropertyValueValidator extends TablesValidator {
     }
 
     @Override
-    public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
+    public ValidationResult validateTables(TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
 
         Collection<ExecutableRulesMethod> executableActiveMethods = selectActiveMethods(
-            OpenMethodDispatcherHelper.extractMethods(openClass));
+                OpenMethodDispatcherHelper.extractMethods(openClass));
 
         Map<Object, ExecutableRulesMethod> values = new HashMap<>();
         Collection<OpenLMessage> messages = new LinkedHashSet<>();

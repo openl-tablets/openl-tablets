@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.BindingDependencies;
+import org.openl.binding.IBindingContext;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -260,17 +261,6 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         return false;
     }
 
-    @Override
-    public void setBoundNode(ATableBoundNode node) {
-        if (node == null) {
-            // removeDebugInformation() is invoked.
-            // Initialize data needed to run tests before removing debug info
-            initializeTestData();
-        }
-
-        super.setBoundNode(node);
-    }
-
     public ITableModel getDataModel() {
         initializeTestData();
         return dataModel;
@@ -443,5 +433,12 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         } else {
             return CollectionType.ARRAY;
         }
+    }
+
+    @Override
+    public void removeDebugInformation() {
+        // Initialize data needed to run tests before removing debug info
+        initializeTestData();
+        super.removeDebugInformation();
     }
 }

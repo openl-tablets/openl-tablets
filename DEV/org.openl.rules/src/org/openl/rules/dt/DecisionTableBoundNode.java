@@ -4,7 +4,6 @@ import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
@@ -48,15 +47,6 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
     @Override
     public void updateDependency(BindingDependencies dependencies) {
         getDecisionTable().updateDependency(dependencies);
-    }
-
-    @Override
-    public void removeDebugInformation(IBindingContext cxt) throws Exception {
-        super.removeDebugInformation(cxt);
-        IDecisionTableAlgorithm algorithm = getDecisionTable().getAlgorithm();
-        if (algorithm != null) {
-            algorithm.cleanParamValuesForIndexedConditions();
-        }
     }
 
 }

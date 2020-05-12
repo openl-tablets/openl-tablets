@@ -113,7 +113,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected LazyEngineFactory<?> getEngineFactory() {
         Class<?> serviceClass = getServiceClass();
-        if (engineFactory == null || serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass)) {
+        if (engineFactory == null) {
             engineFactory = new LazyEngineFactory(getDeployment(),
                 getModules(),
                 getDependencyManager(),
@@ -141,4 +141,11 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
         return engineFactory;
     }
 
+    @Override
+    public void setServiceClass(Class<?> serviceClass) {
+        super.setServiceClass(serviceClass);
+        if (engineFactory != null) {
+            engineFactory.setInterfaceClass((Class) serviceClass);
+        }
+    }
 }
