@@ -15,7 +15,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class DatatypeOpenField extends AOpenField {
 
-    private IOpenClass declaringClass;
+    private final IOpenClass declaringClass;
     private volatile byte flag;
     private volatile Method getter;
     private volatile Method setter;

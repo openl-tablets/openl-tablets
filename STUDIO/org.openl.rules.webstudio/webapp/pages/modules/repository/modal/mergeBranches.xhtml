@@ -73,6 +73,7 @@
 
             <a4j:jsFunction name="renderMergeBranchesForm" render="@form" oncomplete="showMergeBranchesDialog()">
                 <a4j:param name="projectName" assignTo="#{branchesBean.initProject}"/>
+                <a4j:param name="editorMode" assignTo="#{branchesBean.editorMode}"/>
             </a4j:jsFunction>
 
             <a4j:jsFunction name="refreshRepositoryAfterMerge" render="projectTree nodeView" rendered="#{menu != 'rules'}">
@@ -86,7 +87,7 @@
         //<![CDATA[
 
         function openMergeBranchesDialog(projectName) {
-            renderMergeBranchesForm(projectName);
+            renderMergeBranchesForm(projectName, #{menu == 'rules'});
         }
 
         function showMergeBranchesDialog() {

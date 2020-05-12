@@ -77,11 +77,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     private final Logger log = LoggerFactory.getLogger(DatatypeTableBoundNode.class);
 
-    private TableSyntaxNode tableSyntaxNode;
-    private DatatypeOpenClass dataType;
-    private IdentifierNode parentClassIdentifier;
-    private String parentClassName;
-    private ModuleOpenClass moduleOpenClass;
+    private final TableSyntaxNode tableSyntaxNode;
+    private final DatatypeOpenClass dataType;
+    private final IdentifierNode parentClassIdentifier;
+    private final String parentClassName;
+    private final ModuleOpenClass moduleOpenClass;
 
     private DatatypeTableBoundNode parentDatatypeTableBoundNode;
     private boolean generated = false;
@@ -89,7 +89,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private boolean byteCodeReadyToLoad = false;
 
     private ILogicalTable table;
-    private OpenL openl;
+    private final OpenL openl;
 
     private Map<String, FieldDescription> fields;
 
@@ -800,8 +800,5 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     public void setParentDatatypeTableBoundNode(DatatypeTableBoundNode parentDatatypeTableBoundNode) {
         this.parentDatatypeTableBoundNode = parentDatatypeTableBoundNode;
-    }
-
-    public void setByteCodeReadyToLoad(boolean byteCodeReadyToLoad) {
     }
 }
