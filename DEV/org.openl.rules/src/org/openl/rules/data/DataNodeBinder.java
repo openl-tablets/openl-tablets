@@ -19,6 +19,7 @@ import java.util.Set;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
@@ -98,7 +99,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         String tableName = parsedHeader[TABLE_NAME_INDEX].getText();
         if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
             String message = "Data table " + tableName + NAME_ERROR_MESSAGE;
-            throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TABLE_NAME_INDEX]);
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TABLE_NAME_INDEX]));
         }
         IOpenClass tableType = RuleRowHelper.getType(typeName, parsedHeader[TYPE_INDEX], bindingContext);
 

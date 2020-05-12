@@ -9,6 +9,7 @@ import org.openl.binding.IMemberBoundNode;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.engine.OpenLManager;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.binding.RulesModuleBindingContext;
@@ -53,7 +54,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
         String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
         if (TableNameChecker.isInvalidJavaIdentifier(typeName)) {
             String message = "Datatype table " + typeName + TableNameChecker.NAME_ERROR_MESSAGE;
-            throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TYPE_INDEX]));
         }
 
         IOpenClass openClass = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
