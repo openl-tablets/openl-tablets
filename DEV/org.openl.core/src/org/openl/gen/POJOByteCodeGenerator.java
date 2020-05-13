@@ -37,10 +37,10 @@ public class POJOByteCodeGenerator {
 
     private final String beanNameWithPackage;
     private final TypeDescription parentType;
-    private Map<String, FieldDescription> fields;
-    private Map<String, FieldDescription> parentFields;
-    private List<BeanByteCodeWriter> writers;
-    private boolean publicFields;
+    private final Map<String, FieldDescription> fields;
+    private final Map<String, FieldDescription> parentFields;
+    private final List<BeanByteCodeWriter> writers;
+    private final boolean publicFields;
 
     /**
      *

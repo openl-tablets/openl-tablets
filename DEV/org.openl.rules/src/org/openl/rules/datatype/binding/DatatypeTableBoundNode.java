@@ -647,13 +647,14 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         }
                     }
                 }
-                if (defaultValue != null && field instanceof TransientOpenField) {
-                    TransientOpenField transientOpenField = (TransientOpenField) field;
-                    if (DefaultValue.DEFAULT.equals(defaultValue)) {
-                        transientOpenField.getTransientFieldsValues()
-                            .setDefaultValueSupplier(() -> field.getType().newInstance(null));
-                    } else {
-                        transientOpenField.getTransientFieldsValues().setDefaultValueSupplier(defaultValueSupplier);
+                if (field instanceof TransientOpenField) {
+                    if (defaultValue != null) {
+                        TransientOpenField transientOpenField = (TransientOpenField) field;
+                        if (DefaultValue.DEFAULT.equals(defaultValue)) {
+                            transientOpenField.getTransientFieldsValues().setDefaultValueSupplier(() -> field.getType().newInstance(null));
+                        } else {
+                            transientOpenField.getTransientFieldsValues().setDefaultValueSupplier(defaultValueSupplier);
+                        }
                     }
                 }
             }

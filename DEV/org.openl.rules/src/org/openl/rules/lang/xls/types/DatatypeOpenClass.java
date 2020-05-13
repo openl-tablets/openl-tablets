@@ -18,13 +18,14 @@ import java.util.Objects;
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.rules.lang.xls.XlsBinder;
+import org.openl.types.GetterOpenMethod;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
+import org.openl.types.SetterOpenMethod;
 import org.openl.types.impl.ADynamicClass;
-
 import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.impl.ParameterDeclaration;
@@ -152,6 +153,7 @@ public class DatatypeOpenClass extends ADynamicClass {
     public void addField(IOpenField field) throws DuplicatedFieldException {
         this.fields = null;
         super.addField(field);
+        invalidateInternalData();
     }
 
     @Override
@@ -250,6 +252,17 @@ public class DatatypeOpenClass extends ADynamicClass {
                 methodMap.put(new MethodKey(m1), m1);
             } else {
                 methodMap.put(m.getKey(), m.getValue());
+            }
+        }
+
+        for (IOpenField field : getFields()) {
+            if (field.isReadable() && !field.isConst() && !field.isStatic()) {
+                GetterOpenMethod getterOpenMethod = new GetterOpenMethod(field);
+                methodMap.putIfAbsent(new MethodKey(getterOpenMethod), getterOpenMethod);
+            }
+            if (field.isWritable() && !field.isConst() && !field.isStatic()) {
+                SetterOpenMethod setterOpenMethod = new SetterOpenMethod(field);
+                methodMap.putIfAbsent(new MethodKey(setterOpenMethod), setterOpenMethod);
             }
         }
 
