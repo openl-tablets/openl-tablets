@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -576,9 +577,12 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             if (row.getWidth() > 2) {
                 String defaultValueCode = getDefaultValueCode(row, bindingContext);
                 Object defaultValue = defaultValueCode;
+                Supplier<Object> defaultValueSupplier = null;
                 ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, defaultValueCode);
                 if (constantOpenField != null) {
                     defaultValue = constantOpenField.getValue();
+                    final Object dfv = defaultValue;
+                    defaultValueSupplier = () -> dfv;
                     if (fieldDescriptionBuilder != null) {
                         fieldDescriptionBuilder.setDefaultValue(defaultValue);
                         fieldDescriptionBuilder.setDefaultValueAsString(constantOpenField.getValueAsString());
@@ -593,6 +597,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         }
                     }
                 } else {
+                    defaultValueSupplier = () -> defaultValueCode;
                     if (fieldDescriptionBuilder != null) {
                         fieldDescriptionBuilder.setDefaultValueAsString(defaultValueCode);
                     }
@@ -603,6 +608,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                             if (defaultValue != null && fieldDescriptionBuilder != null) {
                                 fieldDescriptionBuilder.setDefaultValue(defaultValue);
                             }
+                            final Object dfv = defaultValue;
+                            defaultValueSupplier = () -> cloner.deepClone(dfv);
                         }
                     }
                 }
@@ -646,9 +653,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         transientOpenField.getTransientFieldsValues()
                             .setDefaultValueSupplier(() -> field.getType().newInstance(null));
                     } else {
-                        final Object dfv = defaultValue;
-                        transientOpenField.getTransientFieldsValues()
-                            .setDefaultValueSupplier(() -> cloner.deepClone(dfv));
+                        transientOpenField.getTransientFieldsValues().setDefaultValueSupplier(defaultValueSupplier);
                     }
                 }
             }
