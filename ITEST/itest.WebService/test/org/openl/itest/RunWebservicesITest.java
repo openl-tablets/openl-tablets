@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
@@ -64,6 +65,14 @@ public class RunWebservicesITest {
     }
 
     @Test
+    @Ignore("EPBDS-9728 Ignored because of unstable WSDL schema generation for ArrayOfAnyType.")
+    /**
+     * NOTE
+     * The result of {@link org.apache.cxf.aegis.type.collection.CollectionType#getComponentType()#isNillable()}always
+     * {@code true}. But it's {@code false} for {@link org.apache.cxf.aegis.type.basic.ArrayType#getComponentType()}.</br>
+     * It may give a different result that depends on position of it in
+     * {@link org.apache.cxf.aegis.databinding.AegisDatabinding#createSchemas(...)} in local HashMap {@code tns2Type}.
+     */
     public void testWSDLSchemaSimple3() {
         client.get("/deployment3/simple3?wsdl", "/simple3_wsdl.resp.xml");
     }
