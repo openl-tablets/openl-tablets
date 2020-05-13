@@ -281,6 +281,10 @@ public class DatatypeOpenClass extends ADynamicClass {
                 constructorMap.put(new MethodKey(wrapped), wrapped);
             }
         }
+        final DatatypeAllFieldsConstructorOpenMethod datatypeAllFieldsConstructorOpenMethod = new DatatypeAllFieldsConstructorOpenMethod(
+            this);
+        constructorMap.putIfAbsent(new MethodKey(datatypeAllFieldsConstructorOpenMethod),
+            datatypeAllFieldsConstructorOpenMethod);
         return constructorMap;
     }
 
