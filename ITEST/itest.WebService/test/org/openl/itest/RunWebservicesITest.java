@@ -213,4 +213,9 @@ public class RunWebservicesITest {
         client.post("/EPBDS-9678-project2/test1", "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.req.json", "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.resp.txt");
     }
 
+    @Test
+    public void EPBDS_9764() {
+        client.get("/REST/EPBDS-9764/EPBDS-9764/swagger.json", "/EPBDS-9764/EPBDS-9764_swagger.resp.json");
+        client.get("/REST/EPBDS-9764/EPBDS-9764/openapi.json", "/EPBDS-9764/EPBDS-9764_openapi.resp.json");
+    }
 }
