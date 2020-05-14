@@ -68,8 +68,10 @@ public class DatatypeAllFieldsConstructorOpenMethod implements IOpenMethod, IMet
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         final Object newTarget = datatypeOpenClass.newInstance(env);
-        for (Object param : params) {
-            datatypeOpenClass.getFields().forEach(e -> e.set(newTarget, param, env));
+        int i = 0;
+        for (IOpenField field : datatypeOpenClass.getFields()) {
+            field.set(newTarget, params[i], env);
+            i++;
         }
         return newTarget;
     }
