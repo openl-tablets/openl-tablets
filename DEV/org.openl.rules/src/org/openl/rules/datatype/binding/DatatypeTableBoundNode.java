@@ -15,6 +15,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -304,7 +306,18 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             String fieldName = fieldEntry.getKey();
             FieldDescription fieldDescription = fieldEntry.getValue();
             try {
-                datatypeClass.getDeclaredField(fieldName);
+                Field field = datatypeClass.getDeclaredField(fieldName);
+                if (fieldDescription.isTransient() != Modifier.isTransient(field.getModifiers()) || fieldDescription
+                    .isTransient() && !field.isAnnotationPresent(XmlTransient.class)) {
+                    String errorMessage = String.format(
+                        "Field '%s' is " + (fieldDescription
+                            .isTransient() ? "not "
+                                           : "") + "transient in class '%s'. Please, regenerate datatype classes.",
+                        fieldName,
+                        datatypeClassName);
+                    syntaxNodeExceptionCollector
+                        .addSyntaxNodeException(SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode));
+                }
             } catch (NoSuchFieldException e) {
                 String errorMessage = String.format(
                     "Field '%s' is not found in class '%s'. Please, regenerate datatype classes.",
@@ -312,7 +325,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     datatypeClassName);
                 syntaxNodeExceptionCollector
                     .addSyntaxNodeException(SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode));
-
             }
 
             String name = ClassUtils.capitalize(fieldName); // According to JavaBeans v1.01
