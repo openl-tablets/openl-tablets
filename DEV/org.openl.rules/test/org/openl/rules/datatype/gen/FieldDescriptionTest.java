@@ -81,7 +81,7 @@ public class FieldDescriptionTest {
 
         // Create the field that belongs to the policy and contains drivers
         //
-        DatatypeOpenField driversField = new DatatypeOpenField(policyClass, "drivers", driversClass, null);
+        DatatypeOpenField driversField = new DatatypeOpenField(policyClass, "drivers", driversClass, null, false);
 
         FieldDescription field = new FieldDescription(driversField.getType().getInstanceClass().getName());
         assertEquals(Driver[].class.getName(), field.getTypeName());

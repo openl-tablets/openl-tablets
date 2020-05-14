@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.openl.types.IOpenClass;
+import org.openl.types.impl.AOpenField;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
@@ -13,14 +14,39 @@ import org.openl.vm.IRuntimeEnv;
  *
  * @author Yury Molchan
  */
-public class DatatypeOpenField extends ADatatypeOpenField {
+public class DatatypeOpenField extends AOpenField {
 
     private volatile byte flag;
     private volatile Method getter;
     private volatile Method setter;
+    private final boolean isTransient;
+    private final IOpenClass declaringClass;
+    private final String contextProperty;
 
-    public DatatypeOpenField(IOpenClass declaringClass, String name, IOpenClass type, String contextProperty) {
-        super(declaringClass, name, type, contextProperty);
+    public DatatypeOpenField(IOpenClass declaringClass,
+            String name,
+            IOpenClass type,
+            String contextProperty,
+            boolean isTransient) {
+        super(name, type);
+        this.declaringClass = declaringClass;
+        this.contextProperty = contextProperty;
+        this.isTransient = isTransient;
+    }
+
+    @Override
+    public IOpenClass getDeclaringClass() {
+        return declaringClass;
+    }
+
+    @Override
+    public boolean isContextProperty() {
+        return contextProperty != null;
+    }
+
+    @Override
+    public String getContextProperty() {
+        return contextProperty;
     }
 
     private void initMethods() {
@@ -76,6 +102,11 @@ public class DatatypeOpenField extends ADatatypeOpenField {
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public boolean isTransient() {
+        return isTransient;
     }
 
     @Override

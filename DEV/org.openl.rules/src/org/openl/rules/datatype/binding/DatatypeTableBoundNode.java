@@ -13,7 +13,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -30,7 +29,6 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.gen.ByteCodeGenerationException;
 import org.openl.gen.FieldDescription;
 import org.openl.gen.TypeDescription;
-import org.openl.gen.writers.DefaultValue;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
@@ -39,13 +37,11 @@ import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenField;
-import org.openl.rules.lang.xls.types.TransientOpenField;
 import org.openl.rules.lang.xls.types.meta.BaseMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.DatatypeTableMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.OpenLCloner;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.utils.ParserUtils;
 import org.openl.source.IOpenSourceCodeModule;
@@ -82,8 +78,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private static final String NON_TRANSIENT_FIELD_SUFFIX = "*";
     private static final String TRANSIENT_FIELD_SUFFIX = "~";
     private final Logger log = LoggerFactory.getLogger(DatatypeTableBoundNode.class);
-
-    private static final OpenLCloner cloner = new OpenLCloner();
 
     private final TableSyntaxNode tableSyntaxNode;
     private final DatatypeOpenClass dataType;
@@ -227,6 +221,20 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return true;
     }
 
+    private static void extractParentFields(DatatypeTableBoundNode datatypeTableBoundNode,
+            LinkedHashMap<String, FieldDescription> parentFields) {
+        if (datatypeTableBoundNode.parentDatatypeTableBoundNode != null) {
+            extractParentFields(datatypeTableBoundNode.parentDatatypeTableBoundNode, parentFields);
+            parentFields.putAll(datatypeTableBoundNode.parentDatatypeTableBoundNode.getFields());
+        } else {
+            if (datatypeTableBoundNode.dataType.getSuperClass() != null) {
+                for (IOpenField field : datatypeTableBoundNode.dataType.getSuperClass().getFields()) {
+                    parentFields.put(field.getName(), new FieldDescription(field.getType().getJavaName()));
+                }
+            }
+        }
+    }
+
     /**
      * Generate a simple java bean for current datatype table.
      *
@@ -240,15 +248,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         if (superOpenClass != null) {
             beanBuilder.setParentType(new TypeDescription(superOpenClass.getJavaName()));
             if (superOpenClass instanceof DatatypeOpenClass) {
-                Map<String, FieldDescription> parentFields;
-                if (parentDatatypeTableBoundNode != null) {
-                    parentFields = parentDatatypeTableBoundNode.getFields();
-                } else {
-                    parentFields = new LinkedHashMap<>();
-                    for (IOpenField field : superOpenClass.getFields()) {
-                        parentFields.put(field.getName(), new FieldDescription(field.getType().getJavaName()));
-                    }
-                }
+                LinkedHashMap<String, FieldDescription> parentFields = new LinkedHashMap<>();
+                extractParentFields(this, parentFields);
                 for (Entry<String, FieldDescription> field : parentFields.entrySet()) {
                     beanBuilder.addParentField(field.getKey(), field.getValue());
                 }
@@ -509,39 +510,34 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 .endsWith(TRANSIENT_FIELD_SUFFIX) : !fieldNameCellParsed.getLeft().endsWith(NON_TRANSIENT_FIELD_SUFFIX);
             final String fieldName = extractFieldName(fieldNameCellParsed.getLeft());
             final IOpenClass fieldType = getFieldType(bindingContext, row, rowSrc);
-            FieldDescriptionBuilder fieldDescriptionBuilder = null;
+            FieldDescriptionBuilder fieldDescriptionBuilder;
             final String contextPropertyName = fieldNameCellParsed.getValue();
             validateContextPropertyName(row, contextPropertyName, fieldType, bindingContext);
-            IOpenField field;
-            if (isTransient) {
-                field = new TransientOpenField(dataType, fieldName, fieldType, contextPropertyName);
-            } else {
-                field = new DatatypeOpenField(dataType, fieldName, fieldType, contextPropertyName);
-            }
+            IOpenField field = new DatatypeOpenField(dataType, fieldName, fieldType, contextPropertyName, isTransient);
             try {
-                if (!isTransient) {
-                    if (fields.containsKey(fieldName)) {
-                        throw SyntaxNodeExceptionUtils.createError(String.format("Field '%s' has already been defined.",
-                            fieldName), null, null, getCellSource(row, bindingContext, 1));
-                    }
-                    if (fields.containsKey(ClassUtils.decapitalize(fieldName)) || fields
-                        .containsKey(ClassUtils.capitalize(fieldName))) {
-                        String f = null;
-                        if (fields.containsKey(ClassUtils.decapitalize(fieldName))) {
-                            f = ClassUtils.decapitalize(fieldName);
-                        }
-                        if (fields.containsKey(ClassUtils.capitalize(fieldName))) {
-                            f = ClassUtils.capitalize(fieldName);
-                        }
-                        throw SyntaxNodeExceptionUtils.createError(
-                            String.format("Field '%s' conflicts with '%s' field.", fieldName, f),
-                            null,
-                            null,
-                            getCellSource(row, bindingContext, 1));
-                    }
-                    fieldDescriptionBuilder = FieldDescriptionBuilder.create(field.getType().getJavaName());
-                    fieldDescriptionBuilder.setContextPropertyName(contextPropertyName);
+                if (fields.containsKey(fieldName)) {
+                    throw SyntaxNodeExceptionUtils.createError(String.format("Field '%s' has already been defined.",
+                        fieldName), null, null, getCellSource(row, bindingContext, 1));
                 }
+                if (fields.containsKey(ClassUtils.decapitalize(fieldName)) || fields
+                    .containsKey(ClassUtils.capitalize(fieldName))) {
+                    String f = null;
+                    if (fields.containsKey(ClassUtils.decapitalize(fieldName))) {
+                        f = ClassUtils.decapitalize(fieldName);
+                    }
+                    if (fields.containsKey(ClassUtils.capitalize(fieldName))) {
+                        f = ClassUtils.capitalize(fieldName);
+                    }
+                    throw SyntaxNodeExceptionUtils.createError(
+                        String.format("Field '%s' conflicts with '%s' field.", fieldName, f),
+                        null,
+                        null,
+                        getCellSource(row, bindingContext, 1));
+                }
+                fieldDescriptionBuilder = FieldDescriptionBuilder.create(field.getType().getJavaName())
+                    .setTransient(isTransient)
+                    .setContextPropertyName(contextPropertyName);
+
                 dataType.addField(field);
                 dataType.getFields();
                 if (firstRow) {
@@ -566,24 +562,17 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     .createError(t.getMessage(), t, null, getCellSource(row, bindingContext, 1));
             }
 
-            if (fieldDescriptionBuilder != null) {
-                fieldDescriptionBuilder.setContextPropertyName(contextPropertyName);
-            }
+            fieldDescriptionBuilder.setContextPropertyName(contextPropertyName);
 
             FieldDescription fieldDescription = null;
             if (row.getWidth() > 2) {
                 String defaultValueCode = getDefaultValueCode(row, bindingContext);
                 Object defaultValue = defaultValueCode;
-                Supplier<Object> defaultValueSupplier;
                 ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, defaultValueCode);
                 if (constantOpenField != null) {
                     defaultValue = constantOpenField.getValue();
-                    final Object dfv = defaultValue;
-                    defaultValueSupplier = () -> dfv;
-                    if (fieldDescriptionBuilder != null) {
-                        fieldDescriptionBuilder.setDefaultValue(defaultValue);
-                        fieldDescriptionBuilder.setDefaultValueAsString(constantOpenField.getValueAsString());
-                    }
+                    fieldDescriptionBuilder.setDefaultValue(defaultValue);
+                    fieldDescriptionBuilder.setDefaultValueAsString(constantOpenField.getValueAsString());
                     if (!bindingContext.isExecutionMode()) {
                         ICell cell = getCellSource(row, bindingContext, 2).getCell();
                         MetaInfoReader metaInfoReader = tableSyntaxNode.getMetaInfoReader();
@@ -594,70 +583,50 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         }
                     }
                 } else {
-                    defaultValueSupplier = () -> defaultValueCode;
-                    if (fieldDescriptionBuilder != null) {
-                        fieldDescriptionBuilder.setDefaultValueAsString(defaultValueCode);
-                    }
+                    fieldDescriptionBuilder.setDefaultValueAsString(defaultValueCode);
                     if (String.class != fieldType.getInstanceClass()) {
                         ICell theCellValue = row.getColumn(2).getCell(0, 0);
                         if (theCellValue.hasNativeType()) {
                             defaultValue = RuleRowHelper.loadNativeValue(theCellValue, fieldType);
-                            if (defaultValue != null && fieldDescriptionBuilder != null) {
+                            if (defaultValue != null) {
                                 fieldDescriptionBuilder.setDefaultValue(defaultValue);
                             }
-                            final Object dfv = defaultValue;
-                            defaultValueSupplier = () -> cloner.deepClone(dfv);
                         }
                     }
                 }
-                if (fieldDescriptionBuilder != null) {
-                    try {
-                        fieldDescription = fieldDescriptionBuilder.build();
-                    } catch (RuntimeException e) {
-                        String message = String.format("Cannot parse cell value '%s'", defaultValueCode);
-                        IOpenSourceCodeModule cellSourceCodeModule = getCellSource(row, bindingContext, 2);
-                        if (e instanceof CompositeSyntaxNodeException) {
-                            CompositeSyntaxNodeException exception = (CompositeSyntaxNodeException) e;
-                            if (exception.getErrors() != null && exception.getErrors().length == 1) {
-                                SyntaxNodeException syntaxNodeException = exception.getErrors()[0];
-                                throw SyntaxNodeExceptionUtils.createError(message,
-                                    null,
-                                    syntaxNodeException.getLocation(),
-                                    cellSourceCodeModule);
-                            }
-                            throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
-                        } else {
-                            TextInterval location = defaultValueCode == null ? null
-                                                                             : LocationUtils
-                                                                                 .createTextInterval(defaultValueCode);
-                            throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
-                        }
-                    }
-                    if (defaultValue != null && !(fieldDescription.hasDefaultKeyWord() && fieldDescription.isArray())) {
-                        // Validate not null default value
-                        // The null value is allowed for alias types
-                        try {
-                            RuleRowHelper.validateValue(defaultValue, fieldType);
-                        } catch (Exception e) {
+                try {
+                    fieldDescription = fieldDescriptionBuilder.build();
+                } catch (RuntimeException e) {
+                    String message = String.format("Cannot parse cell value '%s'", defaultValueCode);
+                    IOpenSourceCodeModule cellSourceCodeModule = getCellSource(row, bindingContext, 2);
+                    if (e instanceof CompositeSyntaxNodeException) {
+                        CompositeSyntaxNodeException exception = (CompositeSyntaxNodeException) e;
+                        if (exception.getErrors() != null && exception.getErrors().length == 1) {
+                            SyntaxNodeException syntaxNodeException = exception.getErrors()[0];
                             throw SyntaxNodeExceptionUtils
-                                .createError(e.getMessage(), e, null, getCellSource(row, bindingContext, 2));
+                                .createError(message, null, syntaxNodeException.getLocation(), cellSourceCodeModule);
                         }
+                        throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
+                    } else {
+                        TextInterval location = defaultValueCode == null ? null
+                                                                         : LocationUtils
+                                                                             .createTextInterval(defaultValueCode);
+                        throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
                     }
                 }
-                if (field instanceof TransientOpenField) {
-                    if (defaultValue != null) {
-                        TransientOpenField transientOpenField = (TransientOpenField) field;
-                        if (DefaultValue.DEFAULT.equals(defaultValue)) {
-                            transientOpenField.getTransientFieldsValues()
-                                .setDefaultValueSupplier(() -> field.getType().newInstance(null));
-                        } else {
-                            transientOpenField.getTransientFieldsValues().setDefaultValueSupplier(defaultValueSupplier);
-                        }
+                if (defaultValue != null && !(fieldDescription.hasDefaultKeyWord() && fieldDescription.isArray())) {
+                    // Validate not null default value
+                    // The null value is allowed for alias types
+                    try {
+                        RuleRowHelper.validateValue(defaultValue, fieldType);
+                    } catch (Exception e) {
+                        throw SyntaxNodeExceptionUtils
+                            .createError(e.getMessage(), e, null, getCellSource(row, bindingContext, 2));
                     }
                 }
             }
 
-            if (fieldDescription == null && fieldDescriptionBuilder != null) {
+            if (fieldDescription == null) {
                 fieldDescription = fieldDescriptionBuilder.build();
             }
             if (fieldDescription != null) {

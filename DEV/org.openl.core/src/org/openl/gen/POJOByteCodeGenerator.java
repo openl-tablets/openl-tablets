@@ -123,10 +123,14 @@ public class POJOByteCodeGenerator {
         av.visit("name", name);
         AnnotationVisitor av1 = av.visitArray("propOrder");
         for (Entry<String, FieldDescription> e : parentFields.entrySet()) {
-            av1.visit(null, e.getKey());
+            if (!e.getValue().isTransient()) {
+                av1.visit(null, e.getKey());
+            }
         }
         for (Entry<String, FieldDescription> e : fields.entrySet()) {
-            av1.visit(null, e.getKey());
+            if (!e.getValue().isTransient()) {
+                av1.visit(null, e.getKey());
+            }
         }
         av1.visitEnd();
         av.visitEnd();
@@ -170,18 +174,20 @@ public class POJOByteCodeGenerator {
         } catch (Exception ignored) {
         }
         av.visitEnd();
+
+        if (field.isTransient()) {
+            fieldVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlTransient;", true).visitEnd();
+        }
     }
 
     private void visitFields(ClassWriter classWriter) {
         for (Map.Entry<String, FieldDescription> field : fields.entrySet()) {
             String fieldTypeName = field.getValue().getTypeDescriptor();
-            FieldVisitor fieldVisitor = classWriter
-                .visitField(publicFields ? Opcodes.ACC_PUBLIC
-                                         : Opcodes.ACC_PROTECTED,
-                    field.getKey(),
-                    fieldTypeName,
-                    null,
-                    null);
+            int acc = (publicFields ? Opcodes.ACC_PUBLIC
+                                    : Opcodes.ACC_PROTECTED) | (field.getValue().isTransient() ? Opcodes.ACC_TRANSIENT
+                                                                                               : 0);
+            FieldVisitor fieldVisitor = classWriter.visitField(acc, field.getKey(), fieldTypeName, null, null);
+
             if (field.getValue().isContextProperty()) {
                 visitOpenLContextAnnotation(field.getValue().getContextPropertyName(), fieldVisitor);
             }
