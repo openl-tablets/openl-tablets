@@ -16,7 +16,6 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -84,7 +83,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private static final String TRANSIENT_FIELD_SUFFIX = "~";
     private final Logger log = LoggerFactory.getLogger(DatatypeTableBoundNode.class);
 
-    private static OpenLCloner cloner = new OpenLCloner();
+    private static final OpenLCloner cloner = new OpenLCloner();
 
     private final TableSyntaxNode tableSyntaxNode;
     private final DatatypeOpenClass dataType;
@@ -177,12 +176,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 break;
             }
         }
-        MutableBoolean firstNonTransientField = new MutableBoolean(true);
         for (int i = 0; i < tableHeight; i++) {
             final int index = i;
             final boolean withTransientSuffix = useTransientSuffix;
-            syntaxNodeExceptionCollector.run(() -> processRow(dataTable
-                .getRow(index), bindingContext, fields, firstNonTransientField, withTransientSuffix));
+            syntaxNodeExceptionCollector.run(
+                () -> processRow(dataTable.getRow(index), bindingContext, fields, index == 0, withTransientSuffix));
         }
 
         syntaxNodeExceptionCollector.run(() -> checkInheritedFieldsDuplication(bindingContext));
@@ -502,7 +500,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private void processRow(ILogicalTable row,
             IBindingContext bindingContext,
             Map<String, FieldDescription> fields,
-            MutableBoolean firstNonTransientField,
+            boolean firstRow,
             boolean useTransientSuffix) throws OpenLCompilationException {
         GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), bindingContext);
         if (canProcessRow(rowSrc)) {
@@ -546,7 +544,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 }
                 dataType.addField(field);
                 dataType.getFields();
-                if (firstNonTransientField.booleanValue()) {
+                if (firstRow) {
                     // This is done for operations like people["john"] in OpenL
                     // rules to access one instance of datatype from array by
                     // user defined index.
@@ -560,7 +558,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     // aggregateType, IOpenClass indexType)
                     // and DatatypeArrayTest
                     dataType.setIndexField(field);
-                    firstNonTransientField.setValue(false);
                 }
             } catch (SyntaxNodeException e) {
                 throw e;
@@ -577,7 +574,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             if (row.getWidth() > 2) {
                 String defaultValueCode = getDefaultValueCode(row, bindingContext);
                 Object defaultValue = defaultValueCode;
-                Supplier<Object> defaultValueSupplier = null;
+                Supplier<Object> defaultValueSupplier;
                 ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, defaultValueCode);
                 if (constantOpenField != null) {
                     defaultValue = constantOpenField.getValue();
@@ -651,7 +648,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     if (defaultValue != null) {
                         TransientOpenField transientOpenField = (TransientOpenField) field;
                         if (DefaultValue.DEFAULT.equals(defaultValue)) {
-                            transientOpenField.getTransientFieldsValues().setDefaultValueSupplier(() -> field.getType().newInstance(null));
+                            transientOpenField.getTransientFieldsValues()
+                                .setDefaultValueSupplier(() -> field.getType().newInstance(null));
                         } else {
                             transientOpenField.getTransientFieldsValues().setDefaultValueSupplier(defaultValueSupplier);
                         }
