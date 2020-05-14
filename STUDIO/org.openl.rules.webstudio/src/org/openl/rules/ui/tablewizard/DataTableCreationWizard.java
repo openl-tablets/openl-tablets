@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.application.FacesMessage;
+import javax.validation.GroupSequence;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
@@ -21,6 +22,8 @@ import org.openl.rules.table.xls.builder.DataTableField;
 import org.openl.rules.table.xls.builder.DataTablePredefinedTypeVariable;
 import org.openl.rules.table.xls.builder.DataTableUserDefinedTypeField;
 import org.openl.rules.table.xls.builder.TableBuilder;
+import org.openl.rules.ui.validation.StringPresentedGroup;
+import org.openl.rules.ui.validation.StringValidGroup;
 import org.openl.rules.ui.validation.TableNameConstraint;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
@@ -29,14 +32,15 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@GroupSequence({ DataTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class })
 public class DataTableCreationWizard extends TableCreationWizard {
     private final Logger log = LoggerFactory.getLogger(DataTableCreationWizard.class);
 
     @NotBlank(message = "Cannot be empty")
     private String tableType;
 
-    @NotBlank(message = "Cannot be empty")
-    @TableNameConstraint
+    @NotBlank(message = "Cannot be empty", groups = StringPresentedGroup.class)
+    @TableNameConstraint(groups = StringValidGroup.class)
     private String tableName;
     private IOpenClass tableOpenClass;
     private DataTableTree tree = new DataTableTree();

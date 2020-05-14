@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.GroupSequence;
+
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -34,6 +36,8 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.PropertiesBean;
 import org.openl.rules.ui.tablewizard.TableCreationWizard;
+import org.openl.rules.ui.validation.StringPresentedGroup;
+import org.openl.rules.ui.validation.StringValidGroup;
 import org.openl.rules.ui.validation.TableNameConstraint;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -48,6 +52,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Andrei Astrouski.
  */
+@GroupSequence({ TableCopier.class, StringPresentedGroup.class, StringValidGroup.class })
 public class TableCopier extends TableCreationWizard {
 
     private final Logger log = LoggerFactory.getLogger(TableCopier.class);
@@ -59,8 +64,8 @@ public class TableCopier extends TableCreationWizard {
     /**
      * Table technical name
      */
-    @NotBlank(message = "Cannot be empty")
-    @TableNameConstraint
+    @NotBlank(message = "Cannot be empty", groups = StringPresentedGroup.class)
+    @TableNameConstraint(groups = StringValidGroup.class)
     private String tableTechnicalName;
 
     /**

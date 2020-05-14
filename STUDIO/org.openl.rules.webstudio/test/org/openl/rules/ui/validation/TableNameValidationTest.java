@@ -22,6 +22,7 @@ public class TableNameValidationTest {
         assertFalse(validator.isValid("666", null));
         assertFalse(validator.isValid(null, null));
         assertFalse(validator.isValid("", null));
+        assertFalse(validator.isValid("    abc", null));
         assertFalse(validator.isValid("aB/c", null));
         assertFalse(validator.isValid("aB?c", null));
         assertFalse(validator.isValid("aB()", null));

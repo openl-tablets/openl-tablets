@@ -12,6 +12,7 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
 import javax.faces.validator.ValidatorException;
+import javax.validation.GroupSequence;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -25,6 +26,8 @@ import org.openl.rules.table.xls.builder.SimpleRulesTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.ui.tablewizard.util.CellStyleManager;
 import org.openl.rules.ui.tablewizard.util.JSONHolder;
+import org.openl.rules.ui.validation.StringPresentedGroup;
+import org.openl.rules.ui.validation.StringValidGroup;
 import org.openl.rules.ui.validation.TableNameConstraint;
 import org.openl.rules.utils.TableNameChecker;
 import org.openl.util.StringUtils;
@@ -32,14 +35,15 @@ import org.richfaces.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@GroupSequence({ SimpleRulesCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class })
 public class SimpleRulesCreationWizard extends TableCreationWizard {
     private static final String TABLE_TYPE = "xls.dt";
     private static final String RESTORE_TABLE_FUNCTION = "tableModel.restoreTableFromJSONString";
 
     private final Logger log = LoggerFactory.getLogger(SimpleRulesCreationWizard.class);
 
-    @NotBlank(message = "Cannot be empty")
-    @TableNameConstraint
+    @NotBlank(message = "Cannot be empty", groups = StringPresentedGroup.class)
+    @TableNameConstraint(groups = StringValidGroup.class)
     private String tableName;
     private List<String> domainTypes;
     private String jsonTable;
@@ -425,7 +429,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     }
 
     private void checkParameterName(String name) {
-        if (StringUtils.isEmpty(name)) {
+        if (StringUtils.isBlank(name)) {
             throw new ValidatorException(new FacesMessage("Cannot be empty"));
         }
 

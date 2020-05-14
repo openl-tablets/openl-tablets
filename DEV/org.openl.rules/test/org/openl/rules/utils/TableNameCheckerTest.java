@@ -40,7 +40,7 @@ public class TableNameCheckerTest {
     }
 
     @Test
-    public void testNonLatinSymbols(){
+    public void testNonLatinSymbols() {
         assertFalse(TableNameChecker.isInvalidJavaIdentifier("мояПеременная"));
         assertFalse(TableNameChecker.isInvalidJavaIdentifier("мойМетод"));
 
@@ -52,6 +52,11 @@ public class TableNameCheckerTest {
     public void testNullAndEmptyString() {
         assertTrue(TableNameChecker.isInvalidJavaIdentifier(null));
         assertTrue(TableNameChecker.isInvalidJavaIdentifier(""));
+    }
+
+    @Test
+    public void emptyCharacters() {
+        TableNameChecker.isValidJavaIdentifier("       af");
     }
 
 }

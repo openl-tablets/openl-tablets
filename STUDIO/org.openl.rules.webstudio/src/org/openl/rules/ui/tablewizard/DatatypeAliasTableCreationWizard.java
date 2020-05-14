@@ -8,6 +8,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
+import javax.validation.GroupSequence;
 import javax.validation.Valid;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -16,16 +17,19 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DatatypeAliasTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
+import org.openl.rules.ui.validation.StringPresentedGroup;
+import org.openl.rules.ui.validation.StringValidGroup;
 import org.openl.rules.ui.validation.TableNameConstraint;
 import org.openl.util.StringUtils;
 
 /**
  * @author Andrei Astrouski
  */
+@GroupSequence({ DatatypeAliasTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class })
 public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
 
-    @NotBlank(message = "Cannot be empty")
-    @TableNameConstraint
+    @NotBlank(message = "Cannot be empty", groups = StringPresentedGroup.class)
+    @TableNameConstraint(groups = StringValidGroup.class)
     private String technicalName;
 
     private String aliasType;
