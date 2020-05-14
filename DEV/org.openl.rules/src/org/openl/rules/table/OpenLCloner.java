@@ -23,7 +23,7 @@ import org.openl.meta.ShortValue;
 import org.openl.meta.StringValue;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.vm.TransientFieldsValues;
+import org.openl.rules.lang.xls.types.TransientFieldsValues;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.slf4j.Logger;

@@ -1,4 +1,4 @@
-package org.openl.rules.vm;
+package org.openl.rules.lang.xls.types;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;

@@ -1,6 +1,5 @@
 package org.openl.rules.lang.xls.types;
 
-import org.openl.rules.vm.TransientFieldsValues;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
