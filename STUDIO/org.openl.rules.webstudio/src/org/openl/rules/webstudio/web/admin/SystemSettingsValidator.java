@@ -81,6 +81,9 @@ public class SystemSettingsValidator {
     }
 
     private boolean outOfRangeInteger(String value) {
+        if (StringUtils.isBlank(value)) {
+            return false;
+        }
         BigInteger enteredValue = new BigInteger(value);
         BigInteger maxInt = BigInteger.valueOf(Integer.MAX_VALUE);
         return enteredValue.compareTo(maxInt) > 0;
