@@ -217,5 +217,11 @@ public class RunWebservicesITest {
     public void EPBDS_9764() {
         client.get("/REST/EPBDS-9764/EPBDS-9764/swagger.json", "/EPBDS-9764/EPBDS-9764_swagger.resp.json");
         client.get("/REST/EPBDS-9764/EPBDS-9764/openapi.json", "/EPBDS-9764/EPBDS-9764_openapi.resp.json");
+        client.get("/REST/EPBDS-9764/EPBDS-9764/openapi.json", "/EPBDS-9764/EPBDS-9764_openapi.resp.json");
+    }
+
+    @Test
+    public void EPBDS_9764_2() {
+        client.get("/EPBDS-9764/EPBDS-9764?wsdl", "/EPBDS-9764/EPBDS-9764_wsdl.resp.xml");
     }
 }

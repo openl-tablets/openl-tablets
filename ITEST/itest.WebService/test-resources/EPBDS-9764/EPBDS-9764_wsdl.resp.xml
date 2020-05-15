@@ -1,0 +1,963 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://DefaultNamespace" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="EPBDS-9764_EPBDS-9764" targetNamespace="http://DefaultNamespace">
+    <wsdl:types>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://runtime.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://runtime.openl.org">
+            <xsd:complexType name="IRuntimeContext">
+                <xsd:sequence/>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://spreadsheetresults.generated.openl.org" xmlns:ns0="http://beans.generated.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://spreadsheetresults.generated.openl.org">
+            <xsd:import namespace="http://beans.generated.openl.org"/>
+            <xsd:complexType name="MyMethod6">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="Step0" type="ns0:MyType5"/>
+                    <xsd:element minOccurs="0" name="Step1" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step2" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step3" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step4" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="AnySpreadsheetResult">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="Step0" type="ns0:Base"/>
+                    <xsd:element minOccurs="0" name="Step1" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step10" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step11" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step12" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step13" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step14" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step15" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step16" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step2" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step3" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step4" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step5" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step6" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step7" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step8" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step9" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="MyMethod2">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="Step1" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step10" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step11" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step12" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step13" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step14" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step2" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step3" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step4" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step5" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step6" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step7" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step8" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step9" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="MyMethod4">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="Step0" type="ns0:MyType1"/>
+                    <xsd:element minOccurs="0" name="Step1" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step2" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step3" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step4" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step5" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="MyMethod3">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="Step1" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step10" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step11" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step12" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step2" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step3" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step4" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step5" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step6" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step7" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step8" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step9" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="MyMethod">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="Step1" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step10" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step11" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step12" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step13" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step14" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step15" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step16" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step2" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step3" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step4" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step5" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step6" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step7" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step8" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step9" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="MyMethod5">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="Step0" type="ns0:MyType5"/>
+                    <xsd:element minOccurs="0" name="Step1" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step2" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step3" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Step4" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://cxf.apache.org/arrays" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://cxf.apache.org/arrays">
+            <xsd:complexType name="ArrayOfArrayOfAnyType">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfAnyType" type="tns:ArrayOfAnyType"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="ArrayOfAnyType">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="anyType" type="xsd:anyType"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://DefaultNamespace" xmlns:ns2="http://beans.generated.openl.org" xmlns:ns1="http://spreadsheetresults.generated.openl.org" xmlns:ns0="http://context.rules.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://DefaultNamespace">
+            <xsd:import namespace="http://context.rules.openl.org"/>
+            <xsd:import namespace="http://spreadsheetresults.generated.openl.org"/>
+            <xsd:import namespace="http://beans.generated.openl.org"/>
+            <xsd:complexType name="ArrayOfString">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="string" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="myMethod5" type="tns:myMethod5"/>
+            <xsd:complexType name="myMethod5">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="runtimeContext" type="ns0:IRulesRuntimeContext"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="myMethod5Response" type="tns:myMethod5Response"/>
+            <xsd:complexType name="myMethod5Response">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" type="ns1:MyMethod5"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="myMethod6" type="tns:myMethod6"/>
+            <xsd:complexType name="myMethod6">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="runtimeContext" type="ns0:IRulesRuntimeContext"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="myMethod6Response" type="tns:myMethod6Response"/>
+            <xsd:complexType name="myMethod6Response">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" type="ns1:MyMethod6"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="getMyType4Data" type="tns:getMyType4Data"/>
+            <xsd:complexType name="getMyType4Data">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="arg0" type="ns0:IRulesRuntimeContext"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="getMyType4DataResponse" type="tns:getMyType4DataResponse"/>
+            <xsd:complexType name="getMyType4DataResponse">
+                <xsd:sequence>
+                    <xsd:element name="return" nillable="true" type="ns2:ArrayOfMyType4"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="getMyType2Data" type="tns:getMyType2Data"/>
+            <xsd:complexType name="getMyType2Data">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="arg0" type="ns0:IRulesRuntimeContext"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="getMyType2DataResponse" type="tns:getMyType2DataResponse"/>
+            <xsd:complexType name="getMyType2DataResponse">
+                <xsd:sequence>
+                    <xsd:element name="return" nillable="true" type="ns2:ArrayOfMyType2"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="getMyType3Data" type="tns:getMyType3Data"/>
+            <xsd:complexType name="getMyType3Data">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="arg0" type="ns0:IRulesRuntimeContext"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="getMyType3DataResponse" type="tns:getMyType3DataResponse"/>
+            <xsd:complexType name="getMyType3DataResponse">
+                <xsd:sequence>
+                    <xsd:element name="return" nillable="true" type="ns2:ArrayOfMyType3"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="myMethod" type="tns:myMethod"/>
+            <xsd:complexType name="myMethod">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="runtimeContext" type="ns0:IRulesRuntimeContext"/>
+                    <xsd:element minOccurs="0" name="myType1" type="ns2:MyType1"/>
+                    <xsd:element minOccurs="0" name="myType2" type="ns2:MyType2"/>
+                    <xsd:element minOccurs="0" name="myType3" type="ns2:MyType3"/>
+                    <xsd:element minOccurs="0" name="myType4" type="ns2:MyType4"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="myMethodResponse" type="tns:myMethodResponse"/>
+            <xsd:complexType name="myMethodResponse">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" type="ns1:MyMethod"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="getMyType1Data" type="tns:getMyType1Data"/>
+            <xsd:complexType name="getMyType1Data">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="arg0" type="ns0:IRulesRuntimeContext"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="getMyType1DataResponse" type="tns:getMyType1DataResponse"/>
+            <xsd:complexType name="getMyType1DataResponse">
+                <xsd:sequence>
+                    <xsd:element name="return" nillable="true" type="ns2:ArrayOfMyType1"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="myMethod2" type="tns:myMethod2"/>
+            <xsd:complexType name="myMethod2">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="runtimeContext" type="ns0:IRulesRuntimeContext"/>
+                    <xsd:element minOccurs="0" name="myType1" type="ns2:MyType1"/>
+                    <xsd:element minOccurs="0" name="myType2" type="ns2:MyType2"/>
+                    <xsd:element minOccurs="0" name="myType3" type="ns2:MyType3"/>
+                    <xsd:element minOccurs="0" name="myType4" type="ns2:MyType4"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="myMethod2Response" type="tns:myMethod2Response"/>
+            <xsd:complexType name="myMethod2Response">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" type="ns1:MyMethod2"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="myMethod3" type="tns:myMethod3"/>
+            <xsd:complexType name="myMethod3">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="runtimeContext" type="ns0:IRulesRuntimeContext"/>
+                    <xsd:element minOccurs="0" name="myType1" type="ns2:MyType1"/>
+                    <xsd:element minOccurs="0" name="myType2" type="ns2:MyType2"/>
+                    <xsd:element minOccurs="0" name="myType3" type="ns2:MyType3"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="myMethod3Response" type="tns:myMethod3Response"/>
+            <xsd:complexType name="myMethod3Response">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" type="ns1:MyMethod3"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="myMethod4" type="tns:myMethod4"/>
+            <xsd:complexType name="myMethod4">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="runtimeContext" type="ns0:IRulesRuntimeContext"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="myMethod4Response" type="tns:myMethod4Response"/>
+            <xsd:complexType name="myMethod4Response">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" type="ns1:MyMethod4"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://beans.generated.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://beans.generated.openl.org">
+            <xsd:complexType name="MyType3">
+                <xsd:complexContent>
+                    <xsd:extension base="tns:MyType3SuperClass">
+                        <xsd:sequence>
+                            <xsd:element minOccurs="0" name="field2" type="xsd:string"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+            <xsd:complexType name="Base">
+                <xsd:sequence/>
+            </xsd:complexType>
+            <xsd:complexType name="ArrayOfMyType2">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="MyType2" type="tns:MyType2"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="MyType2SuperClass">
+                <xsd:complexContent>
+                    <xsd:extension base="tns:Base">
+                        <xsd:sequence>
+                            <xsd:element minOccurs="0" name="field4" type="xsd:string"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+            <xsd:complexType name="MyType5">
+                <xsd:complexContent>
+                    <xsd:extension base="tns:MyType5SuperType">
+                        <xsd:sequence>
+                            <xsd:element minOccurs="0" name="field4" type="xsd:string"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+            <xsd:complexType name="MyType4">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="field2" type="tns:MyType2"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="MyType1SuperType">
+                <xsd:complexContent>
+                    <xsd:extension base="tns:Base">
+                        <xsd:sequence>
+                            <xsd:element minOccurs="0" name="field3" type="xsd:string"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+            <xsd:complexType name="MyType3SuperClass">
+                <xsd:complexContent>
+                    <xsd:extension base="tns:Base">
+                        <xsd:sequence>
+                            <xsd:element minOccurs="0" name="field4" type="xsd:string"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+            <xsd:complexType name="MyType2">
+                <xsd:complexContent>
+                    <xsd:extension base="tns:MyType2SuperClass">
+                        <xsd:sequence>
+                            <xsd:element minOccurs="0" name="field2" type="xsd:string"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+            <xsd:complexType name="MyType1">
+                <xsd:complexContent>
+                    <xsd:extension base="tns:MyType1SuperType">
+                        <xsd:sequence>
+                            <xsd:element minOccurs="0" name="field4" type="xsd:string"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+            <xsd:complexType name="ArrayOfMyType4">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="MyType4" type="tns:MyType4"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="ArrayOfMyType3">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="MyType3" type="tns:MyType3"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="ArrayOfMyType1">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="MyType1" type="tns:MyType1"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="MyType5SuperType">
+                <xsd:complexContent>
+                    <xsd:extension base="tns:Base">
+                        <xsd:sequence>
+                            <xsd:element minOccurs="0" name="field3" type="xsd:string"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://enumeration.rules.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://enumeration.rules.openl.org">
+            <xsd:simpleType name="CaRegionsEnum">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="QC"/>
+                    <xsd:enumeration value="HQ"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+            <xsd:simpleType name="UsStatesEnum">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="AL"/>
+                    <xsd:enumeration value="AK"/>
+                    <xsd:enumeration value="AZ"/>
+                    <xsd:enumeration value="AR"/>
+                    <xsd:enumeration value="CA"/>
+                    <xsd:enumeration value="CO"/>
+                    <xsd:enumeration value="CT"/>
+                    <xsd:enumeration value="DC"/>
+                    <xsd:enumeration value="DE"/>
+                    <xsd:enumeration value="FL"/>
+                    <xsd:enumeration value="GA"/>
+                    <xsd:enumeration value="HI"/>
+                    <xsd:enumeration value="ID"/>
+                    <xsd:enumeration value="IL"/>
+                    <xsd:enumeration value="IN"/>
+                    <xsd:enumeration value="IA"/>
+                    <xsd:enumeration value="KS"/>
+                    <xsd:enumeration value="KY"/>
+                    <xsd:enumeration value="LA"/>
+                    <xsd:enumeration value="ME"/>
+                    <xsd:enumeration value="MD"/>
+                    <xsd:enumeration value="MA"/>
+                    <xsd:enumeration value="MI"/>
+                    <xsd:enumeration value="MN"/>
+                    <xsd:enumeration value="MS"/>
+                    <xsd:enumeration value="MO"/>
+                    <xsd:enumeration value="MT"/>
+                    <xsd:enumeration value="NE"/>
+                    <xsd:enumeration value="NV"/>
+                    <xsd:enumeration value="NH"/>
+                    <xsd:enumeration value="NJ"/>
+                    <xsd:enumeration value="NM"/>
+                    <xsd:enumeration value="NY"/>
+                    <xsd:enumeration value="NC"/>
+                    <xsd:enumeration value="ND"/>
+                    <xsd:enumeration value="OH"/>
+                    <xsd:enumeration value="OK"/>
+                    <xsd:enumeration value="OR"/>
+                    <xsd:enumeration value="PA"/>
+                    <xsd:enumeration value="PR"/>
+                    <xsd:enumeration value="RI"/>
+                    <xsd:enumeration value="SC"/>
+                    <xsd:enumeration value="SD"/>
+                    <xsd:enumeration value="TN"/>
+                    <xsd:enumeration value="TX"/>
+                    <xsd:enumeration value="UT"/>
+                    <xsd:enumeration value="VT"/>
+                    <xsd:enumeration value="VA"/>
+                    <xsd:enumeration value="WA"/>
+                    <xsd:enumeration value="WV"/>
+                    <xsd:enumeration value="WI"/>
+                    <xsd:enumeration value="WY"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+            <xsd:simpleType name="CaProvincesEnum">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="AB"/>
+                    <xsd:enumeration value="BC"/>
+                    <xsd:enumeration value="PE"/>
+                    <xsd:enumeration value="MB"/>
+                    <xsd:enumeration value="NB"/>
+                    <xsd:enumeration value="NS"/>
+                    <xsd:enumeration value="NU"/>
+                    <xsd:enumeration value="ON"/>
+                    <xsd:enumeration value="QC"/>
+                    <xsd:enumeration value="SK"/>
+                    <xsd:enumeration value="NL"/>
+                    <xsd:enumeration value="YT"/>
+                    <xsd:enumeration value="NT"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+            <xsd:simpleType name="CountriesEnum">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="AL"/>
+                    <xsd:enumeration value="DZ"/>
+                    <xsd:enumeration value="AR"/>
+                    <xsd:enumeration value="AU"/>
+                    <xsd:enumeration value="AT"/>
+                    <xsd:enumeration value="BH"/>
+                    <xsd:enumeration value="BY"/>
+                    <xsd:enumeration value="BE"/>
+                    <xsd:enumeration value="BO"/>
+                    <xsd:enumeration value="BA"/>
+                    <xsd:enumeration value="BR"/>
+                    <xsd:enumeration value="BG"/>
+                    <xsd:enumeration value="CA"/>
+                    <xsd:enumeration value="CL"/>
+                    <xsd:enumeration value="CN"/>
+                    <xsd:enumeration value="CO"/>
+                    <xsd:enumeration value="CR"/>
+                    <xsd:enumeration value="HR"/>
+                    <xsd:enumeration value="CY"/>
+                    <xsd:enumeration value="CZ"/>
+                    <xsd:enumeration value="DK"/>
+                    <xsd:enumeration value="DO"/>
+                    <xsd:enumeration value="EC"/>
+                    <xsd:enumeration value="EG"/>
+                    <xsd:enumeration value="SV"/>
+                    <xsd:enumeration value="EE"/>
+                    <xsd:enumeration value="FI"/>
+                    <xsd:enumeration value="FR"/>
+                    <xsd:enumeration value="DE"/>
+                    <xsd:enumeration value="GR"/>
+                    <xsd:enumeration value="GT"/>
+                    <xsd:enumeration value="HN"/>
+                    <xsd:enumeration value="HK"/>
+                    <xsd:enumeration value="HU"/>
+                    <xsd:enumeration value="IS"/>
+                    <xsd:enumeration value="IN"/>
+                    <xsd:enumeration value="ID"/>
+                    <xsd:enumeration value="IQ"/>
+                    <xsd:enumeration value="IE"/>
+                    <xsd:enumeration value="IL"/>
+                    <xsd:enumeration value="IT"/>
+                    <xsd:enumeration value="JP"/>
+                    <xsd:enumeration value="JO"/>
+                    <xsd:enumeration value="KW"/>
+                    <xsd:enumeration value="LV"/>
+                    <xsd:enumeration value="LB"/>
+                    <xsd:enumeration value="LT"/>
+                    <xsd:enumeration value="LU"/>
+                    <xsd:enumeration value="MK"/>
+                    <xsd:enumeration value="MY"/>
+                    <xsd:enumeration value="MT"/>
+                    <xsd:enumeration value="MX"/>
+                    <xsd:enumeration value="MA"/>
+                    <xsd:enumeration value="NL"/>
+                    <xsd:enumeration value="NZ"/>
+                    <xsd:enumeration value="NI"/>
+                    <xsd:enumeration value="NO"/>
+                    <xsd:enumeration value="OM"/>
+                    <xsd:enumeration value="PA"/>
+                    <xsd:enumeration value="PY"/>
+                    <xsd:enumeration value="PE"/>
+                    <xsd:enumeration value="PH"/>
+                    <xsd:enumeration value="PL"/>
+                    <xsd:enumeration value="PT"/>
+                    <xsd:enumeration value="PR"/>
+                    <xsd:enumeration value="QA"/>
+                    <xsd:enumeration value="RO"/>
+                    <xsd:enumeration value="RU"/>
+                    <xsd:enumeration value="SA"/>
+                    <xsd:enumeration value="CS"/>
+                    <xsd:enumeration value="SG"/>
+                    <xsd:enumeration value="SK"/>
+                    <xsd:enumeration value="SI"/>
+                    <xsd:enumeration value="ZA"/>
+                    <xsd:enumeration value="ES"/>
+                    <xsd:enumeration value="SD"/>
+                    <xsd:enumeration value="SE"/>
+                    <xsd:enumeration value="CH"/>
+                    <xsd:enumeration value="SY"/>
+                    <xsd:enumeration value="TW"/>
+                    <xsd:enumeration value="TH"/>
+                    <xsd:enumeration value="TN"/>
+                    <xsd:enumeration value="TR"/>
+                    <xsd:enumeration value="UA"/>
+                    <xsd:enumeration value="AE"/>
+                    <xsd:enumeration value="GB"/>
+                    <xsd:enumeration value="US"/>
+                    <xsd:enumeration value="UY"/>
+                    <xsd:enumeration value="VE"/>
+                    <xsd:enumeration value="VN"/>
+                    <xsd:enumeration value="YE"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+            <xsd:simpleType name="RegionsEnum">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="NCSA"/>
+                    <xsd:enumeration value="EU"/>
+                    <xsd:enumeration value="EMEA"/>
+                    <xsd:enumeration value="APJ"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+            <xsd:simpleType name="LanguagesEnum">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="ALB"/>
+                    <xsd:enumeration value="ARA"/>
+                    <xsd:enumeration value="BEL"/>
+                    <xsd:enumeration value="BUL"/>
+                    <xsd:enumeration value="CAT"/>
+                    <xsd:enumeration value="CHI"/>
+                    <xsd:enumeration value="SCR"/>
+                    <xsd:enumeration value="CZE"/>
+                    <xsd:enumeration value="DAN"/>
+                    <xsd:enumeration value="DUT"/>
+                    <xsd:enumeration value="ENG"/>
+                    <xsd:enumeration value="FIN"/>
+                    <xsd:enumeration value="FRE"/>
+                    <xsd:enumeration value="GER"/>
+                    <xsd:enumeration value="GRE"/>
+                    <xsd:enumeration value="HEB"/>
+                    <xsd:enumeration value="HIN"/>
+                    <xsd:enumeration value="HUN"/>
+                    <xsd:enumeration value="IND"/>
+                    <xsd:enumeration value="GLE"/>
+                    <xsd:enumeration value="ITA"/>
+                    <xsd:enumeration value="JPN"/>
+                    <xsd:enumeration value="LAV"/>
+                    <xsd:enumeration value="LIT"/>
+                    <xsd:enumeration value="MAC"/>
+                    <xsd:enumeration value="MAY"/>
+                    <xsd:enumeration value="MLT"/>
+                    <xsd:enumeration value="NOR"/>
+                    <xsd:enumeration value="POL"/>
+                    <xsd:enumeration value="POR"/>
+                    <xsd:enumeration value="RUM"/>
+                    <xsd:enumeration value="RUS"/>
+                    <xsd:enumeration value="SCC"/>
+                    <xsd:enumeration value="SLO"/>
+                    <xsd:enumeration value="SPA"/>
+                    <xsd:enumeration value="THA"/>
+                    <xsd:enumeration value="TUR"/>
+                    <xsd:enumeration value="UKR"/>
+                    <xsd:enumeration value="VIE"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+            <xsd:simpleType name="CurrenciesEnum">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="ALL"/>
+                    <xsd:enumeration value="DZD"/>
+                    <xsd:enumeration value="ARS"/>
+                    <xsd:enumeration value="AUD"/>
+                    <xsd:enumeration value="BHD"/>
+                    <xsd:enumeration value="BYR"/>
+                    <xsd:enumeration value="BOB"/>
+                    <xsd:enumeration value="BAM"/>
+                    <xsd:enumeration value="BRL"/>
+                    <xsd:enumeration value="CAD"/>
+                    <xsd:enumeration value="CLP"/>
+                    <xsd:enumeration value="CNY"/>
+                    <xsd:enumeration value="COP"/>
+                    <xsd:enumeration value="CRC"/>
+                    <xsd:enumeration value="HRK"/>
+                    <xsd:enumeration value="CZK"/>
+                    <xsd:enumeration value="DKK"/>
+                    <xsd:enumeration value="DOP"/>
+                    <xsd:enumeration value="EGP"/>
+                    <xsd:enumeration value="EUR"/>
+                    <xsd:enumeration value="GTQ"/>
+                    <xsd:enumeration value="HNL"/>
+                    <xsd:enumeration value="HKD"/>
+                    <xsd:enumeration value="HUF"/>
+                    <xsd:enumeration value="ISK"/>
+                    <xsd:enumeration value="INR"/>
+                    <xsd:enumeration value="IDR"/>
+                    <xsd:enumeration value="IQD"/>
+                    <xsd:enumeration value="ILS"/>
+                    <xsd:enumeration value="JPY"/>
+                    <xsd:enumeration value="JOD"/>
+                    <xsd:enumeration value="KWD"/>
+                    <xsd:enumeration value="LVL"/>
+                    <xsd:enumeration value="LBP"/>
+                    <xsd:enumeration value="LTL"/>
+                    <xsd:enumeration value="MKD"/>
+                    <xsd:enumeration value="MYR"/>
+                    <xsd:enumeration value="MXN"/>
+                    <xsd:enumeration value="MAD"/>
+                    <xsd:enumeration value="NZD"/>
+                    <xsd:enumeration value="NIO"/>
+                    <xsd:enumeration value="NOK"/>
+                    <xsd:enumeration value="OMR"/>
+                    <xsd:enumeration value="PAB"/>
+                    <xsd:enumeration value="PYG"/>
+                    <xsd:enumeration value="PEN"/>
+                    <xsd:enumeration value="PHP"/>
+                    <xsd:enumeration value="PLN"/>
+                    <xsd:enumeration value="QAR"/>
+                    <xsd:enumeration value="RON"/>
+                    <xsd:enumeration value="RUB"/>
+                    <xsd:enumeration value="SAR"/>
+                    <xsd:enumeration value="RSD"/>
+                    <xsd:enumeration value="SGD"/>
+                    <xsd:enumeration value="ZAR"/>
+                    <xsd:enumeration value="SDG"/>
+                    <xsd:enumeration value="SEK"/>
+                    <xsd:enumeration value="CHF"/>
+                    <xsd:enumeration value="SYP"/>
+                    <xsd:enumeration value="TWD"/>
+                    <xsd:enumeration value="TND"/>
+                    <xsd:enumeration value="TRY"/>
+                    <xsd:enumeration value="UAH"/>
+                    <xsd:enumeration value="AED"/>
+                    <xsd:enumeration value="GBP"/>
+                    <xsd:enumeration value="USD"/>
+                    <xsd:enumeration value="UYU"/>
+                    <xsd:enumeration value="VEF"/>
+                    <xsd:enumeration value="VND"/>
+                    <xsd:enumeration value="YER"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+            <xsd:simpleType name="UsRegionsEnum">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="MW"/>
+                    <xsd:enumeration value="NE"/>
+                    <xsd:enumeration value="SE"/>
+                    <xsd:enumeration value="SW"/>
+                    <xsd:enumeration value="W"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://itest.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://itest.openl.org">
+            <xsd:complexType name="Error">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="message" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://calc.rules.openl.org" xmlns:ns1="http://cxf.apache.org/arrays" xmlns:ns0="http://DefaultNamespace" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://calc.rules.openl.org">
+            <xsd:import namespace="http://DefaultNamespace"/>
+            <xsd:import namespace="http://cxf.apache.org/arrays"/>
+            <xsd:complexType name="SpreadsheetResult">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="columnNames" type="ns0:ArrayOfString"/>
+                    <xsd:element minOccurs="0" name="results" type="ns1:ArrayOfArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="rowNames" type="ns0:ArrayOfString"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://context.rules.openl.org" xmlns:ns1="http://enumeration.rules.openl.org" xmlns:ns0="http://runtime.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://context.rules.openl.org">
+            <xsd:import namespace="http://enumeration.rules.openl.org"/>
+            <xsd:import namespace="http://runtime.openl.org"/>
+            <xsd:complexType name="IRulesRuntimeContext">
+                <xsd:complexContent>
+                    <xsd:extension base="ns0:IRuntimeContext">
+                        <xsd:sequence>
+                            <xsd:element minOccurs="0" name="caProvince" type="ns1:CaProvincesEnum"/>
+                            <xsd:element minOccurs="0" name="caRegion" type="ns1:CaRegionsEnum"/>
+                            <xsd:element minOccurs="0" name="country" type="ns1:CountriesEnum"/>
+                            <xsd:element minOccurs="0" name="currency" type="ns1:CurrenciesEnum"/>
+                            <xsd:element minOccurs="0" name="currentDate" type="xsd:dateTime"/>
+                            <xsd:element minOccurs="0" name="lang" type="ns1:LanguagesEnum"/>
+                            <xsd:element minOccurs="0" name="lob" type="xsd:string"/>
+                            <xsd:element minOccurs="0" name="nature" type="xsd:string"/>
+                            <xsd:element minOccurs="0" name="region" type="ns1:RegionsEnum"/>
+                            <xsd:element minOccurs="0" name="requestDate" type="xsd:dateTime"/>
+                            <xsd:element minOccurs="0" name="usRegion" type="ns1:UsRegionsEnum"/>
+                            <xsd:element minOccurs="0" name="usState" type="ns1:UsStatesEnum"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+        </xsd:schema>
+    </wsdl:types>
+    <wsdl:message name="getMyType4Data">
+        <wsdl:part element="tns:getMyType4Data" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="myMethod6Response">
+        <wsdl:part element="tns:myMethod6Response" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getMyType2Data">
+        <wsdl:part element="tns:getMyType2Data" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getMyType1DataResponse">
+        <wsdl:part element="tns:getMyType1DataResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="myMethod5Response">
+        <wsdl:part element="tns:myMethod5Response" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="myMethodResponse">
+        <wsdl:part element="tns:myMethodResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getMyType1Data">
+        <wsdl:part element="tns:getMyType1Data" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="myMethod4Response">
+        <wsdl:part element="tns:myMethod4Response" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="myMethod5">
+        <wsdl:part element="tns:myMethod5" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="myMethod6">
+        <wsdl:part element="tns:myMethod6" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getMyType3DataResponse">
+        <wsdl:part element="tns:getMyType3DataResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getMyType2DataResponse">
+        <wsdl:part element="tns:getMyType2DataResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getMyType3Data">
+        <wsdl:part element="tns:getMyType3Data" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="myMethod">
+        <wsdl:part element="tns:myMethod" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="myMethod2Response">
+        <wsdl:part element="tns:myMethod2Response" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getMyType4DataResponse">
+        <wsdl:part element="tns:getMyType4DataResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="myMethod2">
+        <wsdl:part element="tns:myMethod2" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="myMethod3Response">
+        <wsdl:part element="tns:myMethod3Response" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="myMethod3">
+        <wsdl:part element="tns:myMethod3" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="myMethod4">
+        <wsdl:part element="tns:myMethod4" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:portType name="EPBDS-9764_EPBDS-9764PortType">
+        <wsdl:operation name="myMethod5">
+            <wsdl:input message="tns:myMethod5" name="myMethod5">
+            </wsdl:input>
+            <wsdl:output message="tns:myMethod5Response" name="myMethod5Response">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="myMethod6">
+            <wsdl:input message="tns:myMethod6" name="myMethod6">
+            </wsdl:input>
+            <wsdl:output message="tns:myMethod6Response" name="myMethod6Response">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getMyType4Data">
+            <wsdl:input message="tns:getMyType4Data" name="getMyType4Data">
+            </wsdl:input>
+            <wsdl:output message="tns:getMyType4DataResponse" name="getMyType4DataResponse">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getMyType2Data">
+            <wsdl:input message="tns:getMyType2Data" name="getMyType2Data">
+            </wsdl:input>
+            <wsdl:output message="tns:getMyType2DataResponse" name="getMyType2DataResponse">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getMyType3Data">
+            <wsdl:input message="tns:getMyType3Data" name="getMyType3Data">
+            </wsdl:input>
+            <wsdl:output message="tns:getMyType3DataResponse" name="getMyType3DataResponse">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="myMethod">
+            <wsdl:input message="tns:myMethod" name="myMethod">
+            </wsdl:input>
+            <wsdl:output message="tns:myMethodResponse" name="myMethodResponse">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getMyType1Data">
+            <wsdl:input message="tns:getMyType1Data" name="getMyType1Data">
+            </wsdl:input>
+            <wsdl:output message="tns:getMyType1DataResponse" name="getMyType1DataResponse">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="myMethod2">
+            <wsdl:input message="tns:myMethod2" name="myMethod2">
+            </wsdl:input>
+            <wsdl:output message="tns:myMethod2Response" name="myMethod2Response">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="myMethod3">
+            <wsdl:input message="tns:myMethod3" name="myMethod3">
+            </wsdl:input>
+            <wsdl:output message="tns:myMethod3Response" name="myMethod3Response">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="myMethod4">
+            <wsdl:input message="tns:myMethod4" name="myMethod4">
+            </wsdl:input>
+            <wsdl:output message="tns:myMethod4Response" name="myMethod4Response">
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="EPBDS-9764_EPBDS-9764SoapBinding" type="tns:EPBDS-9764_EPBDS-9764PortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="myMethod5">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="myMethod5">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="myMethod5Response">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="myMethod6">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="myMethod6">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="myMethod6Response">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getMyType4Data">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="getMyType4Data">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getMyType4DataResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getMyType2Data">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="getMyType2Data">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getMyType2DataResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getMyType3Data">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="getMyType3Data">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getMyType3DataResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="myMethod">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="myMethod">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="myMethodResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getMyType1Data">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="getMyType1Data">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getMyType1DataResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="myMethod2">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="myMethod2">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="myMethod2Response">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="myMethod3">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="myMethod3">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="myMethod3Response">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="myMethod4">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="myMethod4">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="myMethod4Response">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="EPBDS-9764_EPBDS-9764">
+        <wsdl:port binding="tns:EPBDS-9764_EPBDS-9764SoapBinding" name="EPBDS-9764_EPBDS-9764PortType">
+            <soap:address location="http://localhost:#####/EPBDS-9764/EPBDS-9764"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
