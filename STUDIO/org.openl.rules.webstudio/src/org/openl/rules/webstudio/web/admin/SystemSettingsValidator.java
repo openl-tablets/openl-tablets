@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -70,13 +71,19 @@ public class SystemSettingsValidator {
     public void historyCountValidator(FacesContext context, UIComponent toValidate, Object value) {
         String errorMessage = null;
         String count = (String) value;
-        if (!Pattern.matches("[0-9]*", count)) {
+        if (!Pattern.matches("[0-9]*", count) || outOfRangeInteger(count)) {
             errorMessage = "The maximum count of saved changes should be positive integer";
         }
 
         if (errorMessage != null) {
             WebStudioUtils.throwValidationError(errorMessage);
         }
+    }
+
+    private boolean outOfRangeInteger(String value) {
+        BigInteger enteredValue = new BigInteger(value);
+        BigInteger maxInt = BigInteger.valueOf(Integer.MAX_VALUE);
+        return enteredValue.compareTo(maxInt) > 0;
     }
 
     public void testRunThreadCountValidator(FacesContext context, UIComponent toValidate, Object value) {
