@@ -308,7 +308,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             try {
                 Field field = datatypeClass.getDeclaredField(fieldName);
                 if (fieldDescription.isTransient() != Modifier.isTransient(field.getModifiers()) || fieldDescription
-                    .isTransient() && !field.isAnnotationPresent(XmlTransient.class)) {
+                    .isTransient() && !field.isAnnotationPresent(XmlTransient.class) || !fieldDescription
+                        .isTransient() && field.isAnnotationPresent(XmlTransient.class)) {
                     String errorMessage = String.format(
                         "Field '%s' is " + (fieldDescription
                             .isTransient() ? "not "
@@ -331,6 +332,18 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             Method getterMethod = null;
             try {
                 getterMethod = datatypeClass.getMethod("get" + name);
+                if (fieldDescription.isTransient() && !getterMethod
+                    .isAnnotationPresent(XmlTransient.class) || !fieldDescription.isTransient() && getterMethod
+                        .isAnnotationPresent(XmlTransient.class)) {
+                    String errorMessage = String.format(
+                        "Field '%s' is " + (fieldDescription
+                            .isTransient() ? "not "
+                                           : "") + "transient in class '%s'. Please, regenerate datatype classes.",
+                        fieldName,
+                        datatypeClassName);
+                    syntaxNodeExceptionCollector
+                        .addSyntaxNodeException(SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode));
+                }
             } catch (NoSuchMethodException e) {
                 String errorMessage = String.format(
                     "Method 'get%s' is not found in class '%s'. Please, regenerate datatype classes.",
