@@ -30,7 +30,6 @@ public class InterfaceGenerator {
     public static final int PUBLIC_ABSTRACT_INTERFACE = Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT + Opcodes.ACC_INTERFACE;
     public static final int PUBLIC_ABSTRACT = Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT;
     public static final String JAVA_LANG_OBJECT = "java/lang/Object";
-    private static final RuleInfo[] EMPTY_RULES = new RuleInfo[0];
 
     /**
      * Generates interface class using collection of rules.
@@ -82,7 +81,7 @@ public class InterfaceGenerator {
             className = "org.openl.generated.interfaces." + className;
         }
         if (openClass == null) {
-            return generateInterface(className, EMPTY_RULES, classLoader);
+            return generateInterface(className, RuleInfo.EMPTY_RULES, classLoader);
         }
 
         List<RuleInfo> rules = new ArrayList<>();
@@ -116,7 +115,7 @@ public class InterfaceGenerator {
             }
         }
 
-        return generateInterface(className, rules.toArray(new RuleInfo[0]), classLoader);
+        return generateInterface(className, rules.toArray(RuleInfo.EMPTY_RULES), classLoader);
     }
 
     private static boolean isMember(RuleInfo ruleInfo, String[] includes, String[] excludes) {

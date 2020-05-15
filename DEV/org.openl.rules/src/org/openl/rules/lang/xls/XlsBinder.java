@@ -77,6 +77,7 @@ import org.openl.util.ASelector.StringValueSelector;
 import org.openl.util.ClassUtils;
 import org.openl.util.ISelector;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.StringUtils;
 import org.openl.validation.ValidationManager;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
@@ -90,8 +91,6 @@ import org.slf4j.LoggerFactory;
 public class XlsBinder implements IOpenBinder {
 
     public static final String DISABLED_CLEAN_UP = "XLS_OPEN_CLASS_DISABLED_CLEANUP";
-
-    private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     private final Logger log = LoggerFactory.getLogger(XlsBinder.class);
 
@@ -442,9 +441,9 @@ public class XlsBinder implements IOpenBinder {
                 }
             }
         }
-        builder.setPackageImports(packageNames.toArray(EMPTY_STRING_ARRAY));
-        builder.setClassImports(classNames.toArray(EMPTY_STRING_ARRAY));
-        builder.setLibraries(libraries.toArray(EMPTY_STRING_ARRAY));
+        builder.setPackageImports(packageNames.toArray(StringUtils.EMPTY_STRING_ARRAY));
+        builder.setClassImports(classNames.toArray(StringUtils.EMPTY_STRING_ARRAY));
+        builder.setLibraries(libraries.toArray(StringUtils.EMPTY_STRING_ARRAY));
     }
 
     private OpenL makeOpenL(XlsModuleSyntaxNode moduleNode, List<SyntaxNodeException> exceptions) {
@@ -514,7 +513,7 @@ public class XlsBinder implements IOpenBinder {
             }
         }
 
-        return childSyntaxNodes.toArray(new TableSyntaxNode[0]);
+        return childSyntaxNodes.toArray(TableSyntaxNode.EMPTY_ARRAY);
     }
 
     private boolean isExecutableTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {

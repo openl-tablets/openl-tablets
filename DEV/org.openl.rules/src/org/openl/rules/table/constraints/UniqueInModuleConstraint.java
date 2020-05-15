@@ -3,6 +3,7 @@ package org.openl.rules.table.constraints;
 public class UniqueInModuleConstraint extends AbstractConstraint {
 
     public static final String CONSTRAINT_MATCH = "^\\s*unique\\s+in\\s*:\\s*module\\s*$";
+    private static final Object[] NO_PARAMS = new Object[0];
 
     public UniqueInModuleConstraint(String value) {
         super(value);
@@ -15,7 +16,7 @@ public class UniqueInModuleConstraint extends AbstractConstraint {
 
     @Override
     public Object[] getParams() {
-        return new Object[0];
+        return NO_PARAMS;
     }
 
 }

@@ -752,7 +752,7 @@ public final class RuleRowHelper {
             }
         }
 
-        return methodsList == null ? ary : new ArrayHolder(paramType, methodsList.toArray(new CompositeMethod[0]));
+        return methodsList == null ? ary : new ArrayHolder(paramType, methodsList.toArray(CompositeMethod.EMPTY_ARRAY));
     }
 
     private static List<CompositeMethod> addMethod(List<CompositeMethod> methods, CompositeMethod method) {
@@ -798,7 +798,7 @@ public final class RuleRowHelper {
             index.setValue(ary, i, values.get(i));
         }
 
-        return methodsList == null ? ary : new ArrayHolder(paramType, methodsList.toArray(new CompositeMethod[0]));
+        return methodsList == null ? ary : new ArrayHolder(paramType, methodsList.toArray(CompositeMethod.EMPTY_ARRAY));
 
     }
 }

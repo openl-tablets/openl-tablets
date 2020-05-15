@@ -124,7 +124,7 @@ public class GridSplitter {
             }
         }
 
-        return tables.toArray(new IGridTable[0]);
+        return tables.toArray(IGridTable.EMPTY_GRID);
 
     }
 

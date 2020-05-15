@@ -7,6 +7,7 @@ import org.openl.util.text.ILocation;
 
 public class SyntaxNodeException extends OpenLCompilationException {
 
+    public static final SyntaxNodeException[] EMPTY_ARRAY = new SyntaxNodeException[0];
     private static final long serialVersionUID = 4448924727461016950L;
 
     public SyntaxNodeException(String message, Throwable cause, ILocation location, IOpenSourceCodeModule source) {

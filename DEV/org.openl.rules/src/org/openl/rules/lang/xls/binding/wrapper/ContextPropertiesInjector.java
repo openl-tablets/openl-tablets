@@ -16,6 +16,7 @@ import org.openl.vm.IRuntimeEnv;
 
 class ContextPropertiesInjector {
 
+    private static final ContextPropertyInjection[] PROPERTY_INJECTIONS = new ContextPropertyInjection[0];
     private final ContextPropertyInjection[] contextPropertyInjections;
 
     public ContextPropertiesInjector(IOpenClass[] paramTypes, ICastFactory castFactory) {
@@ -34,7 +35,7 @@ class ContextPropertiesInjector {
             i++;
         }
         this.contextPropertyInjections = !contextPropertyInjections.isEmpty() ? contextPropertyInjections.values()
-            .toArray(new ContextPropertyInjection[0]) : null;
+            .toArray(PROPERTY_INJECTIONS) : null;
     }
 
     private ContextPropertyInjection createContextInjection(int paramIndex,

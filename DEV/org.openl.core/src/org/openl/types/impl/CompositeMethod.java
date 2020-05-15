@@ -18,6 +18,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class CompositeMethod extends ExecutableMethod {
 
+    public static final CompositeMethod[] EMPTY_ARRAY = new CompositeMethod[0];
     private IBoundMethodNode methodBodyBoundNode;
     private Boolean invokable;
 

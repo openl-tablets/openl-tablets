@@ -317,7 +317,7 @@ public class Table implements ITable {
         dataContextCache = null;
         if (!errorSyntaxNodeExceptions.isEmpty()) {
             throw new CompositeSyntaxNodeException("Parsing Error:",
-                errorSyntaxNodeExceptions.toArray(new SyntaxNodeException[0]));
+                errorSyntaxNodeExceptions.toArray(SyntaxNodeException.EMPTY_ARRAY));
         }
     }
 

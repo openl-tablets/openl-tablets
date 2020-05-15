@@ -435,7 +435,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                         sprSettersForField.add(spreadsheetResultValueSetter);
                                     }
                                     sprSetters.add(new SpreadsheetResultValueSetter(
-                                        sprSettersForField.toArray(new SpreadsheetResultFieldValueSetter[0])));
+                                        sprSettersForField.toArray(SpreadsheetResultFieldValueSetter.EMPTY_ARRAY)));
                                 } else if (field.getName().equals(sprStructureFieldNames[0])) {
                                     sprSetters.add(new SpreadsheetResultRowNamesSetter(field));
                                 } else if (field.getName().equals(sprStructureFieldNames[1])) {
@@ -446,7 +446,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                 }
                             }
                         }
-                        spreadsheetResultSetters = sprSetters.toArray(new SpreadsheetResultSetter[0]);
+                        spreadsheetResultSetters = sprSetters.toArray(SpreadsheetResultSetter.EMPTY_ARRAY);
                     } catch (Exception | LinkageError e) {
                         throw new IllegalStateException(
                             String.format("Failed to create bean class for '%s' spreadsheet result.", getName()),
@@ -739,6 +739,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     }
 
     private interface SpreadsheetResultSetter {
+        SpreadsheetResultSetter[] EMPTY_ARRAY = new SpreadsheetResultSetter[0];
+
         void set(SpreadsheetResult spreadsheetResult, Object target);
     }
 
@@ -760,6 +762,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     }
 
     private static class SpreadsheetResultFieldValueSetter {
+        static final SpreadsheetResultFieldValueSetter[] EMPTY_ARRAY = new SpreadsheetResultFieldValueSetter[0];
         private final Field field;
         private final IOpenField openField;
         private final XlsModuleOpenClass module;

@@ -244,7 +244,7 @@ public class CompositeGrid extends AGrid {
                 }
             }
         }
-        mergedRegions = mergedRegionsList.toArray(new IGridRegion[0]);
+        mergedRegions = mergedRegionsList.toArray(IGridRegion.EMPTY_REGION);
     }
 
     private HashSet<IGrid> getGridSet() {

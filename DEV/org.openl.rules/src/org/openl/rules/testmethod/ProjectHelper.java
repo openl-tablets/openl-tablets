@@ -72,7 +72,7 @@ public final class ProjectHelper {
 
         }
 
-        return res.toArray(new IOpenMethod[0]);
+        return res.toArray(IOpenMethod.EMPTY_ARRAY);
     }
 
     /**

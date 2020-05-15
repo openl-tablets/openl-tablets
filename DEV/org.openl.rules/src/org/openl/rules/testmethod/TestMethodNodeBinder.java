@@ -168,7 +168,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                             list.add(bestCaseOpenMethod);
                             throw new AmbiguousMethodException(tableName, IOpenClass.EMPTY, list);
                         }
-                        bestCaseErrors = new SyntaxNodeException[0];
+                        bestCaseErrors = SyntaxNodeException.EMPTY_ARRAY;
                     }
                 }
             } finally {
