@@ -29,6 +29,14 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
 import org.openl.base.INamedThing;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.BigIntegerValue;
+import org.openl.meta.ByteValue;
+import org.openl.meta.DoubleValue;
+import org.openl.meta.FloatValue;
+import org.openl.meta.IntValue;
+import org.openl.meta.LongValue;
+import org.openl.meta.ShortValue;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
@@ -109,6 +117,16 @@ public class InputArgsBean {
         predefinedTypes.add(DOUBLE);
         predefinedTypes.add(BOOLEAN);
         predefinedTypes.add(CHAR);
+
+        // Deprecated
+        predefinedTypes.add(JavaOpenClass.getOpenClass(ByteValue.class));
+        predefinedTypes.add(JavaOpenClass.getOpenClass(ShortValue.class));
+        predefinedTypes.add(JavaOpenClass.getOpenClass(IntValue.class));
+        predefinedTypes.add(JavaOpenClass.getOpenClass(LongValue.class));
+        predefinedTypes.add(JavaOpenClass.getOpenClass(DoubleValue.class));
+        predefinedTypes.add(JavaOpenClass.getOpenClass(FloatValue.class));
+        predefinedTypes.add(JavaOpenClass.getOpenClass(BigIntegerValue.class));
+        predefinedTypes.add(JavaOpenClass.getOpenClass(BigDecimalValue.class));
     }
 
     enum InputTestCaseType {
