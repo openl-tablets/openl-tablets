@@ -11,21 +11,20 @@
         "summary": "Main main(IRulesRuntimeContext)",
         "description": "Method: org.openl.generated.spreadsheetresults.Main main(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "main",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
+
+        "consumes": ["application/json"],
+
+
+        "produces": ["application/json"],
+
+        "parameters": [{
+          "in": "body",
+          "name": "body",
+          "required": false,
+          "schema": {
+            "$ref": "#/definitions/DefaultRulesRuntimeContext"
           }
+        }
         ],
         "responses": {
           "200": {
@@ -42,21 +41,20 @@
         "summary": "MySpr mySpr(IRulesRuntimeContext)",
         "description": "Method: org.openl.generated.spreadsheetresults.MySpr mySpr(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "mySpr",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
+
+        "consumes": ["application/json"],
+
+
+        "produces": ["application/json"],
+
+        "parameters": [{
+          "in": "body",
+          "name": "body",
+          "required": false,
+          "schema": {
+            "$ref": "#/definitions/DefaultRulesRuntimeContext"
           }
+        }
         ],
         "responses": {
           "200": {
@@ -68,26 +66,58 @@
         }
       }
     },
+    "/mySpr2": {
+      "post": {
+        "summary": "MySpr2 mySpr2(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MySpr2 mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "mySpr2",
+
+        "consumes": ["application/json"],
+
+
+        "produces": ["application/json"],
+
+        "parameters": [{
+          "in": "body",
+          "name": "body",
+          "required": false,
+          "schema": {
+            "$ref": "#/definitions/DefaultRulesRuntimeContext"
+          }
+        }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MySpr2"
+
+
+
+            }
+          }
+        }
+      }
+    },
     "/arrSpreadsheetResultspr1": {
       "post": {
         "summary": "Spr1[] arrSpreadsheetResultspr1(IRulesRuntimeContext)",
         "description": "Method: org.openl.generated.spreadsheetresults.Spr1[] arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "arrSpreadsheetResultspr1",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
+
+        "consumes": ["application/json"],
+
+
+        "produces": ["application/json"],
+
+        "parameters": [{
+          "in": "body",
+          "name": "body",
+          "required": false,
+          "schema": {
+            "$ref": "#/definitions/DefaultRulesRuntimeContext"
           }
+        }
         ],
         "responses": {
           "200": {
@@ -102,60 +132,25 @@
         }
       }
     },
-    "/arrObjSpreadsheetResult": {
-      "post": {
-        "summary": "Object[] arrObjSpreadsheetResult(IRulesRuntimeContext)",
-        "description": "Method: java.lang.Object[] arrObjSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "arrObjSpreadsheetResult",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
     "/arrSpreadsheetResult": {
       "post": {
         "summary": "AnySpreadsheetResult[] arrSpreadsheetResult(IRulesRuntimeContext)",
         "description": "Method: org.openl.generated.spreadsheetresults.AnySpreadsheetResult[] arrSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "arrSpreadsheetResult",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
+
+        "consumes": ["application/json"],
+
+
+        "produces": ["application/json"],
+
+        "parameters": [{
+          "in": "body",
+          "name": "body",
+          "required": false,
+          "schema": {
+            "$ref": "#/definitions/DefaultRulesRuntimeContext"
           }
+        }
         ],
         "responses": {
           "200": {
@@ -170,32 +165,34 @@
         }
       }
     },
-    "/mySpr2": {
+    "/arrObjSpreadsheetResult": {
       "post": {
-        "summary": "MySpr2 mySpr2(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MySpr2 mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "mySpr2",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
+        "summary": "Object[] arrObjSpreadsheetResult(IRulesRuntimeContext)",
+        "description": "Method: java.lang.Object[] arrObjSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "arrObjSpreadsheetResult",
+
+        "consumes": ["application/json"],
+
+
+        "produces": ["application/json"],
+
+        "parameters": [{
+          "in": "body",
+          "name": "body",
+          "required": false,
+          "schema": {
+            "$ref": "#/definitions/DefaultRulesRuntimeContext"
           }
+        }
         ],
         "responses": {
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/MySpr2"
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
             }
           }
         }
@@ -264,16 +261,16 @@
           "type": "object"
         },
         "Value_Step8": {
-          "type": "array",
-          "items": {
-            "type": "object"
-          }
+          "type": "object"
+
+
+
         },
         "Value_Step9": {
-          "type": "array",
-          "items": {
-            "type": "object"
-          }
+          "type": "object"
+
+
+
         },
         "Value_Step10": {
           "type": "object"
@@ -675,319 +672,319 @@
         },
         "usState": {
           "type": "string",
-          "enum": [
-            "AL",
-            "AK",
-            "AZ",
-            "AR",
-            "CA",
-            "CO",
-            "CT",
-            "DC",
-            "DE",
-            "FL",
-            "GA",
-            "HI",
-            "ID",
-            "IL",
-            "IN",
-            "IA",
-            "KS",
-            "KY",
-            "LA",
-            "ME",
-            "MD",
-            "MA",
-            "MI",
-            "MN",
-            "MS",
-            "MO",
-            "MT",
-            "NE",
-            "NV",
-            "NH",
-            "NJ",
-            "NM",
-            "NY",
-            "NC",
-            "ND",
-            "OH",
-            "OK",
-            "OR",
-            "PA",
-            "PR",
-            "RI",
-            "SC",
-            "SD",
-            "TN",
-            "TX",
-            "UT",
-            "VT",
-            "VA",
-            "WA",
-            "WV",
-            "WI",
-            "WY"
-          ]
+          "enum": ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         },
         "country": {
           "type": "string",
-          "enum": [
-            "AL",
-            "DZ",
-            "AR",
-            "AU",
-            "AT",
-            "BH",
-            "BY",
-            "BE",
-            "BO",
-            "BA",
-            "BR",
-            "BG",
-            "CA",
-            "CL",
-            "CN",
-            "CO",
-            "CR",
-            "HR",
-            "CY",
-            "CZ",
-            "DK",
-            "DO",
-            "EC",
-            "EG",
-            "SV",
-            "EE",
-            "FI",
-            "FR",
-            "DE",
-            "GR",
-            "GT",
-            "HN",
-            "HK",
-            "HU",
-            "IS",
-            "IN",
-            "ID",
-            "IQ",
-            "IE",
-            "IL",
-            "IT",
-            "JP",
-            "JO",
-            "KW",
-            "LV",
-            "LB",
-            "LT",
-            "LU",
-            "MK",
-            "MY",
-            "MT",
-            "MX",
-            "MA",
-            "NL",
-            "NZ",
-            "NI",
-            "NO",
-            "OM",
-            "PA",
-            "PY",
-            "PE",
-            "PH",
-            "PL",
-            "PT",
-            "PR",
-            "QA",
-            "RO",
-            "RU",
-            "SA",
-            "CS",
-            "SG",
-            "SK",
-            "SI",
-            "ZA",
-            "ES",
-            "SD",
-            "SE",
-            "CH",
-            "SY",
-            "TW",
-            "TH",
-            "TN",
-            "TR",
-            "UA",
-            "AE",
-            "GB",
-            "US",
-            "UY",
-            "VE",
-            "VN",
-            "YE"
-          ]
+          "enum": ["AL", "DZ", "AR", "AU", "AT", "BH", "BY", "BE", "BO", "BA", "BR", "BG", "CA", "CL", "CN", "CO", "CR", "HR", "CY", "CZ", "DK", "DO", "EC", "EG", "SV", "EE", "FI", "FR", "DE", "GR", "GT", "HN", "HK", "HU", "IS", "IN", "ID", "IQ", "IE", "IL", "IT", "JP", "JO", "KW", "LV", "LB", "LT", "LU", "MK", "MY", "MT", "MX", "MA", "NL", "NZ", "NI", "NO", "OM", "PA", "PY", "PE", "PH", "PL", "PT", "PR", "QA", "RO", "RU", "SA", "CS", "SG", "SK", "SI", "ZA", "ES", "SD", "SE", "CH", "SY", "TW", "TH", "TN", "TR", "UA", "AE", "GB", "US", "UY", "VE", "VN", "YE"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         },
         "usRegion": {
           "type": "string",
-          "enum": [
-            "MW",
-            "NE",
-            "SE",
-            "SW",
-            "W"
-          ]
+          "enum": ["MW", "NE", "SE", "SW", "W"]
+
+
+
+
+
+
         },
         "currency": {
           "type": "string",
-          "enum": [
-            "ALL",
-            "DZD",
-            "ARS",
-            "AUD",
-            "BHD",
-            "BYR",
-            "BOB",
-            "BAM",
-            "BRL",
-            "CAD",
-            "CLP",
-            "CNY",
-            "COP",
-            "CRC",
-            "HRK",
-            "CZK",
-            "DKK",
-            "DOP",
-            "EGP",
-            "EUR",
-            "GTQ",
-            "HNL",
-            "HKD",
-            "HUF",
-            "ISK",
-            "INR",
-            "IDR",
-            "IQD",
-            "ILS",
-            "JPY",
-            "JOD",
-            "KWD",
-            "LVL",
-            "LBP",
-            "LTL",
-            "MKD",
-            "MYR",
-            "MXN",
-            "MAD",
-            "NZD",
-            "NIO",
-            "NOK",
-            "OMR",
-            "PAB",
-            "PYG",
-            "PEN",
-            "PHP",
-            "PLN",
-            "QAR",
-            "RON",
-            "RUB",
-            "SAR",
-            "RSD",
-            "SGD",
-            "ZAR",
-            "SDG",
-            "SEK",
-            "CHF",
-            "SYP",
-            "TWD",
-            "TND",
-            "TRY",
-            "UAH",
-            "AED",
-            "GBP",
-            "USD",
-            "UYU",
-            "VEF",
-            "VND",
-            "YER"
-          ]
+          "enum": ["ALL", "DZD", "ARS", "AUD", "BHD", "BYR", "BOB", "BAM", "BRL", "CAD", "CLP", "CNY", "COP", "CRC", "HRK", "CZK", "DKK", "DOP", "EGP", "EUR", "GTQ", "HNL", "HKD", "HUF", "ISK", "INR", "IDR", "IQD", "ILS", "JPY", "JOD", "KWD", "LVL", "LBP", "LTL", "MKD", "MYR", "MXN", "MAD", "NZD", "NIO", "NOK", "OMR", "PAB", "PYG", "PEN", "PHP", "PLN", "QAR", "RON", "RUB", "SAR", "RSD", "SGD", "ZAR", "SDG", "SEK", "CHF", "SYP", "TWD", "TND", "TRY", "UAH", "AED", "GBP", "USD", "UYU", "VEF", "VND", "YER"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         },
         "lang": {
           "type": "string",
-          "enum": [
-            "ALB",
-            "ARA",
-            "BEL",
-            "BUL",
-            "CAT",
-            "CHI",
-            "SCR",
-            "CZE",
-            "DAN",
-            "DUT",
-            "ENG",
-            "FIN",
-            "FRE",
-            "GER",
-            "GRE",
-            "HEB",
-            "HIN",
-            "HUN",
-            "IND",
-            "GLE",
-            "ITA",
-            "JPN",
-            "LAV",
-            "LIT",
-            "MAC",
-            "MAY",
-            "MLT",
-            "NOR",
-            "POL",
-            "POR",
-            "RUM",
-            "RUS",
-            "SCC",
-            "SLO",
-            "SPA",
-            "THA",
-            "TUR",
-            "UKR",
-            "VIE"
-          ]
+          "enum": ["ALB", "ARA", "BEL", "BUL", "CAT", "CHI", "SCR", "CZE", "DAN", "DUT", "ENG", "FIN", "FRE", "GER", "GRE", "HEB", "HIN", "HUN", "IND", "GLE", "ITA", "JPN", "LAV", "LIT", "MAC", "MAY", "MLT", "NOR", "POL", "POR", "RUM", "RUS", "SCC", "SLO", "SPA", "THA", "TUR", "UKR", "VIE"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         },
         "region": {
           "type": "string",
-          "enum": [
-            "NCSA",
-            "EU",
-            "EMEA",
-            "APJ"
-          ]
+          "enum": ["NCSA", "EU", "EMEA", "APJ"]
+
+
+
+
+
         },
         "caProvince": {
           "type": "string",
-          "enum": [
-            "AB",
-            "BC",
-            "PE",
-            "MB",
-            "NB",
-            "NS",
-            "NU",
-            "ON",
-            "QC",
-            "SK",
-            "NL",
-            "YT",
-            "NT"
-          ]
+          "enum": ["AB", "BC", "PE", "MB", "NB", "NS", "NU", "ON", "QC", "SK", "NL", "YT", "NT"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         },
         "caRegion": {
           "type": "string",
-          "enum": [
-            "QC",
-            "HQ"
-          ]
+          "enum": ["QC", "HQ"]
+
+
+
         }
       }
     },
