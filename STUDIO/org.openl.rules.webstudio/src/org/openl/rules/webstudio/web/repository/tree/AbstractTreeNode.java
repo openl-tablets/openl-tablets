@@ -333,10 +333,6 @@ public abstract class AbstractTreeNode implements TreeNode {
         }
     }
 
-    public boolean isHasModifications() {
-        return getData().hasModifications();
-    }
-
     @Override
     public boolean isLeafOnly() {
         return isLeafOnly;
