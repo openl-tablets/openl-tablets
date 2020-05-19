@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
@@ -190,6 +191,17 @@ public class HttpClient {
                     compareBinary(responseFile, body);
             }
         } catch (Exception | AssertionError ex) {
+            if (body != null) {
+                try (InputStream actual = body.getInputStream()) {
+                    byte[] bytes = StreamUtils.copyToByteArray(actual);
+                    HttpData.log(responseFile,
+                        response.getStatusCode().toString(),
+                        response.getHeaders().toSingleValueMap(),
+                        bytes);
+                } catch (Exception ignored) {
+                    // Ignored
+                }
+            }
             throw new RuntimeException(ex);
         }
     }
