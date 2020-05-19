@@ -86,17 +86,6 @@ public class AProjectArtefact {
         return createProjectVersion(getFileData());
     }
 
-    public ProjectVersion getLastVersion() {
-        List<FileData> fileDatas;
-        try {
-            fileDatas = getRepository().listHistory(getFileData().getName());
-        } catch (IOException ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
-        }
-        return fileDatas.isEmpty() ? createProjectVersion(null)
-                                   : createProjectVersion(fileDatas.get(fileDatas.size() - 1));
-    }
-
     public List<ProjectVersion> getVersions() {
         if (getFileData() == null) {
             return Collections.emptyList();

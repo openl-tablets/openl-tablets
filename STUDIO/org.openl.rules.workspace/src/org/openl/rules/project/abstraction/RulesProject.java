@@ -255,7 +255,15 @@ public class RulesProject extends UserWorkspaceProject {
     public ProjectVersion getVersion() {
         String historyVersion = getHistoryVersion();
         if (historyVersion == null) {
-            return getLastVersion();
+            if (designFolderName != null) {
+                try {
+                    return createProjectVersion(designRepository.check(designFolderName));
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+
+            return null;
         }
         return super.getVersion();
     }
