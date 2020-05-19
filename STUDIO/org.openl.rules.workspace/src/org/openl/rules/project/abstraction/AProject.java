@@ -157,12 +157,6 @@ public class AProject extends AProjectFolder {
         return getHistoryFileDatas().size();
     }
 
-    @Override
-    protected ProjectVersion getVersion(int index) {
-        List<FileData> fileDatas = getHistoryFileDatas();
-        return fileDatas.isEmpty() ? null : createProjectVersion(fileDatas.get(index));
-    }
-
     protected List<FileData> getHistoryFileDatas() {
         if (historyFileDatas == null) {
             try {
