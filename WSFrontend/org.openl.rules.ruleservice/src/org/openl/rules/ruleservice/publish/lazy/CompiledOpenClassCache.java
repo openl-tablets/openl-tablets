@@ -4,16 +4,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
-import org.ehcache.Cache;
-import org.ehcache.Cache.Entry;
-import org.ehcache.event.EventFiring;
-import org.ehcache.event.EventOrdering;
-import org.ehcache.event.EventType;
+import javax.cache.Cache;
+import javax.cache.Cache.Entry;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+import javax.cache.configuration.FactoryBuilder;
+import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.Duration;
+import javax.cache.expiry.TouchedExpiryPolicy;
+import javax.cache.spi.CachingProvider;
+
 import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
@@ -35,26 +39,21 @@ public final class CompiledOpenClassCache {
 
     private static final Logger LOG = LoggerFactory.getLogger(CompiledOpenClassCache.class);
 
+    private static final String CACHE_NAME = "modulesCache";
+
+    private volatile Cache<Key, CompiledOpenClass> modulesCache = null;
+
+    private final Map<Key, Collection<LazyMember>> eventsMap = new HashMap<>();
+
+    public void reset() {
+        getModulesCache().removeAll();
+    }
+
     private static class CompiledOpenClassHolder {
         static final CompiledOpenClassCache INSTANCE = new CompiledOpenClassCache();
     }
 
     private CompiledOpenClassCache() {
-        Set<EventType> allEventTypes = new HashSet<>();
-        allEventTypes.add(EventType.CREATED);
-        allEventTypes.add(EventType.EVICTED);
-        allEventTypes.add(EventType.REMOVED);
-        allEventTypes.add(EventType.EXPIRED);
-        OpenLEhCache.getInstance().getModulesCache().getRuntimeConfiguration().registerCacheEventListener(event -> {
-            synchronized (CompiledOpenClassCache.this.eventsMap) {
-                Collection<Event> events = CompiledOpenClassCache.this.eventsMap.get(event.getKey());
-                if (events != null) {
-                    for (Event e : events) {
-                        e.onEvent(event);
-                    }
-                }
-            }
-        }, EventOrdering.ORDERED, EventFiring.SYNCHRONOUS, allEventTypes);
     }
 
     /**
@@ -70,7 +69,7 @@ public final class CompiledOpenClassCache {
         Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
         Objects.requireNonNull(dependencyName, "dependencyName cannot be null");
         Key key = new Key(deploymentDescription, dependencyName);
-        Cache<Key, CompiledOpenClass> cache = OpenLEhCache.getInstance().getModulesCache();
+        Cache<Key, CompiledOpenClass> cache = getModulesCache();
         return cache.get(key);
     }
 
@@ -94,7 +93,7 @@ public final class CompiledOpenClassCache {
             CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
 
             Key key = new Key(deployment, dependencyName);
-            Cache<Key, CompiledOpenClass> cache = OpenLEhCache.getInstance().getModulesCache();
+            Cache<Key, CompiledOpenClass> cache = getInstance().getModulesCache();
             cache.put(key, compiledOpenClass);
             LOG.debug("Compiled lazy dependency (deployment='{}', version='{}', name='{}') is saved in cache.",
                 deployment.getName(),
@@ -108,21 +107,19 @@ public final class CompiledOpenClassCache {
         }
     }
 
-    private final Map<Key, Collection<Event>> eventsMap = new HashMap<>();
-
-    void registerEvent(DeploymentDescription deploymentDescription, String dependencyName, Event event) {
+    void registerEvent(DeploymentDescription deploymentDescription, String dependencyName, LazyMember event) {
         Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
         Objects.requireNonNull(dependencyName, "dependencyName cannot be null");
         Key key = new Key(deploymentDescription, dependencyName);
         synchronized (eventsMap) {
-            Collection<Event> events = eventsMap.computeIfAbsent(key, k -> new ArrayList<>());
+            Collection<LazyMember> events = eventsMap.computeIfAbsent(key, k -> new ArrayList<>());
             events.add(event);
         }
     }
 
-    public void removeAll(DeploymentDescription deploymentDescription) {
+    void removeAll(DeploymentDescription deploymentDescription) {
         Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
-        Cache<Key, CompiledOpenClass> cache = OpenLEhCache.getInstance().getModulesCache();
+        Cache<Key, CompiledOpenClass> cache = getModulesCache();
         for (Entry<Key, CompiledOpenClass> entry : cache) {
             Key key = entry.getKey();
             DeploymentDescription deployment = key.getDeploymentDescription();
@@ -139,11 +136,38 @@ public final class CompiledOpenClassCache {
         }
     }
 
-    public void reset() {
-        Cache<Key, CompiledOpenClass> cache = OpenLEhCache.getInstance().getModulesCache();
-        cache.clear();
-        synchronized (eventsMap) {
-            eventsMap.clear();
+    void clean(Key key) {
+        synchronized (CompiledOpenClassCache.this.eventsMap) {
+            Collection<LazyMember> events = CompiledOpenClassCache.this.eventsMap.remove(key);
+            if (events != null) {
+                for (LazyMember e : events) {
+                    e.clearCachedMember();
+                }
+            }
         }
+    }
+
+    private Cache<Key, CompiledOpenClass> getModulesCache() {
+        if (modulesCache == null) {
+            synchronized (this) {
+                if (modulesCache == null) {
+                    ClassLoader classLoader = CompiledOpenClassCache.class.getClassLoader();
+                    CachingProvider cachingProvider = Caching.getCachingProvider(classLoader);
+
+                    CacheManager cacheManager = cachingProvider.getCacheManager();
+                    modulesCache = cacheManager.getCache(CACHE_NAME, Key.class, CompiledOpenClass.class);
+                    if (modulesCache == null) {
+                        modulesCache = cacheManager.createCache(CACHE_NAME,
+                            new MutableConfiguration<Key, CompiledOpenClass>()
+                                .setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(Duration.ONE_DAY))
+                                .setStoreByValue(false)
+                                .setTypes(Key.class, CompiledOpenClass.class));
+                    }
+                    modulesCache.registerCacheEntryListener(new MutableCacheEntryListenerConfiguration<>(FactoryBuilder
+                        .factoryOf(CleanUpListener.class), null, false, true));
+                }
+            }
+        }
+        return modulesCache;
     }
 }

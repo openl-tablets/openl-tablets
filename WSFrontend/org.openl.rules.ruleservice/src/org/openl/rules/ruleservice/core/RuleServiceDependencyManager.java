@@ -133,11 +133,6 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public synchronized void resetAll() {
-        throw new UnsupportedOperationException();
-    }
-
     private boolean compilationAfterLazyCompilationRequred(Set<String> wildcardPatterns, String moduleName) {
         for (String pattern : wildcardPatterns) {
             if (wildcardPatternMatcher.match(pattern, moduleName)) {

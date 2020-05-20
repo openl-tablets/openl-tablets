@@ -9,6 +9,10 @@
 		<property name="lazyCompilation" value="${ruleservice.instantiation.strategy.lazy}"/>
 	</bean>
 
+	<!-- Reset cache on reload Application context -->
+	<bean class="org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache" factory-method="getInstance"
+		  destroy-method="reset"/>
+
 	<bean id="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
 		<property name="staticMethod" value="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile"/>
 		<property name="arguments">
