@@ -5,6 +5,8 @@ import java.util.Collection;
 import org.openl.OpenL;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.binding.impl.cast.ThrowableVoidCast;
+import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.DomainOpenClass;
@@ -57,6 +59,12 @@ public final class CastToWiderType {
     public static CastToWiderType create(ICastFactory castFactory, IOpenClass type1, IOpenClass type2) {
         if (NullOpenClass.the.equals(type1) && NullOpenClass.the.equals(type2)) {
             return new CastToWiderType(type2, null, null);
+        } else if (ThrowableVoid.class.equals(type1.getInstanceClass())) {
+            IOpenCast cast = castFactory.getCast(type1, type2);
+            return new CastToWiderType(type2, cast, null);
+        } else if (ThrowableVoid.class.equals(type2.getInstanceClass())) {
+            IOpenCast cast = castFactory.getCast(type2, type1);
+            return new CastToWiderType(type1, null, cast);
         } else {
             IOpenCast cast1To2 = castFactory.getCast(type1, type2);
             IOpenCast cast2To1 = castFactory.getCast(type2, type1);
