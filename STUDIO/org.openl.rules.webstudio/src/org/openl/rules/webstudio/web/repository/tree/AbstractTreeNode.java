@@ -321,20 +321,16 @@ public abstract class AbstractTreeNode implements TreeNode {
                 if (data.isFolder()) {
                     return false;
                 } else {
-                    List<ProjectVersion> versions = project
-                        .getArtefactVersions(getData().getArtefactPath().withoutFirstSegment());
-                    return !versions.isEmpty();
+                    return project
+                        .hasArtefactVersions(getData().getArtefactPath().withoutFirstSegment());
                 }
             } else {
-                return getData().getVersionsCount() > 0;
+                AProjectArtefact artefact = getData();
+                return artefact instanceof  AProject && ((AProject) artefact).getLastHistoryVersion() != null;
             }
         } else {
             return false;
         }
-    }
-
-    public boolean isHasModifications() {
-        return getData().hasModifications();
     }
 
     @Override

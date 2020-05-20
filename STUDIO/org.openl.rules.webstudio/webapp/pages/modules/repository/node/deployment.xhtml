@@ -17,16 +17,6 @@
         <h:outputText value="#{node.modifiedAt}">
             <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.datetime')}"/>
         </h:outputText>
-        
-        <h:outputText value="Created By:"/>
-        <h:outputText value="#{node.createdBy}"/>
-
-        <h:outputText value="Created At:"/>
-        <h:outputText value="#{node.createdAt}">
-            <f:convertDateTime type="date"
-                               pattern="#{environment.getProperty('data.format.datetime')}"/>
-        </h:outputText>
-
 
         <h:outputText value="Revision ID:"/>
         <h:panelGroup>

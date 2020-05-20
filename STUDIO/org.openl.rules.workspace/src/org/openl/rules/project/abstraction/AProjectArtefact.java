@@ -86,30 +86,6 @@ public class AProjectArtefact {
         return createProjectVersion(getFileData());
     }
 
-    public ProjectVersion getLastVersion() {
-        List<FileData> fileDatas;
-        try {
-            fileDatas = getRepository().listHistory(getFileData().getName());
-        } catch (IOException ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
-        }
-        return fileDatas.isEmpty() ? createProjectVersion(null)
-                                   : createProjectVersion(fileDatas.get(fileDatas.size() - 1));
-    }
-
-    public ProjectVersion getFirstVersion() {
-        try {
-            int versionsCount = getVersionsCount();
-            if (versionsCount == 0) {
-                return new RepositoryProjectVersionImpl();
-            }
-
-            return getVersion(0);
-        } catch (Exception e) {
-            return new RepositoryProjectVersionImpl();
-        }
-    }
-
     public List<ProjectVersion> getVersions() {
         if (getFileData() == null) {
             return Collections.emptyList();
@@ -127,26 +103,12 @@ public class AProjectArtefact {
         return versions;
     }
 
-    public boolean hasModifications() {
-        return !getFirstVersion().equals(getLastVersion());
-    }
-
     public int getVersionsCount() {
         try {
             return getFileData() == null ? 0 : getRepository().listHistory(getFileData().getName()).size();
         } catch (IOException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
-    }
-
-    protected ProjectVersion getVersion(int index) {
-        List<FileData> fileDatas;
-        try {
-            fileDatas = getRepository().listHistory(getFileData().getName());
-        } catch (IOException ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
-        }
-        return fileDatas.isEmpty() ? null : createProjectVersion(fileDatas.get(index));
     }
 
     protected ProjectVersion createProjectVersion(FileData fileData) {
