@@ -296,9 +296,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             throw new ProjectException(e.getMessage(), e);
         } finally {
             releaseProject(project.getName());
-            if (content != null) {
-                IOUtils.closeQuietly(content);
-            }
+            IOUtils.closeQuietly(content);
         }
     }
 
