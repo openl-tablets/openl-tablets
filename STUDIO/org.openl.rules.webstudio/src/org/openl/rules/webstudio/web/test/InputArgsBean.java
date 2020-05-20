@@ -492,12 +492,13 @@ public class InputArgsBean {
             if (currentProject.hasArtefact(DeployUtils.RULES_DEPLOY_XML)) {
                 AProjectArtefact artefact = currentProject.getArtefact(DeployUtils.RULES_DEPLOY_XML);
                 if (artefact instanceof AProjectResource) {
-                    InputStream content = ((AProjectResource) artefact).getContent();
-                    IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
-                    rulesDeploy = rulesDeploySerializer.deserialize(content);
+                    try (InputStream content = ((AProjectResource) artefact).getContent()) {
+                        IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
+                        rulesDeploy = rulesDeploySerializer.deserialize(content);
+                    }
                 }
             }
-        } catch (ProjectException e) {
+        } catch (ProjectException | IOException e) {
             log.error("Error during getting project rules deploy", e);
         }
         return rulesDeploy;

@@ -1,7 +1,6 @@
 package org.openl.rules.repository.aws;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,11 +9,15 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openl.rules.repository.RRepositoryFactory;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.Features;
+import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +29,15 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.CopyObjectResult;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3VersionSummary;
+import com.amazonaws.services.s3.model.SetBucketVersioningConfigurationRequest;
+import com.amazonaws.services.s3.model.VersionListing;
 
 public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(S3Repository.class);
@@ -187,7 +198,6 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
 
     @Override
     public FileItem read(String name) throws IOException {
-        S3Object object = null;
         try {
             FileData fileData = check(name);
             if (fileData == null) {
@@ -195,24 +205,12 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
             }
             InputStream objectContent = null;
             if (!fileData.isDeleted()) {
-                object = s3.getObject(bucketName, name);
-                try (S3ObjectInputStream stream = object.getObjectContent()) {
-                    ByteArrayOutputStream temp = new ByteArrayOutputStream();
-                    IOUtils.copy(stream, temp);
-                    objectContent = new ByteArrayInputStream(temp.toByteArray());
-                }
+                S3Object object = s3.getObject(bucketName, name);
+                objectContent = object.getObjectContent();
             }
             return objectContent == null ? null : new FileItem(fileData, objectContent);
         } catch (SdkClientException e) {
             throw new IOException(e);
-        } finally {
-            if (object != null) {
-                try {
-                    object.close();
-                } catch (IOException e) {
-                    log.error("Unable to close S3 object: {}", e.getMessage(), e);
-                }
-            }
         }
     }
 
@@ -349,7 +347,6 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
 
     @Override
     public FileItem readHistory(String name, String version) throws IOException {
-        List<S3Object> retrievedObjects = new ArrayList<>();
         try {
             VersionListing versionListing = null;
 
@@ -361,12 +358,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
                         InputStream content = null;
                         if (!versionSummary.isDeleteMarker()) {
                             S3Object object = s3.getObject(new GetObjectRequest(bucketName, name, version));
-                            try (S3ObjectInputStream stream = object.getObjectContent()) {
-                                ByteArrayOutputStream temp = new ByteArrayOutputStream();
-                                IOUtils.copy(stream, temp);
-                                content = new ByteArrayInputStream(temp.toByteArray());
-                            }
-                            retrievedObjects.add(object);
+                            content = object.getObjectContent();
                         }
                         return content == null ? null : new FileItem(checkHistory(name, version), content);
                     }
@@ -376,14 +368,6 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
             return null;
         } catch (SdkClientException e) {
             throw new IOException(e);
-        } finally {
-            for (S3Object retrievedObject : retrievedObjects) {
-                try {
-                    retrievedObject.close();
-                } catch (IOException e) {
-                    log.error("Unable to close S3 object: {}", e.getMessage(), e);
-                }
-            }
         }
     }
 

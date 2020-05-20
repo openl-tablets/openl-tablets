@@ -71,7 +71,7 @@ public class ProjectVersionCacheManager implements InitializingBean {
                 }
             } else {
                 FileItem zip = wsProject.getRepository().read(wsProject.getFolderPath());
-                  try (ZipInputStream zin = new ZipInputStream(zip.getStream())) {
+                try (ZipInputStream zin = new ZipInputStream(zip.getStream())) {
                     ZipEntry entry;
                     while ((entry = zin.getNextEntry()) != null) {
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
