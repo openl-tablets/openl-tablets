@@ -11,7 +11,7 @@
             padding: 6px 7px !important;
         }
     </style>
-    <rich:dataTable value="#{node.versions}" var="version" styleClass="table"
+    <rich:dataTable value="#{nodeVersionsBean.node.versions}" var="version" styleClass="table"
                     columnClasses="padding">
         <f:facet name="header">
             <rich:columnGroup>
@@ -47,10 +47,8 @@
             <h:outputText value="#{commentParts[0]}" rendered="#{hasProjectReference}"/>
             <h:commandLink value="#{commentParts[1]}"
                            rendered="#{hasProjectReference}"
-                           action="#{repositoryTreeController.selectRulesProject}"
-                           immediate="true">
-                <f:param name="projectName" value="#{commentParts[1]}"/>
-            </h:commandLink>
+                           onclick="setRulesProject('#{commentParts[1]}'); return false;"
+                           immediate="true"/>
             <h:outputText value="#{commentParts[2]}" rendered="#{hasProjectReference}"/>
         </rich:column>
         <rich:column style="text-align: center;">
@@ -68,19 +66,29 @@
         <rich:column
                 rendered="#{node.type == 'project' and repositoryTreeState.canOpenOtherVersion and !artefact.deleted and !version.deleted}"
                 style="text-align: center;">
-            <a4j:commandLink id="openPrjVersion"
-                             title="Open Revision '#{repositoryTreeController.getDescriptiveVersion(version)}'"
-                             onclick="return backToPropsTab();"
-                             immediate="true"
-                             oncomplete="refreshRulesDeployConfiguration()"
-                             action="#{repositoryTreeController.openProjectVersion(version.versionName)}"
-                             render="nodeView nodeTabPanel projectTree content">
+            <a href="javascript:void(0)" id="openPrjVersion"
+               title="Open Revision '#{repositoryTreeController.getDescriptiveVersion(version)}'"
+               onclick="openProjectVersion('#{version.versionName}')">
                 <img src="#{request.contextPath}/webresource/images/view.png"/>
-            </a4j:commandLink>
+            </a>
         </rich:column>
     </rich:dataTable>
 
-    <h:panelGroup rendered="#{empty node.versions}" styleClass="noEntries">
+    <a4j:jsFunction name="setRulesProject"
+                    immediate="true"
+                    render="nodeView nodeTabPanel projectTree content">
+        <a4j:param name="projectName" assignTo="#{repositoryTreeController.rulesProject}"/>
+    </a4j:jsFunction>
+
+    <a4j:jsFunction name="openProjectVersion"
+                    onclick="return backToPropsTab();"
+                    immediate="true"
+                    render="nodeView nodeTabPanel projectTree content"
+                    oncomplete="refreshRulesDeployConfiguration()">
+        <a4j:param name="version" assignTo="#{repositoryTreeController.projectVersion}"/>
+    </a4j:jsFunction>
+
+    <h:panelGroup rendered="#{empty nodeVersionsBean.node.versions}" styleClass="noEntries">
         <h:outputText value="No version history"/>
     </h:panelGroup>
 

@@ -91,10 +91,7 @@
                             <h:commandButton id="openVersionId1" rendered="#{repositoryTreeState.canOpenOtherVersion}"
                                              value="Open Revision"
                                              type="button" onclick="openOpenVersionDialog()"
-                                             title="#{openVersionMessage}">
-                                <f:ajax listener="#{repositoryTreeController.selectCurrentProjectForOpen}"
-                                        render=":openVersionForm"/>
-                            </h:commandButton>
+                                             title="#{openVersionMessage}"/>
                             <!-- We don't need forms validation when we are closing the project. So use immediate="true" to bypass validation -->
                             <h:commandButton id="closeId1" rendered="#{repositoryTreeState.canClose}" value="Close"
                                              action="#{repositoryTreeController.closeProject}" title="#{closeMessage}"
@@ -109,10 +106,7 @@
                                              title="#{openMessage}"/>
                             <h:commandButton id="openVersionId2" rendered="#{repositoryTreeState.canOpenOtherVersion}"
                                              value="Open Revision" onclick="openOpenVersionDialog();"
-                                             title="#{openVersionMessage}">
-                                <f:ajax listener="#{repositoryTreeController.selectCurrentProjectForOpen}"
-                                        render=":openVersionForm"/>
-                            </h:commandButton>
+                                             title="#{openVersionMessage}"/>
                             <h:commandButton id="closeId2" rendered="#{repositoryTreeState.canClose}" value="Close"
                                              onclick="#{rich:component('modalCloseProject')}.show();return false;"
                                              title="#{closeMessage}"/>
@@ -269,9 +263,17 @@
          As a workaround "disabled" attribute in conjunction with "hideHeader"/"showHeader" styles is used.
     --></ui:remove>
         <rich:tab id="revisions" name="Revisions" header="Revisions"
+                  onenter="refreshVersionsContentProject()"
                   disabled="#{node.type == 'prodproject' or node.type == 'prodfile' or node.type == 'prodfolder'}"
                   headerClass="#{node.type == 'prodproject' or node.type == 'prodfile' or node.type == 'prodfolder' ? 'hideHeader' : 'showHeader'}">
-            <ui:include src="/pages/modules/repository/node/versions.xhtml"/>
+            <h:panelGroup id="versionsContentProject">
+                <ui:include src="/pages/modules/repository/node/versions.xhtml"/>
+            </h:panelGroup>
+            <a4j:jsFunction name="refreshVersionsContentProject"
+                            action="#{nodeVersionsBean.setNode(node)}"
+                            render="versionsContentProject"
+                            oncomplete="initExpandableLinks()"/>
+
         </rich:tab>
         <ui:remove><!--
          FIXME: because of the bug: https://issues.jboss.org/browse/RF-10961
@@ -323,10 +325,7 @@
                                  onclick="openSelectRepositoryDialog();return false;"
                                  title="Deploy into operations or staging"/>
                 <h:commandButton id="openVersionId3" rendered="#{repositoryTreeState.canOpen}" value="Open Revision"
-                                 onclick="openOpenVersionDialog();" title="Open the specified project revision">
-                    <f:ajax listener="#{repositoryTreeController.selectCurrentProjectForOpen}"
-                            render=":openVersionForm"/>
-                </h:commandButton>
+                                 onclick="openOpenVersionDialog();" title="Open the specified project revision"/>
 
                 <h:commandButton id="closeId3" rendered="#{repositoryTreeState.canClose}" value="Close"
                                  action="#{deploymentController.close}"
@@ -356,8 +355,14 @@
             <rich:tab header="Properties">
                 <ui:include src="node/deployment.xhtml"/>
             </rich:tab>
-            <rich:tab header="Revisions">
-                <ui:include src="/pages/modules/repository/node/versions.xhtml"/>
+            <rich:tab header="Revisions" onenter="refreshVersionsContentDeployConfig()">
+                <h:panelGroup id="versionsContentDeployConfig">
+                    <ui:include src="/pages/modules/repository/node/versions.xhtml"/>
+                </h:panelGroup>
+                <a4j:jsFunction name="refreshVersionsContentDeployConfig"
+                                action="#{nodeVersionsBean.setNode(node)}"
+                                render="versionsContentDeployConfig"
+                                oncomplete="initExpandableLinks()"/>
             </rich:tab>
             <rich:tab header="Projects to Deploy">
                 <ui:include src="/pages/modules/repository/node/descriptors.xhtml"/>
