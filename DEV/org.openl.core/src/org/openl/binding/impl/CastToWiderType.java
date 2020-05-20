@@ -5,7 +5,6 @@ import java.util.Collection;
 import org.openl.OpenL;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
-import org.openl.binding.impl.cast.ThrowableVoidCast;
 import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
