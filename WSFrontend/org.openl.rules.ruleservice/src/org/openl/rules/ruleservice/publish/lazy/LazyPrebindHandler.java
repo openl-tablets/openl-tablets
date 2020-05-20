@@ -69,12 +69,11 @@ class LazyPrebindHandler implements IPrebindHandler {
                 } catch (Exception e) {
                     throw new RuleServiceOpenLCompilationException("Failed to load lazy method.", e);
                 }
+                CompiledOpenClassCache.getInstance().registerEvent(deployment, module.getName(), this);
                 return openMethod;
             }
 
         };
-        CompiledOpenClassCache.getInstance()
-            .registerEvent(deployment, module.getName(), new LazyMemberEvent(lazyMethod));
         return LazyWrapperLogic.wrapMethod(lazyMethod, method);
     }
 
@@ -101,6 +100,7 @@ class LazyPrebindHandler implements IPrebindHandler {
                 try {
                     CompiledOpenClass compiledOpenClass = getCompiledOpenClassWithThrowErrorExceptionsIfAny(field,
                         module);
+                    CompiledOpenClassCache.getInstance().registerEvent(deployment, module.getName(), this);
                     return compiledOpenClass.getOpenClass().getField(field.getName());
                 } catch (Exception e) {
                     throw new RuleServiceOpenLCompilationException("Failed to load a lazy field.", e);
@@ -108,8 +108,6 @@ class LazyPrebindHandler implements IPrebindHandler {
             }
 
         };
-        CompiledOpenClassCache.getInstance()
-            .registerEvent(deployment, module.getName(), new LazyMemberEvent(lazyField));
         return LazyWrapperLogic.wrapField(lazyField, field);
     }
 

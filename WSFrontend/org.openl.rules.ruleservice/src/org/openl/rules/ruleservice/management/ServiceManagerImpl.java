@@ -221,8 +221,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             throw new RuleServiceDeployException(
                 String.format("The service with name '%s' has already been deployed.", serviceName));
         }
-        // Some singleton caches may not be cleaned by calling undeploy method
-        cleanDeploymentResources(serviceDescription);
         try {
             ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
             OpenLService newService = ruleServiceInstantiationFactory.createService(serviceDescription);

@@ -198,14 +198,8 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.glassfish.jaxb</groupId>
-                    <artifactId>jaxb-runtime</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.cache2k</groupId>
+            <artifactId>cache2k-jcache</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

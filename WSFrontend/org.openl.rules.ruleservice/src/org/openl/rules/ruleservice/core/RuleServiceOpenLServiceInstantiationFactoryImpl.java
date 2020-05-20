@@ -21,7 +21,6 @@ import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdviceList
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactory;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl;
-import org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.types.IOpenClass;
 import org.slf4j.Logger;
@@ -290,8 +289,10 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     @Override
     public void clean(ServiceDescription serviceDescription) {
-        dependencyManagerMap.remove(serviceDescription.getDeployment());
-        CompiledOpenClassCache.getInstance().removeAll(serviceDescription.getDeployment());
+        RuleServiceDependencyManager depMan = dependencyManagerMap.remove(serviceDescription.getDeployment());
+        if (depMan != null) {
+            depMan.resetAll();
+        }
     }
 
     private RuleServiceDependencyManager getDependencyManager(ServiceDescription serviceDescription) {
