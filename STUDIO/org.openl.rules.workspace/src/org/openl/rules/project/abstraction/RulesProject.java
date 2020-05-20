@@ -255,7 +255,15 @@ public class RulesProject extends UserWorkspaceProject {
     public ProjectVersion getVersion() {
         String historyVersion = getHistoryVersion();
         if (historyVersion == null) {
-            return getLastVersion();
+            if (designFolderName != null) {
+                try {
+                    return createProjectVersion(designRepository.check(designFolderName));
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+
+            return null;
         }
         return super.getVersion();
     }
@@ -278,27 +286,21 @@ public class RulesProject extends UserWorkspaceProject {
         return historyFileDatas;
     }
 
-    public List<ProjectVersion> getArtefactVersions(ArtefactPath artefactPath) {
+    public boolean hasArtefactVersions(ArtefactPath artefactPath) {
         String subPath = artefactPath.getStringValue();
         if (subPath.isEmpty() || subPath.equals("/")) {
-            return getVersions();
+            return getLastHistoryVersion() != null;
         }
         if (!subPath.startsWith("/")) {
             subPath += "/";
         }
         String fullPath = getFolderPath() + subPath;
-        Collection<FileData> fileDatas;
         try {
-            fileDatas = getRepository().listHistory(fullPath);
+            return getRepository().check(fullPath) != null;
         } catch (IOException ex) {
             log.error(ex.getMessage(), ex);
-            return Collections.emptyList();
+            return false;
         }
-        List<ProjectVersion> versions = new ArrayList<>();
-        for (FileData data : fileDatas) {
-            versions.add(createProjectVersion(data));
-        }
-        return versions;
     }
 
     @Override

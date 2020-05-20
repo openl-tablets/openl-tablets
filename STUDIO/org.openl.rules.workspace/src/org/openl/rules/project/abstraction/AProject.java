@@ -128,12 +128,6 @@ public class AProject extends AProjectFolder {
         this.lastHistoryVersion = lastHistoryVersion;
     }
 
-    @Override
-    public ProjectVersion getLastVersion() {
-        List<FileData> fileDatas = getHistoryFileDatas();
-        return fileDatas.isEmpty() ? null : createProjectVersion(fileDatas.get(fileDatas.size() - 1));
-    }
-
     public boolean isLastVersion() {
         String historyVersion = getHistoryVersion();
         if (historyVersion == null) {
@@ -156,12 +150,6 @@ public class AProject extends AProjectFolder {
     @Override
     public int getVersionsCount() {
         return getHistoryFileDatas().size();
-    }
-
-    @Override
-    protected ProjectVersion getVersion(int index) {
-        List<FileData> fileDatas = getHistoryFileDatas();
-        return fileDatas.isEmpty() ? null : createProjectVersion(fileDatas.get(index));
     }
 
     protected List<FileData> getHistoryFileDatas() {

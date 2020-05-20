@@ -15,7 +15,8 @@
     </f:facet>
 
     <h:form id="exportVersionForm">
-      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," id="modalExportVersionData">
+      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," id="modalExportVersionData"
+                   rendered="#{!empty nodeVersionsBean.node}">
         <h:outputText value="Project Name:" />
         <h:outputText value="#{artefact.name}" />
         <h:outputLabel for="projectVersion" styleClass="required" value="Project Revision:" />
@@ -30,7 +31,8 @@
         <input type="button" value="Cancel" onclick="RichFaces.$('modalExportVersion').hide();" />
       </footer>
 
-      <a4j:jsFunction name="renderExportVersionForm" render="exportVersionForm" oncomplete="showExportVersionDialog()"/>
+      <a4j:jsFunction name="renderExportVersionForm" action="#{nodeVersionsBean.setNode(node)}"
+                      render="exportVersionForm" oncomplete="showExportVersionDialog()"/>
 
     </h:form>
 
