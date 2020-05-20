@@ -325,7 +325,8 @@ public abstract class AbstractTreeNode implements TreeNode {
                         .hasArtefactVersions(getData().getArtefactPath().withoutFirstSegment());
                 }
             } else {
-                return getData().getVersionsCount() > 0;
+                AProjectArtefact artefact = getData();
+                return artefact instanceof  AProject && ((AProject) artefact).getLastHistoryVersion() != null;
             }
         } else {
             return false;
