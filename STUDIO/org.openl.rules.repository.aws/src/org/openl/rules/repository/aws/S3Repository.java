@@ -1,6 +1,7 @@
 package org.openl.rules.repository.aws;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +14,7 @@ import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,6 +187,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
 
     @Override
     public FileItem read(String name) throws IOException {
+        S3Object object = null;
         try {
             FileData fileData = check(name);
             if (fileData == null) {
@@ -192,12 +195,24 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
             }
             InputStream objectContent = null;
             if (!fileData.isDeleted()) {
-                S3Object object = s3.getObject(bucketName, name);
-                objectContent = object.getObjectContent();
+                object = s3.getObject(bucketName, name);
+                try (S3ObjectInputStream stream = object.getObjectContent()) {
+                    ByteArrayOutputStream temp = new ByteArrayOutputStream();
+                    IOUtils.copy(stream, temp);
+                    objectContent = new ByteArrayInputStream(temp.toByteArray());
+                }
             }
             return objectContent == null ? null : new FileItem(fileData, objectContent);
         } catch (SdkClientException e) {
             throw new IOException(e);
+        } finally {
+            if (object != null) {
+                try {
+                    object.close();
+                } catch (IOException e) {
+                    log.error("Unable to close S3 object: {}", e.getMessage(), e);
+                }
+            }
         }
     }
 
@@ -334,6 +349,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
 
     @Override
     public FileItem readHistory(String name, String version) throws IOException {
+        List<S3Object> retrievedObjects = new ArrayList<>();
         try {
             VersionListing versionListing = null;
 
@@ -345,7 +361,12 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
                         InputStream content = null;
                         if (!versionSummary.isDeleteMarker()) {
                             S3Object object = s3.getObject(new GetObjectRequest(bucketName, name, version));
-                            content = object.getObjectContent();
+                            try (S3ObjectInputStream stream = object.getObjectContent()) {
+                                ByteArrayOutputStream temp = new ByteArrayOutputStream();
+                                IOUtils.copy(stream, temp);
+                                content = new ByteArrayInputStream(temp.toByteArray());
+                            }
+                            retrievedObjects.add(object);
                         }
                         return content == null ? null : new FileItem(checkHistory(name, version), content);
                     }
@@ -355,6 +376,14 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
             return null;
         } catch (SdkClientException e) {
             throw new IOException(e);
+        } finally {
+            for (S3Object retrievedObject : retrievedObjects) {
+                try {
+                    retrievedObject.close();
+                } catch (IOException e) {
+                    log.error("Unable to close S3 object: {}", e.getMessage(), e);
+                }
+            }
         }
     }
 

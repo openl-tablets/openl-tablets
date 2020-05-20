@@ -58,29 +58,31 @@ public class ProjectVersionCacheManager implements InitializingBean {
             if (wsProject.getRepository().supports().folders()) {
                 for (AProjectArtefact artefact : wsProject.getArtefacts()) {
                     if (artefact instanceof AProjectResource) {
-                        InputStream content = ((AProjectResource) artefact).getContent();
-                        md5Strings.add(DigestUtils.md5Hex(content));
-                        String fileName = artefact.getFileData().getName();
-                        String folderPath = wsProject.getFolderPath();
-                        if (!StringUtils.isEmpty(folderPath)) {
-                            fileName = fileName.substring(wsProject.getFolderPath().length() + 1);
+                        try (InputStream content = ((AProjectResource) artefact).getContent()) {
+                            md5Strings.add(DigestUtils.md5Hex(content));
+                            String fileName = artefact.getFileData().getName();
+                            String folderPath = wsProject.getFolderPath();
+                            if (!StringUtils.isEmpty(folderPath)) {
+                                fileName = fileName.substring(wsProject.getFolderPath().length() + 1);
+                            }
+                            md5Strings.add(DigestUtils.md5Hex(fileName));
                         }
-                        md5Strings.add(DigestUtils.md5Hex(fileName));
                     }
                 }
             } else {
                 FileItem zip = wsProject.getRepository().read(wsProject.getFolderPath());
-                ZipInputStream zin = new ZipInputStream(zip.getStream());
-                ZipEntry entry;
-                while ((entry = zin.getNextEntry()) != null) {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    int b = zin.read();
-                    while (b >= 0) {
-                        baos.write(b);
-                        b = zin.read();
+                  try (ZipInputStream zin = new ZipInputStream(zip.getStream())) {
+                    ZipEntry entry;
+                    while ((entry = zin.getNextEntry()) != null) {
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        int b = zin.read();
+                        while (b >= 0) {
+                            baos.write(b);
+                            b = zin.read();
+                        }
+                        md5Strings.add(DigestUtils.md5Hex(baos.toByteArray()));
+                        md5Strings.add(DigestUtils.md5Hex(entry.getName()));
                     }
-                    md5Strings.add(DigestUtils.md5Hex(baos.toByteArray()));
-                    md5Strings.add(DigestUtils.md5Hex(entry.getName()));
                 }
             }
         } catch (ProjectException | IOException e) {
