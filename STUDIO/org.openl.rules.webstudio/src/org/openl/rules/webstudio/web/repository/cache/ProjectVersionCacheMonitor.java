@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -49,7 +51,16 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     }
 
     private void cacheDesignProject(AProject project) throws IOException {
+        Repository repository = designRepository.getRepository();
         List<ProjectVersion> versions = project.getVersions();
+        if (repository.supports().branches()) {
+            for (String branch : ((BranchRepository) repository).getBranches(project.getName())) {
+                versions.addAll(
+                    new AProject(((BranchRepository) repository).forBranch(branch), project.getFolderPath()).getVersions());
+            }
+        } else {
+            versions.addAll(project.getVersions());
+        }
         versions.sort((ProjectVersion pr1, ProjectVersion pr2) -> pr2.getVersionInfo()
             .getCreatedAt()
             .compareTo(pr1.getVersionInfo().getCreatedAt()));
