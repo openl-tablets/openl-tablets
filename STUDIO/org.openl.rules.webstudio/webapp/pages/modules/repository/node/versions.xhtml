@@ -11,7 +11,7 @@
             padding: 6px 7px !important;
         }
     </style>
-    <rich:dataTable value="#{nodeVersionsBean.node.versions}" var="version" styleClass="table"
+    <rich:dataTable value="#{nodeVersionsBean.nodeToView.versions}" var="version" styleClass="table"
                     columnClasses="padding">
         <f:facet name="header">
             <rich:columnGroup>
@@ -68,7 +68,7 @@
                 style="text-align: center;">
             <a href="javascript:void(0)" id="openPrjVersion"
                title="Open Revision '#{repositoryTreeController.getDescriptiveVersion(version)}'"
-               onclick="openProjectVersion('#{version.versionName}')">
+               onclick="if (backToPropsTab()) openProjectVersion('#{version.versionName}')">
                 <img src="#{request.contextPath}/webresource/images/view.png"/>
             </a>
         </rich:column>
@@ -81,14 +81,13 @@
     </a4j:jsFunction>
 
     <a4j:jsFunction name="openProjectVersion"
-                    onclick="return backToPropsTab();"
                     immediate="true"
                     render="nodeView nodeTabPanel projectTree content"
                     oncomplete="refreshRulesDeployConfiguration()">
         <a4j:param name="version" assignTo="#{repositoryTreeController.projectVersion}"/>
     </a4j:jsFunction>
 
-    <h:panelGroup rendered="#{empty nodeVersionsBean.node.versions}" styleClass="noEntries">
+    <h:panelGroup rendered="#{empty nodeVersionsBean.nodeToView.versions}" styleClass="noEntries">
         <h:outputText value="No version history"/>
     </h:panelGroup>
 
