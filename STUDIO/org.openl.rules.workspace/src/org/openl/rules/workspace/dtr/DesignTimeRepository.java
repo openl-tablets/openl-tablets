@@ -60,8 +60,6 @@ public interface DesignTimeRepository extends ProjectsContainer {
 
     void removeListener(DesignTimeRepositoryListener listener);
 
-    List<DesignTimeRepositoryListener> getListeners();
-
     Repository getRepository();
 
     String getRulesLocation();
