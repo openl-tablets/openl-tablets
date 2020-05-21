@@ -58,7 +58,8 @@ public class AProject extends AProjectFolder {
     }
 
     private FileData getFileDataForVersionableRepo(Repository repository) {
-        FileData fileData;// In the case of FolderRepository we can retrieve FileData using check()/checkHistory() for a folder.
+        FileData fileData;// In the case of FolderRepository we can retrieve FileData using check()/checkHistory() for a
+                          // folder.
         try {
             if (!isHistoric() || isLastVersion()) {
                 fileData = repository.check(getFolderPath());
@@ -309,8 +310,7 @@ public class AProject extends AProjectFolder {
         if (fileItem == null) {
             return internalArtefacts;
         }
-        ZipInputStream zipInputStream = new ZipInputStream(fileItem.getStream());
-        try {
+        try (InputStream stream = fileItem.getStream(); ZipInputStream zipInputStream = new ZipInputStream(stream);) {
             ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
@@ -326,8 +326,6 @@ public class AProject extends AProjectFolder {
             }
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
-        } finally {
-            IOUtils.closeQuietly(zipInputStream);
         }
 
         return internalArtefacts;
@@ -463,11 +461,11 @@ public class AProject extends AProjectFolder {
             zipOutputStream.putNextEntry(new ZipEntry(resource.getInternalPath()));
 
             ResourceTransformer transformer = getResourceTransformer();
-            InputStream content = transformer != null ? transformer.transform(resource) : resource.getContent();
-            IOUtils.copy(content, zipOutputStream);
-
-            content.close();
-            zipOutputStream.closeEntry();
+            try (InputStream content = transformer != null ? transformer.transform(resource) : resource.getContent()) {
+                IOUtils.copy(content, zipOutputStream);
+                content.close();
+                zipOutputStream.closeEntry();
+            }
         } else {
             AProjectFolder folder = (AProjectFolder) artefact;
             for (AProjectArtefact a : folder.getArtefacts()) {

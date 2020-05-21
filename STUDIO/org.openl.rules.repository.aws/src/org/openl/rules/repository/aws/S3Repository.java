@@ -9,7 +9,12 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openl.rules.repository.RRepositoryFactory;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.Features;
+import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -24,7 +29,15 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.CopyObjectResult;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3VersionSummary;
+import com.amazonaws.services.s3.model.SetBucketVersioningConfigurationRequest;
+import com.amazonaws.services.s3.model.VersionListing;
 
 public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(S3Repository.class);
