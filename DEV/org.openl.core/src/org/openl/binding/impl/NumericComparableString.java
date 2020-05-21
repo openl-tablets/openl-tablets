@@ -108,12 +108,18 @@ public class NumericComparableString implements Comparable<NumericComparableStri
         String[] splits = Arrays.copyOf(this.splits, this.splits.length);
         if (splitsNumbers[splitsNumbers.length - 1] != null) {
             splitsNumbers[splitsNumbers.length - 1] = splitsNumbers[splitsNumbers.length - 1].add(BigInteger.ONE);
-            splits[splits.length - 1] = splitsNumbers[splitsNumbers.length - 1].toString();
+            splits[splits.length - 1] = keepLeadingZeros(splits[splits.length - 1],
+                    splitsNumbers[splitsNumbers.length - 1].toString());
         } else {
             splits[splits.length - 1] = splits[splits.length - 1] + Character.MIN_VALUE;
         }
         StringBuilder sb = new StringBuilder();
         Arrays.stream(splits).forEach(sb::append);
         return new NumericComparableString(sb.toString(), splits, splitsNumbers);
+    }
+
+    private static String keepLeadingZeros(String originalNumb, String modifiedNumb) {
+        final int end = originalNumb.length() - modifiedNumb.length(); //difference
+        return end < 1 ? modifiedNumb : originalNumb.substring(0, end) + modifiedNumb;
     }
 }
