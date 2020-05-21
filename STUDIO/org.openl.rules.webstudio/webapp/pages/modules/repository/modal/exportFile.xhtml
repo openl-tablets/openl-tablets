@@ -20,7 +20,7 @@
         <h:outputLabel id="exportingFileName" value="#{node.name}" />
         <h:outputLabel for="fileVersion" styleClass="required" value="File Revision:" />
         <h:selectOneMenu id="fileVersion" value="#{repositoryTreeController.version}" required="true">
-            <f:selectItems value="#{repositoryTreeController.toSelectItems(nodeVersionsBean.node.versions)}" />
+            <f:selectItems value="#{repositoryTreeController.toSelectItems(nodeVersionsBean.nodeToView.versions)}" />
         </h:selectOneMenu>
       </h:panelGrid>
 
@@ -29,7 +29,7 @@
             onclick="RichFaces.$('modalExportFile').hide();" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="RichFaces.$('modalExportFile').hide();" />
       </footer>
-      <a4j:jsFunction name="initExportFileDialog" action="#{nodeVersionsBean.setNode(node)}"
+      <a4j:jsFunction name="initExportFileDialog" action="#{nodeVersionsBean.updateNodeToView()}"
                       render="exportFileForm" oncomplete="showExportFileDialog();" />
 
     </h:form>

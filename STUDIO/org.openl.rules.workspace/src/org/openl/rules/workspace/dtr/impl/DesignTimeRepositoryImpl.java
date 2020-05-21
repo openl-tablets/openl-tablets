@@ -353,17 +353,16 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     @Override
     public void addListener(DesignTimeRepositoryListener listener) {
-        listeners.add(listener);
+        synchronized (listeners) {
+            listeners.add(listener);
+        }
     }
 
     @Override
     public void removeListener(DesignTimeRepositoryListener listener) {
-        listeners.remove(listener);
-    }
-
-    @Override
-    public List<DesignTimeRepositoryListener> getListeners() {
-        return listeners;
+        synchronized (listeners) {
+            listeners.remove(listener);
+        }
     }
 
     /**
@@ -424,7 +423,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
         @Override
         public void onChange() {
-            for (DesignTimeRepositoryListener listener : listeners) {
+            List<DesignTimeRepositoryListener> localListeners;
+            synchronized (listeners) {
+                localListeners = new ArrayList<>(listeners);
+            }
+            for (DesignTimeRepositoryListener listener : localListeners) {
                 listener.onRepositoryModified();
             }
         }

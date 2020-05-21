@@ -270,7 +270,7 @@
                 <ui:include src="/pages/modules/repository/node/versions.xhtml"/>
             </h:panelGroup>
             <a4j:jsFunction name="refreshVersionsContentProject"
-                            action="#{nodeVersionsBean.setNode(node)}"
+                            action="#{nodeVersionsBean.updateNodeToView()}"
                             render="versionsContentProject"
                             oncomplete="initExpandableLinks()"/>
 
@@ -360,7 +360,7 @@
                     <ui:include src="/pages/modules/repository/node/versions.xhtml"/>
                 </h:panelGroup>
                 <a4j:jsFunction name="refreshVersionsContentDeployConfig"
-                                action="#{nodeVersionsBean.setNode(node)}"
+                                action="#{nodeVersionsBean.updateNodeToView()}"
                                 render="versionsContentDeployConfig"
                                 oncomplete="initExpandableLinks()"/>
             </rich:tab>
