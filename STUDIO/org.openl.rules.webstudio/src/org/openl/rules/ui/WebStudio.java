@@ -268,6 +268,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public void saveProject(RulesProject project) throws ProjectException {
+        InputStream content = null;
         try {
             freezeProject(project.getName());
             String logicalName = getLogicalName(project);
@@ -281,7 +282,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     .getSerializer(project);
                 AProjectResource artefact = (AProjectResource) project
                     .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-                ProjectDescriptor projectDescriptor = serializer.deserialize(artefact.getContent());
+                content = artefact.getContent();
+                ProjectDescriptor projectDescriptor = serializer.deserialize(content);
                 projectDescriptor.setName(project.getName());
                 artefact.setContent(IOUtils.toInputStream(serializer.serialize(projectDescriptor)));
 
@@ -294,6 +296,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             throw new ProjectException(e.getMessage(), e);
         } finally {
             releaseProject(project.getName());
+            IOUtils.closeQuietly(content);
         }
     }
 
@@ -334,8 +337,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
 
             final FacesContext facesContext = FacesContext.getCurrentInstance();
-            HttpServletResponse response = (HttpServletResponse) WebStudioUtils.getExternalContext()
-                .getResponse();
+            HttpServletResponse response = (HttpServletResponse) WebStudioUtils.getExternalContext().getResponse();
             ExportFile.writeOutContent(response, file);
             facesContext.responseComplete();
         } catch (ProjectException e) {
@@ -362,8 +364,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             file = ProjectExportHelper.export(new WorkspaceUserImpl(userName), forExport);
 
             final FacesContext facesContext = FacesContext.getCurrentInstance();
-            HttpServletResponse response = (HttpServletResponse) WebStudioUtils.getExternalContext()
-                .getResponse();
+            HttpServletResponse response = (HttpServletResponse) WebStudioUtils.getExternalContext().getResponse();
             addCookie(cookieName, "success", -1);
 
             ExportFile.writeOutContent(response, file, fileName);
@@ -856,8 +857,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     private PathFilter getZipFilter() {
-        return (PathFilter) WebApplicationContextUtils.getRequiredWebApplicationContext(
-            (ServletContext) WebStudioUtils.getExternalContext().getContext())
+        return (PathFilter) WebApplicationContextUtils
+            .getRequiredWebApplicationContext((ServletContext) WebStudioUtils.getExternalContext().getContext())
             .getBean("zipFilter");
     }
 
@@ -1213,7 +1214,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         if (project == null || !isSupportsBranches() || project.isLocalOnly()) {
             return false;
         }
-
 
         try {
             if (project.isModified()) {

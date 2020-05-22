@@ -16,7 +16,7 @@
 
     <h:form id="openVersionForm">
       <h:panelGroup id="modalOpenVersionData">
-          <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+          <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," rendered="#{repositoryTreeController.currentProjectSelected}">
             <h:outputText value="Project Name:" />
             <input value="#{artefact.name}" type="text" size="35" readonly="true" title="#{artefact.name}"/>
             <h:outputLabel for="projectVersion" styleClass="required" value="Project Revision:" />
@@ -44,12 +44,18 @@
         <h:commandButton value="Open" action="#{repositoryTreeController.openProjectVersion}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="RichFaces.$('modalOpenVersion').hide();" />
       </footer>
+      <a4j:jsFunction name="renderOpenVersionDialog" action="#{repositoryTreeController.selectCurrentProjectForOpen('')}"
+                      render="openVersionForm" oncomplete="showOpenVersionDialog()"/>
     </h:form>
 
   </rich:popupPanel>
 
   <script>
     function openOpenVersionDialog() {
+        renderOpenVersionDialog();
+    }
+
+    function showOpenVersionDialog() {
         RichFaces.$('modalOpenVersion').show();
         focusElement('openVersionForm:projectVersion');
     }

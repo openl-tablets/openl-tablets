@@ -1312,6 +1312,9 @@ public class RepositoryTreeController {
     }
 
     public SelectItem[] toSelectItems(Collection<ProjectVersion> versions) {
+        if (versions == null) {
+            return new SelectItem[0];
+        }
         List<SelectItem> selectItems = new ArrayList<>();
         for (ProjectVersion version : versions) {
             if (!version.isDeleted()) {
@@ -1400,12 +1403,10 @@ public class RepositoryTreeController {
         repositoryProject.close();
     }
 
-    public String openProjectVersion(String version) {
+    public void setProjectVersion(String version) {
         this.version = version;
         openDependencies = true;
         openProjectVersion();
-
-        return null;
     }
 
     public String refreshTree() {
@@ -1432,8 +1433,12 @@ public class RepositoryTreeController {
 
     public String selectRulesProject() {
         String projectName = WebStudioUtils.getRequestParameter("projectName");
-        selectProject(projectName, repositoryTreeState.getRulesRepository());
+        setRulesProject(projectName);
         return null;
+    }
+
+    public void setRulesProject(String projectName) {
+        selectProject(projectName, repositoryTreeState.getRulesRepository());
     }
 
     public void uploadListener(FileUploadEvent event) {

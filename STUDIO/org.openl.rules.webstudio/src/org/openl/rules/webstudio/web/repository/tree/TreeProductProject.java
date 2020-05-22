@@ -31,26 +31,6 @@ public class TreeProductProject extends TreeProductFolder {
         return StringUtils.EMPTY;
     }
 
-    public Date getCreatedAt() {
-        ProjectVersion projectVersion = this.getData().getFirstVersion();
-        if (projectVersion == null) {
-            return null;
-        }
-
-        VersionInfo vi = projectVersion.getVersionInfo();
-        return vi != null ? vi.getCreatedAt() : null;
-    }
-
-    public String getCreatedBy() {
-        ProjectVersion projectVersion = this.getData().getFirstVersion();
-        if (projectVersion == null) {
-            return null;
-        }
-
-        VersionInfo vi = projectVersion.getVersionInfo();
-        return vi != null ? vi.getCreatedBy() : null;
-    }
-
     public Date getModifiedAt() {
         ProjectVersion projectVersion = this.getData().getVersion();
         if (projectVersion == null) {

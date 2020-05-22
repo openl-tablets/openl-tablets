@@ -200,29 +200,21 @@ public class DeploymentManager implements InitializingBean {
     private String getApiVersion(ADeploymentProject deploymentConfiguration) {
         for (ProjectDescriptor pd : deploymentConfiguration.getProjectDescriptors()) {
             try {
-                InputStream content = null;
                 try {
                     AProject project = designRepository.getProject(pd.getProjectName(), pd.getProjectVersion());
 
                     AProjectArtefact artifact = project.getArtefact(DeployUtils.RULES_DEPLOY_XML);
                     if (artifact instanceof AProjectResource) {
                         AProjectResource resource = (AProjectResource) artifact;
-                        content = resource.getContent();
-                        RulesDeploy rulesDeploy = rulesDeploySerializer.deserialize(content);
-                        String apiVersion = rulesDeploy.getVersion();
-                        if (StringUtils.isNotBlank(apiVersion)) {
-                            return apiVersion;
+                        try (InputStream content = resource.getContent()) {
+                            RulesDeploy rulesDeploy = rulesDeploySerializer.deserialize(content);
+                            String apiVersion = rulesDeploy.getVersion();
+                            if (StringUtils.isNotBlank(apiVersion)) {
+                                return apiVersion;
+                            }
                         }
                     }
                 } catch (ProjectException ignored) {
-                } finally {
-                    if (content != null) {
-                        try {
-                            content.close();
-                        } catch (IOException e) {
-                            log.error(e.getMessage(), e);
-                        }
-                    }
                 }
             } catch (Throwable e) {
                 log.error(

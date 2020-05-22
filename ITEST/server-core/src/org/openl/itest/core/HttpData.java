@@ -126,27 +126,31 @@ class HttpData {
                     assertArrayEquals("Body: ", expected.body, this.body);
             }
         } catch (Exception | AssertionError ex) {
-            try {
-                System.err.println("--------------------");
-                System.err.println(firstLine);
-                for (Map.Entry<String, String> r : headers.entrySet()) {
-                    String headerName = r.getKey();
-                    String value = r.getValue();
-                    System.err.println(headerName + ": " + value);
-                }
-                System.err.println();
-
-                StreamUtils.copy(body, System.err);
-                System.err.println("\n--------------------");
-
-                String path = System.getProperty("server.responses") + expected.resource + ".body";
-                Path responsePath = Paths.get(path);
-                Files.createDirectories(responsePath.getParent());
-                Files.write(responsePath, body);
-            } catch (IOException ignored) {
-                // Ignored
-            }
+            log(expected.resource, firstLine, headers, body);
             throw new RuntimeException(ex);
+        }
+    }
+
+    static void log(String resourceName, String firstLine, Map<String, String> headers, byte[] body) {
+        try {
+            System.err.println("--------------------");
+            System.err.println(firstLine);
+            for (Map.Entry<String, String> r : headers.entrySet()) {
+                String headerName = r.getKey();
+                String value = r.getValue();
+                System.err.println(headerName + ": " + value);
+            }
+            System.err.println();
+
+            StreamUtils.copy(body, System.err);
+            System.err.println("\n--------------------");
+
+            String path = System.getProperty("server.responses") + resourceName + ".body";
+            Path responsePath = Paths.get(path);
+            Files.createDirectories(responsePath.getParent());
+            Files.write(responsePath, body);
+        } catch (IOException ignored) {
+            // Ignored
         }
     }
 

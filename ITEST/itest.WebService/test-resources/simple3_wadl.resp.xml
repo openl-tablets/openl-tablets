@@ -14,10 +14,57 @@
             <xs:element name="RunMain" type="tns:RunMain"/>
             <xs:element name="Spr" type="tns:Spr"/>
             <xs:element name="Spr1" type="tns:Spr1"/>
-            <xs:complexType name="Spr1">
+            <xs:complexType name="AnySpreadsheetResult">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="Step1" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Step2" type="tns:Spr"/>
+                    <xs:element minOccurs="0" name="Value3_Step3" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value4_Step3" type="xs:double"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="Value_Step3" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value3_Step4" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value4_Step4" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value_Step4" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="Value1_Step1" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value2_Step1" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value_Step1" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="Value1_Step2" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value2_Step2" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value_Step2" type="tns:AnySpreadsheetResult"/>
+                    <xs:element minOccurs="0" name="Value_Step5" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="Value_Step6" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="Value_Step7" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="Value_Step8" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="Value_Step9" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="Value_Step10" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="Value_Step11" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="Value_Step13" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="Value_Step14" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="Value_Step15" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="Value_Step16" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="Value_Step17" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="Value_Step18" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="Value_Step19" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="Value_Step20" type="tns:AnySpreadsheetResult"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="Value_Step21"
+                                type="tns:AnySpreadsheetResult"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="Value_Step22" type="xs:anyType"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="Value_Step23" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="Value_AAA" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value_Step0" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value_Step12" type="xs:boolean"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="RowNames" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="ColumnNames" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="TableDetails" type="ns1:stringArray"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="MySpr2">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Value3_Step3" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value4_Step3" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value3_Step4" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value4_Step4" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value1_Step1" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value2_Step1" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value1_Step2" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value2_Step2" type="xs:double"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="Spr">
@@ -59,45 +106,46 @@
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="Step23" type="xs:anyType"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType name="AnySpreadsheetResult">
+            <xs:complexType name="Spr1">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="Value3_Step3" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value4_Step3" type="xs:double"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="Value_Step3" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value3_Step4" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value4_Step4" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value_Step4" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="Value1_Step1" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value2_Step1" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value_Step1" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="Value1_Step2" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value2_Step2" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value_Step2" type="tns:AnySpreadsheetResult"/>
-                    <xs:element minOccurs="0" name="Value_Step5" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="Value_Step6" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="Value_Step7" type="xs:anyType"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="Value_Step8" type="xs:anyType"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="Value_Step9" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="Value_Step10" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="Value_Step11" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="Value_Step13" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="Value_Step14" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="Value_Step15" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="Value_Step16" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="Value_Step17" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="Value_Step18" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="Value_Step19" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="Value_Step20" type="tns:AnySpreadsheetResult"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="Value_Step21"
-                                type="tns:AnySpreadsheetResult"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="Value_Step22" type="xs:anyType"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="Value_Step23" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="Value_AAA" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value_Step0" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value_Step12" type="xs:boolean"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="RowNames" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="ColumnNames" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="TableDetails" type="ns1:stringArray"/>
+                    <xs:element minOccurs="0" name="Step1" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Step2" type="tns:Spr"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="RunMain">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Step0" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Step1" type="tns:Main"/>
+                    <xs:element name="step2">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element maxOccurs="unbounded" minOccurs="0" name="entry">
+                                    <xs:complexType>
+                                        <xs:sequence>
+                                            <xs:element minOccurs="0" name="key" type="xs:anyType"/>
+                                            <xs:element minOccurs="0" name="value" type="xs:anyType"/>
+                                        </xs:sequence>
+                                    </xs:complexType>
+                                </xs:element>
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element minOccurs="0" name="Step4" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="Step5" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="Step6" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="Step7" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="Step8" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="Step9" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="Step10" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="Step11" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="Step12" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="Step13" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="Step14" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="Step15" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="Step16" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="Step17" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="Step18" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="Step19" type="xs:boolean"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="Main">
@@ -143,56 +191,8 @@
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="TableDetails" type="ns1:stringArray"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType name="MySpr2">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="Value3_Step3" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value4_Step3" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value3_Step4" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value4_Step4" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value1_Step1" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value2_Step1" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value1_Step2" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value2_Step2" type="xs:double"/>
-                </xs:sequence>
-            </xs:complexType>
             <xs:complexType name="ArrSpreadsheetResult">
                 <xs:all/>
-            </xs:complexType>
-            <xs:complexType name="RunMain">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="Step0" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Step1" type="tns:Main"/>
-                    <xs:element name="step2">
-                        <xs:complexType>
-                            <xs:sequence>
-                                <xs:element maxOccurs="unbounded" minOccurs="0" name="entry">
-                                    <xs:complexType>
-                                        <xs:sequence>
-                                            <xs:element minOccurs="0" name="key" type="xs:anyType"/>
-                                            <xs:element minOccurs="0" name="value" type="xs:anyType"/>
-                                        </xs:sequence>
-                                    </xs:complexType>
-                                </xs:element>
-                            </xs:sequence>
-                        </xs:complexType>
-                    </xs:element>
-                    <xs:element minOccurs="0" name="Step4" type="xs:boolean"/>
-                    <xs:element minOccurs="0" name="Step5" type="xs:boolean"/>
-                    <xs:element minOccurs="0" name="Step6" type="xs:boolean"/>
-                    <xs:element minOccurs="0" name="Step7" type="xs:boolean"/>
-                    <xs:element minOccurs="0" name="Step8" type="xs:boolean"/>
-                    <xs:element minOccurs="0" name="Step9" type="xs:boolean"/>
-                    <xs:element minOccurs="0" name="Step10" type="xs:boolean"/>
-                    <xs:element minOccurs="0" name="Step11" type="xs:boolean"/>
-                    <xs:element minOccurs="0" name="Step12" type="xs:boolean"/>
-                    <xs:element minOccurs="0" name="Step13" type="xs:boolean"/>
-                    <xs:element minOccurs="0" name="Step14" type="xs:boolean"/>
-                    <xs:element minOccurs="0" name="Step15" type="xs:boolean"/>
-                    <xs:element minOccurs="0" name="Step16" type="xs:boolean"/>
-                    <xs:element minOccurs="0" name="Step17" type="xs:boolean"/>
-                    <xs:element minOccurs="0" name="Step18" type="xs:boolean"/>
-                    <xs:element minOccurs="0" name="Step19" type="xs:boolean"/>
-                </xs:sequence>
             </xs:complexType>
             <xs:complexType name="MySpr">
                 <xs:sequence>
@@ -229,14 +229,14 @@
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jaxb.dev.java.net/array"
                    attributeFormDefault="unqualified" elementFormDefault="unqualified"
                    targetNamespace="http://jaxb.dev.java.net/array" version="1.0">
-            <xs:complexType final="#all" name="anyTypeArray">
-                <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="xs:anyType"/>
-                </xs:sequence>
-            </xs:complexType>
             <xs:complexType final="#all" name="stringArray">
                 <xs:sequence>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType final="#all" name="anyTypeArray">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="xs:anyType"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>

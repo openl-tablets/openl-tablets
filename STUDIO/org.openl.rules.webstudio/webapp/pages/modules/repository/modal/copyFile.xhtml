@@ -39,7 +39,7 @@
                             <h:selectOneMenu id="fileVersion" value="#{repositoryTreeController.version}"
                                              required="true"
                                              rendered="#{hasVersions}">
-                                <f:selectItems value="#{repositoryTreeController.toSelectItems(node.versions)}"/>
+                                <f:selectItems value="#{repositoryTreeController.toSelectItems(nodeVersionsBean.nodeToView.versions)}"/>
                             </h:selectOneMenu>
                         </h:panelGrid>
                     </div>
@@ -77,7 +77,8 @@
                                  onclick="RichFaces.$('modalCopyFile').hide();" styleClass="button-primary"/>
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalCopyFile').hide();"/>
             </footer>
-            <a4j:jsFunction name="initCopyFileDialog" render="copyFileForm" oncomplete="showCopyFileDialog();" />
+            <a4j:jsFunction name="initCopyFileDialog" action="#{nodeVersionsBean.updateNodeToView()}"
+                            render="copyFileForm" oncomplete="showCopyFileDialog();" />
         </h:form>
 
     </rich:popupPanel>
