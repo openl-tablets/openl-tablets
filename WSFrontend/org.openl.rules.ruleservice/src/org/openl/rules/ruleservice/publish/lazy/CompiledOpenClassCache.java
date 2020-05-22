@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -91,13 +90,11 @@ public final class CompiledOpenClassCache {
     public void removeAll(DeploymentDescription deploymentDescription) {
         Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
         Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();
-        Iterator<Entry<Key, CompiledOpenClass>> itr = cache.iterator();
-        while (itr.hasNext()) {
-            Entry<Key, CompiledOpenClass> entry = itr.next();
+        for (Entry<Key, CompiledOpenClass> entry : cache) {
             Key key = entry.getKey();
             DeploymentDescription deployment = key.getDeploymentDescription();
             if (deploymentDescription.getName().equals(deployment.getName()) && deploymentDescription.getVersion()
-                .equals(deployment.getVersion())) {
+                    .equals(deployment.getVersion())) {
                 cache.remove(key);
             }
         }
