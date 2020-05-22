@@ -1,6 +1,10 @@
 package org.openl.rules.ruleservice.core;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 
 import org.openl.OpenClassUtil;
@@ -43,7 +47,9 @@ public class RuleServiceImpl implements RuleService {
         }
         ServiceDescription sd = serviceDescriptionMap.get(serviceDescription.getName());
         // Can happen when service was deployed unsuccessfully.
-        if (sd == null || sd.getDeployment().getVersion().compareTo(serviceDescription.getDeployment().getVersion()) != 0) {
+        if (sd == null || sd.getDeployment()
+            .getVersion()
+            .compareTo(serviceDescription.getDeployment().getVersion()) != 0) {
             Lock lock = RuleServiceRedeployLock.getInstance().getWriteLock();
             try {
                 lock.lock();
@@ -125,6 +131,8 @@ public class RuleServiceImpl implements RuleService {
             throw new RuleServiceDeployException(
                 String.format("The service with name '%s' has already been deployed.", serviceDescription.getName()));
         }
+        // Some singleton caches may not be cleaned by calling undeploy method
+        cleanDeploymentResources(serviceDescription);
         try {
             OpenLService newService = ruleServiceInstantiationFactory.createService(serviceDescription);
             OpenLServiceHolder.getInstance().setOpenLService(newService);
