@@ -33,19 +33,16 @@ public final class CompiledOpenClassCache {
         allEventTypes.add(EventType.EVICTED);
         allEventTypes.add(EventType.REMOVED);
         allEventTypes.add(EventType.EXPIRED);
-        OpenLEhCacheHolder.getInstance()
-            .getModulesCache()
-            .getRuntimeConfiguration()
-            .registerCacheEventListener(event -> {
-                synchronized (CompiledOpenClassCache.this.eventsMap) {
-                    Collection<Event> events = CompiledOpenClassCache.this.eventsMap.get(event.getKey());
-                    if (events != null) {
-                        for (Event e : events) {
-                            e.onEvent(event);
-                        }
+        OpenLEhCache.getInstance().getModulesCache().getRuntimeConfiguration().registerCacheEventListener(event -> {
+            synchronized (CompiledOpenClassCache.this.eventsMap) {
+                Collection<Event> events = CompiledOpenClassCache.this.eventsMap.get(event.getKey());
+                if (events != null) {
+                    for (Event e : events) {
+                        e.onEvent(event);
                     }
                 }
-            }, EventOrdering.ORDERED, EventFiring.SYNCHRONOUS, allEventTypes);
+            }
+        }, EventOrdering.ORDERED, EventFiring.SYNCHRONOUS, allEventTypes);
     }
 
     /**
@@ -61,7 +58,7 @@ public final class CompiledOpenClassCache {
         Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
         Objects.requireNonNull(dependencyName, "dependencyName cannot be null");
         Key key = new Key(deploymentDescription, dependencyName);
-        Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();
+        Cache<Key, CompiledOpenClass> cache = OpenLEhCache.getInstance().getModulesCache();
         return cache.get(key);
     }
 
@@ -71,7 +68,7 @@ public final class CompiledOpenClassCache {
         Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
         Objects.requireNonNull(dependencyName, "dependencyName cannot be null");
         Key key = new Key(deploymentDescription, dependencyName);
-        Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();
+        Cache<Key, CompiledOpenClass> cache = OpenLEhCache.getInstance().getModulesCache();
         cache.put(key, compiledOpenClass);
     }
 
@@ -89,12 +86,12 @@ public final class CompiledOpenClassCache {
 
     public void removeAll(DeploymentDescription deploymentDescription) {
         Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
-        Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();
+        Cache<Key, CompiledOpenClass> cache = OpenLEhCache.getInstance().getModulesCache();
         for (Entry<Key, CompiledOpenClass> entry : cache) {
             Key key = entry.getKey();
             DeploymentDescription deployment = key.getDeploymentDescription();
             if (deploymentDescription.getName().equals(deployment.getName()) && deploymentDescription.getVersion()
-                    .equals(deployment.getVersion())) {
+                .equals(deployment.getVersion())) {
                 cache.remove(key);
             }
         }
@@ -107,7 +104,7 @@ public final class CompiledOpenClassCache {
     }
 
     public void reset() {
-        Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();
+        Cache<Key, CompiledOpenClass> cache = OpenLEhCache.getInstance().getModulesCache();
         cache.clear();
         synchronized (eventsMap) {
             eventsMap.clear();

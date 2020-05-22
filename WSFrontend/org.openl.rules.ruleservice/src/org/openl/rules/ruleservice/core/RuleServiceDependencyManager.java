@@ -36,9 +36,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
-public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDependencyManager {
+public class RuleServiceDependencyManager extends AbstractDependencyManager {
 
-    private final Logger log = LoggerFactory.getLogger(RuleServiceDeploymentRelatedDependencyManager.class);
+    private final Logger log = LoggerFactory.getLogger(RuleServiceDependencyManager.class);
 
     private final RuleServiceLoader ruleServiceLoader;
     private final DeploymentDescription deployment;
@@ -108,7 +108,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
     public CompiledDependency loadDependency(final IDependency dependency) throws OpenLCompilationException {
         try {
             return MaxThreadsForCompileSemaphore.getInstance()
-                .run(() -> RuleServiceDeploymentRelatedDependencyManager.super.loadDependency(dependency));
+                .run(() -> RuleServiceDependencyManager.super.loadDependency(dependency));
         } catch (OpenLCompilationException e) {
             throw e;
         } catch (Exception e) {
@@ -116,7 +116,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
         }
     }
 
-    public RuleServiceDeploymentRelatedDependencyManager(DeploymentDescription deploymentDescription,
+    public RuleServiceDependencyManager(DeploymentDescription deploymentDescription,
             RuleServiceLoader ruleServiceLoader,
             ClassLoader rootClassLoader,
             boolean lazyCompilation,
@@ -153,7 +153,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
     @Override
     protected Map<String, Collection<IDependencyLoader>> initDependencyLoaders() {
         Map<String, Collection<IDependencyLoader>> dependencyLoaders = new HashMap<>();
-        Deployment rslDeployment =  ruleServiceLoader.getDeployment(deployment.getName(), deployment.getVersion());
+        Deployment rslDeployment = ruleServiceLoader.getDeployment(deployment.getName(), deployment.getVersion());
         String deploymentName = rslDeployment.getDeploymentName();
         CommonVersion deploymentVersion = rslDeployment.getCommonVersion();
         for (AProject aProject : rslDeployment.getProjects()) {
@@ -211,11 +211,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
                 if (project != null) {
                     IDependencyLoader projectLoader;
                     if (isLazyCompilation()) {
-                        projectLoader = new LazyRuleServiceDependencyLoader(deployment,
-                            project,
-                            null,
-                            false,
-                            this);
+                        projectLoader = new LazyRuleServiceDependencyLoader(deployment, project, null, false, this);
                     } else {
                         projectLoader = new RuleServiceDependencyLoader(project, null, this);
                     }
@@ -224,10 +220,11 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
                     dependencyLoadersByName.add(projectLoader);
                 }
             } catch (Exception e) {
-                throw new DependencyLoaderInitializationException(String.format(
-                    "Failed to initialize dependency loaders for project '%s' in deployment '%s'.",
-                    projectName,
-                    deploymentName), e);
+                throw new DependencyLoaderInitializationException(
+                    String.format("Failed to initialize dependency loaders for project '%s' in deployment '%s'.",
+                        projectName,
+                        deploymentName),
+                    e);
             }
         }
         return dependencyLoaders;

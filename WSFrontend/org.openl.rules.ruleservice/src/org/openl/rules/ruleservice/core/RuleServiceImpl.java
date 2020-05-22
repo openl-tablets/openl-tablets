@@ -28,7 +28,7 @@ public class RuleServiceImpl implements RuleService {
      */
     private RuleServiceInstantiationFactory ruleServiceInstantiationFactory;
 
-    private Map<String, ServiceDescription> serviceDescriptionMap = new HashMap<>();
+    private final Map<String, ServiceDescription> serviceDescriptionMap = new HashMap<>();
 
     /**
      * {@inheritDoc}

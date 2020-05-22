@@ -17,6 +17,7 @@ import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
+import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
 import org.openl.rules.ruleservice.publish.lazy.wrapper.LazyWrapperLogic;
@@ -57,10 +58,10 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
 
     private CompiledOpenClass compiledOpenClass;
     private Class<T> interfaceClass;
-    private Collection<Module> modules;
-    private IDependencyManager dependencyManager;
+    private final Collection<Module> modules;
+    private RuleServiceDependencyManager dependencyManager;
     private Map<String, Object> externalParameters;
-    private DeploymentDescription deployment;
+    private final DeploymentDescription deployment;
 
     public DeploymentDescription getDeployment() {
         return deployment;
@@ -94,14 +95,14 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
 
     public LazyEngineFactory(DeploymentDescription deployment,
             Collection<Module> modules,
-            IDependencyManager dependencyManager) {
+            RuleServiceDependencyManager dependencyManager) {
         this(deployment, modules);
         this.dependencyManager = dependencyManager;
     }
 
     public LazyEngineFactory(DeploymentDescription deployment,
             Collection<Module> modules,
-            IDependencyManager dependencyManager,
+            RuleServiceDependencyManager dependencyManager,
             Map<String, Object> externalParameters) {
         this(deployment, modules, dependencyManager);
         this.externalParameters = externalParameters;
@@ -122,7 +123,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
 
     public LazyEngineFactory(DeploymentDescription deployment,
             Collection<Module> modules,
-            IDependencyManager dependencyManager,
+            RuleServiceDependencyManager dependencyManager,
             Class<T> interfaceClass) {
         this(deployment, modules, dependencyManager);
         this.interfaceClass = interfaceClass;
@@ -130,7 +131,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
 
     public LazyEngineFactory(DeploymentDescription deployment,
             Collection<Module> modules,
-            IDependencyManager dependencyManager,
+            RuleServiceDependencyManager dependencyManager,
             Class<T> interfaceClass,
             Map<String, Object> externalParameters) {
         this(deployment, modules, dependencyManager, interfaceClass);

@@ -3,10 +3,10 @@ package org.openl.rules.ruleservice.publish.lazy;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
-import org.openl.dependency.IDependencyManager;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
+import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
 import org.openl.types.IOpenField;
 
@@ -20,7 +20,7 @@ public abstract class LazyField extends LazyMember<IOpenField> {
     private final String fieldName;
 
     private LazyField(String fieldName,
-            IDependencyManager dependencyManager,
+            RuleServiceDependencyManager dependencyManager,
             ClassLoader classLoader,
             Map<String, Object> externalParameters) {
         super(dependencyManager, classLoader, externalParameters);
@@ -28,7 +28,7 @@ public abstract class LazyField extends LazyMember<IOpenField> {
     }
 
     public static LazyField createLazyField(final IOpenField prebindedMethod,
-            final IDependencyManager dependencyManager,
+            final RuleServiceDependencyManager dependencyManager,
             final DeploymentDescription deployment,
             final Module module,
             final ClassLoader classLoader,

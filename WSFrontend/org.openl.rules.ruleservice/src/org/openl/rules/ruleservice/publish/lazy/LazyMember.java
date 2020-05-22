@@ -14,6 +14,7 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.MaxThreadsForCompileSemaphore;
+import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.types.IOpenMember;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,7 @@ import org.slf4j.LoggerFactory;
 public abstract class LazyMember<T extends IOpenMember> {
     private final Logger log = LoggerFactory.getLogger(LazyMember.class);
 
-    private final IDependencyManager dependencyManager;
+    private final RuleServiceDependencyManager dependencyManager;
     private final Map<String, Object> externalParameters;
 
     /**
@@ -38,7 +39,7 @@ public abstract class LazyMember<T extends IOpenMember> {
     private final ClassLoader classLoader;
     private volatile T cachedMember;
 
-    public LazyMember(IDependencyManager dependencyManager,
+    public LazyMember(RuleServiceDependencyManager dependencyManager,
             ClassLoader classLoader,
             Map<String, Object> externalParameters) {
         this.dependencyManager = dependencyManager;

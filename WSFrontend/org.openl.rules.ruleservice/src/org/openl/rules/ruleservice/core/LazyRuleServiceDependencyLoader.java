@@ -18,7 +18,7 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.instantiation.SimpleDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.ruleservice.core.RuleServiceDeploymentRelatedDependencyManager.DependencyCompilationType;
+import org.openl.rules.ruleservice.core.RuleServiceDependencyManager.DependencyCompilationType;
 import org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache;
 import org.openl.rules.ruleservice.publish.lazy.LazyBinderMethodHandler;
 import org.openl.rules.ruleservice.publish.lazy.LazyCompiledOpenClass;
@@ -40,7 +40,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
 
     private final Logger log = LoggerFactory.getLogger(LazyRuleServiceDependencyLoader.class);
 
-    private final RuleServiceDeploymentRelatedDependencyManager dependencyManager;
+    private final RuleServiceDependencyManager dependencyManager;
     private final String dependencyName;
     private final boolean realCompileRequired;
     private CompiledOpenClass lazyCompiledOpenClass;
@@ -52,7 +52,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
             ProjectDescriptor project,
             Module module,
             boolean realCompileRequired,
-            RuleServiceDeploymentRelatedDependencyManager dependencyManager) {
+            RuleServiceDependencyManager dependencyManager) {
         this.deployment = Objects.requireNonNull(deployment, "deployment cannot null.");
         this.project = Objects.requireNonNull(project, "project cannot be null");
         this.module = module;
@@ -89,7 +89,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
     }
 
     public CompiledOpenClass compile(final String dependencyName,
-            final RuleServiceDeploymentRelatedDependencyManager dependencyManager) throws OpenLCompilationException {
+            final RuleServiceDependencyManager dependencyManager) throws OpenLCompilationException {
         if (lazyCompiledOpenClass != null) {
             return lazyCompiledOpenClass;
         }
@@ -185,12 +185,13 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
     }
 
     private void compileAfterLazyCompile(CompiledOpenClass lazyCompiledOpenClass,
-            final RuleServiceDeploymentRelatedDependencyManager dependencyManager,
+            final RuleServiceDependencyManager dependencyManager,
             final String dependencyName,
             final Module module,
             final ClassLoader classLoader) throws OpenLCompilationException {
         synchronized (lazyCompiledOpenClass) {
-            CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependencyName);
+            CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance()
+                .get(deployment, dependencyName);
             if (compiledOpenClass != null) {
                 return;
             }

@@ -13,18 +13,18 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
-public final class OpenLEhCacheHolder {
+public final class OpenLEhCache {
 
     private static final String CACHE_NAME = "modulesCache";
     private static final String OPENL_EHCACHE_FILE_NAME = "openl-ehcache.xml";
 
     private volatile Cache<Key, CompiledOpenClass> modulesCache = null;
 
-    private OpenLEhCacheHolder() {
+    private OpenLEhCache() {
     }
 
-    private static class OpenLEhCacheHolderHolder {
-        public static final OpenLEhCacheHolder INSTANCE = new OpenLEhCacheHolder();
+    private static class OpenLEhCacheHolder {
+        public static final OpenLEhCache INSTANCE = new OpenLEhCache();
     }
 
     /**
@@ -32,8 +32,8 @@ public final class OpenLEhCacheHolder {
      *
      * @return
      */
-    public static OpenLEhCacheHolder getInstance() {
-        return OpenLEhCacheHolderHolder.INSTANCE;
+    public static OpenLEhCache getInstance() {
+        return OpenLEhCacheHolder.INSTANCE;
     }
 
     public Cache<Key, CompiledOpenClass> getModulesCache() {
@@ -60,13 +60,13 @@ public final class OpenLEhCacheHolder {
             Resource[] resources = pathMatchingResourcePatternResolver.getResources(ResourceLoader.CLASSPATH_URL_PREFIX + OPENL_EHCACHE_FILE_NAME);
             if (resources.length == 0) {
                 resources = pathMatchingResourcePatternResolver
-                    .getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + OPENL_EHCACHE_FILE_NAME);
+                        .getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + OPENL_EHCACHE_FILE_NAME);
             }
             if (resources.length == 0) {
                 throw new IllegalStateException(OPENL_EHCACHE_FILE_NAME + " is not found.");
             } else if (resources.length > 1) {
                 throw new IllegalStateException(
-                    String.format("Multiple %s exist in classpath.", OPENL_EHCACHE_FILE_NAME));
+                        String.format("Multiple %s exist in classpath.", OPENL_EHCACHE_FILE_NAME));
             }
 
             Configuration config = new XmlConfiguration(resources[0].getURL());

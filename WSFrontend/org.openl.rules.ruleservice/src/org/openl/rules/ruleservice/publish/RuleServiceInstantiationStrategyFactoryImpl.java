@@ -1,12 +1,14 @@
 package org.openl.rules.ruleservice.publish;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.publish.lazy.LazyInstantiationStrategy;
 import org.slf4j.Logger;
@@ -39,6 +41,8 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
     @Override
     public RulesInstantiationStrategy getStrategy(ServiceDescription serviceDescription,
             IDependencyManager dependencyManager) {
+        Objects.requireNonNull(serviceDescription, "serviceDescription cannot be null");
+        Objects.requireNonNull(dependencyManager, "dependencyManager cannot be null");
         Collection<Module> modules = serviceDescription.getModules();
         int moduleSize = modules.size();
         if (moduleSize == 0) {
@@ -47,8 +51,15 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
         String serviceName = serviceDescription.getName();
 
         if (isLazyCompilation()) {
-            log.debug("Lazy loading strategy has been used for service: '{}'.", serviceName);
-            return new LazyInstantiationStrategy(serviceDescription.getDeployment(), modules, dependencyManager);
+            if (dependencyManager instanceof RuleServiceDependencyManager) {
+                log.debug("Lazy loading strategy has been used for service: '{}'.", serviceName);
+                return new LazyInstantiationStrategy(serviceDescription.getDeployment(),
+                    modules,
+                    (RuleServiceDependencyManager) dependencyManager);
+            } else {
+                log.error("Failed to use lazy loading strategy with dependency manager '{}'.",
+                    dependencyManager.getClass());
+            }
         }
         if (moduleSize == 1) {
             log.debug("Single module loading strategy has been used for service: '{}'.", serviceName);

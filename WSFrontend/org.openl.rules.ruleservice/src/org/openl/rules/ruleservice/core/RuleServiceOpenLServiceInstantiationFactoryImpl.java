@@ -42,12 +42,12 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private Map<String, Object> externalParameters;
 
-    private Map<DeploymentDescription, RuleServiceDeploymentRelatedDependencyManager> dependencyManagerMap = new HashMap<>();
+    private final Map<DeploymentDescription, RuleServiceDependencyManager> dependencyManagerMap = new HashMap<>();
 
     private ObjectProvider<Collection<ServiceInvocationAdviceListener>> serviceInvocationAdviceListeners;
 
     private void initService(ServiceDescription serviceDescription,
-            RuleServiceDeploymentRelatedDependencyManager dependencyManager,
+            RuleServiceDependencyManager dependencyManager,
             OpenLService service) throws RuleServiceInstantiationException, RulesInstantiationException {
         RulesInstantiationStrategy instantiationStrategy = instantiationStrategyFactory.getStrategy(serviceDescription,
             dependencyManager);
@@ -294,8 +294,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         CompiledOpenClassCache.getInstance().removeAll(serviceDescription.getDeployment());
     }
 
-    private RuleServiceDeploymentRelatedDependencyManager getDependencyManager(ServiceDescription serviceDescription) {
-        RuleServiceDeploymentRelatedDependencyManager dependencyManager;
+    private RuleServiceDependencyManager getDependencyManager(ServiceDescription serviceDescription) {
+        RuleServiceDependencyManager dependencyManager;
         DeploymentDescription deployment = serviceDescription.getDeployment();
         if (dependencyManagerMap.containsKey(deployment)) {
             dependencyManager = dependencyManagerMap.get(deployment);
@@ -306,7 +306,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                     .isLazyCompilation();
             }
             ClassLoader rootClassLoader = RuleServiceOpenLServiceInstantiationFactoryImpl.class.getClassLoader();
-            dependencyManager = new RuleServiceDeploymentRelatedDependencyManager(deployment,
+            dependencyManager = new RuleServiceDependencyManager(deployment,
                 ruleServiceLoader,
                 rootClassLoader,
                 isLazyCompilation,

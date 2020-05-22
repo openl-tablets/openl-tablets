@@ -27,8 +27,8 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     private RuleService ruleService;
     private ServiceConfigurer serviceConfigurer;
     private RuleServiceLoader ruleServiceLoader;
-    private Map<String, ServiceDescription> serviceDescriptions = new HashMap<>();
-    private Map<String, ServiceDescription> failedServiceDescriptions = new HashMap<>();
+    private final Map<String, ServiceDescription> serviceDescriptions = new HashMap<>();
+    private final Map<String, ServiceDescription> failedServiceDescriptions = new HashMap<>();
 
     public void setRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
         if (this.ruleServiceLoader != null) {
