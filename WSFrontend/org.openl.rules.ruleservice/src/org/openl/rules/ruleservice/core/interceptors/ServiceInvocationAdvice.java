@@ -50,16 +50,16 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
 
     private static final String MSG_SEPARATOR = "; ";
 
-    private Map<Method, List<ServiceMethodBeforeAdvice>> beforeInterceptors = new HashMap<>();
-    private Map<Method, List<ServiceMethodAfterAdvice<?>>> afterInterceptors = new HashMap<>();
-    private Map<Method, ServiceMethodAroundAdvice<?>> aroundInterceptors = new HashMap<>();
-    private Map<Method, ServiceExtraMethodHandler<?>> serviceExtraMethodAnnotations = new HashMap<>();
+    private final Map<Method, List<ServiceMethodBeforeAdvice>> beforeInterceptors = new HashMap<>();
+    private final Map<Method, List<ServiceMethodAfterAdvice<?>>> afterInterceptors = new HashMap<>();
+    private final Map<Method, ServiceMethodAroundAdvice<?>> aroundInterceptors = new HashMap<>();
+    private final Map<Method, ServiceExtraMethodHandler<?>> serviceExtraMethodAnnotations = new HashMap<>();
 
-    private Object serviceTarget;
-    private Class<?> serviceClass;
-    private ClassLoader serviceClassLoader;
-    private IOpenClass openClass;
-    private Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners;
+    private final Object serviceTarget;
+    private final Class<?> serviceClass;
+    private final ClassLoader serviceClassLoader;
+    private final IOpenClass openClass;
+    private final Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners;
 
     public ServiceInvocationAdvice(IOpenClass openClass,
             Object serviceTarget,
@@ -272,10 +272,10 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             Method interfaceMethod,
             Object[] args,
             Object ret,
-            Exception lastOccuredException) {
+            Exception lastOccurredException) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             try {
-                listener.afterServiceMethodAdvice(interceptor, interfaceMethod, args, ret, lastOccuredException);
+                listener.afterServiceMethodAdvice(interceptor, interfaceMethod, args, ret, lastOccurredException);
             } catch (Exception e1) {
                 log.error("Exception occurred.", e1);
             }
@@ -297,7 +297,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
     }
 
     @Override
-    public Object invoke(Method calledMethod, Object[] args) throws Exception {
+    public Object invoke(Method calledMethod, Object[] args) {
         String methodName = calledMethod.getName();
         Class<?>[] parameterTypes = calledMethod.getParameterTypes();
         Method interfaceMethod = MethodUtil.getMatchingAccessibleMethod(serviceClass, methodName, parameterTypes);

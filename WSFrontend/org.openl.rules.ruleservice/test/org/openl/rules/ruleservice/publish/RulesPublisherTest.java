@@ -77,7 +77,7 @@ public class RulesPublisherTest implements ApplicationContextAware {
         try {
             frontend.getValue(TUTORIAL4, COVERAGE);
             Assert.fail();
-        } catch (MethodInvocationException e) {
+        } catch (MethodInvocationException ignored) {
         }
         assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE, DATA1)));
         assertEquals(1, publisher.getServices().size());
@@ -127,7 +127,7 @@ public class RulesPublisherTest implements ApplicationContextAware {
             .getClassLoader()
             .loadClass(DRIVER)
             .newInstance();
-        frontend.execute(TUTORIAL4, "driverAgeType", new Object[] { driver });
+        frontend.execute(TUTORIAL4, "driverAgeType", driver);
     }
 
     @Test
@@ -144,10 +144,10 @@ public class RulesPublisherTest implements ApplicationContextAware {
             .newInstance();
         Method nameSetter = driver.getClass().getMethod("setName", String.class);
         nameSetter.invoke(driver, "name");
-        Class<? extends Object> returnType = frontend.execute(TUTORIAL4, "driverAgeType", new Object[] { driver })
+        Class<?> returnType = frontend.execute(TUTORIAL4, "driverAgeType", driver)
             .getClass();
         assertTrue(returnType.isEnum());
-        assertTrue(returnType.getName().equals("org.openl.rules.tutorial4.DriverAgeType"));
+        assertEquals("org.openl.rules.tutorial4.DriverAgeType", returnType.getName());
     }
 
     @Test
