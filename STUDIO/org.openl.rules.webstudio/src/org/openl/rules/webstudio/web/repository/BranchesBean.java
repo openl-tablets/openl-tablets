@@ -9,6 +9,8 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
+import org.openl.rules.common.LockInfo;
+import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.MergeConflictException;
@@ -132,7 +134,10 @@ public class BranchesBean {
                 setWasMerged(true);
             }
         } catch (MergeConflictException e) {
-            MergeConflictInfo info = new MergeConflictInfo(e, getProject(currentProjectName), branchToMergeFrom, branchToMergeTo,
+            MergeConflictInfo info = new MergeConflictInfo(e,
+                getProject(currentProjectName),
+                branchToMergeFrom,
+                branchToMergeTo,
                 currentBranch);
             ConflictUtils.saveMergeConflict(info);
             log.debug("Failed to save the project because of merge conflict.", e);
@@ -144,6 +149,30 @@ public class BranchesBean {
             log.error(msg, e);
             showErrorMessage(msg);
         }
+    }
+
+    private boolean isProjectLockedInBranch(String currentProjectName, String branchToMergeTo) {
+        if (currentProjectName == null && branchToMergeTo == null) {
+            return false;
+        }
+        UserWorkspace userWorkspace;
+        try {
+            userWorkspace = getUserWorkspace();
+            LockEngine projectsLockEngine = userWorkspace.getProjectsLockEngine();
+            LockInfo lockInfo = projectsLockEngine.getLockInfo(branchToMergeTo, currentProjectName);
+            return lockInfo.isLocked();
+        } catch (WorkspaceException e) {
+            log.error(e.getMessage(), e);
+        }
+        return false;
+    }
+
+    public boolean isProjectLockedInAnotherBranch() {
+        return isProjectLockedInBranch(currentProjectName, branchToMerge);
+    }
+
+    public boolean isMergedOrLocked() {
+        return isYourBranchMerged() || isProjectLockedInAnotherBranch();
     }
 
     public void setWasMerged(boolean wasMerged) {
@@ -206,8 +235,7 @@ public class BranchesBean {
         this.editorMode = editorMode;
     }
 
-    private void initBranchToMerge(String currentProjectName, BranchRepository repository) throws
-                                                                                           IOException,
+    private void initBranchToMerge(String currentProjectName, BranchRepository repository) throws IOException,
                                                                                            WorkspaceException {
         // Try to find a parent branch based on project's branch names.
         List<String> projectBranches = repository.getBranches(currentProjectName);
@@ -222,7 +250,8 @@ public class BranchesBean {
         }
         if (!found) {
             // Get base branch. It can be different from project.getDesignRepository().getBranch().
-            branchToMerge = ((BranchRepository) getUserWorkspace().getDesignTimeRepository().getRepository()).getBranch();
+            branchToMerge = ((BranchRepository) getUserWorkspace().getDesignTimeRepository().getRepository())
+                .getBranch();
 
             boolean existInCombobox = false;
             List<SelectItem> branchesToMerge = getBranchesToMerge();
