@@ -1,3 +1,2 @@
 ERROR: Identifier 'Step4' is not found.
-ERROR: Method 'multiply(null-Class, null-Class)' is ambiguous:
-ERROR: Method 'product(java.lang.Object[])' is not found.
+ERROR: Operator 'multiply(java.lang.Double[], null-Class)' is not found.

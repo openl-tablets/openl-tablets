@@ -71,6 +71,7 @@ public class CastFactory implements ICastFactory {
 
     public static final int ARRAY_CAST_DISTANCE = 1000;
     public static final int ONE_ELEMENT_ARRAY_CAST_DISTANCE = 2000;
+    public static final int ARRAY_ONE_ELEMENT_CAST_DISTANCE = 3000;
 
     public static final String AUTO_CAST_METHOD_NAME = "autocast";
     public static final String CAST_METHOD_NAME = "cast";
@@ -345,11 +346,21 @@ public class CastFactory implements ICastFactory {
         IOpenCast methodBasedCast = findMethodBasedCast(from, to, methodFactory);
         typeCast = selectBetterCast(from, to, typeCast, methodBasedCast);
 
-        if (typeCast == null) {
-            typeCast = findOneElementArrayCast(from, to);
-        }
+        typeCast = typeCast == null ? findOneElementArrayCast(from, to) : typeCast;
+
+        typeCast = typeCast == null ? findArrayOneElementCast(from, to) : typeCast;
 
         return typeCast;
+    }
+
+    private IOpenCast findArrayOneElementCast(IOpenClass from, IOpenClass to) {
+        if (from.isArray() && !to.isArray() && !from.getComponentClass().isArray()) {
+            IOpenCast cast = getCast(from.getComponentClass(), to);
+            if (cast != null) {
+                return new ArrayOneElementCast(to, cast);
+            }
+        }
+        return null;
     }
 
     private IOpenCast selectBetterCast(IOpenClass from, IOpenClass to, IOpenCast castA, IOpenCast castB) {
@@ -402,7 +413,7 @@ public class CastFactory implements ICastFactory {
             return null;
         }
         IOpenCast arrayElementCast = getCast(f, t);
-        if (arrayElementCast != null) {
+        if (arrayElementCast != null && !(arrayElementCast instanceof IArrayOneElementCast) && !(arrayElementCast instanceof IOneElementArrayCast)) {
             return new ArrayCast(t, arrayElementCast);
         }
         return null;
