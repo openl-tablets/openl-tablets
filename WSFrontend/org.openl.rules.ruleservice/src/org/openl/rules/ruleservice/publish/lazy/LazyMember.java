@@ -70,14 +70,15 @@ public abstract class LazyMember<T extends IOpenMember> {
     }
 
     protected CompiledOpenClass getCompiledOpenClass() throws Exception {
+        Module module = getModule();
         CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance()
-            .get(getDeployment(), getModule().getName());
+            .get(getDeployment(), module.getName());
         if (compiledOpenClass != null) {
             return compiledOpenClass;
         }
 
         synchronized (getXlsLazyModuleOpenClass()) {
-            compiledOpenClass = CompiledOpenClassCache.getInstance().get(getDeployment(), getModule().getName());
+            compiledOpenClass = CompiledOpenClassCache.getInstance().get(getDeployment(), module.getName());
             if (compiledOpenClass != null) {
                 return compiledOpenClass;
             }
@@ -88,25 +89,25 @@ public abstract class LazyMember<T extends IOpenMember> {
                     try {
                         LazyBinderMethodHandler.removePrebindHandler();
                         RulesInstantiationStrategy rulesInstantiationStrategy = RulesInstantiationStrategyFactory
-                            .getStrategy(getModule(), true, getDependencyManager(), getClassLoader());
+                            .getStrategy(module, true, getDependencyManager(), getClassLoader());
                         rulesInstantiationStrategy.setServiceClass(EmptyInterface.class);// Prevent
                         Map<String, Object> parameters = ProjectExternalDependenciesHelper
                             .getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
-                                Collections.singleton(getModule()));
+                                Collections.singleton(module));
                         rulesInstantiationStrategy.setExternalParameters(parameters);
                         compiledOpenClass1 = rulesInstantiationStrategy.compile();
                         CompiledOpenClassCache.getInstance()
-                            .putToCache(getDeployment(), getModule().getName(), compiledOpenClass1);
+                            .putToCache(getDeployment(), module.getName(), compiledOpenClass1);
                         if (log.isDebugEnabled()) {
                             log.debug(
                                 "CompiledOpenClass for deploymentName='{}', deploymentVersion='{}', dependencyName='{}' was stored to cache.",
                                 getDeployment().getName(),
                                 getDeployment().getVersion().getVersionName(),
-                                getModule().getName());
+                                module.getName());
                         }
                         return compiledOpenClass1;
                     } catch (Exception ex) {
-                        log.error("Failed to load dependency '{}'.", getModule().getName(), ex);
+                        log.error("Failed to load dependency '{}'.", module.getName(), ex);
                         return compiledOpenClass1;
                     } finally {
                         LazyBinderMethodHandler.setPrebindHandler(prebindHandler);
