@@ -34,7 +34,6 @@ import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.wrapper.IRulesMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
-import org.openl.rules.lang.xls.prebind.ILazyMember;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.OpenLArgumentsCloner;
@@ -243,38 +242,20 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return imports;
     }
 
-    @SuppressWarnings("unchecked")
-    protected IOpenMethod extractNonLazyMethod(IOpenMethod method) {
-        if (method instanceof ILazyMember) {
-            return extractNonLazyMethod(((ILazyMember<IOpenMethod>) method).getOriginal());
-        }
-        return method;
-    }
-
     @Override
     protected boolean isDependencyMethodInheritable(IOpenMethod openMethod) {
-        IOpenMethod method = extractNonLazyMethod(openMethod);
-        if (method instanceof TestSuiteMethod) {
+        if (openMethod instanceof TestSuiteMethod) {
             return false;
         }
-        return super.isDependencyMethodInheritable(method);
-    }
-
-    @SuppressWarnings("unchecked")
-    protected IOpenField extractNonLazyOpenField(IOpenField openField) {
-        if (openField instanceof ILazyMember) {
-            return extractNonLazyOpenField(((ILazyMember<IOpenField>) openField).getOriginal());
-        }
-        return openField;
+        return super.isDependencyMethodInheritable(openMethod);
     }
 
     @Override
     protected boolean isDependencyFieldInheritable(IOpenField openField) {
-        IOpenField field = extractNonLazyOpenField(openField);
-        if (field instanceof ConstantOpenField) {
+        if (openField instanceof ConstantOpenField) {
             return true;
         }
-        return super.isDependencyFieldInheritable(field);
+        return super.isDependencyFieldInheritable(openField);
     }
 
     @Override
@@ -331,26 +312,20 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     @Override
     public void addField(IOpenField openField) {
         Map<String, IOpenField> fields = fieldMap();
-        IOpenField field = extractNonLazyOpenField(openField);
         if (fields.containsKey(openField.getName())) {
-            IOpenField existedField = extractNonLazyOpenField(fields.get(openField.getName()));
-            if (field instanceof ConstantOpenField && existedField instanceof ConstantOpenField) {
+            IOpenField existedField = fields.get(openField.getName());
+            if (openField instanceof ConstantOpenField && existedField instanceof ConstantOpenField) {
                 // Ignore constants with the same values
-                if (field.getType().equals(existedField.getType()) && Objects
-                    .equals(((ConstantOpenField) field).getValue(), ((ConstantOpenField) existedField).getValue())) {
+                if (openField.getType().equals(existedField.getType()) && Objects
+                    .equals(((ConstantOpenField) openField).getValue(), ((ConstantOpenField) existedField).getValue())) {
                     return;
                 }
 
-                throw new DuplicatedFieldException("", field.getName());
+                throw new DuplicatedFieldException("", openField.getName());
             }
             UriMemberHelper.validateFieldDuplication(openField, existedField);
         }
-        if (field.isConst()) {
-            // Use non lazy field for constant fields
-            fieldMap().put(openField.getName(), field);
-        } else {
-            fieldMap().put(openField.getName(), openField);
-        }
+        fieldMap().put(openField.getName(), openField);
         addFieldToLowerCaseMap(openField);
     }
 
