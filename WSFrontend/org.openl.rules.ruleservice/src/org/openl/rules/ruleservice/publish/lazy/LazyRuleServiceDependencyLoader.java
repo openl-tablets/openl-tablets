@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.core;
+package org.openl.rules.ruleservice.publish.lazy;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,15 +18,10 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.instantiation.SimpleDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.ruleservice.core.DeploymentDescription;
+import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager.DependencyCompilationType;
-import org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache;
-import org.openl.rules.ruleservice.publish.lazy.LazyBinderMethodHandler;
-import org.openl.rules.ruleservice.publish.lazy.LazyCompiledOpenClass;
-import org.openl.rules.ruleservice.publish.lazy.LazyField;
-import org.openl.rules.ruleservice.publish.lazy.LazyInstantiationStrategy;
 import org.openl.rules.ruleservice.publish.lazy.LazyMember.EmptyInterface;
-import org.openl.rules.ruleservice.publish.lazy.LazyMethod;
-import org.openl.rules.ruleservice.publish.lazy.ModuleUtils;
 import org.openl.rules.ruleservice.publish.lazy.wrapper.LazyWrapperLogic;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;

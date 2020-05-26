@@ -7,7 +7,6 @@ import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
-import org.openl.rules.ruleservice.core.LazyRuleServiceDependencyLoader;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.syntax.code.IDependency;
 import org.openl.types.IOpenClass;
