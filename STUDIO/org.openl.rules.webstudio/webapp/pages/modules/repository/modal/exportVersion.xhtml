@@ -31,7 +31,7 @@
         <input type="button" value="Cancel" onclick="RichFaces.$('modalExportVersion').hide();" />
       </footer>
 
-      <a4j:jsFunction name="renderExportVersionForm" action="#{nodeVersionsBean.updateNodeToView()}"
+      <a4j:jsFunction name="renderExportVersionForm" action="#{nodeVersionsBean.updateNodeToView}"
                       render="exportVersionForm" oncomplete="showExportVersionDialog()"/>
 
     </h:form>
