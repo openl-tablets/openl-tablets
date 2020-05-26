@@ -20,7 +20,6 @@ import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
-import org.openl.rules.ruleservice.publish.lazy.wrapper.LazyWrapperLogic;
 import org.openl.rules.runtime.AOpenLRulesEngineFactory;
 import org.openl.rules.runtime.InterfaceClassGenerator;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
@@ -34,7 +33,6 @@ import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
@@ -195,31 +193,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         // put prebinder to openl
         IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
         try {
-            LazyBinderMethodHandler.setPrebindHandler(new IPrebindHandler() {
-                @Override
-                public IOpenMethod processPrebindMethod(IOpenMethod method) {
-                    final Module module = ModuleUtils.getModuleForMember(method, modules);
-                    final LazyMethod lazyMethod = LazyMethod.createLazyMethod(method,
-                        dependencyManager,
-                        deployment,
-                        module,
-                        Thread.currentThread().getContextClassLoader(),
-                        externalParameters);
-                    return LazyWrapperLogic.wrapMethod(lazyMethod, method);
-                }
-
-                @Override
-                public IOpenField processPrebindField(IOpenField field) {
-                    final Module module = ModuleUtils.getModuleForMember(field, modules);
-                    final LazyField lazyField = LazyField.createLazyField(field,
-                        dependencyManager,
-                        deployment,
-                        module,
-                        Thread.currentThread().getContextClassLoader(),
-                        externalParameters);
-                    return LazyWrapperLogic.wrapField(lazyField, field);
-                }
-            });
+            LazyBinderMethodHandler.setPrebindHandler(new LazyPrebindHandler(modules, dependencyManager, null, externalParameters, deployment));
 
             IOpenSourceCodeModule mainModule = createMainModule();
             RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(mainModule,
@@ -278,4 +252,5 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
             super.validateReturnType(openMethod, interfaceMethod);
         }
     }
+
 }

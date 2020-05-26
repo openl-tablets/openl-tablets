@@ -21,12 +21,9 @@ import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager.DependencyCompilationType;
 import org.openl.rules.ruleservice.publish.lazy.LazyMember.EmptyInterface;
-import org.openl.rules.ruleservice.publish.lazy.wrapper.LazyWrapperLogic;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,32 +121,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         rulesInstantiationStrategy.setExternalParameters(parameters);
         IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
         try {
-            LazyBinderMethodHandler.setPrebindHandler(new IPrebindHandler() {
-
-                @Override
-                public IOpenMethod processPrebindMethod(IOpenMethod method) {
-                    final Module declaringModule = ModuleUtils.getModuleForMember(method, modules);
-                    LazyMethod lazyMethod = LazyMethod.createLazyMethod(method,
-                        dependencyManager,
-                        deployment,
-                        declaringModule,
-                        classLoader,
-                        parameters);
-                    return LazyWrapperLogic.wrapMethod(lazyMethod, method);
-                }
-
-                @Override
-                public IOpenField processPrebindField(IOpenField field) {
-                    final Module declaringModule = ModuleUtils.getModuleForMember(field, modules);
-                    final LazyField lazyField = LazyField.createLazyField(field,
-                        dependencyManager,
-                        deployment,
-                        declaringModule,
-                        classLoader,
-                        parameters);
-                    return LazyWrapperLogic.wrapField(lazyField, field);
-                }
-            });
+            LazyBinderMethodHandler.setPrebindHandler(new LazyPrebindHandler(modules, dependencyManager, classLoader, parameters, deployment));
             try {
                 dependencyManager.compilationBegin(this);
                 lazyCompiledOpenClass = rulesInstantiationStrategy.compile();
@@ -239,4 +211,5 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
 
     public interface LazyRuleServiceDependencyLoaderInterface {
     }
+
 }
