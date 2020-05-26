@@ -39,7 +39,7 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> {
         this.argTypes = argTypes;
     }
 
-    public static LazyMethod createLazyMethod(final IOpenMethod prebindedMethod,
+    static LazyMethod createLazyMethod(final IOpenMethod prebindedMethod,
             final RuleServiceDependencyManager dependencyManager,
             final DeploymentDescription deployment,
             final Module module,

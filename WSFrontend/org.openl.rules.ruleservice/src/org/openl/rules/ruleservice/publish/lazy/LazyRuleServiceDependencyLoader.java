@@ -206,10 +206,10 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
 
     @Override
     public void reset() {
-        // Nothing to reset
+        CompiledOpenClassCache.getInstance().removeAll(deployment);
     }
 
-    public interface LazyRuleServiceDependencyLoaderInterface {
+    interface LazyRuleServiceDependencyLoaderInterface {
     }
 
 }

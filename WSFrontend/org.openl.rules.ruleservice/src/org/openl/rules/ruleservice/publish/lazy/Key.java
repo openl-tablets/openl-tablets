@@ -5,14 +5,14 @@ import java.util.Objects;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 
 public class Key {
-    final String dependencyName;
-    final DeploymentDescription deploymentDescription;
+    private final String dependencyName;
+    private final DeploymentDescription deploymentDescription;
 
-    public DeploymentDescription getDeploymentDescription() {
+    DeploymentDescription getDeploymentDescription() {
         return deploymentDescription;
     }
 
-    public Key(DeploymentDescription deploymentDescription, String dependencyName) {
+    Key(DeploymentDescription deploymentDescription, String dependencyName) {
         this.deploymentDescription = Objects.requireNonNull(deploymentDescription,
             "deploymentDescription cannot be null");
         this.dependencyName = Objects.requireNonNull(dependencyName, "dependencyName cannot be null");

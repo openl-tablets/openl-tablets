@@ -24,7 +24,7 @@ public final class OpenLEhCache {
     }
 
     private static class OpenLEhCacheHolder {
-        public static final OpenLEhCache INSTANCE = new OpenLEhCache();
+        static final OpenLEhCache INSTANCE = new OpenLEhCache();
     }
 
     /**
@@ -36,7 +36,7 @@ public final class OpenLEhCache {
         return OpenLEhCacheHolder.INSTANCE;
     }
 
-    public Cache<Key, CompiledOpenClass> getModulesCache() {
+    Cache<Key, CompiledOpenClass> getModulesCache() {
         if (modulesCache == null) {
             synchronized (this) {
                 if (modulesCache == null) {

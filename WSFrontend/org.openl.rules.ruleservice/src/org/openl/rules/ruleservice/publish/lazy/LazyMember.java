@@ -39,9 +39,9 @@ public abstract class LazyMember<T extends IOpenMember> {
     private final ClassLoader classLoader;
     private volatile T cachedMember;
 
-    public LazyMember(RuleServiceDependencyManager dependencyManager,
-            ClassLoader classLoader,
-            Map<String, Object> externalParameters) {
+    LazyMember(RuleServiceDependencyManager dependencyManager,
+               ClassLoader classLoader,
+               Map<String, Object> externalParameters) {
         this.dependencyManager = dependencyManager;
         this.classLoader = classLoader;
         this.externalParameters = externalParameters;
@@ -49,19 +49,19 @@ public abstract class LazyMember<T extends IOpenMember> {
 
     protected abstract T getMember();
 
-    protected T getCachedMember() {
+    T getCachedMember() {
         return cachedMember;
     }
 
-    protected void setCachedMember(T member) {
+    void setCachedMember(T member) {
         cachedMember = member;
     }
 
-    public void clearCachedMember() {
+    void clearCachedMember() {
         cachedMember = null;
     }
 
-    protected CompiledOpenClass getCompiledOpenClassWithThrowErrorExceptionsIfAny() throws Exception {
+    CompiledOpenClass getCompiledOpenClassWithThrowErrorExceptionsIfAny() throws Exception {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
         if (compiledOpenClass.hasErrors()) {
             compiledOpenClass.throwErrorExceptionsIfAny();
@@ -69,10 +69,9 @@ public abstract class LazyMember<T extends IOpenMember> {
         return compiledOpenClass;
     }
 
-    protected CompiledOpenClass getCompiledOpenClass() throws Exception {
-        Module module = getModule();
-        CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance()
-            .get(getDeployment(), module.getName());
+    private CompiledOpenClass getCompiledOpenClass() throws Exception {
+        final Module module = getModule();
+        CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance().get(getDeployment(), module.getName());
         if (compiledOpenClass != null) {
             return compiledOpenClass;
         }
@@ -153,6 +152,6 @@ public abstract class LazyMember<T extends IOpenMember> {
         return externalParameters;
     }
 
-    public interface EmptyInterface {
+    interface EmptyInterface {
     }
 }

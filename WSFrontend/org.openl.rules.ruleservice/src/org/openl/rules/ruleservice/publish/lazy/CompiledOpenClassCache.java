@@ -24,7 +24,7 @@ import org.openl.rules.ruleservice.core.DeploymentDescription;
 public final class CompiledOpenClassCache {
 
     private static class CompiledOpenClassHolder {
-        public static final CompiledOpenClassCache INSTANCE = new CompiledOpenClassCache();
+        static final CompiledOpenClassCache INSTANCE = new CompiledOpenClassCache();
     }
 
     private CompiledOpenClassCache() {
@@ -62,7 +62,7 @@ public final class CompiledOpenClassCache {
         return cache.get(key);
     }
 
-    public void putToCache(DeploymentDescription deploymentDescription,
+    void putToCache(DeploymentDescription deploymentDescription,
             String dependencyName,
             CompiledOpenClass compiledOpenClass) {
         Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
@@ -74,7 +74,7 @@ public final class CompiledOpenClassCache {
 
     private final Map<Key, Collection<Event>> eventsMap = new HashMap<>();
 
-    public void registerEvent(DeploymentDescription deploymentDescription, String dependencyName, Event event) {
+    void registerEvent(DeploymentDescription deploymentDescription, String dependencyName, Event event) {
         Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
         Objects.requireNonNull(dependencyName, "dependencyName cannot be null");
         Key key = new Key(deploymentDescription, dependencyName);

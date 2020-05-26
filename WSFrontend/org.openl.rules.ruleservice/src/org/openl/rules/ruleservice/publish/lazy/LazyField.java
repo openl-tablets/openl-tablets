@@ -27,12 +27,12 @@ public abstract class LazyField extends LazyMember<IOpenField> {
         this.fieldName = fieldName;
     }
 
-    public static LazyField createLazyField(final IOpenField prebindedMethod,
-            final RuleServiceDependencyManager dependencyManager,
-            final DeploymentDescription deployment,
-            final Module module,
-            final ClassLoader classLoader,
-            final Map<String, Object> externalParameters) {
+    static LazyField createLazyField(final IOpenField prebindedMethod,
+                                     final RuleServiceDependencyManager dependencyManager,
+                                     final DeploymentDescription deployment,
+                                     final Module module,
+                                     final ClassLoader classLoader,
+                                     final Map<String, Object> externalParameters) {
         final LazyField lazyField = new LazyField(prebindedMethod.getName(),
             dependencyManager,
             classLoader,
