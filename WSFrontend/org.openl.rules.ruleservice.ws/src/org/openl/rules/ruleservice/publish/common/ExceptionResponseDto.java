@@ -13,9 +13,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class ExceptionResponseDto {
 
-    private static final int INTERNAL_SERVER_ERROR_CODE = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
-    private static final int BAD_REQUEST = Response.Status.BAD_REQUEST.getStatusCode();
-    private static final int UNPROCESSABLE_ENTITY = 422;
+    public static final int INTERNAL_SERVER_ERROR_CODE = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
+    public static final int BAD_REQUEST = Response.Status.BAD_REQUEST.getStatusCode();
+    public static final int UNPROCESSABLE_ENTITY = 422;
 
     private String message;
     private int statusCode;
