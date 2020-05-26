@@ -20,7 +20,7 @@ public class Migrator {
             props.put("project.history.count", ""); // Define unlimited
         }
         props.put("project.history.unlimited", null); // Remove
-        props.put(".version", OpenLVersion.getBuildNumber()); // Mark the file version
+        props.put(".version", OpenLVersion.getVersion()); // Mark the file version
         DynamicPropertySource.get().save(props);
     }
 }
