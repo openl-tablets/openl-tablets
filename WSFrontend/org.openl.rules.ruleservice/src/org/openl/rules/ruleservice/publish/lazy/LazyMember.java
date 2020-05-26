@@ -1,6 +1,6 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
@@ -92,13 +92,7 @@ public abstract class LazyMember<T extends IOpenMember> {
                         rulesInstantiationStrategy.setServiceClass(EmptyInterface.class);// Prevent
                         Map<String, Object> parameters = ProjectExternalDependenciesHelper
                             .getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
-                                new ArrayList<Module>() {
-                                    private static final long serialVersionUID = 1L;
-
-                                    {
-                                        add(getModule());
-                                    }
-                                });
+                                Collections.singleton(getModule()));
                         rulesInstantiationStrategy.setExternalParameters(parameters);
                         compiledOpenClass1 = rulesInstantiationStrategy.compile();
                         CompiledOpenClassCache.getInstance()

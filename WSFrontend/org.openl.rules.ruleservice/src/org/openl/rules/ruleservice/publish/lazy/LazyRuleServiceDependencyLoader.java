@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -198,13 +197,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                 rulesInstantiationStrategy.setServiceClass(EmptyInterface.class);
                 Map<String, Object> parameters = ProjectExternalDependenciesHelper
                     .getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
-                        new ArrayList<Module>() {
-                            private static final long serialVersionUID = 1L;
-
-                            {
-                                add(module);
-                            }
-                        });
+                        Collections.singleton(module));
                 rulesInstantiationStrategy.setExternalParameters(parameters);
                 compiledOpenClass = rulesInstantiationStrategy.compile();
                 CompiledOpenClassCache.getInstance().putToCache(deployment, dependencyName, compiledOpenClass);
