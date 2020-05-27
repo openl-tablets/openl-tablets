@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.publish.lazy;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Map;
 
 import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
@@ -13,9 +14,14 @@ import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
 import org.openl.rules.ruleservice.publish.lazy.wrapper.LazyWrapperLogic;
+import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
+import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.PropertiesHelper;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
+import org.openl.types.java.OpenClassHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,9 +34,9 @@ class LazyPrebindHandler implements IPrebindHandler {
     private final DeploymentDescription deployment;
 
     LazyPrebindHandler(Collection<Module> modules,
-                       RuleServiceDependencyManager dependencyManager,
-                       ClassLoader classLoader,
-                       DeploymentDescription deployment) {
+            RuleServiceDependencyManager dependencyManager,
+            ClassLoader classLoader,
+            DeploymentDescription deployment) {
         this.modules = modules;
         this.dependencyManager = dependencyManager;
         this.classLoader = classLoader;
@@ -44,11 +50,39 @@ class LazyPrebindHandler implements IPrebindHandler {
         for (int i = 0; i < argTypes.length; i++) {
             argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
         }
-        final LazyMethod lazyMethod = new LazyMethod(method,
-            argTypes,
-            dependencyManager,
-            getClassLoader()
-        ) {
+        final Map<String, Object> dimensionProperties = (method instanceof ITableProperties) ? PropertiesHelper
+                .getTableProperties(method)
+                .getAllDimensionalProperties() : null;
+        final LazyMember<IOpenMethod> lazyMethod = new LazyMember<IOpenMethod>(dependencyManager, getClassLoader()) {
+
+
+            protected IOpenMethod initMember() {
+                IOpenMethod openMethod;
+                try {
+                    CompiledOpenClass compiledOpenClass = getCompiledOpenClassWithThrowErrorExceptionsIfAny();
+                    openMethod = OpenClassHelper
+                            .findRulesMethod(compiledOpenClass.getOpenClass(), method.getName(), argTypes);
+                    if (openMethod instanceof OpenMethodDispatcher && dimensionProperties != null) {
+                        OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) openMethod;
+                        for (IOpenMethod candidate : openMethodDispatcher.getCandidates()) {
+                            if (candidate instanceof ITableProperties) {
+                                Map<String, Object> candidateDimensionProperties = PropertiesHelper
+                                        .getTableProperties(candidate)
+                                        .getAllDimensionalProperties();
+                                if (DimensionPropertiesMethodKey.compareMethodDimensionProperties(dimensionProperties,
+                                        candidateDimensionProperties)) {
+                                    openMethod = candidate;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    throw new RuleServiceOpenLCompilationException("Failed to load lazy method.", e);
+                }
+                return openMethod;
+            }
+
             @Override
             public DeploymentDescription getDeployment() {
                 return deployment;
