@@ -140,7 +140,7 @@ class LazyPrebindHandler implements IPrebindHandler {
             try {
                 return MaxThreadsForCompileSemaphore.getInstance()
                     .run(() -> CompiledOpenClassCache
-                        .compile(dependencyManager, dependencyName, deployment, module, classLoader));
+                        .compileToCache(dependencyManager, dependencyName, deployment, module, classLoader));
             } catch (OpenLCompilationException e) {
                 throw e;
             } catch (InterruptedException e) {

@@ -160,7 +160,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
             if (compiledOpenClass != null) {
                 return;
             }
-            CompiledOpenClassCache.compile(dependencyManager, dependencyName, deployment, module, classLoader);
+            CompiledOpenClassCache.compileToCache(dependencyManager, dependencyName, deployment, module, classLoader);
         }
     }
 

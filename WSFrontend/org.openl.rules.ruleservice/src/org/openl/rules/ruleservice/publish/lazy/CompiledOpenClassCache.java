@@ -74,11 +74,13 @@ public final class CompiledOpenClassCache {
         return cache.get(key);
     }
 
-    static CompiledOpenClass compile(RuleServiceDependencyManager dependencyManager,
-            String dependencyName,
-            DeploymentDescription deployment,
-            Module module,
-            ClassLoader classLoader) throws OpenLCompilationException {
+    static CompiledOpenClass compileToCache(RuleServiceDependencyManager dependencyManager,
+                                            String dependencyName,
+                                            DeploymentDescription deployment,
+                                            Module module,
+                                            ClassLoader classLoader) throws OpenLCompilationException {
+        Objects.requireNonNull(deployment, "deploymentDescription cannot be null");
+        Objects.requireNonNull(dependencyName, "dependencyName cannot be null");
         IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
         try {
             LazyBinderMethodHandler.removePrebindHandler();
@@ -90,7 +92,10 @@ public final class CompiledOpenClassCache {
                 Collections.singleton(module));
             rulesInstantiationStrategy.setExternalParameters(parameters);
             CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
-            getInstance().putToCache(deployment, dependencyName, compiledOpenClass);
+
+            Key key = new Key(deployment, dependencyName);
+            Cache<Key, CompiledOpenClass> cache = OpenLEhCache.getInstance().getModulesCache();
+            cache.put(key, compiledOpenClass);
             LOG.debug("Compiled lazy dependency (deployment='{}', version='{}', name='{}') is saved in cache.",
                 deployment.getName(),
                 deployment.getVersion().getVersionName(),
@@ -101,16 +106,6 @@ public final class CompiledOpenClassCache {
         } finally {
             LazyBinderMethodHandler.setPrebindHandler(prebindHandler);
         }
-    }
-
-    void putToCache(DeploymentDescription deploymentDescription,
-            String dependencyName,
-            CompiledOpenClass compiledOpenClass) {
-        Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
-        Objects.requireNonNull(dependencyName, "dependencyName cannot be null");
-        Key key = new Key(deploymentDescription, dependencyName);
-        Cache<Key, CompiledOpenClass> cache = OpenLEhCache.getInstance().getModulesCache();
-        cache.put(key, compiledOpenClass);
     }
 
     private final Map<Key, Collection<Event>> eventsMap = new HashMap<>();
