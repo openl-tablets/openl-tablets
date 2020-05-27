@@ -15,15 +15,17 @@
     </f:facet>
 
     <h:form id="exportVersionForm">
-      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," id="modalExportVersionData"
-                   rendered="#{!empty nodeVersionsBean.nodeToView}">
-        <h:outputText value="Project Name:" />
-        <h:outputText value="#{artefact.name}" />
-        <h:outputLabel for="projectVersion" styleClass="required" value="Project Revision:" />
-        <h:selectOneMenu id="projectVersion" value="#{repositoryTreeController.version}" required="true">
+      <h:panelGroup id="modalExportVersionData">
+        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
+                     rendered="#{!empty nodeVersionsBean.nodeToView}">
+          <h:outputText value="Project Name:" />
+          <h:outputText value="#{artefact.name}" />
+          <h:outputLabel for="projectVersion" styleClass="required" value="Project Revision:" />
+          <h:selectOneMenu id="projectVersion" value="#{repositoryTreeController.version}" required="true">
             <f:selectItems value="#{repositoryTreeController.selectedProjectVersions}" />
-        </h:selectOneMenu>
-      </h:panelGrid>
+          </h:selectOneMenu>
+        </h:panelGrid>
+      </h:panelGroup>
 
       <footer>
         <h:commandButton value="Export" action="#{repositoryTreeController.exportProjectVersion}"
@@ -32,7 +34,7 @@
       </footer>
 
       <a4j:jsFunction name="renderExportVersionForm" action="#{nodeVersionsBean.updateNodeToView}"
-                      render="exportVersionForm" oncomplete="showExportVersionDialog()"/>
+                      render="modalExportVersionData" oncomplete="showExportVersionDialog()"/>
 
     </h:form>
 

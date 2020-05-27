@@ -30,7 +30,7 @@
         <input type="button" value="Cancel" onclick="RichFaces.$('modalExportFile').hide();" />
       </footer>
       <a4j:jsFunction name="initExportFileDialog" action="#{nodeVersionsBean.updateNodeToView}"
-                      render="exportFileForm" oncomplete="showExportFileDialog();" />
+                      render="modalExportFileData" oncomplete="showExportFileDialog();" />
 
     </h:form>
 

@@ -78,7 +78,7 @@
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalCopyFile').hide();"/>
             </footer>
             <a4j:jsFunction name="initCopyFileDialog" action="#{nodeVersionsBean.updateNodeToView}"
-                            render="copyFileForm" oncomplete="showCopyFileDialog();" />
+                            render="modalCopyFileData" oncomplete="showCopyFileDialog();" />
         </h:form>
 
     </rich:popupPanel>
