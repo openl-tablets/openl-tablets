@@ -131,6 +131,4 @@ public abstract class LazyMember<T extends IOpenMember> {
      */
     public abstract DeploymentDescription getDeployment();
 
-    interface EmptyInterface {
-    }
 }
