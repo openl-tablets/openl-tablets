@@ -1129,11 +1129,9 @@ public class ProjectModel {
     public SourceHistoryManager<File> getHistoryManager() {
         if (historyManager == null) {
             String projectHistoryHome = Props.text("project.history.home");
-            String projectHistoryCount = Props.text("project.history.count");
-            Integer maxFilesInStorage = Integer.valueOf(Objects.requireNonNull(projectHistoryCount));
-            boolean unlimitedStorage = Props.bool("project.history.unlimited");
+            Integer maxFilesInStorage = Props.integer("project.history.count");
             String storagePath = projectHistoryHome + File.separator + getProject().getName();
-            historyManager = new FileBasedProjectHistoryManager(this, storagePath, maxFilesInStorage, unlimitedStorage);
+            historyManager = new FileBasedProjectHistoryManager(this, storagePath, maxFilesInStorage);
         }
         return historyManager;
     }

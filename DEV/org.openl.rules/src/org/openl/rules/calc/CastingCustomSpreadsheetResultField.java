@@ -10,19 +10,20 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.openl.binding.impl.CastToWiderType;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.util.ClassUtils;
 
 public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResultField {
 
     private List<Pair<IOpenClass, IOpenCast>> casts;
     private IOpenClass type;
-    private CustomSpreadsheetResultField field1;
-    private CustomSpreadsheetResultField field2;
+    private final IOpenField field1;
+    private final IOpenField field2;
 
     public CastingCustomSpreadsheetResultField(CustomSpreadsheetResultOpenClass declaringClass,
             String name,
-            CustomSpreadsheetResultField field1,
-            CustomSpreadsheetResultField field2) {
+            IOpenField field1,
+            IOpenField field2) {
         super(declaringClass, name, null);
         this.field1 = Objects.requireNonNull(field1, "field1 cannot be null");
         this.field2 = Objects.requireNonNull(field2, "field2 cannot be null");
@@ -41,12 +42,14 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
         if (res == null) {
             return getType().nullObject();
         }
-        for (Pair<IOpenClass, IOpenCast> cast : this.casts) {
-            if (ClassUtils.isAssignable(res.getClass(), cast.getKey().getInstanceClass())) {
-                return cast.getValue().convert(res);
+        if (this.casts != null) {
+            for (Pair<IOpenClass, IOpenCast> cast : this.casts) {
+                if (ClassUtils.isAssignable(res.getClass(), cast.getKey().getInstanceClass())) {
+                    return cast.getValue().convert(res);
+                }
             }
         }
-        throw new IllegalStateException("This shouldn't happen");
+        return res;
     }
 
     private void initLazyFields() {
@@ -61,11 +64,11 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                     .getRulesModuleBindingContext(), field1.getType(), field2.getType());
                 this.type = castToWiderType.getWiderType();
             }
-            Set<CustomSpreadsheetResultField> customSpreadsheetResultFields = new HashSet<>();
-            extractAllTypes(this, customSpreadsheetResultFields);
+            Set<IOpenField> resultFields = new HashSet<>();
+            extractAllTypes(this, resultFields);
             Set<IOpenClass> types = new HashSet<>();
             this.casts = new ArrayList<>();
-            for (CustomSpreadsheetResultField f : customSpreadsheetResultFields) {
+            for (IOpenField f : resultFields) {
                 if (!types.contains(f.getType())) {
                     IOpenCast cast = getDeclaringClass().getModule()
                         .getRulesModuleBindingContext()
@@ -74,17 +77,19 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                     this.casts.add(Pair.of(f.getType(), cast));
                 }
             }
+            if (types.size() == 1) {
+                this.casts = null;
+            }
         }
     }
 
-    private void extractAllTypes(CustomSpreadsheetResultField field,
-            Set<CustomSpreadsheetResultField> customSpreadsheetResultFields) {
+    private void extractAllTypes(IOpenField field, Set<IOpenField> resultFields) {
         if (field instanceof CastingCustomSpreadsheetResultField) {
             CastingCustomSpreadsheetResultField castingCustomSpreadsheetResultField = (CastingCustomSpreadsheetResultField) field;
-            extractAllTypes(castingCustomSpreadsheetResultField.field1, customSpreadsheetResultFields);
-            extractAllTypes(castingCustomSpreadsheetResultField.field2, customSpreadsheetResultFields);
+            extractAllTypes(castingCustomSpreadsheetResultField.field1, resultFields);
+            extractAllTypes(castingCustomSpreadsheetResultField.field2, resultFields);
         } else {
-            customSpreadsheetResultFields.add(field);
+            resultFields.add(field);
         }
     }
 

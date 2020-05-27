@@ -3,6 +3,7 @@ package org.openl.rules.table.constraints;
 public class UniqueActiveTableConstraint extends AbstractConstraint {
 
     public static final String CONSTRAINT_MATCH = "^\\s*unique\\s+in\\s*:\\s*TableGroup\\s*$";
+    private static final Object[] NO_PARAMS = new Object[0];
 
     public UniqueActiveTableConstraint(String value) {
         super(value);
@@ -15,7 +16,7 @@ public class UniqueActiveTableConstraint extends AbstractConstraint {
 
     @Override
     public Object[] getParams() {
-        return new Object[0];
+        return NO_PARAMS;
     }
 
 }

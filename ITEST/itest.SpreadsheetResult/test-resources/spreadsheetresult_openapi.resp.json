@@ -1,0 +1,84 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "spreadsheetresult",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/REST/spreadsheetresult",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/tiktak": {
+      "post": {
+        "summary": "SpreadsheetResult tiktak(int, String)",
+        "description": "Rules method: SpreadsheetResulttiktak tiktak(int i, java.lang.String j)",
+        "operationId": "tiktak",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TiktakRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpreadsheetResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SpreadsheetResult": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "columnNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rowNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "TiktakRequest": {
+        "type": "object",
+        "properties": {
+          "i": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "j": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

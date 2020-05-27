@@ -1,0 +1,451 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "upcase",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/upcs",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/overload": {
+      "get": {
+        "summary": "boolean overload()",
+        "description": "Rules method: boolean overload()",
+        "operationId": "overload",
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/overload3": {
+      "post": {
+        "summary": "boolean overload(int, String)",
+        "description": "Rules method: boolean overload(int i, java.lang.String J)",
+        "operationId": "overload_3",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OverloadRequest3"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/overload1": {
+      "post": {
+        "summary": "boolean overload(Bean)",
+        "description": "Rules method: boolean overload(Bean b)",
+        "operationId": "overload_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Bean"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/overload2/{I}": {
+      "get": {
+        "summary": "boolean overload(int)",
+        "description": "Rules method: boolean overload(int I)",
+        "operationId": "overload_2",
+        "parameters": [
+          {
+            "name": "I",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/overload4": {
+      "post": {
+        "summary": "boolean overload(Integer, String)",
+        "description": "Rules method: boolean overload(java.lang.Integer I, java.lang.String J)",
+        "operationId": "overload_4",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OverloadRequest4"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/eDGECase": {
+      "post": {
+        "summary": "boolean eDGECase(String, double)",
+        "description": "Rules method: boolean eDGECase(java.lang.String sTring, double NUMBer)",
+        "operationId": "eDGECase",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EDGECaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mixes": {
+      "post": {
+        "summary": "Mixes mixes(Mixes)",
+        "description": "Rules method: org.openl.generated.beans.Mixes mixes(org.openl.generated.beans.Mixes m)",
+        "operationId": "mixes",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Mixes"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Mixes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/MixedCase": {
+      "post": {
+        "summary": "boolean MixedCase(Double, String)",
+        "description": "Rules method: boolean MixedCase(java.lang.Double numBer, java.lang.String String)",
+        "operationId": "MixedCase",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MixedCaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lowCase": {
+      "post": {
+        "summary": "boolean lowCase(Double, String)",
+        "description": "Rules method: boolean lowCase(java.lang.Double number, java.lang.String string)",
+        "operationId": "lowCase",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LowCaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/UPCase": {
+      "post": {
+        "summary": "boolean UPCase(String, double)",
+        "description": "Rules method: boolean UPCase(java.lang.String STRING, double NUMBER)",
+        "operationId": "UPCase",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UPCaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mixes2": {
+      "post": {
+        "summary": "Mixes[] mixes2(Mixes, Mixes)",
+        "description": "Rules method: org.openl.generated.beans.Mixes[] mixes2(org.openl.generated.beans.Mixes m1, org.openl.generated.beans.Mixes m2)",
+        "operationId": "mixes2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Mixes2Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Mixes"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "OverloadRequest3": {
+        "type": "object",
+        "properties": {
+          "i": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "J": {
+            "type": "string"
+          }
+        }
+      },
+      "Bean": {
+        "required": [
+          "I"
+        ],
+        "type": "object",
+        "properties": {
+          "beanBName": {
+            "$ref": "#/components/schemas/BeanB"
+          },
+          "I": {
+            "type": "integer",
+            "format": "int32",
+            "default": 17
+          }
+        }
+      },
+      "BeanB": {
+        "type": "object",
+        "properties": {
+          "In": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "STR": {
+            "type": "string"
+          }
+        }
+      },
+      "OverloadRequest4": {
+        "type": "object",
+        "properties": {
+          "I": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "J": {
+            "type": "string"
+          }
+        }
+      },
+      "EDGECaseRequest": {
+        "type": "object",
+        "properties": {
+          "sTring": {
+            "type": "string"
+          },
+          "NUMBer": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "Mixes": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "string"
+          },
+          "B": {
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          },
+          "aB": {
+            "type": "number",
+            "format": "double"
+          },
+          "Ba": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "BB": {
+            "type": "boolean"
+          },
+          "aa": {
+            "type": "number",
+            "default": 154.2544
+          }
+        }
+      },
+      "MixedCaseRequest": {
+        "type": "object",
+        "properties": {
+          "numBer": {
+            "type": "number",
+            "format": "double"
+          },
+          "String": {
+            "type": "string"
+          }
+        }
+      },
+      "LowCaseRequest": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "number",
+            "format": "double"
+          },
+          "string": {
+            "type": "string"
+          }
+        }
+      },
+      "UPCaseRequest": {
+        "type": "object",
+        "properties": {
+          "STRING": {
+            "type": "string"
+          },
+          "NUMBER": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "Mixes2Request": {
+        "type": "object",
+        "properties": {
+          "m1": {
+            "$ref": "#/components/schemas/Mixes"
+          },
+          "m2": {
+            "$ref": "#/components/schemas/Mixes"
+          }
+        }
+      }
+    }
+  }
+}

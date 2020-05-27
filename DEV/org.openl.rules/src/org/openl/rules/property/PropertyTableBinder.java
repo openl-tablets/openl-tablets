@@ -2,6 +2,7 @@ package org.openl.rules.property;
 
 import org.openl.OpenL;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.ITable;
@@ -53,7 +54,7 @@ public class PropertyTableBinder extends DataNodeBinder {
             tableName = identifierNode.getIdentifier();
             if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
                 String message = "Property table " + tableName + TableNameChecker.NAME_ERROR_MESSAGE;
-                throw SyntaxNodeExceptionUtils.createError(message, null, identifierNode);
+                bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, identifierNode));
             }
         }
         ITable propertyTable = module.getDataBase().registerTable(tableName, tsn);

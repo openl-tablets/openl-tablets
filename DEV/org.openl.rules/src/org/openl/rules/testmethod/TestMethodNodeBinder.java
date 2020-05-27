@@ -14,6 +14,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataNodeBinder;
@@ -91,7 +92,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         }
         if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
             String message = "Test table " + tableName + TableNameChecker.NAME_ERROR_MESSAGE;
-            throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TABLE_NAME_INDEX]);
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TABLE_NAME_INDEX]));
         }
 
         IOpenMethodHeader header = new OpenMethodHeader(tableName,
@@ -167,7 +168,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                             list.add(bestCaseOpenMethod);
                             throw new AmbiguousMethodException(tableName, IOpenClass.EMPTY, list);
                         }
-                        bestCaseErrors = new SyntaxNodeException[0];
+                        bestCaseErrors = SyntaxNodeException.EMPTY_ARRAY;
                     }
                 }
             } finally {

@@ -83,7 +83,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
     @SuppressWarnings("unchecked")
     protected RulesEngineFactory<?> getEngineFactory() {
         Class<Object> serviceClass = (Class<Object>) getServiceClass();
-        if (engineFactory == null || serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass)) {
+        if (engineFactory == null) {
             if (getModule().getExtension() != null) {
                 IExtensionDescriptor extensionDescriptor = ExtensionDescriptorFactory
                     .getExtensionDescriptor(getModule().getExtension(), getClassLoader());
@@ -134,4 +134,11 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         }
     }
 
+    @Override
+    public void setServiceClass(Class<?> serviceClass) {
+        super.setServiceClass(serviceClass);
+        if (engineFactory != null) {
+            engineFactory.setInterfaceClass((Class) serviceClass);
+        }
+    }
 }

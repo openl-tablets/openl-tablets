@@ -255,7 +255,15 @@ public class RulesProject extends UserWorkspaceProject {
     public ProjectVersion getVersion() {
         String historyVersion = getHistoryVersion();
         if (historyVersion == null) {
-            return getLastVersion();
+            if (designFolderName != null) {
+                try {
+                    return createProjectVersion(designRepository.check(designFolderName));
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+
+            return null;
         }
         return super.getVersion();
     }
@@ -278,27 +286,21 @@ public class RulesProject extends UserWorkspaceProject {
         return historyFileDatas;
     }
 
-    public List<ProjectVersion> getArtefactVersions(ArtefactPath artefactPath) {
+    public boolean hasArtefactVersions(ArtefactPath artefactPath) {
         String subPath = artefactPath.getStringValue();
         if (subPath.isEmpty() || subPath.equals("/")) {
-            return getVersions();
+            return getLastHistoryVersion() != null;
         }
         if (!subPath.startsWith("/")) {
             subPath += "/";
         }
         String fullPath = getFolderPath() + subPath;
-        Collection<FileData> fileDatas;
         try {
-            fileDatas = getRepository().listHistory(fullPath);
+            return getRepository().check(fullPath) != null;
         } catch (IOException ex) {
             log.error(ex.getMessage(), ex);
-            return Collections.emptyList();
+            return false;
         }
-        List<ProjectVersion> versions = new ArrayList<>();
-        for (FileData data : fileDatas) {
-            versions.add(createProjectVersion(data));
-        }
-        return versions;
     }
 
     @Override
@@ -340,15 +342,58 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     @Override
-    public FileData getFileData() {
-        FileData fileData = super.getFileData();
+    protected FileData getFileDataForUnversionableRepo(Repository repository) {
+        if (designFolderName == null) {
+            FileData fileData = super.getFileDataForUnversionableRepo(repository);
+            if (designRepository.supports().branches()) {
+                fileData.setBranch(((BranchRepository) designRepository).getBranch());
+            }
+            return fileData;
+        }
 
-        Repository designRepo = getDesignRepository();
-        if (fileData != null && designRepo.supports().branches()) {
-            fileData.setBranch(((BranchRepository) designRepo).getBranch());
+        String version = getHistoryVersion();
+        String actualVersion = version == null ? getLastHistoryVersion() : version;
+
+        FileData fileData = new FileData();
+        fileData.setName(getFolderPath());
+        fileData.setVersion(actualVersion);
+
+        if (designRepository.supports().branches()) {
+            fileData.setBranch(((BranchRepository) designRepository).getBranch());
+        }
+
+        if (actualVersion != null) {
+            try {
+                FileData repoData = designRepository.checkHistory(designFolderName, actualVersion);
+                if (repoData != null) {
+                    fileData.setAuthor(repoData.getAuthor());
+                    fileData.setModifiedAt(repoData.getModifiedAt());
+                    fileData.setComment(repoData.getComment());
+                    fileData.setSize(repoData.getSize());
+                    fileData.setDeleted(repoData.isDeleted());
+                    fileData.setUniqueId(repoData.getUniqueId());
+                }
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+            }
         }
 
         return fileData;
+    }
+
+    @Override
+    protected String findLastHistoryVersion() {
+        if (designFolderName != null) {
+            try {
+                FileData fileData = designRepository.check(designFolderName);
+                if (fileData != null) {
+                    return fileData.getVersion();
+                }
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+        return null;
     }
 
     private void resetLocalFileData(boolean needUpdateUniqueId) {

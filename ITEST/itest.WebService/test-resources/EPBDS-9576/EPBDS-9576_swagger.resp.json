@@ -2,48 +2,14 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "EPBDS-9576",
-    "contact": {
-      "name": "OpenL Tablets team"
-    }
+    "title": "EPBDS-9576"
   },
   "basePath": "/REST/EPBDS-9576",
   "paths": {
-    "/mySpr": {
-      "post": {
-        "summary": "Method: mySpr(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer)",
-        "description": "",
-        "operationId": "mySpr",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/MySprRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MySpr"
-            }
-          }
-        }
-      }
-    },
     "/getMyData": {
       "post": {
-        "summary": "Method: getMyData(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
+        "summary": "Integer[] getMyData(IRulesRuntimeContext)",
+        "description": "Method: java.lang.Integer[] getMyData(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "getMyData",
         "consumes": [
           "application/json"
@@ -74,22 +40,40 @@
           }
         }
       }
+    },
+    "/mySpr": {
+      "post": {
+        "summary": "MySpr mySpr(IRulesRuntimeContext, Integer)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MySpr mySpr(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer)",
+        "operationId": "mySpr",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/MySprRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MySpr"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
-    "MySpr": {
-      "type": "object",
-      "properties": {
-        "Stepa": {
-          "type": "integer",
-          "format": "int32"
-        }
-      },
-      "xml": {
-        "name": "MySpr",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
-      }
-    },
     "DefaultRulesRuntimeContext": {
       "type": "object",
       "properties": {
@@ -425,6 +409,15 @@
         }
       }
     },
+    "MySpr": {
+      "type": "object",
+      "properties": {
+        "Stepa": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
     "MySprRequest": {
       "type": "object",
       "properties": {
@@ -435,10 +428,6 @@
           "type": "integer",
           "format": "int32"
         }
-      },
-      "xml": {
-        "name": "MySprRequest",
-        "namespace": "http://jaxrs.openl.org"
       }
     }
   }

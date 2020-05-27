@@ -17,9 +17,9 @@ import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
+import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
-import org.openl.rules.ruleservice.publish.lazy.wrapper.LazyWrapperLogic;
 import org.openl.rules.runtime.AOpenLRulesEngineFactory;
 import org.openl.rules.runtime.InterfaceClassGenerator;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
@@ -33,7 +33,6 @@ import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
@@ -45,7 +44,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author PUdalau, Marat Kamalov
  */
-public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
+class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
 
     private static final String RULES_XLS_OPENL_NAME = OpenL.OPENL_JAVA_RULE_NAME;
 
@@ -57,10 +56,10 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
 
     private CompiledOpenClass compiledOpenClass;
     private Class<T> interfaceClass;
-    private Collection<Module> modules;
-    private IDependencyManager dependencyManager;
+    private final Collection<Module> modules;
+    private RuleServiceDependencyManager dependencyManager;
     private Map<String, Object> externalParameters;
-    private DeploymentDescription deployment;
+    private final DeploymentDescription deployment;
 
     public DeploymentDescription getDeployment() {
         return deployment;
@@ -68,7 +67,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
 
     private InterfaceClassGenerator interfaceClassGenerator = new InterfaceClassGeneratorImpl();
 
-    public void setInterfaceClassGenerator(InterfaceClassGenerator interfaceClassGenerator) {
+    void setInterfaceClassGenerator(InterfaceClassGenerator interfaceClassGenerator) {
         this.interfaceClassGenerator = Objects.requireNonNull(interfaceClassGenerator,
             "interfaceClassGenerator cannot be null");
         if (interfaceClass != null) {
@@ -76,64 +75,16 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         }
     }
 
-    public InterfaceClassGenerator getInterfaceClassGenerator() {
-        return interfaceClassGenerator;
-    }
-
-    /**
-     * Added to allow using openl that is different from default, such as org.openl.xls.ce
-     *
-     * @param deployment
-     * @param modules `
-     */
-    public LazyEngineFactory(DeploymentDescription deployment, Collection<Module> modules) {
+    LazyEngineFactory(DeploymentDescription deployment,
+            Collection<Module> modules,
+            RuleServiceDependencyManager dependencyManager,
+            Class<T> interfaceClass,
+            Map<String, Object> externalParameters) {
         super(RULES_XLS_OPENL_NAME);
         this.deployment = Objects.requireNonNull(deployment, "deployment cannot be null");
         this.modules = modules;
-    }
-
-    public LazyEngineFactory(DeploymentDescription deployment,
-            Collection<Module> modules,
-            IDependencyManager dependencyManager) {
-        this(deployment, modules);
         this.dependencyManager = dependencyManager;
-    }
-
-    public LazyEngineFactory(DeploymentDescription deployment,
-            Collection<Module> modules,
-            IDependencyManager dependencyManager,
-            Map<String, Object> externalParameters) {
-        this(deployment, modules, dependencyManager);
-        this.externalParameters = externalParameters;
-    }
-
-    public LazyEngineFactory(DeploymentDescription deployment, Collection<Module> modules, Class<T> interfaceClass) {
-        this(deployment, modules);
         this.interfaceClass = interfaceClass;
-    }
-
-    public LazyEngineFactory(DeploymentDescription deployment,
-            Collection<Module> modules,
-            Class<T> interfaceClass,
-            Map<String, Object> externalParameters) {
-        this(deployment, modules, interfaceClass);
-        this.externalParameters = externalParameters;
-    }
-
-    public LazyEngineFactory(DeploymentDescription deployment,
-            Collection<Module> modules,
-            IDependencyManager dependencyManager,
-            Class<T> interfaceClass) {
-        this(deployment, modules, dependencyManager);
-        this.interfaceClass = interfaceClass;
-    }
-
-    public LazyEngineFactory(DeploymentDescription deployment,
-            Collection<Module> modules,
-            IDependencyManager dependencyManager,
-            Class<T> interfaceClass,
-            Map<String, Object> externalParameters) {
-        this(deployment, modules, dependencyManager, interfaceClass);
         this.externalParameters = externalParameters;
     }
 
@@ -146,7 +97,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
     }
 
     @SuppressWarnings({ "unchecked" })
-    public Class<T> getInterfaceClass() {
+    Class<T> getInterfaceClass() {
         if (interfaceClass == null) {
             CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
             IOpenClass openClass = compiledOpenClass.getOpenClass();
@@ -161,6 +112,10 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
             }
         }
         return interfaceClass;
+    }
+
+    void setInterfaceClass(Class<T> interfaceClass) {
+        this.interfaceClass = interfaceClass;
     }
 
     @Override
@@ -190,31 +145,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         // put prebinder to openl
         IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
         try {
-            LazyBinderMethodHandler.setPrebindHandler(new IPrebindHandler() {
-                @Override
-                public IOpenMethod processPrebindMethod(IOpenMethod method) {
-                    final Module module = ModuleUtils.getModuleForMember(method, modules);
-                    final LazyMethod lazyMethod = LazyMethod.createLazyMethod(method,
-                        dependencyManager,
-                        deployment,
-                        module,
-                        Thread.currentThread().getContextClassLoader(),
-                        externalParameters);
-                    return LazyWrapperLogic.wrapMethod(lazyMethod, method);
-                }
-
-                @Override
-                public IOpenField processPrebindField(IOpenField field) {
-                    final Module module = ModuleUtils.getModuleForMember(field, modules);
-                    final LazyField lazyField = LazyField.createLazyField(field,
-                        dependencyManager,
-                        deployment,
-                        module,
-                        Thread.currentThread().getContextClassLoader(),
-                        externalParameters);
-                    return LazyWrapperLogic.wrapField(lazyField, field);
-                }
-            });
+            LazyBinderMethodHandler.setPrebindHandler(new LazyPrebindHandler(modules, dependencyManager, null, deployment));
 
             IOpenSourceCodeModule mainModule = createMainModule();
             RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(mainModule,
@@ -237,8 +168,8 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         }
 
         Map<String, Object> params = new HashMap<>();
-        if (getExternalParameters() != null) {
-            params.putAll(getExternalParameters());
+        if (externalParameters != null) {
+            params.putAll(externalParameters);
         }
         if (params.get(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY) != null) {
             @SuppressWarnings("unchecked")
@@ -258,10 +189,6 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         return new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null));
     }
 
-    public Map<String, Object> getExternalParameters() {
-        return externalParameters;
-    }
-
     public IDependencyManager getDependencyManager() {
         return dependencyManager;
     }
@@ -273,4 +200,5 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
             super.validateReturnType(openMethod, interfaceMethod);
         }
     }
+
 }

@@ -7,6 +7,7 @@ import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 
 public class ParameterWithValueDeclaration extends ParameterDeclaration implements IParameterWithValueDeclaration {
+    public static final ParameterWithValueDeclaration[] EMPTY_ARRAY = new ParameterWithValueDeclaration[0];
     private Object value;
     private String error;
 

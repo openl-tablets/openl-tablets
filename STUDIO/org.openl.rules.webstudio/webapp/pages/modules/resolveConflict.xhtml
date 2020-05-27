@@ -37,14 +37,29 @@
             <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
               <h:outputText value="Your version:" title="#{mergeConflictBean.yourBranch}" rendered="#{mergeConflictBean.merging}"/>
               <h:outputText value="Your version:" rendered="#{not mergeConflictBean.merging}"/>
-              <h:outputText value="#{mergeConflictBean.yourRevision}" title="#{mergeConflictBean.yourCommit}"/>
+              <ui:param name="yourRevision" value="#{mergeConflictBean.yourRevision}" />
+              <ui:param name="yourCommit" value="#{mergeConflictBean.yourCommit}" />
+              <h:outputText value="#{yourRevision}" title="#{yourCommit}" rendered="#{not (yourRevision eq yourCommit)}"/>
+              <h:panelGroup rendered="#{yourRevision eq yourCommit}" styleClass="warning">
+                <h:outputText value="Your revision doesn't exist." title="#{yourCommit}"/>
+              </h:panelGroup>
 
               <h:outputText value="Their version:" title="#{mergeConflictBean.theirBranch}" rendered="#{mergeConflictBean.merging}"/>
               <h:outputText value="Their version:" rendered="#{not mergeConflictBean.merging}"/>
-              <h:outputText value="#{mergeConflictBean.theirRevision}" title="#{mergeConflictBean.theirCommit}"/>
+              <ui:param name="theirRevision" value="#{mergeConflictBean.theirRevision}" />
+              <ui:param name="theirCommit" value="#{mergeConflictBean.theirCommit}" />
+              <h:outputText value="#{theirRevision}" title="#{theirCommit}" rendered="#{not (theirRevision eq theirCommit)}"/>
+              <h:panelGroup rendered="#{theirRevision eq theirCommit}" styleClass="warning">
+                <h:outputText value="Their revision doesn't exist." title="#{theirCommit}"/>
+              </h:panelGroup>
 
               <h:outputText value="Base version:"/>
-              <h:outputText value="#{mergeConflictBean.baseRevision}" title="#{mergeConflictBean.baseCommit}"/>
+              <ui:param name="baseRevision" value="#{mergeConflictBean.baseRevision}" />
+              <ui:param name="baseCommit" value="#{mergeConflictBean.baseCommit}" />
+              <h:outputText value="#{baseRevision}" title="#{baseCommit}" rendered="#{not (baseRevision eq baseCommit)}"/>
+              <h:panelGroup rendered="#{baseRevision eq baseCommit}" styleClass="warning">
+                <h:outputText value="Base revision doesn't exist." title="#{baseCommit}"/>
+              </h:panelGroup>
 
               <h:outputText value="Comment:"/>
               <h:panelGroup id="comment">

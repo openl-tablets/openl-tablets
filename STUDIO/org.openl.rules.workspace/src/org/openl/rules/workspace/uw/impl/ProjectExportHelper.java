@@ -64,16 +64,9 @@ public final class ProjectExportHelper {
         ZipEntry entry = new ZipEntry(file.getInternalPath());
         zipOutputStream.putNextEntry(entry);
 
-        InputStream source = null;
-        try {
-            source = file.getContent();
+        try (InputStream source = file.getContent()) {
             IOUtils.copy(source, zipOutputStream);
-        } finally {
-            if (source != null) {
-                source.close();
-            }
         }
-
         zipOutputStream.closeEntry();
     }
 

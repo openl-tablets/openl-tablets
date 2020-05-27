@@ -2,17 +2,14 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "rules-without-runtime-context",
-    "contact": {
-      "name": "OpenL Tablets team"
-    }
+    "title": "rules-without-runtime-context"
   },
   "basePath": "/rules-without-runtime-context",
   "paths": {
     "/sumTwoDoubles": {
       "post": {
-        "summary": "Method: sumTwoDoubles(Double a, Double b)",
-        "description": "",
+        "summary": "Double sumTwoDoubles(Double, Double)",
+        "description": "Rules method: java.lang.Double sumTwoDoubles(java.lang.Double a, java.lang.Double b)",
         "operationId": "sumTwoDoubles",
         "consumes": [
           "application/json"
@@ -41,10 +38,41 @@
         }
       }
     },
+    "/bar": {
+      "post": {
+        "summary": "String bar(SumTwoDoublesRequest)",
+        "description": "Rules method: java.lang.String bar(org.openl.generated.beans.SumTwoDoublesRequest bar)",
+        "operationId": "bar",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plain"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/SumTwoDoublesRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
     "/calVehicleYear": {
       "post": {
-        "summary": "Method: calVehicleYear(CalVehicleYearRequest v, Double a)",
-        "description": "",
+        "summary": "Integer calVehicleYear(CalVehicleYearRequest, Double)",
+        "description": "Rules method: java.lang.Integer calVehicleYear(org.openl.generated.beans.CalVehicleYearRequest v, java.lang.Double a)",
         "operationId": "calVehicleYear",
         "consumes": [
           "application/json"
@@ -72,37 +100,6 @@
           }
         }
       }
-    },
-    "/bar": {
-      "post": {
-        "summary": "Method: bar(SumTwoDoublesRequest bar)",
-        "description": "",
-        "operationId": "bar",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "text/plain"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/SumTwoDoublesRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            }
-          }
-        }
-      }
     }
   },
   "definitions": {
@@ -117,10 +114,14 @@
           "type": "number",
           "format": "double"
         }
-      },
-      "xml": {
-        "name": "SumTwoDoublesRequest1",
-        "namespace": "http://jaxrs.openl.org"
+      }
+    },
+    "SumTwoDoublesRequest": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
+        }
       }
     },
     "CalVehicleYearRequest": {
@@ -134,10 +135,6 @@
           "type": "string",
           "format": "date-time"
         }
-      },
-      "xml": {
-        "name": "CalVehicleYearRequest",
-        "namespace": "http://beans.generated.openl.org"
       }
     },
     "CalVehicleYearRequest1": {
@@ -150,22 +147,6 @@
           "type": "number",
           "format": "double"
         }
-      },
-      "xml": {
-        "name": "CalVehicleYearRequest1",
-        "namespace": "http://jaxrs.openl.org"
-      }
-    },
-    "SumTwoDoublesRequest": {
-      "type": "object",
-      "properties": {
-        "foo": {
-          "type": "string"
-        }
-      },
-      "xml": {
-        "name": "SumTwoDoublesRequest",
-        "namespace": "http://beans.generated.openl.org"
       }
     }
   }

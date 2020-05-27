@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -37,8 +38,9 @@ public class RevertProjectChangesBean {
         String[] sourceNames = getSources();
         List<File> historyListFiles = model.getHistoryManager().get(sourceNames);
 
+        SimpleDateFormat formatter = new SimpleDateFormat(WebStudioFormats.getInstance().dateTime());
         Map<String, List<ProjectHistoryItem>> sourceNameHistoryMap = historyListFiles.stream().map(f -> {
-            String modifiedOnStr = WebStudioFormats.getInstance().formatDateTime(new Date(f.lastModified()));
+            String modifiedOnStr = formatter.format(new Date(f.lastModified()));
             return new ProjectHistoryItem(f.lastModified(), modifiedOnStr, f.getName());
         }).collect(Collectors.groupingBy(ProjectHistoryItem::getSourceName));
 

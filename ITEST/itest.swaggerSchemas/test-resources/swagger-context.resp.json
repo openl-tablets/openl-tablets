@@ -2,17 +2,14 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "rules-with-runtime-context",
-    "contact": {
-      "name": "OpenL Tablets team"
-    }
+    "title": "rules-with-runtime-context"
   },
   "basePath": "/rules-with-runtime-context",
   "paths": {
     "/calVehicleYear": {
       "post": {
-        "summary": "Method: calVehicleYear(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.CalVehicleYearRequest)",
-        "description": "",
+        "summary": "Integer calVehicleYear(IRulesRuntimeContext, CalVehicleYearRequest)",
+        "description": "Method: java.lang.Integer calVehicleYear(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.CalVehicleYearRequest)",
         "operationId": "calVehicleYear",
         "consumes": [
           "application/json"
@@ -54,10 +51,6 @@
           "type": "string",
           "format": "date-time"
         }
-      },
-      "xml": {
-        "name": "CalVehicleYearRequest",
-        "namespace": "http://beans.generated.openl.org"
       }
     },
     "CalVehicleYearRequest1": {
@@ -69,10 +62,6 @@
         "v": {
           "$ref": "#/definitions/CalVehicleYearRequest"
         }
-      },
-      "xml": {
-        "name": "CalVehicleYearRequest1",
-        "namespace": "http://jaxrs.openl.org"
       }
     },
     "DefaultRulesRuntimeContext": {

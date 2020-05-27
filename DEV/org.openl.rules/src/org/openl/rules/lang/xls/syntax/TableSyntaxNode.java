@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author snshor
  */
 public class TableSyntaxNode extends NaryNode {
+    public static final TableSyntaxNode[] EMPTY_ARRAY = new TableSyntaxNode[0];
     private final Logger log = LoggerFactory.getLogger(TableSyntaxNode.class);
 
     private ILogicalTable table;
@@ -100,7 +101,7 @@ public class TableSyntaxNode extends NaryNode {
     }
 
     public SyntaxNodeException[] getErrors() {
-        return errors.values().toArray(new SyntaxNodeException[0]);
+        return errors.values().toArray(SyntaxNodeException.EMPTY_ARRAY);
     }
 
     public boolean hasErrors() {

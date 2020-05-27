@@ -33,17 +33,21 @@ if [[ "$_java" ]]; then
 fi
 
 memory=$(free -g | awk '/Mem:/{print $2}')
-if [[ ${memory} -ge 12 ]]; then
+if [[ "$CONTAINER" != "true" ]]; then
+  if [[ ${memory} -ge 12 ]]; then
     _JAVA_MEMORY="-Xms8g -Xmx10g"
-elif [[ ${memory} -ge 8 ]]; then
+  elif [[ ${memory} -ge 8 ]]; then
     _JAVA_MEMORY="-Xms4g -Xmx7g"
-elif [[ _memory -ge 6 ]]; then
+  elif [[ _memory -ge 6 ]]; then
     _JAVA_MEMORY="-Xms3g -Xmx5g"
-elif [[ ${memory} -ge 4 ]]; then
+  elif [[ ${memory} -ge 4 ]]; then
     _JAVA_MEMORY="-Xms2g -Xmx3g"
-else
+  else
     _JAVA_MEMORY="-Xms512m -Xmx2g"
+  fi
 fi
+
+
 
 [[ -f demo-java.policy ]] && CATALINA_OPTS="$CATALINA_OPTS -Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=$JAVA_EXTENSIONS_DIR"
 

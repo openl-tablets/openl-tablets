@@ -35,11 +35,11 @@ public class DateRange {
         assert upperBound != null;
         this.lowerBoundType = lowerBoundType;
         this.upperBoundType = upperBoundType;
-        Long localLowerBound = lowerBound.getTime();
+        long localLowerBound = lowerBound.getTime();
         if (this.lowerBoundType == BoundType.EXCLUDING) {
             localLowerBound += 1;
         }
-        Long localUpperBound = upperBound.getTime();
+        long localUpperBound = upperBound.getTime();
         if (this.upperBoundType == BoundType.EXCLUDING) {
             localUpperBound -= 1;
         }
@@ -61,7 +61,7 @@ public class DateRange {
             upperBound -= 1;
         }
         if (lowerBound > upperBound) {
-            throw new RuntimeException(String.format("%s must be more or equal than %s", range.max, range.min));
+            throw new IllegalArgumentException(String.format("%s must be greater or equal than %s", range.max, range.min));
         }
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;

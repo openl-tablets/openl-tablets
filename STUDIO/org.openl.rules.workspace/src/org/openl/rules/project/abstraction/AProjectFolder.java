@@ -175,10 +175,19 @@ public class AProjectFolder extends AProjectArtefact {
                     changesetType = ChangesetType.DIFF;
 
                     String fromFilePath = from.getFolderPath() + "/";
-                    List<FileData> fromList = from.isHistoric()
-                                                                ? fromRepository.listFiles(fromFilePath,
-                                                                    from.getHistoryVersion())
-                                                                : fromRepository.list(fromFilePath);
+                    List<FileData> fromList;
+                    String fromProjectVersion;
+                    if (fromRepository.supports().versions()) {
+                        if (from.isHistoric()) {
+                            fromProjectVersion = from.getHistoryVersion();
+                        } else {
+                            fromProjectVersion = fromRepository.check(from.getFolderPath()).getVersion();
+                        }
+                        fromList = fromRepository.listFiles(fromFilePath, fromProjectVersion);
+                    } else {
+                        fromProjectVersion = null;
+                        fromList = fromRepository.list(fromFilePath);
+                    }
 
                     String toFilePath = getFolderPath() + "/";
                     List<FileData> toList = isHistoric() ? toRepository.listFiles(toFilePath, getHistoryVersion())
@@ -196,7 +205,7 @@ public class AProjectFolder extends AProjectArtefact {
                             // The file was modified or added
                             FileItem read = fromRepository.supports().versions()
                                                                                  ? fromRepository.readHistory(nameFrom,
-                                                                                     fromData.getVersion())
+                                                                                     fromProjectVersion)
                                                                                  : fromRepository.read(nameFrom);
                             changes.add(new FileItem(nameTo, read.getStream()));
                         } else {
@@ -208,12 +217,12 @@ public class AProjectFolder extends AProjectArtefact {
                                 InputStream content;
                                 if (transformer != null) {
                                     FileData fileData = fromRepository.supports().versions() ? fromRepository
-                                        .checkHistory(nameFrom, fromData.getVersion()) : fromRepository.check(nameFrom);
+                                        .checkHistory(nameFrom, fromProjectVersion) : fromRepository.check(nameFrom);
                                     content = transformer
                                         .transform(new AProjectResource(from.getProject(), fromRepository, fileData));
                                 } else {
                                     FileItem read = fromRepository.supports().versions() ? fromRepository
-                                        .readHistory(nameFrom, fromData.getVersion()) : fromRepository.read(nameFrom);
+                                        .readHistory(nameFrom, fromProjectVersion) : fromRepository.read(nameFrom);
                                     content = read.getStream();
                                 }
                                 changes.add(new FileItem(data, content));
@@ -252,15 +261,10 @@ public class AProjectFolder extends AProjectArtefact {
     }
 
     private FileData copyAndChangeName(FileData data, String newName) {
+        // Keep only required fields. The fields uniqueId and name are required. Fields like author, modifiedAt
+        // aren't required for file saving, but retrieving that fields can be slow for a big amount of files.
         FileData copy = new FileData();
         copy.setName(newName);
-        copy.setVersion(data.getVersion());
-        copy.setAuthor(data.getAuthor());
-        copy.setModifiedAt(data.getModifiedAt());
-        copy.setComment(data.getComment());
-        copy.setSize(data.getSize());
-        copy.setDeleted(data.isDeleted());
-        copy.setBranch(data.getBranch());
         copy.setUniqueId(data.getUniqueId());
 
         return copy;

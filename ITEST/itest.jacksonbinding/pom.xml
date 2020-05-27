@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.openl.itest</groupId>
         <artifactId>itest</artifactId>
-        <version>5.23.2-SNAPSHOT</version>
+        <version>5.24.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>itest.jacksonbinding</artifactId>
@@ -14,6 +15,12 @@
     <url>https://openl-tablets.org</url>
 
     <dependencies>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- Itegration Tests-->
         <dependency>
             <groupId>org.openl.itest</groupId>

@@ -70,7 +70,7 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
     @SuppressWarnings("unchecked")
     protected RulesEngineFactory<?> getEngineFactory() {
         Class<?> serviceClass = getServiceClass();
-        if (engineFactory == null || serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass)) {
+        if (engineFactory == null) {
             engineFactory = new RulesEngineFactory<>(createVirtualSourceCodeModule(), (Class<Object>) serviceClass);
             engineFactory.setExecutionMode(isExecutionMode());
 
@@ -99,5 +99,13 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
         }
 
         return engineFactory;
+    }
+
+    @Override
+    public void setServiceClass(Class<?> serviceClass) {
+        super.setServiceClass(serviceClass);
+        if (engineFactory != null) {
+            engineFactory.setInterfaceClass((Class) serviceClass);
+        }
     }
 }

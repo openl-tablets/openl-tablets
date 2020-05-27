@@ -2,17 +2,14 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "spreadsheetresult",
-    "contact": {
-      "name": "OpenL Tablets team"
-    }
+    "title": "spreadsheetresult"
   },
   "basePath": "/REST/spreadsheetresult",
   "paths": {
     "/tiktak": {
       "post": {
-        "summary": "Method: tiktak(int i, String j)",
-        "description": "",
+        "summary": "SpreadsheetResult tiktak(int, String)",
+        "description": "Rules method: SpreadsheetResulttiktak tiktak(int i, java.lang.String j)",
         "operationId": "tiktak",
         "consumes": [
           "application/json"
@@ -78,10 +75,6 @@
         "j": {
           "type": "string"
         }
-      },
-      "xml": {
-        "name": "TiktakRequest",
-        "namespace": "http://jaxrs.openl.org"
       }
     }
   }

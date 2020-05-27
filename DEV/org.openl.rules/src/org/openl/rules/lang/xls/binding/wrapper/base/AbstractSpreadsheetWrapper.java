@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.openl.binding.BindingDependencies;
+import org.openl.binding.IBindingContext;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetBoundNode;
@@ -197,6 +198,11 @@ public class AbstractSpreadsheetWrapper extends Spreadsheet {
     @Override
     public void setBoundNode(ATableBoundNode node) {
         delegate.setBoundNode(node);
+    }
+
+    @Override
+    public void removeDebugInformation() {
+        delegate.removeDebugInformation();
     }
 
     @Override

@@ -2,17 +2,14 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "EPBDS-9519",
-    "contact": {
-      "name": "OpenL Tablets team"
-    }
+    "title": "EPBDS-9519"
   },
   "basePath": "/EPBDS-9519/EPBDS-9519",
   "paths": {
     "/sprMyType": {
       "post": {
-        "summary": "Method: sprMyType(MyType myType)",
-        "description": "",
+        "summary": "SprMyType sprMyType(MyType)",
+        "description": "Rules method: SpreadsheetResultsprMyType sprMyType(org.openl.generated.beans.MyType myType)",
         "operationId": "sprMyType",
         "consumes": [
           "application/json"
@@ -42,8 +39,8 @@
     },
     "/proxyMyType": {
       "post": {
-        "summary": "Method: proxyMyType(MyType myType)",
-        "description": "",
+        "summary": "MyType proxyMyType(MyType)",
+        "description": "Rules method: org.openl.generated.beans.MyType proxyMyType(org.openl.generated.beans.MyType myType)",
         "operationId": "proxyMyType",
         "consumes": [
           "application/json"
@@ -85,10 +82,6 @@
         "BaRFoO": {
           "type": "string"
         }
-      },
-      "xml": {
-        "name": "SprMyType",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
     "MyType": {
@@ -106,10 +99,6 @@
           "type": "string",
           "default": "Allo"
         }
-      },
-      "xml": {
-        "name": "MyType",
-        "namespace": "http://beans.generated.openl.org"
       }
     }
   }

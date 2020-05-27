@@ -4,7 +4,7 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
     <packaging>pom</packaging>
-    <version>5.23.2-SNAPSHOT</version>
+    <version>5.24.0-SNAPSHOT</version>
     <name>OpenL Tablets</name>
     <url>https://openl-tablets.org</url>
     <description>OpenL Tablets rules engine and related frameworks</description>
@@ -79,8 +79,8 @@
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
         <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl-pub</staging.hg.repo.url>
-        <org.springframework.version>5.2.5.RELEASE</org.springframework.version>
-        <org.springsecurity.version>5.3.1.RELEASE</org.springsecurity.version>
+        <org.springframework.version>5.2.6.RELEASE</org.springframework.version>
+        <org.springsecurity.version>5.3.2.RELEASE</org.springsecurity.version>
         <org.hibernate.version>5.2.18.Final</org.hibernate.version>
         <org.mojarra.version>2.3.9</org.mojarra.version>
         <asm.version>8.0.1</asm.version>
@@ -92,14 +92,14 @@
         <cassandra.unit.driver.version>3.8.0</cassandra.unit.driver.version>
         <org.richfaces.version>4.5.17.Final</org.richfaces.version>
         <org.apache.cxf.version>3.3.6</org.apache.cxf.version>
-        <log4j.version>2.13.1</log4j.version>
+        <log4j.version>2.13.3</log4j.version>
         <org.slf4j.version>1.7.30</org.slf4j.version>
         <org.apache.poi.version>4.1.2</org.apache.poi.version>
         <org.bouncycastle.version>1.62</org.bouncycastle.version>
-        <com.fasterxml.jackson.version>2.10.3</com.fasterxml.jackson.version>
+        <com.fasterxml.jackson.version>2.10.4</com.fasterxml.jackson.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
-        <jetty.server.version>9.4.27.v20200227</jetty.server.version>
+        <jetty.server.version>9.4.28.v20200408</jetty.server.version>
         <awaitility.version>3.1.6</awaitility.version>
         <elasticsearch-cluster-runner.version>6.8.1.0</elasticsearch-cluster-runner.version>
         <elasticsearch.version>6.8.8</elasticsearch.version>
@@ -108,6 +108,8 @@
         <!-- 48MB Should be enough to don't fall in OutOfMemoryError. It equals to MaxNonGCSize=30MB + ~50%-->
         <!-- 128MB allows do not worry about OutOfMemoryError. It equals to MaxNonGCSize=30MB + ~350% -->
         <surefire.argLine>-Xms8m -Xmx128m</surefire.argLine>
+        <!-- Fine tuned settings to detects memory and performance issues -->
+        <surefire.argLine.perf>-Xms8m -Xmx41m</surefire.argLine.perf>
         <openl.home>${project.build.directory}/openl-test</openl.home>
         <openl.info>main</openl.info>
     </properties>
@@ -382,8 +384,7 @@
                 </property>
             </activation>
             <properties>
-                <!-- Fine tuned settings to detects memory and performance issues -->
-                <surefire.argLine>-Xms8m -Xmx41m</surefire.argLine>
+                <surefire.argLine>${surefire.argLine.perf}</surefire.argLine>
             </properties>
         </profile>
         <profile>
@@ -1015,13 +1016,18 @@
             <!-- CXF Runtime CORBA Binding -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-service-description-openapi-v3</artifactId>
+                <version>${org.apache.cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-rs-service-description-swagger</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>3.25.0</version>
+                <version>3.25.3</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
@@ -1161,7 +1167,7 @@
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.11.1</version>
+                <version>1.4.12</version>
             </dependency>
             <!-- graph-theory data structures and algorithms. -->
             <dependency>
@@ -1173,7 +1179,7 @@
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.10.2</version>
+                <version>2.10.6</version>
             </dependency>
             <!-- standards-based cache for boosting performance -->
             <dependency>
@@ -1211,12 +1217,12 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-s3</artifactId>
-                <version>1.11.759</version>
+                <version>1.11.785</version>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-core</artifactId>
-                <version>1.11.744</version>
+                <version>1.11.785</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -1227,6 +1233,7 @@
             <dependency>
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit</artifactId>
+                <!-- Check if all workarounds in GitRepository can be removed when upgrade version. -->
                 <version>5.7.0.202003110725-r</version>
                 <exclusions>
                     <exclusion>
@@ -1253,10 +1260,8 @@
                 <artifactId>bcpg-jdk15on</artifactId>
                 <version>${org.bouncycastle.version}</version>
             </dependency>
-
-            <!-- httpclient is required for aws-java-sdk-core and jgit, so we must synchronize it's version for both libraries.
-                    But jgit since version 5.1.0 doesn't have dependency on httpclient. Remove explicit dependency
-                    on httpclient when upgrade jgit to the latest version. -->
+            <!-- httpclient is required for aws-java-sdk-core and elasticsearch,
+                 so we must synchronize it's version for both libraries. -->
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
@@ -1266,7 +1271,7 @@
             <dependency>
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
-                <version>3.4.2</version>
+                <version>3.4.5</version>
             </dependency>
             <!-- Microsoft JDBC Driver for SQL Server -->
             <dependency>
@@ -1325,6 +1330,12 @@
                         <artifactId>jboss-logging</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <!-- Transitive from hibernate-core -->
+                <groupId>org.dom4j</groupId>
+                <artifactId>dom4j</artifactId>
+                <version>2.1.3</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>

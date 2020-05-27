@@ -10,13 +10,16 @@ import static org.openl.rules.utils.TableNameChecker.NAME_ERROR_MESSAGE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
@@ -30,6 +33,7 @@ import org.openl.rules.lang.xls.types.meta.DataTableMetaInfoReader;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.rules.testmethod.TestMethodHelper;
 import org.openl.rules.testmethod.TestMethodOpenClass;
 import org.openl.rules.utils.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
@@ -95,7 +99,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         String tableName = parsedHeader[TABLE_NAME_INDEX].getText();
         if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
             String message = "Data table " + tableName + NAME_ERROR_MESSAGE;
-            throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TABLE_NAME_INDEX]);
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TABLE_NAME_INDEX]));
         }
         IOpenClass tableType = RuleRowHelper.getType(typeName, parsedHeader[TYPE_INDEX], bindingContext);
 
@@ -200,28 +204,43 @@ public class DataNodeBinder extends AXlsTableBinder {
     private void validateTestTableDescriptors(ColumnDescriptor[] descriptors,
             ITable tableToProcess,
             IBindingContext bindingContext) throws SyntaxNodeException {
-        Set<String> props = new HashSet<>();
+        Set<String> runtimeContextProps = new HashSet<>();
+        Set<String> testRuntimeContextProps = new HashSet<>();
+        Map<String, String> duplicatedRuntimeContextProps = new HashMap();
         for (ColumnDescriptor descriptor : descriptors) {
             if (descriptor != null) {
                 IOpenField field = descriptor.getField();
                 if (field instanceof FieldChain) {
-                    IOpenField[] fields = ((FieldChain) descriptor.getField()).getFields();
+                    IOpenField[] fields = ((FieldChain) field).getFields();
                     // for fields with a context property, the length must be 2
                     if (fields.length != 2) {
                         continue;
                     }
-
                     if (fields[1].isContextProperty()) {
                         String contextProperty = fields[1].getContextProperty();
-                        if (props.contains(contextProperty)) {
-                            bindingContext.addMessage(new OpenLWarnMessage(String
-                                .format("Multiple fields refer to the same context property '%s'.", contextProperty),
-                                tableToProcess.getTableSyntaxNode()));
+                        if (runtimeContextProps.contains(contextProperty)) {
+                            duplicatedRuntimeContextProps.put(contextProperty, fields[0].getName());
                         }
-                        props.add(contextProperty);
+                        if (testRuntimeContextProps.contains(contextProperty)) {
+                            throw SyntaxNodeExceptionUtils.createError(String.format(
+                                "'%s' is redundant since this field is already defined in '%s' parameter.",
+                                TestMethodHelper.CONTEXT_NAME + "." + contextProperty,
+                                fields[0].getName()), tableToProcess.getTableSyntaxNode());
+                        }
+                        runtimeContextProps.add(contextProperty);
+                    } else if (fields[0].getName().equals(TestMethodHelper.CONTEXT_NAME)) {
+                        testRuntimeContextProps.add(fields[1].getName());
                     }
                 }
             }
+        }
+        for (String prop : duplicatedRuntimeContextProps.keySet()) {
+            bindingContext.addMessage(new OpenLWarnMessage(
+                String.format("Multiple fields refer to the same context property '%s'. '%s.%s' will be applied.",
+                    prop,
+                    duplicatedRuntimeContextProps.get(prop),
+                    prop),
+                tableToProcess.getTableSyntaxNode()));
         }
     }
 

@@ -373,7 +373,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             DecisionTable table,
             IndexInfo info) {
         if (table.getNumberOfConditions() <= info.fromCondition || info.fromCondition > info.toCondition) {
-            return new ConditionToEvaluatorHolder[0];
+            return ConditionToEvaluatorHolder.EMPTY_ARRAY;
         } else {
             List<ConditionToEvaluatorHolder> evalToConds = new ArrayList<>(evaluators.length);
             for (int j = info.fromCondition; j <= info.toCondition; j++) {
@@ -392,7 +392,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 evalToConds.add(pair);
             }
             Collections.sort(evalToConds);
-            return evalToConds.toArray(new ConditionToEvaluatorHolder[0]);
+            return evalToConds.toArray(ConditionToEvaluatorHolder.EMPTY_ARRAY);
         }
     }
 
@@ -445,15 +445,17 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
      */
     @Override
     public void cleanParamValuesForIndexedConditions() {
-        for (ConditionToEvaluatorHolder eval : evaluators) {
-            if (eval.isIndexed()) {
-                if (!isDependencyOnConditionExists(eval.getCondition())) {
-                    eval.getCondition().clearParamValues();
+        if (dependencies != null) {
+            for (ConditionToEvaluatorHolder eval : evaluators) {
+                if (eval.isIndexed()) {
+                    if (!isDependencyOnConditionExists(eval.getCondition())) {
+                        eval.getCondition().clearParamValues();
+                    }
                 }
             }
+            // we do not need dependencies after clearing conditions
+            dependencies = null;
         }
-        // we do not need dependencies after clearing conditions
-        dependencies = null;
     }
 
     private boolean isDependencyOnConditionExists(ICondition condition) {
@@ -529,6 +531,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
     private static class ConditionToEvaluatorHolder implements Comparable<ConditionToEvaluatorHolder> {
 
+        static final ConditionToEvaluatorHolder[] EMPTY_ARRAY = new ConditionToEvaluatorHolder[0];
         private final IndexInfo localInfo;
         private int uniqueKeysSize = -1;
         private final ICondition condition;

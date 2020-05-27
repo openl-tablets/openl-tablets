@@ -24,46 +24,51 @@ public class SmockITest {
 
     @Test
     public void testIndex() {
-        client.get("/");
+        client.send("index.get");
     }
 
     @Test
     public void testPingRest() {
-        client.get("/REST/simple/ping", "/simple_ping.resp.txt");
+        client.send("simple_ping.get");
     }
 
     @Test
     public void testTwiceRest() {
-        client.post("/REST/simple/twice", "/simple_twice.req.txt", "/simple_twice.resp.txt");
+        client.send("simple_twice.txt.post");
     }
 
     @Test
     public void testMulRest() {
-        client.post("/REST/simple/mul", "/simple_mul.req.json", "/simple_mul.resp.txt");
+        client.send("simple_mul.json.post");
     }
 
     @Test
     public void test404Rest() {
-        client.post("/REST/simple/absent", "/simple_mul.req.json", 404, "/404.txt");
+        client.send("simple_absent.json.post");
     }
 
     @Test
     public void testPingSoap() {
-        client.post("/simple", "/simple_ping.req.xml", "/simple_ping.resp.xml");
+        client.send("simple_ping.post");
     }
 
     @Test
     public void testTwiceSoap() {
-        client.post("/simple", "/simple_twice.req.xml", "/simple_twice.resp.xml");
+        client.send("simple_twice.xml.post");
     }
 
     @Test
     public void testMulSoap() {
-        client.post("/simple", "/simple_mul.req.xml", "/simple_mul.resp.xml");
+        client.send("simple_mul.xml.post");
     }
 
     @Test
     public void test404Soap() {
-        client.post("/simple", "/simple_absent.req.xml", 500, "/simple_absent.resp.xml");
+        client.send("simple_absent.xml.post");
+    }
+
+    @Test
+    public void testCors() {
+        client.send("cors.enabled.options");
     }
 }

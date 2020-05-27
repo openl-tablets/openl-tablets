@@ -182,6 +182,8 @@ public class RepositoryTreeController {
     private String restoreProjectComment;
     private String eraseProjectComment;
 
+    private String dateTimeFormat;
+
     public void setZipFilter(PathFilter zipFilter) {
         this.zipFilter = zipFilter;
     }
@@ -1310,6 +1312,9 @@ public class RepositoryTreeController {
     }
 
     public SelectItem[] toSelectItems(Collection<ProjectVersion> versions) {
+        if (versions == null) {
+            return new SelectItem[0];
+        }
         List<SelectItem> selectItems = new ArrayList<>();
         for (ProjectVersion version : versions) {
             if (!version.isDeleted()) {
@@ -1319,12 +1324,16 @@ public class RepositoryTreeController {
         return selectItems.toArray(new SelectItem[0]);
     }
 
-    public static String getDescriptiveVersion(ProjectVersion version) {
+    public String getDescriptiveVersion(ProjectVersion version) {
+        return getDescriptiveVersion(version, dateTimeFormat);
+    }
+
+    public static String getDescriptiveVersion(ProjectVersion version, String dateTimeFormat) {
         VersionInfo versionInfo = version.getVersionInfo();
         if (versionInfo == null) {
             return "Version not found";
         }
-        String modifiedOnStr = WebStudioFormats.getInstance().formatDateTime(versionInfo.getCreatedAt());
+        String modifiedOnStr = new SimpleDateFormat(dateTimeFormat).format(versionInfo.getCreatedAt());
         return versionInfo.getCreatedBy() + ": " + modifiedOnStr;
     }
 
@@ -1394,12 +1403,10 @@ public class RepositoryTreeController {
         repositoryProject.close();
     }
 
-    public String openProjectVersion(String version) {
+    public void setProjectVersion(String version) {
         this.version = version;
         openDependencies = true;
         openProjectVersion();
-
-        return null;
     }
 
     public String refreshTree() {
@@ -1426,8 +1433,12 @@ public class RepositoryTreeController {
 
     public String selectRulesProject() {
         String projectName = WebStudioUtils.getRequestParameter("projectName");
-        selectProject(projectName, repositoryTreeState.getRulesRepository());
+        setRulesProject(projectName);
         return null;
+    }
+
+    public void setRulesProject(String projectName) {
+        selectProject(projectName, repositoryTreeState.getRulesRepository());
     }
 
     public void uploadListener(FileUploadEvent event) {
@@ -1880,7 +1891,6 @@ public class RepositoryTreeController {
     public boolean isCurrentProjectSelected() {
         if (currentProject != getSelectedProject()) {
             currentProject = null;
-            version = null;
             return false;
         }
         return currentProject != null;
@@ -1955,7 +1965,7 @@ public class RepositoryTreeController {
             }
 
             selectedProject.setBranch(branch);
-            if (selectedProject.getVersion() == null) {
+            if (selectedProject.getLastHistoryVersion() == null) {
                 // move back to previous branch! Because the project is not present in new branch
                 selectedProject.setBranch(previousBranch);
                 log.warn(
@@ -2171,6 +2181,7 @@ public class RepositoryTreeController {
         } else {
             deployConfigCommentValidator = designCommentValidator;
         }
+        dateTimeFormat = WebStudioFormats.getInstance().dateTime();
     }
 
     @PreDestroy

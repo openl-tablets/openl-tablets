@@ -2,17 +2,14 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "EPBDS-9437",
-    "contact": {
-      "name": "OpenL Tablets team"
-    }
+    "title": "EPBDS-9437"
   },
   "basePath": "/REST/EPBDS-9437",
   "paths": {
     "/tiktak": {
       "post": {
-        "summary": "Method: tiktak(int i, String j)",
-        "description": "",
+        "summary": "Tiktak tiktak(int, String)",
+        "description": "Rules method: SpreadsheetResulttiktak tiktak(int i, java.lang.String j)",
         "operationId": "tiktak",
         "consumes": [
           "application/json"
@@ -42,8 +39,8 @@
     },
     "/EPBDS_9437": {
       "post": {
-        "summary": "Method: EPBDS_9437(Integer driver)",
-        "description": "",
+        "summary": "EPBDS_9437 EPBDS_9437(Integer)",
+        "description": "Rules method: SpreadsheetResultEPBDS_9437 EPBDS_9437(java.lang.Integer driver)",
         "operationId": "EPBDS_9437",
         "consumes": [
           "text/plain"
@@ -84,10 +81,6 @@
         "String": {
           "type": "string"
         }
-      },
-      "xml": {
-        "name": "Tiktak",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
     "TiktakRequest": {
@@ -100,10 +93,6 @@
         "j": {
           "type": "string"
         }
-      },
-      "xml": {
-        "name": "TiktakRequest",
-        "namespace": "http://jaxrs.openl.org"
       }
     },
     "AnySpreadsheetResult": {
@@ -112,9 +101,6 @@
         "Driver_Forms": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Driver_Forms"
-            },
             "$ref": "#/definitions/AnySpreadsheetResult"
           }
         },
@@ -125,10 +111,6 @@
         "String": {
           "type": "string"
         }
-      },
-      "xml": {
-        "name": "AnySpreadsheetResult",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
     "EPBDS_9437": {
@@ -137,16 +119,9 @@
         "Driver_Forms": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Driver_Forms"
-            },
             "$ref": "#/definitions/AnySpreadsheetResult"
           }
         }
-      },
-      "xml": {
-        "name": "EPBDS_9437",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     }
   }

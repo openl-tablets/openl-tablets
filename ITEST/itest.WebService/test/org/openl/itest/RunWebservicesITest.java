@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
@@ -55,6 +56,7 @@ public class RunWebservicesITest {
     @Test
     public void testSwaggerSchemaSimple3() {
         client.get("/REST/deployment3/simple3/swagger.json", "/simple3_swagger.resp.json");
+        client.get("/REST/deployment3/simple3/openapi.json", "/simple3_openapi.resp.json");
     }
 
     @Test
@@ -63,6 +65,14 @@ public class RunWebservicesITest {
     }
 
     @Test
+    @Ignore("EPBDS-9728 Ignored because of unstable WSDL schema generation for ArrayOfAnyType.")
+    /**
+     * NOTE
+     * The result of {@link org.apache.cxf.aegis.type.collection.CollectionType#getComponentType()#isNillable()}always
+     * {@code true}. But it's {@code false} for {@link org.apache.cxf.aegis.type.basic.ArrayType#getComponentType()}.</br>
+     * It may give a different result that depends on position of it in
+     * {@link org.apache.cxf.aegis.databinding.AegisDatabinding#createSchemas(...)} in local HashMap {@code tns2Type}.
+     */
     public void testWSDLSchemaSimple3() {
         client.get("/deployment3/simple3?wsdl", "/simple3_wsdl.resp.xml");
     }
@@ -105,6 +115,7 @@ public class RunWebservicesITest {
     @Test
     public void testSwaggerSchemaSimple5() {
         client.get("/REST/deployment5/simple5/swagger.json", "/simple5_swagger.resp.json");
+        client.get("/REST/deployment5/simple5/openapi.json", "/simple5_openapi.resp.json");
     }
 
     @Test
@@ -135,21 +146,25 @@ public class RunWebservicesITest {
     @Test
     public void EPBDS_9519_2() {
         client.get("/REST/EPBDS-9519_2/EPBDS-9519/swagger.json", "/EPBDS-9519/EPBDS-9519_2_swagger.resp.json");
+        client.get("/REST/EPBDS-9519_2/EPBDS-9519/openapi.json", "/EPBDS-9519/EPBDS-9519_2_openapi.resp.json");
     }
 
     @Test
     public void EPBDS_9519_3() {
         client.get("/REST/EPBDS-9519_3/EPBDS-9519/swagger.json", "/EPBDS-9519/EPBDS-9519_3_swagger.resp.json");
+        client.get("/REST/EPBDS-9519_3/EPBDS-9519/openapi.json", "/EPBDS-9519/EPBDS-9519_3_openapi.resp.json");
     }
 
     @Test
     public void EPBDS_9572() {
         client.get("/REST/EPBDS-9572/EPBDS-9572/swagger.json", "/EPBDS-9572/EPBDS-9572_swagger.resp.json");
+        client.get("/REST/EPBDS-9572/EPBDS-9572/openapi.json", "/EPBDS-9572/EPBDS-9572_openapi.resp.json");
     }
 
     @Test
     public void EPBDS_9581() {
         client.get("/EPBDS-9581/EPBDS-9581/swagger.json", "/EPBDS-9581/EPBDS-9581_swagger.resp.json");
+        client.get("/EPBDS-9581/EPBDS-9581/openapi.json", "/EPBDS-9581/EPBDS-9581_openapi.resp.json");
         client.get("/EPBDS-9581/EPBDS-9581?_wadl", 404);
     }
 
@@ -164,6 +179,7 @@ public class RunWebservicesITest {
     @Test
     public void EPBDS_9619() {
         client.get("/REST/EPBDS-9619/EPBDS-9619/swagger.json", "/EPBDS-9619/EPBDS-9619_swagger.resp.json");
+        client.get("/REST/EPBDS-9619/EPBDS-9619/openapi.json", "/EPBDS-9619/EPBDS-9619_openapi.resp.json");
     }
 
     @Test
@@ -177,6 +193,7 @@ public class RunWebservicesITest {
     public void EPBDS_9576() {
         client.post("/REST/EPBDS-9576/mySpr", "/EPBDS-9576/EPBDS-9576_mySpr.req.json", "/EPBDS-9576/EPBDS-9576_mySpr.resp.json");
         client.get("/REST/EPBDS-9576/swagger.json", "/EPBDS-9576/EPBDS-9576_swagger.resp.json");
+        client.get("/REST/EPBDS-9576/openapi.json", "/EPBDS-9576/EPBDS-9576_openapi.resp.json");
         client.get("/REST/EPBDS-9576?_wadl", "/EPBDS-9576/EPBDS-9576_wadl.resp.xml");
         client.get("/EPBDS-9576?wsdl", "/EPBDS-9576/EPBDS-9576_wsdl.resp.xml");
     }
@@ -184,6 +201,16 @@ public class RunWebservicesITest {
     @Test
     public void EPBDS_9665() {
         client.post("/REST/EPBDS-9665/EPBDS-9665/anotherSpr", "/EPBDS-9665/EPBDS-9665_anotherSpr.req.json", "/EPBDS-9665/EPBDS-9665_anotherSpr.resp.txt");
+    }
+
+    @Test
+    public void EPBDS_9678() {
+        client.post("/REST/EPBDS-9678/EPBDS-9678/someRule", "/EPBDS-9678/EPBDS-9678_someRule.req.json", 404);
+        client.get("/admin/services/EPBDS-9678_EPBDS-9678/errors", "/EPBDS-9678/EPBDS-9678_comopilation_errors.json");
+
+        client.get("/admin/services/EPBDS-9678-project1/errors", "/EPBDS-9678/multi/EPBDS-9678-project1_compilation_validation_errors.json");
+        client.post("/EPBDS-9678-project2/someRule", "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.req.json", "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.resp.txt");
+        client.post("/EPBDS-9678-project2/test1", "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.req.json", "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.resp.txt");
     }
 
 }

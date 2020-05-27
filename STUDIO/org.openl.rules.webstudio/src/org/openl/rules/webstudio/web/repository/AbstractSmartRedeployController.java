@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
@@ -24,6 +25,7 @@ import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
@@ -82,7 +84,8 @@ public abstract class AbstractSmartRedeployController {
 
     public synchronized List<DeploymentProjectItem> getItems() {
         AProject project = getSelectedProject();
-        if (project == null || project != currentProject || isSupportsBranches() && project.getVersion() == null) {
+        if (project == null || project != currentProject || isSupportsBranches() && project
+            .getLastHistoryVersion() == null) {
             reset();
             return null;
         }
@@ -109,7 +112,7 @@ public abstract class AbstractSmartRedeployController {
     }
 
     private AProject getDeployedProject(AProject wsProject, String deployConfigName) throws IOException {
-        Repository deployRepo = null;
+        Repository deployRepo;
         try {
             deployRepo = deploymentManager.getDeployRepository(repositoryConfigName);
         } catch (RRepositoryException e) {
@@ -139,6 +142,7 @@ public abstract class AbstractSmartRedeployController {
         if (userWorkspace == null) {
             return result; // must never happen
         }
+        String dateTimeFormat = WebStudioFormats.getInstance().dateTime();
         // get all deployment projects
         List<TreeNode> nodes = repositoryTreeState.getDeploymentRepository().getChildNodes();
         for (TreeNode node : nodes) {
@@ -235,7 +239,8 @@ public abstract class AbstractSmartRedeployController {
                     // overwrite settings
                     checker.addProject(project);
                     if (checker.check()) {
-                        String to = RepositoryTreeController.getDescriptiveVersion(project.getVersion());
+                        String to = RepositoryTreeController.getDescriptiveVersion(project.getVersion(),
+                            dateTimeFormat);
                         if (deployedProject == null) {
                             item.setMessages("Can be deployed");
                         } else if (lastDeployedVersion == null) {
@@ -247,12 +252,19 @@ public abstract class AbstractSmartRedeployController {
                                     "Can be updated to " + to + " and then deployed. Deployed version is being defined");
                             }
                         } else {
-                            String from = RepositoryTreeController
-                                .getDescriptiveVersion(userWorkspace.getDesignTimeRepository()
-                                    .getProject(projectDescriptor.getProjectName(),
-                                        new CommonVersionImpl(lastDeployedVersion))
-                                    .getVersion());
-                            item.setMessages("Can be updated to '" + to + "' from '" + from + "' and then deployed");
+                            ProjectVersion version = userWorkspace.getDesignTimeRepository()
+                                .getProject(projectDescriptor.getProjectName(),
+                                    new CommonVersionImpl(lastDeployedVersion))
+                                .getVersion();
+
+                            if (version.getVersionInfo() == null) {
+                                item.setMessages(
+                                    "Can be updated to '" + to + "' and then deployed. Deployed version not defined");
+                            } else {
+                                String from = RepositoryTreeController.getDescriptiveVersion(version, dateTimeFormat);
+                                item.setMessages(
+                                    "Can be updated to '" + to + "' from '" + from + "' and then deployed");
+                            }
                         }
                     } else {
                         item.setMessages(

@@ -2,17 +2,14 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "rules-serializationInclusionAlways",
-    "contact": {
-      "name": "OpenL Tablets team"
-    }
+    "title": "rules-serializationInclusionAlways"
   },
   "basePath": "/rules-serializationInclusionAlways",
   "paths": {
     "/getObject": {
       "get": {
-        "summary": "Method: getObject()",
-        "description": "",
+        "summary": "MyType getObject()",
+        "description": "Rules method: org.openl.generated.beans.MyType getObject()",
         "operationId": "getObject",
         "consumes": [
           "application/json"
@@ -73,20 +70,14 @@
           "type": "array",
           "items": {
             "type": "integer",
-            "format": "int32",
-            "xml": {
-              "name": "intArr"
-            }
+            "format": "int32"
           }
         },
         "intArr2": {
           "type": "array",
           "items": {
             "type": "integer",
-            "format": "int32",
-            "xml": {
-              "name": "intArr2"
-            }
+            "format": "int32"
           }
         },
         "opt": {
@@ -113,10 +104,6 @@
         "b": {
           "type": "boolean"
         }
-      },
-      "xml": {
-        "name": "MyType",
-        "namespace": "http://beans.generated.openl.org"
       }
     }
   }

@@ -40,6 +40,7 @@ import org.openl.vm.IRuntimeEnv;
 public abstract class FunctionalRow implements IDecisionRow {
 
     private static final String NO_PARAM = "P";
+    private static final Object[] NO_PARAMS = new Object[0];
 
     private String name;
     private int row;
@@ -346,7 +347,7 @@ public abstract class FunctionalRow implements IDecisionRow {
     Object[] mergeParams(Object target, Object[] dtParams, IRuntimeEnv env, int ruleN) {
 
         if (dtParams == null) {
-            dtParams = new Object[0];
+            dtParams = NO_PARAMS;
         }
 
         Object[] newParams = new Object[dtParams.length + getNumberOfParams()];

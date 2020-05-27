@@ -4,11 +4,11 @@ import org.ehcache.event.CacheEvent;
 import org.openl.CompiledOpenClass;
 import org.openl.types.IOpenMember;
 
-public class LazyMemberEvent implements Event {
+class LazyMemberEvent implements Event {
 
     private final LazyMember<? extends IOpenMember> lazyMember;
 
-    public LazyMemberEvent(LazyMember<? extends IOpenMember> lazyMember) {
+    LazyMemberEvent(LazyMember<? extends IOpenMember> lazyMember) {
         if (lazyMember == null) {
             throw new NullPointerException();
         }

@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.openl.ICompileContext;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.*;
@@ -49,11 +50,13 @@ import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeHelper;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.method.table.MethodTableNodeBinder;
 import org.openl.rules.property.PropertyTableBinder;
 import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.testmethod.TestMethodNodeBinder;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
@@ -74,6 +77,8 @@ import org.openl.util.ASelector.StringValueSelector;
 import org.openl.util.ClassUtils;
 import org.openl.util.ISelector;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.StringUtils;
+import org.openl.validation.ValidationManager;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,8 +91,6 @@ import org.slf4j.LoggerFactory;
 public class XlsBinder implements IOpenBinder {
 
     public static final String DISABLED_CLEAN_UP = "XLS_OPEN_CLASS_DISABLED_CLEANUP";
-
-    private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     private final Logger log = LoggerFactory.getLogger(XlsBinder.class);
 
@@ -127,10 +130,12 @@ public class XlsBinder implements IOpenBinder {
         return BinderFactoryHolder.INSTANCE;
     }
 
-    private IUserContext userContext;
+    private final IUserContext userContext;
+    private final ICompileContext compileContext;
 
-    public XlsBinder(IUserContext userContext) {
+    public XlsBinder(ICompileContext compileContext, IUserContext userContext) {
         this.userContext = userContext;
+        this.compileContext = compileContext;
     }
 
     @Override
@@ -321,9 +326,29 @@ public class XlsBinder implements IOpenBinder {
 
             processErrors(moduleOpenClass.getErrors(), bindingContext);
 
+            if (!Boolean.TRUE.equals(bindingContext.getExternalParams().get(DISABLED_CLEAN_UP))) {
+                ValidationManager.validate(compileContext, topNode.getType(), bindingContext);
+                if (bindingContext.isExecutionMode()) {
+                    XlsModuleOpenClass openClass = (XlsModuleOpenClass) topNode.getType();
+                    for (IOpenMethod openMethod : openClass.getMethods()) {
+                        removeDebugInformation(openMethod);
+                    }
+                }
+            }
+
             return topNode;
         } finally {
             OpenLFuzzyUtils.clearCaches();
+        }
+    }
+
+    private void removeDebugInformation(IOpenMethod openMethod) {
+        if (openMethod instanceof OpenMethodDispatcher) {
+            for (IOpenMethod candidate : ((OpenMethodDispatcher) openMethod).getCandidates()) {
+                removeDebugInformation(candidate);
+            }
+        } else if (openMethod instanceof ExecutableRulesMethod) {
+            ((ExecutableRulesMethod) openMethod).removeDebugInformation();
         }
     }
 
@@ -416,9 +441,9 @@ public class XlsBinder implements IOpenBinder {
                 }
             }
         }
-        builder.setPackageImports(packageNames.toArray(EMPTY_STRING_ARRAY));
-        builder.setClassImports(classNames.toArray(EMPTY_STRING_ARRAY));
-        builder.setLibraries(libraries.toArray(EMPTY_STRING_ARRAY));
+        builder.setPackageImports(packageNames.toArray(StringUtils.EMPTY_STRING_ARRAY));
+        builder.setClassImports(classNames.toArray(StringUtils.EMPTY_STRING_ARRAY));
+        builder.setLibraries(libraries.toArray(StringUtils.EMPTY_STRING_ARRAY));
     }
 
     private OpenL makeOpenL(XlsModuleSyntaxNode moduleNode, List<SyntaxNodeException> exceptions) {
@@ -488,7 +513,7 @@ public class XlsBinder implements IOpenBinder {
             }
         }
 
-        return childSyntaxNodes.toArray(new TableSyntaxNode[0]);
+        return childSyntaxNodes.toArray(TableSyntaxNode.EMPTY_ARRAY);
     }
 
     private boolean isExecutableTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {

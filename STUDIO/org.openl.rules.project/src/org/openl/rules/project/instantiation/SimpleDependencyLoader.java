@@ -14,6 +14,7 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.validation.ValidationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,9 +116,9 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         rulesInstantiationStrategy.setServiceClass(EmptyInterface.class); // Prevent
         // interface
         // generation
-        boolean oldValidationState = OpenLCompileManager.isValidationEnabled();
+        boolean oldValidationState = ValidationManager.isValidationEnabled();
         try {
-            OpenLCompileManager.turnOffValidation();
+            ValidationManager.turnOffValidation();
             CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
             compiledDependency = new CompiledDependency(dependencyName, compiledOpenClass);
             log.debug("Dependency '{}' is saved in cache.", dependencyName);
@@ -127,7 +128,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
             return onCompilationFailure(ex, dependencyManager);
         } finally {
             if (oldValidationState) {
-                OpenLCompileManager.turnOnValidation();
+                ValidationManager.turnOnValidation();
             }
         }
     }

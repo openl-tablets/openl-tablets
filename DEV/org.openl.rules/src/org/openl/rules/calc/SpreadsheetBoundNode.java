@@ -129,7 +129,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
             Boolean.TRUE.equals(getTableSyntaxNode().getTableProperties().getDetailedPlainModel()));
 
         if (spreadsheet.isCustomSpreadsheet()) {
-            CustomSpreadsheetResultOpenClass type = null;
+            CustomSpreadsheetResultOpenClass type;
             try {
                 type = buildCustomSpreadsheetResultType(spreadsheet); // Can throw RuntimeException
                 IOpenClass bindingContextType = bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, type);

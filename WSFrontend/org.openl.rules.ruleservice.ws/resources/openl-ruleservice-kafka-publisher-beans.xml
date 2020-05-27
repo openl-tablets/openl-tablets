@@ -104,7 +104,7 @@
     </bean>
 
     <bean id="serviceKafkaProducerJacksonDatabindingFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.ServiceJacksonObjectMapperFactoryBean" scope="prototype">
+          class="org.openl.rules.ruleservice.databinding.OpenLServiceObjectMapperEnhancerFactoryBean" scope="prototype">
         <property name="jacksonObjectMapperFactoryBean" ref="kafkaProducerJacksonDatabindingFactoryBean"/>
     </bean>
 
@@ -121,7 +121,7 @@
     </bean>
 
     <bean id="serviceKafkaConsumerJacksonDatabindingFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.ServiceJacksonObjectMapperFactoryBean" scope="prototype">
+          class="org.openl.rules.ruleservice.databinding.OpenLServiceObjectMapperEnhancerFactoryBean" scope="prototype">
         <property name="jacksonObjectMapperFactoryBean" ref="kafkaConsumerJacksonDatabindingFactoryBean"/>
     </bean>
 

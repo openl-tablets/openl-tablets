@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice-pom</artifactId>
-        <version>5.23.2-SNAPSHOT</version>
+        <version>5.24.0-SNAPSHOT</version>
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws</artifactId>
     <packaging>war</packaging>
@@ -172,6 +172,16 @@
             <artifactId>cxf-rt-rs-service-description</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-service-description-openapi-v3</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.github.classgraph</groupId>
+                    <artifactId>classgraph</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>swagger-ui</artifactId>
         </dependency>
@@ -239,7 +249,7 @@
     </dependencies>
     <profiles>
         <profile>
-            <id>java11</id> <!-- Additional libs for java 11 if it is compiled from java 8 -->
+            <id>qsgvosavun</id>
             <activation>
                 <jdk>[1.8,9)</jdk>
             </activation>

@@ -190,7 +190,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             }
 
             if (!ArrayUtils.isEmpty(foreignKeyTableAccessorChainTokens)) {
-                ResultChainObject chainRes = getChainObject(bindingContext, resType, result, foreignKeyTableAccessorChainTokens);
+                ResultChainObject chainRes = getChainObject(bindingContext,
+                    resType,
+                    result,
+                    foreignKeyTableAccessorChainTokens);
                 if (chainRes == null) {
                     throw createIndexNotFoundError(foreignTable, valueTable, key, null, bindingContext);
                 }
@@ -528,21 +531,25 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     }
 
     private int getForeignKeyIndex(ITable foreignTable) {
-        if (foreignKey != null) {
-            String columnName = foreignKey.getIdentifier();
-            return foreignTable.getColumnIndex(columnName);
+        if (foreignTable != null) {
+            if (foreignKey != null) {
+                String columnName = foreignKey.getIdentifier();
+                return foreignTable.getColumnIndex(columnName);
+            } else {
+                ColumnDescriptor descriptor = foreignTable.getDataModel().getDescriptors()[0];
+                if (descriptor.isPrimaryKey()) {
+                    return descriptor.getColumnIdx();
+                }
+                ColumnDescriptor firstColDescriptor = foreignTable.getDataModel().getDescriptor(0);
+                if (firstColDescriptor.isPrimaryKey()) {
+                    // first column is primary key for another level. So return column index for first descriptor
+                    return descriptor.getColumnIdx();
+                }
+                // we don't have defined PK lets use first key as PK
+                return 0;
+            }
         } else {
-            ColumnDescriptor descriptor = foreignTable.getDataModel().getDescriptors()[0];
-            if (descriptor.isPrimaryKey()) {
-                return descriptor.getColumnIdx();
-            }
-            ColumnDescriptor firstColDescriptor = foreignTable.getDataModel().getDescriptor(0);
-            if (firstColDescriptor.isPrimaryKey()) {
-                // first column is primary key for another level. So return column index for first descriptor
-                return descriptor.getColumnIdx();
-            }
-            // we don't have defined PK lets use first key as PK
-            return 0;
+            return -1;
         }
     }
 

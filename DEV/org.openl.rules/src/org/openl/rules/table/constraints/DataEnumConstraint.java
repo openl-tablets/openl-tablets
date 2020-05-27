@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 public class DataEnumConstraint extends AbstractConstraint {
 
     public static final String CONSTRAINT_MATCH = "^\\s*data\\s*:\\s*([\\w_][\\d\\w_]*)\\s*$";
+    private static final Object[] NO_PARAMS = new Object[0];
 
     private Object[] params;
 
@@ -43,6 +44,6 @@ public class DataEnumConstraint extends AbstractConstraint {
             return new String[] { enumerationName };
         }
 
-        return new Object[0];
+        return NO_PARAMS;
     }
 }

@@ -1,0 +1,11 @@
+HTTP/1.1 500
+Content-Type: text/xml;charset=utf-8
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <soap:Fault>
+            <faultcode>soap:Client</faultcode>
+            <faultstring>Message part {http://DefaultNamespace}absent was not recognized.  (Does it exist in service WSDL?)</faultstring>
+        </soap:Fault>
+    </soap:Body>
+</soap:Envelope>

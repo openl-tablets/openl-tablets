@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
  * @author NSamatov
  */
 public class ClassFinder {
+    private static final Class[] NO_CLASSES = new Class[0];
     private final Logger log = LoggerFactory.getLogger(ClassFinder.class);
 
     private Map<String, ClassLocator> locators = new HashMap<>();
@@ -53,7 +54,7 @@ public class ClassFinder {
             resources = classLoader.getResources(path);
         } catch (IOException e) {
             log.debug(e.getMessage(), e);
-            return new Class[0];
+            return NO_CLASSES;
         }
 
         Set<Class<?>> classes = new HashSet<>();

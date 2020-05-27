@@ -1,0 +1,4 @@
+HTTP/1.1 404
+Content-Type: text/plain
+
+WebApplicationException has been caught, status: 404, message: HTTP 404 Not Found

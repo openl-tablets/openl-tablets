@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>5.23.2-SNAPSHOT</version>
+        <version>5.24.0-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
     <artifactId>openl-maven-plugin</artifactId>
@@ -199,7 +199,7 @@
                 <big-tableparts.mavenOpts>${jacoco.argLine} -Xms32m -Xmx256m</big-tableparts.mavenOpts>
                 <big-tableparts.timeoutInSeconds>60</big-tableparts.timeoutInSeconds>
                 <big-testsuite.mavenOpts>${jacoco.argLine} -Xms32m -Xmx96m</big-testsuite.mavenOpts>
-                <big-testsuite.timeoutInSeconds>120</big-testsuite.timeoutInSeconds>
+                <big-testsuite.timeoutInSeconds>150</big-testsuite.timeoutInSeconds>
                 <gen-spreadsheetresult.mavenOpts>${jacoco.argLine} -Xms32m -Xmx256m</gen-spreadsheetresult.mavenOpts>
                 <gen-spreadsheetresult.timeoutInSeconds>60</gen-spreadsheetresult.timeoutInSeconds>
                 <!-- due double work of packaging: 30s * 2 -->

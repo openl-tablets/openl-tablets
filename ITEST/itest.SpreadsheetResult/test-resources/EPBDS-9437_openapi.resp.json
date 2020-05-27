@@ -1,0 +1,121 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "EPBDS-9437",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/REST/EPBDS-9437",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/tiktak": {
+      "post": {
+        "summary": "Tiktak tiktak(int, String)",
+        "description": "Rules method: SpreadsheetResulttiktak tiktak(int i, java.lang.String j)",
+        "operationId": "tiktak",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TiktakRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tiktak"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/EPBDS_9437": {
+      "post": {
+        "summary": "EPBDS_9437 EPBDS_9437(Integer)",
+        "description": "Rules method: SpreadsheetResultEPBDS_9437 EPBDS_9437(java.lang.Integer driver)",
+        "operationId": "EPBDS_9437",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EPBDS_9437"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Tiktak": {
+        "type": "object",
+        "properties": {
+          "INT": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "String": {
+            "type": "string"
+          }
+        }
+      },
+      "TiktakRequest": {
+        "type": "object",
+        "properties": {
+          "i": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "j": {
+            "type": "string"
+          }
+        }
+      },
+      "AnySpreadsheetResult": {
+        "type": "object",
+        "properties": {
+          "INT": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "String": {
+            "type": "string"
+          }
+        }
+      },
+      "EPBDS_9437": {
+        "type": "object",
+        "properties": {
+          "Driver_Forms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          }
+        }
+      }
+    }
+  }
+}

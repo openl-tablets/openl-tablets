@@ -25,6 +25,7 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.errors.CorruptObjectException;
+import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.hooks.CommitMsgHook;
 import org.eclipse.jgit.hooks.PreCommitHook;
 import org.eclipse.jgit.internal.JGitText;
@@ -78,6 +79,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private int connectionTimeout = 60;
     private String commentTemplate;
     private String escapedCommentTemplate;
+    private CommitMessageParser commitMessageParser;
     private String gitSettingsPath;
     private boolean noVerify;
     private Boolean gcAutoDetach;
@@ -91,10 +93,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private Map<String, List<String>> branches = new HashMap<>();
 
-    /**
-     * Holds secondary repositories for other branches.
-     */
-    private Map<String, GitRepository> branchRepos = new HashMap<>();
+    private boolean closed;
 
     @Override
     public List<FileData> list(String path) throws IOException {
@@ -122,7 +121,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("save(data, stream): lock");
             writeLock.lock();
 
-            reset();
             saveSingleFile(data, stream);
         } catch (IOException e) {
             reset();
@@ -148,10 +146,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("save(multipleFiles): lock");
             writeLock.lock();
-            reset();
-            if (!isEmpty()) {
-                git.checkout().setName(branch).call();
-            }
+
+            checkoutForcedOrReset(branch);
+
             for (FileItem fileItem : fileItems) {
                 RevCommit commit = createCommit(fileItem.getData(), fileItem.getStream());
                 if (firstCommitId == null) {
@@ -185,9 +182,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             String parentVersion = data.getVersion();
             boolean checkoutOldVersion = isCheckoutOldVersion(data.getName(), parentVersion);
-            if (!isEmpty()) {
-                git.checkout().setName(checkoutOldVersion ? parentVersion : branch).call();
-            }
+            checkoutForcedOrReset(checkoutOldVersion ? parentVersion : branch);
             RevCommit commit = createCommit(data, stream);
             commitId = commit.getId().getName();
 
@@ -230,10 +225,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("delete(): lock");
             writeLock.lock();
 
-            reset();
-            if (!isEmpty()) {
-                git.checkout().setName(branch).call();
-            }
+            checkoutForcedOrReset(branch);
 
             String name = data.getName();
             File file = new File(localRepositoryPath, name);
@@ -304,10 +296,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("copy(): lock");
             writeLock.lock();
 
-            reset();
-            if (!isEmpty()) {
-                git.checkout().setName(branch).call();
-            }
+            checkoutForcedOrReset(branch);
 
             File src = new File(localRepositoryPath, srcName);
             File dest = new File(localRepositoryPath, destData.getName());
@@ -380,10 +369,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("deleteHistory(): lock");
             writeLock.lock();
 
-            reset();
-            if (!isEmpty()) {
-                git.checkout().setName(branch).call();
-            }
+            checkoutForcedOrReset(branch);
 
             RevCommit commit;
             if (version == null) {
@@ -451,10 +437,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("copyHistory(): lock");
             writeLock.lock();
 
-            reset();
-            if (!isEmpty()) {
-                git.checkout().setName(branch).call();
-            }
+            checkoutForcedOrReset(branch);
 
             File src = new File(localRepositoryPath, srcName);
             if (src.isDirectory()) {
@@ -685,10 +668,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             readBranches();
 
             monitor = new ChangesMonitor(new GitRevisionGetter(), listenerTimerPeriod);
-
-            for (String branch : getAvailableBranches()) {
-                branchRepos.put(branch, createRepository(branch));
-            }
         } catch (Exception e) {
             Throwable cause = ExceptionUtils.getRootCause(e);
             if (cause == null) {
@@ -711,6 +690,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public void close() {
+        closed = true;
+
         if (monitor != null) {
             monitor.release();
             monitor = null;
@@ -718,9 +699,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         if (git != null) {
             git.close();
             git = null;
-        }
-        for (GitRepository repository : branchRepos.values()) {
-            repository.close();
         }
     }
 
@@ -771,6 +749,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             .replaceAll("\\{user-message}", "{1}")
             .replaceAll("\\{username}", "{2}");
         this.escapedCommentTemplate = escapeCurlyBrackets(ct);
+        this.commitMessageParser = new CommitMessageParser(commentTemplate);
     }
 
     public void setGitSettingsPath(String gitSettingsPath) {
@@ -808,10 +787,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         String fullPath = baseFolder + dirWalk.getPathString();
         return new LazyFileData(branch,
             fullPath,
-            new File(localRepositoryPath),
+            this,
             start,
             getFileId(dirWalk),
-            escapedCommentTemplate);
+            commitMessageParser);
     }
 
     private boolean isEmpty() throws IOException {
@@ -832,10 +811,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
         return new LazyFileData(branch,
             fullPath,
-            new File(localRepositoryPath),
+            this,
             fileCommit,
             getFileId(dirWalk),
-            escapedCommentTemplate);
+            commitMessageParser);
     }
 
     private ObjectId getFileId(TreeWalk dirWalk) {
@@ -887,8 +866,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 projectBranches.removeIf(branch -> !availableBranches.contains(branch));
             }
             saveBranches();
-
-            reset();
         } finally {
             writeLock.unlock();
             log.debug("getLastRevision(): unlock write");
@@ -918,7 +895,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             switch (result) {
                 case FAST_FORWARD:
                     if (!isEmpty()) {
-                        git.checkout().setName(refUpdate.getRemoteName()).call();
+                        checkoutForced(refUpdate.getRemoteName());
                     }
 
                     // It's assumed that we don't have unpushed commits at this point so there must be no additional
@@ -930,7 +907,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         .call();
                     break;
                 case REJECTED_CURRENT_BRANCH:
-                    git.checkout().setName(baseBranch).call(); // On the next fetch the branch probably will be deleted
+                    checkoutForced(baseBranch); // On the next fetch the branch probably will be deleted
                     break;
                 case FORCED:
                     if (ObjectId.zeroId().equals(refUpdate.getNewObjectId())) {
@@ -946,7 +923,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                     branchToCheckout = Constants.MASTER;
                                 }
                                 if (getAvailableBranches().contains(branchToCheckout)) {
-                                    git.checkout().setName(branchToCheckout).call();
+                                    checkoutForced(branchToCheckout);
                                 } else {
                                     git.checkout()
                                         .setName(branchToCheckout)
@@ -1007,7 +984,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     branch,
                     localRef.getObjectId().name(),
                     advertisedRef.getObjectId().name());
-                git.checkout().setName(branch).call();
+                checkoutForced(branch);
                 git.merge().include(advertisedRef).setFastForward(MergeCommand.FastForwardMode.FF_ONLY).call();
             }
         }
@@ -1307,6 +1284,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 historyVisitor.visit(name, commit, getVersionName(git.getRepository(), tags, commit));
                 return historyVisitor.getResult();
             }
+        } catch (MissingObjectException e) {
+            log.error(e.getMessage());
+            return null;
         } catch (IOException e) {
             throw e;
         } catch (Exception e) {
@@ -1347,13 +1327,16 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     resetCommand.call();
                 } catch (JGitInternalException e) {
                     // check if index file is corrupted
+                    File indexFile = git.getRepository().getIndexFile();
                     try {
-                        DirCache dc = new DirCache(git.getRepository().getIndexFile(), git.getRepository().getFS());
+                        DirCache dc = new DirCache(indexFile, git.getRepository().getFS());
                         dc.read();
                         log.error(e.getMessage(), e);
                     } catch (CorruptObjectException ex) {
                         log.error("git index file is corrupted and will be deleted", e);
-                        git.getRepository().getIndexFile().delete();
+                        if (!indexFile.delete() && indexFile.exists()) {
+                            log.warn("Can't delete corrupted index file {}.", indexFile);
+                        }
                         resetCommand.call();
                     }
                 }
@@ -1370,6 +1353,26 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
+        }
+    }
+
+    private void checkoutForcedOrReset(String branch) throws IOException, GitAPIException {
+        if (isEmpty()) {
+            reset();
+        } else {
+            checkoutForced(branch);
+        }
+    }
+
+    private void checkoutForced(String branch) throws GitAPIException, IOException {
+        if (branch.equals(git.getRepository().getBranch())) {
+            // FIXME: It's a workaround because of the bug in jgit. See
+            // GitRepositoryTest.testResetUncommittedChanges() for test scenario. If the bug will be fixed, we can stay
+            // with "checkout forced" only and remove this "if" block.
+            // Keep in mind that extra reset() or checkout() calls can slow down some git operations.
+            reset();
+        } else {
+            git.checkout().setName(branch).setForced(true).call();
         }
     }
 
@@ -1515,7 +1518,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("save(folderData, files, changesetType): lock");
             writeLock.lock();
 
-            reset();
             saveMultipleFiles(folderData, files, changesetType);
         } catch (IOException e) {
             reset();
@@ -1540,10 +1542,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("save(folderItems, changesetType): lock");
             writeLock.lock();
-            reset();
-            if (!isEmpty()) {
-                git.checkout().setName(branch).call();
-            }
+            checkoutForcedOrReset(branch);
+
             for (FolderItem folderItem : folderItems) {
                 RevCommit commit = createCommit(folderItem.getData(), folderItem.getFiles(), changesetType);
                 if (firstCommitId == null) {
@@ -1574,15 +1574,16 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public void pull(String author) throws IOException {
+        if (uri == null) {
+            return;
+        }
+
         Lock writeLock = repositoryLock.writeLock();
         try {
             log.debug("pull(author): lock");
             writeLock.lock();
 
-            reset();
-            if (!isEmpty()) {
-                git.checkout().setName(branch).call();
-            }
+            checkoutForcedOrReset(branch);
 
             pull(null, author);
         } catch (IOException e) {
@@ -1604,8 +1605,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("merge(): lock");
             writeLock.lock();
 
-            reset();
-            git.checkout().setName(branch).call();
+            checkoutForcedOrReset(branch);
 
             if (conflictResolveData == null) {
                 pull(null, author);
@@ -1677,9 +1677,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             String parentVersion = folderData.getVersion();
             boolean checkoutOldVersion = isCheckoutOldVersion(folderData.getName(), parentVersion);
-            if (!isEmpty()) {
-                git.checkout().setName(checkoutOldVersion ? parentVersion : branch).call();
-            }
+            checkoutForcedOrReset(checkoutOldVersion ? parentVersion : branch);
 
             RevCommit commit = createCommit(folderData, files, changesetType);
             commitId = commit.getId().getName();
@@ -1781,7 +1779,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
         if (checkoutOldVersion || conflictResolveData != null) {
             // Merge detached commit to existing branch.
-            git.checkout().setName(branch).call();
+            checkoutForced(branch);
             ObjectId commitId = lastCommit.getId();
             ObjectIdRef.Unpeeled ref = new ObjectIdRef.Unpeeled(Ref.Storage.LOOSE, commitId.name(), commitId.copy());
             String mergeMessage = getMergeMessage(folderData.getAuthor(), ref);
@@ -1886,7 +1884,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 if (isEmpty()) {
                     throw new IOException("Can't create a branch on the empty repository.");
                 }
-                git.checkout().setName(branch).call();
+                checkoutForced(branch);
 
                 // Create new branch
                 git.branchCreate().setName(newBranch).call();
@@ -1943,10 +1941,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
                 // Remove the branch from git itself.
                 // Cannot delete checked out branch. So we check out another branch instead.
-                git.checkout().setName(baseBranch).call();
+                checkoutForced(baseBranch);
                 git.branchDelete().setBranchNames(branch).setForce(true).call();
                 pushBranch(new RefSpec().setSource(null).setDestination(Constants.R_HEADS + branch));
-                branchRepos.remove(branch);
             } else {
                 // Remove branch mapping for specific project only.
                 List<String> projectBranches = branches.get(projectName);
@@ -2005,14 +2002,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public GitRepository forBranch(String branch) throws IOException {
-        GitRepository repository;
-
         Lock readLock = repositoryLock.readLock();
         try {
             log.debug("forBranch(): read: lock");
             readLock.lock();
-            repository = branchRepos.get(branch);
-            if (repository == null && git.getRepository().findRef(branch) == null) {
+            if (git.getRepository().findRef(branch) == null) {
                 List<Ref> refs = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
 
                 boolean branchExist = false;
@@ -2035,28 +2029,20 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             readLock.unlock();
             log.debug("forBranch(): read: unlock");
         }
-        if (repository == null) {
-            Lock writeLock = repositoryLock.writeLock();
-            try {
-                log.debug("forBranch(): write: lock");
-                writeLock.lock();
+        Lock writeLock = repositoryLock.writeLock();
+        try {
+            log.debug("forBranch(): write: lock");
+            writeLock.lock();
 
-                repository = branchRepos.get(branch);
-                if (repository == null) {
-                    repository = createRepository(branch);
-                    branchRepos.put(branch, repository);
-                }
-            } catch (IOException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new IOException(e);
-            } finally {
-                writeLock.unlock();
-                log.debug("forBranch(): write: unlock");
-            }
+            return createRepository(branch);
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IOException(e);
+        } finally {
+            writeLock.unlock();
+            log.debug("forBranch(): write: unlock");
         }
-
-        return repository;
     }
 
     private GitRepository createRepository(String branch) throws IOException, GitAPIException {
@@ -2080,7 +2066,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         repo.setConnectionTimeout(connectionTimeout);
         repo.setCommentTemplate(commentTemplate);
         repo.setGitSettingsPath(gitSettingsPath);
-        repo.git = Git.open(new File(localRepositoryPath));
+        repo.git = git;
         repo.repositoryLock = repositoryLock; // must be common for all instances because git
         // repository is same
         repo.remoteRepoLock = remoteRepoLock; // must be common for all instances because git
@@ -2277,6 +2263,22 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return false;
     }
 
+    /**
+     * Returns Git repository that can safely be closed.<br/>
+     * If our instance of GitRepository isn't closed, returns Git object that reuses existing Repository instance. In
+     * this case close() method does nothing: Repository object is managed by GitRepository.<br/>
+     * If our instance of GitRepository is closed, returns Git object with a new Repository instance so the caller must
+     * close it.<br/>
+     * So we have a general rule: when you use getClosableGit(), you must always close returned object.
+     */
+    Git getClosableGit() throws IOException {
+        if (closed) {
+            return Git.open(new File(localRepositoryPath));
+        } else {
+            return new Git(git.getRepository());
+        }
+    }
+
     private CredentialsProvider getCredentialsProvider() throws IOException {
         if (credentialsProvider != null && credentialsProvider.isHasAuthorizationFailure()) {
             // We cannot use this credentials provider anymore. If we continue, the server can lock us for brute
@@ -2356,10 +2358,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                 if (revCommit != null) {
                                     files.add(new LazyFileData(branch,
                                         baseFolder + dirWalk.getPathString(),
-                                        new File(localRepositoryPath),
+                                        GitRepository.this,
                                         revCommit,
                                         getFileId(dirWalk),
-                                        escapedCommentTemplate));
+                                        commitMessageParser));
                                 } else {
                                     files.add(createFileData(dirWalk, baseFolder, start));
                                 }
@@ -2456,10 +2458,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 log.debug("File '{}' is absent in the commit {}", fullPath, commitVersion, e);
                 FileData data = new LazyFileData(branch,
                     fullPath,
-                    new File(localRepositoryPath),
+                    GitRepository.this,
                     commit,
                     null,
-                    escapedCommentTemplate);
+                    commitMessageParser);
                 // Must mark it as deleted explicitly because the file can be erased outside of WebStudio.
                 data.setDeleted(true);
 
@@ -2492,7 +2494,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 RevTree tree = commit.getTree();
 
                 try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
-                    // TODO ListCommand
                     history.addAll(new ListCommand(commit).apply(repository, rootWalk, fullPath));
                 } catch (FileNotFoundException ignored) {
                 }

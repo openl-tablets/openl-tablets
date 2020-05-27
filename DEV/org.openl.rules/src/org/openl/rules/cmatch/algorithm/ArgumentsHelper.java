@@ -11,6 +11,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringUtils;
 
 public class ArgumentsHelper {
     private final IMethodSignature methodSignature;
@@ -60,7 +61,7 @@ public class ArgumentsHelper {
             }
         }
 
-        String[] possibleNames = argNames.toArray(new String[0]);
+        String[] possibleNames = argNames.toArray(StringUtils.EMPTY_STRING_ARRAY);
         return new DomainOpenClass("names", JavaOpenClass.STRING, new EnumDomain<>(possibleNames), null);
     }
 

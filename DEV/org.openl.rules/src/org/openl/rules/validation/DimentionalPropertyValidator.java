@@ -1,9 +1,12 @@
 package org.openl.rules.validation;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
-import org.openl.OpenL;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -26,13 +29,13 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
     }
 
     @Override
-    public ValidationResult validate(OpenL openl, IOpenClass openClass) {
+    public ValidationResult validate(IOpenClass openClass) {
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
         String[] vResult = new String[3]; // 0 - INCLUDE_TO_A, 1 - INCLUDE_TO_B, 2 - OVERLAP
         for (IOpenMethod method : openClass.getMethods()) {
             if (method instanceof OpenMethodDispatcher) {
                 OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) method;
-                IOpenMethod[] methods = openMethodDispatcher.getCandidates().toArray(new IOpenMethod[] {});
+                IOpenMethod[] methods = openMethodDispatcher.getCandidates().toArray(new IOpenMethod[]{});
                 for (int i = 0; i < methods.length - 1; i++) {
                     ITableProperties propsA = PropertiesHelper.getTableProperties(methods[i]);
                     Map<String, Object> propertiesA = propsA.getAllDimensionalProperties();
@@ -243,8 +246,8 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
         IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) method;
         if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
             messages
-                .add(OpenLMessagesUtils.newWarnMessage("Ambiguous definition of properties values. Details: " + message,
-                    memberMetaInfo.getSyntaxNode()));
+                    .add(OpenLMessagesUtils.newWarnMessage("Ambiguous definition of properties values. Details: " + message,
+                            memberMetaInfo.getSyntaxNode()));
         }
     }
 

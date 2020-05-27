@@ -77,11 +77,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     private final Logger log = LoggerFactory.getLogger(DatatypeTableBoundNode.class);
 
-    private TableSyntaxNode tableSyntaxNode;
-    private DatatypeOpenClass dataType;
-    private IdentifierNode parentClassIdentifier;
-    private String parentClassName;
-    private ModuleOpenClass moduleOpenClass;
+    private final TableSyntaxNode tableSyntaxNode;
+    private final DatatypeOpenClass dataType;
+    private final IdentifierNode parentClassIdentifier;
+    private final String parentClassName;
+    private final ModuleOpenClass moduleOpenClass;
 
     private DatatypeTableBoundNode parentDatatypeTableBoundNode;
     private boolean generated = false;
@@ -89,7 +89,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private boolean byteCodeReadyToLoad = false;
 
     private ILogicalTable table;
-    private OpenL openl;
+    private final OpenL openl;
 
     private Map<String, FieldDescription> fields;
 
@@ -211,6 +211,20 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return true;
     }
 
+
+    private static void extractParentFields(DatatypeTableBoundNode datatypeTableBoundNode,
+            LinkedHashMap<String, FieldDescription> parentFields) {
+        if (datatypeTableBoundNode.parentDatatypeTableBoundNode != null) {
+            extractParentFields(datatypeTableBoundNode.parentDatatypeTableBoundNode, parentFields);
+            parentFields.putAll(datatypeTableBoundNode.parentDatatypeTableBoundNode.getFields());
+        } else {
+            if (datatypeTableBoundNode.dataType.getSuperClass() != null) {
+                for (IOpenField field : datatypeTableBoundNode.dataType.getSuperClass().getFields()) {
+                    parentFields.put(field.getName(), new FieldDescription(field.getType().getJavaName()));
+                }
+            }
+        }
+    }
     /**
      * Generate a simple java bean for current datatype table.
      *
@@ -224,15 +238,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         if (superOpenClass != null) {
             beanBuilder.setParentType(new TypeDescription(superOpenClass.getJavaName()));
             if (superOpenClass instanceof DatatypeOpenClass) {
-                Map<String, FieldDescription> parentFields;
-                if (parentDatatypeTableBoundNode != null) {
-                    parentFields = parentDatatypeTableBoundNode.getFields();
-                } else {
-                    parentFields = new LinkedHashMap<>();
-                    for (IOpenField field : superOpenClass.getFields()) {
-                        parentFields.put(field.getName(), new FieldDescription(field.getType().getJavaName()));
-                    }
-                }
+                LinkedHashMap<String, FieldDescription> parentFields = new LinkedHashMap<>();
+                extractParentFields(this, parentFields);
                 for (Entry<String, FieldDescription> field : parentFields.entrySet()) {
                     beanBuilder.addParentField(field.getKey(), field.getValue());
                 }
@@ -800,8 +807,5 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     public void setParentDatatypeTableBoundNode(DatatypeTableBoundNode parentDatatypeTableBoundNode) {
         this.parentDatatypeTableBoundNode = parentDatatypeTableBoundNode;
-    }
-
-    public void setByteCodeReadyToLoad(boolean byteCodeReadyToLoad) {
     }
 }

@@ -1,0 +1,62 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "mixins-test",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/EPBDS-9581/EPBDS-9581",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/proxyCustomer": {
+      "post": {
+        "summary": "Customer proxyCustomer(Customer)",
+        "description": "Rules method: org.openl.generated.beans.Customer proxyCustomer(org.openl.generated.beans.Customer c)",
+        "operationId": "proxyCustomer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Customer"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Customer"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Customer": {
+        "type": "object",
+        "properties": {
+          "cusomerID": {
+            "type": "string"
+          },
+          "genderCd": {
+            "type": "string",
+            "default": "other"
+          },
+          "dob": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}

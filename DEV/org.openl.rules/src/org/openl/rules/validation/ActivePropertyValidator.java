@@ -1,8 +1,12 @@
 package org.openl.rules.validation;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 
-import org.openl.OpenL;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -26,14 +30,14 @@ public class ActivePropertyValidator extends TablesValidator {
     public static final String ODD_ACTIVE_TABLE_MESSAGE = "There can be only one active table.";
 
     @Override
-    public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
+    public ValidationResult validateTables(TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
         // Group methods not TableSyntaxNodes as we may have dependent modules,
         // and no sources for them,
         // represented in current module. The only information about dependency
         // methods contains in openClass.
         //
         Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupedMethods = groupExecutableMethods(
-            tableSyntaxNodes);
+                tableSyntaxNodes);
 
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
 
@@ -56,7 +60,7 @@ public class ActivePropertyValidator extends TablesValidator {
             if (activeTableFoundCount > 1) {
                 for (TableSyntaxNode executableMethodTable : activeExecutableMethodTable) {
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(ODD_ACTIVE_TABLE_MESSAGE,
-                        executableMethodTable);
+                            executableMethodTable);
                     if (openClass.equals(executableMethodTable.getMember().getDeclaringClass())) {
                         executableMethodTable.addError(error);
                     }

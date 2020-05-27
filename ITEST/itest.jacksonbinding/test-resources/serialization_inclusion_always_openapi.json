@@ -1,0 +1,113 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "rules-serializationInclusionAlways",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/rules-serializationInclusionAlways",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/getObject": {
+      "get": {
+        "summary": "MyType getObject()",
+        "description": "Rules method: org.openl.generated.beans.MyType getObject()",
+        "operationId": "getObject",
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyType"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "LocalTime": {
+        "type": "object",
+        "properties": {
+          "hour": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "minute": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "second": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nano": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "MyType": {
+        "type": "object",
+        "properties": {
+          "num": {
+            "type": "integer",
+            "format": "int64",
+            "default": 22
+          },
+          "str": {
+            "type": "string",
+            "default": "test"
+          },
+          "obj": {
+            "type": "object"
+          },
+          "intArr": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "intArr2": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "opt": {
+            "type": "object"
+          },
+          "opt2": {
+            "type": "object"
+          },
+          "ldt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ld": {
+            "type": "string",
+            "format": "date"
+          },
+          "lt": {
+            "$ref": "#/components/schemas/LocalTime"
+          },
+          "zdt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "b": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

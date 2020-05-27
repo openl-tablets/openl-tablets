@@ -118,7 +118,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         Objects.requireNonNull(deploymentVersion, "deploymentVersion cannot be null");
         Objects.requireNonNull(projectName, "projectName cannot be null");
 
-        log.debug("Resoliving modules for deployment (name='{}', version='{}', projectName='{}')",
+        log.debug("Resolving modules for deployment (name='{}', version='{}', projectName='{}')",
             deploymentName,
             deploymentVersion.getVersionName(),
             projectName);
@@ -129,8 +129,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             throw new RuleServiceRuntimeException(
                 String.format("Project '%s' is not found in deployment '%s'.", projectName, deploymentName));
         }
-        String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
-        File projectFolder = new File(artefactPath);
+        String artifactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
+        File projectFolder = new File(artifactPath);
         List<Module> result = Collections.emptyList();
         try {
             ProjectDescriptor projectDescriptor = projectResolver.resolve(projectFolder);

@@ -889,7 +889,6 @@ public class GitRepositoryTest {
         assertEquals(BRANCH, repo.getBranch());
         assertEquals("project1/test1", repoTest1.getBranch());
         assertEquals("project1/test2", repoTest2.getBranch());
-        assertSame(repoTest1, repo.forBranch("project1/test1"));
 
         repoTest1.deleteBranch("project1", "project1/test1");
         branches = repo.getBranches("project1");
@@ -1065,6 +1064,25 @@ public class GitRepositoryTest {
         // Check that 'branch1 is merged into 'branch2'
         assertNotNull("The file '" + path1 + "' must exist in '" + branch2 + "'", branch2Repo.check(path1));
         assertNotNull("The file '" + path2 + "' must exist in '" + branch2 + "'", branch2Repo.check(path2));
+    }
+
+    @Test
+    public void testResetUncommittedChanges() throws IOException {
+        File parent = repo.getClosableGit().getRepository().getDirectory().getParentFile();
+        File existingFile = new File(parent, "file-in-master");
+        assertTrue(existingFile.exists());
+
+        // Delete the file but don't commit it. Changes in not committed (modified externally for example or after unsuccessful operation)
+        // files must be aborted after repo.save() method.
+        FileUtils.delete(existingFile);
+        assertFalse(existingFile.exists());
+
+        // Save other file.
+        String text = "Some text";
+        repo.save(createFileData("folder/any-file", text), IOUtils.toInputStream(text));
+
+        // Not committed changes should be aborted
+        assertTrue(existingFile.exists());
     }
 
     private GitRepository createRepository(File remote, File local) throws RRepositoryException {

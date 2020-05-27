@@ -34,7 +34,7 @@ public class DoubleRange implements INumberRange {
 
     public DoubleRange(double lowerBound, double upperBound, BoundType lowerBoundType, BoundType upperBoundType) {
         if (lowerBound > upperBound) {
-            throw new RuntimeException(String.format("%s must be more or equal than %s.", upperBound, lowerBound));
+            throw new IllegalArgumentException(String.format("%s must be greater or equal than %s.", upperBound, lowerBound));
         }
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;

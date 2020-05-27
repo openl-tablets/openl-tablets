@@ -1,6 +1,5 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -17,7 +16,8 @@ import org.openl.vm.IRuntimeEnv;
 
 class ContextPropertiesInjector {
 
-    private final Map<String, ContextPropertyInjection> contextPropertyInjections;
+    private static final ContextPropertyInjection[] PROPERTY_INJECTIONS = new ContextPropertyInjection[0];
+    private final ContextPropertyInjection[] contextPropertyInjections;
 
     public ContextPropertiesInjector(IOpenClass[] paramTypes, ICastFactory castFactory) {
         int i = 0;
@@ -34,7 +34,8 @@ class ContextPropertiesInjector {
             }
             i++;
         }
-        this.contextPropertyInjections = Collections.unmodifiableMap(contextPropertyInjections);
+        this.contextPropertyInjections = !contextPropertyInjections.isEmpty() ? contextPropertyInjections.values()
+            .toArray(PROPERTY_INJECTIONS) : null;
     }
 
     private ContextPropertyInjection createContextInjection(int paramIndex,
@@ -63,17 +64,20 @@ class ContextPropertiesInjector {
     }
 
     public boolean push(Object[] params, IRuntimeEnv env, SimpleRulesRuntimeEnv simpleRulesRuntimeEnv) {
-        IRulesRuntimeContext rulesRuntimeContext = null;
-        for (ContextPropertyInjection contextPropertiesInjector : contextPropertyInjections.values()) {
-            rulesRuntimeContext = contextPropertiesInjector
-                .inject(params, env, simpleRulesRuntimeEnv, rulesRuntimeContext);
+        if (contextPropertyInjections != null) {
+            IRulesRuntimeContext rulesRuntimeContext = null;
+            for (ContextPropertyInjection contextPropertiesInjector : contextPropertyInjections) {
+                rulesRuntimeContext = contextPropertiesInjector
+                    .inject(params, env, simpleRulesRuntimeEnv, rulesRuntimeContext);
+            }
+            if (rulesRuntimeContext != null) {
+                env.pushContext(rulesRuntimeContext);
+                return true;
+            } else {
+                return false;
+            }
         }
-        if (rulesRuntimeContext != null) {
-            env.pushContext(rulesRuntimeContext);
-            return true;
-        } else {
-            return false;
-        }
+        return false;
     }
 
     public void pop(SimpleRulesRuntimeEnv env) {

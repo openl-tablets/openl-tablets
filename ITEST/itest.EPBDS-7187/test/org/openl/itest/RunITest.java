@@ -57,6 +57,7 @@ public class RunITest {
     public void testSchemas() {
         client.get("/upcs?_wadl", "/wadl.resp.xml");
         client.get("/upcs/swagger.json", "/swagger.resp.json");
+        client.get("/upcs/openapi.json", "/openapi.resp.json");
     }
 
 }

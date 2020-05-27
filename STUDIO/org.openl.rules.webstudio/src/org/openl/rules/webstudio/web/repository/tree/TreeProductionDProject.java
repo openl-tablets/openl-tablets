@@ -69,26 +69,6 @@ public class TreeProductionDProject extends TreeProductFolder {
         }
     }
 
-    public Date getCreatedAt() {
-        ProjectVersion projectVersion = getProject().getVersion();
-        if (projectVersion == null) {
-            return null;
-        }
-
-        VersionInfo vi = projectVersion.getVersionInfo();
-        return vi != null ? vi.getCreatedAt() : null;
-    }
-
-    public String getCreatedBy() {
-        ProjectVersion projectVersion = getProject().getFirstVersion();
-        if (projectVersion == null) {
-            return null;
-        }
-
-        VersionInfo vi = projectVersion.getVersionInfo();
-        return vi != null ? vi.getCreatedBy() : null;
-    }
-
     public Date getModifiedAt() {
         ProjectVersion projectVersion = getProject().getVersion();
         if (projectVersion == null) {

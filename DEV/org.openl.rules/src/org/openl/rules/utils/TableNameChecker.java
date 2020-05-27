@@ -32,4 +32,8 @@ public class TableNameChecker {
         return false;
     }
 
+    public static boolean isValidJavaIdentifier(String s) {
+        return !isInvalidJavaIdentifier(s);
+    }
+
 }

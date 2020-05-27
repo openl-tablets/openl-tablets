@@ -9,8 +9,8 @@ import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
+import javax.validation.GroupSequence;
 import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
@@ -19,15 +19,19 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DatatypeTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
+import org.openl.rules.ui.validation.StringPresentedGroup;
+import org.openl.rules.ui.validation.StringValidGroup;
+import org.openl.rules.ui.validation.TableNameConstraint;
 import org.openl.util.StringUtils;
 
 /**
  * @author Andrei Astrouski
  */
+@GroupSequence({ DatatypeTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class })
 public class DatatypeTableCreationWizard extends TableCreationWizard {
 
-    @NotBlank(message = "Cannot be empty")
-    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
+    @NotBlank(message = "Cannot be empty", groups = StringPresentedGroup.class)
+    @TableNameConstraint(groups = StringValidGroup.class)
     private String technicalName;
 
     @Valid

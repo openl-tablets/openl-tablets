@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.openl.binding.BindingDependencies;
+import org.openl.binding.IBindingContext;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.table.MethodTableBoundNode;
@@ -62,6 +63,11 @@ public abstract class AbstractTableMethodWrapper extends TableMethod {
     @Override
     public void setBoundNode(ATableBoundNode node) {
         delegate.setBoundNode(node);
+    }
+
+    @Override
+    public void removeDebugInformation() {
+        delegate.removeDebugInformation();
     }
 
     @Override

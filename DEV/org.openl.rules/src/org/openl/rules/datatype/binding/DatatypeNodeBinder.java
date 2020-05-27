@@ -9,6 +9,7 @@ import org.openl.binding.IMemberBoundNode;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.engine.OpenLManager;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.binding.RulesModuleBindingContext;
@@ -25,6 +26,7 @@ import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
+import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -48,12 +50,16 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
         ILogicalTable table = tsn.getTable();
         IOpenSourceCodeModule tableSource = tsn.getHeader().getModule();
 
-        IdentifierNode[] parsedHeader = DatatypeHelper.tokenizeHeader(tableSource);
+        IdentifierNode[] parsedHeader = Tokenizer.tokenize(tableSource, " \n\r");
+        if (parsedHeader.length < 2) {
+            String message1 = "Datatype table format: Datatype <typename>";
+            throw SyntaxNodeExceptionUtils.createError(message1, null, null, tableSource);
+        }
 
         String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
         if (TableNameChecker.isInvalidJavaIdentifier(typeName)) {
             String message = "Datatype table " + typeName + TableNameChecker.NAME_ERROR_MESSAGE;
-            throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TYPE_INDEX]));
         }
 
         IOpenClass openClass = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);

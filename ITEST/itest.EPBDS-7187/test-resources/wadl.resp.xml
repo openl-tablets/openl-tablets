@@ -45,10 +45,10 @@
             <xs:element name="OverloadRequest3" type="tns:OverloadRequest3"/>
             <xs:element name="OverloadRequest4" type="tns:OverloadRequest4"/>
             <xs:element name="UPCaseRequest" type="tns:UPCaseRequest"/>
-            <xs:complexType name="EDGECaseRequest">
+            <xs:complexType name="UPCaseRequest">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="sTring" type="xs:string"/>
-                    <xs:element name="NUMBer" type="xs:double"/>
+                    <xs:element minOccurs="0" name="STRING" type="xs:string"/>
+                    <xs:element name="NUMBER" type="xs:double"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="OverloadRequest4">
@@ -57,16 +57,10 @@
                     <xs:element minOccurs="0" name="J" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType name="OverloadRequest3">
+            <xs:complexType name="Mixes2Request">
                 <xs:sequence>
-                    <xs:element name="i" type="xs:int"/>
-                    <xs:element minOccurs="0" name="J" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="UPCaseRequest">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="STRING" type="xs:string"/>
-                    <xs:element name="NUMBER" type="xs:double"/>
+                    <xs:element minOccurs="0" name="m1" type="ns1:Mixes"/>
+                    <xs:element minOccurs="0" name="m2" type="ns1:Mixes"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="MixedCaseRequest">
@@ -75,16 +69,22 @@
                     <xs:element minOccurs="0" name="String" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:complexType name="OverloadRequest3">
+                <xs:sequence>
+                    <xs:element name="i" type="xs:int"/>
+                    <xs:element minOccurs="0" name="J" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:complexType name="LowCaseRequest">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="number" type="xs:double"/>
                     <xs:element minOccurs="0" name="string" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType name="Mixes2Request">
+            <xs:complexType name="EDGECaseRequest">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="m1" type="ns1:Mixes"/>
-                    <xs:element minOccurs="0" name="m2" type="ns1:Mixes"/>
+                    <xs:element minOccurs="0" name="sTring" type="xs:string"/>
+                    <xs:element name="NUMBer" type="xs:double"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
@@ -207,6 +207,27 @@
                     <representation mediaType="application/yaml"/>
                 </response>
             </method>
+        </resource>
+        <resource path="/openapi.{type:json|yaml}">
+            <param name="type" style="template" type="xs:string"/>
+            <method name="GET">
+                <request></request>
+                <response>
+                    <representation mediaType="application/json"/>
+                    <representation mediaType="application/yaml"/>
+                </response>
+            </method>
+        </resource>
+        <resource path="/api-docs">
+            <resource path="/{resource:.*}">
+                <param name="resource" style="template" type="xs:string"/>
+                <method name="GET">
+                    <request></request>
+                    <response>
+                        <representation mediaType="*/*"/>
+                    </response>
+                </method>
+            </resource>
         </resource>
     </resources>
 </application>

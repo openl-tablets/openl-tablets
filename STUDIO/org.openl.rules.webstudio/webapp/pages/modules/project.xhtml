@@ -109,7 +109,7 @@
                                               style="margin-left:3px">Locked by #{projectData.lockedUserName}</h:panelGroup>
                             </td>
                         </tr>
-                        <h:panelGroup rendered="#{!empty projectData.firstVersion.versionInfo}">
+                        <h:panelGroup rendered="#{!empty projectData.version.versionInfo}">
                             <tr>
                                 <td>Modified By:</td>
                                 <td>#{projectData.version.versionInfo.createdBy}</td>
@@ -123,21 +123,6 @@
                                     </h:outputText>
                                 </td>
                             </tr>
-                            <tr>
-                            </tr>
-                            <tr>
-                                <td>Created By:</td>
-                                <td>#{projectData.firstVersion.versionInfo.createdBy}</td>
-                            </tr>
-                            <td>Created At:</td>
-                            <td>
-                                <h:outputText value="#{projectData.firstVersion.versionInfo.createdAt}">
-                                    <f:convertDateTime type="date"
-                                                       pattern="#{environment.getProperty('data.format.datetime')}"/>
-                                </h:outputText>
-                            </td>
-                        </h:panelGroup>
-                        <h:panelGroup rendered="#{!empty projectData.version.versionInfo}">
                         </h:panelGroup>
                     </table>
                 </div>

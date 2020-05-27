@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository.merge;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -193,11 +194,12 @@ public class MergeConflictBean {
         try {
             UserWorkspace userWorkspace = getUserWorkspace();
 
+            SimpleDateFormat formatter = new SimpleDateFormat(WebStudioFormats.getInstance().dateTime());
             Repository designRepository = userWorkspace.getDesignTimeRepository().getRepository();
             for (String file : mergeConflict.getException().getConflictedFiles()) {
                 FileData fileData = designRepository.checkHistory(file, commit);
                 if (fileData != null) {
-                    String modifiedOnStr = WebStudioFormats.getInstance().formatDateTime(fileData.getModifiedAt());
+                    String modifiedOnStr = formatter.format(fileData.getModifiedAt());
                     return fileData.getAuthor() + ": " + modifiedOnStr;
                 }
             }
@@ -215,7 +217,8 @@ public class MergeConflictBean {
         if (mergeConflict == null) {
             return null;
         }
-        return mergeConflict.isExportOperation() ? mergeConflict.getMergeBranchFrom() : mergeConflict.getMergeBranchTo();
+        return mergeConflict.isExportOperation() ? mergeConflict.getMergeBranchFrom()
+                                                 : mergeConflict.getMergeBranchTo();
     }
 
     public String getTheirBranch() {
@@ -223,7 +226,8 @@ public class MergeConflictBean {
         if (mergeConflict == null) {
             return null;
         }
-        return mergeConflict.isExportOperation() ? mergeConflict.getMergeBranchTo() : mergeConflict.getMergeBranchFrom();
+        return mergeConflict.isExportOperation() ? mergeConflict.getMergeBranchTo()
+                                                 : mergeConflict.getMergeBranchFrom();
     }
 
     public String getMergeMessage() {
@@ -493,22 +497,23 @@ public class MergeConflictBean {
             for (Map.Entry<String, List<Module>> entry : modulesToAppend.entrySet()) {
                 String projectPath = entry.getKey();
                 String rulesXmlFile = projectPath + "/rules.xml";
-                FileItem fileItem = repository.read(rulesXmlFile);
-                if (fileItem != null) {
-                    ProjectDescriptor descriptor = serializer.deserialize(fileItem.getStream());
-                    Map<String, Module> modules = new LinkedHashMap<>();
-                    modules.putAll(descriptor.getModules()
-                        .stream()
-                        .collect(Collectors.toMap(m -> m.getRulesRootPath().getPath(), m -> m)));
-                    for (Module module : entry.getValue()) {
-                        String path = module.getRulesRootPath().getPath();
-                        // After merge there is possibility that there is no need to add a module.
-                        if (!modules.containsKey(path)) {
-                            modules.put(path, module);
+                try (FileItem fileItem = repository.read(rulesXmlFile)) {
+                    if (fileItem != null) {
+                        ProjectDescriptor descriptor = serializer.deserialize(fileItem.getStream());
+                        Map<String, Module> modules = new LinkedHashMap<>();
+                        modules.putAll(descriptor.getModules()
+                            .stream()
+                            .collect(Collectors.toMap(m -> m.getRulesRootPath().getPath(), m -> m)));
+                        for (Module module : entry.getValue()) {
+                            String path = module.getRulesRootPath().getPath();
+                            // After merge there is possibility that there is no need to add a module.
+                            if (!modules.containsKey(path)) {
+                                modules.put(path, module);
+                            }
                         }
+                        descriptor.setModules(new ArrayList<>(modules.values()));
+                        files.add(new FileItem(rulesXmlFile, IOUtils.toInputStream(serializer.serialize(descriptor))));
                     }
-                    descriptor.setModules(new ArrayList<>(modules.values()));
-                    files.add(new FileItem(rulesXmlFile, IOUtils.toInputStream(serializer.serialize(descriptor))));
                 }
             }
 

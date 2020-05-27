@@ -1510,9 +1510,17 @@ form .formfields {
     border-bottom: 1px dashed #777777;
 }
 
+.disabled {
+    pointer-events: none;
+    cursor: default;
+    border-color: lightgray;
+    opacity: 0.3;
+}
+
 option[value=""]:disabled {
     background-color: lightgrey;
     font-size: 1px;
+    pointer-events: none;
 }
 
 option[value=""]:disabled + option[value=""]:disabled {

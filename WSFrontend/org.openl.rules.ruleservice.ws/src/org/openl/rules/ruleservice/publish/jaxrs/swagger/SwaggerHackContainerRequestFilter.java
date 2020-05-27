@@ -18,9 +18,9 @@ public class SwaggerHackContainerRequestFilter implements ContainerRequestFilter
     private static final String APIDOCS_LISTING_PATH_JSON = "swagger.json";
     private static final String APIDOCS_LISTING_PATH_YAML = "swagger.yaml";
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
-    private static ReentrantLock lock = new ReentrantLock();
+    private static final ReentrantLock lock = new ReentrantLock();
 
     public SwaggerHackContainerRequestFilter(ObjectMapper objectMapper) {
         this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper cannot be null");

@@ -1,0 +1,146 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "service name with spaces",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/service%20name%20with%20spaces",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/sumTwoDoubles": {
+      "post": {
+        "summary": "Double sumTwoDoubles(Double, Double)",
+        "description": "Rules method: java.lang.Double sumTwoDoubles(java.lang.Double a, java.lang.Double b)",
+        "operationId": "sumTwoDoubles",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SumTwoDoublesRequest1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calVehicleYear": {
+      "post": {
+        "summary": "Integer calVehicleYear(CalVehicleYearRequest, Double)",
+        "description": "Rules method: java.lang.Integer calVehicleYear(org.openl.generated.beans.CalVehicleYearRequest v, java.lang.Double a)",
+        "operationId": "calVehicleYear",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalVehicleYearRequest1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bar": {
+      "post": {
+        "summary": "String bar(SumTwoDoublesRequest)",
+        "description": "Rules method: java.lang.String bar(org.openl.generated.beans.SumTwoDoublesRequest bar)",
+        "operationId": "bar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SumTwoDoublesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SumTwoDoublesRequest1": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "number",
+            "format": "double"
+          },
+          "b": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "CalVehicleYearRequest": {
+        "type": "object",
+        "properties": {
+          "modelYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "vehEffectiveYear": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CalVehicleYearRequest1": {
+        "type": "object",
+        "properties": {
+          "v": {
+            "$ref": "#/components/schemas/CalVehicleYearRequest"
+          },
+          "a": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "SumTwoDoublesRequest": {
+        "type": "object",
+        "properties": {
+          "foo": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

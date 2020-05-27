@@ -24,7 +24,7 @@ public class RunITest {
         TimeZone defaultTimeZone = TimeZone.getTimeZone("Europe/Helsinki");
         TimeZone.setDefault(defaultTimeZone);
 
-        server = JettyServer.start();
+        server = JettyServer.startSharingClassLoader();
         client = server.client();
     }
 
@@ -42,6 +42,7 @@ public class RunITest {
     public void testSerializationInclusionAlwaysConfiguration() {
         client.get("/rules-serializationInclusionAlways/getObject", "/serialization_inclusion_always.json");
         client.get("/rules-serializationInclusionAlways/swagger.json", "/serialization_inclusion_always_swagger.json");
+        client.get("/rules-serializationInclusionAlways/openapi.json", "/serialization_inclusion_always_openapi.json");
     }
 
     @Test

@@ -29,8 +29,8 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
 
     private Collection<String> defaultRuleServicePublishers = Collections.emptyList();
 
-    private Map<String, OpenLService> services = new HashMap<>();
-    private Map<String, Date> startDates = new HashMap<>();
+    private final Map<String, OpenLService> services = new HashMap<>();
+    private final Map<String, Date> startDates = new HashMap<>();
 
     private Collection<RuleServicePublisherListener> listeners = Collections.emptyList();
 

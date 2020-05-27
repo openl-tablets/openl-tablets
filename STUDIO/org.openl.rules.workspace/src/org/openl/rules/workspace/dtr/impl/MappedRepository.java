@@ -566,7 +566,8 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         }
 
         PropertiesStorage prop;
-        try (InputStreamReader in = new InputStreamReader(fileItem.getStream(), StandardCharsets.UTF_8)) {
+        try (InputStream stream = fileItem.getStream();
+                InputStreamReader in = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             prop = new PropertiesStorage();
             prop.load(in);
         }

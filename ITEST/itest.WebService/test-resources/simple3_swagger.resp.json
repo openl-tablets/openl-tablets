@@ -2,33 +2,29 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "simple3",
-    "contact": {
-      "name": "OpenL Tablets team"
-    }
+    "title": "simple3"
   },
   "basePath": "/REST/deployment3/simple3",
   "paths": {
     "/main": {
       "post": {
-        "summary": "Method: main(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
+        "summary": "Main main(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.Main main(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "main",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
+
+        "consumes": ["application/json"],
+
+
+        "produces": ["application/json"],
+
+        "parameters": [{
+          "in": "body",
+          "name": "body",
+          "required": false,
+          "schema": {
+            "$ref": "#/definitions/DefaultRulesRuntimeContext"
           }
+        }
         ],
         "responses": {
           "200": {
@@ -40,57 +36,25 @@
         }
       }
     },
-    "/mySpr2": {
-      "post": {
-        "summary": "Method: mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "mySpr2",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MySpr2"
-            }
-          }
-        }
-      }
-    },
     "/mySpr": {
       "post": {
-        "summary": "Method: mySpr(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
+        "summary": "MySpr mySpr(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MySpr mySpr(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "mySpr",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
+
+        "consumes": ["application/json"],
+
+
+        "produces": ["application/json"],
+
+        "parameters": [{
+          "in": "body",
+          "name": "body",
+          "required": false,
+          "schema": {
+            "$ref": "#/definitions/DefaultRulesRuntimeContext"
           }
+        }
         ],
         "responses": {
           "200": {
@@ -102,35 +66,34 @@
         }
       }
     },
-    "/arrSpreadsheetResult": {
+    "/mySpr2": {
       "post": {
-        "summary": "Method: arrSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "arrSpreadsheetResult",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
+        "summary": "MySpr2 mySpr2(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MySpr2 mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "mySpr2",
+
+        "consumes": ["application/json"],
+
+
+        "produces": ["application/json"],
+
+        "parameters": [{
+          "in": "body",
+          "name": "body",
+          "required": false,
+          "schema": {
+            "$ref": "#/definitions/DefaultRulesRuntimeContext"
           }
+        }
         ],
         "responses": {
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/AnySpreadsheetResult"
-              }
+              "$ref": "#/definitions/MySpr2"
+
+
+
             }
           }
         }
@@ -138,24 +101,23 @@
     },
     "/arrSpreadsheetResultspr1": {
       "post": {
-        "summary": "Method: arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
+        "summary": "Spr1[] arrSpreadsheetResultspr1(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.Spr1[] arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "arrSpreadsheetResultspr1",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
+
+        "consumes": ["application/json"],
+
+
+        "produces": ["application/json"],
+
+        "parameters": [{
+          "in": "body",
+          "name": "body",
+          "required": false,
+          "schema": {
+            "$ref": "#/definitions/DefaultRulesRuntimeContext"
           }
+        }
         ],
         "responses": {
           "200": {
@@ -170,26 +132,58 @@
         }
       }
     },
-    "/arrObjSpreadsheetResult": {
+    "/arrSpreadsheetResult": {
       "post": {
-        "summary": "Method: arrObjSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
-        "description": "",
-        "operationId": "arrObjSpreadsheetResult",
-        "consumes": [
-          "application/json"
+        "summary": "AnySpreadsheetResult[] arrSpreadsheetResult(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.AnySpreadsheetResult[] arrSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "arrSpreadsheetResult",
+
+        "consumes": ["application/json"],
+
+
+        "produces": ["application/json"],
+
+        "parameters": [{
+          "in": "body",
+          "name": "body",
+          "required": false,
+          "schema": {
+            "$ref": "#/definitions/DefaultRulesRuntimeContext"
+          }
+        }
         ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
+        "responses": {
+          "200": {
+            "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/AnySpreadsheetResult"
+              }
             }
           }
+        }
+      }
+    },
+    "/arrObjSpreadsheetResult": {
+      "post": {
+        "summary": "Object[] arrObjSpreadsheetResult(IRulesRuntimeContext)",
+        "description": "Method: java.lang.Object[] arrObjSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "arrObjSpreadsheetResult",
+
+        "consumes": ["application/json"],
+
+
+        "produces": ["application/json"],
+
+        "parameters": [{
+          "in": "body",
+          "name": "body",
+          "required": false,
+          "schema": {
+            "$ref": "#/definitions/DefaultRulesRuntimeContext"
+          }
+        }
         ],
         "responses": {
           "200": {
@@ -221,10 +215,7 @@
           "type": "array",
           "items": {
             "type": "number",
-            "format": "double",
-            "xml": {
-              "name": "Value_Step3"
-            }
+            "format": "double"
           }
         },
         "Value3_Step4": {
@@ -270,22 +261,16 @@
           "type": "object"
         },
         "Value_Step8": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "xml": {
-              "name": "Value_Step8"
-            }
-          }
+          "type": "object"
+
+
+
         },
         "Value_Step9": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "xml": {
-              "name": "Value_Step9"
-            }
-          }
+          "type": "object"
+
+
+
         },
         "Value_Step10": {
           "type": "object"
@@ -320,28 +305,19 @@
         "Value_Step21": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Value_Step21"
-            },
             "$ref": "#/definitions/AnySpreadsheetResult"
           }
         },
         "Value_Step22": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Value_Step22"
-            }
+            "type": "object"
           }
         },
         "Value_Step23": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Value_Step23"
-            }
+            "type": "object"
           }
         },
         "Value_AAA": {
@@ -358,37 +334,24 @@
         "RowNames": {
           "type": "array",
           "items": {
-            "type": "string",
-            "xml": {
-              "name": "RowNames"
-            }
+            "type": "string"
           }
         },
         "ColumnNames": {
           "type": "array",
           "items": {
-            "type": "string",
-            "xml": {
-              "name": "ColumnNames"
-            }
+            "type": "string"
           }
         },
         "TableDetails": {
           "type": "array",
           "items": {
             "type": "array",
-            "xml": {
-              "name": "TableDetails"
-            },
             "items": {
               "type": "string"
             }
           }
         }
-      },
-      "xml": {
-        "name": "AnySpreadsheetResult",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
     "Main": {
@@ -405,27 +368,18 @@
           "type": "array",
           "items": {
             "type": "number",
-            "format": "double",
-            "xml": {
-              "name": "Step3"
-            }
+            "format": "double"
           }
         },
         "Step4": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Step4"
-            },
             "$ref": "#/definitions/Spr"
           }
         },
         "Step5": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Step5"
-            },
             "$ref": "#/definitions/Spr"
           }
         },
@@ -433,9 +387,6 @@
           "type": "array",
           "items": {
             "type": "array",
-            "xml": {
-              "name": "Step6"
-            },
             "items": {
               "$ref": "#/definitions/Spr"
             }
@@ -445,9 +396,6 @@
           "type": "array",
           "items": {
             "type": "array",
-            "xml": {
-              "name": "Step7"
-            },
             "items": {
               "type": "object"
             }
@@ -456,28 +404,19 @@
         "Step8": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step8"
-            }
+            "type": "object"
           }
         },
         "Step9": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step9"
-            }
+            "type": "object"
           }
         },
         "Step10": {
           "type": "array",
           "items": {
             "type": "array",
-            "xml": {
-              "name": "Step10"
-            },
             "items": {
               "$ref": "#/definitions/AnySpreadsheetResult"
             }
@@ -486,9 +425,6 @@
         "Step11": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Step11"
-            },
             "$ref": "#/definitions/AnySpreadsheetResult"
           }
         },
@@ -510,29 +446,20 @@
         "Step17": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step17"
-            }
+            "type": "object"
           }
         },
         "Step18": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step18"
-            }
+            "type": "object"
           }
         },
         "Step19": {
           "type": "array",
           "uniqueItems": true,
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step19"
-            }
+            "type": "object"
           }
         },
         "Step20": {
@@ -541,28 +468,19 @@
         "Step21": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Step21"
-            },
             "$ref": "#/definitions/Spr"
           }
         },
         "Step22": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step22"
-            }
+            "type": "object"
           }
         },
         "Step23": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step23"
-            }
+            "type": "object"
           }
         },
         "AAA": {
@@ -572,37 +490,24 @@
         "RowNames": {
           "type": "array",
           "items": {
-            "type": "string",
-            "xml": {
-              "name": "RowNames"
-            }
+            "type": "string"
           }
         },
         "ColumnNames": {
           "type": "array",
           "items": {
-            "type": "string",
-            "xml": {
-              "name": "ColumnNames"
-            }
+            "type": "string"
           }
         },
         "TableDetails": {
           "type": "array",
           "items": {
             "type": "array",
-            "xml": {
-              "name": "TableDetails"
-            },
             "items": {
               "type": "string"
             }
           }
         }
-      },
-      "xml": {
-        "name": "Main",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
     "Spr": {
@@ -619,27 +524,18 @@
           "type": "array",
           "items": {
             "type": "number",
-            "format": "double",
-            "xml": {
-              "name": "Step3"
-            }
+            "format": "double"
           }
         },
         "Step4": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Step4"
-            },
             "$ref": "#/definitions/Spr1"
           }
         },
         "Step5": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Step5"
-            },
             "$ref": "#/definitions/Spr1"
           }
         },
@@ -647,9 +543,6 @@
           "type": "array",
           "items": {
             "type": "array",
-            "xml": {
-              "name": "Step6"
-            },
             "items": {
               "$ref": "#/definitions/Spr1"
             }
@@ -659,9 +552,6 @@
           "type": "array",
           "items": {
             "type": "array",
-            "xml": {
-              "name": "Step7"
-            },
             "items": {
               "type": "object"
             }
@@ -670,28 +560,19 @@
         "Step8": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step8"
-            }
+            "type": "object"
           }
         },
         "Step9": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step9"
-            }
+            "type": "object"
           }
         },
         "Step10": {
           "type": "array",
           "items": {
             "type": "array",
-            "xml": {
-              "name": "Step10"
-            },
             "items": {
               "$ref": "#/definitions/AnySpreadsheetResult"
             }
@@ -700,9 +581,6 @@
         "Step11": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Step11"
-            },
             "$ref": "#/definitions/AnySpreadsheetResult"
           }
         },
@@ -724,29 +602,20 @@
         "Step17": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step17"
-            }
+            "type": "object"
           }
         },
         "Step18": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step18"
-            }
+            "type": "object"
           }
         },
         "Step19": {
           "type": "array",
           "uniqueItems": true,
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step19"
-            }
+            "type": "object"
           }
         },
         "Step20": {
@@ -755,34 +624,21 @@
         "Step21": {
           "type": "array",
           "items": {
-            "xml": {
-              "name": "Step21"
-            },
             "$ref": "#/definitions/Spr1"
           }
         },
         "Step22": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step22"
-            }
+            "type": "object"
           }
         },
         "Step23": {
           "type": "array",
           "items": {
-            "type": "object",
-            "xml": {
-              "name": "Step23"
-            }
+            "type": "object"
           }
         }
-      },
-      "xml": {
-        "name": "Spr",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
     "Spr1": {
@@ -795,10 +651,6 @@
         "Step2": {
           "$ref": "#/definitions/Spr"
         }
-      },
-      "xml": {
-        "name": "Spr1",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     },
     "DefaultRulesRuntimeContext": {
@@ -820,319 +672,332 @@
         },
         "usState": {
           "type": "string",
-          "enum": [
-            "AL",
-            "AK",
-            "AZ",
-            "AR",
-            "CA",
-            "CO",
-            "CT",
-            "DC",
-            "DE",
-            "FL",
-            "GA",
-            "HI",
-            "ID",
-            "IL",
-            "IN",
-            "IA",
-            "KS",
-            "KY",
-            "LA",
-            "ME",
-            "MD",
-            "MA",
-            "MI",
-            "MN",
-            "MS",
-            "MO",
-            "MT",
-            "NE",
-            "NV",
-            "NH",
-            "NJ",
-            "NM",
-            "NY",
-            "NC",
-            "ND",
-            "OH",
-            "OK",
-            "OR",
-            "PA",
-            "PR",
-            "RI",
-            "SC",
-            "SD",
-            "TN",
-            "TX",
-            "UT",
-            "VT",
-            "VA",
-            "WA",
-            "WV",
-            "WI",
-            "WY"
-          ]
+          "enum": ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         },
         "country": {
           "type": "string",
-          "enum": [
-            "AL",
-            "DZ",
-            "AR",
-            "AU",
-            "AT",
-            "BH",
-            "BY",
-            "BE",
-            "BO",
-            "BA",
-            "BR",
-            "BG",
-            "CA",
-            "CL",
-            "CN",
-            "CO",
-            "CR",
-            "HR",
-            "CY",
-            "CZ",
-            "DK",
-            "DO",
-            "EC",
-            "EG",
-            "SV",
-            "EE",
-            "FI",
-            "FR",
-            "DE",
-            "GR",
-            "GT",
-            "HN",
-            "HK",
-            "HU",
-            "IS",
-            "IN",
-            "ID",
-            "IQ",
-            "IE",
-            "IL",
-            "IT",
-            "JP",
-            "JO",
-            "KW",
-            "LV",
-            "LB",
-            "LT",
-            "LU",
-            "MK",
-            "MY",
-            "MT",
-            "MX",
-            "MA",
-            "NL",
-            "NZ",
-            "NI",
-            "NO",
-            "OM",
-            "PA",
-            "PY",
-            "PE",
-            "PH",
-            "PL",
-            "PT",
-            "PR",
-            "QA",
-            "RO",
-            "RU",
-            "SA",
-            "CS",
-            "SG",
-            "SK",
-            "SI",
-            "ZA",
-            "ES",
-            "SD",
-            "SE",
-            "CH",
-            "SY",
-            "TW",
-            "TH",
-            "TN",
-            "TR",
-            "UA",
-            "AE",
-            "GB",
-            "US",
-            "UY",
-            "VE",
-            "VN",
-            "YE"
-          ]
+          "enum": ["AL", "DZ", "AR", "AU", "AT", "BH", "BY", "BE", "BO", "BA", "BR", "BG", "CA", "CL", "CN", "CO", "CR", "HR", "CY", "CZ", "DK", "DO", "EC", "EG", "SV", "EE", "FI", "FR", "DE", "GR", "GT", "HN", "HK", "HU", "IS", "IN", "ID", "IQ", "IE", "IL", "IT", "JP", "JO", "KW", "LV", "LB", "LT", "LU", "MK", "MY", "MT", "MX", "MA", "NL", "NZ", "NI", "NO", "OM", "PA", "PY", "PE", "PH", "PL", "PT", "PR", "QA", "RO", "RU", "SA", "CS", "SG", "SK", "SI", "ZA", "ES", "SD", "SE", "CH", "SY", "TW", "TH", "TN", "TR", "UA", "AE", "GB", "US", "UY", "VE", "VN", "YE"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         },
         "usRegion": {
           "type": "string",
-          "enum": [
-            "MW",
-            "NE",
-            "SE",
-            "SW",
-            "W"
-          ]
+          "enum": ["MW", "NE", "SE", "SW", "W"]
+
+
+
+
+
+
         },
         "currency": {
           "type": "string",
-          "enum": [
-            "ALL",
-            "DZD",
-            "ARS",
-            "AUD",
-            "BHD",
-            "BYR",
-            "BOB",
-            "BAM",
-            "BRL",
-            "CAD",
-            "CLP",
-            "CNY",
-            "COP",
-            "CRC",
-            "HRK",
-            "CZK",
-            "DKK",
-            "DOP",
-            "EGP",
-            "EUR",
-            "GTQ",
-            "HNL",
-            "HKD",
-            "HUF",
-            "ISK",
-            "INR",
-            "IDR",
-            "IQD",
-            "ILS",
-            "JPY",
-            "JOD",
-            "KWD",
-            "LVL",
-            "LBP",
-            "LTL",
-            "MKD",
-            "MYR",
-            "MXN",
-            "MAD",
-            "NZD",
-            "NIO",
-            "NOK",
-            "OMR",
-            "PAB",
-            "PYG",
-            "PEN",
-            "PHP",
-            "PLN",
-            "QAR",
-            "RON",
-            "RUB",
-            "SAR",
-            "RSD",
-            "SGD",
-            "ZAR",
-            "SDG",
-            "SEK",
-            "CHF",
-            "SYP",
-            "TWD",
-            "TND",
-            "TRY",
-            "UAH",
-            "AED",
-            "GBP",
-            "USD",
-            "UYU",
-            "VEF",
-            "VND",
-            "YER"
-          ]
+          "enum": ["ALL", "DZD", "ARS", "AUD", "BHD", "BYR", "BOB", "BAM", "BRL", "CAD", "CLP", "CNY", "COP", "CRC", "HRK", "CZK", "DKK", "DOP", "EGP", "EUR", "GTQ", "HNL", "HKD", "HUF", "ISK", "INR", "IDR", "IQD", "ILS", "JPY", "JOD", "KWD", "LVL", "LBP", "LTL", "MKD", "MYR", "MXN", "MAD", "NZD", "NIO", "NOK", "OMR", "PAB", "PYG", "PEN", "PHP", "PLN", "QAR", "RON", "RUB", "SAR", "RSD", "SGD", "ZAR", "SDG", "SEK", "CHF", "SYP", "TWD", "TND", "TRY", "UAH", "AED", "GBP", "USD", "UYU", "VEF", "VND", "YER"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         },
         "lang": {
           "type": "string",
-          "enum": [
-            "ALB",
-            "ARA",
-            "BEL",
-            "BUL",
-            "CAT",
-            "CHI",
-            "SCR",
-            "CZE",
-            "DAN",
-            "DUT",
-            "ENG",
-            "FIN",
-            "FRE",
-            "GER",
-            "GRE",
-            "HEB",
-            "HIN",
-            "HUN",
-            "IND",
-            "GLE",
-            "ITA",
-            "JPN",
-            "LAV",
-            "LIT",
-            "MAC",
-            "MAY",
-            "MLT",
-            "NOR",
-            "POL",
-            "POR",
-            "RUM",
-            "RUS",
-            "SCC",
-            "SLO",
-            "SPA",
-            "THA",
-            "TUR",
-            "UKR",
-            "VIE"
-          ]
+          "enum": ["ALB", "ARA", "BEL", "BUL", "CAT", "CHI", "SCR", "CZE", "DAN", "DUT", "ENG", "FIN", "FRE", "GER", "GRE", "HEB", "HIN", "HUN", "IND", "GLE", "ITA", "JPN", "LAV", "LIT", "MAC", "MAY", "MLT", "NOR", "POL", "POR", "RUM", "RUS", "SCC", "SLO", "SPA", "THA", "TUR", "UKR", "VIE"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         },
         "region": {
           "type": "string",
-          "enum": [
-            "NCSA",
-            "EU",
-            "EMEA",
-            "APJ"
-          ]
+          "enum": ["NCSA", "EU", "EMEA", "APJ"]
+
+
+
+
+
         },
         "caProvince": {
           "type": "string",
-          "enum": [
-            "AB",
-            "BC",
-            "PE",
-            "MB",
-            "NB",
-            "NS",
-            "NU",
-            "ON",
-            "QC",
-            "SK",
-            "NL",
-            "YT",
-            "NT"
-          ]
+          "enum": ["AB", "BC", "PE", "MB", "NB", "NS", "NU", "ON", "QC", "SK", "NL", "YT", "NT"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         },
         "caRegion": {
           "type": "string",
-          "enum": [
-            "QC",
-            "HQ"
-          ]
+          "enum": ["QC", "HQ"]
+
+
+
+        }
+      }
+    },
+    "MySpr": {
+      "type": "object",
+      "properties": {
+        "Step1": {
+          "type": "number",
+          "format": "double"
+        },
+        "Step2": {
+          "type": "number",
+          "format": "double"
         }
       }
     },
@@ -1171,27 +1036,6 @@
           "type": "number",
           "format": "double"
         }
-      },
-      "xml": {
-        "name": "MySpr2",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
-      }
-    },
-    "MySpr": {
-      "type": "object",
-      "properties": {
-        "Step1": {
-          "type": "number",
-          "format": "double"
-        },
-        "Step2": {
-          "type": "number",
-          "format": "double"
-        }
-      },
-      "xml": {
-        "name": "MySpr",
-        "namespace": "http://spreadsheetresults.generated.openl.org"
       }
     }
   }

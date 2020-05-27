@@ -58,7 +58,7 @@ public class AlgorithmBuilder {
             for (TableParserSpecificationBean specification : algSpecifications) {
                 algorithmOperations.add(specification.getKeyword());
             }
-            String[] algorithmOperationsArray = algorithmOperations.toArray(new String[0]);
+            String[] algorithmOperationsArray = algorithmOperations.toArray(StringUtils.EMPTY_STRING_ARRAY);
             CELL_META_INFO = new CellMetaInfo(
                 new DomainOpenClass("operation",
                     JavaOpenClass.STRING,

@@ -1,10 +1,10 @@
 package org.openl.rules.webstudio.web.repository.project;
 
 import java.io.IOException;
+import org.openl.rules.common.ProjectException;
 
 import org.openl.rules.webstudio.web.repository.upload.AProjectCreator;
 import org.openl.rules.webstudio.web.repository.upload.RulesProjectBuilder;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.IOUtils;
@@ -28,7 +28,7 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
     }
 
     @Override
-    protected RulesProjectBuilder getProjectBuilder() {
+    protected RulesProjectBuilder getProjectBuilder() throws ProjectException {
         RulesProjectBuilder projectBuilder = new RulesProjectBuilder(getUserWorkspace(),
             getProjectName(),
             getProjectFolder(),
@@ -40,13 +40,13 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
                 if (!pathFilter.accept(fileName)) {
                     continue;
                 }
-                try {
-                    if (checkFileSize(file)) {
-                        projectBuilder.addFile(fileName, changeFileIfNeeded(fileName, file.getInput()));
-                    }
-                } catch (Exception e) {
-                    WebStudioUtils.addErrorMessage("Problem with file " + fileName + ". " + e.getMessage());
+
+                if (checkFileSize(file)) {
+                    projectBuilder.addFile(fileName, changeFileIfNeeded(fileName, file.getInput()));
+                } else {
+                    throw new ProjectException("Size of the file " + file.getName() + " is more then 100MB.");
                 }
+
             }
         }
 
@@ -64,11 +64,7 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
     }
 
     private boolean checkFileSize(ProjectFile file) {
-        if (file.getSize() > 100 * 1024 * 1024) {
-            WebStudioUtils.addErrorMessage("Size of the file " + file.getName() + " is more then 100MB.");
-            return false;
-        }
-        return true;
+        return file.getSize() <= 100 * 1024 * 1024;
     }
 
 }

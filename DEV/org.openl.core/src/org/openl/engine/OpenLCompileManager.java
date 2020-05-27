@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import org.openl.CompiledOpenClass;
-import org.openl.ICompileContext;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -24,8 +23,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
-import org.openl.validation.IOpenLValidator;
-import org.openl.validation.ValidationResult;
 
 /**
  * Class that defines OpenL engine manager implementation for compilation operations.
@@ -37,8 +34,6 @@ public class OpenLCompileManager {
     public static final String ADDITIONAL_ERROR_MESSAGES_KEY = "additional-error-messages";
     private static final Pattern ASTERIX_SIGN = Pattern.compile("\\*");
     private static final Pattern QUESTION_SIGN = Pattern.compile("\\?");
-
-    private static ThreadLocal<Boolean> validationEnabled = new ThreadLocal<>(); // Workaroung
     private OpenL openl;
 
     /**
@@ -48,19 +43,6 @@ public class OpenLCompileManager {
      */
     public OpenLCompileManager(OpenL openl) {
         this.openl = openl;
-    }
-
-    public static boolean isValidationEnabled() {
-        Boolean validationIsOn = validationEnabled.get();
-        return validationIsOn == null || validationIsOn;
-    }
-
-    public static void turnOffValidation() {
-        validationEnabled.set(Boolean.FALSE);
-    }
-
-    public static void turnOnValidation() {
-        validationEnabled.remove();
     }
 
     /**
@@ -91,18 +73,7 @@ public class OpenLCompileManager {
             IDependencyManager dependencyManager) {
         ProcessedCode processedCode = getProcessedCode(source, executionMode, dependencyManager, true);
         IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
-        Collection<OpenLMessage> messages = new LinkedHashSet<>();
-        if (!executionMode) {
-            // for WebStudio
-            List<ValidationResult> validationResults = validate(openClass);
-            for (ValidationResult result : validationResults) {
-                messages.addAll(result.getMessages());
-            }
-        }
-
-        messages.addAll(processedCode.getMessages());
-
-        return new CompiledOpenClass(openClass, messages);
+        return new CompiledOpenClass(openClass, processedCode.getMessages());
     }
 
     private ProcessedCode getProcessedCode(IOpenSourceCodeModule source,
@@ -117,39 +88,6 @@ public class OpenLCompileManager {
         }
         processedCode = processSource(source, bindingContext, ignoreErrors, dependencyManager);
         return processedCode;
-    }
-
-    /**
-     * Invokes validation process for each registered validator.
-     *
-     * @param openClass openClass to validate
-     * @return list of validation results
-     */
-    private List<ValidationResult> validate(IOpenClass openClass) {
-        if (OpenLCompileManager.isValidationEnabled()) {
-            List<ValidationResult> results = new ArrayList<>();
-
-            ICompileContext context = openl.getCompileContext();
-
-            // Check that compile context initialized. If context is null or
-            // validation switched off then skip validation process.
-            //
-            if (context != null) {
-
-                Set<IOpenLValidator> validators = context.getValidators();
-
-                for (IOpenLValidator validator : validators) {
-
-                    ValidationResult result = validator.validate(openl, openClass);
-
-                    results.add(result);
-                }
-
-            }
-            return results;
-        } else {
-            return Collections.emptyList();
-        }
     }
 
     private Collection<IDependency> getDependencies(IDependencyManager dependencyManager, IDependency[] dependencies) {

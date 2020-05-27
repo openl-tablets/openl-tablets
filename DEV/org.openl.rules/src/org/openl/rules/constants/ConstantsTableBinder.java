@@ -2,6 +2,7 @@ package org.openl.rules.constants;
 
 import org.openl.OpenL;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -10,7 +11,6 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.utils.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 
@@ -40,7 +40,8 @@ public class ConstantsTableBinder extends AXlsTableBinder {
             String constantsTableName = parsedHeader[CONSTANTS_TABLE_NAME_INDEX].getIdentifier();
             if (TableNameChecker.isInvalidJavaIdentifier(constantsTableName)) {
                 String message = "Constants table " + constantsTableName + TableNameChecker.NAME_ERROR_MESSAGE;
-                throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[CONSTANTS_TABLE_NAME_INDEX]);
+                bindingContext
+                    .addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[CONSTANTS_TABLE_NAME_INDEX]));
             }
         }
         return new ConstantsTableBoundNode(tsn, module, table, openl);

@@ -2,17 +2,14 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "mixins-test",
-    "contact": {
-      "name": "OpenL Tablets team"
-    }
+    "title": "mixins-test"
   },
   "basePath": "/EPBDS-9581/EPBDS-9581",
   "paths": {
     "/proxyCustomer": {
       "post": {
-        "summary": "Method: proxyCustomer(Customer c)",
-        "description": "",
+        "summary": "Customer proxyCustomer(Customer)",
+        "description": "Rules method: org.openl.generated.beans.Customer proxyCustomer(org.openl.generated.beans.Customer c)",
         "operationId": "proxyCustomer",
         "consumes": [
           "application/json"
@@ -51,19 +48,12 @@
         "genderCd": {
           "type": "string",
           "example": "male",
-          "xml": {
-            "name": "gender"
-          },
           "default": "other"
         },
         "dob": {
           "type": "string",
           "format": "date-time"
         }
-      },
-      "xml": {
-        "name": "Customer",
-        "namespace": "http://beans.generated.openl.org"
       }
     }
   }

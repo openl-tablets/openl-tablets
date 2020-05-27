@@ -1,5 +1,0 @@
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-    <soap:Body>
-        <ns1:ping xmlns:ns1="http://DefaultNamespace"/>
-    </soap:Body>
-</soap:Envelope>
