@@ -71,13 +71,14 @@ public abstract class LazyMember<T extends IOpenMember> {
 
     private CompiledOpenClass getCompiledOpenClass() throws Exception {
         final Module module = getModule();
-        CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance().get(getDeployment(), module.getName());
+        DeploymentDescription deployment = getDeployment();
+        CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, module.getName());
         if (compiledOpenClass != null) {
             return compiledOpenClass;
         }
 
         synchronized (getXlsLazyModuleOpenClass()) {
-            compiledOpenClass = CompiledOpenClassCache.getInstance().get(getDeployment(), module.getName());
+            compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, module.getName());
             if (compiledOpenClass != null) {
                 return compiledOpenClass;
             }
@@ -96,12 +97,12 @@ public abstract class LazyMember<T extends IOpenMember> {
                         rulesInstantiationStrategy.setExternalParameters(parameters);
                         compiledOpenClass1 = rulesInstantiationStrategy.compile();
                         CompiledOpenClassCache.getInstance()
-                            .putToCache(getDeployment(), module.getName(), compiledOpenClass1);
+                            .putToCache(deployment, module.getName(), compiledOpenClass1);
                         if (log.isDebugEnabled()) {
                             log.debug(
                                 "CompiledOpenClass for deploymentName='{}', deploymentVersion='{}', dependencyName='{}' was stored to cache.",
-                                getDeployment().getName(),
-                                getDeployment().getVersion().getVersionName(),
+                                deployment.getName(),
+                                deployment.getVersion().getVersionName(),
                                 module.getName());
                         }
                         return compiledOpenClass1;
