@@ -270,7 +270,8 @@
     function uploadProject() {
         document.getElementById('file-input').onchange = function () {
             var fileToUpload = this.files[0];
-            var fileExtension = fileToUpload.name.split('.').pop();
+            var fileNameParts = fileToUpload.name.split('.');
+            var fileExtension = fileNameParts.pop();
             if (fileExtension === "zip" || fileExtension === "jar") {
                 var xhr = new XMLHttpRequest();
                 xhr.onload = function () {
@@ -282,7 +283,7 @@
                     xmlhttp.send();
                 }
                 xhr.on
-                xhr.open("PUT", "admin/deploy/", true);
+                xhr.open("PUT", "admin/deploy/" + fileNameParts.pop(), true);
                 xhr.setRequestHeader("Content-type", "application/zip")
                 xhr.send(fileToUpload);
             } else {
@@ -355,6 +356,7 @@
         html += "<button type='button' onclick='uploadProject()' class='deploy-button'>Deploy</button>";
         return html;
     }
+
     // ]]>
 </script>
 </body>
