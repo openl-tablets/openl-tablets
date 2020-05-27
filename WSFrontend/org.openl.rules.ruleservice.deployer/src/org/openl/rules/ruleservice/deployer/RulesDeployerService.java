@@ -254,7 +254,13 @@ public class RulesDeployerService implements Closeable {
         String projectName = readProjectName(zipEntries.get(RULES_XML), defaultName);
         String apiVersion = readApiVersion(zipEntries.get("rules-deploy.xml"));
 
-        String deploymentName = defaultDeploymentName == null ? projectName : defaultDeploymentName;
+        String deploymentName;
+        if (defaultDeploymentName == null) {
+            deploymentName = projectName;
+            projectName = "Rules";
+        } else {
+            deploymentName = defaultDeploymentName;
+        }
         if (apiVersion != null && !apiVersion.isEmpty()) {
             deploymentName += DeploymentUtils.API_VERSION_SEPARATOR + apiVersion;
         }
@@ -274,10 +280,10 @@ public class RulesDeployerService implements Closeable {
     }
 
     private String readProjectName(byte[] bytes, String defaultName) {
-        if (bytes == null) {
-            return null;
+        String name = null;
+        if (bytes != null) {
+            name = DeploymentUtils.getProjectName(new ByteArrayInputStream(bytes));
         }
-        String name = DeploymentUtils.getProjectName(new ByteArrayInputStream(bytes));
         return name == null || name.isEmpty() ? defaultName : name;
     }
 

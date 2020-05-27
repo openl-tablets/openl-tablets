@@ -74,6 +74,22 @@ public class RulesDeployerRestController {
     }
 
     /**
+     * Redeploys target zip input stream
+     */
+    @PUT
+    @Path("/deploy/{serviceName}")
+    @Consumes("application/zip")
+    public Response redeploy(@PathParam("serviceName") final String serviceName,
+            @Context HttpServletRequest request) throws Exception {
+        try {
+            rulesDeployerService.deploy(serviceName, request.getInputStream(), true);
+            return Response.status(Status.CREATED).build();
+        } catch (RulesDeployInputException e) {
+            return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+    }
+
+    /**
      * Read a file by the given path name.
      *
      * @return the file descriptor.
