@@ -21,12 +21,12 @@ import org.openl.types.java.OpenClassHelper;
  *
  * @author Marat Kamalov
  */
-public abstract class LazyMethod extends LazyMember<IOpenMethod> {
+abstract class LazyMethod extends LazyMember<IOpenMethod> {
     private final String methodName;
     private final Class<?>[] argTypes;
     private final Map<String, Object> dimensionProperties;
 
-    private LazyMethod(IOpenMethod prebindMethod,
+    LazyMethod(IOpenMethod prebindMethod,
             Class<?>[] argTypes,
             RuleServiceDependencyManager dependencyManager,
             ClassLoader classLoader,
@@ -37,41 +37,6 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> {
             .getTableProperties(prebindMethod)
             .getAllDimensionalProperties() : null;
         this.argTypes = argTypes;
-    }
-
-    static LazyMethod createLazyMethod(final IOpenMethod prebindedMethod,
-            final RuleServiceDependencyManager dependencyManager,
-            final DeploymentDescription deployment,
-            final Module module,
-            final ClassLoader classLoader,
-            final Map<String, Object> externalParameters) {
-        Class<?>[] argTypes = new Class<?>[prebindedMethod.getSignature().getNumberOfParameters()];
-        for (int i = 0; i < argTypes.length; i++) {
-            argTypes[i] = prebindedMethod.getSignature().getParameterType(i).getInstanceClass();
-        }
-        final LazyMethod lazyMethod = new LazyMethod(prebindedMethod,
-            argTypes,
-            dependencyManager,
-            classLoader,
-            externalParameters) {
-            @Override
-            public DeploymentDescription getDeployment() {
-                return deployment;
-            }
-
-            @Override
-            public Module getModule() {
-                return module;
-            }
-
-            @Override
-            public XlsLazyModuleOpenClass getXlsLazyModuleOpenClass() {
-                return (XlsLazyModuleOpenClass) prebindedMethod.getDeclaringClass();
-            }
-        };
-        CompiledOpenClassCache.getInstance()
-            .registerEvent(deployment, module.getName(), new LazyMemberEvent(lazyMethod));
-        return lazyMethod;
     }
 
     /**

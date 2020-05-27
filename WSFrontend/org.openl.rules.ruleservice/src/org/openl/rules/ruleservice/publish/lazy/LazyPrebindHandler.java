@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
+import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
@@ -39,18 +40,58 @@ class LazyPrebindHandler implements IPrebindHandler {
     }
 
     @Override
-    public IOpenMethod processPrebindMethod(IOpenMethod method) {
+    public IOpenMethod processPrebindMethod(final IOpenMethod method) {
         final Module module = getModuleForMember(method, modules);
-        LazyMethod lazyMethod = LazyMethod
-            .createLazyMethod(method, dependencyManager, deployment, module, getClassLoader(), parameters);
+        Class<?>[] argTypes = new Class<?>[method.getSignature().getNumberOfParameters()];
+        for (int i = 0; i < argTypes.length; i++) {
+            argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
+        }
+        final LazyMethod lazyMethod = new LazyMethod(method,
+            argTypes,
+            dependencyManager,
+            getClassLoader(),
+            parameters) {
+            @Override
+            public DeploymentDescription getDeployment() {
+                return deployment;
+            }
+
+            @Override
+            public Module getModule() {
+                return module;
+            }
+
+            @Override
+            public XlsLazyModuleOpenClass getXlsLazyModuleOpenClass() {
+                return (XlsLazyModuleOpenClass) method.getDeclaringClass();
+            }
+        };
+        CompiledOpenClassCache.getInstance()
+            .registerEvent(deployment, module.getName(), new LazyMemberEvent(lazyMethod));
         return LazyWrapperLogic.wrapMethod(lazyMethod, method);
     }
 
     @Override
-    public IOpenField processPrebindField(IOpenField field) {
+    public IOpenField processPrebindField(final IOpenField field) {
         final Module module = getModuleForMember(field, modules);
-        final LazyField lazyField = LazyField
-            .createLazyField(field, dependencyManager, deployment, module, getClassLoader(), parameters);
+        final LazyField lazyField = new LazyField(field.getName(), dependencyManager, getClassLoader(), parameters) {
+            @Override
+            public DeploymentDescription getDeployment() {
+                return deployment;
+            }
+
+            @Override
+            public Module getModule() {
+                return module;
+            }
+
+            @Override
+            public XlsLazyModuleOpenClass getXlsLazyModuleOpenClass() {
+                return (XlsLazyModuleOpenClass) field.getDeclaringClass();
+            }
+        };
+        CompiledOpenClassCache.getInstance()
+            .registerEvent(deployment, module.getName(), new LazyMemberEvent(lazyField));
         return LazyWrapperLogic.wrapField(lazyField, field);
     }
 

@@ -15,46 +15,16 @@ import org.openl.types.IOpenField;
  *
  * @author Marat Kamalov
  */
-public abstract class LazyField extends LazyMember<IOpenField> {
+abstract class LazyField extends LazyMember<IOpenField> {
 
     private final String fieldName;
 
-    private LazyField(String fieldName,
+    LazyField(String fieldName,
             RuleServiceDependencyManager dependencyManager,
             ClassLoader classLoader,
             Map<String, Object> externalParameters) {
         super(dependencyManager, classLoader, externalParameters);
         this.fieldName = fieldName;
-    }
-
-    static LazyField createLazyField(final IOpenField prebindedMethod,
-                                     final RuleServiceDependencyManager dependencyManager,
-                                     final DeploymentDescription deployment,
-                                     final Module module,
-                                     final ClassLoader classLoader,
-                                     final Map<String, Object> externalParameters) {
-        final LazyField lazyField = new LazyField(prebindedMethod.getName(),
-            dependencyManager,
-            classLoader,
-            externalParameters) {
-            @Override
-            public DeploymentDescription getDeployment() {
-                return deployment;
-            }
-
-            @Override
-            public Module getModule() {
-                return module;
-            }
-
-            @Override
-            public XlsLazyModuleOpenClass getXlsLazyModuleOpenClass() {
-                return (XlsLazyModuleOpenClass) prebindedMethod.getDeclaringClass();
-            }
-        };
-        CompiledOpenClassCache.getInstance()
-            .registerEvent(deployment, module.getName(), new LazyMemberEvent(lazyField));
-        return lazyField;
     }
 
     @Override
