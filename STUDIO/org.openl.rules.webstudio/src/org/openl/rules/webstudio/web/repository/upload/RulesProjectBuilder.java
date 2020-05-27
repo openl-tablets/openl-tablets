@@ -88,7 +88,6 @@ public class RulesProjectBuilder {
 
             synchronized (workspace) {
                 project.close();
-                project.erase(workspace.getUser(), comment);
             }
         } catch (ProjectException e) {
             log.error("Failed to cancel new project", e);
