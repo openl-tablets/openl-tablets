@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
-import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
@@ -29,7 +28,6 @@ public abstract class LazyMember<T extends IOpenMember> {
     private final Logger log = LoggerFactory.getLogger(LazyMember.class);
 
     private final RuleServiceDependencyManager dependencyManager;
-    private final Map<String, Object> externalParameters;
 
     /**
      * ClassLoader used in "lazy" compilation. It should be reused because it contains generated classes for
@@ -40,11 +38,9 @@ public abstract class LazyMember<T extends IOpenMember> {
     private volatile T cachedMember;
 
     LazyMember(RuleServiceDependencyManager dependencyManager,
-               ClassLoader classLoader,
-               Map<String, Object> externalParameters) {
+               ClassLoader classLoader) {
         this.dependencyManager = dependencyManager;
         this.classLoader = classLoader;
-        this.externalParameters = externalParameters;
     }
 
     protected abstract T initMember();
@@ -89,7 +85,7 @@ public abstract class LazyMember<T extends IOpenMember> {
                     try {
                         LazyBinderMethodHandler.removePrebindHandler();
                         RulesInstantiationStrategy rulesInstantiationStrategy = RulesInstantiationStrategyFactory
-                            .getStrategy(module, true, getDependencyManager(), getClassLoader());
+                            .getStrategy(module, true, dependencyManager, classLoader);
                         rulesInstantiationStrategy.setServiceClass(EmptyInterface.class);// Prevent
                         Map<String, Object> parameters = ProjectExternalDependenciesHelper
                             .getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
@@ -134,24 +130,6 @@ public abstract class LazyMember<T extends IOpenMember> {
      * @return Deployment containing current module.
      */
     public abstract DeploymentDescription getDeployment();
-
-    /**
-     * @return DependencyManager used for lazy compiling.
-     */
-    protected IDependencyManager getDependencyManager() {
-        return dependencyManager;
-    }
-
-    /**
-     * @return ClassLoader used for lazy compiling.
-     */
-    public ClassLoader getClassLoader() {
-        return classLoader;
-    }
-
-    public Map<String, Object> getExternalParameters() {
-        return externalParameters;
-    }
 
     interface EmptyInterface {
     }

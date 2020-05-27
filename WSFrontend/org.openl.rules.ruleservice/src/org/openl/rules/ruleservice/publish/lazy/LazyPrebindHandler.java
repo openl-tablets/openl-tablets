@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.publish.lazy;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.Map;
 
 import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
@@ -26,18 +25,15 @@ class LazyPrebindHandler implements IPrebindHandler {
     private final Collection<Module> modules;
     private final RuleServiceDependencyManager dependencyManager;
     private final ClassLoader classLoader;
-    private final Map<String, Object> parameters;
     private final DeploymentDescription deployment;
 
     LazyPrebindHandler(Collection<Module> modules,
-            RuleServiceDependencyManager dependencyManager,
-            ClassLoader classLoader,
-            Map<String, Object> parameters,
-            DeploymentDescription deployment) {
+                       RuleServiceDependencyManager dependencyManager,
+                       ClassLoader classLoader,
+                       DeploymentDescription deployment) {
         this.modules = modules;
         this.dependencyManager = dependencyManager;
         this.classLoader = classLoader;
-        this.parameters = parameters;
         this.deployment = deployment;
     }
 
@@ -51,8 +47,8 @@ class LazyPrebindHandler implements IPrebindHandler {
         final LazyMethod lazyMethod = new LazyMethod(method,
             argTypes,
             dependencyManager,
-            getClassLoader(),
-            parameters) {
+            getClassLoader()
+        ) {
             @Override
             public DeploymentDescription getDeployment() {
                 return deployment;
@@ -76,7 +72,7 @@ class LazyPrebindHandler implements IPrebindHandler {
     @Override
     public IOpenField processPrebindField(final IOpenField field) {
         final Module module = getModuleForMember(field, modules);
-        final LazyMember<IOpenField> lazyField = new LazyMember<IOpenField>(dependencyManager, getClassLoader(), parameters) {
+        final LazyMember<IOpenField> lazyField = new LazyMember<IOpenField>(dependencyManager, getClassLoader()) {
 
             protected IOpenField initMember() {
                 try {

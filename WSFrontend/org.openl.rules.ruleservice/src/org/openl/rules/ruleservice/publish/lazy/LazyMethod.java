@@ -24,11 +24,10 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> {
     private final Map<String, Object> dimensionProperties;
 
     LazyMethod(IOpenMethod prebindMethod,
-            Class<?>[] argTypes,
-            RuleServiceDependencyManager dependencyManager,
-            ClassLoader classLoader,
-            Map<String, Object> externalParameters) {
-        super(dependencyManager, classLoader, externalParameters);
+               Class<?>[] argTypes,
+               RuleServiceDependencyManager dependencyManager,
+               ClassLoader classLoader) {
+        super(dependencyManager, classLoader);
         this.methodName = prebindMethod.getName();
         this.dimensionProperties = (prebindMethod instanceof ITableProperties) ? PropertiesHelper
             .getTableProperties(prebindMethod)

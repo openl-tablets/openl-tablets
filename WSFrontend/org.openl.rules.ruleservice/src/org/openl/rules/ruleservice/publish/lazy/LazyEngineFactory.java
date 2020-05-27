@@ -145,7 +145,7 @@ class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         // put prebinder to openl
         IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
         try {
-            LazyBinderMethodHandler.setPrebindHandler(new LazyPrebindHandler(modules, dependencyManager, null, externalParameters, deployment));
+            LazyBinderMethodHandler.setPrebindHandler(new LazyPrebindHandler(modules, dependencyManager, null, deployment));
 
             IOpenSourceCodeModule mainModule = createMainModule();
             RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(mainModule,

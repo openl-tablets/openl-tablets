@@ -121,7 +121,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         rulesInstantiationStrategy.setExternalParameters(parameters);
         IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
         try {
-            LazyBinderMethodHandler.setPrebindHandler(new LazyPrebindHandler(modules, dependencyManager, classLoader, parameters, deployment));
+            LazyBinderMethodHandler.setPrebindHandler(new LazyPrebindHandler(modules, dependencyManager, classLoader, deployment));
             try {
                 dependencyManager.compilationBegin(this);
                 lazyCompiledOpenClass = rulesInstantiationStrategy.compile();
