@@ -68,19 +68,7 @@ class LazyPrebindHandler implements IPrebindHandler {
                     openMethod = OpenClassHelper
                         .findRulesMethod(compiledOpenClass.getOpenClass(), method.getName(), argTypes);
                     if (openMethod instanceof OpenMethodDispatcher && dimensionProperties != null) {
-                        OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) openMethod;
-                        for (IOpenMethod candidate : openMethodDispatcher.getCandidates()) {
-                            if (candidate instanceof ITableProperties) {
-                                Map<String, Object> candidateDimensionProperties = PropertiesHelper
-                                    .getTableProperties(candidate)
-                                    .getAllDimensionalProperties();
-                                if (DimensionPropertiesMethodKey.compareMethodDimensionProperties(dimensionProperties,
-                                    candidateDimensionProperties)) {
-                                    openMethod = candidate;
-                                    break;
-                                }
-                            }
-                        }
+                        openMethod = findCandidateMethod((OpenMethodDispatcher) openMethod, dimensionProperties);
                     }
                 } catch (Exception e) {
                     throw new RuleServiceOpenLCompilationException("Failed to load lazy method.", e);
@@ -92,6 +80,20 @@ class LazyPrebindHandler implements IPrebindHandler {
         CompiledOpenClassCache.getInstance()
             .registerEvent(deployment, module.getName(), new LazyMemberEvent(lazyMethod));
         return LazyWrapperLogic.wrapMethod(lazyMethod, method);
+    }
+
+    private IOpenMethod findCandidateMethod(OpenMethodDispatcher openMethod, Map<String, Object> dimensionProperties) {
+        for (IOpenMethod candidate : openMethod.getCandidates()) {
+            if (candidate instanceof ITableProperties) {
+                Map<String, Object> candidateDimensionProperties = PropertiesHelper.getTableProperties(candidate)
+                    .getAllDimensionalProperties();
+                if (DimensionPropertiesMethodKey.compareMethodDimensionProperties(dimensionProperties,
+                    candidateDimensionProperties)) {
+                    return candidate;
+                }
+            }
+        }
+        return openMethod;
     }
 
     @Override
