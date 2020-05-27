@@ -5,12 +5,14 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
 
+import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
+import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
 import org.openl.rules.ruleservice.publish.lazy.wrapper.LazyWrapperLogic;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
@@ -74,7 +76,17 @@ class LazyPrebindHandler implements IPrebindHandler {
     @Override
     public IOpenField processPrebindField(final IOpenField field) {
         final Module module = getModuleForMember(field, modules);
-        final LazyField lazyField = new LazyField(field.getName(), dependencyManager, getClassLoader(), parameters) {
+        final LazyMember<IOpenField> lazyField = new LazyMember<IOpenField>(dependencyManager, getClassLoader(), parameters) {
+
+            protected IOpenField initMember() {
+                try {
+                    CompiledOpenClass compiledOpenClass = getCompiledOpenClassWithThrowErrorExceptionsIfAny();
+                    return compiledOpenClass.getOpenClass().getField(field.getName());
+                } catch (Exception e) {
+                    throw new RuleServiceOpenLCompilationException("Failed to load a lazy field.", e);
+                }
+            }
+
             @Override
             public DeploymentDescription getDeployment() {
                 return deployment;

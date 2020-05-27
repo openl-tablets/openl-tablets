@@ -7,8 +7,7 @@ import org.openl.rules.data.DataOpenField;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.property.PropertiesOpenField;
-import org.openl.rules.ruleservice.publish.lazy.LazyField;
-import org.openl.rules.ruleservice.publish.lazy.LazyMethod;
+import org.openl.rules.ruleservice.publish.lazy.LazyMember;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.testmethod.TestSuiteMethod;
@@ -21,7 +20,7 @@ public final class LazyWrapperLogic {
     private LazyWrapperLogic() {
     }
 
-    public static IOpenMethod wrapMethod(LazyMethod lazyMethod, IOpenMethod openMethod) {
+    public static IOpenMethod wrapMethod(LazyMember<IOpenMethod> lazyMethod, IOpenMethod openMethod) {
         if (openMethod instanceof TestSuiteMethod) {
             return openMethod;
         }
@@ -53,7 +52,7 @@ public final class LazyWrapperLogic {
             String.format("Unsupported method type '%s' for lazy enhancing", openMethod.getClass().getTypeName()));
     }
 
-    public static IOpenField wrapField(LazyField lazyField, IOpenField field) {
+    public static IOpenField wrapField(LazyMember<IOpenField> lazyField, IOpenField field) {
         if (field instanceof ConstantOpenField) {
             return field;
         }
