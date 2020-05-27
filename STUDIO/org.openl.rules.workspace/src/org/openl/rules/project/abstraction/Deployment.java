@@ -129,7 +129,7 @@ public class Deployment extends AProjectFolder {
         // add new
         for (AProject otherProject : other.getProjects()) {
             String name = otherProject.getName();
-            if (!hasArtefact(name)) {
+            if (!otherProject.isDeleted() && !hasArtefact(name)) {
                 AProject newProject = new AProject(getRepository(), getFolderPath() + "/" + name);
                 newProject.overrideFolderStructure(folderStructure);
                 newProject.update(otherProject, user);
