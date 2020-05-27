@@ -160,28 +160,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
             if (compiledOpenClass != null) {
                 return;
             }
-            IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
-            try {
-                LazyBinderMethodHandler.removePrebindHandler();
-                RulesInstantiationStrategy rulesInstantiationStrategy = RulesInstantiationStrategyFactory
-                    .getStrategy(module, true, dependencyManager, classLoader);
-                rulesInstantiationStrategy.setServiceClass(EmptyInterface.class);
-                Map<String, Object> parameters = ProjectExternalDependenciesHelper
-                    .getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
-                        Collections.singleton(module));
-                rulesInstantiationStrategy.setExternalParameters(parameters);
-                compiledOpenClass = rulesInstantiationStrategy.compile();
-                CompiledOpenClassCache.getInstance().putToCache(deployment, dependencyName, compiledOpenClass);
-                log.debug("Compiled lazy dependency (deployment='{}', version='{}', name='{}') is saved in cache.",
-                    deployment.getName(),
-                    deployment.getVersion().getVersionName(),
-                    dependencyName);
-            } catch (Exception ex) {
-                throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependencyName),
-                    ex);
-            } finally {
-                LazyBinderMethodHandler.setPrebindHandler(prebindHandler);
-            }
+            CompiledOpenClassCache.compile(dependencyManager, dependencyName, deployment, module, classLoader);
         }
     }
 
