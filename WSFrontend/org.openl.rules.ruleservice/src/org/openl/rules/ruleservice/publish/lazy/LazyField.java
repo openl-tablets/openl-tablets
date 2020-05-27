@@ -3,9 +3,6 @@ package org.openl.rules.ruleservice.publish.lazy;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
-import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
-import org.openl.rules.project.model.Module;
-import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
 import org.openl.types.IOpenField;
@@ -15,7 +12,7 @@ import org.openl.types.IOpenField;
  *
  * @author Marat Kamalov
  */
-abstract class LazyField extends LazyMember<IOpenField> {
+public abstract class LazyField extends LazyMember<IOpenField> {
 
     private final String fieldName;
 
@@ -27,17 +24,10 @@ abstract class LazyField extends LazyMember<IOpenField> {
         this.fieldName = fieldName;
     }
 
-    @Override
-    public IOpenField getMember() {
-        IOpenField cachedMember = getCachedMember();
-        if (cachedMember != null) {
-            return cachedMember;
-        }
+    protected IOpenField initMember() {
         try {
             CompiledOpenClass compiledOpenClass = getCompiledOpenClassWithThrowErrorExceptionsIfAny();
-            IOpenField openField = compiledOpenClass.getOpenClass().getField(fieldName);
-            setCachedMember(openField);
-            return openField;
+            return compiledOpenClass.getOpenClass().getField(fieldName);
         } catch (Exception e) {
             throw new RuleServiceOpenLCompilationException("Failed to load a lazy field.", e);
         }

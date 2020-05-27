@@ -47,14 +47,14 @@ public abstract class LazyMember<T extends IOpenMember> {
         this.externalParameters = externalParameters;
     }
 
-    protected abstract T getMember();
+    protected abstract T initMember();
 
-    T getCachedMember() {
+    public T getMember() {
+        if (cachedMember != null) {
+            return cachedMember;
+        }
+        cachedMember = initMember();
         return cachedMember;
-    }
-
-    void setCachedMember(T member) {
-        cachedMember = member;
     }
 
     void clearCachedMember() {
