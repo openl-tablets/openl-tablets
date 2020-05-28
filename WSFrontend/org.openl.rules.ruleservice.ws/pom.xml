@@ -111,6 +111,12 @@
         </plugins>
     </build>
     <dependencies>
+        <!--added for fix problem Ruleservice failure on Jboss 7.1 and JBoss 7.2-->
+        <dependency>
+            <groupId>org.reactivestreams</groupId>
+            <artifactId>reactive-streams</artifactId>
+            <version>1.0.1</version>
+        </dependency>
         <!-- CORE -->
         <dependency>
             <groupId>org.openl.rules</groupId>
