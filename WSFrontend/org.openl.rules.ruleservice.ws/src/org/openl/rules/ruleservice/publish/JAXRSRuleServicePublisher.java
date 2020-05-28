@@ -9,8 +9,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import javax.servlet.ServletContext;
-
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
@@ -43,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.context.ServletContextAware;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
@@ -53,7 +50,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
  *
  * @author Nail Samatov, Marat Kamalov
  */
-public class JAXRSRuleServicePublisher implements RuleServicePublisher, ServletContextAware {
+public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     public static final String REST_PREFIX = "REST/";
 
     private final Logger log = LoggerFactory.getLogger(JAXRSRuleServicePublisher.class);
@@ -63,12 +60,10 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, ServletC
 
     private boolean storeLogDataEnabled = false;
     private boolean swaggerPrettyPrint = false;
-    private ServletContext servletContext;
 
-    @Override
-    public void setServletContext(ServletContext servletContext) {
-        this.servletContext = servletContext;
-    }
+    // false is for testing purposes, see org.openl.rules.ruleservice.servlet.SpringInitializer
+    @Autowired(required = false)
+    private String servletContextPath;
 
     @Autowired
     private ObjectFactory<JAXRSOpenLServiceEnhancer> serviceEnhancerObjectFactory;
@@ -187,8 +182,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, ServletC
             }
 
             JAXRSOpenLServiceEnhancer jaxrsOpenLServiceEnhancer = getServiceEnhancerObjectFactory().getObject();
-            Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service,
-                servletContext.getContextPath() + url);
+            Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service, servletContextPath + url);
             // The first one is a decorated interface
             Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0];
 
