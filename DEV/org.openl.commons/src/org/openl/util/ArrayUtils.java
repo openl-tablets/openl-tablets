@@ -42,6 +42,9 @@ public final class ArrayUtils {
      * @return transformed array if it's possible to convert
      */
     public static Object repackArray(Object o, Class<?> expectedClass) {
+        if (o == null) {
+            return null;
+        }
         Class<?> returnType = o.getClass();
         int dim1 = 0;
         while (returnType.isArray()) {

@@ -59,7 +59,7 @@ public class OpenApiSupportConverter implements ModelConverter {
             Schema<?> returnedSchema,
             ModelConverterContext context) {
         Schema<?> schema = returnedSchema;
-        if (schema.getName() == null) {
+        if (schema != null && schema.getName() == null) {
             schema = context.resolve(annotatedType);
         }
         if (schema != null) {
