@@ -62,6 +62,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     private final Logger log = LoggerFactory.getLogger(RepositoryTreeState.class);
     private static IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<>();
 
+    private RepositorySelectNodeStateHolder.SelectionHolder selectionHolder;
     /**
      * Root node for RichFaces's tree. It is not displayed.
      */
@@ -385,11 +386,13 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public void setSelectedNode(TreeNode selectedNode) {
-        repositorySelectNodeStateHolder.setSelectedNode(selectedNode);
+        selectionHolder.setSelectedNode(selectedNode);
     }
 
     @PostConstruct
-    public void initUserWorkspace() {
+    public void init() {
+        selectionHolder = repositorySelectNodeStateHolder.getSelectionHolder();
+
         this.userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
         userWorkspace.getDesignTimeRepository().addListener(this);
     }
@@ -405,7 +408,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public void onRepositoryModified() {
         synchronized (lock) {
             // We must not refresh the table when getting selected node.
-            TreeNode selectedNode = repositorySelectNodeStateHolder.getSelectedNode();
+            TreeNode selectedNode = selectionHolder.getSelectedNode();
             AProjectArtefact artefact = selectedNode == null ? null : selectedNode.getData();
             if (artefact != null) {
                 AProject project = artefact instanceof UserWorkspaceProject ? (UserWorkspaceProject) artefact
