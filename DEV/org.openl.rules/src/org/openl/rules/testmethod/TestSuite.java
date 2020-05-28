@@ -64,12 +64,15 @@ public class TestSuite implements INamedThing {
         final CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
         final ITestUnit[] testUnitResultsArray = new ITestUnit[getNumberOfTests()];
 
-        IOpenMethod testedMethod = getTestSuiteMethod().getTestedMethod();
-        if (testedMethod instanceof ExecutableRulesMethod) {
-            TableSyntaxNode syntaxNode = ((ExecutableRulesMethod) testedMethod).getSyntaxNode();
-            if (syntaxNode.getErrors().length > 0) {
-                testUnitResults.setTestedRulesHaveErrors(true);
-                return testUnitResults;
+        TestSuiteMethod testSuiteMethod = getTestSuiteMethod();
+        if (testSuiteMethod != null) {
+            IOpenMethod testedMethod = testSuiteMethod.getTestedMethod();
+            if (testSuiteMethod.getTestedMethod() instanceof ExecutableRulesMethod) {
+                TableSyntaxNode syntaxNode = ((ExecutableRulesMethod) testedMethod).getSyntaxNode();
+                if (syntaxNode.getErrors().length > 0) {
+                    testUnitResults.setTestedRulesHaveErrors(true);
+                    return testUnitResults;
+                }
             }
         }
 
