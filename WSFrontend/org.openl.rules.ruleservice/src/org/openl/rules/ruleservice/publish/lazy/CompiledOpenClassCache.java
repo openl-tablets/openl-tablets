@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.publish.lazy;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -14,7 +15,16 @@ import org.ehcache.event.EventFiring;
 import org.ehcache.event.EventOrdering;
 import org.ehcache.event.EventType;
 import org.openl.CompiledOpenClass;
+import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.lang.xls.prebind.IPrebindHandler;
+import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
+import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Caches compiled modules. Uses EhCache. This is singleton and thread safe implementation.
@@ -23,8 +33,10 @@ import org.openl.rules.ruleservice.core.DeploymentDescription;
  */
 public final class CompiledOpenClassCache {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CompiledOpenClassCache.class);
+
     private static class CompiledOpenClassHolder {
-        public static final CompiledOpenClassCache INSTANCE = new CompiledOpenClassCache();
+        static final CompiledOpenClassCache INSTANCE = new CompiledOpenClassCache();
     }
 
     private CompiledOpenClassCache() {
@@ -62,19 +74,43 @@ public final class CompiledOpenClassCache {
         return cache.get(key);
     }
 
-    public void putToCache(DeploymentDescription deploymentDescription,
-            String dependencyName,
-            CompiledOpenClass compiledOpenClass) {
-        Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
+    static CompiledOpenClass compileToCache(RuleServiceDependencyManager dependencyManager,
+                                            String dependencyName,
+                                            DeploymentDescription deployment,
+                                            Module module,
+                                            ClassLoader classLoader) throws OpenLCompilationException {
+        Objects.requireNonNull(deployment, "deploymentDescription cannot be null");
         Objects.requireNonNull(dependencyName, "dependencyName cannot be null");
-        Key key = new Key(deploymentDescription, dependencyName);
-        Cache<Key, CompiledOpenClass> cache = OpenLEhCache.getInstance().getModulesCache();
-        cache.put(key, compiledOpenClass);
+        IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
+        try {
+            LazyBinderMethodHandler.removePrebindHandler();
+            RulesInstantiationStrategy rulesInstantiationStrategy = RulesInstantiationStrategyFactory
+                .getStrategy(module, true, dependencyManager, classLoader);
+            rulesInstantiationStrategy.setServiceClass(EmptyInterface.class);
+            Map<String, Object> parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(
+                dependencyManager.getExternalParameters(),
+                Collections.singleton(module));
+            rulesInstantiationStrategy.setExternalParameters(parameters);
+            CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
+
+            Key key = new Key(deployment, dependencyName);
+            Cache<Key, CompiledOpenClass> cache = OpenLEhCache.getInstance().getModulesCache();
+            cache.put(key, compiledOpenClass);
+            LOG.debug("Compiled lazy dependency (deployment='{}', version='{}', name='{}') is saved in cache.",
+                deployment.getName(),
+                deployment.getVersion().getVersionName(),
+                dependencyName);
+            return compiledOpenClass;
+        } catch (Exception ex) {
+            throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependencyName), ex);
+        } finally {
+            LazyBinderMethodHandler.setPrebindHandler(prebindHandler);
+        }
     }
 
     private final Map<Key, Collection<Event>> eventsMap = new HashMap<>();
 
-    public void registerEvent(DeploymentDescription deploymentDescription, String dependencyName, Event event) {
+    void registerEvent(DeploymentDescription deploymentDescription, String dependencyName, Event event) {
         Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
         Objects.requireNonNull(dependencyName, "dependencyName cannot be null");
         Key key = new Key(deploymentDescription, dependencyName);

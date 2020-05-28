@@ -16,6 +16,9 @@ public class NodeVersionsBean {
     @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
 
+    @ManagedProperty(value = "#{repositoryTreeController}")
+    private RepositoryTreeController repositoryTreeController;
+
     private TreeNode nodeToView;
 
     public TreeNode getNodeToView() {
@@ -28,9 +31,14 @@ public class NodeVersionsBean {
 
     public void updateNodeToView() {
         this.nodeToView = repositoryTreeState.getSelectedNode();
+        repositoryTreeController.setVersion(null);
     }
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
+    }
+
+    public void setRepositoryTreeController(RepositoryTreeController repositoryTreeController) {
+        this.repositoryTreeController = repositoryTreeController;
     }
 }

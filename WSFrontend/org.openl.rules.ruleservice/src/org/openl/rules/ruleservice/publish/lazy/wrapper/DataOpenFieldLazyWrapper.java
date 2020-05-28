@@ -5,9 +5,10 @@ import java.util.Objects;
 import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.binding.wrapper.base.WrapperValidation;
-import org.openl.rules.ruleservice.publish.lazy.LazyField;
+import org.openl.rules.ruleservice.publish.lazy.LazyMember;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
 public final class DataOpenFieldLazyWrapper extends DataOpenField {
@@ -17,9 +18,9 @@ public final class DataOpenFieldLazyWrapper extends DataOpenField {
     }
 
     private final DataOpenField delegate;
-    private final LazyField lazyField;
+    private final LazyMember<IOpenField> lazyField;
 
-    public DataOpenFieldLazyWrapper(LazyField lazyField, DataOpenField delegate) {
+    DataOpenFieldLazyWrapper(LazyMember<IOpenField> lazyField, DataOpenField delegate) {
         super();
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
         this.lazyField = Objects.requireNonNull(lazyField, "lazyField cannot be null");

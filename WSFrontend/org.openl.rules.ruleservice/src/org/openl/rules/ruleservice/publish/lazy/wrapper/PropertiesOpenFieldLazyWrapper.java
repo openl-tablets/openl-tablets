@@ -4,10 +4,11 @@ import java.util.Objects;
 
 import org.openl.rules.lang.xls.binding.wrapper.base.WrapperValidation;
 import org.openl.rules.property.PropertiesOpenField;
-import org.openl.rules.ruleservice.publish.lazy.LazyField;
+import org.openl.rules.ruleservice.publish.lazy.LazyMember;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
 public final class PropertiesOpenFieldLazyWrapper extends PropertiesOpenField {
@@ -17,9 +18,9 @@ public final class PropertiesOpenFieldLazyWrapper extends PropertiesOpenField {
     }
 
     private final PropertiesOpenField delegate;
-    private final LazyField lazyField;
+    private final LazyMember<IOpenField> lazyField;
 
-    public PropertiesOpenFieldLazyWrapper(LazyField lazyField, PropertiesOpenField delegate) {
+    PropertiesOpenFieldLazyWrapper(LazyMember<IOpenField> lazyField, PropertiesOpenField delegate) {
         super(null, delegate.getPropertiesInstance(), null);
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
         this.lazyField = Objects.requireNonNull(lazyField, "lazyField cannot be null");

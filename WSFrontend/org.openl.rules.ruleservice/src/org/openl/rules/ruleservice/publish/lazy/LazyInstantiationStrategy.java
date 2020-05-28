@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
@@ -13,8 +12,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Prebinds openclass and creates LazyMethod and LazyField that will compile neccessary modules on demand.
@@ -22,8 +19,6 @@ import org.slf4j.LoggerFactory;
  * @author pudalau, Marat Kamalov
  */
 public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy {
-
-    private final Logger log = LoggerFactory.getLogger(LazyInstantiationStrategy.class);
 
     private LazyEngineFactory<?> engineFactory;
     private final DeploymentDescription deployment;
@@ -33,25 +28,13 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
     }
 
     public LazyInstantiationStrategy(DeploymentDescription deployment,
-            final Module module,
-            RuleServiceDependencyManager dependencyManager) {
-        super(new ArrayList<Module>() {
-            private static final long serialVersionUID = 1L;
-            {
-                add(module);
-            }
-        }, dependencyManager, true);
-        this.deployment = Objects.requireNonNull(deployment, "deployment cannot be null");
-    }
-
-    public LazyInstantiationStrategy(DeploymentDescription deployment,
             Collection<Module> modules,
             RuleServiceDependencyManager dependencyManager) {
         super(modules, dependencyManager, true);
         this.deployment = Objects.requireNonNull(deployment, "deployment cannot be null");
     }
 
-    public LazyInstantiationStrategy(DeploymentDescription deployment,
+    LazyInstantiationStrategy(DeploymentDescription deployment,
             Collection<Module> modules,
             RuleServiceDependencyManager dependencyManager,
             ClassLoader classLoader) {
@@ -68,7 +51,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
     private ClassLoader classLoader = null;
 
     @Override
-    protected ClassLoader initClassLoader() throws RulesInstantiationException {// Required for lazy
+    protected ClassLoader initClassLoader() {// Required for lazy
         if (classLoader == null) {
             ClassLoader simpleBundleClassLoader = new OpenLBundleClassLoader(
                 Thread.currentThread().getContextClassLoader());

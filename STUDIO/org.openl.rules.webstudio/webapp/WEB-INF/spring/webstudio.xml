@@ -7,6 +7,7 @@
 
     <bean id="versionProperties" class="org.openl.info.OpenLVersion" />
     <bean id="props" class="org.openl.rules.webstudio.web.Props"/>
+    <bean class="org.openl.rules.webstudio.Migrator" init-method="migrate" depends-on="props"/>
 
     <!-- Either webstudio-true.xml or webstudio-false.xml. -->
     <import resource="webstudio-${webstudio.configured}.xml" />

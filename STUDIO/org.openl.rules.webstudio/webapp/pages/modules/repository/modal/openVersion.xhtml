@@ -45,7 +45,7 @@
         <input type="button" value="Cancel" onclick="RichFaces.$('modalOpenVersion').hide();" />
       </footer>
       <a4j:jsFunction name="renderOpenVersionDialog" action="#{repositoryTreeController.selectCurrentProjectForOpen('')}"
-                      render="openVersionForm" oncomplete="showOpenVersionDialog()"/>
+                      render="modalOpenVersionData" oncomplete="showOpenVersionDialog()"/>
     </h:form>
 
   </rich:popupPanel>

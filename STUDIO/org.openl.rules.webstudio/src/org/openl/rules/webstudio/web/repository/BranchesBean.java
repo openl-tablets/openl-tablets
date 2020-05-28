@@ -115,6 +115,13 @@ public class BranchesBean {
                 showErrorMessage("Can't merge the branch '" + branchToMergeFrom + "' to itself.");
                 return;
             }
+            // in case when UI check will not be fired
+            if (isProjectLockedInBranch(currentProjectName, branchToMergeTo)) {
+                showErrorMessage(
+                    "The project is currently in editing in " + branchToMergeTo + " branch and merge can't be done .");
+                return;
+            }
+
             RulesProject project = getProject(currentProjectName);
             if (project != null) {
                 Repository designRepository = project.getDesignRepository();
@@ -173,6 +180,10 @@ public class BranchesBean {
 
     public boolean isMergedOrLocked() {
         return isYourBranchMerged() || isProjectLockedInAnotherBranch();
+    }
+
+    public boolean isLocked() {
+        return isProjectLockedInAnotherBranch();
     }
 
     public void setWasMerged(boolean wasMerged) {

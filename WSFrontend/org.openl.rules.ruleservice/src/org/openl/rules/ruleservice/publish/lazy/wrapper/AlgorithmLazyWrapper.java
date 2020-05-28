@@ -4,15 +4,15 @@ import java.util.Objects;
 
 import org.openl.rules.lang.xls.binding.wrapper.base.AbstractAlgorithmWrapper;
 import org.openl.rules.lang.xls.prebind.ILazyMethod;
-import org.openl.rules.ruleservice.publish.lazy.LazyMethod;
+import org.openl.rules.ruleservice.publish.lazy.LazyMember;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 public final class AlgorithmLazyWrapper extends AbstractAlgorithmWrapper implements ILazyMethod {
-    private final LazyMethod lazyMethod;
+    private final LazyMember<IOpenMethod> lazyMethod;
 
-    public AlgorithmLazyWrapper(LazyMethod lazyMethod, Algorithm delegate) {
+    AlgorithmLazyWrapper(LazyMember<IOpenMethod> lazyMethod, Algorithm delegate) {
         super(delegate);
         this.lazyMethod = Objects.requireNonNull(lazyMethod, "lazyMethod cannot be null");
     }

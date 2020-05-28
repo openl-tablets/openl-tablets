@@ -308,7 +308,7 @@ public class DataTableBindHelper {
         ILogicalTable resultTable = null;
 
         if (tableBody != null) {
-            if (isHorizontalTable(tableBody, tableType)) {
+            if (tableBody.getWidth() == 1 || isHorizontalTable(tableBody, tableType)) {
                 resultTable = tableBody;
             } else {
                 resultTable = tableBody.transpose();

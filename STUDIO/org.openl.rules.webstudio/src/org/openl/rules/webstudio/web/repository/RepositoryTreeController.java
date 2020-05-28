@@ -1883,7 +1883,6 @@ public class RepositoryTreeController {
     public boolean isCurrentProjectSelected() {
         if (currentProject != getSelectedProject()) {
             currentProject = null;
-            version = null;
             return false;
         }
         return currentProject != null;
