@@ -19,10 +19,10 @@ public class ExceptionResponseDto {
 
     private String message;
     private int statusCode;
-    private String type;
+    private ExceptionType type;
     private String detail;
 
-    private ExceptionResponseDto(String message, int statusCode, String type, String detail) {
+    private ExceptionResponseDto(String message, int statusCode, ExceptionType type, String detail) {
         this.message = message;
         this.statusCode = statusCode;
         this.type = type;
@@ -37,7 +37,7 @@ public class ExceptionResponseDto {
         return statusCode;
     }
 
-    public String getType() {
+    public ExceptionType getType() {
         return type;
     }
 
@@ -79,7 +79,7 @@ public class ExceptionResponseDto {
             }
         }
 
-        return new ExceptionResponseDto(message, status, type.toString(), detail);
+        return new ExceptionResponseDto(message, status, type, detail);
     }
 
     private static boolean isUserErrorType(ExceptionType type) {

@@ -29,7 +29,7 @@ public class RunSwaggerSchemasITest {
     }
 
     @Test
-    public void testSwaggerSchemaWithSpacesInUrl() throws Exception {
+    public void testSwaggerSchemaWithSpacesInUrl() {
         client.get("/service name with spaces/swagger.json", "/swagger-spaces-in-url.resp.json");
         client.get("/service name with spaces/openapi.json", "/openapi-spaces-in-url.resp.json");
     }
