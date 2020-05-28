@@ -3,7 +3,13 @@ package org.openl.rules.webstudio.web.trace.node;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.rules.table.OpenLArgumentsCloner;
+import org.openl.rules.calc.Spreadsheet;
+import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.StubSpreadSheetResult;
+import org.openl.rules.table.OpenLCloner;
+
+import com.rits.cloning.IDeepCloner;
+import com.rits.cloning.IFastCloner;
 
 /**
  * This cloner is based on assumption that hashCode() and equals() methods are cheaper than cloning huge objects.
@@ -20,18 +26,22 @@ import org.openl.rules.table.OpenLArgumentsCloner;
  * and show them to the user later. In this case we can safely reuse already cloned object in other method invocation if
  * it's not changed since that.
  */
-public class CachingArgumentsCloner extends OpenLArgumentsCloner {
+public class CachingArgumentsCloner extends OpenLCloner {
     private static ThreadLocal<CachingArgumentsCloner> instance = new ThreadLocal<>();
 
     private Map<Object, Object> cache = new HashMap<>();
 
     private CachingArgumentsCloner() {
+        dontCloneInstanceOf(StubSpreadSheetResult.class);
+        registerFastCloner(SpreadsheetResult.class, new SpreadsheetResultFastCloner());
     }
 
     @Override
     public <T> T cloneInternal(T o, Map<Object, Object> clones) throws IllegalAccessException {
         if (o == null) {
             return null;
+        } else if (o instanceof SpreadsheetResult) {
+            return super.cloneInternal(o, clones);
         }
 
         @SuppressWarnings("unchecked")
@@ -57,5 +67,18 @@ public class CachingArgumentsCloner extends OpenLArgumentsCloner {
 
     public static void removeInstance() {
         instance.remove();
+    }
+
+    private static class SpreadsheetResultFastCloner implements IFastCloner {
+        @Override
+        public Object clone(Object t, IDeepCloner cloner, Map<Object, Object> clones) {
+            SpreadsheetResult spr = (SpreadsheetResult) t;
+
+            Object[][] clonedResults = cloner.deepClone(spr.getResults(), clones);
+
+            SpreadsheetResult clonedSpr = new SpreadsheetResult(spr);
+            clonedSpr.setResults(clonedResults);
+            return clonedSpr;
+        }
     }
 }

@@ -86,6 +86,14 @@ public class SpreadsheetResult implements Serializable {
         this.fieldsCoordinates = fieldsCoordinates;
     }
 
+    public SpreadsheetResult(SpreadsheetResult spr) {
+        this(spr.results, spr.rowNames, spr.columnNames, spr.rowNamesForResultModel, spr.columnNamesForResultModel,
+                spr.fieldsCoordinates);
+        this.logicalTable = spr.logicalTable;
+        this.customSpreadsheetResultOpenClass = spr.customSpreadsheetResultOpenClass;
+        this.detailedPlainModel = spr.detailedPlainModel;
+    }
+
     public boolean isFieldUsedInModel(String fieldName) {
         Point point = fieldsCoordinates.get(fieldName);
         if (point != null) {
