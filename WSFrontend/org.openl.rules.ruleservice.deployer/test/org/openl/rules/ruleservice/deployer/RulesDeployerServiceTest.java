@@ -102,7 +102,7 @@ public class RulesDeployerServiceTest {
         assertNotNull(actualFileData);
         assertEquals(RulesDeployerService.DEFAULT_AUTHOR_NAME, actualFileData.getAuthor());
         assertTrue("Content size must be greater thar 0", actualFileData.getSize() > 0);
-        final String expectedName = DEPLOY_PATH + "project2/project2";
+        final String expectedName = DEPLOY_PATH + "project2/Rules";
         assertEquals(expectedName, actualFileData.getName());
     }
 

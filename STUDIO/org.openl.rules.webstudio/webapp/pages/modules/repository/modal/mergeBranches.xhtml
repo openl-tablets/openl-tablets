@@ -36,6 +36,7 @@
                 <ui:param name="theirBranchMerged" value="#{branchesBean.theirBranchMerged}"/>
                 <ui:param name="yourBranchMerged" value="#{branchesBean.yourBranchMerged}"/>
                 <ui:param name="mergedOrLocked" value="#{branchesBean.mergedOrLocked}"/>
+                <ui:param name="locked" value="#{branchesBean.locked}"/>
                 <ui:param name="projectLockedInAnotherBranch" value="#{branchesBean.projectLockedInAnotherBranch}"/>
                 <ui:param name="confirmExportMessage" value="There were updates in \'#{branchesBean.branchToMerge}\' after the last \'Receive their updates\' action. Are you sure it won\'t impact the project and everything will work?\n'+
 'If not, please use \'Receive their updates\' button and test that everything works."/>
@@ -75,11 +76,11 @@
                                    action="#{branchesBean.mergeExport}" styleClass="button-primary"
                                    disabled="#{mergedOrLocked}"
                                    onclick="if (!#{theirBranchMerged}) return confirm('#{confirmExportMessage}'); else return true;"
-                                   oncomplete="onMergeComplete(event.data, #{!facesContext.validationFailed});"/>
+                                   oncomplete="onMergeComplete(event.data, #{!facesContext.validationFailed and !locked});"/>
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalMergeBranches').hide();"/>
             </footer>
 
-            <a4j:jsFunction name="renderMergeBranchesForm" render="@form" oncomplete="showMergeBranchesDialog()">
+            <a4j:jsFunction name="renderMergeBranchesForm" render="modalMergeBranchesData" oncomplete="showMergeBranchesDialog()">
                 <a4j:param name="projectName" assignTo="#{branchesBean.initProject}"/>
                 <a4j:param name="editorMode" assignTo="#{branchesBean.editorMode}"/>
             </a4j:jsFunction>

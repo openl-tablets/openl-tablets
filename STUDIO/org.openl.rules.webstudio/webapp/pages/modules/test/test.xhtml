@@ -136,9 +136,18 @@
                         <h:panelGroup rendered="#{testFailed}"><span class="badge badge-error" style="margin-left:3px" title="#{test.numberOfFailures} failed">#{test.numberOfFailures}</span>
                         </h:panelGroup>
                     </h1>
-                    <h:panelGroup rendered="#{testFailed or !failuresOnly}">
 
-                        <ui:param name="columnCount" value="#{(test.hasDescription() ? 1 : 0) + (test.hasContext() ? fn:length(test.contextColumnDisplayNames) : 0) + fn:length(test.testDataColumnDisplayNames) + fn:length(test.testResultColumnDisplayNames)}"/>
+
+                    <h:panelGroup styleClass="problem-warning" style="margin-top: 3px; display: inline-block"
+                                  rendered="#{test.testedRulesHaveErrors}">
+                        <h:outputText value="Tested rules have errors"/>
+                    </h:panelGroup>
+
+
+                    <h:panelGroup rendered="#{!test.testedRulesHaveErrors and (testFailed or !failuresOnly)}">
+
+                        <ui:param name="columnCount"
+                                  value="#{(test.hasDescription() ? 1 : 0) + (test.hasContext() ? fn:length(test.contextColumnDisplayNames) : 0) + fn:length(test.testDataColumnDisplayNames) + fn:length(test.testResultColumnDisplayNames)}"/>
                         <ui:param name="filteredTests" value="#{test.getFilteredTestUnits(failuresOnly,failuresPerTest)}"/>
                         <ui:param name="testsToRender" value="#{testBean.getTestsToRender(filteredTests, columnCount)}"/>
 

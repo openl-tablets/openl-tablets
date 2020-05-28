@@ -30,6 +30,7 @@ import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.conf.LastVersionProjectsServiceConfigurer;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
+import org.openl.rules.ruleservice.publish.lazy.LazyRuleServiceDependencyLoader;
 import org.openl.syntax.code.IDependency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

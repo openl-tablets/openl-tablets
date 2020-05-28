@@ -63,10 +63,14 @@ Sub launch(wbPath, wbName , wsName , range )
     Else
        Set ws = wb.Worksheets(wsName)
     End If
-    
-    ws.Activate
-    
-    ws.range(range).Activate
+
+
+    If ws.Visible Then
+        ws.Activate
+        ws.range(range).Activate
+    Else
+        MsgBox "Selected sheet is hidden", vbSystemModal
+    End If
 
 End Sub
 

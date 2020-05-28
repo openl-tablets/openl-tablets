@@ -4,6 +4,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 import org.openl.base.INamedThing;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
@@ -61,6 +63,16 @@ public class TestSuite implements INamedThing {
         final TestUnitsResults testUnitResults = new TestUnitsResults(this);
         final CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
         final ITestUnit[] testUnitResultsArray = new ITestUnit[getNumberOfTests()];
+
+        IOpenMethod testedMethod = getTestSuiteMethod().getTestedMethod();
+        if (testedMethod instanceof ExecutableRulesMethod) {
+            TableSyntaxNode syntaxNode = ((ExecutableRulesMethod) testedMethod).getSyntaxNode();
+            if (syntaxNode.getErrors().length > 0) {
+                testUnitResults.setTestedRulesHaveErrors(true);
+                return testUnitResults;
+            }
+        }
+
         for (int i = 0; i < THREAD_COUNT; i++) {
             final int numThread = i;
             Runnable runnable = () -> {
