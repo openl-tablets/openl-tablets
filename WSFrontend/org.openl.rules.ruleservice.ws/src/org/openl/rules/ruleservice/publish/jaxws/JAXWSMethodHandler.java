@@ -35,7 +35,7 @@ public class JAXWSMethodHandler implements ASMProxyHandler {
             // <detail> <type>TYPE</type> <stackTrace>stacktrace of cause</stackTrace> </detail>
             Element detailEl = fault.getOrCreateDetail();
             Element typeEl = detailEl.getOwnerDocument().createElement("type");
-            typeEl.setTextContent(dto.getType());
+            typeEl.setTextContent(dto.getType().name());
             detailEl.appendChild(typeEl);
 
             if (dto.getDetail() != null) {

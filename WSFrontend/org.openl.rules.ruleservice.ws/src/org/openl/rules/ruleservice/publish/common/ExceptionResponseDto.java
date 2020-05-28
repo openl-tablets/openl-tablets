@@ -13,16 +13,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class ExceptionResponseDto {
 
-    private static final int INTERNAL_SERVER_ERROR_CODE = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
-    private static final int BAD_REQUEST = Response.Status.BAD_REQUEST.getStatusCode();
-    private static final int UNPROCESSABLE_ENTITY = 422;
+    public static final int INTERNAL_SERVER_ERROR_CODE = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
+    public static final int BAD_REQUEST = Response.Status.BAD_REQUEST.getStatusCode();
+    public static final int UNPROCESSABLE_ENTITY = 422;
 
     private String message;
     private int statusCode;
-    private String type;
+    private ExceptionType type;
     private String detail;
 
-    private ExceptionResponseDto(String message, int statusCode, String type, String detail) {
+    private ExceptionResponseDto(String message, int statusCode, ExceptionType type, String detail) {
         this.message = message;
         this.statusCode = statusCode;
         this.type = type;
@@ -37,7 +37,7 @@ public class ExceptionResponseDto {
         return statusCode;
     }
 
-    public String getType() {
+    public ExceptionType getType() {
         return type;
     }
 
@@ -79,7 +79,7 @@ public class ExceptionResponseDto {
             }
         }
 
-        return new ExceptionResponseDto(message, status, type.toString(), detail);
+        return new ExceptionResponseDto(message, status, type, detail);
     }
 
     private static boolean isUserErrorType(ExceptionType type) {

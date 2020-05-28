@@ -2,13 +2,15 @@ package org.openl.rules.ruleservice.publish.jaxrs;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.openl.rules.ruleservice.core.ExceptionType;
+
 @XmlRootElement
 public class JAXRSErrorResponse {
     private String message;
-    private String type;
+    private ExceptionType type;
     private String[] details;
 
-    public JAXRSErrorResponse(String message, String type, String[] details) {
+    public JAXRSErrorResponse(String message, ExceptionType type, String[] details) {
         this.message = message;
         this.type = type;
         this.details = details;
@@ -18,7 +20,7 @@ public class JAXRSErrorResponse {
         return message;
     }
 
-    public String getType() {
+    public ExceptionType getType() {
         return type;
     }
 
