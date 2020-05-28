@@ -11,408 +11,6 @@
     }
   ],
   "paths": {
-    "/myCalc11": {
-      "post": {
-        "summary": "MyCalc11 myCalc11(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc11 myCalc11(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "myCalc11",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyCalc11"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/getMyCalcs2": {
-      "post": {
-        "summary": "MyCalc2[] getMyCalcs2(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc2[] getMyCalcs2(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyCalcs2",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MyCalc2"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/getMyCalcs3": {
-      "post": {
-        "summary": "MyCalc3[] getMyCalcs3(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc3[] getMyCalcs3(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyCalcs3",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MyCalc3"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/getMyCalcs5": {
-      "post": {
-        "summary": "MyCalc5[] getMyCalcs5(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc5[] getMyCalcs5(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyCalcs5",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MyCalc5"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/getMyCalcs8": {
-      "post": {
-        "summary": "MyCalc8[] getMyCalcs8(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc8[] getMyCalcs8(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyCalcs8",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MyCalc8"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/myCalc8": {
-      "post": {
-        "summary": "MyCalc8 myCalc8(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc8 myCalc8(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "myCalc8",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyCalc8"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/myCalc5": {
-      "post": {
-        "summary": "MyCalc5 myCalc5(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc5 myCalc5(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "myCalc5",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyCalc5"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/myCalc7": {
-      "post": {
-        "summary": "MyCalc7 myCalc7(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc7 myCalc7(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "myCalc7",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyCalc7"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/getMyCalcs9": {
-      "post": {
-        "summary": "MyCalc9[] getMyCalcs9(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc9[] getMyCalcs9(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyCalcs9",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MyCalc9"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/myCalc9": {
-      "post": {
-        "summary": "MyCalc9 myCalc9(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc9 myCalc9(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "myCalc9",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyCalc9"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/myCalc10": {
-      "post": {
-        "summary": "MyCalc10 myCalc10(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc10 myCalc10(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "myCalc10",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyCalc10"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/getMyCalcs10": {
-      "post": {
-        "summary": "MyCalc10[] getMyCalcs10(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc10[] getMyCalcs10(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyCalcs10",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MyCalc10"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/getMyCalcs": {
-      "post": {
-        "summary": "MyCalc[] getMyCalcs(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc[] getMyCalcs(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyCalcs",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MyCalc"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/getMyCalcs4": {
-      "post": {
-        "summary": "MyCalc4[] getMyCalcs4(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc4[] getMyCalcs4(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyCalcs4",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MyCalc4"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/getMyCalcs6": {
       "post": {
         "summary": "MyCalc6[] getMyCalcs6(IRulesRuntimeContext)",
@@ -428,7 +26,49 @@
           }
         },
         "responses": {
-          "default": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
@@ -458,7 +98,49 @@
           }
         },
         "responses": {
-          "default": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
@@ -488,7 +170,49 @@
           }
         },
         "responses": {
-          "default": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
@@ -503,11 +227,11 @@
         }
       }
     },
-    "/myCalc3": {
+    "/getMyCalcs2": {
       "post": {
-        "summary": "MyCalc3 myCalc3(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc3 myCalc3(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "myCalc3",
+        "summary": "MyCalc2[] getMyCalcs2(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc2[] getMyCalcs2(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs2",
         "requestBody": {
           "content": {
             "application/json": {
@@ -518,11 +242,56 @@
           }
         },
         "responses": {
-          "default": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MyCalc3"
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyCalc2"
+                  }
                 }
               }
             }
@@ -530,11 +299,11 @@
         }
       }
     },
-    "/myCalc": {
+    "/getMyCalcs10": {
       "post": {
-        "summary": "MyCalc myCalc(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc myCalc(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "myCalc",
+        "summary": "MyCalc10[] getMyCalcs10(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc10[] getMyCalcs10(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs10",
         "requestBody": {
           "content": {
             "application/json": {
@@ -545,38 +314,56 @@
           }
         },
         "responses": {
-          "default": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MyCalc"
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/myCalc6": {
-      "post": {
-        "summary": "MyCalc6 myCalc6(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc6 myCalc6(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "myCalc6",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MyCalc6"
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyCalc10"
+                  }
                 }
               }
             }
@@ -599,11 +386,893 @@
           }
         },
         "responses": {
-          "default": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MyCalc4"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/myCalc11": {
+      "post": {
+        "summary": "MyCalc11 myCalc11(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc11 myCalc11(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc11",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCalc11"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/myCalc10": {
+      "post": {
+        "summary": "MyCalc10 myCalc10(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc10 myCalc10(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc10",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCalc10"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/myCalc": {
+      "post": {
+        "summary": "MyCalc myCalc(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc myCalc(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCalc"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getMyCalcs9": {
+      "post": {
+        "summary": "MyCalc9[] getMyCalcs9(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc9[] getMyCalcs9(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs9",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyCalc9"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getMyCalcs": {
+      "post": {
+        "summary": "MyCalc[] getMyCalcs(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc[] getMyCalcs(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyCalc"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/myCalc9": {
+      "post": {
+        "summary": "MyCalc9 myCalc9(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc9 myCalc9(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc9",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCalc9"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getMyCalcs4": {
+      "post": {
+        "summary": "MyCalc4[] getMyCalcs4(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc4[] getMyCalcs4(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs4",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyCalc4"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/myCalc5": {
+      "post": {
+        "summary": "MyCalc5 myCalc5(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc5 myCalc5(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc5",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCalc5"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/myCalc3": {
+      "post": {
+        "summary": "MyCalc3 myCalc3(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc3 myCalc3(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc3",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCalc3"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/myCalc7": {
+      "post": {
+        "summary": "MyCalc7 myCalc7(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc7 myCalc7(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc7",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCalc7"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getMyCalcs3": {
+      "post": {
+        "summary": "MyCalc3[] getMyCalcs3(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc3[] getMyCalcs3(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs3",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyCalc3"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/myCalc6": {
+      "post": {
+        "summary": "MyCalc6 myCalc6(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc6 myCalc6(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc6",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCalc6"
                 }
               }
             }
@@ -626,7 +1295,49 @@
           }
         },
         "responses": {
-          "default": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
@@ -637,11 +1348,242 @@
           }
         }
       }
+    },
+    "/myCalc8": {
+      "post": {
+        "summary": "MyCalc8 myCalc8(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc8 myCalc8(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myCalc8",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCalc8"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getMyCalcs8": {
+      "post": {
+        "summary": "MyCalc8[] getMyCalcs8(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc8[] getMyCalcs8(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs8",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyCalc8"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getMyCalcs5": {
+      "post": {
+        "summary": "MyCalc5[] getMyCalcs5(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyCalc5[] getMyCalcs5(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyCalcs5",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyCalc5"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
-      "MyCalc11": {
+      "JAXRSErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "MyCalc6": {
         "type": "object",
         "properties": {
           "Step1": {
@@ -670,354 +1612,55 @@
           "usState": {
             "type": "string",
             "enum": [
-              "AL",
-              "AK",
-              "AZ",
-              "AR",
-              "CA",
-              "CO",
-              "CT",
-              "DC",
-              "DE",
-              "FL",
-              "GA",
-              "HI",
-              "ID",
-              "IL",
-              "IN",
-              "IA",
-              "KS",
-              "KY",
-              "LA",
-              "ME",
-              "MD",
-              "MA",
-              "MI",
-              "MN",
-              "MS",
-              "MO",
-              "MT",
-              "NE",
-              "NV",
-              "NH",
-              "NJ",
-              "NM",
-              "NY",
-              "NC",
-              "ND",
-              "OH",
-              "OK",
-              "OR",
-              "PA",
-              "PR",
-              "RI",
-              "SC",
-              "SD",
-              "TN",
-              "TX",
-              "UT",
-              "VT",
-              "VA",
-              "WA",
-              "WV",
-              "WI",
-              "WY"
+              "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS",
+              "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC",
+              "ND", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
             ]
           },
           "country": {
             "type": "string",
             "enum": [
-              "AL",
-              "DZ",
-              "AR",
-              "AU",
-              "AT",
-              "BH",
-              "BY",
-              "BE",
-              "BO",
-              "BA",
-              "BR",
-              "BG",
-              "CA",
-              "CL",
-              "CN",
-              "CO",
-              "CR",
-              "HR",
-              "CY",
-              "CZ",
-              "DK",
-              "DO",
-              "EC",
-              "EG",
-              "SV",
-              "EE",
-              "FI",
-              "FR",
-              "DE",
-              "GR",
-              "GT",
-              "HN",
-              "HK",
-              "HU",
-              "IS",
-              "IN",
-              "ID",
-              "IQ",
-              "IE",
-              "IL",
-              "IT",
-              "JP",
-              "JO",
-              "KW",
-              "LV",
-              "LB",
-              "LT",
-              "LU",
-              "MK",
-              "MY",
-              "MT",
-              "MX",
-              "MA",
-              "NL",
-              "NZ",
-              "NI",
-              "NO",
-              "OM",
-              "PA",
-              "PY",
-              "PE",
-              "PH",
-              "PL",
-              "PT",
-              "PR",
-              "QA",
-              "RO",
-              "RU",
-              "SA",
-              "CS",
-              "SG",
-              "SK",
-              "SI",
-              "ZA",
-              "ES",
-              "SD",
-              "SE",
-              "CH",
-              "SY",
-              "TW",
-              "TH",
-              "TN",
-              "TR",
-              "UA",
-              "AE",
-              "GB",
-              "US",
-              "UY",
-              "VE",
-              "VN",
-              "YE"
+              "AL", "DZ", "AR", "AU", "AT", "BH", "BY", "BE", "BO", "BA", "BR", "BG", "CA", "CL", "CN", "CO", "CR",
+              "HR", "CY", "CZ", "DK", "DO", "EC", "EG", "SV", "EE", "FI", "FR", "DE", "GR", "GT", "HN", "HK", "HU",
+              "IS", "IN", "ID", "IQ", "IE", "IL", "IT", "JP", "JO", "KW", "LV", "LB", "LT", "LU", "MK", "MY", "MT",
+              "MX", "MA", "NL", "NZ", "NI", "NO", "OM", "PA", "PY", "PE", "PH", "PL", "PT", "PR", "QA", "RO", "RU",
+              "SA", "CS", "SG", "SK", "SI", "ZA", "ES", "SD", "SE", "CH", "SY", "TW", "TH", "TN", "TR", "UA", "AE",
+              "GB", "US", "UY", "VE", "VN", "YE"
             ]
           },
           "usRegion": {
             "type": "string",
-            "enum": [
-              "MW",
-              "NE",
-              "SE",
-              "SW",
-              "W"
-            ]
+            "enum": ["MW", "NE", "SE", "SW", "W"]
           },
           "currency": {
             "type": "string",
             "enum": [
-              "ALL",
-              "DZD",
-              "ARS",
-              "AUD",
-              "BHD",
-              "BYR",
-              "BOB",
-              "BAM",
-              "BRL",
-              "CAD",
-              "CLP",
-              "CNY",
-              "COP",
-              "CRC",
-              "HRK",
-              "CZK",
-              "DKK",
-              "DOP",
-              "EGP",
-              "EUR",
-              "GTQ",
-              "HNL",
-              "HKD",
-              "HUF",
-              "ISK",
-              "INR",
-              "IDR",
-              "IQD",
-              "ILS",
-              "JPY",
-              "JOD",
-              "KWD",
-              "LVL",
-              "LBP",
-              "LTL",
-              "MKD",
-              "MYR",
-              "MXN",
-              "MAD",
-              "NZD",
-              "NIO",
-              "NOK",
-              "OMR",
-              "PAB",
-              "PYG",
-              "PEN",
-              "PHP",
-              "PLN",
-              "QAR",
-              "RON",
-              "RUB",
-              "SAR",
-              "RSD",
-              "SGD",
-              "ZAR",
-              "SDG",
-              "SEK",
-              "CHF",
-              "SYP",
-              "TWD",
-              "TND",
-              "TRY",
-              "UAH",
-              "AED",
-              "GBP",
-              "USD",
-              "UYU",
-              "VEF",
-              "VND",
-              "YER"
+              "ALL", "DZD", "ARS", "AUD", "BHD", "BYR", "BOB", "BAM", "BRL", "CAD", "CLP", "CNY", "COP", "CRC", "HRK",
+              "CZK", "DKK", "DOP", "EGP", "EUR", "GTQ", "HNL", "HKD", "HUF", "ISK", "INR", "IDR", "IQD", "ILS", "JPY",
+              "JOD", "KWD", "LVL", "LBP", "LTL", "MKD", "MYR", "MXN", "MAD", "NZD", "NIO", "NOK", "OMR", "PAB", "PYG",
+              "PEN", "PHP", "PLN", "QAR", "RON", "RUB", "SAR", "RSD", "SGD", "ZAR", "SDG", "SEK", "CHF", "SYP", "TWD",
+              "TND", "TRY", "UAH", "AED", "GBP", "USD", "UYU", "VEF", "VND", "YER"
             ]
           },
           "lang": {
             "type": "string",
             "enum": [
-              "ALB",
-              "ARA",
-              "BEL",
-              "BUL",
-              "CAT",
-              "CHI",
-              "SCR",
-              "CZE",
-              "DAN",
-              "DUT",
-              "ENG",
-              "FIN",
-              "FRE",
-              "GER",
-              "GRE",
-              "HEB",
-              "HIN",
-              "HUN",
-              "IND",
-              "GLE",
-              "ITA",
-              "JPN",
-              "LAV",
-              "LIT",
-              "MAC",
-              "MAY",
-              "MLT",
-              "NOR",
-              "POL",
-              "POR",
-              "RUM",
-              "RUS",
-              "SCC",
-              "SLO",
-              "SPA",
-              "THA",
-              "TUR",
-              "UKR",
-              "VIE"
+              "ALB", "ARA", "BEL", "BUL", "CAT", "CHI", "SCR", "CZE", "DAN", "DUT", "ENG", "FIN", "FRE", "GER", "GRE",
+              "HEB", "HIN", "HUN", "IND", "GLE", "ITA", "JPN", "LAV", "LIT", "MAC", "MAY", "MLT", "NOR", "POL", "POR",
+              "RUM", "RUS", "SCC", "SLO", "SPA", "THA", "TUR", "UKR", "VIE"
             ]
           },
           "region": {
             "type": "string",
-            "enum": [
-              "NCSA",
-              "EU",
-              "EMEA",
-              "APJ"
-            ]
+            "enum": ["NCSA", "EU", "EMEA", "APJ"]
           },
           "caProvince": {
             "type": "string",
-            "enum": [
-              "AB",
-              "BC",
-              "PE",
-              "MB",
-              "NB",
-              "NS",
-              "NU",
-              "ON",
-              "QC",
-              "SK",
-              "NL",
-              "YT",
-              "NT"
-            ]
+            "enum": ["AB", "BC", "PE", "MB", "NB", "NS", "NU", "ON", "QC", "SK", "NL", "YT", "NT"]
           },
           "caRegion": {
             "type": "string",
-            "enum": [
-              "QC",
-              "HQ"
-            ]
-          }
-        }
-      },
-      "MyCalc2": {
-        "type": "object",
-        "properties": {
-          "Step1": {
-            "type": "number",
-            "format": "double"
-          }
-        }
-      },
-      "MyCalc3": {
-        "type": "object",
-        "properties": {
-          "Step1": {
-            "type": "number",
-            "format": "double"
-          }
-        }
-      },
-      "MyCalc5": {
-        "type": "object",
-        "properties": {
-          "Step1": {
-            "type": "number",
-            "format": "double"
-          }
-        }
-      },
-      "MyCalc8": {
-        "type": "object",
-        "properties": {
-          "Step1": {
-            "type": "number",
-            "format": "double"
+            "enum": ["QC", "HQ"]
           }
         }
       },
@@ -1030,7 +1673,16 @@
           }
         }
       },
-      "MyCalc9": {
+      "MyCalc11": {
+        "type": "object",
+        "properties": {
+          "Step1": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "MyCalc2": {
         "type": "object",
         "properties": {
           "Step1": {
@@ -1048,15 +1700,6 @@
           }
         }
       },
-      "MyCalc": {
-        "type": "object",
-        "properties": {
-          "Step1": {
-            "type": "number",
-            "format": "double"
-          }
-        }
-      },
       "MyCalc4": {
         "type": "object",
         "properties": {
@@ -1066,7 +1709,43 @@
           }
         }
       },
-      "MyCalc6": {
+      "MyCalc": {
+        "type": "object",
+        "properties": {
+          "Step1": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "MyCalc9": {
+        "type": "object",
+        "properties": {
+          "Step1": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "MyCalc5": {
+        "type": "object",
+        "properties": {
+          "Step1": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "MyCalc3": {
+        "type": "object",
+        "properties": {
+          "Step1": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "MyCalc8": {
         "type": "object",
         "properties": {
           "Step1": {

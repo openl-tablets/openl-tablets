@@ -6,48 +6,13 @@
   },
   "basePath": "/REST/EPBDS-9437",
   "paths": {
-    "/tiktak": {
-      "post": {
-        "summary": "Tiktak tiktak(int, String)",
-        "description": "Rules method: SpreadsheetResulttiktak tiktak(int i, java.lang.String j)",
-        "operationId": "tiktak",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/TiktakRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Tiktak"
-            }
-          }
-        }
-      }
-    },
     "/EPBDS_9437": {
       "post": {
         "summary": "EPBDS_9437 EPBDS_9437(Integer)",
         "description": "Rules method: SpreadsheetResultEPBDS_9437 EPBDS_9437(java.lang.Integer driver)",
         "operationId": "EPBDS_9437",
-        "consumes": [
-          "text/plain"
-        ],
-        "produces": [
-          "application/json"
-        ],
+        "consumes": ["text/plain"],
+        "produces": ["application/json"],
         "parameters": [
           {
             "in": "body",
@@ -65,36 +30,111 @@
             "schema": {
               "$ref": "#/definitions/EPBDS_9437"
             }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/tiktak": {
+      "post": {
+        "summary": "Tiktak tiktak(int, String)",
+        "description": "Rules method: SpreadsheetResulttiktak tiktak(int i, java.lang.String j)",
+        "operationId": "tiktak",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/TiktakRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Tiktak"
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
           }
         }
       }
     }
   },
   "definitions": {
-    "Tiktak": {
-      "type": "object",
-      "properties": {
-        "INT": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "String": {
-          "type": "string"
-        }
-      }
-    },
-    "TiktakRequest": {
-      "type": "object",
-      "properties": {
-        "i": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "j": {
-          "type": "string"
-        }
-      }
-    },
     "AnySpreadsheetResult": {
       "type": "object",
       "properties": {
@@ -121,6 +161,48 @@
           "items": {
             "$ref": "#/definitions/AnySpreadsheetResult"
           }
+        }
+      }
+    },
+    "JAXRSErrorResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Tiktak": {
+      "type": "object",
+      "properties": {
+        "INT": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "String": {
+          "type": "string"
+        }
+      }
+    },
+    "TiktakRequest": {
+      "type": "object",
+      "properties": {
+        "i": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "j": {
+          "type": "string"
         }
       }
     }
