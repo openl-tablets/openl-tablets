@@ -50,6 +50,8 @@
                     handleError(399);
                 }
                 handleError(data.responseCode);
+                console.error("Error in response:");
+                console.error(data);
             };
             jsf.ajax.addOnError(onError);
 
