@@ -1,0 +1,3 @@
+ERROR: Bad field name: 'array[]'.
+ERROR: Bad field name: 'array^'.
+ERROR: Bad field name: 'array*'.
