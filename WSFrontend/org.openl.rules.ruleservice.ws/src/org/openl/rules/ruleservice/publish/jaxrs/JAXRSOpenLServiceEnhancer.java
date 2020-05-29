@@ -2,7 +2,15 @@ package org.openl.rules.ruleservice.publish.jaxrs;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -27,6 +35,7 @@ import org.openl.binding.MethodUtil;
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
+import org.openl.rules.ruleservice.publish.common.ExceptionResponseDto;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.types.IOpenMethod;
@@ -42,6 +51,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.servers.Server;
@@ -94,6 +104,12 @@ public final class JAXRSOpenLServiceEnhancer {
     }
 
     private class JAXRSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
+        private static final String UNPROCESSABLE_ENTITY_MESSAGE = "Custom user errors in rules or validation errors in input parameters";
+        private static final String UNPROCESSABLE_ENTITY_EXAMPLE = "{\"message\": \"Some message\", \"type\": \"USER_ERROR\"}";
+        private static final String BAD_REQUEST_MESSAGE = "Invalid request format e.g. missing required field, unparseable JSON value, etc.";
+        private static final String BAD_REQUEST_EXAMPLE = "{\"message\": \"Cannot parse 'bar' to JSON\", \"type\": \"BAD_REQUEST\"}";
+        private static final String INTERNAL_SERVER_ERROR_MESSAGE = "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.";
+        private static final String INTERNAL_SERVER_ERROR_EXAMPLE = "{\"message\": \"Failed to load lazy method.\", \"type\": \"COMPILATION\"}";
 
         private static final int MAX_PARAMETERS_COUNT_FOR_GET = 4;
 
@@ -176,6 +192,15 @@ public final class JAXRSOpenLServiceEnhancer {
             // Produces annotation
             if (!originalClass.isAnnotationPresent(Produces.class)) {
                 addProducesAnnotation(this);
+            }
+            //Error responses annotation
+            if (!originalClass.isAnnotationPresent(io.swagger.annotations.ApiResponses.class)
+                    && !originalClass.isAnnotationPresent(io.swagger.annotations.ApiResponse.class)) {
+                addSwaggerApiResponsesAnnotation(this);
+            }
+            if (!originalClass.isAnnotationPresent(io.swagger.v3.oas.annotations.responses.ApiResponses.class)
+                    && !originalClass.isAnnotationPresent(io.swagger.v3.oas.annotations.responses.ApiResponse.class)) {
+                addOpenApiResponsesAnnotation(this);
             }
         }
 
@@ -528,6 +553,7 @@ public final class JAXRSOpenLServiceEnhancer {
                     if (!originalMethod.isAnnotationPresent(ApiResponse.class) && dim < 2) {
                         AnnotationVisitor av1 = av.visitArray("responses");
                         AnnotationVisitor av2 = av1.visitAnnotation("responses", Type.getDescriptor(ApiResponse.class));
+                        av2.visit("responseCode", String.valueOf(Response.Status.OK.getStatusCode()));
                         AnnotationVisitor av3 = av2.visitArray("content");
                         AnnotationVisitor av4 = av3.visitAnnotation("responses", Type.getDescriptor(Content.class));
                         AnnotationVisitor av6;
@@ -572,6 +598,74 @@ public final class JAXRSOpenLServiceEnhancer {
             av1.visit(null, MediaType.APPLICATION_JSON);
             av1.visitEnd();
             av.visitEnd();
+        }
+
+        private void addSwaggerApiResponsesAnnotation(ClassVisitor cv) {
+            AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(io.swagger.annotations.ApiResponses.class), true);
+            AnnotationVisitor arrayAv = av.visitArray("value");
+            addSwaggerApiResponseAnnotation(arrayAv, ExceptionResponseDto.UNPROCESSABLE_ENTITY,
+                    UNPROCESSABLE_ENTITY_MESSAGE, UNPROCESSABLE_ENTITY_EXAMPLE);
+            addSwaggerApiResponseAnnotation(arrayAv, ExceptionResponseDto.BAD_REQUEST, BAD_REQUEST_MESSAGE,
+                    BAD_REQUEST_EXAMPLE);
+            addSwaggerApiResponseAnnotation(arrayAv, ExceptionResponseDto.INTERNAL_SERVER_ERROR_CODE,
+                    INTERNAL_SERVER_ERROR_MESSAGE, INTERNAL_SERVER_ERROR_EXAMPLE);
+            arrayAv.visitEnd();
+            av.visitEnd();
+        }
+
+        private void addSwaggerApiResponseAnnotation(AnnotationVisitor av, int code, String message, String jsonExample) {
+            AnnotationVisitor apiResponseAv = av.visitAnnotation(null, Type.getDescriptor(io.swagger.annotations.ApiResponse.class));
+            apiResponseAv.visit("code", code);
+            apiResponseAv.visit("message", message);
+            apiResponseAv.visit("response", Type.getType(JAXRSErrorResponse.class));
+
+            AnnotationVisitor exampleAv = apiResponseAv.visitAnnotation("examples", Type.getDescriptor(io.swagger.annotations.Example.class));
+            AnnotationVisitor exampleArrAv  = exampleAv.visitArray("value");
+            AnnotationVisitor examplePropAv = exampleArrAv.visitAnnotation(null, Type.getDescriptor(io.swagger.annotations.ExampleProperty.class));
+            examplePropAv.visit("mediaType", MediaType.APPLICATION_JSON);
+            examplePropAv.visit("value", jsonExample);
+            examplePropAv.visitEnd();
+            exampleArrAv.visitEnd();
+            exampleAv.visitEnd();
+
+            apiResponseAv.visitEnd();
+        }
+
+        private void addOpenApiResponsesAnnotation(ClassVisitor cv) {
+            AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(io.swagger.v3.oas.annotations.responses.ApiResponses.class), true);
+            AnnotationVisitor arrayAv = av.visitArray("value");
+            addOpenApiResponseAnnotation(arrayAv, ExceptionResponseDto.UNPROCESSABLE_ENTITY,
+                    UNPROCESSABLE_ENTITY_MESSAGE, UNPROCESSABLE_ENTITY_EXAMPLE);
+            addOpenApiResponseAnnotation(arrayAv, ExceptionResponseDto.BAD_REQUEST, BAD_REQUEST_MESSAGE,
+                    BAD_REQUEST_EXAMPLE);
+            addOpenApiResponseAnnotation(arrayAv, ExceptionResponseDto.INTERNAL_SERVER_ERROR_CODE,
+                    INTERNAL_SERVER_ERROR_MESSAGE, INTERNAL_SERVER_ERROR_EXAMPLE);
+            arrayAv.visitEnd();
+            av.visitEnd();
+        }
+
+        private void addOpenApiResponseAnnotation(AnnotationVisitor av, int code, String message, String jsonExample) {
+            AnnotationVisitor apiResponseAv = av.visitAnnotation(null, Type.getDescriptor(io.swagger.v3.oas.annotations.responses.ApiResponse.class));
+            apiResponseAv.visit("responseCode", String.valueOf(code));
+            apiResponseAv.visit("description", message);
+
+            AnnotationVisitor contentArrayAv = apiResponseAv.visitArray("content");
+            AnnotationVisitor contentAv = contentArrayAv.visitAnnotation(null, Type.getDescriptor(Content.class));
+            contentAv.visit("mediaType", MediaType.APPLICATION_JSON);
+
+            AnnotationVisitor schemaAv = contentAv.visitAnnotation("schema", Type.getDescriptor(Schema.class));
+            schemaAv.visit("implementation", Type.getType(JAXRSErrorResponse.class));
+            schemaAv.visitEnd();
+
+            AnnotationVisitor examplesArrAv = contentAv.visitArray("examples");
+            AnnotationVisitor exampleObjectAv = examplesArrAv.visitAnnotation(null, Type.getDescriptor(ExampleObject.class));
+            exampleObjectAv.visit("value", jsonExample);
+            exampleObjectAv.visitEnd();
+            examplesArrAv.visitEnd();
+
+            contentAv.visitEnd();
+            contentArrayAv.visitEnd();
+            apiResponseAv.visitEnd();
         }
     }
 

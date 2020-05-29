@@ -31,7 +31,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
 
     public SpreadsheetResultOpenClass(XlsModuleOpenClass module) {
         super(SpreadsheetResult.class);
-        this.module = Objects.requireNonNull(module, "module can not be null");
+        this.module = Objects.requireNonNull(module, "module cannot be null");
     }
 
     @Override

@@ -1,11 +1,16 @@
 package org.openl.spring.env;
 
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.PropertySourcesPropertyResolver;
+import org.springframework.core.env.StandardEnvironment;
+import org.springframework.jndi.JndiLocatorDelegate;
+import org.springframework.jndi.JndiPropertySource;
+
+import javax.servlet.ServletContext;
 
 /**
  * Allows to combine environment properties, default application properties and external application properties. This
@@ -46,15 +51,22 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         ConfigLog.LOG
             .info("The initialization of properties from 'contextInitializerClasses' context-param in web.xml");
         ConfigurableEnvironment env = appContext.getEnvironment();
-        loadEnvironment(env, appContext);
-
+        String appName = normalizeAppName(appContext.getApplicationName());
+        loadEnvironment(env, appName, null);
     }
 
-    public void loadEnvironment(ConfigurableEnvironment env, ApplicationContext appContext) {
+    public void initialize(ConfigurableApplicationContext appContext, ServletContext servletContext) {
+        ConfigLog.LOG.info("The initialization of properties");
+        ConfigurableEnvironment env = new StandardEnvironment();
+        appContext.setEnvironment(env);
+        String appName = normalizeAppName(servletContext.getContextPath());
+        loadEnvironment(env, appName, servletContext);
+    }
+
+    private void loadEnvironment(ConfigurableEnvironment env, String appName, ServletContext servletContext) {
         MutablePropertySources propertySources = env.getPropertySources();
         PropertySourcesPropertyResolver props = new PropertySourcesPropertyResolver(propertySources);
         String[] profiles = env.getActiveProfiles();
-        String appName = normalizeAppName(appContext.getApplicationName());
 
         ConfigLog.LOG.info("Loading default properties...");
         propertySources.addLast(new DefaultPropertySource());
@@ -63,6 +75,16 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         PreferencePropertySource preferencePropertySource = new PreferencePropertySource(appName);
         PreferencePropertySource.THE = preferencePropertySource;
         propertySources.addBefore(DefaultPropertySource.PROPS_NAME, preferencePropertySource);
+
+        if (servletContext != null) {
+            // Assuming that there is org.springframework.core.env.StandardEnvironment
+            ConfigLog.LOG.info("Loading JNDI properties...");
+            if (JndiLocatorDelegate.isDefaultJndiEnvironmentAvailable()) {
+                propertySources.addFirst(new JndiPropertySource("JNDI properties"));
+            }
+            ConfigLog.LOG.info("Loading ServletContext init parameters...");
+            propertySources.addFirst(new PropertySource.StubPropertySource("ServletContext init parameters"));
+        }
 
         ConfigLog.LOG.info("Loading application properties...");
         propertySources.addBefore(PreferencePropertySource.PROPS_NAME,

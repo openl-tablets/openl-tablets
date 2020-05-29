@@ -43,6 +43,7 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.utils.ParserUtils;
+import org.openl.rules.utils.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -449,26 +450,27 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     private Pair<String, String> parseFieldNameCell(ILogicalTable row,
-            IBindingContext cxt) throws OpenLCompilationException {
+                                                    IBindingContext cxt) throws OpenLCompilationException {
         GridCellSourceCodeModule nameCellSource = getCellSource(row, cxt, 1);
         IdentifierNode[] idn = getIdentifierNode(nameCellSource);
         final String code = Arrays.stream(idn).map(IdentifierNode::getIdentifier).collect(Collectors.joining());
+        String left, right = null;
         if (code.contains(":context")) {
             int c = code.indexOf(":context");
             String contextPropertyName = code.substring(c + ":context".length());
             if (contextPropertyName.startsWith(".")) {
                 contextPropertyName = contextPropertyName.substring(1);
             }
-            return Pair.of(code.substring(0, c),
-                contextPropertyName.isEmpty() ? code.substring(0, c) : contextPropertyName);
+            left = code.substring(0, c);
+            right = contextPropertyName.isEmpty() ? code.substring(0, c) : contextPropertyName;
         } else {
-            if (idn.length != 1) {
-                String errorMessage = String.format("Bad field name: '%s'.", nameCellSource.getCode());
-                throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, nameCellSource);
-            } else {
-                return Pair.of(idn[0].getIdentifier(), null);
-            }
+            left = idn[0].getIdentifier();
         }
+        if ((right == null && idn.length != 1) || TableNameChecker.isInvalidJavaIdentifier(left)) {
+            String errorMessage = String.format("Bad field name: '%s'.", nameCellSource.getCode());
+            throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, nameCellSource);
+        }
+        return Pair.of(left, right);
     }
 
     private void processRow(ILogicalTable row,

@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.openl.util.StringUtils;
 import org.springframework.core.env.Environment;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 @WebFilter(value = "/*")
 public class CorsFilter implements Filter {
@@ -68,8 +67,7 @@ public class CorsFilter implements Filter {
 
     @Override
     public void init(FilterConfig config) {
-        Environment env = WebApplicationContextUtils.getRequiredWebApplicationContext(config.getServletContext())
-            .getEnvironment();
+        Environment env = SpringInitializer.getApplicationContext(config.getServletContext()).getEnvironment();
 
         String allowed = env.getProperty("cors.allowed.origins");
         allowedAny = "*".equals(allowed);

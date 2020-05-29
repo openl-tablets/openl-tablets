@@ -1,0 +1,15 @@
+ERROR: Bad field name: 'array²'.
+ERROR: Bad field name: 'array² :context'.
+ERROR: Bad field name: 'array² :context .lob'.
+ERROR: Bad field name: '0array'.
+ERROR: Bad field name: '0array :context'.
+ERROR: Bad field name: '0array :context .lob'.
+ERROR: Bad field name: 'array[]'.
+ERROR: Bad field name: 'array[] :context'.
+ERROR: Bad field name: 'array[] :context .lob'.
+ERROR: Bad field name: 'array^'.
+ERROR: Bad field name: 'array^ :context'.
+ERROR: Bad field name: 'array^ :context .lob'.
+ERROR: Bad field name: 'array*'.
+ERROR: Bad field name: 'array* :context'.
+ERROR: Bad field name: 'array* :context .lob'.
