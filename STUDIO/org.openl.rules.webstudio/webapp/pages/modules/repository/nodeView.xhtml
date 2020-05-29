@@ -106,6 +106,7 @@
                                              title="#{openMessage}"/>
                             <h:commandButton id="openVersionId2" rendered="#{repositoryTreeState.canOpenOtherVersion}"
                                              value="Open Revision" onclick="openOpenVersionDialog();"
+                                             type="button"
                                              title="#{openVersionMessage}"/>
                             <h:commandButton id="closeId2" rendered="#{repositoryTreeState.canClose}" value="Close"
                                              onclick="#{rich:component('modalCloseProject')}.show();return false;"
@@ -287,9 +288,9 @@
         </rich:tab>
 
         <ui:remove><!--
-         FIXME: because of the bug: https://issues.jboss.org/browse/RF-10961 
+         FIXME: because of the bug: https://issues.jboss.org/browse/RF-10961
          "render" attribute cannot be used for rich:tab (NullPointerException will be thrown in some cases).
-         As a workaround "disabled" attribute in conjunction with "hideHeader"/"showHeader" styles is used.   
+         As a workaround "disabled" attribute in conjunction with "hideHeader"/"showHeader" styles is used.
     --></ui:remove>
         <rich:tab id="rulesDeployConfiguration" name="RulesDeployConfiguration" header="Rules Deploy Configuration"
                   onenter="#{artefact.project.openedForEditing ? '' : 'refreshRulesDeployConfiguration()'}"
@@ -325,6 +326,7 @@
                                  onclick="openSelectRepositoryDialog();return false;"
                                  title="Deploy into operations or staging"/>
                 <h:commandButton id="openVersionId3" rendered="#{repositoryTreeState.canOpen}" value="Open Revision"
+                                 type="button"
                                  onclick="openOpenVersionDialog();" title="Open the specified project revision"/>
 
                 <h:commandButton id="closeId3" rendered="#{repositoryTreeState.canClose}" value="Close"
