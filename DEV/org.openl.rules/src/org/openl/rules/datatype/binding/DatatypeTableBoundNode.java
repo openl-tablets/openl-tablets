@@ -43,6 +43,7 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.utils.ParserUtils;
+import org.openl.rules.utils.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -462,7 +463,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             return Pair.of(code.substring(0, c),
                 contextPropertyName.isEmpty() ? code.substring(0, c) : contextPropertyName);
         } else {
-            if (idn.length != 1) {
+            if (idn.length != 1 || TableNameChecker.isInvalidJavaIdentifier(code)) {
                 String errorMessage = String.format("Bad field name: '%s'.", nameCellSource.getCode());
                 throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, nameCellSource);
             } else {
