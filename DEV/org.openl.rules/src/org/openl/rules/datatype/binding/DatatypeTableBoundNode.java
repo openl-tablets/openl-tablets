@@ -8,12 +8,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.OpenL;
@@ -43,6 +42,7 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.utils.ParserUtils;
+import org.openl.rules.utils.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -75,6 +75,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DatatypeTableBoundNode implements IMemberBoundNode {
 
+    private static final Pattern CONTEXT_SPLITTER = Pattern.compile("\\s*:\\s*context\\s*");
     private final Logger log = LoggerFactory.getLogger(DatatypeTableBoundNode.class);
 
     private final TableSyntaxNode tableSyntaxNode;
@@ -449,26 +450,32 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     private Pair<String, String> parseFieldNameCell(ILogicalTable row,
-            IBindingContext cxt) throws OpenLCompilationException {
+                                                    IBindingContext cxt) throws OpenLCompilationException {
         GridCellSourceCodeModule nameCellSource = getCellSource(row, cxt, 1);
-        IdentifierNode[] idn = getIdentifierNode(nameCellSource);
-        final String code = Arrays.stream(idn).map(IdentifierNode::getIdentifier).collect(Collectors.joining());
-        if (code.contains(":context")) {
-            int c = code.indexOf(":context");
-            String contextPropertyName = code.substring(c + ":context".length());
-            if (contextPropertyName.startsWith(".")) {
-                contextPropertyName = contextPropertyName.substring(1);
+        final String code = nameCellSource.getCode();
+        String left, right;
+        String[] parts = CONTEXT_SPLITTER.split(code, 2);
+        left = parts[0];
+        if (parts.length > 1) {
+            right = parts[1];
+            if (right.isEmpty()) {
+                right = left;
+            } else if (right.startsWith(".")) {
+                right = StringUtils.trim(right.substring(1));
             }
-            return Pair.of(code.substring(0, c),
-                contextPropertyName.isEmpty() ? code.substring(0, c) : contextPropertyName);
         } else {
-            if (idn.length != 1) {
-                String errorMessage = String.format("Bad field name: '%s'.", nameCellSource.getCode());
-                throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, nameCellSource);
-            } else {
-                return Pair.of(idn[0].getIdentifier(), null);
-            }
+            right = null;
         }
+
+        if (TableNameChecker.isInvalidJavaIdentifier(left)) {
+            String errorMessage = String.format("Bad field name: '%s'.", code);
+            throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, nameCellSource);
+        }
+        if (right != null && TableNameChecker.isInvalidJavaIdentifier(right)) {
+            String errorMessage = String.format("Bad context property name: '%s'.", code);
+            throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, nameCellSource);
+        }
+        return Pair.of(left, right);
     }
 
     private void processRow(ILogicalTable row,
@@ -552,9 +559,13 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         String.format("Multiple fields refer to the same context property '%s'.", contextPropertyName),
                         getCellSource(row, bindingContext, 1));
                 }
+
                 IOpenClass contextPropertyType = JavaOpenClass
                     .getOpenClass(DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(contextPropertyName));
-                IOpenCast openCast = bindingContext.getCast(fieldType, contextPropertyType);
+                // If fieldType is a Datatype then there is no casting to contextPropertyType
+                IOpenCast openCast = fieldType.getInstanceClass() == null ? null
+                                                                          : bindingContext.getCast(fieldType,
+                                                                              contextPropertyType);
                 if (openCast == null || !openCast.isImplicit() && !contextPropertyType.getInstanceClass().isEnum()) {
                     throw SyntaxNodeExceptionUtils.createError(
                         String.format("Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.",
