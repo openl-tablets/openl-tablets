@@ -60,7 +60,7 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
             entities = new Object[storeLogDataToCassandraAnnotation.value().length];
             int i = 0;
             for (Class<?> entityClass : storeLogDataToCassandraAnnotation.value()) {
-                if (StoreLogDataToCassandra.DEFAULT.class.equals(entityClass)) {
+                if (StoreLogDataToCassandra.DEFAULT.class == entityClass) {
                     entities[i] = new DefaultCassandraEntity();
                 } else {
                     try {

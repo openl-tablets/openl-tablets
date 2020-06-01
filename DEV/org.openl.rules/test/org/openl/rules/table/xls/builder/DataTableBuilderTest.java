@@ -1,6 +1,8 @@
 package org.openl.rules.table.xls.builder;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,7 +20,6 @@ import org.openl.rules.helpers.IntRange;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.DataTableUserDefinedTypeField.PredefinedTypeChecker;
-import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 public class DataTableBuilderTest {
@@ -198,18 +199,9 @@ public class DataTableBuilderTest {
 
     }
 
-    private PredefinedTypeChecker predefinedChecker = new PredefinedTypeChecker() {
-
-        @Override
-        public boolean isPredefined(IOpenClass type) {
-            Class<?> instanceClass = type.getInstanceClass();
-
-            if (IntRange.class.equals(instanceClass)) {
-                return true;
-            }
-
-            return false;
-        }
+    private final PredefinedTypeChecker predefinedChecker = type -> {
+        Class<?> instanceClass = type.getInstanceClass();
+        return IntRange.class == instanceClass;
     };
 
     @SuppressWarnings("unused")

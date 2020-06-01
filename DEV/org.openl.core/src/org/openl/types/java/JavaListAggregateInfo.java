@@ -67,7 +67,7 @@ public class JavaListAggregateInfo extends AAggregateInfo {
 
     @Override
     public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType) {
-        if (!JavaOpenClass.INT.equals(indexType) && !Integer.class.equals(indexType.getInstanceClass())) {
+        if (JavaOpenClass.INT != indexType && Integer.class != indexType.getInstanceClass()) {
             return null;
         }
 

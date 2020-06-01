@@ -266,7 +266,7 @@ public class Condition extends FunctionalRow implements ICondition {
     }
 
     private static boolean isIntRangeType(IOpenClass type) {
-        return org.openl.rules.helpers.IntRange.class.equals(type.getInstanceClass());
+        return org.openl.rules.helpers.IntRange.class == type.getInstanceClass();
     }
 
     private String getRangeExpression(TableSyntaxNode tableSyntaxNode,
@@ -290,7 +290,7 @@ public class Condition extends FunctionalRow implements ICondition {
             return true;
         }
         if (ClassUtils.isAssignable(paramType.getInstanceClass(), INumberRange.class) && methodType.getInstanceClass()
-            .isPrimitive() && !char.class.equals(methodType.getInstanceClass())) {
+            .isPrimitive() && char.class != methodType.getInstanceClass()) {
             return true;
         }
         if (ClassUtils.isAssignable(paramType.getInstanceClass(), DateRange.class) && ClassUtils
@@ -299,7 +299,7 @@ public class Condition extends FunctionalRow implements ICondition {
         }
         if (ClassUtils.isAssignable(paramType.getInstanceClass(),
             CharRange.class) && (ClassUtils.isAssignable(methodType.getInstanceClass(), Character.class) || char.class
-                .equals(methodType.getInstanceClass()))) {
+                == methodType.getInstanceClass())) {
             return true;
         }
         return ClassUtils.isAssignable(paramType.getInstanceClass(), StringRange.class) && ClassUtils

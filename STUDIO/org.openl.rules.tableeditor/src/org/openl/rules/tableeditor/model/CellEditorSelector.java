@@ -122,8 +122,7 @@ public class CellEditorSelector {
                     result = factory.makeComboboxEditor(values, displayValues);
                 }
                 // Range
-            } else if (ClassUtils.isAssignable(instanceClass,
-                INumberRange.class) && !instanceClass.equals(CharRange.class)) {
+            } else if (ClassUtils.isAssignable(instanceClass, INumberRange.class) && CharRange.class != instanceClass) {
                 if (ClassUtils.isAssignable(instanceClass, IntRange.class) && DecisionTableHelper
                     .parsableAs(initialValue, instanceClass, null)) {
                     result = factory.makeNumberRangeEditor(ICellEditor.CE_INTEGER, initialValue);

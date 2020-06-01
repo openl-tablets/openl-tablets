@@ -70,13 +70,7 @@ public final class JAXWSOpenLServiceEnhancer {
                 String superName,
                 String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces);
-            boolean requiredWebServiceAnnotation = true;
-            for (Annotation annotation : originalClass.getAnnotations()) {
-                if (annotation.annotationType().equals(WebService.class)) {
-                    requiredWebServiceAnnotation = false;
-                    break;
-                }
-            }
+            boolean requiredWebServiceAnnotation = !originalClass.isAnnotationPresent(WebService.class);
             if (requiredWebServiceAnnotation) {
                 AnnotationVisitor annotationVisitor = this.visitAnnotation(Type.getDescriptor(WebService.class), true);
                 if (service != null) {
@@ -134,7 +128,7 @@ public final class JAXWSOpenLServiceEnhancer {
                         Annotation[] annotations = originalMethod.getParameterAnnotations()[i];
                         boolean found = false;
                         for (Annotation ann : annotations) {
-                            if (ann.annotationType().equals(WebParam.class)) {
+                            if (ann instanceof WebParam) {
                                 found = true;
                                 break;
                             }

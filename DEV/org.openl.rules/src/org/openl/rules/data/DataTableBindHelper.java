@@ -1026,7 +1026,7 @@ public class DataTableBindHelper {
 
         if (!ClassUtils.isAssignable(field.getType().getInstanceClass(), Map.class) && !ClassUtils.isAssignable(
             field.getType().getInstanceClass(),
-            List.class) && !field.getType().isArray() && !Object.class.equals(field.getType().getInstanceClass())) {
+            List.class) && !field.getType().isArray() && Object.class != field.getType().getInstanceClass()) {
             String message = String.format("Expected a collection type for field '%s', but found type '%s'.",
                 name,
                 field.getType().toString());
@@ -1047,7 +1047,7 @@ public class DataTableBindHelper {
                     elementType,
                     CollectionType.LIST);
             } else {
-                if (!field.getType().isArray() && Object.class.equals(field.getType().getInstanceClass())) {
+                if (!field.getType().isArray() && Object.class == field.getType().getInstanceClass()) {
                     collectionAccessField = new CollectionElementWithMultiRowField(field,
                         buildRootPathForDatatypeArrayMultiRowElementField(partPathFromRoot, field.getName()),
                         JavaOpenClass.OBJECT,
@@ -1097,7 +1097,7 @@ public class DataTableBindHelper {
                         bindingContext);
                     collectionAccessField = new CollectionElementField(field, index, elementType, CollectionType.LIST);
                 } else {
-                    if (!field.getType().isArray() && field.getType().getInstanceClass().equals(Object.class)) {
+                    if (!field.getType().isArray() && Object.class == field.getType().getInstanceClass()) {
                         collectionAccessField = new CollectionElementField(field,
                             index,
                             JavaOpenClass.OBJECT,

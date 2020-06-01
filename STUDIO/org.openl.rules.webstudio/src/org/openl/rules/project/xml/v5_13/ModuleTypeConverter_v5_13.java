@@ -18,7 +18,7 @@ public class ModuleTypeConverter_v5_13 implements SingleValueConverter {
 
     @Override
     public boolean canConvert(Class type) {
-        return type.equals(ModuleType_v5_13.class);
+        return type == ModuleType_v5_13.class;
     }
 
 }

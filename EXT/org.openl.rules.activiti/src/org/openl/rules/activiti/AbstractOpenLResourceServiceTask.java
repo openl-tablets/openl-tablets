@@ -74,7 +74,7 @@ public abstract class AbstractOpenLResourceServiceTask<T> implements JavaDelegat
             .setWorkspace(projectWorkspace.getCanonicalPath())
             .setProvideRuntimeContext(isProvideRuntimeContext);
 
-        if (interfaceClass != null && !interfaceClass.equals(Object.class)) {
+        if (interfaceClass != null && interfaceClass != Object.class) {
             simpleProjectEngineFactoryBuilder.setInterfaceClass(interfaceClass);
         }
 

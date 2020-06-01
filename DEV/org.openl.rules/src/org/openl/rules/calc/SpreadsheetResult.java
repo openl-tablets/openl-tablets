@@ -518,7 +518,7 @@ public class SpreadsheetResult implements Serializable {
                             toType != null && toType.isArray() ? toType.getComponentType() : null);
                     }
                 }
-                if (toType != null && toType.isArray() && !Object.class.equals(toType.getComponentType())) {
+                if (toType != null && toType.isArray() && Object.class != toType.getComponentType()) {
                     return tmpArray;
                 }
                 Class<?> c = null;

@@ -36,7 +36,7 @@ public class OpenLRulesMethodHandler extends OpenLMethodHandler implements IRule
 
     @Override
     public Object invoke(Method method, Object[] args) throws Exception {
-        if (IRulesRuntimeContextProvider.class.equals(method.getDeclaringClass())) {
+        if (IRulesRuntimeContextProvider.class == method.getDeclaringClass()) {
             return method.invoke(this, args);
         }
         if (IEngineWrapper.class != method.getDeclaringClass()) {

@@ -57,7 +57,7 @@ public class DimensionPropertiesDomainsCollector {
 
             IDomainCollector domainCollector = domainCollectors.get(propNeedDomain);
             applyDomain(propDef, domainCollector.getGatheredDomain());
-            if (dateDomainAdaptor == null && Date.class.equals(propertyType)) {
+            if (dateDomainAdaptor == null && Date.class == propertyType) {
                 dateDomainAdaptor = domainCollector.getGatheredDomain();
             } else if (propertyType.isArray() && propertyType.getComponentType().isEnum()) {
                 applyArrayDomains(propNeedDomain, domainCollector);

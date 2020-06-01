@@ -243,23 +243,23 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     }
 
     private static boolean isDoubleRangeType(IOpenClass type) {
-        return org.openl.rules.helpers.DoubleRange.class.equals(type.getInstanceClass());
+        return org.openl.rules.helpers.DoubleRange.class == type.getInstanceClass();
     }
 
     private static boolean isIntRangeType(IOpenClass type) {
-        return org.openl.rules.helpers.IntRange.class.equals(type.getInstanceClass());
+        return org.openl.rules.helpers.IntRange.class == type.getInstanceClass();
     }
 
     private static boolean isCharRangeType(IOpenClass type) {
-        return org.openl.rules.helpers.CharRange.class.equals(type.getInstanceClass());
+        return org.openl.rules.helpers.CharRange.class == type.getInstanceClass();
     }
 
     private static boolean isStringRangeType(IOpenClass type) {
-        return StringRange.class.equals(type.getInstanceClass());
+        return StringRange.class == type.getInstanceClass();
     }
 
     private static boolean isDateRangeType(IOpenClass type) {
-        return DateRange.class.equals(type.getInstanceClass());
+        return DateRange.class == type.getInstanceClass();
     }
 
     private static boolean isCharType(IOpenClass type) {

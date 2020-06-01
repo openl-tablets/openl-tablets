@@ -300,7 +300,7 @@ public class CastFactory implements ICastFactory {
             }
         }
 
-        if (ThrowableVoid.class.equals(from.getInstanceClass())) {
+        if (ThrowableVoid.class == from.getInstanceClass()) {
             return ThrowableVoidCast.getInstance();
         }
         /* END: This is very cheap operations, so no needs to cache it */
@@ -396,7 +396,7 @@ public class CastFactory implements ICastFactory {
             // Improve for up cast
             return getUpCast(fromClass, to.getInstanceClass());
         }
-        if (Object.class.equals(fromClass)) {
+        if (Object.class == fromClass) {
             // Special case for casting when:
             // Object from = new SomeType[x]
             // SomeType[] to = from
@@ -533,7 +533,7 @@ public class CastFactory implements ICastFactory {
         }
 
         // Apache ClassUtils has error in 2.6
-        if (void.class.equals(fromClass) && Void.class.equals(toClass)) {
+        if (void.class == fromClass && Void.class == toClass) {
             return JavaBoxingCast.getInstance();
         }
 
@@ -561,7 +561,7 @@ public class CastFactory implements ICastFactory {
         }
 
         // Apache ClassUtils has error in 2.6
-        if (Void.class.equals(fromClass) && void.class.equals(toClass)) {
+        if (Void.class == fromClass && void.class == toClass) {
             return JavaUnboxingCast.getInstance(fromClass);
         }
 

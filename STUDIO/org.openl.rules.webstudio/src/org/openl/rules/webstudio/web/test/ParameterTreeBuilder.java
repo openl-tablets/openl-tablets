@@ -120,9 +120,9 @@ public class ParameterTreeBuilder {
             String fieldName,
             ParameterDeclarationTreeNode parent) {
         Class<?> instanceClass = fieldType.getInstanceClass();
-        if (IntRange.class.equals(instanceClass)) {
+        if (IntRange.class == instanceClass) {
             return new IntRangeDeclarationTreeNode(fieldName, value, fieldType, parent);
-        } else if (DoubleRange.class.equals(instanceClass)) {
+        } else if (DoubleRange.class == instanceClass) {
             return new DoubleRangeDeclarationTreeNode(fieldName, value, fieldType, parent);
         }
 

@@ -51,28 +51,28 @@ public class JAXRSOpenLServiceEnhancerTest {
 
     @Test
     public void testNoAnnotationMethod() throws Exception {
-        Class<?> enchancedClass = createService(TestInterface.class);
+        Class<?> enhancedClass = createService(TestInterface.class);
         boolean f = false;
         boolean producesAnnotationExists = false;
         boolean consumesAnnotationExists = false;
 
-        for (Annotation annotation : enchancedClass.getAnnotations()) {
-            if (annotation.annotationType().equals(Path.class)) {
+        for (Annotation annotation : enhancedClass.getAnnotations()) {
+            if (annotation instanceof Path) {
                 Path path = (Path) annotation;
                 String value = path.value();
                 if (value.equals("/")) {
                     f = true;
                 }
             }
-            if (annotation.annotationType().equals(Produces.class)) {
+            if (annotation instanceof Produces) {
                 producesAnnotationExists = true;
                 Produces produces = (Produces) annotation;
-                Assert.assertTrue("@Produces annotatoion requires values.", produces.value().length > 0);
+                Assert.assertTrue("@Produces annotation requires values.", produces.value().length > 0);
             }
-            if (annotation.annotationType().equals(Consumes.class)) {
+            if (annotation instanceof Consumes) {
                 consumesAnnotationExists = true;
                 Consumes consumes = (Consumes) annotation;
-                Assert.assertTrue("@Consumes annotatoion requires values.", consumes.value().length > 0);
+                Assert.assertTrue("@Consumes annotation requires values.", consumes.value().length > 0);
             }
         }
 
@@ -84,16 +84,16 @@ public class JAXRSOpenLServiceEnhancerTest {
         }
 
         if (!f) {
-            Assert.fail("Enchanced interface should contains @Path annotation on class.");
+            Assert.fail("Enhanced interface should contains @Path annotation on class.");
         }
 
         boolean pathAnnotationExists = false;
         boolean getAnnotationExists = false;
         boolean pathParamAnnotationExists = false;
 
-        Method someMethod = enchancedClass.getMethod("someMethod", int.class);
+        Method someMethod = enhancedClass.getMethod("someMethod", int.class);
         for (Annotation annotation : someMethod.getAnnotations()) {
-            if (annotation.annotationType().equals(Path.class)) {
+            if (annotation instanceof Path) {
                 Path path = (Path) annotation;
                 String value = path.value();
                 pathAnnotationExists = true;
@@ -101,16 +101,16 @@ public class JAXRSOpenLServiceEnhancerTest {
                     Assert.fail("Generated method should contains @Path annotation on method with method name value.");
                 }
             }
-            if (annotation.annotationType().equals(GET.class)) {
+            if (annotation instanceof GET) {
                 getAnnotationExists = true;
             }
         }
         for (Annotation[] annotations : someMethod.getParameterAnnotations()) {
             for (Annotation annotation : annotations) {
-                if (annotation.annotationType().equals(PathParam.class)) {
+                if (annotation instanceof PathParam) {
                     pathParamAnnotationExists = true;
                     PathParam param = (PathParam) annotation;
-                    Assert.assertNotNull("Method parameter requred @PathParam annotation", param.value());
+                    Assert.assertNotNull("Method parameter required @PathParam annotation", param.value());
                 }
             }
         }
@@ -133,8 +133,8 @@ public class JAXRSOpenLServiceEnhancerTest {
 
     @Test
     public void testMethodWithAnnotation1() throws Exception {
-        Class<?> enchancedClass = createService(TestAnnotatedInterface1.class);
-        Method someMethod = enchancedClass.getMethod("someMethod", String.class, String.class);
+        Class<?> enhancedClass = createService(TestAnnotatedInterface1.class);
+        Method someMethod = enhancedClass.getMethod("someMethod", String.class, String.class);
         Path path = someMethod.getAnnotation(Path.class);
         Assert.assertNotNull(path);
         Assert.assertEquals("/someMethod/{arg1}/{arg2}", path.value());
@@ -162,9 +162,9 @@ public class JAXRSOpenLServiceEnhancerTest {
 
     @Test
     public void testMethodWithAnnotation2() throws Exception {
-        Class<?> enchancedClass = createService(TestAnnotatedInterface2.class);
+        Class<?> enhancedClass = createService(TestAnnotatedInterface2.class);
         Method someMethod = null;
-        for (Method method : enchancedClass.getMethods()) {
+        for (Method method : enhancedClass.getMethods()) {
             if ("someMethod".equals(method.getName())) {
                 someMethod = method;
                 break;
@@ -218,7 +218,7 @@ public class JAXRSOpenLServiceEnhancerTest {
         }
 
         if (!f) {
-            Assert.fail("Enchanced interface should contains @Path annotation on class.");
+            Assert.fail("Enchanted interface should contains @Path annotation on class.");
         }
 
         boolean pathAnnotationExists = false;
@@ -229,7 +229,7 @@ public class JAXRSOpenLServiceEnhancerTest {
 
         Method someMethod = enhancedClass.getMethod("someMethod", String.class);
         for (Annotation annotation : someMethod.getAnnotations()) {
-            if (annotation.annotationType().equals(Path.class)) {
+            if (annotation instanceof Path) {
                 Path path = (Path) annotation;
                 String value = path.value();
                 pathAnnotationExists = true;
@@ -237,26 +237,26 @@ public class JAXRSOpenLServiceEnhancerTest {
                     Assert.fail("Generated method should contains @Path annotation on method with defined value.");
                 }
             }
-            if (annotation.annotationType().equals(GET.class)) {
+            if (annotation instanceof GET) {
                 getAnnotationExists = true;
             }
-            if (annotation.annotationType().equals(Produces.class)) {
+            if (annotation instanceof Produces) {
                 producesAnnotationExists = true;
                 Produces produces = (Produces) annotation;
-                Assert.assertEquals("@Produces annotatoion requires defined values.", 1, produces.value().length);
+                Assert.assertEquals("@Produces annotation requires defined values.", 1, produces.value().length);
             }
-            if (annotation.annotationType().equals(Consumes.class)) {
+            if (annotation instanceof Consumes) {
                 consumesAnnotationExists = true;
                 Consumes consumes = (Consumes) annotation;
-                Assert.assertEquals("@Consumes annotatoion requires defined values.", 1, consumes.value().length);
+                Assert.assertEquals("@Consumes annotation requires defined values.", 1, consumes.value().length);
             }
         }
         for (Annotation[] annotations : someMethod.getParameterAnnotations()) {
             for (Annotation annotation : annotations) {
-                if (annotation.annotationType().equals(PathParam.class)) {
+                if (annotation instanceof PathParam) {
                     pathParamAnnotationExists = true;
                     PathParam param = (PathParam) annotation;
-                    Assert.assertEquals("Method parameter requred @PathParam annotation", "arg", param.value());
+                    Assert.assertEquals("Method parameter required @PathParam annotation", "arg", param.value());
                 }
             }
         }
@@ -279,9 +279,9 @@ public class JAXRSOpenLServiceEnhancerTest {
 
     @Test
     public void testParametersInMethod() throws Exception {
-        Class<?> enchancedClass = createService(TestParameterInterface.class);
+        Class<?> enhancedClass = createService(TestParameterInterface.class);
         int i = 0;
-        for (Method method : enchancedClass.getMethods()) {
+        for (Method method : enhancedClass.getMethods()) {
             if ("someMethod".equals(method.getName())) {
                 i++;
                 Annotation postAnnotation = method.getAnnotation(POST.class);

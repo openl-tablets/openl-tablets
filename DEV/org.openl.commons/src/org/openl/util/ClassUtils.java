@@ -281,39 +281,33 @@ public class ClassUtils {
             cls = primitiveToWrapper(cls);
         }
 
-        if (cls.equals(toClass)) {
+        if (cls == toClass) {
             return true;
         }
         if (cls.isPrimitive()) {
             if (!toClass.isPrimitive()) {
                 return false;
             }
-            if (Integer.TYPE.equals(cls)) {
-                return Long.TYPE.equals(toClass) || Float.TYPE.equals(toClass) || Double.TYPE.equals(toClass);
+            if (Integer.TYPE == cls) {
+                return Long.TYPE == toClass || Float.TYPE == toClass || Double.TYPE == toClass;
             }
             if (Long.TYPE.equals(cls)) {
-                return Float.TYPE.equals(toClass) || Double.TYPE.equals(toClass);
+                return Float.TYPE == toClass || Double.TYPE == toClass;
             }
-            if (Boolean.TYPE.equals(cls)) {
+            if (Boolean.TYPE == cls) {
                 return false;
             }
-            if (Double.TYPE.equals(cls)) {
+            if (Double.TYPE == cls) {
                 return false;
             }
-            if (Float.TYPE.equals(cls)) {
-                return Double.TYPE.equals(toClass);
+            if (Float.TYPE == cls) {
+                return Double.TYPE == toClass;
             }
-            if (Character.TYPE.equals(cls)) {
-                return Integer.TYPE.equals(toClass) || Long.TYPE.equals(toClass) || Float.TYPE
-                    .equals(toClass) || Double.TYPE.equals(toClass);
-            }
-            if (Short.TYPE.equals(cls)) {
-                return Integer.TYPE.equals(toClass) || Long.TYPE.equals(toClass) || Float.TYPE
-                    .equals(toClass) || Double.TYPE.equals(toClass);
+            if (Character.TYPE == cls || Short.TYPE == cls) {
+                return Integer.TYPE == toClass || Long.TYPE == toClass || Float.TYPE == toClass || Double.TYPE == toClass;
             }
             if (Byte.TYPE.equals(cls)) {
-                return Short.TYPE.equals(toClass) || Integer.TYPE.equals(toClass) || Long.TYPE
-                    .equals(toClass) || Float.TYPE.equals(toClass) || Double.TYPE.equals(toClass);
+                return Short.TYPE == toClass || Integer.TYPE == toClass || Long.TYPE == toClass || Float.TYPE == toClass || Double.TYPE == toClass;
             }
             // should never get here
             return false;

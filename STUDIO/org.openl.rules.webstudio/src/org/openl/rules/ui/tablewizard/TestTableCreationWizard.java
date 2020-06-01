@@ -196,7 +196,7 @@ public class TestTableCreationWizard extends TableCreationWizard {
      * type of the table is not void.
      */
     private boolean isExecutableAndTestableNode(TableSyntaxNode node) {
-        return node.isExecutableNode() && !void.class.equals(node.getMember().getType().getInstanceClass());
+        return node.isExecutableNode() && void.class != node.getMember().getType().getInstanceClass();
     }
 
     @Override

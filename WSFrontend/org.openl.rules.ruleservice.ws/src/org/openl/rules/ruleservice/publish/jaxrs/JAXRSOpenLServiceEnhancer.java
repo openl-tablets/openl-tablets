@@ -345,7 +345,7 @@ public final class JAXRSOpenLServiceEnhancer {
 
             MethodVisitor mv;
             Class<?> returnType = originalMethod.getReturnType();
-            boolean hasResponse = returnType.equals(Response.class);
+            boolean hasResponse = returnType == Response.class;
             arg2 = hasResponse ? arg2
                                : arg2.substring(0, arg2.lastIndexOf(')') + 1) + Type.getDescriptor(Response.class);
 
@@ -421,12 +421,12 @@ public final class JAXRSOpenLServiceEnhancer {
             for (Annotation[] annotations : originalMethod.getParameterAnnotations()) {
                 if (annotations.length > 0) {
                     for (Annotation annotation : annotations) {
-                        if (PathParam.class.equals(annotation.annotationType())) {
+                        if (annotation instanceof PathParam) {
                             values.add(new ParamAnnotationValue(PathParam.class, ((PathParam) annotation).value()));
                             // it is possible that PathParam and QueryParam annotations will be indicated together for
                             // one parameter
                             break;
-                        } else if (QueryParam.class.equals(annotation.annotationType())) {
+                        } else if (annotation instanceof QueryParam) {
                             values.add(new ParamAnnotationValue(QueryParam.class, ((QueryParam) annotation).value()));
                             // it is possible that PathParam and QueryParam annotations will be indicated together for
                             // one parameter
@@ -487,7 +487,7 @@ public final class JAXRSOpenLServiceEnhancer {
         }
 
         private void annotateReturnElementClass(MethodVisitor mv, Class<?> returnType) {
-            if (returnType.equals(Object.class) || returnType.equals(Void.class)) {
+            if (Object.class == returnType || Void.class == returnType) {
                 return;
             }
             AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ElementClass.class), true);

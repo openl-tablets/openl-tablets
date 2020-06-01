@@ -227,15 +227,15 @@ public class StoreLogDataMapper {
                     annotation.getClass().getTypeName()));
         }
 
-        if (!(DefaultConverter.class.equals(converterClass) || DefaultStringConverter.class
-            .equals(converterClass) || DefaultDateConverter.class.equals(converterClass))) {
+        if (!(DefaultConverter.class == converterClass || DefaultStringConverter.class
+            == converterClass || DefaultDateConverter.class == converterClass)) {
             Converter<Object, Object> converter = null;
             try {
                 converter = (Converter<Object, Object>) converterClass.newInstance();
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
                     log.error(String.format(
-                        "Convertor class instantiation is failed. Please, check that class '%s' is not abstact and has a default constructor.",
+                        "Converter class instantiation is failed. Please, check that class '%s' is not abstract and has a default constructor.",
                         converterClass.getTypeName()), e);
                 }
                 value = null;

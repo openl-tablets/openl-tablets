@@ -72,10 +72,10 @@ public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMemb
 
     @Override
     public Object invoke(Method method, Object[] args) throws Exception {
-        if (IEngineWrapper.class.equals(method.getDeclaringClass())) {
+        if (IEngineWrapper.class == method.getDeclaringClass()) {
             return method.invoke(this, args);
         }
-        if (Object.class.equals(method.getDeclaringClass())) {
+        if (Object.class == method.getDeclaringClass()) {
             return method.invoke(this, args);
         } else {
             IOpenMember member = methodMap.get(method);
