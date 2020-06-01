@@ -10,7 +10,6 @@ import org.openl.binding.ILocalVar;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
-import org.openl.types.java.JavaArrayAggregateInfo;
 import org.openl.util.CollectionUtils;
 import org.openl.vm.IRuntimeEnv;
 
@@ -18,10 +17,10 @@ class OrderByIndexNode extends ABoundNode {
 
     private static final Comparator<Comparable<Object>> ASC = new AscComparator<>();
     private static final Comparator<Comparable<Object>> DESC = new DescComparator<>();
-    private ILocalVar tempVar;
-    private boolean isDecreasing;
-    private IBoundNode orderBy;
-    private IBoundNode targetNode;
+    private final ILocalVar tempVar;
+    private final boolean isDecreasing;
+    private final IBoundNode orderBy;
+    private final IBoundNode targetNode;
 
     OrderByIndexNode(ISyntaxNode syntaxNode,
             IBoundNode targetNode,
@@ -70,7 +69,6 @@ class OrderByIndexNode extends ABoundNode {
         }
 
         ArrayList<Object> objects = new ArrayList<>();
-
         for (Object element : map.values()) {
             if (element instanceof OrderList) {
                 for (Object item : (OrderList) element) {
@@ -91,8 +89,8 @@ class OrderByIndexNode extends ABoundNode {
             return type;
         }
 
-        IOpenClass varType = tempVar.getType();
-        return JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(varType);
+        IOpenClass componentType = tempVar.getType();
+        return componentType.getAggregateInfo().getIndexedAggregateType(componentType);
     }
 
     private static class OrderList extends ArrayList<Object> {

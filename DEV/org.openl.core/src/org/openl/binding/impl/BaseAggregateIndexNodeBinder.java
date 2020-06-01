@@ -56,7 +56,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
         }
         int numberOfChildren = node.getNumberOfChildren();
         if (numberOfChildren < 1 || numberOfChildren > 2) {
-            return makeErrorNode("Aggregate node can have either 1 or 2 childen nodes.", node, bindingContext);
+            return makeErrorNode("Aggregate node can have either 1 or 2 children nodes.", node, bindingContext);
         }
 
         // there could be 1 or 2 syntax nodes as children

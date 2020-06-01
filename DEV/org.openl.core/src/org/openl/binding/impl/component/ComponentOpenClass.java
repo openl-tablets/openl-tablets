@@ -23,9 +23,9 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class ComponentOpenClass extends ADynamicClass {
 
-    private DefaultInitializer init;
+    private final DefaultInitializer init;
 
-    private OpenL openl;
+    private final OpenL openl;
 
     public ComponentOpenClass(String name, OpenL openl) {
         super(name, DynamicObject.class);
