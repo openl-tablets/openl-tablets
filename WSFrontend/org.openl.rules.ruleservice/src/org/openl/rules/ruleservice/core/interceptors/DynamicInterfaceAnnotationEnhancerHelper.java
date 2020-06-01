@@ -75,7 +75,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                                     Annotation[] annotations = method.getParameterAnnotations()[i];
                                     boolean isAnyTypeParameter = false;
                                     for (Annotation annotation : annotations) {
-                                        if (annotation.annotationType().equals(AnyType.class)) {
+                                        if (annotation instanceof AnyType) {
                                             AnyType anyTypeAnnotation = (AnyType) annotation;
                                             String pattern = anyTypeAnnotation.value();
                                             if (pattern.isEmpty()) {
