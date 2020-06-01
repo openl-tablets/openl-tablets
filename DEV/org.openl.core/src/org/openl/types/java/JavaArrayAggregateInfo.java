@@ -31,10 +31,7 @@ public class JavaArrayAggregateInfo extends AAggregateInfo {
     @Override
     public IOpenClass getComponentType(IOpenClass aggregateType) {
         Class<?> c = aggregateType.getInstanceClass().getComponentType();
-        if (c == null) {
-            return null;
-        }
-        return JavaOpenClass.getOpenClass(c);
+        return c != null ? JavaOpenClass.getOpenClass(c) : null;
     }
 
     @Override

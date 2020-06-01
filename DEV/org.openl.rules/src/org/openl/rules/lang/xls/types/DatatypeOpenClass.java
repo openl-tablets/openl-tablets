@@ -167,9 +167,6 @@ public class DatatypeOpenClass extends ADynamicClass {
 
     @Override
     public IOpenClass getComponentClass() {
-        if (isArray()) {
-            return JavaOpenClass.getOpenClass(getInstanceClass().getComponentType());
-        }
         return null;
     }
 

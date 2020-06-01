@@ -50,8 +50,8 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
                 // simply create indexed field
                 if (indexField.getType() == indexType) {
                     return new ArrayFieldIndex(componentClass, indexField);
-                } else if (IntegerValuesUtils.isIntegerValue(indexField.getType().getInstanceClass()) && String.class
-                    .equals(indexType.getInstanceClass())) {
+                } else if (IntegerValuesUtils.isIntegerValue(
+                    indexField.getType().getInstanceClass()) && String.class == indexType.getInstanceClass()) {
                     // handles the case when index field of Datatype is of type int, and we try to get String index
                     // e.g. person["12"]
                     return new ArrayFieldIndex(componentClass, indexField);

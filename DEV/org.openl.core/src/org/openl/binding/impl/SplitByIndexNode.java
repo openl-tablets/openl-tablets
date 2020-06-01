@@ -10,14 +10,13 @@ import org.openl.binding.ILocalVar;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
-import org.openl.types.java.JavaArrayAggregateInfo;
 import org.openl.vm.IRuntimeEnv;
 
 class SplitByIndexNode extends ABoundNode {
 
-    private ILocalVar tempVar;
-    private IBoundNode splitBy;
-    private IBoundNode targetNode;
+    private final ILocalVar tempVar;
+    private final IBoundNode splitBy;
+    private final IBoundNode targetNode;
 
     SplitByIndexNode(ISyntaxNode syntaxNode, IBoundNode targetNode, IBoundNode splitBy, ILocalVar tempVar) {
         super(syntaxNode, targetNode, splitBy);
@@ -68,7 +67,7 @@ class SplitByIndexNode extends ABoundNode {
         int size = list2d.size();
 
         IOpenClass componentType = tempVar.getType();
-        IOpenClass arrayType = JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(componentType);
+        IOpenClass arrayType = componentType.getAggregateInfo().getIndexedAggregateType(componentType);
 
         Object result = Array.newInstance(arrayType.getInstanceClass(), size);
 
@@ -101,9 +100,9 @@ class SplitByIndexNode extends ABoundNode {
 
         IOpenClass componentType = tempVar.getType();
         // the first dimension
-        componentType = JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(componentType);
+        componentType = componentType.getAggregateInfo().getIndexedAggregateType(componentType);
         // the second dimension
-        componentType = JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(componentType);
+        componentType = componentType.getAggregateInfo().getIndexedAggregateType(componentType);
         return componentType;
     }
 }
