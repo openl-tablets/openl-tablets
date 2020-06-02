@@ -14,10 +14,10 @@ import org.openl.rules.testmethod.result.ComparedResult;
  */
 public class TestUnit extends BaseTestUnit {
 
-    private Object expectedResult;
-    private String expectedError;
+    private final Object expectedResult;
+    private final String expectedError;
 
-    private Object actualResult;
+    private final Object actualResult;
 
     TestUnit(TestDescription test, Object res, Throwable error, long executionTime) {
         super(test, res, error, executionTime);

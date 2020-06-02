@@ -395,7 +395,7 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     public void setIndexField(IOpenField field) {
-        indexField = field;
+        this.indexField = field;
     }
 
     @Override

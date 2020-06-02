@@ -7,4 +7,6 @@ ERROR: Default value for field 'txt' in class 'org.openl.generated.epbds6830.Bea
 ERROR: Invalid access modifier is found on field 'a' in class 'org.openl.generated.epbds6830.BeanA'. Please, regenerate datatype classes.
 ERROR: Invalid access modifier is found on field 'aa' in class 'org.openl.generated.epbds6830.BeanA'. Please, regenerate datatype classes.
 ERROR: Required constructor with parameters is not found in class 'org.openl.generated.epbds6830.BeanA'. Please, regenerate datatype classes.
+ERROR: Field 'xB' is not transient in class 'org.openl.generated.epbds6830.BeanA'. Please, regenerate datatype classes.
+ERROR: Field 'Ba' is transient in class 'org.openl.generated.epbds6830.BeanA'. Please, regenerate datatype classes.
 

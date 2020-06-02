@@ -22,10 +22,10 @@ import org.openl.types.impl.CompositeMethod;
  */
 public class OpenlToolAdaptor {
 
-    private OpenL openl;
+    private final OpenL openl;
     private IOpenMethodHeader header;
-    private IBindingContext bindingContext;
-    private TableSyntaxNode tableSyntaxNode;
+    private final IBindingContext bindingContext;
+    private final TableSyntaxNode tableSyntaxNode;
 
     public OpenlToolAdaptor(OpenL openl, IBindingContext bindingContext, TableSyntaxNode tableSyntaxNode) {
         this.openl = openl;
@@ -60,7 +60,6 @@ public class OpenlToolAdaptor {
 
     public CompositeMethod makeMethod(IOpenSourceCodeModule src, IOpenMethodHeader h2) {
         return OpenLManager.makeMethod(openl, src, h2, bindingContext);
-
     }
 
 }

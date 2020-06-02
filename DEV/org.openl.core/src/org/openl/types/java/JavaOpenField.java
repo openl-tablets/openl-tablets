@@ -55,6 +55,11 @@ public class JavaOpenField implements IOpenField {
         return getName();
     }
 
+    @Override
+    public boolean isTransient() {
+        return Modifier.isTransient(field.getModifiers());
+    }
+
     /*
      * (non-Javadoc)
      *
