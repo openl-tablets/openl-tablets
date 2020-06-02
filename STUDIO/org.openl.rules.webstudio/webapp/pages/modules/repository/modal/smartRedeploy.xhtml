@@ -79,7 +79,7 @@
                 <h:commandButton id="cancelBtn" value="Cancel" action="#{smartRedeployController.reset}"/>
             </footer>
 
-            <a4j:jsFunction name="renderSmartRedeploy" render="modalSmartRedeployData"
+            <a4j:jsFunction name="renderSmartRedeploy" render="@form"
                             oncomplete="showSmartRedeployDialog()" action="#{smartRedeployController.initProject}"/>
         </h:form>
     </rich:popupPanel>
