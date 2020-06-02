@@ -64,7 +64,7 @@
         <footer>
             <a4j:commandButton action="#{connectionProductionRepoController.save}"
                          styleClass="button-primary" process="@form" value="Connect" render="@form securePanel repositoryProps messagePanel errorMessage"
-                         oncomplete="if(#{!facesContext.validationFailed} &amp;&amp; event.data.length == 0) #{rich:component('modalAddRepoConnection')}.hide(); else hideLoader();"
+                         oncomplete="if(#{!facesContext.validationFailed} &amp;&amp; event.data.length == 0) #{rich:component('modalAddRepoConnection')}.hide(); else {resizePopupPanel('modalAddRepoConnection'); hideLoader();}"
                          data="#{connectionProductionRepoController.errorMessage}"/>
             <a4j:commandButton id="cancelButton" action="#{connectionProductionRepoController.clearForm}"
                          value="Cancel" render="modalAddRepoConnectionPanel productionParameters securePanel repositoryProps"
