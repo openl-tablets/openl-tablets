@@ -64,6 +64,9 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
             CommonVersion deploymentVersion = deployment.getCommonVersion();
             DeploymentDescription deploymentDescription = new DeploymentDescription(deploymentName, deploymentVersion);
             for (AProject project : deployment.getProjects()) {
+                if (project.isDeleted()) {
+                    continue;
+                }
                 String projectName = project.getName();
                 try {
                     Collection<Module> modulesOfProject = ruleServiceLoader
