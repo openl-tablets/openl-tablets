@@ -25,10 +25,9 @@
                     </h:selectOneMenu>
                 </h:panelGroup>
 
-                <h:outputText value="Wait..." rendered="#{smartRedeployController.loading}" style="margin: 25px 0px"/>
                 <h:outputText
                         value="There are no deploy configurations containing project '#{repositoryTreeState.selectedProject.name}'"
-                        rendered="#{!smartRedeployController.loading and empty smartRedeployController.items}"
+                        rendered="#{empty smartRedeployController.items}"
                         style="margin: 25px 0px"/>
                 <rich:dataTable id="smartRedeployTable" value="#{smartRedeployController.items}" var="item"
                                 styleClass="table" rendered="#{not empty smartRedeployController.items}"

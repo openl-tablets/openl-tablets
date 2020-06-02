@@ -12,8 +12,6 @@ import org.springframework.stereotype.Controller;
 @ViewScope
 public class SmartRedeployController extends AbstractSmartRedeployController {
 
-    private boolean loading = true;
-
     @Override
     public AProject getSelectedProject() {
         AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getData();
@@ -28,16 +26,10 @@ public class SmartRedeployController extends AbstractSmartRedeployController {
         setRepositoryConfigName(null);
         items = null;
         currentProject = null;
-        loading = true;
     }
 
     public void initProject() {
         reset();
         currentProject = getSelectedProject();
-        loading = false;
-    }
-
-    public boolean isLoading() {
-        return loading;
     }
 }

@@ -12,13 +12,10 @@ import org.springframework.web.context.annotation.SessionScope;
 @SessionScope
 public class SmartRedeployEditorController extends AbstractSmartRedeployController {
 
-    private boolean loading = true;
-
     public void setProject(String projectName) {
         try {
             reset();
             currentProject = userWorkspace.getProject(projectName);
-            loading = false;
         } catch (ProjectException e) {
             log.warn("Failed to retrieve the project", e);
         }
@@ -28,11 +25,6 @@ public class SmartRedeployEditorController extends AbstractSmartRedeployControll
         setRepositoryConfigName(null);
         items = null;
         currentProject = null;
-        loading = true;
-    }
-
-    public boolean isLoading() {
-        return loading;
     }
 
     @Override
