@@ -1889,7 +1889,10 @@ public class RepositoryTreeController {
      *         is invoked
      */
     public boolean isCurrentProjectSelected() {
-        if (currentProject != getSelectedProject()) {
+        AProject selectedProject = getSelectedProject();
+        if (currentProject == null || selectedProject == null || currentProject != selectedProject && !currentProject
+            .getName()
+            .equals(selectedProject.getName())) {
             currentProject = null;
             return false;
         }

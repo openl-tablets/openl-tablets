@@ -25,7 +25,8 @@ public class NodeVersionsBean {
 
     public TreeNode getNodeToView() {
         TreeNode selectedNode = repositoryTreeState.getSelectedNode();
-        if (selectedNode != nodeToView) {
+        if (nodeToView == null || selectedNode == null || selectedNode != nodeToView && !selectedNode.getId()
+            .equals(nodeToView.getId())) {
             nodeToView = null;
         }
         return nodeToView;

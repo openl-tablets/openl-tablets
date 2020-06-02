@@ -84,8 +84,8 @@ public abstract class AbstractSmartRedeployController {
 
     public synchronized List<DeploymentProjectItem> getItems() {
         AProject project = getSelectedProject();
-        if (project == null || project != currentProject || isSupportsBranches() && project
-            .getLastHistoryVersion() == null) {
+        if (project == null || currentProject == null || project != currentProject && !project.getName()
+            .equals(currentProject.getName()) || isSupportsBranches() && project.getLastHistoryVersion() == null) {
             reset();
             return null;
         }
