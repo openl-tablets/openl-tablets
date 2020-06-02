@@ -30,9 +30,9 @@ import com.rits.cloning.IInstantiationStrategy;
  * @author DLiauchuk
  *
  */
-public class OpenLCloner extends Cloner {
+public class OpenLArgumentsCloner extends Cloner {
 
-    public OpenLCloner() {
+    public OpenLArgumentsCloner() {
         super(new ObjenesisInstantiationStrategy());
         dontCloneClasses();
     }
