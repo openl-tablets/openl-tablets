@@ -1,10 +1,14 @@
 package org.openl.binding.impl;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
 import org.openl.meta.IMetaInfo;
+import org.openl.rules.calc.IOriginalDeclaredClassesOpenField;
+import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.ITable;
@@ -18,6 +22,9 @@ import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 
 public final class FieldUsageSearcher {
+
+    private static final int MAX_DESCRIPTION_CLASS_NUMBER = 3;
+
     private FieldUsageSearcher() {
     }
 
@@ -55,7 +62,30 @@ public final class FieldUsageSearcher {
             ISyntaxNode syntaxNode = boundNode.getSyntaxNode();
             String description;
             String uri = null;
-            if (boundField instanceof NodeDescriptionHolder) {
+            if (boundField instanceof IOriginalDeclaredClassesOpenField) {
+                IOriginalDeclaredClassesOpenField combinedOpenField = (IOriginalDeclaredClassesOpenField) boundField;
+                IOpenClass[] declaredClasses = combinedOpenField.getDeclaredClasses();
+                String classNames = Arrays.stream(declaredClasses)
+                    .map(c -> c.getName().replaceAll(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX, ""))
+                    .limit(MAX_DESCRIPTION_CLASS_NUMBER)
+                    .collect(Collectors.joining(","));
+                if (declaredClasses.length > MAX_DESCRIPTION_CLASS_NUMBER) {
+                    classNames += "...(" + (declaredClasses.length - MAX_DESCRIPTION_CLASS_NUMBER) + ")more";
+                }
+                String prefix = declaredClasses.length > 1 ? "Spreadsheets: " : "Spreadsheet ";
+                description = prefix + classNames + "\n" + MethodUtil.printType(boundField.getType()) + " " + boundField
+                    .getName();
+                syntaxNode = getIdentifierSyntaxNode(syntaxNode);
+                IMetaInfo metaInfo = type.getMetaInfo();
+                if (metaInfo != null) {
+                    uri = metaInfo.getSourceUrl();
+                } else {
+                    IMetaInfo mi = boundField.getType().getMetaInfo();
+                    if (mi != null) {
+                        uri = mi.getSourceUrl();
+                    }
+                }
+            } else if (boundField instanceof NodeDescriptionHolder) {
                 NodeDescriptionHolder nodeDescriptionHolder = (NodeDescriptionHolder) boundField;
                 description = nodeDescriptionHolder.getDescription();
                 syntaxNode = getIdentifierSyntaxNode(syntaxNode);

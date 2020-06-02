@@ -10,17 +10,20 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
-public class CustomSpreadsheetResultField extends ASpreadsheetField {
+public class CustomSpreadsheetResultField extends ASpreadsheetField implements IOriginalDeclaredClassesOpenField {
 
-    private IOpenField field;
+    protected IOpenField field;
+    private IOpenClass[] declaredClasses;
 
     public CustomSpreadsheetResultField(CustomSpreadsheetResultOpenClass declaringClass, IOpenField field) {
         super(declaringClass, field.getName(), null);
         this.field = Objects.requireNonNull(field, "field cannot be null");
+        this.declaredClasses = new IOpenClass[] { field.getDeclaringClass() };
     }
 
     public CustomSpreadsheetResultField(IOpenClass declaringClass, String name, IOpenClass type) {
         super(declaringClass, name, type);
+        this.declaredClasses = new IOpenClass[] { declaringClass };
     }
 
     @Override
@@ -44,6 +47,7 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
             } catch (RecursiveSpreadsheetMethodPreBindingException | SpreadsheetCellsLoopException e) {
                 setType(JavaOpenClass.OBJECT);
             }
+            field = null;
             field = null;
         }
         return super.getType();
@@ -72,6 +76,11 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
         if (target != null) {
             ((SpreadsheetResult) target).setFieldValue(getName(), value);
         }
+    }
+
+    @Override
+    public IOpenClass[] getDeclaredClasses() {
+        return declaredClasses;
     }
 
 }
