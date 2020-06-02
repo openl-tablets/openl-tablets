@@ -24,10 +24,6 @@ public class SmartRedeployEditorController extends AbstractSmartRedeployControll
         }
     }
 
-    public AProject getCurrentProject() {
-        return currentProject;
-    }
-
     public void reset() {
         setRepositoryConfigName(null);
         items = null;
@@ -41,6 +37,6 @@ public class SmartRedeployEditorController extends AbstractSmartRedeployControll
 
     @Override
     public AProject getSelectedProject() {
-        return getCurrentProject();
+        return currentProject;
     }
 }

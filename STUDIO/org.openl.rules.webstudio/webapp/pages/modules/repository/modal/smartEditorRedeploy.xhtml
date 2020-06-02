@@ -28,7 +28,7 @@
                 <h:outputText value="Wait..." rendered="#{smartRedeployEditorController.loading}"
                               style="margin: 25px 0px"/>
                 <h:outputText
-                        value="There are no deploy configurations containing project '#{smartRedeployEditorController.currentProject.name}'"
+                        value="There are no deploy configurations containing project '#{smartRedeployEditorController.selectedProject.name}'"
                         rendered="#{!smartRedeployEditorController.loading and empty smartRedeployEditorController.items}"
                         style="margin: 25px 0px"/>
                 <rich:dataTable id="smartRedeployTable" value="#{smartRedeployEditorController.items}" var="item"
