@@ -134,12 +134,8 @@
                         </h:commandButton>
 
                         <h:commandButton id="deployId1" rendered="#{repositoryTreeState.canRedeploy}" value="Deploy"
-                                         onclick="openSmartRedeployDialog();"
-                                         title="Deploy selected deployments with the latest version of this project">
-                            <f:ajax listener="#{smartRedeployController.openDialogListener}"
-                                    onevent="resizeSmartRedeployPanel"
-                                    render=":smartRedeployForm"/>
-                        </h:commandButton>
+                                         onclick="openSmartRedeployDialog(); return false;"
+                                         title="Deploy selected deployments with the latest version of this project"/>
 
                         <h:commandButton id="compareId" rendered="#{repositoryTreeState.canCompare}" value="Compare"
                                          onclick="window.open('#{contextPath}/faces/pages/modules/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=1240,height=700,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');return false;"

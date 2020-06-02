@@ -1,7 +1,5 @@
 package org.openl.rules.webstudio.web.repository;
 
-import javax.faces.event.AjaxBehaviorEvent;
-
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
@@ -33,7 +31,7 @@ public class SmartRedeployController extends AbstractSmartRedeployController {
         loading = true;
     }
 
-    public void openDialogListener(AjaxBehaviorEvent event) {
+    public void initProject() {
         reset();
         currentProject = getSelectedProject();
         loading = false;
