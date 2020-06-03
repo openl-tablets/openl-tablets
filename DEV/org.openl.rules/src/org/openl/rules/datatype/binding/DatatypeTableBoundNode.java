@@ -8,11 +8,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -224,7 +226,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return true;
     }
 
-
     private static void extractParentFields(DatatypeTableBoundNode datatypeTableBoundNode,
             LinkedHashMap<String, FieldDescription> parentFields) {
         if (datatypeTableBoundNode.parentDatatypeTableBoundNode != null) {
@@ -238,6 +239,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             }
         }
     }
+
     /**
      * Generate a simple java bean for current datatype table.
      *
@@ -502,7 +504,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     private Pair<String, String> parseFieldNameCell(ILogicalTable row,
-                                                    IBindingContext cxt) throws OpenLCompilationException {
+            IBindingContext bindingContext) throws OpenLCompilationException {
         GridCellSourceCodeModule nameCellSource = getCellSource(row, bindingContext, 1);
         final String code = nameCellSource.getCode();
         String left, right;
@@ -519,7 +521,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             right = null;
         }
 
-        if (TableNameChecker.isInvalidJavaIdentifier(left)) {
+        if (TableNameChecker.isInvalidJavaIdentifier(extractFieldName(left))) {
             String errorMessage = String.format("Bad field name: '%s'.", code);
             throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, nameCellSource);
         }
@@ -594,10 +596,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     .createError(t.getMessage(), t, null, getCellSource(row, bindingContext, 1));
             }
 
-
-                IOpenCast openCast = fieldType.getInstanceClass() == null ? null
-                                                                          : bindingContext.getCast(fieldType,
-                                                                              contextPropertyType);
             fieldDescriptionBuilder.setContextPropertyName(contextPropertyName);
 
             FieldDescription fieldDescription = null;
@@ -699,8 +697,17 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             }
             IOpenClass contextPropertyType = JavaOpenClass
                 .getOpenClass(DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(contextPropertyName));
-            IOpenCast openCast = bindingContext.getCast(fieldType, contextPropertyType);
-            if (openCast == null || !openCast.isImplicit() && !contextPropertyType.getInstanceClass().isEnum()) {
+            try {
+                IOpenCast openCast = bindingContext.getCast(fieldType, contextPropertyType);
+                if (openCast == null || !openCast.isImplicit() && !contextPropertyType.getInstanceClass().isEnum()) {
+                    throw SyntaxNodeExceptionUtils.createError(
+                        String.format("Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.",
+                            contextPropertyName,
+                            fieldType.getName(),
+                            contextPropertyType.getName()),
+                        getCellSource(row, bindingContext, 1));
+                }
+            } catch (RuntimeException ignored) {
                 throw SyntaxNodeExceptionUtils.createError(
                     String.format("Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.",
                         contextPropertyName,
