@@ -36,7 +36,7 @@
         <footer>
           <a4j:commandButton value="Apply" action="#{mergeConflictBean.applyConflictResolution}" render="modalUploadFileData :modalResolveConflictsData :modalResolveConflictsButtons" styleClass="button-primary"
                              data="#{mergeConflictBean.uploadError}"
-                             oncomplete="if (!event.data &amp;&amp; #{!facesContext.validationFailed}) {RichFaces.$('modalUploadConflictResolution').hide();}"/>
+                             oncomplete="if (!event.data &amp;&amp; #{!facesContext.validationFailed}) {RichFaces.$('modalUploadConflictResolution').hide();} else {resizePopupPanel('modalUploadConflictResolution');}"/>
           <input type="button" value="Cancel" onclick="cancelConflictResolution();" />
         </footer>
       </h:panelGroup>
