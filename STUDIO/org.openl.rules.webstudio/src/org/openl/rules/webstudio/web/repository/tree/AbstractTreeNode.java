@@ -12,8 +12,6 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
 
-import com.google.common.collect.Iterators;
-
 /**
  * This abstract class implements basic functionality of {@link TreeNode} interface. Every particular tree node should
  * extends this class and adds own implementation for UI related methods: {@link #getType()}, {@link #getIcon()}, and
@@ -210,7 +208,7 @@ public abstract class AbstractTreeNode implements TreeNode {
 
         if (isLeafOnly) {
             checkLeafOnly();
-            result = Iterators.emptyIterator();
+            result = Collections.emptyIterator();
             // work around limitation for TreeNode
         } else {
             result = getElements().keySet().iterator();
