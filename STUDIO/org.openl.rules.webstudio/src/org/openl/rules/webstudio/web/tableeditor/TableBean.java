@@ -10,10 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
-
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.message.OpenLMessage;
@@ -57,12 +53,14 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean for Table page.
  */
-@ManagedBean
-@RequestScoped
+@Controller
+@RequestScope
 public class TableBean {
     private static final String REQUEST_ID_PREFIX = "project-";
     private static final int MAX_PROBLEMS = 100;
@@ -90,12 +88,13 @@ public class TableBean {
     // Errors + Warnings
     private List<OpenLMessage> problems;
 
-    @ManagedProperty(value = "#{environment}")
-    private PropertyResolver propertyResolver;
+    private final PropertyResolver propertyResolver;
 
     private boolean targetTablesHasErrors;
 
-    public TableBean() {
+    public TableBean(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
+
         id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
         WebStudio studio = WebStudioUtils.getWebStudio();
@@ -265,7 +264,7 @@ public class TableBean {
         }
     }
 
-    public final boolean isDispatcherValidationNode() {
+    public boolean isDispatcherValidationNode() {
         return table != null && table.getName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
     }
 
@@ -450,10 +449,6 @@ public class TableBean {
         }
 
         return true;
-    }
-
-    public void setPropertyResolver(PropertyResolver propertyResolver) {
-        this.propertyResolver = propertyResolver;
     }
 
     public boolean beforeSaveAction() {

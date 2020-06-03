@@ -22,9 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
+import javax.annotation.PreDestroy;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
@@ -67,6 +65,7 @@ import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
+import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
@@ -96,7 +95,10 @@ import org.openl.util.StringUtils;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Controller;
 
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.io.StreamException;
@@ -107,8 +109,8 @@ import com.thoughtworks.xstream.io.StreamException;
  * @author Aleh Bykhavets
  * @author Andrey Naumenko
  */
-@ManagedBean
-@ViewScoped
+@Controller
+@ViewScope
 public class RepositoryTreeController {
 
     private static final String PROJECT_HISTORY_HOME = "project.history.home";
@@ -116,43 +118,45 @@ public class RepositoryTreeController {
 
     private final Logger log = LoggerFactory.getLogger(RepositoryTreeController.class);
 
-    @ManagedProperty(value = "#{repositoryTreeState}")
+    @Autowired
     private RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{rulesUserSession.userWorkspace}")
-    private volatile UserWorkspace userWorkspace;
+    private volatile UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
 
-    @ManagedProperty(value = "#{zipFilter}")
+    @Autowired
+    @Qualifier("zipFilter")
     private PathFilter zipFilter;
 
-    @ManagedProperty("#{projectDescriptorArtefactResolver}")
+    @Autowired
     private ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
-    @ManagedProperty(value = "#{projectDescriptorSerializerFactory}")
+    @Autowired
     private ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory;
 
-    @ManagedProperty(value = "#{zipCharsetDetector}")
+    @Autowired
     private ZipCharsetDetector zipCharsetDetector;
 
-    @ManagedProperty(value = "#{designRepositoryComments}")
+    @Autowired
+    @Qualifier("designRepositoryComments")
     private Comments designRepoComments;
 
-    @ManagedProperty(value = "#{deployConfigRepositoryComments}")
+    @Autowired
+    @Qualifier("deployConfigRepositoryComments")
     private Comments deployConfigRepoComments;
 
-    @ManagedProperty(value = "#{projectVersionCacheManager}")
+    @Autowired
     private ProjectVersionCacheManager projectVersionCacheManager;
 
-    private WebStudio studio = WebStudioUtils.getWebStudio(true);
+    private final WebStudio studio = WebStudioUtils.getWebStudio(true);
 
-    @ManagedProperty(value = "#{environment}")
+    @Autowired
     private PropertyResolver propertyResolver;
 
     private String projectName;
     private String projectFolder = "";
     private String newProjectTemplate;
     private String folderName;
-    private List<ProjectFile> uploadedFiles = new ArrayList<>();
+    private final List<ProjectFile> uploadedFiles = new ArrayList<>();
     private String fileName;
     private String uploadFrom;
     private String newProjectName;
@@ -164,12 +168,8 @@ public class RepositoryTreeController {
     private boolean openDependencies = true;
     private AProject currentProject;
 
-    private TemplatesResolver predefinedTemplatesResolver = new PredefinedTemplatesResolver();
+    private final TemplatesResolver predefinedTemplatesResolver = new PredefinedTemplatesResolver();
     private TemplatesResolver customTemplatesResolver;
-
-    public PathFilter getZipFilter() {
-        return zipFilter;
-    }
 
     private TreeNode activeProjectNode;
 
@@ -1442,32 +1442,37 @@ public class RepositoryTreeController {
     }
 
     public void uploadListener(FileUploadEvent event) {
-        ProjectFile file = new ProjectFile(event.getUploadedFile());
-        uploadedFiles.add(file);
-        String fileName = file.getName();
+        try {
+            ProjectFile file = new ProjectFile(event.getUploadedFile());
+            uploadedFiles.add(file);
+            String fileName = file.getName();
 
-        setFileName(fileName);
+            setFileName(fileName);
 
-        if (fileName.contains(".")) {
-            setProjectName(fileName.substring(0, fileName.lastIndexOf('.')));
+            if (fileName.contains(".")) {
+                setProjectName(fileName.substring(0, fileName.lastIndexOf('.')));
 
-            if (FileTypeHelper.isZipFile(fileName)) {
-                Charset charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(file));
+                if (FileTypeHelper.isZipFile(fileName)) {
+                    Charset charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(file));
 
-                if (charset == null) {
-                    log.warn("Cannot detect a charset for the zip file");
-                    charset = StandardCharsets.UTF_8;
+                    if (charset == null) {
+                        log.warn("Cannot detect a charset for the zip file");
+                        charset = StandardCharsets.UTF_8;
+                    }
+
+                    ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor
+                        .getProjectDescriptorOrNull(file, zipFilter, charset);
+                    if (projectDescriptor != null) {
+                        setProjectName(projectDescriptor.getName());
+                    }
+                    setCreateProjectComment(designRepoComments.createProject(getProjectName()));
                 }
-
-                ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor
-                    .getProjectDescriptorOrNull(file, zipFilter, charset);
-                if (projectDescriptor != null) {
-                    setProjectName(projectDescriptor.getName());
-                }
-                setCreateProjectComment(designRepoComments.createProject(getProjectName()));
+            } else {
+                setProjectName(fileName);
             }
-        } else {
-            setProjectName(fileName);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            WebStudioUtils.addErrorMessage("Error occurred during uploading file.", e.getMessage());
         }
     }
 
@@ -1575,7 +1580,7 @@ public class RepositoryTreeController {
             resetStudioModel();
             WebStudioUtils.addInfoMessage("File was successfully updated.");
         } else {
-            WebStudioUtils.addErrorMessage(errorMessage, "Error occured during uploading file. " + errorMessage);
+            WebStudioUtils.addErrorMessage(errorMessage, "Error occurred during uploading file. " + errorMessage);
         }
 
         /* Clear the load form */
@@ -1613,7 +1618,7 @@ public class RepositoryTreeController {
         String errorMessage = validateCreateProjectParams(comment);
         if (errorMessage != null) {
             WebStudioUtils.addErrorMessage(errorMessage);
-        } else if (uploadedFiles == null || uploadedFiles.isEmpty()) {
+        } else if (uploadedFiles.isEmpty()) {
             WebStudioUtils.addErrorMessage("There are no uploaded files.");
         } else {
             errorMessage = new ProjectUploader(uploadedFiles,
@@ -1648,7 +1653,7 @@ public class RepositoryTreeController {
         this.setProjectName(null);
         this.setProjectFolder("");
         this.setCreateProjectComment(null);
-        this.uploadedFiles.clear();
+        clearUploadedFiles();
     }
 
     private String uploadAndAddFile() {
@@ -1810,6 +1815,9 @@ public class RepositoryTreeController {
     }
 
     public void clearUploadedFiles() {
+        for (ProjectFile uploadedFile : uploadedFiles) {
+            uploadedFile.destroy();
+        }
         uploadedFiles.clear();
     }
 
@@ -1881,7 +1889,10 @@ public class RepositoryTreeController {
      *         is invoked
      */
     public boolean isCurrentProjectSelected() {
-        if (currentProject != getSelectedProject()) {
+        AProject selectedProject = getSelectedProject();
+        if (currentProject == null || selectedProject == null || currentProject != selectedProject && !currentProject
+            .getName()
+            .equals(selectedProject.getName())) {
             currentProject = null;
             return false;
         }
@@ -2174,5 +2185,10 @@ public class RepositoryTreeController {
             deployConfigCommentValidator = designCommentValidator;
         }
         dateTimeFormat = WebStudioFormats.getInstance().dateTime();
+    }
+
+    @PreDestroy
+    public void destroy() {
+        clearUploadedFiles();
     }
 }

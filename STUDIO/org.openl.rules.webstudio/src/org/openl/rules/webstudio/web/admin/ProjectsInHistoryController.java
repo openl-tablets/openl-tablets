@@ -4,22 +4,23 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
-
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.RequestScope;
 
-@ManagedBean(name = "projectsInHistory")
-@RequestScoped
+@Controller("projectsInHistory")
+@RequestScope
 public class ProjectsInHistoryController {
 
-    @ManagedProperty(value = "#{environment}")
-    private PropertyResolver propertyResolver;
+    private final PropertyResolver propertyResolver;
+
+    public ProjectsInHistoryController(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
+    }
 
     public static class ProjectBean {
         private String projectName;
@@ -108,7 +109,4 @@ public class ProjectsInHistoryController {
         return propertyResolver.getProperty(PROJECT_HISTORY_HOME);
     }
 
-    public void setPropertyResolver(PropertyResolver propertyResolver) {
-        this.propertyResolver = propertyResolver;
-    }
 }

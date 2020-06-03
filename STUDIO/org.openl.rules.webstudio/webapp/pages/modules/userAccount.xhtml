@@ -7,7 +7,7 @@
     xmlns:rich="http://richfaces.org/rich">
 
     <f:view transient="#{module=='rules' ? true : false}">
-    <rich:popupPanel id="modalUserProfile" width="500" autosized="true">
+    <rich:popupPanel id="modalUserProfile" minWidth="500" maxWidth="500" autosized="true">
         <f:facet name="header">User Profile</f:facet>
 
         <f:facet name="controls">
@@ -20,8 +20,8 @@
             <input style="display:none" type="text" name="fake-username-field" class="fake-autofill-field"/>
             <input style="display:none" type="password" name="fake-password-field" class="fake-autofill-field"/>
 
-            <rich:tabPanel switchType="client" id="userProfileTab">
-                <rich:tab header="Details" id="userProfileDetails">
+            <rich:tabPanel switchType="client" id="userProfileTab" onitemchange="resizePopupPanel('modalUserProfile')">
+                <rich:tab header="Details" name="userProfileDetails">
                     <div class="fields">
                         <section>
                             <h3>Account</h3>
@@ -113,7 +113,7 @@
                         </h:panelGroup>
                     </div>
                 </rich:tab>
-                <rich:tab header="Settings" id="userProfileSettings">
+                <rich:tab header="Settings" name="userProfileSettings">
                     <div class="fields">
                         <h:panelGroup rendered="#{studio.changeableModuleMode}">
                             <section>
@@ -209,9 +209,9 @@
     });
 
     function editUserProfile(tab) {
-        RichFaces.$("modalUserProfile").show();
         #{rich:component("userProfileTab")}.switchToItem(
-                tab === "settings" ? "userProfileSettings" : "userProfileDetails");
+                tab === "settings" ? "userProfileSettings" : "@first");
+        RichFaces.$("modalUserProfile").show();
     }
 
     function hideAndReload() {

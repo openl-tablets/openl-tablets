@@ -6,7 +6,7 @@
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
     <f:view transient="true">
-    <rich:popupPanel id="updateModule" width="500" autosized="true">
+    <rich:popupPanel id="updateModule" minWidth="500" autosized="true">
         <f:facet name="header">
           <h:outputText value="Update module"/>
         </f:facet>
@@ -20,6 +20,7 @@
             <h:panelGrid id="updateModuleFormData" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                 <h:outputLabel for="moduleUpload" styleClass="required" value="File" />
                 <rich:fileUpload id="moduleUpload" fileUploadListener="#{studio.uploadListener}"
+                                 immediateUpload="true"
                                  onfilesubmit="ws.ui.showLoader();" oncomplete="ws.ui.hideLoader();"
                                  acceptedTypes="xls, xlsx, xlsm" maxFilesQuantity="1">
                     <a4j:ajax event="uploadcomplete" execute="@none"
@@ -38,7 +39,7 @@
         </h:form>
     </rich:popupPanel>
 
-        <rich:popupPanel id="moduleChanged" width="500" autosized="true">
+        <rich:popupPanel id="moduleChanged" minWidth="500" autosized="true">
             <f:facet name="header">
                 <h:outputText value="Update module"/>
             </f:facet>

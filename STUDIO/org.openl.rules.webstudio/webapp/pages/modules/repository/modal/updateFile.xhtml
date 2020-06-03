@@ -5,7 +5,7 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:popupPanel id="modalUpdateFile" width="500" autosized="true">
+  <rich:popupPanel id="modalUpdateFile" minWidth="500" autosized="true">
     <f:facet name="header">
       <h:outputText value="Update File" />
     </f:facet>
@@ -19,6 +19,8 @@
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputLabel for="file" styleClass="required" value="File:" />
         <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
+                         maxFilesQuantity="1"
+                         immediateUpload="true"
                          onfilesubmit="showLoader();" oncomplete="hideLoader();">
           <a4j:ajax event="uploadcomplete" execute="@none"
                     render="fileChangedFormData"
@@ -35,7 +37,7 @@
     </h:form>
   </rich:popupPanel>
 
-  <rich:popupPanel id="fileChanged" width="500" autosized="true">
+  <rich:popupPanel id="fileChanged" minWidth="500" autosized="true">
     <f:facet name="header">
       <h:outputText value="Update file"/>
     </f:facet>

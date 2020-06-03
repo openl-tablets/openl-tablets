@@ -1,8 +1,5 @@
 package org.openl.rules.webstudio.web;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.exception.OpenLException;
 import org.openl.message.OpenLErrorMessage;
@@ -19,9 +16,11 @@ import org.openl.util.StringUtils;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 import org.richfaces.component.UIRepeat;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.RequestScope;
 
-@ManagedBean
-@RequestScoped
+@Controller
+@RequestScope
 public class MessagesBean {
 
     private UIRepeat messages;

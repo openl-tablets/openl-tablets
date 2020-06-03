@@ -26,6 +26,8 @@
 
                     <rich:fileUpload id="fileUpload" fileUploadListener="#{uploadExcelDiffController.uploadListener}"
                         onfilesubmit="showLoader();" oncomplete="hideLoader();"
+                        maxFilesQuantity="2"
+                        immediateUpload="true"
                         acceptedTypes="xls, xlsx, xlsm" style="height: 148px">
                         <a4j:ajax event="uploadcomplete" execute="@none" render="compareButton" />
                     </rich:fileUpload>

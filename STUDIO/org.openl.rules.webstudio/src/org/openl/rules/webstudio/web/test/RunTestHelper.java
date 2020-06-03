@@ -1,8 +1,5 @@
 package org.openl.rules.webstudio.web.test;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestDescription;
@@ -16,10 +13,12 @@ import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.SessionScope;
 
-@ManagedBean
-@SessionScoped
-public final class RunTestHelper {
+@Controller
+@SessionScope
+public class RunTestHelper {
 
     // FIXME last parameters of the test suite should have temporary
     // location(such as Flash scope)

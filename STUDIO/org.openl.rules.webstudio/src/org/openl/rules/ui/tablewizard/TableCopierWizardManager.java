@@ -1,14 +1,13 @@
 package org.openl.rules.ui.tablewizard;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-
 import org.openl.rules.ui.copy.DimensionalPropertiesTableCopier;
 import org.openl.rules.ui.copy.TableNamesCopier;
 import org.openl.rules.ui.copy.VersionPropertyTableCopier;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.SessionScope;
 
-@ManagedBean
-@SessionScoped
+@Controller
+@SessionScope
 public class TableCopierWizardManager extends BaseTableWizardManager {
 
     enum CopyType {

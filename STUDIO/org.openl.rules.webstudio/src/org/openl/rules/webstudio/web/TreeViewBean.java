@@ -1,18 +1,18 @@
 package org.openl.rules.webstudio.web;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import javax.servlet.ServletRequest;
 
 import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean providing logic for TreeView page.
  */
-@ManagedBean
-@RequestScoped
+@Controller
+@RequestScope
 public class TreeViewBean {
 
     private static final String[] usedParams = { "title", "treePage", "mainPage", "mainFrame", "relWidth" };

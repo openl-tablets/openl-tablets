@@ -19,7 +19,7 @@
         }
     </style>
 
-    <rich:popupPanel id="modalNewProject" autosized="true" width="580">
+    <rich:popupPanel id="modalNewProject" autosized="true" minWidth="580" maxWidth="580">
         <f:facet name="header">
             <h:outputText value="Create Project from..." />
         </f:facet>
@@ -28,7 +28,7 @@
             <h:graphicImage value="/images/close.gif" class="close" onclick="hideNewProjectDialog()" alt="Close" />
         </f:facet>
 
-        <rich:tabPanel id="projectType" switchType="client">
+        <rich:tabPanel id="projectType" switchType="client" onitemchange="resizePopupPanel('modalNewProject')">
 
             <rich:tab id="template" header="Template">
                 <h:form id="createProjectFormTempl" style="padding-top: 4px">
@@ -131,6 +131,7 @@
 
                         <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                             onfilesubmit="showLoader();" oncomplete="hideLoader();"
+                            immediateUpload="true"
                             acceptedTypes="xls, xlsx, xlsm" />
 
                         <h:outputLabel for="projectName" styleClass="required" value="Project Name:" />
@@ -174,6 +175,7 @@
 
                     <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                         onfilesubmit="showLoader();" oncomplete="hideLoader();"
+                        immediateUpload="true"
                         acceptedTypes="zip" maxFilesQuantity="1" >
                             <a4j:ajax event="uploadcomplete"
                                 execute="@none"

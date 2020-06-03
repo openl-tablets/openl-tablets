@@ -1,20 +1,16 @@
 package org.openl.rules.webstudio.web.repository;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
-import javax.faces.event.AjaxBehaviorEvent;
-
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
+import org.springframework.stereotype.Controller;
 
 /**
  * @author Aleh Bykhavets
  */
-@ManagedBean
-@ViewScoped
+@Controller
+@ViewScope
 public class SmartRedeployController extends AbstractSmartRedeployController {
-
-    private boolean loading = true;
 
     @Override
     public AProject getSelectedProject() {
@@ -30,16 +26,10 @@ public class SmartRedeployController extends AbstractSmartRedeployController {
         setRepositoryConfigName(null);
         items = null;
         currentProject = null;
-        loading = true;
     }
 
-    public void openDialogListener(AjaxBehaviorEvent event) {
+    public void initProject() {
         reset();
         currentProject = getSelectedProject();
-        loading = false;
-    }
-
-    public boolean isLoading() {
-        return loading;
     }
 }

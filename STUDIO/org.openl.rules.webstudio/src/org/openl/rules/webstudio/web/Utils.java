@@ -3,14 +3,11 @@ package org.openl.rules.webstudio.web;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.faces.bean.ApplicationScoped;
-import javax.faces.bean.ManagedBean;
-
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
+import org.springframework.stereotype.Controller;
 
-@ManagedBean
-@ApplicationScoped
+@Controller
 public class Utils {
 
     public String toJSText(String str) {

@@ -9,6 +9,16 @@
     <bean id="props" class="org.openl.rules.webstudio.web.Props"/>
     <bean class="org.openl.rules.webstudio.Migrator" init-method="migrate" depends-on="props"/>
 
+    <bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
+        <property name="scopes">
+            <map>
+                <entry key="view">
+                    <bean class="org.openl.rules.webstudio.web.jsf.ViewScope"/>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
     <!-- Either webstudio-true.xml or webstudio-false.xml. -->
     <import resource="webstudio-${webstudio.configured}.xml" />
 

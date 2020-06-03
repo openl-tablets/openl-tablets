@@ -10,9 +10,6 @@ import java.util.Set;
 import java.util.StringJoiner;
 
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -30,14 +27,18 @@ import org.openl.rules.security.User;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.util.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * @author Andrei Astrouski
  */
-@ManagedBean
-@RequestScoped
+@Controller
+@RequestScope
 public class UsersBean {
 
     public static final String VALIDATION_EMPTY = "Cannot be empty";
@@ -68,19 +69,19 @@ public class UsersBean {
 
     private boolean internalUser = false;
 
-    @ManagedProperty(value = "#{userManagementService}")
+    @Autowired
     protected UserManagementService userManagementService;
 
-    @ManagedProperty(value = "#{groupManagementService}")
+    @Autowired
     protected GroupManagementService groupManagementService;
 
-    @ManagedProperty(value = "#{passwordEncoder}")
+    @Autowired
     protected PasswordEncoder passwordEncoder;
 
-    @ManagedProperty(value = "#{canCreateInternalUsers}")
+    @Value("#{canCreateInternalUsers}")
     protected boolean canCreateInternalUsers;
 
-    @ManagedProperty(value = "#{canCreateExternalUsers}")
+    @Value("#{canCreateExternalUsers}")
     protected boolean canCreateExternalUsers;
 
     /**

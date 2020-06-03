@@ -1031,7 +1031,12 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public void uploadListener(FileUploadEvent event) {
-        ProjectFile file = new ProjectFile(event.getUploadedFile());
+        ProjectFile file = null;
+        try {
+            file = new ProjectFile(event.getUploadedFile());
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
         uploadedFiles.add(file);
     }
 
@@ -1048,9 +1053,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 log.warn(e.getMessage(), e);
             }
         }
+
+        clearUploadedFiles();
     }
 
     public void clearUploadedFiles() {
+        for (ProjectFile uploadedFile : uploadedFiles) {
+            uploadedFile.destroy();
+        }
         uploadedFiles.clear();
     }
 

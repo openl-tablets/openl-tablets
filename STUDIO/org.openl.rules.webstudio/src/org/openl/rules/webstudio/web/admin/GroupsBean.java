@@ -9,9 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
@@ -26,13 +23,15 @@ import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.RequestScope;
 
 // TODO Needs performance optimization
 /**
  * @author Andrei Astrouski
  */
-@ManagedBean
-@RequestScoped
+@Controller
+@RequestScope
 public class GroupsBean {
 
     public static final String VALIDATION_EMPTY = "Cannot be empty";
@@ -51,6 +50,10 @@ public class GroupsBean {
     @Size(max = 200, message = VALIDATION_MAX + 200)
     private String description;
     private List<Group> groups;
+
+    public GroupsBean(GroupManagementService groupManagementService) {
+        this.groupManagementService = groupManagementService;
+    }
 
     public String getName() {
         return name;
@@ -84,8 +87,7 @@ public class GroupsBean {
         this.description = description;
     }
 
-    @ManagedProperty(value = "#{groupManagementService}")
-    private GroupManagementService groupManagementService;
+    private final GroupManagementService groupManagementService;
 
     /**
      * Validation for existed group
@@ -269,10 +271,6 @@ public class GroupsBean {
     public void deleteGroup(String name) {
         groupManagementService.deleteGroup(name);
         groups = null;
-    }
-
-    public void setGroupManagementService(GroupManagementService groupManagementService) {
-        this.groupManagementService = groupManagementService;
     }
 
 }

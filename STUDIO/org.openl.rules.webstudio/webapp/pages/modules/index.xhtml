@@ -36,8 +36,9 @@
     <script src="#{contextPath}/javascript/jquery.popup.js"></script>
     <script src="#{contextPath}/javascript/jquery.multiselect.js"></script>
     <script src="#{contextPath}/javascript/bomjs.js"></script>
-    <script src="#{contextPath}/javascript/vendor/jsf-2.1.19-customized.min.js"></script>
     <script src="#{contextPath}/javascript/vendor/response-monitor.js"></script>
+
+    <h:outputScript name="jsf.js" library="javax.faces" />
 
     <script>
         //<![CDATA[
@@ -816,6 +817,10 @@
                     }).toggleClass("restore-changed-state restore-changed-state-added");
                 });
 
+                callbacks.push(function () {
+                    initPopupPanels();
+                })
+
                 var initUrl = urlRewrite.prefix + "init.xhtml";
                 if (init && init.project) {
                     initUrl += ("?project=" + init.project);
@@ -927,6 +932,7 @@
 
         $j(function () {
             fixTabIndexesInRichPopupPanels();
+            initPopupPanels();
         });
     //]]>
     </script>

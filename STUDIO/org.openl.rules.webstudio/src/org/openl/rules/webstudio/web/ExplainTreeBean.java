@@ -1,19 +1,19 @@
 package org.openl.rules.webstudio.web;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
 
 import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean providing logic for explain tree page of OpenL Studio.
  */
-@ManagedBean
-@RequestScoped
+@Controller
+@RequestScope
 public class ExplainTreeBean {
 
     public TreeNode getTree() {

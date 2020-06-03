@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.repository.project;
 
+import java.io.IOException;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.webstudio.web.repository.upload.AProjectCreator;
 import org.openl.rules.webstudio.web.repository.upload.RulesProjectBuilder;
@@ -40,7 +42,11 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
                 }
 
                 if (checkFileSize(file)) {
-                    projectBuilder.addFile(fileName, changeFileIfNeeded(fileName, file.getInput()));
+                    try {
+                        projectBuilder.addFile(fileName, changeFileIfNeeded(fileName, file.getInput()));
+                    } catch (IOException e) {
+                        throw new ProjectException(e.getMessage(), e);
+                    }
                 } else {
                     throw new ProjectException("Size of the file " + file.getName() + " is more then 100MB.");
                 }
@@ -54,7 +60,10 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
     @Override
     public void destroy() {
         for (ProjectFile file : files) {
-            IOUtils.closeQuietly(file.getInput());
+            try {
+                IOUtils.closeQuietly(file.getInput());
+            } catch (IOException ignored) {
+            }
         }
     }
 

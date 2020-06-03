@@ -5,7 +5,7 @@
         xmlns:rich="http://richfaces.org/rich"
         xmlns:ui="http://java.sun.com/jsf/facelets">
 
-    <rich:popupPanel id="modalSmartEditorRedeploy" width="480" autosized="true">
+    <rich:popupPanel id="modalSmartEditorRedeploy" minWidth="480" autosized="true">
         <f:facet name="header">
             <h:outputText value="Auto Deploy"/>
         </f:facet>
@@ -25,11 +25,9 @@
                     </h:selectOneMenu>
                 </h:panelGroup>
 
-                <h:outputText value="Wait..." rendered="#{smartRedeployEditorController.loading}"
-                              style="margin: 25px 0px"/>
                 <h:outputText
-                        value="There are no deploy configurations containing project '#{smartRedeployEditorController.currentProject.name}'"
-                        rendered="#{!smartRedeployEditorController.loading and empty smartRedeployEditorController.items}"
+                        value="There are no deploy configurations containing project '#{smartRedeployEditorController.selectedProject.name}'"
+                        rendered="#{empty smartRedeployEditorController.items}"
                         style="margin: 25px 0px"/>
                 <rich:dataTable id="smartRedeployTable" value="#{smartRedeployEditorController.items}" var="item"
                                 styleClass="table" rendered="#{not empty smartRedeployEditorController.items}"

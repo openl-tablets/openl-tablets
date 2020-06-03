@@ -14,9 +14,6 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.annotation.PreDestroy;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -49,22 +46,27 @@ import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.SessionScope;
 
-@ManagedBean
-@SessionScoped
+@Controller
+@SessionScope
 public class MergeConflictBean {
     private final Logger log = LoggerFactory.getLogger(MergeConflictBean.class);
 
-    @ManagedProperty(value = "#{workspaceManager}")
-    private MultiUserWorkspaceManager workspaceManager;
+    private final MultiUserWorkspaceManager workspaceManager;
 
-    private Map<String, ConflictResolution> conflictResolutions = new HashMap<>();
-    private Map<String, Boolean> existInRepositoryCache = new HashMap<>();
+    private final Map<String, ConflictResolution> conflictResolutions = new HashMap<>();
+    private final Map<String, Boolean> existInRepositoryCache = new HashMap<>();
     private String conflictedFile;
     private String mergeMessage;
     private boolean mergeMessageModified;
     private String mergeError;
     private String uploadError;
+
+    public MergeConflictBean(MultiUserWorkspaceManager workspaceManager) {
+        this.workspaceManager = workspaceManager;
+    }
 
     public List<ConflictGroup> getConflictGroups() {
         MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
@@ -259,8 +261,12 @@ public class MergeConflictBean {
     }
 
     public void uploadListener(FileUploadEvent event) {
-        conflictResolutions.get(conflictedFile).setCustomResolutionFile(new ProjectFile(event.getUploadedFile()));
-        uploadError = null;
+        try {
+            conflictResolutions.get(conflictedFile).setCustomResolutionFile(new ProjectFile(event.getUploadedFile()));
+            uploadError = null;
+        } catch (IOException e) {
+            uploadError = "Can't upload the file. " + e.getMessage();
+        }
     }
 
     public void applyConflictResolution() {
@@ -410,7 +416,7 @@ public class MergeConflictBean {
 
     public void init() {
         try {
-            conflictResolutions.clear();
+            clearConflictResolutions();
             ConflictUtils.saveResolutionsToSession(conflictResolutions);
             conflictedFile = null;
 
@@ -586,10 +592,6 @@ public class MergeConflictBean {
         return null;
     }
 
-    public void setWorkspaceManager(MultiUserWorkspaceManager workspaceManager) {
-        this.workspaceManager = workspaceManager;
-    }
-
     @PreDestroy
     public void destroy() {
         try {
@@ -601,11 +603,18 @@ public class MergeConflictBean {
 
     public void clearMergeStatus() {
         ConflictUtils.removeMergeConflict();
-        conflictResolutions.clear();
+        clearConflictResolutions();
         existInRepositoryCache.clear();
         conflictedFile = null;
         mergeMessage = null;
         mergeMessageModified = false;
+    }
+
+    private void clearConflictResolutions() {
+        for (ConflictResolution resolution : conflictResolutions.values()) {
+            resolution.destroy();
+        }
+        conflictResolutions.clear();
     }
 
     public boolean isExcelFile(String file) {

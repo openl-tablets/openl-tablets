@@ -2,10 +2,15 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:security="http://www.springframework.org/schema/security"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
         http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security-5.3.xsd"
        default-autowire="no">
+
+    <context:property-placeholder/>
+    <context:component-scan base-package="org.openl.rules.webstudio.web.install"/>
 
     <bean id="installerPage" class="org.openl.rules.webstudio.filter.RedirectFilter">
         <property name="redirectPage" value="/faces/pages/modules/install/index.xhtml"/>

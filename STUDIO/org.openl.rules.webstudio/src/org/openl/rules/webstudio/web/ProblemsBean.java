@@ -2,9 +2,6 @@ package org.openl.rules.webstudio.web;
 
 import java.util.Collection;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
@@ -13,14 +10,16 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean providing logic for problems tree page of OpenL Studio.
  *
  * @author Andrei Astrouski
  */
-@ManagedBean
-@RequestScoped
+@Controller
+@RequestScope
 public class ProblemsBean {
 
     public static final String ERRORS_ROOT_NAME = "Errors";

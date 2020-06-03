@@ -8,7 +8,7 @@
 
   <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
-  <rich:popupPanel id="modalUploadConflictResolution" width="530" autosized="true">
+  <rich:popupPanel id="modalUploadConflictResolution" minWidth="530" autosized="true">
     <f:facet name="header">
       <h:outputText value="Upload merged file" />
     </f:facet>
@@ -18,7 +18,11 @@
     </f:facet>
 
     <h:form id="uploadFileForm">
-      <rich:fileUpload fileUploadListener="#{mergeConflictBean.uploadListener}" render="errorMessage"/>
+      <rich:fileUpload fileUploadListener="#{mergeConflictBean.uploadListener}"
+                       maxFilesQuantity="1"
+                       immediateUpload="true"
+                       onfilesubmit="ws.ui.showLoader();" oncomplete="ws.ui.hideLoader();"
+                       render="errorMessage"/>
 
       <h:panelGroup id="modalUploadFileData">
 

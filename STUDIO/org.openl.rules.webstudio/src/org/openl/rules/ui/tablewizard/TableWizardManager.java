@@ -1,16 +1,15 @@
 package org.openl.rules.ui.tablewizard;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * @author Aliaksandr Antonik.
  */
-@ManagedBean(name = "tableCreatorWizardManager")
-@SessionScoped
+@Controller("tableCreatorWizardManager")
+@SessionScope
 public class TableWizardManager extends BaseTableWizardManager {
 
     enum TableType {

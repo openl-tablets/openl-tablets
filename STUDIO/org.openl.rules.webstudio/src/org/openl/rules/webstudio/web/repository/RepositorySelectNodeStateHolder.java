@@ -1,29 +1,45 @@
 package org.openl.rules.webstudio.web.repository;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * Used for holding information about repository selected node.
  *
  * @author Pavel Tarasevich
  */
-@ManagedBean
-@SessionScoped
+@Controller
+@SessionScope
 public class RepositorySelectNodeStateHolder {
-    private TreeNode selectedNode;
+    private final SelectionHolder selectionHolder = new SelectionHolder();
 
     public TreeNode getSelectedNode() {
-        return selectedNode;
+        return selectionHolder.getSelectedNode();
     }
 
     public void setSelectedNode(TreeNode selectedNode) {
-        this.selectedNode = selectedNode;
+        selectionHolder.setSelectedNode(selectedNode);
     }
 
     public boolean isProductionRepository() {
+        TreeNode selectedNode = selectionHolder.getSelectedNode();
         return selectedNode != null && selectedNode.getType().startsWith("prod");
+    }
+
+    SelectionHolder getSelectionHolder() {
+        return selectionHolder;
+    }
+
+    static class SelectionHolder {
+        private TreeNode selectedNode;
+
+        public TreeNode getSelectedNode() {
+            return selectedNode;
+        }
+
+        public void setSelectedNode(TreeNode selectedNode) {
+            this.selectedNode = selectedNode;
+        }
     }
 }

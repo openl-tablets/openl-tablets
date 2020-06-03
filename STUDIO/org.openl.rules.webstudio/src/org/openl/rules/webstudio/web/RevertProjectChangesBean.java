@@ -4,15 +4,11 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
@@ -22,12 +18,14 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.source.SourceHistoryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * @author Andrei Astrouski
  */
-@ManagedBean
-@RequestScoped
+@Controller
+@RequestScope
 public class RevertProjectChangesBean {
 
     private final Logger log = LoggerFactory.getLogger(RevertProjectChangesBean.class);
@@ -59,7 +57,7 @@ public class RevertProjectChangesBean {
             history.addAll(files);
         }
 
-        Collections.sort(history, Comparator.comparingLong(ProjectHistoryItem::getVersion).reversed());
+        history.sort(Comparator.comparingLong(ProjectHistoryItem::getVersion).reversed());
         return history;
     }
 

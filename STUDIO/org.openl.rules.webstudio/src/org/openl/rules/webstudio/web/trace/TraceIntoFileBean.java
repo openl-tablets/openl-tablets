@@ -2,16 +2,13 @@ package org.openl.rules.webstudio.web.trace;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Arrays;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openl.rules.webstudio.util.WebTool;
 import org.openl.main.SourceCodeURLConstants;
+import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.webstudio.web.test.RunTestHelper;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -19,37 +16,35 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * Request scope managed bean for Trace into File functionality.
  *
  * @author Yury Molchan
  */
-@SessionScoped
-@ManagedBean
+@Controller
+@SessionScope
 public class TraceIntoFileBean {
     private static final char[] indents = new char[256];
 
     static {
-        for (int i = 0; i < indents.length; i++) {
-            indents[i] = '\t';
-        }
+        Arrays.fill(indents, '\t');
     }
 
     private final Logger log = LoggerFactory.getLogger(TraceIntoFileBean.class);
 
-    @ManagedProperty("#{runTestHelper}")
-    private RunTestHelper runTestHelper;
+    private final RunTestHelper runTestHelper;
 
-    public void setRunTestHelper(RunTestHelper runTestHelper) {
+    public TraceIntoFileBean(RunTestHelper runTestHelper) {
         this.runTestHelper = runTestHelper;
     }
 
     public void traceIntoFile() {
         ITracerObject tracer = runTestHelper.getTraceObject();
 
-        HttpServletResponse response = (HttpServletResponse) (ServletResponse) WebStudioUtils.getExternalContext()
-            .getResponse();
+        HttpServletResponse response = (HttpServletResponse) WebStudioUtils.getExternalContext().getResponse();
 
         String outputFileName = "trace.txt";
         response.setHeader("Content-Disposition", WebTool.getContentDispositionValue(outputFileName));
