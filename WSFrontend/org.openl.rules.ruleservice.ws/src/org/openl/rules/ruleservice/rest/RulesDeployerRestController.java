@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.rest;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -103,8 +104,9 @@ public class RulesDeployerRestController {
         if (service == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        FileItem fileItem = rulesDeployerService.read(service.getServicePath());
-        return Response.ok(fileItem.getStream())
+        InputStream read = rulesDeployerService.read(service.getServicePath());
+        return Response.ok(read)
+
             .header("Content-Disposition", "attachment;filename='" + serviceName + ".zip'")
             .build();
     }
