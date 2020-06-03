@@ -1,6 +1,7 @@
 package org.openl.rules.calc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -98,6 +99,26 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
         // Lazy compilation for recursive compilation
         initLazyFields();
         return type;
+    }
+
+    @Override
+    public IOpenClass[] getDeclaredClasses() {
+        List<IOpenClass> declaredClasses = new ArrayList();
+        getFieldDeclaredClasses(field1, declaredClasses);
+        getFieldDeclaredClasses(field2, declaredClasses);
+        return declaredClasses.toArray(new IOpenClass[] {});
+    }
+
+    private void getFieldDeclaredClasses(IOpenField field, List<IOpenClass> declaredClasses) {
+        if (field instanceof IOriginalDeclaredClassesOpenField) {
+            IOpenClass[] fieldDeclaredClasses = ((IOriginalDeclaredClassesOpenField) field).getDeclaredClasses();
+            declaredClasses.addAll(Arrays.asList(fieldDeclaredClasses));
+        } else if (field instanceof CustomSpreadsheetResultField && ((CustomSpreadsheetResultField) field).field != null) {
+            CustomSpreadsheetResultField customSpreadsheetResultField = (CustomSpreadsheetResultField) field;
+            declaredClasses.add(customSpreadsheetResultField.field.getDeclaringClass());
+        } else {
+            declaredClasses.add(field.getDeclaringClass());
+        }
     }
 
 }

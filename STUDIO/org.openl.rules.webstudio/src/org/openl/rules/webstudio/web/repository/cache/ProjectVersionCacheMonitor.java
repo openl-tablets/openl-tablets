@@ -44,6 +44,9 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     private void recalculateDesignRepositoryCache() throws IOException {
         Collection<? extends AProject> projects = designRepository.getProjects();
         for (AProject project : projects) {
+            if (project.isDeleted()) {
+                continue;
+            }
             cacheDesignProject(project);
             Thread.yield();
         }
@@ -55,8 +58,8 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
         List<ProjectVersion> versions = project.getVersions();
         if (repository.supports().branches()) {
             for (String branch : ((BranchRepository) repository).getBranches(project.getName())) {
-                versions.addAll(
-                    new AProject(((BranchRepository) repository).forBranch(branch), project.getFolderPath()).getVersions());
+                versions.addAll(new AProject(((BranchRepository) repository).forBranch(branch), project.getFolderPath())
+                    .getVersions());
             }
         } else {
             versions.addAll(project.getVersions());
