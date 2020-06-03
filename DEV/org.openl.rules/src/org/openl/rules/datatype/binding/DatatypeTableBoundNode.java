@@ -1,7 +1,6 @@
 /*
  * Created on Mar 8, 2004 Developed by OpenRules Inc. 2003-2004
  */
-
 package org.openl.rules.datatype.binding;
 
 import java.lang.reflect.Constructor;

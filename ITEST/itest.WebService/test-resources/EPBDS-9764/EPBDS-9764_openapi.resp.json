@@ -26,11 +26,194 @@
           }
         },
         "responses": {
-          "default": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MyMethod"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/myMethod2": {
+      "post": {
+        "summary": "MyMethod2 myMethod2(IRulesRuntimeContext, MyType1, MyType2, MyType3, MyType4)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyMethod2 myMethod2(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyType1, org.openl.generated.beans.MyType2, org.openl.generated.beans.MyType3, org.openl.generated.beans.MyType4)",
+        "operationId": "myMethod2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MyMethod2Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyMethod2"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getMyType2Data": {
+      "post": {
+        "summary": "MyType2[] getMyType2Data(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.beans.MyType2[] getMyType2Data(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyType2Data",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyType2"
+                  }
                 }
               }
             }
@@ -53,13 +236,127 @@
           }
         },
         "responses": {
-          "default": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/MyType4"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getMyType1Data": {
+      "post": {
+        "summary": "MyType1[] getMyType1Data(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.beans.MyType1[] getMyType1Data(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyType1Data",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyType1"
                   }
                 }
               }
@@ -83,128 +380,53 @@
           }
         },
         "responses": {
-          "default": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MyMethod3"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/myMethod2": {
-      "post": {
-        "summary": "MyMethod2 myMethod2(IRulesRuntimeContext, MyType1, MyType2, MyType3, MyType4)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyMethod2 myMethod2(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyType1, org.openl.generated.beans.MyType2, org.openl.generated.beans.MyType3, org.openl.generated.beans.MyType4)",
-        "operationId": "myMethod2",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MyMethod2Request"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyMethod2"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/getMyType1Data": {
-      "post": {
-        "summary": "MyType1[] getMyType1Data(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.beans.MyType1[] getMyType1Data(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyType1Data",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MyType1"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/getMyType2Data": {
-      "post": {
-        "summary": "MyType2[] getMyType2Data(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.beans.MyType2[] getMyType2Data(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyType2Data",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MyType2"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/getMyType3Data": {
-      "post": {
-        "summary": "MyType3[] getMyType3Data(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.beans.MyType3[] getMyType3Data(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyType3Data",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MyType3"
-                  }
                 }
               }
             }
@@ -227,7 +449,49 @@
           }
         },
         "responses": {
-          "default": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
@@ -254,11 +518,125 @@
           }
         },
         "responses": {
-          "default": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MyMethod5"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getMyType3Data": {
+      "post": {
+        "summary": "MyType3[] getMyType3Data(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.beans.MyType3[] getMyType3Data(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyType3Data",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyType3"
+                  }
                 }
               }
             }
@@ -281,7 +659,49 @@
           }
         },
         "responses": {
-          "default": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
@@ -296,6 +716,31 @@
   },
   "components": {
     "schemas": {
+      "JAXRSErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "USER_ERROR",
+              "RULES_RUNTIME",
+              "COMPILATION",
+              "SYSTEM",
+              "BAD_REQUEST",
+              "VALIDATION"
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "MyMethod": {
         "type": "object",
         "properties": {
@@ -745,64 +1190,6 @@
           }
         }
       },
-      "MyMethod3": {
-        "type": "object",
-        "properties": {
-          "Step1": {
-            "type": "string"
-          },
-          "Step2": {
-            "type": "string"
-          },
-          "Step3": {
-            "type": "string"
-          },
-          "Step4": {
-            "type": "string"
-          },
-          "Step5": {
-            "type": "string"
-          },
-          "Step6": {
-            "type": "string"
-          },
-          "Step7": {
-            "type": "string"
-          },
-          "Step8": {
-            "type": "string"
-          },
-          "Step9": {
-            "type": "string"
-          },
-          "Step10": {
-            "type": "string"
-          },
-          "Step11": {
-            "type": "string"
-          },
-          "Step12": {
-            "type": "string"
-          }
-        }
-      },
-      "MyMethod3Request": {
-        "type": "object",
-        "properties": {
-          "runtimeContext": {
-            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "myType1": {
-            "$ref": "#/components/schemas/MyType1"
-          },
-          "myType2": {
-            "$ref": "#/components/schemas/MyType2"
-          },
-          "myType3": {
-            "$ref": "#/components/schemas/MyType3"
-          }
-        }
-      },
       "MyMethod2": {
         "type": "object",
         "properties": {
@@ -867,6 +1254,64 @@
           },
           "myType4": {
             "$ref": "#/components/schemas/MyType4"
+          }
+        }
+      },
+      "MyMethod3": {
+        "type": "object",
+        "properties": {
+          "Step1": {
+            "type": "string"
+          },
+          "Step2": {
+            "type": "string"
+          },
+          "Step3": {
+            "type": "string"
+          },
+          "Step4": {
+            "type": "string"
+          },
+          "Step5": {
+            "type": "string"
+          },
+          "Step6": {
+            "type": "string"
+          },
+          "Step7": {
+            "type": "string"
+          },
+          "Step8": {
+            "type": "string"
+          },
+          "Step9": {
+            "type": "string"
+          },
+          "Step10": {
+            "type": "string"
+          },
+          "Step11": {
+            "type": "string"
+          },
+          "Step12": {
+            "type": "string"
+          }
+        }
+      },
+      "MyMethod3Request": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "myType1": {
+            "$ref": "#/components/schemas/MyType1"
+          },
+          "myType2": {
+            "$ref": "#/components/schemas/MyType2"
+          },
+          "myType3": {
+            "$ref": "#/components/schemas/MyType3"
           }
         }
       },
