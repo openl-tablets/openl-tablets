@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.rest;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -100,8 +101,8 @@ public class RulesDeployerRestController {
     @Produces("application/zip")
     public Response read(@PathParam("serviceName") final String serviceName) throws Exception {
         OpenLService service = ruleServiceManager.getServiceByName(serviceName);
-        FileItem fileItem = rulesDeployerService.read(service.getServicePath());
-        return Response.ok(fileItem.getStream())
+        InputStream read = rulesDeployerService.read(service.getServicePath());
+        return Response.ok(read)
             .header("Content-Disposition", "attachment;filename='" + serviceName + ".zip'")
             .build();
     }

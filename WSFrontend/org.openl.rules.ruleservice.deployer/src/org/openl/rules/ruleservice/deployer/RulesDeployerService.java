@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.deployer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -15,7 +16,9 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.ChangesetType;
@@ -101,14 +104,36 @@ public class RulesDeployerService implements Closeable {
     }
 
     /**
-     * Read a file by the given path name.
+     * Read a service by the given path name.
      *
-     * @param serviceName the path name of the file to read.
-     * @return the file descriptor or null if the file is absent.
+     * @param serviceName the path name of the service to read.
+     * @return the InputStream containing project archive.
      * @throws IOException if not possible to read the file.
      */
-    public FileItem read(String serviceName) throws IOException {
-        return deployRepo.read(serviceName);
+    public InputStream read(String serviceName) throws IOException {
+        if (deployRepo.supports().folders()) {
+            serviceName = serviceName + "/";
+            List<FileData> files = deployRepo.list(serviceName);
+            ByteArrayOutputStream  fos = new ByteArrayOutputStream ();
+            ZipOutputStream zipOut = new ZipOutputStream(fos);
+            for (FileData fileData : files) {
+                FileItem fileItem = deployRepo.read(fileData.getName());
+                ZipEntry zipEntry = new ZipEntry(fileItem.getData().getName().replace(serviceName, ""));
+                zipOut.putNextEntry(zipEntry);
+                InputStream stream = fileItem.getStream();
+                byte[] bytes = new byte[1024];
+                int length;
+                while((length = stream.read(bytes)) >= 0) {
+                    zipOut.write(bytes, 0, length);
+                }
+                stream.close();
+            }
+            zipOut.close();
+            fos.close();
+            return new ByteArrayInputStream(fos.toByteArray());
+        } else {
+            return deployRepo.read(serviceName).getStream();
+        }
     }
 
     /**
