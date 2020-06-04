@@ -246,12 +246,12 @@
                                             <td style="padding-left:0">
                                                 <div class="case-result">
                                                     <h:panelGroup rendered="#{resultParam.status == 'TR_NEQ'}"><span class="case-expected">Expected: </span>
-                                                        <ui:repeat value="" var="dontRemove!!!">
+                                                        <f:subview id="res-tr-neq">
                                                         <ui:include src="/pages/modules/test/parameter.xhtml">
                                                             <ui:param name="parameter" value="#{resultParam.expectedValue}" />
                                                             <ui:param name="requestId" value="#{mainBean.requestId}" />
                                                         </ui:include>
-                                                        </ui:repeat>
+                                                        </f:subview>
                                                     </h:panelGroup>
                                                 </div>
                                             </td>
