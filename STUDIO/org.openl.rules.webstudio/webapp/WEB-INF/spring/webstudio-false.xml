@@ -10,7 +10,7 @@
        default-autowire="no">
 
     <context:property-placeholder/>
-    <context:component-scan base-package="org.openl.rules.webstudio.web.install"/>
+    <context:component-scan base-package="org.openl.rules.webstudio.web.install org.openl.rules.webstudio.web.admin"/>
 
     <bean id="installerPage" class="org.openl.rules.webstudio.filter.RedirectFilter">
         <property name="redirectPage" value="/faces/pages/modules/install/index.xhtml"/>
