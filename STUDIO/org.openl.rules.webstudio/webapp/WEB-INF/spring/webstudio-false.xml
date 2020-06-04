@@ -24,6 +24,7 @@
             <security:filter-chain pattern="/javascript/**" filters="none"/>
             <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none"/>
             <security:filter-chain pattern="/faces/rfRes/**" filters="none"/>
+            <security:filter-chain pattern="/org.richfaces.resources/**" filters="none" />
             <security:filter-chain pattern="/faces/pages/modules/install/**" filters="none"/>
             <security:filter-chain pattern="/**" filters="installerPage"/>
         </security:filter-chain-map>

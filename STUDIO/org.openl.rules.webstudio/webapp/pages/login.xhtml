@@ -75,12 +75,14 @@
         </table>
 
         <script>
+            //<![CDATA[
             function setSubmitUrl(form){
                 if (location.href.indexOf("login.xhtml") == -1) {
                     form.action += "?openl-redirect=" + location;
                 }
                 return true;
             }
+            //]]>
         </script>
 
     </ui:define>
