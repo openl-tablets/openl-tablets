@@ -6,4 +6,4 @@ ENV JAVA_OPTS="-Xms32m -XX:MaxRAMPercentage=90.0"
 RUN rm -rf webapps/*
 
 # Copy WebService application
-COPY target/webservic-full/ webapps/ROOT/
+COPY target/webservice-full/ webapps/ROOT/
