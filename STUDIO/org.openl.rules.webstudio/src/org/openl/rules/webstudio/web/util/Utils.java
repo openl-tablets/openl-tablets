@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web;
+package org.openl.rules.webstudio.web.util;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
