@@ -1,6 +1,7 @@
 package org.openl.rules.ui.copy;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.openl.rules.table.IOpenLTable;
@@ -33,11 +34,17 @@ public class DimensionalPropertiesTableCopier extends TableCopier {
 
     @Override
     public List<TableProperty> getPropertiesToDisplay() {
+        IOpenLTable table = getTable();
+        if (table == null) {
+            // reset() was invoked for the wizard.
+            return Collections.emptyList();
+        }
+
         List<TableProperty> properties = new ArrayList<>();
 
         for (TableProperty property : getPropertiesManager().getProperties()) {
             if (property.isDimensional() && PropertiesChecker.isPropertySuitableForTableType(property.getName(),
-                getTable().getType()) && PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE,
+                table.getType()) && PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE,
                     property.getName())) {
                 properties.add(property);
             }
