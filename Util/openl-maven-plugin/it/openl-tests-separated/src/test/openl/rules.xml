@@ -2,14 +2,16 @@
     <name>OpenL Rules Simple Project With Tests Separated</name>
     <modules>
         <module>
-            <name>Simple Rules</name>
-            <rules-root path="rules/SimpleRules.xlsx"/>
-        </module>
-        <module>
             <name>tests</name>
             <rules-root path="rules/tests.xls"/>
         </module>
     </modules>
+    <dependencies>
+        <dependency>
+            <name>OpenL Rules Simple Project</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+    </dependencies>
     <classpath>
         <entry path="lib/*.jar"/>
     </classpath>
