@@ -49,6 +49,16 @@
     <param-value>true</param-value>
   </context-param>
 
+  <!-- We can't use PROJECT_STAGE equal to Production (default value) because currently we show ajax errors to a user.
+   See new Message() usages or any other exceptions throwing.
+   We should rewrite that logic (show another way to show custom error messages on ajax requests, for example,
+   use WebStudioUtils.addErrorMessage()). After that we can remove this context-param. Development is too verbose,
+   so using SystemTest. -->
+  <context-param>
+    <param-name>javax.faces.PROJECT_STAGE</param-name>
+    <param-value>SystemTest</param-value>
+  </context-param>
+
   <context-param>
     <param-name>org.eclipse.jetty.servlet.Default.welcomeServlets</param-name>
     <param-value>true</param-value>
