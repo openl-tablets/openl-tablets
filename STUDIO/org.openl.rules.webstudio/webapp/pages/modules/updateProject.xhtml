@@ -21,12 +21,12 @@
                 <h:outputLabel for="projectUpload" styleClass="required" value="File:" />
                 <rich:fileUpload id="projectUpload" fileUploadListener="#{studio.uploadListener}"
                                  immediateUpload="true"
-                                 onfilesubmit="ws.ui.showLoader();" oncomplete="ws.ui.hideLoader();"
-                                 acceptedTypes="zip" maxFilesQuantity="1">
-                    <a4j:ajax event="uploadcomplete" execute="@none"
-                              render="structureChangedFormData"
-                              oncomplete="disableUploadProjectButton(false);" />
-                </rich:fileUpload>
+                                 render="structureChangedFormData"
+                                 onfilesubmit="ws.ui.showLoader();"
+                                 oncomplete="disableUploadProjectButton(false);ws.ui.hideLoader();"
+                                 onclear="disableUploadProjectButton(true);"
+                                 ontyperejected="ws.ui.info('Only zip files are accepted');"
+                                 acceptedTypes="zip" maxFilesQuantity="1"/>
             </h:panelGrid>
 
             <footer>

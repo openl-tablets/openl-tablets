@@ -21,12 +21,12 @@
                 <h:outputLabel for="moduleUpload" styleClass="required" value="File" />
                 <rich:fileUpload id="moduleUpload" fileUploadListener="#{studio.uploadListener}"
                                  immediateUpload="true"
-                                 onfilesubmit="ws.ui.showLoader();" oncomplete="ws.ui.hideLoader();"
-                                 acceptedTypes="xls, xlsx, xlsm" maxFilesQuantity="1">
-                    <a4j:ajax event="uploadcomplete" execute="@none"
-                              render="moduleChangedFormData"
-                              oncomplete="disableUploadModuleButton(false);" />
-                </rich:fileUpload>
+                                 render="moduleChangedFormData"
+                                 onfilesubmit="ws.ui.showLoader();"
+                                 oncomplete="disableUploadModuleButton(false);ws.ui.hideLoader();"
+                                 onclear="disableUploadModuleButton(true);"
+                                 ontyperejected="ws.ui.info('Only xls and xlsx files are accepted');"
+                                 acceptedTypes="xls, xlsx, xlsm" maxFilesQuantity="1"/>
             </h:panelGrid>
 
             <footer>

@@ -174,14 +174,12 @@
                     <h:outputLabel for="file" styleClass="required" value="File:" />
 
                     <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
-                        onfilesubmit="showLoader();" oncomplete="hideLoader();"
+                        onfilesubmit="showLoader();"
+                        oncomplete="uploadProjectFormCommentHandler.isEdited = false; enableCreateButton(#{rich:element('uploadProjectForm:projectName')}.value.trim().length > 0, #{rich:element('sbtZips')});hideLoader();"
+                        onclear="enableCreateButton(false, #{rich:element('sbtZips')})"
                         immediateUpload="true"
-                        acceptedTypes="zip" maxFilesQuantity="1" >
-                            <a4j:ajax event="uploadcomplete"
-                                execute="@none"
-                                render="projectName commentZip"
-                                oncomplete="uploadProjectFormCommentHandler.isEdited = false; enableCreateButton(#{rich:element('uploadProjectForm:projectName')}.value.trim().length > 0, #{rich:element('sbtZips')});" />
-                    </rich:fileUpload>
+                        render="projectName commentZip"
+                        acceptedTypes="zip" maxFilesQuantity="1" />
 
                     <h:outputLabel for="projectName" styleClass="required" value="Project Name:" />
                     <h:inputText id="projectName" size="35"
