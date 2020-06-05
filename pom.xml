@@ -90,7 +90,6 @@
         <cassandra.driver.version>4.3.1</cassandra.driver.version>
         <cassandra.unit.version>3.11.2.0</cassandra.unit.version>
         <cassandra.unit.driver.version>3.8.0</cassandra.unit.driver.version>
-        <org.richfaces.version>4.5.17.Final</org.richfaces.version>
         <org.apache.cxf.version>3.3.6</org.apache.cxf.version>
         <log4j.version>2.13.3</log4j.version>
         <org.slf4j.version>1.7.30</org.slf4j.version>
@@ -860,10 +859,12 @@
                 <version>2.0</version>
             </dependency>
             <!-- RichFaces -->
+            <!-- RichFaces reached end-of-life status with version 4.5.17.Final so vulnerabilities will not be fixed.
+            To fix that we use forked richfaces implementation until we stop using richfaces features. -->
             <dependency>
-                <groupId>org.richfaces</groupId>
+                <groupId>com.github.albfernandez.richfaces</groupId>
                 <artifactId>richfaces</artifactId>
-                <version>${org.richfaces.version}</version>
+                <version>4.6.12.ayg</version>
             </dependency>
             <!-- Servlets -->
             <dependency>

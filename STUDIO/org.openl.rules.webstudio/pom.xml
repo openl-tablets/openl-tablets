@@ -189,7 +189,7 @@
             <artifactId>hibernate-validator</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.richfaces</groupId>
+            <groupId>com.github.albfernandez.richfaces</groupId>
             <artifactId>richfaces</artifactId>
         </dependency>
         <dependency>
