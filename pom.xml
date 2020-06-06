@@ -80,7 +80,7 @@
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
         <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl-pub</staging.hg.repo.url>
         <org.springframework.version>5.2.6.RELEASE</org.springframework.version>
-        <org.springsecurity.version>5.3.2.RELEASE</org.springsecurity.version>
+        <org.springsecurity.version>5.3.3.RELEASE</org.springsecurity.version>
         <org.hibernate.version>5.2.18.Final</org.hibernate.version>
         <org.mojarra.version>2.3.9</org.mojarra.version>
         <asm.version>8.0.1</asm.version>
