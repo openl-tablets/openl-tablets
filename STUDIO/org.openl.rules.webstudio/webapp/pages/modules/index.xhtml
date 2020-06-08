@@ -650,6 +650,19 @@
                     determineIfModuleChanged(project, "");
                     render(url, { project: project }, toReload, toOpen, openProjectNode);
                 });
+                // Project-specific additional info pages
+                crossroads.addRoute("{project}?page={page}&:{query}:", function(reload, project, page, query) {
+                    let url = page + ".xhtml";
+                    if (query) {
+                        url += "?" + query;
+                    }
+                    setModule(project);
+                    let leftReload = reload === "true" || !$("#projects-tree").length;
+                    let toReload = {top: 1, left: leftReload, bottom: 0, right: 0};
+                    let toOpen = {bottom: 0, right: 0};
+                    determineIfModuleChanged(project, "");
+                    render(url, { project: project }, toReload, toOpen, openProjectNode);
+                });
                 // Project with branch page
                 crossroads.addRoute("{project}/[{branch}]", function(reload, project, branch) {
                     var url = "project.xhtml?name=" + project;
@@ -912,6 +925,10 @@
 
                 if (page && page.indexOf("modules/") > -1) {
                     var projectName = page.split("modules/")[1];
+                    let queryIndex = projectName.indexOf("?");
+                    if (queryIndex > -1) {
+                        projectName = projectName.substring(0, queryIndex);
+                    }
                     //remove branch from project name. To re-render project tree in correct way
                     var branchStartIdx = projectName.indexOf("/[");
                     if (branchStartIdx > -1) {

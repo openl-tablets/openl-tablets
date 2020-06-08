@@ -226,6 +226,13 @@
                     More<b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu" role="menu">
+                    <h:panelGroup rendered="#{!empty project}">
+                        <li><a tabindex="-1" href="#{utils.toUrl(rProject.name)}?page=revisions&amp;"
+                               title="Show project revisions">Revisions</a></li>
+                        <h:panelGroup rendered="#{empty module}">
+                            <li class="divider"></li>
+                        </h:panelGroup>
+                    </h:panelGroup>
                     <h:panelGroup rendered="#{!empty module and studio.model.canEditProject}">
                         <li><a tabindex="-1" id="topRevertLink" href="#{studio.url('changes')}"
                                onclick="return canOverwriteRevision();"
