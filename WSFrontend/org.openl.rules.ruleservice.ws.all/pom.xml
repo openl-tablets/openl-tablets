@@ -6,17 +6,17 @@
         <artifactId>org.openl.rules.ruleservice-pom</artifactId>
         <version>5.23.4-SNAPSHOT</version>
     </parent>
-    <artifactId>org.openl.rules.ruleservice.ws.full</artifactId>
+    <artifactId>org.openl.rules.ruleservice.ws.all</artifactId>
     <packaging>war</packaging>
-    <name>OpenL - Ruleservice - Web Services Full WAR</name>
-    <description>OpenL Rules Webservice(full war)</description>
+    <name>OpenL - Ruleservice - Web Services All WAR</name>
+    <description>OpenL Rules Webservice (all war)</description>
     <url>https://openl-tablets.org</url>
     <organization>
         <name>OpenL Tablets</name>
         <url>https://openl-tablets.org</url>
     </organization>
     <build>
-        <finalName>webservice-full</finalName>
+        <finalName>webservice-all</finalName>
         <plugins>
             <plugin>
                 <groupId>org.basepom.maven</groupId>
