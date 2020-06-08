@@ -864,7 +864,7 @@
             <dependency>
                 <groupId>com.github.albfernandez.richfaces</groupId>
                 <artifactId>richfaces</artifactId>
-                <version>4.6.12.ayg</version>
+                <version>4.6.8.ayg</version>
             </dependency>
             <!-- Servlets -->
             <dependency>
