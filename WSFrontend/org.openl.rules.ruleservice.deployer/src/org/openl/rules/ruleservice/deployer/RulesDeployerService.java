@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.deployer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -43,6 +42,7 @@ import org.yaml.snakeyaml.Yaml;
 public class RulesDeployerService implements Closeable {
 
     private static final String RULES_XML = "rules.xml";
+    private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     private static final String DEFAULT_DEPLOYMENT_NAME = "openl_rules_";
     static final String DEFAULT_AUTHOR_NAME = "OpenL_Deployer";
 
@@ -135,7 +135,7 @@ public class RulesDeployerService implements Closeable {
         if (deployRepo.supports().folders()) {
             serviceName = serviceName + "/";
             List<FileData> files = deployRepo.list(serviceName);
-            ByteArrayOutputStream  fos = new ByteArrayOutputStream ();
+            ByteArrayOutputStream fos = new ByteArrayOutputStream();
             ZipOutputStream zipOut = new ZipOutputStream(fos);
             for (FileData fileData : files) {
                 FileItem fileItem = deployRepo.read(fileData.getName());
@@ -144,7 +144,7 @@ public class RulesDeployerService implements Closeable {
                 InputStream stream = fileItem.getStream();
                 byte[] bytes = new byte[1024];
                 int length;
-                while((length = stream.read(bytes)) >= 0) {
+                while ((length = stream.read(bytes)) >= 0) {
                     zipOut.write(bytes, 0, length);
                 }
                 stream.close();
@@ -276,16 +276,13 @@ public class RulesDeployerService implements Closeable {
             String defaultName,
             boolean overridable) throws IOException {
 
-        String projectName = readProjectName(zipEntries.get(RULES_XML), defaultName);
-        String apiVersion = readApiVersion(zipEntries.get("rules-deploy.xml"));
+        String serviceName = readServiceName(zipEntries.get(RULES_DEPLOY_XML));
+        String projectName = readProjectName(zipEntries.get(RULES_XML),
+            serviceName != null ? serviceName : defaultName);
+        String apiVersion = readApiVersion(zipEntries.get(RULES_DEPLOY_XML));
 
-        String deploymentName;
-        if (defaultDeploymentName == null) {
-            deploymentName = projectName;
-            projectName = "Rules";
-        } else {
-            deploymentName = defaultDeploymentName;
-        }
+        String deploymentName = defaultDeploymentName == null ? projectName : defaultDeploymentName;
+
         if (apiVersion != null && !apiVersion.isEmpty()) {
             deploymentName += DeploymentUtils.API_VERSION_SEPARATOR + apiVersion;
         }
@@ -305,10 +302,10 @@ public class RulesDeployerService implements Closeable {
     }
 
     private String readProjectName(byte[] bytes, String defaultName) {
-        String name = null;
-        if (bytes != null) {
-            name = DeploymentUtils.getProjectName(new ByteArrayInputStream(bytes));
+        if (bytes == null) {
+            return null;
         }
+        String name = DeploymentUtils.getProjectName(new ByteArrayInputStream(bytes));
         return name == null || name.isEmpty() ? defaultName : name;
     }
 
@@ -317,6 +314,13 @@ public class RulesDeployerService implements Closeable {
             return null;
         }
         return DeploymentUtils.getApiVersion(new ByteArrayInputStream(bytes));
+    }
+
+    private String readServiceName(byte[] bytes) {
+        if (bytes == null) {
+            return null;
+        }
+        return DeploymentUtils.getServiceName(new ByteArrayInputStream(bytes));
     }
 
     private void doDeploy(FileData dest, Integer contentSize, InputStream inputStream) throws IOException {
