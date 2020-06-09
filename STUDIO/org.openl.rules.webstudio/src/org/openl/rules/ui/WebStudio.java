@@ -3,6 +3,7 @@ package org.openl.rules.ui;
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.DEPLOY_PROJECTS;
 import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
+import static org.openl.rules.security.Privileges.VIEW_PROJECTS;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,6 +28,7 @@ import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
@@ -1248,6 +1250,49 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
 
         return isGranted(DEPLOY_PROJECTS);
+    }
+
+    public boolean getCanOpenOtherVersion() {
+        UserWorkspaceProject selectedProject = getCurrentProject();
+
+        if (selectedProject == null) {
+            return false;
+        }
+
+        if (!selectedProject.isLocalOnly()) {
+            return isGranted(VIEW_PROJECTS);
+        }
+
+        return false;
+    }
+
+    public void setProjectVersion(String version) {
+        try {
+            RulesProject project = getCurrentProject();
+            if (project.isOpened()) {
+                getModel().clearModuleInfo();
+                project.releaseMyLock();
+            }
+
+            project.openVersion(version);
+            resetProjects();
+            currentModule = null;
+        } catch (ProjectException e) {
+            String msg = "Failed to open project version.";
+            log.error(msg, e);
+            throw new ValidationException(msg);
+        }
+    }
+
+    public Collection<ProjectVersion> getProjectVersions() {
+        RulesProject project = getCurrentProject();
+        if (project == null) {
+            return Collections.emptyList();
+        }
+
+        List<ProjectVersion> versions = project.getVersions();
+        Collections.reverse(versions);
+        return versions;
     }
 
     public void freezeProject(String name) {

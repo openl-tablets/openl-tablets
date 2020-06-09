@@ -13,6 +13,9 @@
     </style>
     <rich:dataTable value="#{nodeVersionsBean.nodeToView.versions}" var="version" styleClass="table"
                     columnClasses="padding">
+        <ui:param name="renderAction"
+                  value="#{node.type == 'project' and repositoryTreeState.canOpenOtherVersion and !artefact.deleted and !version.deleted}"/>
+
         <f:facet name="header">
             <rich:columnGroup>
                 <rich:column>
@@ -27,7 +30,7 @@
                 <rich:column>
                     <h:outputText value="Revision ID"/>
                 </rich:column>
-                <rich:column rendered="#{node.type == 'project' and repositoryTreeState.canOpen and !artefact.deleted}">
+                <rich:column rendered="#{renderAction}">
                     <h:outputText value="Action"/>
                 </rich:column>
             </rich:columnGroup>
@@ -63,9 +66,7 @@
                 <h:outputText value="#{revisionNo}" styleClass="hidden"/>
             </h:panelGroup>
         </rich:column>
-        <rich:column
-                rendered="#{node.type == 'project' and repositoryTreeState.canOpenOtherVersion and !artefact.deleted and !version.deleted}"
-                style="text-align: center;">
+        <rich:column rendered="#{renderAction}" style="text-align: center;">
             <a href="javascript:void(0)" id="openPrjVersion"
                title="Open Revision '#{repositoryTreeController.getDescriptiveVersion(version)}'"
                onclick="if (backToPropsTab()) openProjectVersion('#{version.versionName}')">
