@@ -6,7 +6,7 @@
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich">
 
-    <f:view transient="#{module=='rules' ? true : false}">
+    <f:view transient="#{module=='rules'}">
     <rich:popupPanel id="modalUserProfile" minWidth="500" maxWidth="500" autosized="true">
         <f:facet name="header">User Profile</f:facet>
 
@@ -184,6 +184,9 @@
                     oncomplete="hideAndReload()" styleClass="button-primary save-button" />
                 <input class="restore-changed-state" type="button" value="Cancel" onclick="hideUserProfile();" />
             </footer>
+
+            <a4j:jsFunction name="renderUserProfile" render="@form" oncomplete="showUserProfile()"/>
+
         </h:form>
 
     </rich:popupPanel>
@@ -208,9 +211,16 @@
         $j("#userProfileForm").areYouSure();
     });
 
+    let userProfileTab;
+
     function editUserProfile(tab) {
-        #{rich:component("userProfileTab")}.switchToItem(
-                tab === "settings" ? "userProfileSettings" : "@first");
+        userProfileTab = tab;
+        renderUserProfile();
+    }
+
+    function showUserProfile() {
+        RichFaces.$("userProfileForm:userProfileTab").switchToItem(
+                userProfileTab === "settings" ? "userProfileSettings" : "@first");
         RichFaces.$("modalUserProfile").show();
     }
 
