@@ -60,7 +60,7 @@
             </rich:column>
             <rich:column rendered="#{renderAction}" style="text-align: center;">
                 <a href="javascript:void(0)"
-                   title="Open Revision '#{repositoryTreeController.getDescriptiveVersion(version)}'"
+                   title="Open Revision '#{utils.getDescriptiveVersion(version)}'"
                    onclick="if (confirmOpen()) openProjectVersion('#{version.versionName}')">
                     <img src="#{request.contextPath}/webresource/images/view.png"/>
                 </a>

@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.common.VersionInfo;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.IProjectDescriptorSerializer;
@@ -59,7 +58,6 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
@@ -83,6 +81,7 @@ import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
+import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -152,6 +151,9 @@ public class RepositoryTreeController {
     @Autowired
     private PropertyResolver propertyResolver;
 
+    @Autowired
+    private Utils utils;
+
     private String projectName;
     private String projectFolder = "";
     private String newProjectTemplate;
@@ -181,8 +183,6 @@ public class RepositoryTreeController {
     private String archiveProjectComment;
     private String restoreProjectComment;
     private String eraseProjectComment;
-
-    private String dateTimeFormat;
 
     public void setZipFilter(PathFilter zipFilter) {
         this.zipFilter = zipFilter;
@@ -1318,23 +1318,10 @@ public class RepositoryTreeController {
         List<SelectItem> selectItems = new ArrayList<>();
         for (ProjectVersion version : versions) {
             if (!version.isDeleted()) {
-                selectItems.add(new SelectItem(version.getVersionName(), getDescriptiveVersion(version)));
+                selectItems.add(new SelectItem(version.getVersionName(), utils.getDescriptiveVersion(version)));
             }
         }
         return selectItems.toArray(new SelectItem[0]);
-    }
-
-    public String getDescriptiveVersion(ProjectVersion version) {
-        return getDescriptiveVersion(version, dateTimeFormat);
-    }
-
-    public static String getDescriptiveVersion(ProjectVersion version, String dateTimeFormat) {
-        VersionInfo versionInfo = version.getVersionInfo();
-        if (versionInfo == null) {
-            return "Version not found";
-        }
-        String modifiedOnStr = new SimpleDateFormat(dateTimeFormat).format(versionInfo.getCreatedAt());
-        return versionInfo.getCreatedBy() + ": " + modifiedOnStr;
     }
 
     public String getUploadFrom() {
@@ -2184,7 +2171,6 @@ public class RepositoryTreeController {
         } else {
             deployConfigCommentValidator = designCommentValidator;
         }
-        dateTimeFormat = WebStudioFormats.getInstance().dateTime();
     }
 
     @PreDestroy

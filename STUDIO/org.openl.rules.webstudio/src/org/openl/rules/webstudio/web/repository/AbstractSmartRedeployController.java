@@ -29,6 +29,7 @@ import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
+import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -239,7 +240,7 @@ public abstract class AbstractSmartRedeployController {
                     // overwrite settings
                     checker.addProject(project);
                     if (checker.check()) {
-                        String to = RepositoryTreeController.getDescriptiveVersion(project.getVersion(),
+                        String to = Utils.getDescriptiveVersion(project.getVersion(),
                             dateTimeFormat);
                         if (deployedProject == null) {
                             item.setMessages("Can be deployed");
@@ -261,7 +262,7 @@ public abstract class AbstractSmartRedeployController {
                                 item.setMessages(
                                     "Can be updated to '" + to + "' and then deployed. Deployed version not defined");
                             } else {
-                                String from = RepositoryTreeController.getDescriptiveVersion(version, dateTimeFormat);
+                                String from = Utils.getDescriptiveVersion(version, dateTimeFormat);
                                 item.setMessages(
                                     "Can be updated to '" + to + "' from '" + from + "' and then deployed");
                             }

@@ -1,14 +1,26 @@
 package org.openl.rules.webstudio.web.util;
 
+import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
+
+import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.common.VersionInfo;
+import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.springframework.stereotype.Controller;
 
 @Controller
 public class Utils {
+    private String dateTimeFormat;
+
+    @PostConstruct
+    public void init() {
+        dateTimeFormat = WebStudioFormats.getInstance().dateTime();
+    }
 
     public String toJSText(String str) {
         return str == null ? null
@@ -34,4 +46,16 @@ public class Utils {
         return StringTool.encodeURL(name);
     }
 
+    public static String getDescriptiveVersion(ProjectVersion version, String dateTimeFormat) {
+        VersionInfo versionInfo = version.getVersionInfo();
+        if (versionInfo == null) {
+            return "Version not found";
+        }
+        String modifiedOnStr = new SimpleDateFormat(dateTimeFormat).format(versionInfo.getCreatedAt());
+        return versionInfo.getCreatedBy() + ": " + modifiedOnStr;
+    }
+
+    public String getDescriptiveVersion(ProjectVersion version) {
+        return getDescriptiveVersion(version, dateTimeFormat);
+    }
 }
