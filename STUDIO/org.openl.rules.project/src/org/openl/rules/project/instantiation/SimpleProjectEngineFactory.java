@@ -241,7 +241,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
     protected IDependencyManager buildDependencyManager() throws ProjectResolvingException {
         Collection<ProjectDescriptor> projectDescriptors = new ArrayList<>();
-        ProjectResolver projectResolver = ProjectResolver.instance();
+        ProjectResolver projectResolver = ProjectResolver.getInstance();
         ProjectDescriptor projectDescriptor = getProjectDescriptor();
         if (projectDependencies != null) {
             List<ProjectDescriptor> projects;
@@ -320,7 +320,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
     protected final synchronized ProjectDescriptor getProjectDescriptor() throws ProjectResolvingException {
         if (this.projectDescriptor == null) {
-            ProjectResolver projectResolver = ProjectResolver.instance();
+            ProjectResolver projectResolver = ProjectResolver.getInstance();
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             ProjectDescriptor pd;
             try {

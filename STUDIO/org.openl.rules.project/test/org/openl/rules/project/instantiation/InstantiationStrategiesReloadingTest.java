@@ -44,7 +44,7 @@ public class InstantiationStrategiesReloadingTest {
             int.class);
     }
 
-    private static ProjectResolver resolver = ProjectResolver.instance();
+    private static ProjectResolver resolver = ProjectResolver.getInstance();
     private ApiBasedInstantiationStrategy apiStrategy;
     private SingleModuleInstantiationStrategy dynamicStrategy;
 

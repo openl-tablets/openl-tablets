@@ -537,9 +537,9 @@ public class ProjectBean {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
 
             if (project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
-                AProjectResource artefact = (AProjectResource) project
+                AProjectResource artifact = (AProjectResource) project
                     .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-                artefact.setContent(inputStream);
+                artifact.setContent(inputStream);
             } else {
                 // new
                 // ProjectDescriptorManager().writeDescriptor(projectDescriptor,
@@ -549,11 +549,11 @@ public class ProjectBean {
             }
 
             if (project.hasArtefact(RULES_DEPLOY_XML)) {
-                AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_XML);
-                rulesDeployContent = artefact.getContent();
+                AProjectResource artifact = (AProjectResource) project.getArtefact(RULES_DEPLOY_XML);
+                rulesDeployContent = artifact.getContent();
                 RulesDeploy rulesDeploy = rulesDeploySerializerFactory.getSerializer(SupportedVersion.getLastVersion())
                     .deserialize(rulesDeployContent);
-                artefact.setContent(new ByteArrayInputStream(
+                artifact.setContent(new ByteArrayInputStream(
                     rulesDeploySerializer.serialize(rulesDeploy).getBytes(StandardCharsets.UTF_8)));
             }
 

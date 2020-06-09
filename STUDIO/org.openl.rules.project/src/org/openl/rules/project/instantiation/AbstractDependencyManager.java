@@ -282,7 +282,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private List<ClassLoader> oldClassLoaders = new ArrayList<>();
+    private final List<ClassLoader> oldClassLoaders = new ArrayList<>();
 
     private void reset(IDependency dependency, Set<String> doNotDoTheSameResetTwice) {
         final String dependencyName = dependency.getNode().getIdentifier();

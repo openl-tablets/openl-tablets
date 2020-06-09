@@ -24,7 +24,7 @@ public abstract class AbstractWorkbookGeneratingTest {
 
     protected List<Module> getModules() throws ProjectResolvingException {
         File rulesFolder = tempFolder.getRoot();
-        ProjectDescriptor projectDescriptor = ProjectResolver.instance().resolve(rulesFolder);
+        ProjectDescriptor projectDescriptor = ProjectResolver.getInstance().resolve(rulesFolder);
         return projectDescriptor.getModules();
     }
 

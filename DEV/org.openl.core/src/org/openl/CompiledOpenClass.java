@@ -18,13 +18,13 @@ import org.openl.types.IOpenClass;
  */
 public class CompiledOpenClass {
 
-    private Collection<OpenLMessage> messages;
+    private final Collection<OpenLMessage> messages;
 
-    private IOpenClass openClass;
+    private final IOpenClass openClass;
 
     private boolean hasErrors;
 
-    private ClassLoader classLoader;
+    private final ClassLoader classLoader;
 
     public CompiledOpenClass(IOpenClass openClass, Collection<OpenLMessage> messages) {
         this.openClass = Objects.requireNonNull(openClass, "openClass cannot be null");

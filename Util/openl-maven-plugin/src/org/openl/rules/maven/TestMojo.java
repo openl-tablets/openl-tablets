@@ -148,7 +148,7 @@ public final class TestMojo extends BaseOpenLMojo {
         String mainSourcePath = null;
 
         File testDir = testSourceDirectory.getCanonicalFile();
-        if (testDir.isDirectory() && ProjectResolver.instance().isRulesProject(testDir) != null) {
+        if (testDir.isDirectory() && ProjectResolver.getInstance().isRulesProject(testDir) != null) {
             mainSourcePath = sourcePath;
 
             try {
@@ -194,7 +194,7 @@ public final class TestMojo extends BaseOpenLMojo {
     private Summary executeModuleByModule(String testSourcePath, String mainSourcePath, boolean hasDependencies) throws MalformedURLException,
                                                                                       RulesInstantiationException,
                                                                                       ProjectResolvingException {
-        ProjectDescriptor pd = ProjectResolver.instance().resolve(new File(testSourcePath));
+        ProjectDescriptor pd = ProjectResolver.getInstance().resolve(new File(testSourcePath));
         if (pd == null) {
             throw new ProjectResolvingException("Failed to resolve project. Defined location is not an OpenL project.");
         }

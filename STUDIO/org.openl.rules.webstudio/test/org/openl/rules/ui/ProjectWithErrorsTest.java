@@ -37,7 +37,7 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
         createMainModule();
 
         WebStudio ws = mock(WebStudio.class);
-        when(ws.getProjectResolver()).thenReturn(ProjectResolver.instance());
+        when(ws.getProjectResolver()).thenReturn(ProjectResolver.getInstance());
         when(ws.isChangeableModuleMode()).thenReturn(true);
 
         pm = new ProjectModel(ws);

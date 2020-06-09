@@ -133,7 +133,7 @@ public class ProductionRepositoryDeployer {
     }
 
     private static List<File> getRulesFolders(File root) {
-        ProjectResolver projectResolver = ProjectResolver.instance();
+        ProjectResolver projectResolver = ProjectResolver.getInstance();
         if (projectResolver.isRulesProject(root) != null) {
             return Collections.singletonList(root);
         }

@@ -20,7 +20,7 @@ import org.openl.rules.variation.*;
 
 public class VariationsTest {
     private static final String TEST_PROJECT_FOLDER = "test-resources/dependencies/test4/module/dependency-module1";
-    private ProjectResolver projectResolver = ProjectResolver.instance();
+    private ProjectResolver projectResolver = ProjectResolver.getInstance();
     private ApiBasedInstantiationStrategy instantiationStrategy;
 
     @Before
