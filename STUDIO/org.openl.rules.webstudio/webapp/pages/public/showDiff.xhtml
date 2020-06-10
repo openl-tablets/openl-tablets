@@ -64,6 +64,10 @@
                         <p>File name: <h:outputText value="#{showDiffBean.getCurrent(requestId).fileName}"/>
                         </p>
                     </h:panelGroup>
+                    <h:panelGroup rendered="#{not empty showDiffBean.getCurrent(requestId).fileStatus}">
+                        <p>File status: <h:outputText value="#{showDiffBean.getCurrent(requestId).fileStatus}"/>
+                        </p>
+                    </h:panelGroup>
 
                     <div style="width: 100%; max-height: 250px; background: #f5f5f5; border-top: 1px solid #bbbbbb; border-bottom: 1px solid #bbbbbb;"
                          class="scrollable">
