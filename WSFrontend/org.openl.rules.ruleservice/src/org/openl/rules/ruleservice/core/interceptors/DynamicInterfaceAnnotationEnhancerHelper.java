@@ -29,8 +29,8 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
     private static class DynamicInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$Intercepted";
 
-        private Class<?> templateClass;
-        private Set<Method> foundMethods = new HashSet<>();
+        private final Class<?> templateClass;
+        private final Set<Method> foundMethods = new HashSet<>();
 
         public DynamicInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0, Class<?> templateClass) {
             super(Opcodes.ASM5, arg0);

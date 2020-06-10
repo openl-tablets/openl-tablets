@@ -1,11 +1,14 @@
 package org.openl.rules.ruleservice.core;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
@@ -22,11 +25,13 @@ import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactory;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl;
 import org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache;
+import org.openl.rules.project.validation.ProjectValidator;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.types.IOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Default implementation of RuleServiceOpenLServiceInstantiationFactory. Depend on RuleLoader.
@@ -46,6 +51,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private ObjectProvider<Collection<ServiceInvocationAdviceListener>> serviceInvocationAdviceListeners;
 
+    @Autowired(required = false)
+    private List<ProjectValidator> projectValidators = new ArrayList<>();
+
     private void initService(ServiceDescription serviceDescription,
             RuleServiceDependencyManager dependencyManager,
             OpenLService service) throws RuleServiceInstantiationException, RulesInstantiationException {
@@ -54,7 +62,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         Map<String, Object> parameters = ProjectExternalDependenciesHelper
             .getExternalParamsWithProjectDependencies(externalParameters, service.getModules());
         instantiationStrategy.setExternalParameters(parameters);
-
         if (service.isProvideVariations()) {
             instantiationStrategy = new VariationInstantiationStrategyEnhancer(instantiationStrategy);
         }
@@ -90,7 +97,18 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private void compileOpenClass(OpenLService service,
             RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
-        service.setCompiledOpenClass(instantiationStrategy.compile());
+        CompiledOpenClass compiledOpenClass = instantiationStrategy.compile();
+        service.setCompiledOpenClass(validateCompiledOpenClass(service, compiledOpenClass));
+    }
+
+    private CompiledOpenClass validateCompiledOpenClass(OpenLService service, CompiledOpenClass compiledOpenClass) {
+        if (!service.getModules().isEmpty()) {
+            for (ProjectValidator projectValidator : getProjectValidators()) {
+                compiledOpenClass = projectValidator.validate(service.getModules().iterator().next().getProject(),
+                    compiledOpenClass);
+            }
+        }
+        return compiledOpenClass;
     }
 
     private void instantiateServiceBean(OpenLService service,
@@ -286,6 +304,14 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     public void setExternalParameters(Map<String, Object> externalParameters) {
         this.externalParameters = externalParameters;
+    }
+
+    public List<ProjectValidator> getProjectValidators() {
+        return projectValidators;
+    }
+
+    public void setProjectValidators(List<ProjectValidator> projectValidators) {
+        this.projectValidators = projectValidators;
     }
 
     @Override

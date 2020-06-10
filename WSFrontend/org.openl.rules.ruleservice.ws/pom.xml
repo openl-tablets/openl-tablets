@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openl.rules</groupId>
@@ -61,9 +62,26 @@
                                 <class>org.xmlpull.v1.XmlPullParserException</class>
                             </classes>
                         </exception>
+                        <exception>
+                            <conflictingDependencies>
+                                <dependency>
+                                    <groupId>com.github.java-json-tools</groupId>
+                                    <artifactId>json-schema-core</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>com.github.java-json-tools</groupId>
+                                    <artifactId>json-schema-validator</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                            <resources>
+                                <resource>draftv3/schema</resource>
+                                <resource>draftv4/schema</resource>
+                            </resources>
+                        </exception>
                     </exceptions>
                     <ignoredResourcePatterns>
-                        <ignoredResourcePattern>org/apache/cxf/endpoint/dynamic/simple-binding.xjb</ignoredResourcePattern>
+                        <ignoredResourcePattern>org/apache/cxf/endpoint/dynamic/simple-binding.xjb
+                        </ignoredResourcePattern>
                         <ignoredResourcePattern>openl-ruleservice-property-placeholder.xml</ignoredResourcePattern>
                         <ignoredResourcePattern>openl-ruleservice-publisher-beans.xml</ignoredResourcePattern>
                         <ignoredResourcePattern>openl-default.properties</ignoredResourcePattern>
@@ -115,6 +133,10 @@
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.project.validation.openapi</artifactId>
         </dependency>
         <!-- STUDIO -->
         <dependency>

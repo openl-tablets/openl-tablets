@@ -61,9 +61,7 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
                 "baseHello(Lorg/openl/rules/context/IRulesRuntimeContext;I)Ljava/lang/String;",
                 "baseHello2(Lorg/openl/rules/context/IRulesRuntimeContext;I)Ljava/lang/String;" };
         Set<String> methodNames = new HashSet<>();
-        for (String s : methods) {
-            methodNames.add(s);
-        }
+        Collections.addAll(methodNames, methods);
         int count = 0;
         for (Method method : service.getServiceClass().getMethods()) {
             if (methodNames.contains(method.getName() + Type.getMethodDescriptor(method))) {
@@ -126,25 +124,25 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
         Class<?> myClassClass = service.getServiceClass()
             .getClassLoader()
             .loadClass("org.openl.ruleservice.dynamicinterface.test.MyClass");
-        Object myClassIntance = myClassClass.newInstance();
+        Object myClassInstance = myClassClass.newInstance();
         Method setNameMethod = myClassClass.getMethod("setName", String.class);
         final String someValue = "someValue";
-        setNameMethod.invoke(myClassIntance, someValue);
+        setNameMethod.invoke(myClassInstance, someValue);
         Object result = frontend
-            .execute("dynamic-interface-test3", "method2", new Object[] { context, myClassIntance });
+            .execute("dynamic-interface-test3", "method2", context, myClassInstance);
         Assert.assertTrue(myClassClass.isInstance(result));
         Method getNameMethod = myClassClass.getMethod("getName");
         Object name = getNameMethod.invoke(result);
         Assert.assertEquals(someValue, name);
         Class<?> myTypeClass = service.getServiceClass().getClassLoader().loadClass("org.openl.generated.beans.MyType");
         Object myTypeInstance = myTypeClass.newInstance();
-        result = frontend.execute("dynamic-interface-test3", "method2", new Object[] { context, myTypeInstance });
+        result = frontend.execute("dynamic-interface-test3", "method2", context, myTypeInstance);
         Assert.assertNull(result);
-        result = frontend.execute("dynamic-interface-test3", "method3", new Object[] { context, myClassIntance });
-        Object value = getNameMethod.invoke(myClassIntance);
+        result = frontend.execute("dynamic-interface-test3", "method3", context, myClassInstance);
+        Object value = getNameMethod.invoke(myClassInstance);
         Assert.assertEquals("beforeAdviceWasInvoked", value);
 
-        result = frontend.execute("dynamic-interface-test3", "helloWorld", new Object[] {});
+        result = frontend.execute("dynamic-interface-test3", "helloWorld");
         Assert.assertEquals("Hello world ServiceExtraMethodHandler!", result);
     }
 }
