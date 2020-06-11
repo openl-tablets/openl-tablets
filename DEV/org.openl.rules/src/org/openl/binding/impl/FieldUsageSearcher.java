@@ -154,8 +154,12 @@ public final class FieldUsageSearcher {
                     "");
             }
         }
-        if (classes.size() > MAX_DESCRIPTION_CLASS_NUMBER) {
-            classNames += "...(" + (classes.size() - MAX_DESCRIPTION_CLASS_NUMBER + classRemoved) + ")more";
+        if (classes.size() > MAX_DESCRIPTION_CLASS_NUMBER || classRemoved > 0) {
+            int more = classRemoved;
+            if (classes.size() > MAX_DESCRIPTION_CLASS_NUMBER) {
+                more += classes.size() - MAX_DESCRIPTION_CLASS_NUMBER;
+            }
+            classNames += "...(" + more + ")more";
         }
         return classNames;
     }
