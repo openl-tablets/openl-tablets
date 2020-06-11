@@ -42,6 +42,8 @@ import org.apache.poi.hssf.usermodel.HSSFComment;
 import org.apache.poi.hssf.usermodel.HSSFShapeFactory;
 import org.apache.poi.poifs.filesystem.DirectoryNode;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.formula.WorkbookDependentFormula;
+import org.apache.poi.ss.formula.ptg.Ptg;
 import org.apache.poi.ss.util.CellAddress;
 import org.openl.excel.parser.TableStyles;
 import org.openl.excel.parser.event.style.CommentsCollector;
@@ -217,8 +219,16 @@ public class TableStyleListener implements HSSFListener {
                 FormulaRecordAggregate formulaAggregate = new FormulaRecordAggregate(currentFormula,
                     cachedText,
                     sharedValueManager);
-                String formula = HSSFFormulaParser.toFormulaString(null, formulaAggregate.getFormulaTokens());
-                formulas.put(new CellAddress(row, column), formula);
+                Ptg[] formulaTokens = formulaAggregate.getFormulaTokens();
+                boolean workbookDependentFormula = Arrays.stream(formulaTokens)
+                        .anyMatch(t -> t instanceof WorkbookDependentFormula);
+                if (workbookDependentFormula) {
+                    formulas.put(new CellAddress(row, column), "");
+                } else {
+                    String formula = HSSFFormulaParser.toFormulaString(null, formulaTokens);
+                    formulas.put(new CellAddress(row, column), formula);
+                }
+
             } catch (Exception e) {
                 log.error("Cannot read formula in sheet '{}' row {} column {}", sheet.getName(), row, column, e);
             }
