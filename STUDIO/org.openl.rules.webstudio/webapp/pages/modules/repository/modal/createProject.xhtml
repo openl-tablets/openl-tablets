@@ -132,6 +132,7 @@
                         <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                             onfilesubmit="showLoader();" oncomplete="hideLoader();"
                             immediateUpload="true"
+                            noDuplicate="true"
                             acceptedTypes="xls, xlsx, xlsm" />
 
                         <h:outputLabel for="projectName" styleClass="required" value="Project Name:" />
