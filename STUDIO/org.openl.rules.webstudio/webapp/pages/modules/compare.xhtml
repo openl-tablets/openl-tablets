@@ -1,6 +1,5 @@
 <ui:composition
     xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:f="http://java.sun.com/jsf/core"
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
     xmlns:ui="http://java.sun.com/jsf/facelets"
@@ -29,6 +28,7 @@
                         maxFilesQuantity="2"
                         noDuplicate="true"
                         immediateUpload="true"
+                        onclear="onClearFile(event);"
                         acceptedTypes="xls, xlsx, xlsm" style="height: 148px">
                         <a4j:ajax event="uploadcomplete" execute="@none" render="compareButton" />
                     </rich:fileUpload>
@@ -42,9 +42,14 @@
             </div>
             <div style="text-align: right; padding: 0 13px 5px">
                 <img src="#{request.contextPath}/webresource/images/arrow_close.png"
+                    alt="#{msg['ws.compare.panel.hide']}"
                     onclick="$j('#diffFormPanel').toggle('fast');this.src=(this.title == '#{msg['ws.compare.panel.hide']}' ? 'webresource/images/arrow_open.png' : 'webresource/images/arrow_close.png');this.title=(this.title == '#{msg['ws.compare.panel.hide']}' ? '#{msg['ws.compare.panel.show']}' : '#{msg['ws.compare.panel.hide']}');"
                     style="cursor: pointer;" title="#{msg['ws.compare.panel.hide']}" />
             </div>
+
+            <a4j:jsFunction name="clearFunc" render="compareButton">
+                <a4j:param name="fileNamesToRemove" assignTo="#{uploadExcelDiffController.fileNamesToRemove}" />
+            </a4j:jsFunction>
         </h:form>
 
         <h:form id="diffTreeForm">
@@ -84,6 +89,29 @@
                 </tr>
             </table>
         </h:form>
+
+        <script>
+            //<![CDATA[
+            function onClearFile(event) {
+                let files = "";
+                const data = event.rf.data;
+                for (let i = 0; i < data.length; i++) {
+                    if (i > 0) {
+                        files += "\n";
+                    }
+                    files += data[i].name;
+                }
+
+                clearFunc(files);
+            }
+
+            $j(function () {
+                $j(window).on('unload', function () {
+                    clearFunc('');
+                });
+            });
+            //]]>
+        </script>
 
     </ui:define>
 </ui:composition>
