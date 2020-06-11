@@ -33,6 +33,10 @@ class DeploymentUtils {
         return evaluateXPath(stream, "/version");
     }
 
+    static String getServiceName(InputStream stream) {
+        return evaluateXPath(stream, "/rules-deploy/serviceName");
+    }
+
     static String evaluateXPath(InputStream stream, String expression) {
         try {
             InputSource inputSource = new InputSource(stream);

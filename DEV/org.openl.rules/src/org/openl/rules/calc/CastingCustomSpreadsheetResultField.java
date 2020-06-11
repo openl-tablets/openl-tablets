@@ -110,6 +110,9 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
     }
 
     private void getFieldDeclaredClasses(IOpenField field, List<IOpenClass> declaredClasses) {
+        if (declaredClasses.contains(field.getDeclaringClass())) {
+            return;
+        }
         if (field instanceof IOriginalDeclaredClassesOpenField) {
             IOpenClass[] fieldDeclaredClasses = ((IOriginalDeclaredClassesOpenField) field).getDeclaredClasses();
             declaredClasses.addAll(Arrays.asList(fieldDeclaredClasses));
