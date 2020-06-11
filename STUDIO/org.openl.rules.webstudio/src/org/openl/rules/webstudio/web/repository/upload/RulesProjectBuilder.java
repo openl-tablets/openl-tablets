@@ -89,7 +89,7 @@ public class RulesProjectBuilder {
             synchronized (workspace) {
                 project.close();
             }
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             log.error("Failed to cancel new project", e);
         }
     }

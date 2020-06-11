@@ -36,21 +36,25 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
 
         if (files != null) {
             for (ProjectFile file : files) {
-                String fileName = file.getName();
-                if (!pathFilter.accept(fileName)) {
-                    continue;
-                }
-
-                if (checkFileSize(file)) {
-                    try {
-                        projectBuilder.addFile(fileName, changeFileIfNeeded(fileName, file.getInput()));
-                    } catch (IOException e) {
-                        throw new ProjectException(e.getMessage(), e);
+                try {
+                    String fileName = file.getName();
+                    if (!pathFilter.accept(fileName)) {
+                        continue;
                     }
-                } else {
-                    throw new ProjectException("Size of the file " + file.getName() + " is more then 100MB.");
-                }
 
+                    if (checkFileSize(file)) {
+                        try {
+                            projectBuilder.addFile(fileName, changeFileIfNeeded(fileName, file.getInput()));
+                        } catch (IOException e) {
+                            throw new ProjectException(e.getMessage(), e);
+                        }
+                    } else {
+                        throw new ProjectException("Size of the file " + file.getName() + " is more then 100MB.");
+                    }
+                } catch (Exception e) {
+                    projectBuilder.cancel();
+                    throw e;
+                }
             }
         }
 
