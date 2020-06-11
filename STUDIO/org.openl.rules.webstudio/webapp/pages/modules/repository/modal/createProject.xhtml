@@ -321,9 +321,7 @@
         }
 
         function openNewProjectDialog() {
-            // Emulate click because RichFaces.switchTab() isn't defined in current version of richfaces
-            $j('#projectType #template\\:header\\:inactive span').click();
-
+            RichFaces.$("projectType").switchToItem("@first");
             RichFaces.$("modalNewProject").show();
             focusElement("createProjectFormTempl:projectName");
         }
