@@ -24,10 +24,10 @@ import org.richfaces.function.RichFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
-@Controller
+@Service
 @SessionScope
 public class ConflictedFileDiffController extends ExcelDiffController {
     private final Logger log = LoggerFactory.getLogger(ConflictedFileDiffController.class);

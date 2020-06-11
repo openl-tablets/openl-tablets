@@ -2,13 +2,13 @@ package org.openl.rules.webstudio.web.repository;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * @author Aleh Bykhavets
  */
-@Controller
+@Service
 @SessionScope
 public class SmartRedeployEditorController extends AbstractSmartRedeployController {
 

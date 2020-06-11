@@ -46,10 +46,10 @@ import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
-@Controller
+@Service
 @SessionScope
 public class MergeConflictBean {
     private final Logger log = LoggerFactory.getLogger(MergeConflictBean.class);

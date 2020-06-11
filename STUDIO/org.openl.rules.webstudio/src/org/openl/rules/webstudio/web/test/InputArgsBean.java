@@ -64,12 +64,12 @@ import org.richfaces.component.UITree;
 import org.richfaces.model.SequenceRowKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@Controller
+@Service
 @ViewScope
 public class InputArgsBean {
     private final Logger log = LoggerFactory.getLogger(InputArgsBean.class);
@@ -82,7 +82,7 @@ public class InputArgsBean {
     private ParameterWithValueDeclaration[] arguments;
     private ParameterDeclarationTreeNode[] argumentTreeNodes;
     private String className;
-    private Map<String, ComplexParameterTreeNode> complexParameters = new HashMap<>();
+    private final Map<String, ComplexParameterTreeNode> complexParameters = new HashMap<>();
     private InputTestCaseType inputTestCaseType = InputTestCaseType.BEAN;
     private String inputTextBean;
 
@@ -131,7 +131,7 @@ public class InputArgsBean {
 
     enum InputTestCaseType {
         TEXT,
-        BEAN;
+        BEAN
     }
 
     public String getClassName() {
@@ -383,7 +383,7 @@ public class InputArgsBean {
             return arguments;
         } catch (Exception | LinkageError e) {
             log.error(e.getMessage(), e);
-            return new ParameterWithValueDeclaration[0];
+            return ParameterWithValueDeclaration.EMPTY_ARRAY;
         }
     }
 

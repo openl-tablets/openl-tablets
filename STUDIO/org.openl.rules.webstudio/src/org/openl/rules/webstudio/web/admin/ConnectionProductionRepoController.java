@@ -1,14 +1,14 @@
 package org.openl.rules.webstudio.web.admin;
 
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Pavel Tarasevich
  *
  */
 
-@Controller
+@Service
 @ViewScope
 public class ConnectionProductionRepoController extends AbstractProductionRepoController {
 

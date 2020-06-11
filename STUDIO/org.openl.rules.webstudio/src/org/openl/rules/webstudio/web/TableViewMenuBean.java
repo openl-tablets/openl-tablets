@@ -6,17 +6,17 @@ import org.openl.rules.ui.ColorFilterHolder;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean for tableViewMenu page.
  */
-@Controller
+@Service
 @RequestScope
 public class TableViewMenuBean {
 
-    private ColorFilterHolder filterHolder;
+    private final ColorFilterHolder filterHolder;
 
     private String requestParams;
     private String requestParamsView;

@@ -28,14 +28,14 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
 /**
  * TODO Remove property getters/setters when migrating to EL 2.2
  *
  * @author Andrei Astrouski
  */
-@Controller
+@Service
 @ViewScope
 public class SystemSettingsBean {
     private final Logger log = LoggerFactory.getLogger(SystemSettingsBean.class);
@@ -48,7 +48,7 @@ public class SystemSettingsBean {
 
     private final RepositoryTreeState repositoryTreeState;
 
-    private PropertiesHolder properties;
+    private final PropertiesHolder properties;
 
     private RepositoryConfiguration designRepositoryConfiguration;
     private RepositoryConfiguration deployConfigRepositoryConfiguration;

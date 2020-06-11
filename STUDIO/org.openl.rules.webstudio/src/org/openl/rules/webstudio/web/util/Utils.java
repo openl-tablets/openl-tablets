@@ -11,9 +11,9 @@ import org.openl.rules.common.VersionInfo;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
-@Controller
+@Service
 public class Utils {
     private String dateTimeFormat;
 

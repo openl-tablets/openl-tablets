@@ -40,7 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.jsf.FacesContextUtils;
 
@@ -48,7 +48,7 @@ import org.springframework.web.jsf.FacesContextUtils;
  * FIXME: Replace SessionScoped with RequestScoped when validation issues in inputNumberSpinner in Repository and Editor
  * tabs will be fixed.
  */
-@Controller
+@Service
 @SessionScope
 public class CopyBean {
     private final Logger log = LoggerFactory.getLogger(CopyBean.class);
@@ -57,7 +57,7 @@ public class CopyBean {
 
     private final RepositoryTreeState repositoryTreeState;
 
-    private ApplicationContext applicationContext = FacesContextUtils
+    private final ApplicationContext applicationContext = FacesContextUtils
         .getWebApplicationContext(FacesContext.getCurrentInstance());
 
     private String currentProjectName;

@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
 /**
@@ -9,7 +9,7 @@ import org.springframework.web.context.annotation.SessionScope;
  *
  * @author Pavel Tarasevich
  */
-@Controller
+@Service
 @SessionScope
 public class RepositorySelectNodeStateHolder {
     private final SelectionHolder selectionHolder = new SelectionHolder();

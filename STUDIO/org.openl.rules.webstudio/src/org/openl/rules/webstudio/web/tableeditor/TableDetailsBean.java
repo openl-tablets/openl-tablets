@@ -24,9 +24,9 @@ import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.springframework.core.env.PropertyResolver;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
-@Controller
+@Service
 @ViewScope
 public class TableDetailsBean {
     private boolean editable;

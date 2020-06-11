@@ -24,10 +24,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
-@Controller
+@Service
 @RequestScope
 public class UserProfileBean extends UsersBean {
     public static final String VALIDATION_MAX = "Must be less than 25";
@@ -66,7 +66,7 @@ public class UserProfileBean extends UsersBean {
                 user = userManagementService.loadUserByUsername(getUsername());
             } catch (UsernameNotFoundException e) {
                 log.warn("User details for user '" + getUsername() + "' cannot be retrieved.");
-                user = new SimpleUser(null, null, getUsername(), null, Collections.<Privilege> emptyList());
+                user = new SimpleUser(null, null, getUsername(), null, Collections.emptyList());
             }
         }
         setFirstName(user.getFirstName());

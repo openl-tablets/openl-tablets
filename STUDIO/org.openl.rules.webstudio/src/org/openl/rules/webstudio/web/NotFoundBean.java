@@ -2,10 +2,10 @@ package org.openl.rules.webstudio.web;
 
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
-@Controller
+@Service
 @RequestScope
 public class NotFoundBean {
     public String getProject() {

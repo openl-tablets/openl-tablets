@@ -16,7 +16,7 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
 /**
@@ -24,7 +24,7 @@ import org.springframework.web.context.annotation.SessionScope;
  *
  * @author Yury Molchan
  */
-@Controller
+@Service
 @SessionScope
 public class TraceIntoFileBean {
     private static final char[] indents = new char[256];

@@ -10,7 +10,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 /**
@@ -18,7 +18,7 @@ import org.springframework.web.context.annotation.RequestScope;
  *
  * @author Andrei Astrouski
  */
-@Controller
+@Service
 @RequestScope
 public class ProblemsBean {
 
@@ -28,7 +28,7 @@ public class ProblemsBean {
     public static final String ERROR_NODE_NAME = "error";
     public static final String WARNING_NODE_NAME = "warning";
 
-    private static MessageHandler messageHandler = new MessageHandler();
+    private static final MessageHandler messageHandler = new MessageHandler();
 
     public TreeNode getTree() {
         int nodeCount = 1;

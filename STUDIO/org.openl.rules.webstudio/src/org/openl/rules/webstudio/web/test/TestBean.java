@@ -29,37 +29,33 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean providing logic for 'Run Tests' page of WebStudio.
  */
-@Controller
+@Service
 @RequestScope
 public class TestBean {
 
     private final Logger log = LoggerFactory.getLogger(TestBean.class);
 
-    public static final Comparator<TestUnitsResults> TEST_COMPARATOR = new Comparator<TestUnitsResults>() {
-
-        @Override
-        public int compare(TestUnitsResults t1, TestUnitsResults t2) {
-            if (t2 != null && t1 != null) {
-                int cmp = t2.getNumberOfFailures() - t1.getNumberOfFailures();
-                if (cmp != 0) {
-                    return cmp;
-                }
-                return t1.getName().compareTo(t2.getName());
-            } else {
-                return t1 == t2 ? 0 : t1 == null ? 1 : -1;
+    private static final Comparator<TestUnitsResults> TEST_COMPARATOR = (t1, t2) -> {
+        if (t2 != null && t1 != null) {
+            int cmp = t2.getNumberOfFailures() - t1.getNumberOfFailures();
+            if (cmp != 0) {
+                return cmp;
             }
+            return t1.getName().compareTo(t2.getName());
+        } else {
+            return t1 == t2 ? 0 : t1 == null ? 1 : -1;
         }
     };
 
     private final MainBean mainBean;
 
-    private WebStudio studio;
+    private final WebStudio studio;
     private TestUnitsResults[] ranResults;
 
     private final static int ALL = -1;

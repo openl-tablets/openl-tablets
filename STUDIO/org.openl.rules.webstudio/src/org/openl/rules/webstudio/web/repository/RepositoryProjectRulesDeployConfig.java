@@ -22,11 +22,11 @@ import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
 import com.thoughtworks.xstream.XStreamException;
 
-@Controller
+@Service
 @ViewScope
 public class RepositoryProjectRulesDeployConfig {
     private static final String RULES_DEPLOY_CONFIGURATION_FILE = "rules-deploy.xml";
@@ -35,9 +35,9 @@ public class RepositoryProjectRulesDeployConfig {
     private final RepositoryTreeState repositoryTreeState;
     private final RulesDeploySerializerFactory rulesDeploySerializerFactory;
 
-    private WebStudio studio = WebStudioUtils.getWebStudio(true);
+    private final WebStudio studio = WebStudioUtils.getWebStudio(true);
 
-    private XmlRulesDeployGuiWrapperSerializer serializer;
+    private final XmlRulesDeployGuiWrapperSerializer serializer;
 
     private RulesDeployGuiWrapper rulesDeploy;
     private UserWorkspaceProject lastProject;

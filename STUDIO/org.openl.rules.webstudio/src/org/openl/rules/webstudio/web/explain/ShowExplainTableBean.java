@@ -16,18 +16,18 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean for showExplainTable page.
  */
-@Controller
+@Service
 @RequestScope
 public class ShowExplainTableBean {
 
-    private String uri;
-    private IOpenLTable table;
+    private final String uri;
+    private final IOpenLTable table;
 
     public ShowExplainTableBean() {
         ProjectModel model = WebStudioUtils.getProjectModel();

@@ -97,7 +97,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.io.StreamException;
@@ -108,7 +108,7 @@ import com.thoughtworks.xstream.io.StreamException;
  * @author Aleh Bykhavets
  * @author Andrey Naumenko
  */
-@Controller
+@Service
 @ViewScope
 public class RepositoryTreeController {
 

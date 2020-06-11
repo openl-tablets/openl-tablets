@@ -15,13 +15,13 @@ import org.openl.rules.webstudio.web.MainBean;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean providing logic for 'Run Tables' page of WebStudio.
  */
-@Controller
+@Service
 @RequestScope
 public class RunBean {
 

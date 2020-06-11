@@ -2,10 +2,10 @@ package org.openl.rules.webstudio.web.diff;
 
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
-@Controller
+@Service
 @SessionScope
 public class ShowDiffBean {
     private final DiffManager diffManager;

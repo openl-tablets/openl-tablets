@@ -55,11 +55,11 @@ import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.context.annotation.RequestScope;
 
-@Controller
+@Service
 @RequestScope
 public class ProjectBean {
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
@@ -70,7 +70,7 @@ public class ProjectBean {
     private final ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory;
     private final RulesDeploySerializerFactory rulesDeploySerializerFactory;
 
-    private WebStudio studio = WebStudioUtils.getWebStudio();
+    private final WebStudio studio = WebStudioUtils.getWebStudio();
 
     private final Logger log = LoggerFactory.getLogger(ProjectBean.class);
 
