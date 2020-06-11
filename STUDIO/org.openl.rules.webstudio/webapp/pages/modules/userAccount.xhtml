@@ -194,7 +194,14 @@
 
 <script>
     //<![CDATA[
-    $j(function () {
+    let userProfileTab;
+
+    function editUserProfile(tab) {
+        userProfileTab = tab;
+        renderUserProfile();
+    }
+
+    function showUserProfile() {
         $j("#userProfileForm").find('.save-button').prop("disabled", true);
 
         // Ignore hidden input for selected tab from the dirtiness check
@@ -209,16 +216,7 @@
         });
         // Enable save button only if the form is dirty - using events.
         $j("#userProfileForm").areYouSure();
-    });
 
-    let userProfileTab;
-
-    function editUserProfile(tab) {
-        userProfileTab = tab;
-        renderUserProfile();
-    }
-
-    function showUserProfile() {
         RichFaces.$("userProfileForm:userProfileTab").switchToItem(
                 userProfileTab === "settings" ? "userProfileSettings" : "@first");
         RichFaces.$("modalUserProfile").show();
