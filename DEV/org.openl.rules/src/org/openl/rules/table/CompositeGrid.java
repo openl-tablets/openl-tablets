@@ -78,7 +78,7 @@ public class CompositeGrid extends AGrid {
                 } else {
                     region = new GridRegion(row, column, row, column + getWidth() - 1);
                 }
-                return new CompositeCell(column, row, region, delegate);
+                return new CompositeCell(column, row, region, delegate, t.getGridTable());
             } else {
                 Transform t1 = transform(0, delegate.getHeight());// Properties parsing and merge
                 if (t1 != null) {
@@ -107,7 +107,7 @@ public class CompositeGrid extends AGrid {
                                             row,
                                             column + getWidth() - 1 - (delegate1.getWidth() + delegate2.getWidth()));
                                     }
-                                    return new CompositeCell(column, row, region, delegate3);
+                                    return new CompositeCell(column, row, region, delegate3, t3.getGridTable());
                                 }
                             }
                         }
@@ -120,7 +120,7 @@ public class CompositeGrid extends AGrid {
             return null;
         }
         ICell delegate = t.grid().getCell(t.getCol(), t.getRow());
-        return new CompositeCell(column, row, getRegionContaining(column, row), delegate);
+        return new CompositeCell(column, row, getRegionContaining(column, row), delegate, t.getGridTable());
     }
 
     @Override
@@ -335,7 +335,7 @@ public class CompositeGrid extends AGrid {
                 }
 
                 // return the transformer, with coordinates to source cell.
-                return new Transform(gridTables[i].getGrid(), transformedCol, transformedRow);
+                return new Transform(gridTables[i].getGrid(), gridTables[i], transformedCol, transformedRow);
             }
         }
 
@@ -362,8 +362,11 @@ public class CompositeGrid extends AGrid {
          */
         private int row;
 
-        public Transform(IGrid grid, int col, int row) {
+        private IGridTable gridTable;
+
+        public Transform(IGrid grid, IGridTable gridTable, int col, int row) {
             this.grid = grid;
+            this.gridTable = gridTable;
             this.col = col;
             this.row = row;
         }
@@ -378,6 +381,10 @@ public class CompositeGrid extends AGrid {
 
         public int getRow() {
             return row;
+        }
+
+        public IGridTable getGridTable() {
+            return gridTable;
         }
     }
 }
