@@ -27,17 +27,17 @@ import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.CollectionUtils;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean for showTraceTable page.
  */
-@Controller
+@Service
 @RequestScope
 public class ShowTraceTableBean {
 
-    private ITracerObject tto;
+    private final ITracerObject tto;
 
     public ShowTraceTableBean() {
         TraceHelper traceHelper = WebStudioUtils.getTraceHelper();

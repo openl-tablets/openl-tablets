@@ -14,10 +14,10 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
-@Controller
+@Service
 @SessionScope
 public class BenchmarkBean {
 
@@ -50,8 +50,7 @@ public class BenchmarkBean {
             BenchmarkInfoView biv = runBenchmark(tableId,
                 testName,
                 testInfo,
-                bu,
-                new ParameterWithValueDeclaration[0],
+                bu, ParameterWithValueDeclaration.EMPTY_ARRAY,
                 testSuite.getNumberOfTests());
             benchmarks.add(0, biv);
         } else {

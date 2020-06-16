@@ -8,10 +8,10 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
-@Controller
+@Service
 @RequestScope
 public class ShowMessageBean {
 

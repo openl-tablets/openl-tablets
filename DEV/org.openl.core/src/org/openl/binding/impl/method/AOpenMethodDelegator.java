@@ -7,9 +7,10 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.vm.IRuntimeEnv;
 
 public abstract class AOpenMethodDelegator implements IOpenMethod, IMethodSignature {
-    private IOpenMethod delegate;
+    private final IOpenMethod delegate;
 
     public AOpenMethodDelegator(IOpenMethod delegate) {
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
@@ -89,4 +90,8 @@ public abstract class AOpenMethodDelegator implements IOpenMethod, IMethodSignat
         return getName();
     }
 
+    @Override
+    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        return delegate.invoke(target, params, env);
+    }
 }

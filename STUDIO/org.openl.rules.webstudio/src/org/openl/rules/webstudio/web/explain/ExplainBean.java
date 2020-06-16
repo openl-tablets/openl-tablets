@@ -7,13 +7,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.openl.rules.ui.Explanator;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean for Explain page.
  */
-@Controller
+@Service
 @RequestScope
 public class ExplainBean {
 

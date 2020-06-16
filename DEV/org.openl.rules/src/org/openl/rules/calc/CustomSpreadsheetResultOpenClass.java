@@ -21,9 +21,11 @@ import org.openl.rules.table.Point;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
+import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
@@ -878,5 +880,16 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
     public void setIgnoreCompilation(boolean ignoreCompilation) {
         this.ignoreCompilation = ignoreCompilation;
+    }
+
+    @Override
+    protected Map<MethodKey, IOpenMethod> initConstructorMap() {
+        Map<MethodKey, IOpenMethod> constructorMap = super.initConstructorMap();
+        Map<MethodKey, IOpenMethod> spreadsheetResultConstructorMap = new HashMap<>();
+        for (Map.Entry<MethodKey, IOpenMethod> entry : constructorMap.entrySet()) {
+            IOpenMethod constructor = new CustomSpreadsheetResultConstructor(entry.getValue(), this);
+            spreadsheetResultConstructorMap.put(new MethodKey(constructor), constructor);
+        }
+        return spreadsheetResultConstructorMap;
     }
 }

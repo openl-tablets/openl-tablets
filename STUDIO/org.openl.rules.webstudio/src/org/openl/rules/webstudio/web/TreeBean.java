@@ -19,13 +19,13 @@ import org.openl.util.CollectionUtils;
 import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * Request scope managed bean providing logic for tree page of OpenL Studio.
  */
-@Controller
+@Service
 @SessionScope
 public class TreeBean {
 

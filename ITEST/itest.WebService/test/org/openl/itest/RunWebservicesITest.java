@@ -223,4 +223,10 @@ public class RunWebservicesITest {
     public void EPBDS_9764_2() {
         client.get("/EPBDS-9764/EPBDS-9764?wsdl", "/EPBDS-9764/EPBDS-9764_wsdl.resp.xml");
     }
+
+    @Test
+    public void EPBDS_9928() {
+        client.get("/EPBDS-9928-rs/swagger.json", "/EPBDS-9928/EPBDS-9928_swagger.resp.json");
+        client.get("/EPBDS-9928-rs/openapi.json", "/EPBDS-9928/EPBDS-9928_openapi.resp.json");
+    }
 }

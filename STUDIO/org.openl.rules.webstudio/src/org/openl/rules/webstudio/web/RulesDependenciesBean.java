@@ -10,13 +10,13 @@ import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.impl.ExecutableMethod;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * @author Andrei Astrouski
  */
-@Controller
+@Service
 @RequestScope
 public class RulesDependenciesBean {
 

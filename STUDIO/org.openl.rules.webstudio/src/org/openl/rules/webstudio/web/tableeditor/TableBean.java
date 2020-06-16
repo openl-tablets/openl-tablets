@@ -53,13 +53,13 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean for Table page.
  */
-@Controller
+@Service
 @RequestScope
 public class TableBean {
     private static final String REQUEST_ID_PREFIX = "project-";
@@ -134,7 +134,7 @@ public class TableBean {
             model.getRecentlyVisitedTables().setLastVisitedTable(table);
             // Check the save table parameter
             String saveTable1 = WebStudioUtils.getRequestParameter("saveTable");
-            boolean saveTable = saveTable1 == null ? true  : Boolean.valueOf(saveTable1);
+            boolean saveTable = saveTable1 == null || Boolean.parseBoolean(saveTable1);
             if (saveTable) {
                 storeTable();
             }
@@ -314,7 +314,7 @@ public class TableBean {
                 params[n++] = inputParam;
             }
         } else {
-            params = new ParameterWithValueDeclaration[0];
+            params = ParameterWithValueDeclaration.EMPTY_ARRAY;
         }
         return params;
     }

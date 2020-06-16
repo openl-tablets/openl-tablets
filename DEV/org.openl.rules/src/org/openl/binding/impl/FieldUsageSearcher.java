@@ -2,8 +2,10 @@ package org.openl.binding.impl;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.openl.base.INamedThing;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
 import org.openl.meta.IMetaInfo;
@@ -24,6 +26,7 @@ import org.openl.util.text.TextInfo;
 public final class FieldUsageSearcher {
 
     private static final int MAX_DESCRIPTION_CLASS_NUMBER = 3;
+    private static final int MAX_DESCRIPTION_CLASS_LENGTH = 50;
 
     private FieldUsageSearcher() {
     }
@@ -65,12 +68,16 @@ public final class FieldUsageSearcher {
             if (boundField instanceof IOriginalDeclaredClassesOpenField) {
                 IOriginalDeclaredClassesOpenField combinedOpenField = (IOriginalDeclaredClassesOpenField) boundField;
                 IOpenClass[] declaredClasses = combinedOpenField.getDeclaredClasses();
-                String classNames = Arrays.stream(declaredClasses)
-                    .map(c -> c.getName().replaceAll(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX, ""))
-                    .limit(MAX_DESCRIPTION_CLASS_NUMBER)
-                    .collect(Collectors.joining(","));
-                if (declaredClasses.length > MAX_DESCRIPTION_CLASS_NUMBER) {
-                    classNames += "...(" + (declaredClasses.length - MAX_DESCRIPTION_CLASS_NUMBER) + ")more";
+                Map<IOpenClass, List<IOpenClass>> types = Arrays.stream(declaredClasses)
+                    .collect(Collectors.groupingBy(c -> c.getField(boundField.getName()).getType()));
+                String classNames = "";
+                if (types.keySet().size() > 1) {
+                    for (IOpenClass iOpenClass : types.keySet()) {
+                        classNames += "\n" + iOpenClass.getDisplayName(INamedThing.SHORT) + " in ";
+                        classNames += configureClassNames(types.get(iOpenClass));
+                    }
+                } else if (types.keySet().size() == 1) {
+                    classNames = configureClassNames(types.values().iterator().next());
                 }
                 String prefix = declaredClasses.length > 1 ? "Spreadsheets: " : "Spreadsheet ";
                 description = prefix + classNames + "\n" + MethodUtil.printType(boundField.getType()) + " " + boundField
@@ -126,6 +133,35 @@ public final class FieldUsageSearcher {
                 fields.add(new SimpleNodeUsage(start, end, description, uri, NodeType.FIELD));
             }
         }
+    }
+
+    private static String configureClassNames(List<IOpenClass> classes) {
+        List<IOpenClass> iOpenClasses;
+        if (classes.size() > 3) {
+            iOpenClasses = classes.subList(0, 3);
+        } else {
+            iOpenClasses = classes;
+        }
+        String classNames = iOpenClasses.stream()
+            .map(c -> c.getName().replaceAll(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX, ""))
+            .collect(Collectors.joining(","));
+        int classRemoved = 0;
+        if (classNames.length() > MAX_DESCRIPTION_CLASS_LENGTH && classes.size() > 1) {
+            for (int i = classes.size() - 1; i != 0 && classNames.length() > MAX_DESCRIPTION_CLASS_LENGTH; i--) {
+                classRemoved++;
+                classNames = classNames.replaceAll(
+                    "," + classes.get(i).getName().replaceAll(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX, ""),
+                    "");
+            }
+        }
+        if (classes.size() > MAX_DESCRIPTION_CLASS_NUMBER || classRemoved > 0) {
+            int more = classRemoved;
+            if (classes.size() > MAX_DESCRIPTION_CLASS_NUMBER) {
+                more += classes.size() - MAX_DESCRIPTION_CLASS_NUMBER;
+            }
+            classNames += "...(" + more + ")more";
+        }
+        return classNames;
     }
 
     private static ISyntaxNode getIdentifierSyntaxNode(ISyntaxNode syntaxNode) {

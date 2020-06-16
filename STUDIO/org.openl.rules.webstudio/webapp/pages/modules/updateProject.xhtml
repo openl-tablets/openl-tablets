@@ -24,7 +24,7 @@
                                  render="structureChangedFormData"
                                  onfilesubmit="ws.ui.showLoader();"
                                  oncomplete="disableUploadProjectButton(false);ws.ui.hideLoader();"
-                                 onclear="disableUploadProjectButton(true);"
+                                 onclear="clearUploadedFileForUpdateProject();"
                                  ontyperejected="ws.ui.info('Only zip files are accepted');"
                                  acceptedTypes="zip" maxFilesQuantity="1"/>
             </h:panelGrid>
@@ -37,6 +37,7 @@
 
             <a4j:jsFunction name="initUpdateProjectDialog" action="#{studio.clearUploadedFiles}" render="updateProjectFormData" oncomplete="RichFaces.$('updateProject').show();" />
             <a4j:jsFunction name="closeUpdateProjectDialog" action="#{studio.clearUploadedFiles}" oncomplete="RichFaces.$('updateProject').hide();" />
+            <a4j:jsFunction name="clearUploadedFileForUpdateProject" action="#{studio.clearUploadedFiles}" oncomplete="disableUploadProjectButton(true);"/>
         </h:form>
     </rich:popupPanel>
 

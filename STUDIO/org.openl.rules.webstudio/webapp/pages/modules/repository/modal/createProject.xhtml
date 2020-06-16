@@ -132,6 +132,9 @@
                         <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                             onfilesubmit="showLoader();" oncomplete="hideLoader();"
                             immediateUpload="true"
+                            noDuplicate="true"
+                            onclear="onClearFile(event);"
+                            ontyperejected="showMessagePopup('Only xls and xlsx files are accepted');"
                             acceptedTypes="xls, xlsx, xlsm" />
 
                         <h:outputLabel for="projectName" styleClass="required" value="Project Name:" />
@@ -176,7 +179,8 @@
                     <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                         onfilesubmit="showLoader();"
                         oncomplete="uploadProjectFormCommentHandler.isEdited = false; enableCreateButton(#{rich:element('uploadProjectForm:projectName')}.value.trim().length > 0, #{rich:element('sbtZips')});hideLoader();"
-                        onclear="enableCreateButton(false, #{rich:element('sbtZips')})"
+                        onclear="onClearFile(event); enableCreateButton(false, #{rich:element('sbtZips')})"
+                        ontyperejected="showMessagePopup('Only zip files are accepted');"
                         immediateUpload="true"
                         render="projectName commentZip"
                         acceptedTypes="zip" maxFilesQuantity="1" />
@@ -279,6 +283,12 @@
                 </h:form>
             </rich:tab>
 
+            <h:form>
+                <a4j:jsFunction name="clearFiles">
+                    <a4j:param name="fileNames" assignTo="#{repositoryTreeController.fileNamesToRemove}"/>
+                </a4j:jsFunction>
+            </h:form>
+
         </rich:tabPanel>
     </rich:popupPanel>
 
@@ -320,9 +330,7 @@
         }
 
         function openNewProjectDialog() {
-            // Emulate click because RichFaces.switchTab() isn't defined in current version of richfaces
-            $j('#projectType #template\\:header\\:inactive span').click();
-
+            RichFaces.$("projectType").switchToItem("@first");
             RichFaces.$("modalNewProject").show();
             focusElement("createProjectFormTempl:projectName");
         }
@@ -397,6 +405,19 @@
         $j("#projectTemplates").on("click", "td", function() {
             selectTemplate($j(this));
         });
+
+        function onClearFile(event) {
+            let files = "";
+            const data = event.rf.data;
+            for (let i = 0; i < data.length; i++) {
+                if (i > 0) {
+                    files += "\n";
+                }
+                files += data[i].name;
+            }
+
+            clearFiles(files);
+        }
 
         //]]>
 

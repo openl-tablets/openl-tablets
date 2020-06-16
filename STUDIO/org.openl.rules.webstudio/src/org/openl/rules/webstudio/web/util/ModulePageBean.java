@@ -12,13 +12,13 @@ import java.util.Set;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.ui.WebStudio;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
-@Controller
+@Service
 @RequestScope
 public class ModulePageBean {
-    private WebStudio studio = WebStudioUtils.getWebStudio();
+    private final WebStudio studio = WebStudioUtils.getWebStudio();
 
     /**
      * @return Map &lt;String, List&lt;String&gt;&gt; of the imports from Environment table
@@ -97,9 +97,6 @@ public class ModulePageBean {
 
     /**
      * Removes .xls into include or dependency file/module
-     *
-     * @param lists
-     * @return
      */
     private List<String> removeXLSExtention(Collection<String> lists) {
         String[] dependencyFiles;

@@ -30,14 +30,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
 /**
  * Deployment controller.
  *
  * @author Andrey Naumenko
  */
-@Controller
+@Service
 @ViewScope
 public class DeploymentController {
     private final Logger log = LoggerFactory.getLogger(DeploymentController.class);

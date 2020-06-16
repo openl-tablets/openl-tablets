@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.repository;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -22,10 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
-@Controller
+@Service
 @SessionScope
 public class ProductionRepositoriesTreeState {
     @Autowired
@@ -46,7 +45,7 @@ public class ProductionRepositoriesTreeState {
      */
     private TreeRepository root;
 
-    private IFilter<AProjectArtefact> filter = new AllFilter<>();
+    private final IFilter<AProjectArtefact> filter = new AllFilter<>();
 
     public void setPropertyResolver(PropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;
@@ -75,7 +74,7 @@ public class ProductionRepositoriesTreeState {
             /* Get repo's deployment configs */
             IFilter<AProjectArtefact> filter = this.filter;
             List<AProjectFolder> repoList = getPRepositoryProjects(repoConfig);
-            Collections.sort(repoList, RepositoryUtils.ARTEFACT_COMPARATOR);
+            repoList.sort(RepositoryUtils.ARTEFACT_COMPARATOR);
 
             for (AProjectFolder project : repoList) {
                 TreeProductionDProject tpdp = new TreeProductionDProject("" + project.getName().hashCode(),

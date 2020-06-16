@@ -3,6 +3,8 @@ package org.openl.rules.webstudio.web.diff;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.PreDestroy;
@@ -15,10 +17,10 @@ import org.richfaces.component.UITree;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
-@Controller
+@Service
 @SessionScope
 public class UploadExcelDiffController extends ExcelDiffController {
     private final Logger log = LoggerFactory.getLogger(UploadExcelDiffController.class);
@@ -34,6 +36,26 @@ public class UploadExcelDiffController extends ExcelDiffController {
             uploadedFiles.add(new ProjectFile(event.getUploadedFile()));
         } catch (IOException e) {
             log.error(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Remove uploaded files.
+     * 
+     * @param fileNames file names split by '\n' symbol. If empty, all files will be removed.
+     */
+    public void setFileNamesToRemove(String fileNames) {
+        if (fileNames.isEmpty()) {
+            clearUploadedFiles();
+        } else {
+            List<String> toRemove = Arrays.asList(fileNames.split("\n"));
+            for (Iterator<ProjectFile> iterator = uploadedFiles.iterator(); iterator.hasNext(); ) {
+                ProjectFile file = iterator.next();
+                if (toRemove.contains(file.getName())) {
+                    file.destroy();
+                    iterator.remove();
+                }
+            }
         }
     }
 

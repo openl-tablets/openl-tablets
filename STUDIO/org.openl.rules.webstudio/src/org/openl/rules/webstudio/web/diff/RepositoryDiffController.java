@@ -38,7 +38,7 @@ import org.richfaces.component.UITree;
 import org.richfaces.function.RichFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
 /**
@@ -46,7 +46,7 @@ import org.springframework.web.context.annotation.SessionScope;
  *
  * @author Andrey Naumenko
  */
-@Controller
+@Service
 @SessionScope
 public class RepositoryDiffController extends AbstractDiffController {
     private final Logger log = LoggerFactory.getLogger(RepositoryDiffController.class);

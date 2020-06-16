@@ -5,13 +5,13 @@ import javax.servlet.ServletRequest;
 import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean providing logic for TreeView page.
  */
-@Controller
+@Service
 @RequestScope
 public class TreeViewBean {
 

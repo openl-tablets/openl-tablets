@@ -2,13 +2,13 @@ package org.openl.rules.ui.tablewizard;
 
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * @author Aliaksandr Antonik.
  */
-@Controller("tableCreatorWizardManager")
+@Service("tableCreatorWizardManager")
 @SessionScope
 public class TableWizardManager extends BaseTableWizardManager {
 

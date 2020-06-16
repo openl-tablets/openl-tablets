@@ -27,13 +27,13 @@ import org.openl.util.StringUtils;
 import org.openl.vm.SimpleVM;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * @author DLiauchuk
  */
-@Controller
+@Service
 @RequestScope
 public class ParameterTreeBuilder {
     public static ParameterDeclarationTreeNode createNode(ParameterRenderConfig config) {

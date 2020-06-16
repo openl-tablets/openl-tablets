@@ -70,12 +70,12 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
-@Controller
+@Service
 @SessionScope
 public class InstallWizard implements Serializable {
 

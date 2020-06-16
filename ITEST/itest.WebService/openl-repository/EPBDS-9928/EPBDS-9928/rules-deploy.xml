@@ -1,0 +1,9 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>EPBDS-9928-alg</serviceName>
+    <url>EPBDS-9928-rs</url>
+    <publishers>
+        <publisher>restful</publisher>
+    </publishers>
+</rules-deploy>

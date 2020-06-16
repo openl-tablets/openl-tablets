@@ -6,12 +6,12 @@ import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.ui.Explanator;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
 /**
  * A helper class which contains utility methods.
  */
-@Controller
+@Service
 public final class Helper {
 
     public Helper() {

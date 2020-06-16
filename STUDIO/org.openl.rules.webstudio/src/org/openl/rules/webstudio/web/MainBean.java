@@ -21,13 +21,13 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean providing logic for Main page.
  */
-@Controller
+@Service
 @RequestScope
 public class MainBean {
 
@@ -35,7 +35,7 @@ public class MainBean {
 
     private final Comments designRepoComments;
 
-    private CommentValidator commentValidator;
+    private final CommentValidator commentValidator;
 
     private String requestId;
 

@@ -40,7 +40,7 @@ import org.richfaces.model.SequenceRowKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
 /**
@@ -48,7 +48,7 @@ import org.springframework.web.context.annotation.SessionScope;
  *
  * @author Andrey Naumenko
  */
-@Controller
+@Service
 @SessionScope
 public class RepositoryTreeState implements DesignTimeRepositoryListener {
     private static final String ROOT_TYPE = "root";
@@ -60,7 +60,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     private static final String DEFAULT_TAB = "Properties";
     private final Logger log = LoggerFactory.getLogger(RepositoryTreeState.class);
-    private static IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<>();
+    private static final IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<>();
 
     private RepositorySelectNodeStateHolder.SelectionHolder selectionHolder;
     /**

@@ -18,13 +18,13 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.source.SourceHistoryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * @author Andrei Astrouski
  */
-@Controller
+@Service
 @RequestScope
 public class RevertProjectChangesBean {
 

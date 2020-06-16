@@ -24,7 +24,7 @@
                          render="fileChangedFormData"
                          onfilesubmit="showLoader();"
                          oncomplete="disableUploadFileButton(false);hideLoader();"
-                         onclear="disableUploadFileButton(true)"/>
+                         onclear="clearUploadedUpdateFile();"/>
       </h:panelGrid>
 
       <footer>
@@ -33,6 +33,7 @@
       </footer>
       <a4j:jsFunction name="initUpdateFileDialog" action="#{repositoryTreeController.clearUploadedFiles}" render="file" oncomplete="RichFaces.$('modalUpdateFile').show();" />
       <a4j:jsFunction name="closeUpdateFileDialog" action="#{repositoryTreeController.clearUploadedFiles}" oncomplete="RichFaces.$('modalUpdateFile').hide();" />
+      <a4j:jsFunction name="clearUploadedUpdateFile" action="#{repositoryTreeController.clearUploadedFiles}" oncomplete="disableUploadFileButton(true);"/>
     </h:form>
   </rich:popupPanel>
 

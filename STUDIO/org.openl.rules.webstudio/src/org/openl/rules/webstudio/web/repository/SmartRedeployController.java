@@ -3,12 +3,12 @@ package org.openl.rules.webstudio.web.repository;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Aleh Bykhavets
  */
-@Controller
+@Service
 @ViewScope
 public class SmartRedeployController extends AbstractSmartRedeployController {
 

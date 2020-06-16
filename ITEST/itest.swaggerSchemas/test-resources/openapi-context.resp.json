@@ -72,7 +72,8 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "type": "integer"
+                  "type": "integer",
+                  "format": "int32"
                 }
               }
             }

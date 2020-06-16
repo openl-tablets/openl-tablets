@@ -23,14 +23,14 @@ import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 // TODO Needs performance optimization
 /**
  * @author Andrei Astrouski
  */
-@Controller
+@Service
 @RequestScope
 public class GroupsBean {
 
