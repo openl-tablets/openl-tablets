@@ -14,7 +14,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.binding.MethodUtil;
-import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
+import org.openl.rules.ruleservice.core.InstantiationException;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
@@ -97,7 +97,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                                 if (templateMethod == null) {
                                     templateMethod = method;
                                 } else {
-                                    throw new RuleServiceRuntimeException(
+                                    throw new InstantiationException(
                                         "Template class is wrong. It is a non-obvious choice of method. Please, check the template class.");
                                 }
                             }
@@ -147,7 +147,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
             Class<?> templateClass,
             ClassLoader classLoader) throws Exception {
         if (!templateClass.isInterface()) {
-            throw new RuleServiceRuntimeException("Interface is expected.");
+            throw new InstantiationException("Interface is expected.");
         }
 
         ClassWriter cw = new ClassWriter(0);

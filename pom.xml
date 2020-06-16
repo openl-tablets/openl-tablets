@@ -1628,6 +1628,11 @@
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.instantiation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.rmi</artifactId>
                 <version>${project.version}</version>
             </dependency>

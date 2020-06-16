@@ -120,7 +120,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 // deprecated approach with wrapper: service class is not
                 // interface
                 throw new RuleServiceRuntimeException(
-                    "Failed to create a proxy for service target object. Deprecated approach with wrapper: service class is not interface");
+                    "Failed to create a proxy for service target object. Deprecated approach with wrapper: service class is not an interface.");
             }
             ServiceInvocationAdvice serviceInvocationAdvice = new ServiceInvocationAdvice(service
                 .getOpenClass(), serviceTarget, serviceClass, classLoader, getListServiceInvocationAdviceListeners());
@@ -143,17 +143,17 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             try {
                 serviceClass = service.getClassLoader().loadClass(serviceClassName.trim());
                 Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper
-                    .buildInterfaceForInstantiationStrategy(serviceDescription,
-                        serviceClass,
-                        instantiationStrategy.getClassLoader());
+                    .buildInterfaceForInstantiationStrategy(serviceClass,
+                        instantiationStrategy.getClassLoader(),
+                        serviceDescription.isProvideVariations());
                 instantiationStrategy.setServiceClass(interfaceForInstantiationStrategy);
                 service.setServiceClass(serviceClass);
                 return instantiationStrategy.instantiate();
             } catch (ClassNotFoundException | NoClassDefFoundError e) {
-                log.error("Failed to load service class '{}'.", serviceClassName, e);
+                log.error("Failed to load a service class '{}'.", serviceClassName, e);
             }
         }
-        log.info("Service class is undefined for service '{}'. Generated interface will be used.", service.getName());
+        log.info("Service class is undefined for service '{}'. Generated interface is used.", service.getName());
         Class<?> instanceClass = instantiationStrategy.getInstanceClass();
         Object serviceTarget = instantiationStrategy.instantiate();
         serviceClass = processGeneratedServiceClass(serviceDescription,
@@ -174,12 +174,11 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             try {
                 serviceClass = serviceClassLoader.loadClass(rmiServiceClassName.trim());
             } catch (ClassNotFoundException | NoClassDefFoundError e) {
-                log.error("Failed to load rmi service class '{}'", rmiServiceClassName, e);
+                log.error("Failed to load RMI service class '{}'", rmiServiceClassName, e);
             }
         }
         if (serviceClass == null) {
-            log.info("Service class is undefined for service '{}'. Default RMI interface has been used.",
-                service.getName());
+            log.info("Service class is undefined for service '{}'. Default RMI interface is used.", service.getName());
             service.setRmiServiceClassName(null); // RMI default will be used
         }
         service.setRmiServiceClass(serviceClass);
@@ -191,8 +190,11 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             Object serviceTarget,
             ClassLoader serviceClassLoader) {
         Class<?> annotatedClass = processAnnotatedTemplateClass(serviceDescription, serviceClass, serviceClassLoader);
-        return RuleServiceInstantiationFactoryHelper
-            .buildInterfaceForService(serviceDescription, openClass, annotatedClass, serviceTarget, serviceClassLoader);
+        return RuleServiceInstantiationFactoryHelper.buildInterfaceForService(openClass,
+            annotatedClass,
+            serviceTarget,
+            serviceClassLoader,
+            serviceDescription.isProvideVariations());
 
     }
 
@@ -206,17 +208,17 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 if (annotationTemplateClass.isInterface()) {
                     Class<?> decoratedClass = DynamicInterfaceAnnotationEnhancerHelper
                         .decorate(serviceClass, annotationTemplateClass, classLoader);
-                    log.info("Annotation template class '{}' has been used for service: {}.",
+                    log.info("Annotation template class '{}' is used for service: {}.",
                         annotationTemplateClassName,
                         serviceDescription.getName());
                     return decoratedClass;
                 }
                 log.error(
-                    "Interface is required! Intercepting template class has not been used! Failed to load or apply intercepting template class '{}'.",
+                    "Interface is required! Intercepting template class is not used! Failed to load or apply intercepting template class '{}'.",
                     annotationTemplateClassName);
             } catch (Exception | NoClassDefFoundError e) {
                 log.error(
-                    "Intercepting template class has not been used! Failed to load or apply intercepting template class '{}'.",
+                    "Intercepting template class is not used! Failed to load or apply intercepting template class '{}'.",
                     annotationTemplateClassName,
                     e);
             }
@@ -256,7 +258,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                     throw e;
                 } catch (Exception e) {
                     throw new RuleServiceInstantiationException(
-                        String.format("Failed to initialize OpenL service '%s'.", openLService.getName()),
+                        String.format("Failed to initialize service '%s'.", openLService.getName()),
                         e);
                 }
             }

@@ -229,7 +229,7 @@ public final class JAXWSOpenLServiceEnhancer {
                 methodMap.put(targetMethod, method);
             } catch (NoSuchMethodException ex) {
                 throw new RulesInstantiationException(String.format(
-                    "Failed to find corresponding method in original class for method '%s' in service '%s'",
+                    "Failed to find corresponding method in original class for method '%s' in service '%s'.",
                     MethodUtil.printMethod(method.getName(), method.getParameterTypes()),
                     service.getName()));
             }

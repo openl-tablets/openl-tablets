@@ -121,38 +121,38 @@ public final class RuleServiceInstantiationFactoryHelper {
      * @param serviceClass Interface for service, which will be used for service class creation.
      * @return Service class for instantiation strategy based on service class for service.
      */
-    public static Class<?> buildInterfaceForInstantiationStrategy(ServiceDescription serviceDescription,
-            Class<?> serviceClass,
-            ClassLoader classLoader) {
-        return processInterface(serviceDescription, null, serviceClass, null, true, false, classLoader);
+    public static Class<?> buildInterfaceForInstantiationStrategy(Class<?> serviceClass,
+            ClassLoader classLoader,
+            boolean provideVariations) {
+        return processInterface(null, serviceClass, null, true, false, classLoader, provideVariations);
     }
 
-    public static Class<?> buildInterfaceForService(ServiceDescription serviceDescription,
-            IOpenClass openClass,
+    public static Class<?> buildInterfaceForService(IOpenClass openClass,
             Class<?> serviceClass,
             Object serviceTarget,
-            ClassLoader classLoader) {
-        return processInterface(serviceDescription, openClass, serviceClass, serviceTarget, false, true, classLoader);
+            ClassLoader classLoader,
+            boolean provideVariations) {
+        return processInterface(openClass, serviceClass, serviceTarget, false, true, classLoader, provideVariations);
     }
 
-    public static Class<?> processInterface(ServiceDescription serviceDescription,
-            IOpenClass openClass,
+    public static Class<?> processInterface(IOpenClass openClass,
             Class<?> serviceClass,
             Object serviceTarget,
             boolean removeServiceExtraMethods,
             boolean toServiceClass,
-            ClassLoader classLoader) {
+            ClassLoader classLoader,
+            boolean provideVariations) {
         Objects.requireNonNull(serviceClass, "serviceClass cannot be null");
         if (toServiceClass) {
             Objects.requireNonNull(serviceTarget, "serviceTarget cannot be null");
         }
 
         Map<Method, Pair<Class<?>, Boolean>> methodsWithReturnTypeNeedsChange = getMethodsWithReturnTypeNeedsChange(
-            serviceDescription,
             openClass,
             serviceClass,
             serviceTarget,
-            toServiceClass);
+            toServiceClass,
+            provideVariations);
 
         Set<Method> methodsToRemove = getMethodsToRemove(serviceClass, removeServiceExtraMethods);
 
@@ -212,14 +212,14 @@ public final class RuleServiceInstantiationFactoryHelper {
         return null;
     }
 
-    private static Class<?> notNullIfNewMethodReturnTypeWithAnnotations(ServiceDescription serviceDescription,
-            IOpenClass openClass,
+    private static Class<?> notNullIfNewMethodReturnTypeWithAnnotations(IOpenClass openClass,
             Method method,
             Object serviceTarget,
-            boolean toServiceClass) {
+            boolean toServiceClass,
+            boolean provideVariations) {
         ServiceCallAfterInterceptor serviceCallAfterInterceptor = method
             .getAnnotation(ServiceCallAfterInterceptor.class);
-        if (serviceCallAfterInterceptor != null && (!serviceDescription.isProvideVariations() || !method.getReturnType()
+        if (serviceCallAfterInterceptor != null && (!provideVariations || !method.getReturnType()
             .equals(VariationsResult.class))) {
             Class<? extends ServiceMethodAfterAdvice<?>> lastServiceMethodAfterAdvice = getLastServiceMethodAfterAdvice(
                 serviceCallAfterInterceptor);
@@ -234,8 +234,8 @@ public final class RuleServiceInstantiationFactoryHelper {
 
         ServiceCallAroundInterceptor serviceCallAroundInterceptor = method
             .getAnnotation(ServiceCallAroundInterceptor.class);
-        if (serviceCallAroundInterceptor != null && (!serviceDescription
-            .isProvideVariations() || !method.getReturnType().equals(VariationsResult.class))) {
+        if (serviceCallAroundInterceptor != null && (!provideVariations || !method.getReturnType()
+            .equals(VariationsResult.class))) {
             Class<? extends ServiceMethodAroundAdvice<?>> serviceMethodAroundAdvice = serviceCallAroundInterceptor
                 .value();
             return extractTypeForMethod(openClass, method, serviceTarget, toServiceClass, serviceMethodAroundAdvice);
@@ -313,7 +313,7 @@ public final class RuleServiceInstantiationFactoryHelper {
     }
 
     private static void logWarn(Method method, Class<?> interceptorClass) {
-        Logger log = LoggerFactory.getLogger(RuleServiceOpenLServiceInstantiationFactoryImpl.class);
+        Logger log = LoggerFactory.getLogger(RuleServiceInstantiationFactoryHelper.class);
 
         if (log.isWarnEnabled()) {
             log.warn(
@@ -340,19 +340,18 @@ public final class RuleServiceInstantiationFactoryHelper {
      * @param serviceClass Class to be analyzed.
      * @return Methods which have after interceptors.
      */
-    private static Map<Method, Pair<Class<?>, Boolean>> getMethodsWithReturnTypeNeedsChange(
-            ServiceDescription serviceDescription,
-            IOpenClass openClass,
+    private static Map<Method, Pair<Class<?>, Boolean>> getMethodsWithReturnTypeNeedsChange(IOpenClass openClass,
             Class<?> serviceClass,
             Object serviceTarget,
-            boolean toServiceClass) {
+            boolean toServiceClass,
+            boolean provideVariations) {
         Map<Method, Pair<Class<?>, Boolean>> ret = new HashMap<>();
         for (Method method : serviceClass.getMethods()) {
-            Class<?> newReturnType = notNullIfNewMethodReturnTypeWithAnnotations(serviceDescription,
-                openClass,
+            Class<?> newReturnType = notNullIfNewMethodReturnTypeWithAnnotations(openClass,
                 method,
                 serviceTarget,
-                toServiceClass);
+                toServiceClass,
+                provideVariations);
             if (newReturnType != null) {
                 ret.put(method, Pair.of(newReturnType, Boolean.TRUE));
             } else if (toServiceClass && !isTypeChangingAnnotationPresent(method) && !method
@@ -368,7 +367,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                     type = type.getComponentClass();
                     dim++;
                 }
-                if (serviceDescription.isProvideVariations() && method.getReturnType().equals(VariationsResult.class)) {
+                if (provideVariations && method.getReturnType().equals(VariationsResult.class)) {
                     ret.put(method, Pair.of(VariationsResult.class, Boolean.FALSE));
                 } else if (type instanceof CustomSpreadsheetResultOpenClass) {
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;

@@ -12,6 +12,7 @@
     <description>OpenL WebStudio Pom Project</description>
     <modules>
         <module>../WSFrontend/org.openl.rules.ruleservice.annotation</module>
+        <module>../WSFrontend/org.openl.rules.ruleservice.instantiation</module>
         <module>org.openl.rules.tableeditor</module>
         <module>org.openl.rules.repository</module>
         <module>org.openl.rules.repository.aws</module>

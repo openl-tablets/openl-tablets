@@ -65,6 +65,10 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.instantiation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.calculation.result</artifactId>
         </dependency>
         <!-- STUDIO -->

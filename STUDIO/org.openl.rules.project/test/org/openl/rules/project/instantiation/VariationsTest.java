@@ -20,7 +20,7 @@ import org.openl.rules.variation.*;
 
 public class VariationsTest {
     private static final String TEST_PROJECT_FOLDER = "test-resources/dependencies/test4/module/dependency-module1";
-    private ProjectResolver projectResolver = ProjectResolver.getInstance();
+    private final ProjectResolver projectResolver = ProjectResolver.getInstance();
     private ApiBasedInstantiationStrategy instantiationStrategy;
 
     @Before
@@ -68,7 +68,7 @@ public class VariationsTest {
             variationsEnhancerWithWrongInterface.instantiate();
             fail();
         } catch (Exception e) {
-            assertTrue(e.getMessage().contains("Failed to find corresrponding method in original class for method"));
+            assertTrue(e.getMessage().contains("Failed to find corresponding method in original class for method"));
         }
     }
 

@@ -52,7 +52,7 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
 
         if (isLazyCompilation()) {
             if (dependencyManager instanceof RuleServiceDependencyManager) {
-                log.debug("Lazy loading strategy has been used for service: '{}'.", serviceName);
+                log.debug("Lazy loading strategy is used for service: '{}'.", serviceName);
                 return new LazyInstantiationStrategy(serviceDescription.getDeployment(),
                     modules,
                     (RuleServiceDependencyManager) dependencyManager);
