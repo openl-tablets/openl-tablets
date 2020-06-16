@@ -3,7 +3,13 @@ package org.openl.excel.parser.event;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.ddf.EscherContainerRecord;
 import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
@@ -190,24 +196,24 @@ public class TableStyleListener implements HSSFListener {
                 StringRecord cachedText = null;
                 if (record instanceof StringRecord) {
                     cachedText = (StringRecord) record;
+                } else {
+                    currentFormula.setCachedResultBoolean(false);
                 }
                 FormulaRecordAggregate formulaAggregate = new FormulaRecordAggregate(currentFormula,
                     cachedText,
                     sharedValueManager);
                 Ptg[] formulaTokens = formulaAggregate.getFormulaTokens();
                 boolean workbookDependentFormula = Arrays.stream(formulaTokens)
-                        .anyMatch(t -> t instanceof WorkbookDependentFormula);
+                    .anyMatch(t -> t instanceof WorkbookDependentFormula);
                 if (workbookDependentFormula) {
                     formulas.put(new CellAddress(row, column), "");
                 } else {
                     String formula = HSSFFormulaParser.toFormulaString(null, formulaTokens);
                     formulas.put(new CellAddress(row, column), formula);
                 }
-
             } catch (Exception e) {
                 log.error("Cannot read formula in sheet '{}' row {} column {}", sheet.getName(), row, column, e);
             }
-
             currentFormula = null;
         }
     }
