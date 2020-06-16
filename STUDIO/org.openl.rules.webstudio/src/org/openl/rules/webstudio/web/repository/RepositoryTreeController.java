@@ -16,9 +16,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -1460,6 +1462,26 @@ public class RepositoryTreeController {
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             WebStudioUtils.addErrorMessage("Error occurred during uploading file.", e.getMessage());
+        }
+    }
+
+    /**
+     * Remove uploaded files.
+     *
+     * @param fileNames file names split by '\n' symbol. If empty, all files will be removed.
+     */
+    public void setFileNamesToRemove(String fileNames) {
+        if (fileNames.isEmpty()) {
+            clearUploadedFiles();
+        } else {
+            List<String> toRemove = Arrays.asList(fileNames.split("\n"));
+            for (Iterator<ProjectFile> iterator = uploadedFiles.iterator(); iterator.hasNext(); ) {
+                ProjectFile file = iterator.next();
+                if (toRemove.contains(file.getName())) {
+                    file.destroy();
+                    iterator.remove();
+                }
+            }
         }
     }
 

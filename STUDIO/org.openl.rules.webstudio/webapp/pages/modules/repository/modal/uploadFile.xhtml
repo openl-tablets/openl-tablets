@@ -12,7 +12,7 @@
 
     <f:facet name="controls">
       <h:graphicImage value="/images/close.gif" class="close"
-        onclick="clearNewFileForm(); RichFaces.$('modalNewFile').hide();" alt="Close" />
+                      onclick="closeNewFileDialog();" alt="Close" />
     </f:facet>
     
     <h:form id="newFileForm" >
@@ -23,7 +23,7 @@
                              render="newFileForm:fileName"
                              onfilesubmit="showLoader();"
                              oncomplete="onNewFileNameChange();hideLoader();"
-                             onclear="enableUploadButton(false);"/>
+                             onclear="clearUploadedNewFile();"/>
     
             <h:outputLabel for="fileName" styleClass="required" value="File name:" />
             <h:inputText id="fileName" size="40" maxlength="50" value="#{repositoryTreeController.fileName}"/>
@@ -31,13 +31,21 @@
 
       <footer>
         <h:commandButton id="upload" value="Upload" action="#{repositoryTreeController.addFile}" styleClass="button-primary" />
-        <input type="button" value="Cancel" onclick="clearNewFileForm(); RichFaces.$('modalNewFile').hide();" />
+        <input type="button" value="Cancel" onclick="closeNewFileDialog();" />
       </footer>
+
+        <a4j:jsFunction name="initNewFileDialog" action="#{repositoryTreeController.clearUploadedFiles}" render="newFilePanel" oncomplete="showNewFileDialog();" />
+        <a4j:jsFunction name="closeNewFileDialog" action="#{repositoryTreeController.clearUploadedFiles}" oncomplete="clearNewFileForm(); RichFaces.$('modalNewFile').hide();" />
+        <a4j:jsFunction name="clearUploadedNewFile" action="#{repositoryTreeController.clearUploadedFiles}" oncomplete="enableUploadButton(false);"/>
     </h:form>
   </rich:popupPanel>
 
   <script>
     function openNewFileDialog() {
+        initNewFileDialog();
+    }
+
+    function showNewFileDialog() {
         onNewFileNameChange();
         RichFaces.$('modalNewFile').show();
     }

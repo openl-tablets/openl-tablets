@@ -24,7 +24,7 @@
                                  render="moduleChangedFormData"
                                  onfilesubmit="ws.ui.showLoader();"
                                  oncomplete="disableUploadModuleButton(false);ws.ui.hideLoader();"
-                                 onclear="disableUploadModuleButton(true);"
+                                 onclear="clearUploadedFileForUpdateModule();"
                                  ontyperejected="ws.ui.info('Only xls and xlsx files are accepted');"
                                  acceptedTypes="xls, xlsx, xlsm" maxFilesQuantity="1"/>
             </h:panelGrid>
@@ -36,6 +36,7 @@
             </footer>
             <a4j:jsFunction name="initUpdateModuleDialog" action="#{studio.clearUploadedFiles}" render="updateModuleFormData" oncomplete="RichFaces.$('updateModule').show();" />
             <a4j:jsFunction name="closeUpdateModuleDialog" action="#{studio.clearUploadedFiles}" oncomplete="RichFaces.$('updateModule').hide();" />
+            <a4j:jsFunction name="clearUploadedFileForUpdateModule" action="#{studio.clearUploadedFiles}" oncomplete="disableUploadModuleButton(true);" />
         </h:form>
     </rich:popupPanel>
 

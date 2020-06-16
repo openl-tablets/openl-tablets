@@ -9,6 +9,7 @@
     <ui:define name="title">#{msg['ws.compare.header']}</ui:define>
 
     <ui:define name="content">
+        <ui:include src="/pages/modules/messagePopup.xhtml" />
 
         <style>
             .rf-trn-sel {
@@ -29,6 +30,7 @@
                         noDuplicate="true"
                         immediateUpload="true"
                         onclear="onClearFile(event);"
+                        ontyperejected="showMessagePopup('Only xls and xlsx files are accepted');"
                         acceptedTypes="xls, xlsx, xlsm" style="height: 148px">
                         <a4j:ajax event="uploadcomplete" execute="@none" render="compareButton" />
                     </rich:fileUpload>
