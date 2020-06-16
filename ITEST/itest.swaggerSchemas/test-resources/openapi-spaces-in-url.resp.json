@@ -72,7 +72,8 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "type": "integer"
+                  "type": "integer",
+                  "format": "int32"
                 }
               }
             }
@@ -210,7 +211,8 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "type": "double"
+                  "type": "number",
+                  "format": "double"
                 }
               }
             }

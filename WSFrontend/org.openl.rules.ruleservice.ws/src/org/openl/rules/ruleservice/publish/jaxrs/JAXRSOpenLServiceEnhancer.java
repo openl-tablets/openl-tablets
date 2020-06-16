@@ -40,6 +40,7 @@ import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.types.IOpenMethod;
 import org.openl.util.ClassUtils;
+import org.openl.util.JAXBUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
@@ -344,7 +345,7 @@ public final class JAXRSOpenLServiceEnhancer {
             }
 
             MethodVisitor mv;
-            Class<?> returnType = originalMethod.getReturnType();
+            Class<?> returnType = extractOriginalType(originalMethod.getReturnType());
             boolean hasResponse = returnType.equals(Response.class);
             arg2 = hasResponse ? arg2
                                : arg2.substring(0, arg2.lastIndexOf(')') + 1) + Type.getDescriptor(Response.class);
@@ -535,7 +536,7 @@ public final class JAXRSOpenLServiceEnhancer {
                     AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ApiOperation.class), true);
                     av.visit("value", summary.substring(0, Math.min(summary.length(), 120)));
                     av.visit("notes", (openMethod != null ? "Rules method: " : "Method: ") + detailedSummary);
-                    av.visit("response", Type.getType(originalMethod.getReturnType()));
+                    av.visit("response", Type.getType(extractOriginalType(originalMethod.getReturnType())));
                     av.visit("nickname", nickname);
                     av.visitEnd();
                 }
@@ -556,17 +557,13 @@ public final class JAXRSOpenLServiceEnhancer {
                         av2.visit("responseCode", String.valueOf(Response.Status.OK.getStatusCode()));
                         AnnotationVisitor av3 = av2.visitArray("content");
                         AnnotationVisitor av4 = av3.visitAnnotation("responses", Type.getDescriptor(Content.class));
-                        AnnotationVisitor av6;
                         if (originalMethod.getReturnType().isArray()) {
-                            av6 = av4.visitAnnotation("array", Type.getDescriptor(ArraySchema.class));
-                            AnnotationVisitor av7 = av6.visitAnnotation("schema", Type.getDescriptor(Schema.class));
-                            av7.visit("implementation", Type.getType(originalMethod.getReturnType().getComponentType()));
-                            av7.visitEnd();
+                            AnnotationVisitor av6 = av4.visitAnnotation("array", Type.getDescriptor(ArraySchema.class));
+                            addSchemaOpenApiAnnotation(av6, originalMethod.getReturnType().getComponentType());
+                            av6.visitEnd();
                         } else {
-                            av6 = av4.visitAnnotation("schema", Type.getDescriptor(Schema.class));
-                            av6.visit("implementation", Type.getType(originalMethod.getReturnType()));
+                            addSchemaOpenApiAnnotation(av4, originalMethod.getReturnType());
                         }
-                        av6.visitEnd();
                         av4.visitEnd();
                         av3.visitEnd();
                         av2.visitEnd();
@@ -576,6 +573,36 @@ public final class JAXRSOpenLServiceEnhancer {
                     av.visitEnd();
                 }
             }
+        }
+
+        private void addSchemaOpenApiAnnotation(AnnotationVisitor av, Class<?> type) {
+            final Class<?> extractedType = extractOriginalType(type);
+            if (extractedType != null) {
+                type = extractedType;
+            }
+            AnnotationVisitor av1 = av.visitAnnotation("schema", Type.getDescriptor(Schema.class));
+            if (type == Integer.class || type == int.class
+                    || type == Short.class || type == short.class
+                    || type == Byte.class || type == byte.class) {
+                av1.visit("type", "integer");
+                av1.visit("format", "int32");
+            } else if (type == Long.class || type == long.class) {
+                av1.visit("type", "integer");
+                av1.visit("format", "int64");
+            } else if (type == Float.class || type == float.class) {
+                av1.visit("type", "number");
+                av1.visit("format", "float");
+            } else if (type == Double.class || type == double.class) {
+                av1.visit("type", "number");
+                av1.visit("format", "double");
+            }  else if (type == Boolean.class || type == boolean.class) {
+                av1.visit("type", "boolean");
+            }  else if (type == Character.class || type == char.class) {
+                av1.visit("type", "string");
+            } else {
+                av1.visit("implementation", Type.getType(type));
+            }
+            av1.visitEnd();
         }
 
         private void addPathParamAnnotation(MethodVisitor mv, int index, String paramName) {
@@ -667,6 +694,11 @@ public final class JAXRSOpenLServiceEnhancer {
             contentArrayAv.visitEnd();
             apiResponseAv.visitEnd();
         }
+        private Class<?> extractOriginalType(Class<?> type) {
+            Class<?> extractedType = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(type);
+            return extractedType == null ? type : extractedType;
+        }
+
     }
 
     public Object decorateServiceBean(OpenLService service, String serviceExposedUrl) throws Exception {
