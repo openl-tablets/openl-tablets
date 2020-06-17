@@ -20,7 +20,7 @@
         <script src="#{contextPath}/javascript/vendor/jquery-1.7.2.min.js"></script>
         <script src="#{contextPath}/javascript/vendor/jquery.are-you-sure.js"></script>
         <script src="#{contextPath}/javascript/vendor/bootstrap.min.js"></script>
-        <script src="#{contextPath}/javascript/common.js?3"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
+        <script src="#{contextPath}/javascript/common.js?4"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
         <h:outputScript name="jsf.js" library="javax.faces" />
 
         <script src="#{contextPath}/javascript/vendor/jquery.easytabs.min.js"></script>
@@ -147,6 +147,7 @@
 
           $j(function () {
               fixTabIndexesInRichPopupPanels();
+              fixFileUpload();
           });
 
             //]]>
