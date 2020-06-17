@@ -122,6 +122,8 @@
         <module>DEMO/org.openl.rules.demo</module>
         <module>Util/openl-maven-plugin</module>
         <module>Util/openl-simple-project-archetype</module>
+        <module>Util/openl-openapi-model-scaffolding</module>
+        <module>Util/openl-openapi-parser</module>
     </modules>
     <distributionManagement>
         <repository>
@@ -1382,6 +1384,11 @@
                 <artifactId>snakeyaml</artifactId>
                 <version>1.26</version>
             </dependency>
+            <dependency>
+                <groupId>io.swagger.parser.v3</groupId>
+                <artifactId>swagger-parser</artifactId>
+                <version>2.0.15</version>
+            </dependency>
             <!--Activity -->
             <dependency>
                 <groupId>org.activiti</groupId>
@@ -1668,6 +1675,16 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-maven-plugin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-openapi-model-scaffolding</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-openapi-parser</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

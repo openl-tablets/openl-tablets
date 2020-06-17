@@ -175,6 +175,10 @@
             <artifactId>org.openl.rules.diff</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>openl-openapi-parser</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.openl</groupId>
             <artifactId>org.openl.spring</artifactId>
         </dependency>

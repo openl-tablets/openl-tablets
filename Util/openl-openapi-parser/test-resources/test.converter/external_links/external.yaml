@@ -1,0 +1,6 @@
+SomeId:
+  type: integer
+  format: int32
+  description: My value 123
+  example: 123
+  default: 100000

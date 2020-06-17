@@ -1,0 +1,1022 @@
+openapi: 3.0.1
+info:
+  title: Example3-AutoPolicy3Calculation
+  version: 1.0.0
+servers:
+- url: /webservice/REST/Example3-AutoPolicyCalculation
+  variables: {}
+paths:
+  /DriverRisk:
+    post:
+      summary: String DriverRisk(Integer, Integer, Integer)
+      description: 'Rules method: DriverRisk DriverRisk(java.lang.Integer numDUI,
+        java.lang.Integer numAccidents, java.lang.Integer numMovingViolations)'
+      operationId: DriverRisk
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverRiskRequest'
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: string
+  /VehicleEligibilityScore:
+    post:
+      summary: DoubleValue VehicleEligibilityScore(String)
+      description: 'Rules method: org.openl.meta.DoubleValue VehicleEligibilityScore(EligibilityType
+        vehicleEligibility)'
+      operationId: VehicleEligibilityScore
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /VehicleDiscount:
+    post:
+      summary: DoubleValue VehicleDiscount(String, Boolean)
+      description: 'Rules method: org.openl.meta.DoubleValue VehicleDiscount(AirbagType
+        airbagType, java.lang.Boolean hasAlarm)'
+      operationId: VehicleDiscount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleDiscountRequest'
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /CoverageSurcharge:
+    post:
+      summary: DoubleValue CoverageSurcharge(String)
+      description: 'Rules method: org.openl.meta.DoubleValue CoverageSurcharge(Coverage
+        coverages)'
+      operationId: CoverageSurcharge
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /DeterminePolicyPremium:
+    post:
+      summary: DeterminePolicyPremium DeterminePolicyPremium(Policy)
+      description: 'Rules method: SpreadsheetResultDeterminePolicyPremium DeterminePolicyPremium(org.openl.generated.beans.Policy
+        policy)'
+      operationId: DeterminePolicyPremium
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Policy'
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeterminePolicyPremium'
+  /ClientTierScore:
+    post:
+      summary: DoubleValue ClientTierScore(String)
+      description: 'Rules method: org.openl.meta.DoubleValue ClientTierScore(ClientTier
+        clientTier)'
+      operationId: ClientTierScore
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /VehicleEligibility:
+    post:
+      summary: String VehicleEligibility(String, String)
+      description: 'Rules method: EligibilityType VehicleEligibility(InjuryRating
+        vehicleInjuryRating, TheftRating vehicleTheftRating)'
+      operationId: VehicleEligibility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleEligibilityRequest'
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: string
+  /DriverRiskScore:
+    post:
+      summary: DoubleValue DriverRiskScore(String)
+      description: 'Rules method: org.openl.meta.DoubleValue DriverRiskScore(DriverRisk
+        driverRisk)'
+      operationId: DriverRiskScore
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /ClientDiscount:
+    post:
+      summary: DoubleValue ClientDiscount(String)
+      description: 'Rules method: org.openl.meta.DoubleValue ClientDiscount(ClientTier
+        clientTier)'
+      operationId: ClientDiscount
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /DetermineDriverPremium:
+    post:
+      summary: DetermineDriverPremium DetermineDriverPremium(Driver)
+      description: 'Rules method: SpreadsheetResultDetermineDriverPremium DetermineDriverPremium(org.openl.generated.beans.Driver
+        driver)'
+      operationId: DetermineDriverPremium
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Driver'
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetermineDriverPremium'
+  /DetermineVehiclePremium:
+    post:
+      summary: DetermineVehiclePremium DetermineVehiclePremium(Vehicle)
+      description: 'Rules method: SpreadsheetResultDetermineVehiclePremium DetermineVehiclePremium(org.openl.generated.beans.Vehicle
+        vehicle)'
+      operationId: DetermineVehiclePremium
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vehicle'
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetermineVehiclePremium'
+  /VehicleInjuryRating:
+    post:
+      summary: String VehicleInjuryRating(String, String, Boolean)
+      description: 'Rules method: InjuryRating VehicleInjuryRating(BodyType bodyType,
+        AirbagType airbagType, java.lang.Boolean hasRollBar)'
+      operationId: VehicleInjuryRating
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleInjuryRatingRequest'
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: string
+  /TheftRatingSurcharge:
+    post:
+      summary: DoubleValue TheftRatingSurcharge(String)
+      description: 'Rules method: org.openl.meta.DoubleValue TheftRatingSurcharge(TheftRating
+        theftRating)'
+      operationId: TheftRatingSurcharge
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /DriverRiskPremium:
+    post:
+      summary: DoubleValue DriverRiskPremium(String)
+      description: 'Rules method: org.openl.meta.DoubleValue DriverRiskPremium(DriverRisk
+        driverRisk)'
+      operationId: DriverRiskPremium
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /AccidentPremium:
+    get:
+      summary: DoubleValue AccidentPremium()
+      description: 'Rules method: org.openl.meta.DoubleValue AccidentPremium()'
+      operationId: AccidentPremium
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /DriverEligibility:
+    post:
+      summary: String DriverEligibility(String, Boolean)
+      description: 'Rules method: EligibilityType DriverEligibility(DriverType driverType,
+        java.lang.Boolean hadTraining)'
+      operationId: DriverEligibility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverEligibilityRequest'
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: string
+  /DriverTypeScore:
+    post:
+      summary: DoubleValue DriverTypeScore(String, String)
+      description: 'Rules method: org.openl.meta.DoubleValue DriverTypeScore(DriverType
+        driverAgeType, EligibilityType driverEligibility)'
+      operationId: DriverTypeScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverTypeScoreRequest'
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /AgeSurcharge:
+    post:
+      summary: DoubleValue AgeSurcharge(Integer)
+      description: 'Rules method: org.openl.meta.DoubleValue AgeSurcharge(java.lang.Integer
+        vehicleAge)'
+      operationId: AgeSurcharge
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: integer
+              format: int32
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /InjuryRatingSurcharge:
+    post:
+      summary: DoubleValue InjuryRatingSurcharge(String)
+      description: 'Rules method: org.openl.meta.DoubleValue InjuryRatingSurcharge(InjuryRating
+        injuryRating)'
+      operationId: InjuryRatingSurcharge
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /PolicyEligibility:
+    post:
+      summary: String PolicyEligibility(String, DoubleValue)
+      description: 'Rules method: EligibilityType PolicyEligibility(ClientTerm clientTerm,
+        org.openl.meta.DoubleValue score)'
+      operationId: PolicyEligibility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyEligibilityRequest'
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: string
+  /BasePremium:
+    post:
+      summary: DoubleValue BasePremium(String)
+      description: 'Rules method: org.openl.meta.DoubleValue BasePremium(CarType carType)'
+      operationId: BasePremium
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /DriverPremium:
+    post:
+      summary: DoubleValue DriverPremium(String, String, String)
+      description: 'Rules method: org.openl.meta.DoubleValue DriverPremium(DriverType
+        driverType, MaritalStatus maritalStatus, java.lang.String state)'
+      operationId: DriverPremium
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverPremiumRequest'
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /CurrentYear:
+    get:
+      summary: Integer CurrentYear()
+      description: 'Rules method: java.lang.Integer CurrentYear()'
+      operationId: CurrentYear
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: integer
+  /DriverAgeType:
+    post:
+      summary: String DriverAgeType(String, Integer)
+      description: 'Rules method: DriverType DriverAgeType(Gender gender, java.lang.Integer
+        age)'
+      operationId: DriverAgeType
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverAgeTypeRequest'
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: string
+  /VehicleTheftRating:
+    post:
+      summary: String VehicleTheftRating(String, Double, Boolean)
+      description: 'Rules method: TheftRating VehicleTheftRating(BodyType bodyType,
+        java.lang.Double price, java.lang.Boolean onHighTheftProbabilityList)'
+      operationId: VehicleTheftRating
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleTheftRatingRequest'
+      responses:
+        default:
+          content:
+            text/plain:
+              schema:
+                type: string
+  /getPolicyProfile2:
+    get:
+      summary: Policy[] getPolicyProfile2()
+      description: 'Method: org.openl.generated.beans.Policy[] getPolicyProfile2()'
+      operationId: getPolicyProfile2
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Policy'
+  /getPolicyProfile1:
+    get:
+      summary: Policy[] getPolicyProfile1()
+      description: 'Method: org.openl.generated.beans.Policy[] getPolicyProfile1()'
+      operationId: getPolicyProfile1
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Policy'
+  /getAutoProfiles1:
+    get:
+      summary: Vehicle[] getAutoProfiles1()
+      description: 'Method: org.openl.generated.beans.Vehicle[] getAutoProfiles1()'
+      operationId: getAutoProfiles1
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+  /getDriverProfiles3:
+    get:
+      summary: Driver[] getDriverProfiles3()
+      description: 'Method: org.openl.generated.beans.Driver[] getDriverProfiles3()'
+      operationId: getDriverProfiles3
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Driver'
+  /getTestPolicy1:
+    get:
+      summary: Policy[] getTestPolicy1()
+      description: 'Method: org.openl.generated.beans.Policy[] getTestPolicy1()'
+      operationId: getTestPolicy1
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Policy'
+  /getAutoProfiles2:
+    get:
+      summary: Vehicle[] getAutoProfiles2()
+      description: 'Method: org.openl.generated.beans.Vehicle[] getAutoProfiles2()'
+      operationId: getAutoProfiles2
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+  /getDriverProfiles2:
+    get:
+      summary: Driver[] getDriverProfiles2()
+      description: 'Method: org.openl.generated.beans.Driver[] getDriverProfiles2()'
+      operationId: getDriverProfiles2
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Driver'
+  /getTestPolicy2:
+    get:
+      summary: Policy[] getTestPolicy2()
+      description: 'Method: org.openl.generated.beans.Policy[] getTestPolicy2()'
+      operationId: getTestPolicy2
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Policy'
+  /getPolicyProfile4:
+    get:
+      summary: Policy[] getPolicyProfile4()
+      description: 'Method: org.openl.generated.beans.Policy[] getPolicyProfile4()'
+      operationId: getPolicyProfile4
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Policy'
+  /getAutoProfiles3:
+    get:
+      summary: Vehicle[] getAutoProfiles3()
+      description: 'Method: org.openl.generated.beans.Vehicle[] getAutoProfiles3()'
+      operationId: getAutoProfiles3
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+  /getPolicyProfile3:
+    get:
+      summary: Policy[] getPolicyProfile3()
+      description: 'Method: org.openl.generated.beans.Policy[] getPolicyProfile3()'
+      operationId: getPolicyProfile3
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Policy'
+  /getDriverProfiles1:
+    get:
+      summary: Driver[] getDriverProfiles1()
+      description: 'Method: org.openl.generated.beans.Driver[] getDriverProfiles1()'
+      operationId: getDriverProfiles1
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Driver'
+  /getTestDrivers1:
+    get:
+      summary: Driver[] getTestDrivers1()
+      description: 'Method: org.openl.generated.beans.Driver[] getTestDrivers1()'
+      operationId: getTestDrivers1
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Driver'
+  /getTestVehicles1:
+    get:
+      summary: Vehicle[] getTestVehicles1()
+      description: 'Method: org.openl.generated.beans.Vehicle[] getTestVehicles1()'
+      operationId: getTestVehicles1
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+components:
+  schemas:
+    DriverRiskRequest:
+      type: object
+      properties:
+        numDUI:
+          type: integer
+          format: int32
+        numAccidents:
+          type: integer
+          format: int32
+        numMovingViolations:
+          type: integer
+          format: int32
+      xml:
+        name: DriverRiskRequest
+        namespace: http://jaxrs.openl.org
+    VehicleDiscountRequest:
+      type: object
+      properties:
+        airbagType:
+          type: string
+        hasAlarm:
+          type: boolean
+      xml:
+        name: VehicleDiscountRequest
+        namespace: http://jaxrs.openl.org
+    DetermineDriverPremium:
+      type: object
+      properties:
+        Description_Driver:
+          type: string
+        Value_Driver:
+          $ref: '#/components/schemas/Driver'
+        Description_DriverType:
+          type: string
+        Value_DriverType:
+          type: string
+        Description_Eligibility:
+          type: string
+        Value_Eligibility:
+          type: string
+        Description_DriverRisk:
+          type: string
+        Value_DriverRisk:
+          type: string
+        Description_DriverTypeScore:
+          type: string
+        Value_DriverTypeScore:
+          type: number
+          format: double
+        Description_DriverRiskScore:
+          type: string
+        Value_DriverRiskScore:
+          type: number
+          format: double
+        Description_DriverPremium:
+          type: string
+        Value_DriverPremium:
+          type: number
+          format: double
+        Description_DriverRiskPremium:
+          type: string
+        Value_DriverRiskPremium:
+          type: number
+          format: double
+        Description_AccidentPremium:
+          type: string
+        Value_AccidentPremium:
+          type: number
+          format: double
+        Description_Score:
+          type: string
+        Value_Score:
+          type: number
+          format: double
+        Description_Premium:
+          type: string
+        Value_Premium:
+          type: number
+          format: double
+      xml:
+        name: DetermineDriverPremium
+        namespace: http://spreadsheetresults.generated.openl.org
+    DeterminePolicyPremium:
+      type: object
+      properties:
+        Description_Policy:
+          type: string
+        Value_Policy:
+          $ref: '#/components/schemas/Policy'
+        Description_Vehicles:
+          type: string
+        Value_Vehicles:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetermineVehiclePremium'
+        Description_Drivers:
+          type: string
+        Value_Drivers:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetermineDriverPremium'
+        Description_VehiclesPremium:
+          type: string
+        Value_VehiclesPremium:
+          type: number
+          format: double
+        Description_DriversPremium:
+          type: string
+        Value_DriversPremium:
+          type: number
+          format: double
+        Description_ClientDiscount:
+          type: string
+        Value_ClientDiscount:
+          type: number
+          format: double
+        Description_VehiclesScore:
+          type: string
+        Value_VehiclesScore:
+          type: number
+          format: double
+        Description_DriversScore:
+          type: string
+        Value_DriversScore:
+          type: number
+          format: double
+        Description_ClientTierScore:
+          type: string
+        Value_ClientTierScore:
+          type: number
+          format: double
+        Description_Eligibility:
+          type: string
+        Value_Eligibility:
+          type: string
+        Description_Score:
+          type: string
+        Value_Score:
+          type: number
+          format: double
+        Description_Premium:
+          type: string
+        Value_Premium:
+          type: number
+          format: double
+      xml:
+        name: DeterminePolicyPremium
+        namespace: http://spreadsheetresults.generated.openl.org
+    DetermineVehiclePremium:
+      type: object
+      properties:
+        Description_Vehicle:
+          type: string
+        Value_Vehicle:
+          $ref: '#/components/schemas/Vehicle'
+        Description_Age:
+          type: string
+        Value_Age:
+          type: integer
+          format: int32
+        Description_TheftRating:
+          type: string
+        Value_TheftRating:
+          type: string
+        Description_InjuryRating:
+          type: string
+        Value_InjuryRating:
+          type: string
+        Description_Eligibility:
+          type: string
+        Value_Eligibility:
+          type: string
+        Description_Score:
+          type: string
+        Value_Score:
+          type: number
+          format: double
+        Description_AgeSurcharge:
+          type: string
+        Value_AgeSurcharge:
+          type: number
+          format: double
+        Description_InjuryRatingSurcharge:
+          type: string
+        Value_InjuryRatingSurcharge:
+          type: number
+          format: double
+        Description_TheftRatingSurcharge:
+          type: string
+        Value_TheftRatingSurcharge:
+          type: number
+          format: double
+        Description_BasePremium:
+          type: string
+        Value_BasePremium:
+          type: number
+          format: double
+        Description_CoverageSurcharges:
+          type: string
+        Value_CoverageSurcharges:
+          type: number
+          format: double
+        Description_OtherSurcharges:
+          type: string
+        Value_OtherSurcharges:
+          type: number
+          format: double
+        Description_VehicleDiscount:
+          type: string
+        Value_VehicleDiscount:
+          type: number
+          format: double
+        Description_Premium:
+          type: string
+        Value_Premium:
+          type: number
+          format: double
+      xml:
+        name: DetermineVehiclePremium
+        namespace: http://spreadsheetresults.generated.openl.org
+    Driver:
+      type: object
+      properties:
+        driverType:
+          type: string
+        driverRisk:
+          type: string
+        name:
+          type: string
+        gender:
+          type: string
+        age:
+          type: integer
+          format: int32
+          default: 18
+        maritalStatus:
+          type: string
+        state:
+          type: string
+        numAccidents:
+          type: integer
+          format: int32
+          default: 0
+        numMovingViolations:
+          type: integer
+          format: int32
+          default: 0
+        numDUI:
+          type: integer
+          format: int32
+          default: 0
+        hadTraining:
+          type: boolean
+          default: false
+      xml:
+        name: Driver
+        namespace: http://beans.generated.openl.org
+    Policy:
+      type: object
+      properties:
+        name:
+          type: string
+        clientTier:
+          type: string
+        clientTerm:
+          type: string
+        drivers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Driver'
+        vehicles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vehicle'
+      xml:
+        name: Policy
+        namespace: http://beans.generated.openl.org
+    Vehicle:
+      type: object
+      properties:
+        name:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+          format: int32
+          default: 0
+        carType:
+          type: string
+        airbagType:
+          type: string
+        price:
+          type: number
+          format: double
+          default: 0
+        bodyType:
+          type: string
+        coverages:
+          type: array
+          items:
+            type: string
+        onHighTheftProbabilityList:
+          type: boolean
+          default: false
+        hasAlarm:
+          type: boolean
+          default: false
+        hasRollBar:
+          type: boolean
+          default: false
+      xml:
+        name: Vehicle
+        namespace: http://beans.generated.openl.org
+    VehicleEligibilityRequest:
+      type: object
+      properties:
+        vehicleInjuryRating:
+          type: string
+        vehicleTheftRating:
+          type: string
+      xml:
+        name: VehicleEligibilityRequest
+        namespace: http://jaxrs.openl.org
+    VehicleInjuryRatingRequest:
+      type: object
+      properties:
+        bodyType:
+          type: string
+        airbagType:
+          type: string
+        hasRollBar:
+          type: boolean
+      xml:
+        name: VehicleInjuryRatingRequest
+        namespace: http://jaxrs.openl.org
+    DriverEligibilityRequest:
+      type: object
+      properties:
+        driverType:
+          type: string
+        hadTraining:
+          type: boolean
+      xml:
+        name: DriverEligibilityRequest
+        namespace: http://jaxrs.openl.org
+    DriverTypeScoreRequest:
+      type: object
+      properties:
+        driverAgeType:
+          type: string
+        driverEligibility:
+          type: string
+      xml:
+        name: DriverTypeScoreRequest
+        namespace: http://jaxrs.openl.org
+    PolicyEligibilityRequest:
+      type: object
+      properties:
+        clientTerm:
+          type: string
+        score:
+          type: number
+          format: double
+      xml:
+        name: PolicyEligibilityRequest
+        namespace: http://jaxrs.openl.org
+    DriverPremiumRequest:
+      type: object
+      properties:
+        driverType:
+          type: string
+        maritalStatus:
+          type: string
+        state:
+          type: string
+      xml:
+        name: DriverPremiumRequest
+        namespace: http://jaxrs.openl.org
+    DriverAgeTypeRequest:
+      type: object
+      properties:
+        gender:
+          type: string
+        age:
+          type: integer
+          format: int32
+      xml:
+        name: DriverAgeTypeRequest
+        namespace: http://jaxrs.openl.org
+    VehicleTheftRatingRequest:
+      type: object
+      properties:
+        bodyType:
+          type: string
+        price:
+          type: number
+          format: double
+        onHighTheftProbabilityList:
+          type: boolean
+      xml:
+        name: VehicleTheftRatingRequest
+        namespace: http://jaxrs.openl.org

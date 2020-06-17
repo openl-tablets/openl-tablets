@@ -1,0 +1,37 @@
+openapi: 3.0.1
+info:
+  title: Example-Combined-Request
+  version: 1.0.0
+servers:
+  - url: /webservice/REST/combined-Request
+    variables: {}
+paths:
+  /pets:
+    patch:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/Cat'
+                - $ref: '#/components/schemas/Dog'
+      responses:
+        '200':
+          description: Updated
+components:
+  schemas:
+    Dog:
+      type: object
+      properties:
+        bark:
+          type: boolean
+        breed:
+          type: string
+          enum: [Dingo, Husky, Retriever, Shepherd]
+    Cat:
+      type: object
+      properties:
+        hunts:
+          type: boolean
+        age:
+          type: integer

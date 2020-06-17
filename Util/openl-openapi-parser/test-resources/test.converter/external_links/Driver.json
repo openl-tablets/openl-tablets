@@ -1,0 +1,62 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Example, Multiple Files",
+    "version": "1.0.0"
+  },
+  "components": {
+    "schemas": {
+      "Driver": {
+        "type": "object",
+        "properties": {
+          "driverType": {
+            "type": "string"
+          },
+          "hadTraining": {
+            "type": "boolean",
+            "default": false
+          },
+          "address": {
+            "$ref": "Address.json"
+          },
+          "dog": {
+            "$ref": "./models.json#/components/schemas/Dog"
+          },
+          "someValue": {
+            "$ref": "#/components/schemas/SomeValue"
+          },
+          "contactInfo": {
+            "type": "object",
+            "properties": {
+              "email": {
+                "type": "string",
+                "format": "email"
+              },
+              "phone": {
+                "type": "string"
+              },
+              "phoneInfo": {
+                "type": "object",
+                "properties": {
+                  "manufacturer": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "SomeValue": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+  }
+}

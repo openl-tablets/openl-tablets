@@ -1,12 +1,12 @@
-package org.openl.rules.webstudio.util.converter.impl;
+package org.openl.rules.model.scaffolding;
 
-public class FieldDto {
+public class FieldModel {
     private String name;
     private String type;
-    private String defaultValue;
+    private Object defaultValue;
     private String format;
 
-    private FieldDto(String name, String type, String defaultValue, String format) {
+    private FieldModel(String name, String type, Object defaultValue, String format) {
         this.name = name;
         this.type = type;
         this.defaultValue = defaultValue;
@@ -16,7 +16,7 @@ public class FieldDto {
     public static final class Builder {
         private String name;
         private String type;
-        private String defaultValue;
+        private Object defaultValue;
         private String format;
 
         public Builder setName(String name) {
@@ -29,7 +29,7 @@ public class FieldDto {
             return this;
         }
 
-        public Builder setDefaultValue(String defaultValue) {
+        public Builder setDefaultValue(Object defaultValue) {
             this.defaultValue = defaultValue;
             return this;
         }
@@ -39,8 +39,8 @@ public class FieldDto {
             return this;
         }
 
-        public FieldDto build() {
-            return new FieldDto(name, type, defaultValue, format);
+        public FieldModel build() {
+            return new FieldModel(name, type, defaultValue, format);
         }
     }
 
@@ -52,7 +52,7 @@ public class FieldDto {
         return type;
     }
 
-    public String getDefaultValue() {
+    public Object getDefaultValue() {
         return defaultValue;
     }
 

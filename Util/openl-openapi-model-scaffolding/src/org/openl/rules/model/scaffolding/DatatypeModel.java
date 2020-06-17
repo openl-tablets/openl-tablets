@@ -1,12 +1,12 @@
-package org.openl.rules.webstudio.util.converter.impl;
+package org.openl.rules.model.scaffolding;
 
 import java.util.List;
 
-public class DatatypeDto {
+public class DatatypeModel {
     private String name;
-    private List<FieldDto> fields;
+    private List<FieldModel> fields;
 
-    public DatatypeDto(String name) {
+    public DatatypeModel(String name) {
         this.name = name;
     }
 
@@ -18,11 +18,12 @@ public class DatatypeDto {
         this.name = name;
     }
 
-    public List<FieldDto> getFields() {
+    public List<FieldModel> getFields() {
         return fields;
     }
 
-    public void setFields(List<FieldDto> fields) {
+    public void setFields(List<FieldModel> fields) {
         this.fields = fields;
     }
 }
+
