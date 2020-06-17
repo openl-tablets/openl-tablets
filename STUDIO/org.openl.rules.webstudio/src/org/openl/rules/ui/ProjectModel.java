@@ -92,6 +92,7 @@ public class ProjectModel {
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
     private Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = new HashSet<>();
+    private WorkbookSyntaxNode[] workbookSyntaxNodes;
 
     private Module moduleInfo;
 
@@ -466,6 +467,18 @@ public class ProjectModel {
         }
 
         return getXlsModuleNode().getWorkbookSyntaxNodes();
+    }
+
+    /**
+     * Get all workbooks of all modules
+     * @return all workbooks
+     */
+    public WorkbookSyntaxNode[] getAllWorkbookNodes() {
+        if (!isProjectCompiledSuccessfully()) {
+            return null;
+        }
+
+        return workbookSyntaxNodes;
     }
 
     public boolean isSourceModified() {
@@ -855,6 +868,7 @@ public class ProjectModel {
         allXlsModuleSyntaxNodes.clear();
         messageNodeIds.clear();
         projectRoot = null;
+        workbookSyntaxNodes = null;
     }
 
     private void resetWebStudioWorkspaceDependencyManagerForSingleMode(Module moduleInfo, Module previousModuleInfo) {
@@ -915,6 +929,7 @@ public class ProjectModel {
         projectRoot = null;
         xlsModuleSyntaxNode = null;
         allXlsModuleSyntaxNodes.clear();
+        workbookSyntaxNodes = null;
 
         prepareWebstudioWorkspaceDependencyManager(singleModuleMode, previousModuleInfo);
 
@@ -958,12 +973,19 @@ public class ProjectModel {
 
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
             if (!isSingleModuleMode()) {
+                List<WorkbookSyntaxNode> workbookSyntaxNodes = new ArrayList<>();
+                for (XlsModuleSyntaxNode xlsSyntaxNode : allXlsModuleSyntaxNodes) {
+                    workbookSyntaxNodes.addAll(Arrays.asList(xlsSyntaxNode.getWorkbookSyntaxNodes()));
+                }
+                this.workbookSyntaxNodes = workbookSyntaxNodes.toArray(new WorkbookSyntaxNode[0]);
                 // EPBDS-7629: In multimodule mode xlsModuleSyntaxNode does not contain Virtual Module with dispatcher
                 // table syntax nodes.
                 // Such dispatcher syntax nodes are needed to show dispatcher tables in Trace.
                 // That's why we should add virtual module to allXlsModuleSyntaxNodes.
                 XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
                 allXlsModuleSyntaxNodes.add(xmi.getXlsModuleNode());
+            } else {
+                workbookSyntaxNodes = xlsModuleSyntaxNode.getWorkbookSyntaxNodes();
             }
             WorkbookLoaders.resetCurrentFactory();
         } catch (Throwable t) {
