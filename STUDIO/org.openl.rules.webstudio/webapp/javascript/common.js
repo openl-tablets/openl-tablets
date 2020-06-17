@@ -181,3 +181,20 @@ function resizePopupPanel(panelName) {
     panel.hide();
     panel.show();
 }
+
+/**
+ * To fix EPBDS-9950: if clear uploaded file in the pop-up, it can't be uploaded again.
+ */
+function fixFileUpload() {
+    if (!RichFaces.ui.FileUpload) {
+        return;
+    }
+
+    const delegate = RichFaces.ui.FileUpload.prototype.__addFiles;
+    RichFaces.ui.FileUpload.prototype.__addFiles = function(files) {
+        delegate.call(this, files);
+
+        // EPBDS-9950
+        this.input.val("")
+    };
+}

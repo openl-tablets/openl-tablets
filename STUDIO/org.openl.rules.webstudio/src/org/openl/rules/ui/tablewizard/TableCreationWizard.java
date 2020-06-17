@@ -63,7 +63,7 @@ public abstract class TableCreationWizard extends BaseWizard {
     /**
      * New table identifier
      */
-    private String newTableId;
+    private String newTableURI;
 
     private Set<XlsWorkbookSourceCodeModule> modifiedWorkbooks = new HashSet<>();
 
@@ -158,25 +158,31 @@ public abstract class TableCreationWizard extends BaseWizard {
     protected void initWorkbooks() {
         workbooks = new HashMap<>();
 
-        WorkbookSyntaxNode[] syntaxNodes = WebStudioUtils.getProjectModel().getWorkbookNodes();
+        ProjectModel projectModel = WebStudioUtils.getProjectModel();
+        WorkbookSyntaxNode[] syntaxNodes = projectModel.getAllWorkbookNodes();
         for (WorkbookSyntaxNode node : syntaxNodes) {
             XlsWorkbookSourceCodeModule module = node.getWorkbookSourceCodeModule();
             workbooks.put(module.getDisplayName(), module);
         }
 
-        if (workbooks.size() > 0) {
-            workbook = workbooks.keySet().iterator().next();
-        }
+        //make current module as default
+        workbook = projectModel.getXlsModuleNode().getWorkbookSyntaxNodes()[0]
+                .getWorkbookSourceCodeModule()
+                .getDisplayName();
     }
 
     public String getNewTableId() {
-        return newTableId;
+        return TableUtils.makeTableId(newTableURI);
     }
 
-    public void setNewTableId(String newTableId) {
-        this.newTableId = TableUtils.makeTableId(newTableId);
+    public String getNewTableURI() {
+        return newTableURI;
+    }
+
+    public void setNewTableURI(String newTableURI) {
+        this.newTableURI = newTableURI;
         // TODO: It should be removed when the table can be resolved by the ID
-        WebStudioUtils.getWebStudio().setTableUri(newTableId);
+        WebStudioUtils.getWebStudio().setTableUri(newTableURI);
     }
 
     public Set<XlsWorkbookSourceCodeModule> getModifiedWorkbooks() {
@@ -200,7 +206,6 @@ public abstract class TableCreationWizard extends BaseWizard {
 
     @Override
     public String finish() throws Exception {
-        boolean success = false;
         try {
             if (!wizardFinished) {
                 onFinish();
@@ -208,15 +213,12 @@ public abstract class TableCreationWizard extends BaseWizard {
             }
             doSave();
             WebStudioUtils.getExternalContext().getSessionMap().remove(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
-            success = true;
         } catch (Exception e) {
             log.error("Could not save table: ", e);
             throw e;
         }
-        if (success) {
-            WebStudioUtils.getWebStudio().compile();
-            reset(); // After wizard is finished - no need to store references to tables etc: it will be a memory leak.
-        }
+        WebStudioUtils.getWebStudio().compile();
+        reset(); // After wizard is finished - no need to store references to tables etc: it will be a memory leak.
         return null;
     }
 

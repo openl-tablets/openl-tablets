@@ -297,7 +297,7 @@
 
     <h:panelGroup rendered="#{editable}">
 
-    <rich:popupPanel id="editProjectPopup" minWidth="530" autosized="true">
+    <rich:popupPanel id="editProjectPopup" minWidth="530" minHeight="470">
             <f:facet name="header">
                 <h:outputText value="Edit Project"/>
             </f:facet>
@@ -413,7 +413,7 @@
                     <input type="button" value="Cancel" onclick="ws.ui.hide('editProjectPopup');"/>
                 </footer>
             </h:form>
-        </rich:popupPanel>
+    </rich:popupPanel>
 
     <rich:popupPanel id="removeModulePopup" minWidth="290" autosized="true">
             <f:facet name="header">
