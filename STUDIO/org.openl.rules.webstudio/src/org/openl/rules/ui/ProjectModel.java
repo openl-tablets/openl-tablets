@@ -8,6 +8,7 @@ import static org.openl.rules.security.Privileges.EDIT_TABLES;
 import java.io.File;
 import java.util.*;
 
+import org.open.rules.project.validation.openapi.OpenApiProjectValidator;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.dependency.IDependencyManager;
@@ -950,6 +951,8 @@ public class ProjectModel {
             // Find all dependent XlsModuleSyntaxNode-s
             compiledOpenClass = instantiationStrategy.compile();
 
+            compiledOpenClass = validateCompiledOpenClass(compiledOpenClass);
+
             addAllSyntaxNodes(webStudioWorkspaceDependencyManager.getDependencyLoaders().values());
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);
@@ -978,6 +981,11 @@ public class ProjectModel {
 
             WorkbookLoaders.resetCurrentFactory();
         }
+    }
+
+    private CompiledOpenClass validateCompiledOpenClass(CompiledOpenClass compiledOpenClass) {
+        OpenApiProjectValidator openApiProjectValidator = new OpenApiProjectValidator();
+        return openApiProjectValidator.validate(moduleInfo.getProject(), compiledOpenClass);
     }
 
     private void addAllSyntaxNodes(

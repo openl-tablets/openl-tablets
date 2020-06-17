@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openl.rules</groupId>
@@ -67,6 +68,22 @@
                                 <class>org.xmlpull.v1.XmlPullParser</class>
                                 <class>org.xmlpull.v1.XmlPullParserException</class>
                             </classes>
+                        </exception>
+                        <exception>
+                            <conflictingDependencies>
+                                <dependency>
+                                    <groupId>com.github.java-json-tools</groupId>
+                                    <artifactId>json-schema-core</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>com.github.java-json-tools</groupId>
+                                    <artifactId>json-schema-validator</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                            <resources>
+                                <resource>draftv3/schema</resource>
+                                <resource>draftv4/schema</resource>
+                            </resources>
                         </exception>
                     </exceptions>
                     <ignoredResourcePatterns>
@@ -172,6 +189,10 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.project.validation.openapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.diff</artifactId>
         </dependency>
         <dependency>
@@ -193,12 +214,8 @@
             <artifactId>hibernate-validator</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.richfaces.core</groupId>
-            <artifactId>richfaces-core-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.richfaces.ui</groupId>
-            <artifactId>richfaces-components-ui</artifactId>
+            <groupId>com.github.albfernandez.richfaces</groupId>
+            <artifactId>richfaces</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -289,16 +306,6 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <!-- r08 is required for richfaces -->
-                <version>r08</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <profiles>
         <profile>

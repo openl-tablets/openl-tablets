@@ -11,8 +11,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.faces.bean.ManagedProperty;
-
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -31,12 +29,15 @@ import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
+import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
 
 import com.thoughtworks.xstream.XStreamException;
@@ -48,29 +49,29 @@ public abstract class AbstractSmartRedeployController {
     /**
      * A controller which contains pre-built UI object tree.
      */
-    @ManagedProperty(value = "#{repositoryTreeState}")
+    @Autowired
     RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{productionRepositoriesTreeController}")
+    @Autowired
     private ProductionRepositoriesTreeController productionRepositoriesTreeController;
 
-    @ManagedProperty(value = "#{deploymentManager}")
+    @Autowired
     private DeploymentManager deploymentManager;
 
-    @ManagedProperty(value = "#{projectVersionCacheManager}")
+    @Autowired
     private ProjectVersionCacheManager projectVersionCacheManager;
 
-    @ManagedProperty("#{projectDescriptorArtefactResolver}")
+    @Autowired
     private volatile ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
-    @ManagedProperty(value = "#{deployConfigRepositoryComments}")
+    @Autowired
+    @Qualifier("deployConfigRepositoryComments")
     private Comments deployConfigRepoComments;
 
-    @ManagedProperty(value = "#{environment}")
+    @Autowired
     private PropertyResolver propertyResolver;
 
-    @ManagedProperty(value = "#{rulesUserSession.userWorkspace}")
-    volatile UserWorkspace userWorkspace;
+    volatile UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
 
     List<DeploymentProjectItem> items;
 
@@ -84,8 +85,8 @@ public abstract class AbstractSmartRedeployController {
 
     public synchronized List<DeploymentProjectItem> getItems() {
         AProject project = getSelectedProject();
-        if (project == null || project != currentProject || isSupportsBranches() && project
-            .getLastHistoryVersion() == null) {
+        if (project == null || currentProject == null || project != currentProject && !project.getName()
+            .equals(currentProject.getName()) || isSupportsBranches() && project.getLastHistoryVersion() == null) {
             reset();
             return null;
         }
@@ -239,7 +240,7 @@ public abstract class AbstractSmartRedeployController {
                     // overwrite settings
                     checker.addProject(project);
                     if (checker.check()) {
-                        String to = RepositoryTreeController.getDescriptiveVersion(project.getVersion(),
+                        String to = Utils.getDescriptiveVersion(project.getVersion(),
                             dateTimeFormat);
                         if (deployedProject == null) {
                             item.setMessages("Can be deployed");
@@ -261,7 +262,7 @@ public abstract class AbstractSmartRedeployController {
                                 item.setMessages(
                                     "Can be updated to '" + to + "' and then deployed. Deployed version not defined");
                             } else {
-                                String from = RepositoryTreeController.getDescriptiveVersion(version, dateTimeFormat);
+                                String from = Utils.getDescriptiveVersion(version, dateTimeFormat);
                                 item.setMessages(
                                     "Can be updated to '" + to + "' from '" + from + "' and then deployed");
                             }

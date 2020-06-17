@@ -1,29 +1,32 @@
 package org.openl.rules.webstudio.web.repository;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
-
+import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
+import org.springframework.stereotype.Service;
 
 /**
  * Returns Tree Node shown in the current request. If for updateNodeToView() isn't invoked for the request, returns null. It's
  * needed to disable long history rendering when it is not shown to a user.
  */
-@ManagedBean
-@ViewScoped
+@Service
+@ViewScope
 public class NodeVersionsBean {
-    @ManagedProperty(value = "#{repositoryTreeState}")
-    private RepositoryTreeState repositoryTreeState;
+    private final RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{repositoryTreeController}")
-    private RepositoryTreeController repositoryTreeController;
+    private final RepositoryTreeController repositoryTreeController;
 
     private TreeNode nodeToView;
 
+    public NodeVersionsBean(RepositoryTreeState repositoryTreeState,
+        RepositoryTreeController repositoryTreeController) {
+        this.repositoryTreeState = repositoryTreeState;
+        this.repositoryTreeController = repositoryTreeController;
+    }
+
     public TreeNode getNodeToView() {
         TreeNode selectedNode = repositoryTreeState.getSelectedNode();
-        if (selectedNode != nodeToView) {
+        if (nodeToView == null || selectedNode == null || selectedNode != nodeToView && !selectedNode.getId()
+            .equals(nodeToView.getId())) {
             nodeToView = null;
         }
         return nodeToView;
@@ -32,13 +35,5 @@ public class NodeVersionsBean {
     public void updateNodeToView() {
         this.nodeToView = repositoryTreeState.getSelectedNode();
         repositoryTreeController.setVersion(null);
-    }
-
-    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
-        this.repositoryTreeState = repositoryTreeState;
-    }
-
-    public void setRepositoryTreeController(RepositoryTreeController repositoryTreeController) {
-        this.repositoryTreeController = repositoryTreeController;
     }
 }

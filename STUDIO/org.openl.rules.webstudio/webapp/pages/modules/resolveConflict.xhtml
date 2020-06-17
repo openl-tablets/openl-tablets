@@ -19,7 +19,7 @@
     }
   </style>
 
-  <rich:popupPanel id="modalResolveConflicts" width="580" autosized="true">
+  <rich:popupPanel id="modalResolveConflicts" minWidth="580" autosized="true">
     <f:facet name="header">
       <h:outputText value="Resolve conflicts" />
     </f:facet>
@@ -185,8 +185,6 @@
                         oncomplete="showResolveConflictDialog();"/>
         <a4j:jsFunction name="closeResolveConflictDialog" action="#{mergeConflictBean.clearMergeStatus}"
                         oncomplete="afterResolveConflict(false); RichFaces.$('modalResolveConflicts').hide();"/>
-        <a4j:jsFunction name="successfulConflictResolution" action="#{mergeConflictBean.clearMergeStatus}"
-                        oncomplete="afterResolveConflict(true); RichFaces.$('modalResolveConflicts').hide();"/>
         <a4j:jsFunction name="setConflictAndUploadConflictResolution" oncomplete="openUploadConflictResolutionDialog();">
           <a4j:param name="conflict" assignTo="#{mergeConflictBean.currentConflictedFile}"/>
         </a4j:jsFunction>
@@ -235,6 +233,10 @@
           $j('.conflict-comment').width(commentWidth);
           $j('.conflict-comment').height(commentHeight);
         }
+      }
+
+      function successfulConflictResolution() {
+        afterResolveConflict(true); RichFaces.$('modalResolveConflicts').hide();
       }
       //]]>
   </script>

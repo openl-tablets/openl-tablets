@@ -38,8 +38,6 @@ import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.ThisField;
-import org.openl.util.CollectionUtils;
-import org.openl.util.FileUtils;
 
 /**
  * Runs OpenL Tablets tests.
@@ -144,37 +142,30 @@ public final class TestMojo extends BaseOpenLMojo {
 
     private Summary runAllTests(String sourcePath, boolean hasDependencies) throws IOException,
                                                                             RulesInstantiationException,
-                                                                            ProjectResolvingException,
-                                                                            ClassNotFoundException {
+                                                                            ProjectResolvingException {
 
-        String path = sourcePath;
+        String testSourcePath = sourcePath;
+        String mainSourcePath = null;
 
         File testDir = testSourceDirectory.getCanonicalFile();
-        if (testDir.isDirectory() && !CollectionUtils.isEmpty(testDir.list())) {
-            File destination = new File(workspaceFolder, project.getArtifactId());
-            debug("Destination path: ", destination.getPath());
-
-            info("Copying main OpenL sources to workspace...");
-            FileUtils.copy(new File(sourcePath), destination);
-            info("Copying test OpenL sources to workspace...");
-            FileUtils.copy(testDir, destination);
+        if (testDir.isDirectory() && ProjectResolver.getInstance().isRulesProject(testDir) != null) {
+            mainSourcePath = sourcePath;
 
             try {
-                path = destination.getCanonicalPath();
+                testSourcePath = testDir.getCanonicalPath();
             } catch (Exception e) {
-                warn("The path to OpenL directory in workspace cannot be converted to canonical form.");
-                path = destination.getPath();
+                warn("The path to OpenL test directory cannot be converted to canonical form.");
+                testSourcePath = testDir.getPath();
             }
         }
 
-        return singleModuleMode ? executeModuleByModule(path, hasDependencies)
-                                : executeAllAtOnce(path, hasDependencies);
+        return singleModuleMode ? executeModuleByModule(testSourcePath, mainSourcePath, hasDependencies)
+                                : executeAllAtOnce(testSourcePath, mainSourcePath, hasDependencies);
     }
 
-    private Summary executeAllAtOnce(String sourcePath, boolean hasDependencies) throws MalformedURLException,
+    private Summary executeAllAtOnce(String testSourcePath, String mainSourcePath, boolean hasDependencies) throws MalformedURLException,
                                                                                  RulesInstantiationException,
-                                                                                 ProjectResolvingException,
-                                                                                 ClassNotFoundException {
+                                                                                 ProjectResolvingException {
         URL[] urls = toURLs(classpath);
         ClassLoader classLoader = null;
         try {
@@ -184,7 +175,10 @@ public final class TestMojo extends BaseOpenLMojo {
             if (hasDependencies) {
                 builder.setWorkspace(workspaceFolder.getPath());
             }
-            SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
+            if (mainSourcePath != null) {
+                builder.setProjectDependencies(mainSourcePath);
+            }
+            SimpleProjectEngineFactory<?> factory = builder.setProject(testSourcePath)
                 .setClassLoader(classLoader)
                 .setExecutionMode(false)
                 .setExternalParameters(externalParameters)
@@ -197,11 +191,10 @@ public final class TestMojo extends BaseOpenLMojo {
         }
     }
 
-    private Summary executeModuleByModule(String sourcePath, boolean hasDependencies) throws MalformedURLException,
+    private Summary executeModuleByModule(String testSourcePath, String mainSourcePath, boolean hasDependencies) throws MalformedURLException,
                                                                                       RulesInstantiationException,
-                                                                                      ProjectResolvingException,
-                                                                                      ClassNotFoundException {
-        ProjectDescriptor pd = ProjectResolver.instance().resolve(new File(sourcePath));
+                                                                                      ProjectResolvingException {
+        ProjectDescriptor pd = ProjectResolver.getInstance().resolve(new File(testSourcePath));
         if (pd == null) {
             throw new ProjectResolvingException("Failed to resolve project. Defined location is not an OpenL project.");
         }
@@ -235,10 +228,13 @@ public final class TestMojo extends BaseOpenLMojo {
                 classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
 
                 SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+                if (mainSourcePath != null) {
+                    builder.setProjectDependencies(mainSourcePath);
+                }
                 if (hasDependencies) {
                     builder.setWorkspace(workspaceFolder.getPath());
                 }
-                SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
+                SimpleProjectEngineFactory<?> factory = builder.setProject(testSourcePath)
                     .setClassLoader(classLoader)
                     .setExecutionMode(false)
                     .setModule(module.getName())

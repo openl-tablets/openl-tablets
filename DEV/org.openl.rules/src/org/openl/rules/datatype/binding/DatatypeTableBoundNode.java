@@ -8,11 +8,15 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.OpenL;
@@ -35,6 +39,7 @@ import org.openl.rules.datatype.gen.FieldDescriptionBuilder;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
+import org.openl.rules.lang.xls.types.DatatypeOpenField;
 import org.openl.rules.lang.xls.types.meta.BaseMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.DatatypeTableMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
@@ -54,7 +59,6 @@ import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
-import org.openl.types.impl.DatatypeOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.types.java.JavaOpenClass;
@@ -76,6 +80,8 @@ import org.slf4j.LoggerFactory;
 public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     private static final Pattern CONTEXT_SPLITTER = Pattern.compile("\\s*:\\s*context\\s*");
+    private static final String NON_TRANSIENT_FIELD_SUFFIX = "*";
+    private static final String TRANSIENT_FIELD_SUFFIX = "~";
     private final Logger log = LoggerFactory.getLogger(DatatypeTableBoundNode.class);
 
     private final TableSyntaxNode tableSyntaxNode;
@@ -162,10 +168,18 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         //
         fields = new LinkedHashMap<>();
         SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
+        boolean useTransientSuffix = true;
+        for (int i = 0; i < tableHeight; i++) {
+            if (fieldNameEndsWithNonTransientSuffix(dataTable.getRow(i), bindingContext)) {
+                useTransientSuffix = false;
+                break;
+            }
+        }
         for (int i = 0; i < tableHeight; i++) {
             final int index = i;
-            syntaxNodeExceptionCollector
-                .run(() -> processRow(dataTable.getRow(index), bindingContext, fields, index == 0));
+            final boolean withTransientSuffix = useTransientSuffix;
+            syntaxNodeExceptionCollector.run(
+                () -> processRow(dataTable.getRow(index), bindingContext, fields, index == 0, withTransientSuffix));
         }
 
         syntaxNodeExceptionCollector.run(() -> checkInheritedFieldsDuplication(bindingContext));
@@ -212,7 +226,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return true;
     }
 
-
     private static void extractParentFields(DatatypeTableBoundNode datatypeTableBoundNode,
             LinkedHashMap<String, FieldDescription> parentFields) {
         if (datatypeTableBoundNode.parentDatatypeTableBoundNode != null) {
@@ -226,6 +239,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             }
         }
     }
+
     /**
      * Generate a simple java bean for current datatype table.
      *
@@ -295,7 +309,19 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             String fieldName = fieldEntry.getKey();
             FieldDescription fieldDescription = fieldEntry.getValue();
             try {
-                datatypeClass.getDeclaredField(fieldName);
+                Field field = datatypeClass.getDeclaredField(fieldName);
+                if (fieldDescription.isTransient() != Modifier.isTransient(field.getModifiers()) || fieldDescription
+                    .isTransient() && !field.isAnnotationPresent(XmlTransient.class) || !fieldDescription
+                        .isTransient() && field.isAnnotationPresent(XmlTransient.class)) {
+                    String errorMessage = String.format(
+                        "Field '%s' is " + (fieldDescription
+                            .isTransient() ? "not "
+                                           : "") + "transient in class '%s'. Please, regenerate datatype classes.",
+                        fieldName,
+                        datatypeClassName);
+                    syntaxNodeExceptionCollector
+                        .addSyntaxNodeException(SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode));
+                }
             } catch (NoSuchFieldException e) {
                 String errorMessage = String.format(
                     "Field '%s' is not found in class '%s'. Please, regenerate datatype classes.",
@@ -303,13 +329,24 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     datatypeClassName);
                 syntaxNodeExceptionCollector
                     .addSyntaxNodeException(SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode));
-
             }
 
             String name = ClassUtils.capitalize(fieldName); // According to JavaBeans v1.01
             Method getterMethod = null;
             try {
                 getterMethod = datatypeClass.getMethod("get" + name);
+                if (fieldDescription.isTransient() && !getterMethod
+                    .isAnnotationPresent(XmlTransient.class) || !fieldDescription.isTransient() && getterMethod
+                        .isAnnotationPresent(XmlTransient.class)) {
+                    String errorMessage = String.format(
+                        "Field '%s' is " + (fieldDescription
+                            .isTransient() ? "not "
+                                           : "") + "transient in class '%s'. Please, regenerate datatype classes.",
+                        fieldName,
+                        datatypeClassName);
+                    syntaxNodeExceptionCollector
+                        .addSyntaxNodeException(SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode));
+                }
             } catch (NoSuchMethodException e) {
                 String errorMessage = String.format(
                     "Method 'get%s' is not found in class '%s'. Please, regenerate datatype classes.",
@@ -449,9 +486,26 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         syntaxNodeExceptionCollector.throwIfAny();
     }
 
+    private boolean fieldNameEndsWithNonTransientSuffix(ILogicalTable row,
+            IBindingContext bindingContext) throws OpenLCompilationException {
+        GridCellSourceCodeModule nameCellSource = getCellSource(row, bindingContext, 1);
+        IdentifierNode[] idn = getIdentifierNode(nameCellSource);
+        final String code = Arrays.stream(idn).map(IdentifierNode::getIdentifier).collect(Collectors.joining());
+        if (code.contains(":context")) {
+            int c = code.indexOf(":context");
+            return code.substring(0, c).endsWith(NON_TRANSIENT_FIELD_SUFFIX);
+        } else {
+            if (idn.length != 1) {
+                return false;
+            } else {
+                return idn[0].getIdentifier().endsWith(NON_TRANSIENT_FIELD_SUFFIX);
+            }
+        }
+    }
+
     private Pair<String, String> parseFieldNameCell(ILogicalTable row,
-                                                    IBindingContext cxt) throws OpenLCompilationException {
-        GridCellSourceCodeModule nameCellSource = getCellSource(row, cxt, 1);
+            IBindingContext bindingContext) throws OpenLCompilationException {
+        GridCellSourceCodeModule nameCellSource = getCellSource(row, bindingContext, 1);
         final String code = nameCellSource.getCode();
         String left, right;
         String[] parts = CONTEXT_SPLITTER.split(code, 2);
@@ -467,7 +521,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             right = null;
         }
 
-        if (TableNameChecker.isInvalidJavaIdentifier(left)) {
+        if (TableNameChecker.isInvalidJavaIdentifier(extractFieldName(left))) {
             String errorMessage = String.format("Bad field name: '%s'.", code);
             throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, nameCellSource);
         }
@@ -481,21 +535,19 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private void processRow(ILogicalTable row,
             IBindingContext bindingContext,
             Map<String, FieldDescription> fields,
-            boolean firstField) throws OpenLCompilationException {
-
+            boolean firstRow,
+            boolean useTransientSuffix) throws OpenLCompilationException {
         GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), bindingContext);
-
         if (canProcessRow(rowSrc)) {
             Pair<String, String> fieldNameCellParsed = parseFieldNameCell(row, bindingContext);
-            final String fieldName = fieldNameCellParsed.getLeft();
-
-            IOpenClass fieldType = getFieldType(bindingContext, row, rowSrc);
-            DatatypeOpenField field = new DatatypeOpenField(dataType,
-                fieldName,
-                fieldType,
-                fieldNameCellParsed.getValue());
-
+            final boolean isTransient = useTransientSuffix ? fieldNameCellParsed.getLeft()
+                .endsWith(TRANSIENT_FIELD_SUFFIX) : !fieldNameCellParsed.getLeft().endsWith(NON_TRANSIENT_FIELD_SUFFIX);
+            final String fieldName = extractFieldName(fieldNameCellParsed.getLeft());
+            final IOpenClass fieldType = getFieldType(bindingContext, row, rowSrc);
             FieldDescriptionBuilder fieldDescriptionBuilder;
+            final String contextPropertyName = fieldNameCellParsed.getValue();
+            validateContextPropertyName(row, contextPropertyName, fieldType, bindingContext);
+            IOpenField field = new DatatypeOpenField(dataType, fieldName, fieldType, contextPropertyName, isTransient);
             try {
                 if (fields.containsKey(fieldName)) {
                     throw SyntaxNodeExceptionUtils.createError(String.format("Field '%s' has already been defined.",
@@ -516,9 +568,13 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         null,
                         getCellSource(row, bindingContext, 1));
                 }
+                fieldDescriptionBuilder = FieldDescriptionBuilder.create(field.getType().getJavaName())
+                    .setTransient(isTransient)
+                    .setContextPropertyName(contextPropertyName);
 
                 dataType.addField(field);
-                if (firstField) {
+                dataType.getFields();
+                if (firstRow) {
                     // This is done for operations like people["john"] in OpenL
                     // rules to access one instance of datatype from array by
                     // user defined index.
@@ -533,8 +589,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     // and DatatypeArrayTest
                     dataType.setIndexField(field);
                 }
-
-                fieldDescriptionBuilder = FieldDescriptionBuilder.create(field.getType().getJavaName());
             } catch (SyntaxNodeException e) {
                 throw e;
             } catch (Exception t) {
@@ -542,30 +596,109 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     .createError(t.getMessage(), t, null, getCellSource(row, bindingContext, 1));
             }
 
-            String contextPropertyName = fieldNameCellParsed.getValue();
-            if (contextPropertyName != null) {
-                if (DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(contextPropertyName) == null) {
-                    throw SyntaxNodeExceptionUtils.createError(
-                        String.format("Property '%s' is not found in context. Supported properties: [%s].",
-                            contextPropertyName,
-                            String.join(", ", DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.keySet())),
-                        getCellSource(row, bindingContext, 1));
-                }
-                if (fields.values()
-                    .stream()
-                    .filter(x -> Objects.nonNull(x.getContextPropertyName()))
-                    .anyMatch(f -> f.getContextPropertyName().equals(contextPropertyName))) {
-                    throw SyntaxNodeExceptionUtils.createError(
-                        String.format("Multiple fields refer to the same context property '%s'.", contextPropertyName),
-                        getCellSource(row, bindingContext, 1));
-                }
+            fieldDescriptionBuilder.setContextPropertyName(contextPropertyName);
 
-                IOpenClass contextPropertyType = JavaOpenClass
-                    .getOpenClass(DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(contextPropertyName));
-                // If fieldType is a Datatype then there is no casting to contextPropertyType
-                IOpenCast openCast = fieldType.getInstanceClass() == null ? null
-                                                                          : bindingContext.getCast(fieldType,
-                                                                              contextPropertyType);
+            FieldDescription fieldDescription = null;
+            if (row.getWidth() > 2) {
+                String defaultValueCode = getDefaultValueCode(row, bindingContext);
+                Object defaultValue = defaultValueCode;
+                ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, defaultValueCode);
+                if (constantOpenField != null) {
+                    defaultValue = constantOpenField.getValue();
+                    fieldDescriptionBuilder.setDefaultValue(defaultValue);
+                    fieldDescriptionBuilder.setDefaultValueAsString(constantOpenField.getValueAsString());
+                    if (!bindingContext.isExecutionMode()) {
+                        ICell cell = getCellSource(row, bindingContext, 2).getCell();
+                        MetaInfoReader metaInfoReader = tableSyntaxNode.getMetaInfoReader();
+                        if (metaInfoReader instanceof BaseMetaInfoReader) {
+                            SimpleNodeUsage nodeUsage = RuleRowHelper
+                                .createConstantNodeUsage(constantOpenField, 0, defaultValueCode.length() - 1);
+                            ((BaseMetaInfoReader<?>) metaInfoReader).addConstant(cell, nodeUsage);
+                        }
+                    }
+                } else {
+                    fieldDescriptionBuilder.setDefaultValueAsString(defaultValueCode);
+                    if (String.class != fieldType.getInstanceClass()) {
+                        ICell theCellValue = row.getColumn(2).getCell(0, 0);
+                        if (theCellValue.hasNativeType()) {
+                            defaultValue = RuleRowHelper.loadNativeValue(theCellValue, fieldType);
+                            if (defaultValue != null) {
+                                fieldDescriptionBuilder.setDefaultValue(defaultValue);
+                            }
+                        }
+                    }
+                }
+                try {
+                    fieldDescription = fieldDescriptionBuilder.build();
+                } catch (RuntimeException e) {
+                    String message = String.format("Cannot parse cell value '%s'", defaultValueCode);
+                    IOpenSourceCodeModule cellSourceCodeModule = getCellSource(row, bindingContext, 2);
+                    if (e instanceof CompositeSyntaxNodeException) {
+                        CompositeSyntaxNodeException exception = (CompositeSyntaxNodeException) e;
+                        if (exception.getErrors() != null && exception.getErrors().length == 1) {
+                            SyntaxNodeException syntaxNodeException = exception.getErrors()[0];
+                            throw SyntaxNodeExceptionUtils
+                                .createError(message, null, syntaxNodeException.getLocation(), cellSourceCodeModule);
+                        }
+                        throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
+                    } else {
+                        TextInterval location = defaultValueCode == null ? null
+                                                                         : LocationUtils
+                                                                             .createTextInterval(defaultValueCode);
+                        throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
+                    }
+                }
+                if (defaultValue != null && !(fieldDescription.hasDefaultKeyWord() && fieldDescription.isArray())) {
+                    // Validate not null default value
+                    // The null value is allowed for alias types
+                    try {
+                        RuleRowHelper.validateValue(defaultValue, fieldType);
+                    } catch (Exception e) {
+                        throw SyntaxNodeExceptionUtils
+                            .createError(e.getMessage(), e, null, getCellSource(row, bindingContext, 2));
+                    }
+                }
+            }
+
+            if (fieldDescription == null) {
+                fieldDescription = fieldDescriptionBuilder.build();
+            }
+            if (fieldDescription != null) {
+                fields.put(fieldName, fieldDescription);
+            }
+        }
+
+    }
+
+    private String extractFieldName(String fieldName) {
+        return fieldName.endsWith(NON_TRANSIENT_FIELD_SUFFIX) || fieldName.endsWith(TRANSIENT_FIELD_SUFFIX) ? fieldName
+            .substring(0, fieldName.length() - 1) : fieldName;
+    }
+
+    private void validateContextPropertyName(final ILogicalTable row,
+            final String contextPropertyName,
+            final IOpenClass fieldType,
+            final IBindingContext bindingContext) throws SyntaxNodeException {
+        if (contextPropertyName != null) {
+            if (DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(contextPropertyName) == null) {
+                throw SyntaxNodeExceptionUtils.createError(
+                    String.format("Property '%s' is not found in context. Supported properties: [%s].",
+                        contextPropertyName,
+                        String.join(", ", DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.keySet())),
+                    getCellSource(row, bindingContext, 1));
+            }
+            if (dataType.getFields()
+                .stream()
+                .filter(f -> Objects.nonNull(f.getContextProperty()))
+                .anyMatch(f -> f.getContextProperty().equals(contextPropertyName))) {
+                throw SyntaxNodeExceptionUtils.createError(
+                    String.format("Multiple fields refer to the same context property '%s'.", contextPropertyName),
+                    getCellSource(row, bindingContext, 1));
+            }
+            IOpenClass contextPropertyType = JavaOpenClass
+                .getOpenClass(DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(contextPropertyName));
+            try {
+                IOpenCast openCast = bindingContext.getCast(fieldType, contextPropertyType);
                 if (openCast == null || !openCast.isImplicit() && !contextPropertyType.getInstanceClass().isEnum()) {
                     throw SyntaxNodeExceptionUtils.createError(
                         String.format("Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.",
@@ -574,84 +707,18 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                             contextPropertyType.getName()),
                         getCellSource(row, bindingContext, 1));
                 }
+            } catch (RuntimeException ignored) {
+                throw SyntaxNodeExceptionUtils.createError(
+                    String.format("Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.",
+                        contextPropertyName,
+                        fieldType.getName(),
+                        contextPropertyType.getName()),
+                    getCellSource(row, bindingContext, 1));
             }
-
-            fieldDescriptionBuilder.setContextPropertyName(contextPropertyName);
-
-            FieldDescription fieldDescription = null;
-            if (row.getWidth() > 2) {
-                String defaultValue = getDefaultValue(row, bindingContext);
-
-                ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, defaultValue);
-                if (constantOpenField != null) {
-                    fieldDescriptionBuilder.setDefaultValue(constantOpenField.getValue());
-                    fieldDescriptionBuilder.setDefaultValueAsString(constantOpenField.getValueAsString());
-                    if (!bindingContext.isExecutionMode()) {
-                        ICell cell = getCellSource(row, bindingContext, 2).getCell();
-                        MetaInfoReader metaInfoReader = tableSyntaxNode.getMetaInfoReader();
-                        if (metaInfoReader instanceof BaseMetaInfoReader) {
-                            SimpleNodeUsage nodeUsage = RuleRowHelper
-                                .createConstantNodeUsage(constantOpenField, 0, defaultValue.length() - 1);
-                            ((BaseMetaInfoReader<?>) metaInfoReader).addConstant(cell, nodeUsage);
-                        }
-                    }
-                } else {
-                    fieldDescriptionBuilder.setDefaultValueAsString(defaultValue);
-
-                    if (String.class != fieldType.getInstanceClass()) {
-                        ICell theCellValue = row.getColumn(2).getCell(0, 0);
-                        if (theCellValue.hasNativeType()) {
-                            Object value = RuleRowHelper.loadNativeValue(theCellValue, fieldType);
-                            if (value != null) {
-                                fieldDescriptionBuilder.setDefaultValue(value);
-                            }
-                        }
-                    }
-
-                    try {
-                        fieldDescription = fieldDescriptionBuilder.build();
-                    } catch (RuntimeException e) {
-                        String message = String.format("Cannot parse cell value '%s'", defaultValue);
-                        IOpenSourceCodeModule cellSourceCodeModule = getCellSource(row, bindingContext, 2);
-                        if (e instanceof CompositeSyntaxNodeException) {
-                            CompositeSyntaxNodeException exception = (CompositeSyntaxNodeException) e;
-                            if (exception.getErrors() != null && exception.getErrors().length == 1) {
-                                SyntaxNodeException syntaxNodeException = exception.getErrors()[0];
-                                throw SyntaxNodeExceptionUtils.createError(message,
-                                    null,
-                                    syntaxNodeException.getLocation(),
-                                    cellSourceCodeModule);
-                            }
-                            throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
-                        } else {
-                            TextInterval location = defaultValue == null ? null
-                                                                         : LocationUtils
-                                                                             .createTextInterval(defaultValue);
-                            throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
-                        }
-                    }
-                    Object value = fieldDescription.getDefaultValue();
-                    if (value != null && !(fieldDescription.hasDefaultKeyWord() && fieldDescription.isArray())) {
-                        // Validate not null default value
-                        // The null value is allowed for alias types
-                        try {
-                            RuleRowHelper.validateValue(value, fieldType);
-                        } catch (Exception e) {
-                            throw SyntaxNodeExceptionUtils
-                                .createError(e.getMessage(), e, null, getCellSource(row, bindingContext, 2));
-                        }
-                    }
-                }
-            }
-            if (fieldDescription == null) {
-                fieldDescription = fieldDescriptionBuilder.build();
-            }
-            fields.put(fieldName, fieldDescription);
         }
-
     }
 
-    public static String getDefaultValue(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
+    public static String getDefaultValueCode(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
         String defaultValue = null;
         GridCellSourceCodeModule defaultValueSrc = getCellSource(row, cxt, 2);
         if (!ParserUtils.isCommented(defaultValueSrc.getCode())) {
@@ -716,7 +783,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     public void generateByteCode(IBindingContext bindingContext) throws Exception {
         if (!generated) {
             if (generatingInProcess) {
-                throw new OpenLCompilationException(String.format("Cyclic inheritance involving '%s'", parentClassName));
+                throw new OpenLCompilationException(
+                    String.format("Cyclic inheritance involving '%s'", parentClassName));
             }
             generatingInProcess = true;
             try {
@@ -774,12 +842,12 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     IOpenField fieldInParent = superClass.getField(field.getName());
                     if (fieldInParent != null) {
                         if (fieldInParent.getType().getInstanceClass().equals(field.getType().getInstanceClass())) {
-                            BindHelper.processWarn(String.format("Field [%s] has been already defined in class '%s'",
+                            BindHelper.processWarn(String.format("Field '%s' has been already defined in class '%s'.",
                                 field.getName(),
                                 fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
                         } else {
                             throw SyntaxNodeExceptionUtils.createError(
-                                String.format("Field [%s] has been already defined in class '%s' with another type",
+                                String.format("Field '%s' has been already defined in class '%s' with another type.",
                                     field.getName(),
                                     fieldInParent.getDeclaringClass().getDisplayName(0)),
                                 tableSyntaxNode);

@@ -35,7 +35,7 @@ public class RulesLoaderTest {
 
     @Before
     public void setDataSource() throws Exception {
-        ProjectResolver projectResolver = ProjectResolver.instance();
+        ProjectResolver projectResolver = ProjectResolver.getInstance();
         rulesLoader = new RuleServiceLoaderImpl(dataSource,
             new LocalTemporaryDeploymentsStorage("target/openl-deploy2"),
             projectResolver);

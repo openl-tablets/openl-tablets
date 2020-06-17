@@ -71,7 +71,7 @@ public class DeploymentManager implements InitializingBean {
             throw new IllegalArgumentException(String.format("No such repository '%s'", repositoryConfigName));
         }
 
-        String userName = WebStudioUtils.getRulesUserSession(WebStudioUtils.getSession()).getUserName();
+        String userName = WebStudioUtils.getRulesUserSession().getUserName();
 
         @SuppressWarnings("rawtypes")
         Collection<ProjectDescriptor> projectDescriptors = project.getProjectDescriptors();

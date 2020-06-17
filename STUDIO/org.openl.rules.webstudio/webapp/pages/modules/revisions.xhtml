@@ -1,0 +1,94 @@
+<ui:composition
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:a4j="http://richfaces.org/a4j">
+
+    <div class="page">
+        <ui:param name="project" value="#{studio.currentProject}"/>
+
+        <h1 class="page-header">
+            <span class="project-name">#{project.name}</span>
+        </h1>
+
+        <rich:dataTable value="#{studio.projectVersions}" var="version" styleClass="table">
+            <ui:param name="renderAction"
+                      value="#{studio.canOpenOtherVersion and !version.deleted}"/>
+
+            <f:facet name="header">
+                <rich:columnGroup>
+                    <rich:column>
+                        <h:outputText value="Modified By"/>
+                    </rich:column>
+                    <rich:column>
+                        <h:outputText value="Modified At"/>
+                    </rich:column>
+                    <rich:column>
+                        <h:outputText value="Comment"/>
+                    </rich:column>
+                    <rich:column>
+                        <h:outputText value="Revision ID"/>
+                    </rich:column>
+                    <rich:column rendered="#{renderAction}">
+                        <h:outputText value="Action"/>
+                    </rich:column>
+                </rich:columnGroup>
+            </f:facet>
+            <rich:column>
+                <h:outputText value="#{version.versionInfo.createdBy}"/>
+            </rich:column>
+            <rich:column>
+                <h:outputText value="#{version.versionInfo.createdAt}">
+                    <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.datetime')}"/>
+                </h:outputText>
+            </rich:column>
+            <rich:column>
+                <h:outputText value="#{version.versionComment}"/>
+            </rich:column>
+            <rich:column style="text-align: center;">
+                <ui:param name="revisionNo" value="#{version.versionName}"/>
+                <ui:param name="shortRevisionNo" value="#{version.shortVersion}"/>
+
+                <h:panelGroup rendered="#{revisionNo eq shortRevisionNo}">
+                    <h:outputText value="#{revisionNo}"/>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{not (revisionNo eq shortRevisionNo)}">
+                    <h:outputText value="#{shortRevisionNo}" styleClass="expandable"/>
+                    <h:outputText value="#{revisionNo}" styleClass="hidden"/>
+                </h:panelGroup>
+            </rich:column>
+            <rich:column rendered="#{renderAction}" style="text-align: center;">
+                <a href="javascript:void(0)"
+                   title="Open Revision '#{utils.getDescriptiveVersion(version)}'"
+                   onclick="if (confirmOpen()) openProjectVersion('#{version.versionName}')">
+                    <img src="#{request.contextPath}/webresource/images/view.png"/>
+                </a>
+            </rich:column>
+        </rich:dataTable>
+
+        <h:form>
+            <a4j:jsFunction name="openProjectVersion" immediate="true" oncomplete="ws.nav.go('#{utils.toUrl(project.name)}', true)">
+                <a4j:param name="version" assignTo="#{studio.projectVersion}"/>
+            </a4j:jsFunction>
+        </h:form>
+
+        <h:panelGroup rendered="#{empty project.versions}" styleClass="noEntries">
+            <h:outputText value="No version history"/>
+        </h:panelGroup>
+
+    </div>
+
+    <script>
+        //<![CDATA[
+        function confirmOpen() {
+            return confirm("Project data in the workspace will be replaced by the data of specified revision that will be opened from repository.");
+        }
+
+        $j(function () {
+            initExpandableLinks();
+        });
+        //]]>
+    </script>
+
+</ui:composition>

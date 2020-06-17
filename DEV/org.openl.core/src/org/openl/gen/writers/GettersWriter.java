@@ -58,6 +58,10 @@ public class GettersWriter extends DefaultBeanByteCodeWriter {
         Type type = Type.getType(retClass);
         methodVisitor.visitInsn(type.getOpcode(Opcodes.IRETURN));
         methodVisitor.visitMaxs(0, 0);
+
+        if (fieldDescription.isTransient()) {
+            methodVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlTransient;", true).visitEnd();
+        }
     }
 
 }

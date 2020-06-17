@@ -16,15 +16,15 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
+import javax.annotation.PreDestroy;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
@@ -35,7 +35,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.common.VersionInfo;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.IProjectDescriptorSerializer;
@@ -61,12 +60,12 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
+import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
@@ -84,6 +83,7 @@ import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
+import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -96,7 +96,10 @@ import org.openl.util.StringUtils;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Service;
 
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.io.StreamException;
@@ -107,8 +110,8 @@ import com.thoughtworks.xstream.io.StreamException;
  * @author Aleh Bykhavets
  * @author Andrey Naumenko
  */
-@ManagedBean
-@ViewScoped
+@Service
+@ViewScope
 public class RepositoryTreeController {
 
     private static final String PROJECT_HISTORY_HOME = "project.history.home";
@@ -116,43 +119,48 @@ public class RepositoryTreeController {
 
     private final Logger log = LoggerFactory.getLogger(RepositoryTreeController.class);
 
-    @ManagedProperty(value = "#{repositoryTreeState}")
+    @Autowired
     private RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{rulesUserSession.userWorkspace}")
-    private volatile UserWorkspace userWorkspace;
+    private volatile UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
 
-    @ManagedProperty(value = "#{zipFilter}")
+    @Autowired
+    @Qualifier("zipFilter")
     private PathFilter zipFilter;
 
-    @ManagedProperty("#{projectDescriptorArtefactResolver}")
+    @Autowired
     private ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
-    @ManagedProperty(value = "#{projectDescriptorSerializerFactory}")
+    @Autowired
     private ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory;
 
-    @ManagedProperty(value = "#{zipCharsetDetector}")
+    @Autowired
     private ZipCharsetDetector zipCharsetDetector;
 
-    @ManagedProperty(value = "#{designRepositoryComments}")
+    @Autowired
+    @Qualifier("designRepositoryComments")
     private Comments designRepoComments;
 
-    @ManagedProperty(value = "#{deployConfigRepositoryComments}")
+    @Autowired
+    @Qualifier("deployConfigRepositoryComments")
     private Comments deployConfigRepoComments;
 
-    @ManagedProperty(value = "#{projectVersionCacheManager}")
+    @Autowired
     private ProjectVersionCacheManager projectVersionCacheManager;
 
-    private WebStudio studio = WebStudioUtils.getWebStudio(true);
+    private final WebStudio studio = WebStudioUtils.getWebStudio(true);
 
-    @ManagedProperty(value = "#{environment}")
+    @Autowired
     private PropertyResolver propertyResolver;
+
+    @Autowired
+    private Utils utils;
 
     private String projectName;
     private String projectFolder = "";
     private String newProjectTemplate;
     private String folderName;
-    private List<ProjectFile> uploadedFiles = new ArrayList<>();
+    private final List<ProjectFile> uploadedFiles = new ArrayList<>();
     private String fileName;
     private String uploadFrom;
     private String newProjectName;
@@ -164,12 +172,8 @@ public class RepositoryTreeController {
     private boolean openDependencies = true;
     private AProject currentProject;
 
-    private TemplatesResolver predefinedTemplatesResolver = new PredefinedTemplatesResolver();
+    private final TemplatesResolver predefinedTemplatesResolver = new PredefinedTemplatesResolver();
     private TemplatesResolver customTemplatesResolver;
-
-    public PathFilter getZipFilter() {
-        return zipFilter;
-    }
 
     private TreeNode activeProjectNode;
 
@@ -181,8 +185,6 @@ public class RepositoryTreeController {
     private String archiveProjectComment;
     private String restoreProjectComment;
     private String eraseProjectComment;
-
-    private String dateTimeFormat;
 
     public void setZipFilter(PathFilter zipFilter) {
         this.zipFilter = zipFilter;
@@ -1318,23 +1320,10 @@ public class RepositoryTreeController {
         List<SelectItem> selectItems = new ArrayList<>();
         for (ProjectVersion version : versions) {
             if (!version.isDeleted()) {
-                selectItems.add(new SelectItem(version.getVersionName(), getDescriptiveVersion(version)));
+                selectItems.add(new SelectItem(version.getVersionName(), utils.getDescriptiveVersion(version)));
             }
         }
         return selectItems.toArray(new SelectItem[0]);
-    }
-
-    public String getDescriptiveVersion(ProjectVersion version) {
-        return getDescriptiveVersion(version, dateTimeFormat);
-    }
-
-    public static String getDescriptiveVersion(ProjectVersion version, String dateTimeFormat) {
-        VersionInfo versionInfo = version.getVersionInfo();
-        if (versionInfo == null) {
-            return "Version not found";
-        }
-        String modifiedOnStr = new SimpleDateFormat(dateTimeFormat).format(versionInfo.getCreatedAt());
-        return versionInfo.getCreatedBy() + ": " + modifiedOnStr;
     }
 
     public String getUploadFrom() {
@@ -1442,32 +1431,57 @@ public class RepositoryTreeController {
     }
 
     public void uploadListener(FileUploadEvent event) {
-        ProjectFile file = new ProjectFile(event.getUploadedFile());
-        uploadedFiles.add(file);
-        String fileName = file.getName();
+        try {
+            ProjectFile file = new ProjectFile(event.getUploadedFile());
+            uploadedFiles.add(file);
+            String fileName = file.getName();
 
-        setFileName(fileName);
+            setFileName(fileName);
 
-        if (fileName.contains(".")) {
-            setProjectName(fileName.substring(0, fileName.lastIndexOf('.')));
+            if (fileName.contains(".")) {
+                setProjectName(fileName.substring(0, fileName.lastIndexOf('.')));
 
-            if (FileTypeHelper.isZipFile(fileName)) {
-                Charset charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(file));
+                if (FileTypeHelper.isZipFile(fileName)) {
+                    Charset charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(file));
 
-                if (charset == null) {
-                    log.warn("Cannot detect a charset for the zip file");
-                    charset = StandardCharsets.UTF_8;
+                    if (charset == null) {
+                        log.warn("Cannot detect a charset for the zip file");
+                        charset = StandardCharsets.UTF_8;
+                    }
+
+                    ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor
+                        .getProjectDescriptorOrNull(file, zipFilter, charset);
+                    if (projectDescriptor != null) {
+                        setProjectName(projectDescriptor.getName());
+                    }
+                    setCreateProjectComment(designRepoComments.createProject(getProjectName()));
                 }
-
-                ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor
-                    .getProjectDescriptorOrNull(file, zipFilter, charset);
-                if (projectDescriptor != null) {
-                    setProjectName(projectDescriptor.getName());
-                }
-                setCreateProjectComment(designRepoComments.createProject(getProjectName()));
+            } else {
+                setProjectName(fileName);
             }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            WebStudioUtils.addErrorMessage("Error occurred during uploading file.", e.getMessage());
+        }
+    }
+
+    /**
+     * Remove uploaded files.
+     *
+     * @param fileNames file names split by '\n' symbol. If empty, all files will be removed.
+     */
+    public void setFileNamesToRemove(String fileNames) {
+        if (fileNames.isEmpty()) {
+            clearUploadedFiles();
         } else {
-            setProjectName(fileName);
+            List<String> toRemove = Arrays.asList(fileNames.split("\n"));
+            for (Iterator<ProjectFile> iterator = uploadedFiles.iterator(); iterator.hasNext(); ) {
+                ProjectFile file = iterator.next();
+                if (toRemove.contains(file.getName())) {
+                    file.destroy();
+                    iterator.remove();
+                }
+            }
         }
     }
 
@@ -1575,7 +1589,7 @@ public class RepositoryTreeController {
             resetStudioModel();
             WebStudioUtils.addInfoMessage("File was successfully updated.");
         } else {
-            WebStudioUtils.addErrorMessage(errorMessage, "Error occured during uploading file. " + errorMessage);
+            WebStudioUtils.addErrorMessage(errorMessage, "Error occurred during uploading file. " + errorMessage);
         }
 
         /* Clear the load form */
@@ -1613,7 +1627,7 @@ public class RepositoryTreeController {
         String errorMessage = validateCreateProjectParams(comment);
         if (errorMessage != null) {
             WebStudioUtils.addErrorMessage(errorMessage);
-        } else if (uploadedFiles == null || uploadedFiles.isEmpty()) {
+        } else if (uploadedFiles.isEmpty()) {
             WebStudioUtils.addErrorMessage("There are no uploaded files.");
         } else {
             errorMessage = new ProjectUploader(uploadedFiles,
@@ -1648,7 +1662,7 @@ public class RepositoryTreeController {
         this.setProjectName(null);
         this.setProjectFolder("");
         this.setCreateProjectComment(null);
-        this.uploadedFiles.clear();
+        clearUploadedFiles();
     }
 
     private String uploadAndAddFile() {
@@ -1810,6 +1824,9 @@ public class RepositoryTreeController {
     }
 
     public void clearUploadedFiles() {
+        for (ProjectFile uploadedFile : uploadedFiles) {
+            uploadedFile.destroy();
+        }
         uploadedFiles.clear();
     }
 
@@ -1881,7 +1898,10 @@ public class RepositoryTreeController {
      *         is invoked
      */
     public boolean isCurrentProjectSelected() {
-        if (currentProject != getSelectedProject()) {
+        AProject selectedProject = getSelectedProject();
+        if (currentProject == null || selectedProject == null || currentProject != selectedProject && !currentProject
+            .getName()
+            .equals(selectedProject.getName())) {
             currentProject = null;
             return false;
         }
@@ -2173,6 +2193,10 @@ public class RepositoryTreeController {
         } else {
             deployConfigCommentValidator = designCommentValidator;
         }
-        dateTimeFormat = WebStudioFormats.getInstance().dateTime();
+    }
+
+    @PreDestroy
+    public void destroy() {
+        clearUploadedFiles();
     }
 }

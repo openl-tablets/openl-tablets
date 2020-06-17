@@ -2,9 +2,12 @@ package org.openl.classloader;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -181,4 +184,28 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
         return super.getResourceAsStream(name);
     }
 
+    private void addURLToList(List<URL> urls, URL url) {
+        for (URL existingURL : urls) {
+            if (existingURL.sameFile(url)) {
+                return;
+            }
+        }
+        urls.add(url);
+    }
+
+    @Override
+    public URL[] getURLs() {
+        List<URL> urls = new ArrayList<>();
+        for (URL url : super.getURLs()) {
+            addURLToList(urls, url);
+        }
+        for (ClassLoader bundleClassLoader : bundleClassLoaders) {
+            if (bundleClassLoader instanceof URLClassLoader) {
+                for (URL url : ((URLClassLoader) bundleClassLoader).getURLs()) {
+                    addURLToList(urls, url);
+                }
+            }
+        }
+        return urls.toArray(new URL[0]);
+    }
 }

@@ -18,7 +18,6 @@ import org.openl.binding.impl.BoundCode;
 import org.openl.binding.impl.ErrorBoundNode;
 import org.openl.binding.impl.module.ModuleNode;
 import org.openl.conf.IUserContext;
-import org.openl.conf.OpenLBuilderImpl;
 import org.openl.conf.OpenLConfigurationException;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.OpenLManager;
@@ -526,8 +525,8 @@ public class XlsBinder implements IOpenBinder {
     private boolean isCustomSpreadsheetResultTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {
         if (XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType())) {
             String returnTypeToken = TableSyntaxNodeHelper.getTableReturnType(tableSyntaxNode);
-            return returnTypeToken != null && (SpreadsheetResult.class.getSimpleName()
-                .equals(returnTypeToken) || SpreadsheetResult.class.getName().equals(returnTypeToken));
+            return SpreadsheetResult.class.getSimpleName().equals(returnTypeToken) || SpreadsheetResult.class.getName()
+                .equals(returnTypeToken);
         }
         return false;
     }
@@ -994,7 +993,7 @@ public class XlsBinder implements IOpenBinder {
 
     private static class SyntaxNodeExceptionHolder {
 
-        private List<SyntaxNodeException> syntaxNodeExceptions = new ArrayList<>();
+        private final List<SyntaxNodeException> syntaxNodeExceptions = new ArrayList<>();
 
         private void addBindingContextError(SyntaxNodeException e) {
             syntaxNodeExceptions.add(e);

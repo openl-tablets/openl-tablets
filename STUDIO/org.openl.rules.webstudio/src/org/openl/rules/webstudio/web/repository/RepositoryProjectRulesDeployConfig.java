@@ -5,9 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
@@ -19,40 +16,39 @@ import org.openl.rules.project.xml.RulesDeploySerializerFactory;
 import org.openl.rules.project.xml.SupportedVersion;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import com.thoughtworks.xstream.XStreamException;
 
-@ManagedBean
-@ViewScoped
+@Service
+@ViewScope
 public class RepositoryProjectRulesDeployConfig {
     private static final String RULES_DEPLOY_CONFIGURATION_FILE = "rules-deploy.xml";
     private final Logger log = LoggerFactory.getLogger(RepositoryProjectRulesDeployConfig.class);
 
-    @ManagedProperty(value = "#{repositoryTreeState}")
-    private RepositoryTreeState repositoryTreeState;
-    @ManagedProperty(value = "#{rulesDeploySerializerFactory}")
-    private RulesDeploySerializerFactory rulesDeploySerializerFactory;
+    private final RepositoryTreeState repositoryTreeState;
+    private final RulesDeploySerializerFactory rulesDeploySerializerFactory;
 
-    private WebStudio studio = WebStudioUtils.getWebStudio(true);
+    private final WebStudio studio = WebStudioUtils.getWebStudio(true);
 
-    private XmlRulesDeployGuiWrapperSerializer serializer;
+    private final XmlRulesDeployGuiWrapperSerializer serializer;
 
     private RulesDeployGuiWrapper rulesDeploy;
     private UserWorkspaceProject lastProject;
     private String lastBranch;
     private String version;
 
-    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
+    public RepositoryProjectRulesDeployConfig(RepositoryTreeState repositoryTreeState,
+        RulesDeploySerializerFactory rulesDeploySerializerFactory) {
         this.repositoryTreeState = repositoryTreeState;
-    }
-
-    public void setRulesDeploySerializerFactory(RulesDeploySerializerFactory rulesDeploySerializerFactory) {
         this.rulesDeploySerializerFactory = rulesDeploySerializerFactory;
+
         serializer = new XmlRulesDeployGuiWrapperSerializer(rulesDeploySerializerFactory);
     }
 

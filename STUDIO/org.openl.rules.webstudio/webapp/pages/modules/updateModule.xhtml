@@ -6,7 +6,7 @@
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
     <f:view transient="true">
-    <rich:popupPanel id="updateModule" width="500" autosized="true">
+    <rich:popupPanel id="updateModule" minWidth="500" autosized="true">
         <f:facet name="header">
           <h:outputText value="Update module"/>
         </f:facet>
@@ -20,12 +20,13 @@
             <h:panelGrid id="updateModuleFormData" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                 <h:outputLabel for="moduleUpload" styleClass="required" value="File" />
                 <rich:fileUpload id="moduleUpload" fileUploadListener="#{studio.uploadListener}"
-                                 onfilesubmit="ws.ui.showLoader();" oncomplete="ws.ui.hideLoader();"
-                                 acceptedTypes="xls, xlsx, xlsm" maxFilesQuantity="1">
-                    <a4j:ajax event="uploadcomplete" execute="@none"
-                              render="moduleChangedFormData"
-                              oncomplete="disableUploadModuleButton(false);" />
-                </rich:fileUpload>
+                                 immediateUpload="true"
+                                 render="moduleChangedFormData"
+                                 onfilesubmit="ws.ui.showLoader();"
+                                 oncomplete="disableUploadModuleButton(false);ws.ui.hideLoader();"
+                                 onclear="clearUploadedFileForUpdateModule();"
+                                 ontyperejected="ws.ui.info('Only xls and xlsx files are accepted');"
+                                 acceptedTypes="xls, xlsx, xlsm" maxFilesQuantity="1"/>
             </h:panelGrid>
 
             <footer>
@@ -35,10 +36,11 @@
             </footer>
             <a4j:jsFunction name="initUpdateModuleDialog" action="#{studio.clearUploadedFiles}" render="updateModuleFormData" oncomplete="RichFaces.$('updateModule').show();" />
             <a4j:jsFunction name="closeUpdateModuleDialog" action="#{studio.clearUploadedFiles}" oncomplete="RichFaces.$('updateModule').hide();" />
+            <a4j:jsFunction name="clearUploadedFileForUpdateModule" action="#{studio.clearUploadedFiles}" oncomplete="disableUploadModuleButton(true);" />
         </h:form>
     </rich:popupPanel>
 
-        <rich:popupPanel id="moduleChanged" width="500" autosized="true">
+        <rich:popupPanel id="moduleChanged" minWidth="500" autosized="true">
             <f:facet name="header">
                 <h:outputText value="Update module"/>
             </f:facet>

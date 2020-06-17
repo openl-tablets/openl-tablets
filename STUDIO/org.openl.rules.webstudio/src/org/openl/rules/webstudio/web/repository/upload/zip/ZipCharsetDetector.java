@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.web.repository.upload.zip;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -285,6 +285,6 @@ public class ZipCharsetDetector {
          *
          * @return new input stream.
          */
-        InputStream createStream() throws FileNotFoundException;
+        InputStream createStream() throws IOException;
     }
 }

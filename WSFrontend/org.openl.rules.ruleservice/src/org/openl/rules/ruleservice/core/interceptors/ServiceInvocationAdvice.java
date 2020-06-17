@@ -156,7 +156,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                     interceptors.add(preInterceptor);
                 } catch (Exception e) {
                     throw new RuleServiceRuntimeException(String.format(
-                        "Failed to instantiate 'before' interceptor for method '%s'. Please, check that class '%s' is not abstact and has a default constructor.",
+                        "Failed to instantiate 'before' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
                         MethodUtil.printQualifiedMethodName(method),
                         interceptorClass.getTypeName()), e);
                 }
@@ -174,7 +174,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                 serviceExtraMethodAnnotations.put(method, serviceExtraMethodHandler);
             } catch (Exception e) {
                 throw new RuleServiceRuntimeException(String.format(
-                    "Failed to instante service method handler for method '%s'. Please, check that class '%s' is not abstact and has a default constructor.",
+                    "Failed to instantiate service method handler for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
                     MethodUtil.printQualifiedMethodName(method),
                     serviceExtraMethodHandlerClass.getTypeName()), e);
             }
@@ -194,7 +194,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                     interceptors.add(postInterceptor);
                 } catch (Exception e) {
                     throw new RuleServiceRuntimeException(String.format(
-                        "Failed to instante 'afterReturning' interceptor for method '%s'. Please, check that class '%s' is not abstact and has a default constructor.",
+                        "Failed to instantiate 'afterReturning' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
                         MethodUtil.printQualifiedMethodName(method),
                         interceptorClass.getTypeName()), e);
                 }
@@ -396,7 +396,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             try {
                 listener.afterMethodInvocation(interfaceMethod, args, result, null);
             } catch (Exception e1) {
-                log.error("Exception occured.", e1);
+                log.error("Exception occurred.", e1);
             }
         }
     }
@@ -406,7 +406,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             try {
                 listener.beforeMethodInvocation(interfaceMethod, args, null, null);
             } catch (Exception e1) {
-                log.error("Exception occured.", e1);
+                log.error("Exception occurred.", e1);
             }
         }
     }

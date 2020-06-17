@@ -10,8 +10,10 @@ package org.openl.rules.calculation.result.convertor2;
  * #L%
  */
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 
+import org.openl.binding.impl.cast.IArrayOneElementCast;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.util.ClassUtils;
 import org.slf4j.Logger;
@@ -79,12 +81,18 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
                     propertyName = propertyNames[i];
                 }
             }
-
             if (theBestCast != null) {
+                if (theBestCast instanceof IArrayOneElementCast) {
+                    int arrLength = Array.getLength(valueForStoraging);
+                    if (arrLength != 1) {
+                        return null;
+                    }
+                }
                 Object value = theBestCast.convert(valueForStoraging);
                 if (store(value, step, propertyName, type)) {
                     return propertyName;
                 }
+
             }
         }
         return null;

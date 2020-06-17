@@ -11,6 +11,7 @@ class CompositeCell implements ICell {
     private int row;
     private IGridRegion region;
     private ICell delegate;
+    private IGridTable gridTable;
 
     @Override
     public ICell getTopLeftCellFromRegion() {
@@ -20,11 +21,12 @@ class CompositeCell implements ICell {
     /**
      * parameters column and row are different from inner column and row in cell delegate.
      */
-    public CompositeCell(int column, int row, IGridRegion region, ICell delegate) {
+    public CompositeCell(int column, int row, IGridRegion region, ICell delegate, IGridTable gridTable) {
         this.column = column;
         this.row = row;
         this.region = region;
         this.delegate = delegate;
+        this.gridTable = gridTable;
     }
 
     @Override
@@ -69,10 +71,33 @@ class CompositeCell implements ICell {
 
     @Override
     public int getHeight() {
+        if (!gridTable.isNormalOrientation()) {
+            return getCellWidth();
+        }
+        return getCellHeight();
+    }
+
+    private int getCellHeight() {
         if (region == null) {
             return delegate.getHeight();
         }
         return region.getBottom() - region.getTop() + 1;
+    }
+
+
+    @Override
+    public int getWidth() {
+        if (!gridTable.isNormalOrientation()) {
+            return getCellHeight();
+        }
+        return getCellWidth();
+    }
+
+    private int getCellWidth() {
+        if (region == null) {
+            return delegate.getWidth();
+        }
+        return region.getRight() - region.getLeft() + 1;
     }
 
     @Override
@@ -83,14 +108,6 @@ class CompositeCell implements ICell {
     @Override
     public String getStringValue() {
         return delegate.getStringValue();
-    }
-
-    @Override
-    public int getWidth() {
-        if (region == null) {
-            return delegate.getWidth();
-        }
-        return region.getRight() - region.getLeft() + 1;
     }
 
     @Override

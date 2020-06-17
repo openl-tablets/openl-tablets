@@ -1,15 +1,15 @@
 package org.openl.rules.webstudio.web.admin;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Pavel Tarasevich
  *
  */
 
-@ManagedBean
-@ViewScoped
+@Service
+@ViewScope
 public class ConnectionProductionRepoController extends AbstractProductionRepoController {
 
     @Override

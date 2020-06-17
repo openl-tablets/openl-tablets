@@ -7,9 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
 import org.openl.rules.common.ProjectDescriptor;
@@ -24,20 +21,24 @@ import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
+import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Service;
 
 /**
  * Deployment controller.
  *
  * @author Andrey Naumenko
  */
-@ManagedBean
-@ViewScoped
+@Service
+@ViewScope
 public class DeploymentController {
     private final Logger log = LoggerFactory.getLogger(DeploymentController.class);
     private List<DeploymentDescriptorItem> items;
@@ -47,22 +48,23 @@ public class DeploymentController {
     private String repositoryConfigName;
     private boolean canDeploy;
 
-    @ManagedProperty(value = "#{productionRepositoriesTreeController}")
+    @Autowired
     private ProductionRepositoriesTreeController productionRepositoriesTreeController;
 
-    @ManagedProperty(value = "#{repositoryTreeState}")
+    @Autowired
     private RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{deploymentManager}")
+    @Autowired
     private DeploymentManager deploymentManager;
 
-    @ManagedProperty("#{projectDescriptorArtefactResolver}")
+    @Autowired
     private volatile ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
-    @ManagedProperty("#{environment}")
+    @Autowired
     private PropertyResolver propertyResolver;
 
-    @ManagedProperty(value = "#{deployConfigRepositoryComments}")
+    @Autowired
+    @Qualifier("deployConfigRepositoryComments")
     private Comments deployConfigRepoComments;
 
     public void onPageLoad() {

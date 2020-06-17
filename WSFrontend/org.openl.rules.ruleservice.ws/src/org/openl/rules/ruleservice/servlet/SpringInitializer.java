@@ -26,11 +26,13 @@ public final class SpringInitializer implements ServletContextListener {
         applicationContext = new ClassPathXmlApplicationContext();
         applicationContext.setId("OpenL_RuleService");
         applicationContext.setConfigLocations("classpath:openl-ruleservice-beans.xml",
+            "classpath:openl-ruleservice-validation-beans.xml",
             "classpath:openl-ruleservice-store-log-data-beans.xml",
             "classpath:openl-ruleservice-admin-beans.xml",
             "classpath:openl-ruleservice-override-beans.xml");
         new PropertySourcesLoader().initialize(applicationContext, servletContext);
-        applicationContext.addBeanFactoryPostProcessor(bf -> bf.registerSingleton("servletContextPath", servletContext.getContextPath()));
+        applicationContext.addBeanFactoryPostProcessor(
+            bf -> bf.registerSingleton("servletContextPath", servletContext.getContextPath()));
         applicationContext.refresh();
         servletContext.setAttribute(THIS, this);
     }

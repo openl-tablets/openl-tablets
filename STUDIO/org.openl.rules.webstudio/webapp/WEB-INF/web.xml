@@ -45,16 +45,18 @@
   </context-param>
 
   <context-param>
-    <param-name>com.sun.faces.annotationScanPackages</param-name>
-    <param-value>
-      org.openl.rules.webstudio.web
-      org.openl.rules.ui.tablewizard
-    </param-value>
-  </context-param>
-
-  <context-param>
     <param-name>javax.faces.DATETIMECONVERTER_DEFAULT_TIMEZONE_IS_SYSTEM_TIMEZONE</param-name>
     <param-value>true</param-value>
+  </context-param>
+
+  <!-- We can't use PROJECT_STAGE equal to Production (default value) because currently we show ajax errors to a user.
+   See new Message() usages or any other exceptions throwing.
+   We should rewrite that logic (show another way to show custom error messages on ajax requests, for example,
+   use WebStudioUtils.addErrorMessage()). After that we can remove this context-param. Development is too verbose,
+   so using SystemTest. -->
+  <context-param>
+    <param-name>javax.faces.PROJECT_STAGE</param-name>
+    <param-value>SystemTest</param-value>
   </context-param>
 
   <context-param>
@@ -174,6 +176,10 @@
     <listener-class>
       org.jasig.cas.client.session.SingleSignOutHttpSessionListener
     </listener-class>
+  </listener>
+
+  <listener>
+    <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
   </listener>
 
   <servlet>

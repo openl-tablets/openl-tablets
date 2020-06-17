@@ -12,9 +12,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
@@ -58,23 +55,22 @@ import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.util.PathMatcher;
+import org.springframework.web.context.annotation.RequestScope;
 
-@ManagedBean
-@RequestScoped
+@Service
+@RequestScope
 public class ProjectBean {
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     private final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
 
-    @ManagedProperty(value = "#{repositoryTreeState}")
-    private RepositoryTreeState repositoryTreeState;
+    private final RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{projectDescriptorSerializerFactory}")
-    private ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory;
-    @ManagedProperty(value = "#{rulesDeploySerializerFactory}")
-    private RulesDeploySerializerFactory rulesDeploySerializerFactory;
+    private final ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory;
+    private final RulesDeploySerializerFactory rulesDeploySerializerFactory;
 
-    private WebStudio studio = WebStudioUtils.getWebStudio();
+    private final WebStudio studio = WebStudioUtils.getWebStudio();
 
     private final Logger log = LoggerFactory.getLogger(ProjectBean.class);
 
@@ -91,6 +87,14 @@ public class ProjectBean {
     private String currentPathPattern;
     private Integer currentModuleIndex;
     private IRulesDeploySerializer rulesDeploySerializer;
+
+    public ProjectBean(RepositoryTreeState repositoryTreeState,
+        ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory,
+        RulesDeploySerializerFactory rulesDeploySerializerFactory) {
+        this.repositoryTreeState = repositoryTreeState;
+        this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
+        this.rulesDeploySerializerFactory = rulesDeploySerializerFactory;
+    }
 
     public String getModulePath(Module module) {
         PathEntry modulePath = module == null ? null : module.getRulesRootPath();
@@ -533,9 +537,9 @@ public class ProjectBean {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
 
             if (project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
-                AProjectResource artefact = (AProjectResource) project
+                AProjectResource artifact = (AProjectResource) project
                     .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-                artefact.setContent(inputStream);
+                artifact.setContent(inputStream);
             } else {
                 // new
                 // ProjectDescriptorManager().writeDescriptor(projectDescriptor,
@@ -545,11 +549,11 @@ public class ProjectBean {
             }
 
             if (project.hasArtefact(RULES_DEPLOY_XML)) {
-                AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_XML);
-                rulesDeployContent = artefact.getContent();
+                AProjectResource artifact = (AProjectResource) project.getArtefact(RULES_DEPLOY_XML);
+                rulesDeployContent = artifact.getContent();
                 RulesDeploy rulesDeploy = rulesDeploySerializerFactory.getSerializer(SupportedVersion.getLastVersion())
                     .deserialize(rulesDeployContent);
-                artefact.setContent(new ByteArrayInputStream(
+                artifact.setContent(new ByteArrayInputStream(
                     rulesDeploySerializer.serialize(rulesDeploy).getBytes(StandardCharsets.UTF_8)));
             }
 
@@ -631,19 +635,6 @@ public class ProjectBean {
 
     private ProjectDescriptor cloneProjectDescriptor(ProjectDescriptor projectDescriptor) {
         return new SafeCloner().deepClone(projectDescriptor);
-    }
-
-    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
-        this.repositoryTreeState = repositoryTreeState;
-    }
-
-    public void setProjectDescriptorSerializerFactory(
-            ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory) {
-        this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
-    }
-
-    public void setRulesDeploySerializerFactory(RulesDeploySerializerFactory rulesDeploySerializerFactory) {
-        this.rulesDeploySerializerFactory = rulesDeploySerializerFactory;
     }
 
     public UIInput getPropertiesFileNameProcessorInput() {

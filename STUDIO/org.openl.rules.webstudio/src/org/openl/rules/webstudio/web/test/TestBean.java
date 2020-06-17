@@ -1,10 +1,10 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.util.*;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
@@ -15,7 +15,11 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.Point;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
-import org.openl.rules.testmethod.*;
+import org.openl.rules.testmethod.ITestUnit;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
+import org.openl.rules.testmethod.ProjectHelper;
+import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.WebStudio;
@@ -25,36 +29,33 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean providing logic for 'Run Tests' page of WebStudio.
  */
-@ManagedBean
-@RequestScoped
+@Service
+@RequestScope
 public class TestBean {
 
     private final Logger log = LoggerFactory.getLogger(TestBean.class);
 
-    public static final Comparator<TestUnitsResults> TEST_COMPARATOR = new Comparator<TestUnitsResults>() {
-
-        @Override
-        public int compare(TestUnitsResults t1, TestUnitsResults t2) {
-            if (t2 != null && t1 != null) {
-                int cmp = t2.getNumberOfFailures() - t1.getNumberOfFailures();
-                if (cmp != 0) {
-                    return cmp;
-                }
-                return t1.getName().compareTo(t2.getName());
-            } else {
-                return t1 == t2 ? 0 : t1 == null ? 1 : -1;
+    private static final Comparator<TestUnitsResults> TEST_COMPARATOR = (t1, t2) -> {
+        if (t2 != null && t1 != null) {
+            int cmp = t2.getNumberOfFailures() - t1.getNumberOfFailures();
+            if (cmp != 0) {
+                return cmp;
             }
+            return t1.getName().compareTo(t2.getName());
+        } else {
+            return t1 == t2 ? 0 : t1 == null ? 1 : -1;
         }
     };
 
-    @ManagedProperty(value = "#{mainBean}")
-    private MainBean mainBean;
+    private final MainBean mainBean;
 
-    private WebStudio studio;
+    private final WebStudio studio;
     private TestUnitsResults[] ranResults;
 
     private final static int ALL = -1;
@@ -77,7 +78,7 @@ public class TestBean {
      */
     private String uri;
 
-    public TestBean() {
+    public TestBean(MainBean mainBean) {
         studio = WebStudioUtils.getWebStudio();
         String id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
         IOpenLTable table = studio.getModel().getTableById(id);
@@ -90,12 +91,14 @@ public class TestBean {
         initPagination();
         initFailures();
         initComplexResult();
+
+        this.mainBean = mainBean;
     }
 
     private static int getRequestIntParameter(String name, int defaultValue) {
         String value = WebStudioUtils.getRequestParameter(name);
         try {
-            return Integer.valueOf(value);
+            return Integer.parseInt(value);
         } catch (Exception e) {
             return defaultValue;
         }
@@ -126,8 +129,7 @@ public class TestBean {
         }
 
         testsFailuresPerTest = studio.getTestsFailuresPerTest();
-        int failuresPerTest = getRequestIntParameter(Constants.REQUEST_PARAM_FAILURES_NUMBER,
-            testsFailuresPerTest);
+        int failuresPerTest = getRequestIntParameter(Constants.REQUEST_PARAM_FAILURES_NUMBER, testsFailuresPerTest);
         if (failuresPerTest == ALL || failuresPerTest > 0) {
             testsFailuresPerTest = failuresPerTest;
         }
@@ -135,7 +137,8 @@ public class TestBean {
 
     private void initComplexResult() {
         showComplexResult = studio.isShowComplexResult();
-        String isShowComplexResultParameter = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_COMPLEX_RESULT);
+        String isShowComplexResultParameter = WebStudioUtils
+            .getRequestParameter(Constants.REQUEST_PARAM_COMPLEX_RESULT);
         if (isShowComplexResultParameter != null) {
             showComplexResult = Boolean.parseBoolean(isShowComplexResultParameter);
         }
@@ -282,12 +285,8 @@ public class TestBean {
                 int row = getRow(sourceTable, i);
                 ICell cell = sourceTable.getCell(column, row);
                 Point absolute = Point.get(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
-                StringBuilder sb = new StringBuilder();
-                sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                    .append(columnNames[j])
-                    .append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                    .append(rowNames[i]);
-                absoluteCoordinates.put(sb.toString(), absolute);
+                String sb = SpreadsheetStructureBuilder.DOLLAR_SIGN + columnNames[j] + SpreadsheetStructureBuilder.DOLLAR_SIGN + rowNames[i];
+                absoluteCoordinates.put(sb, absolute);
             }
         }
 
@@ -387,9 +386,5 @@ public class TestBean {
 
     public boolean isShowComplexResult() {
         return showComplexResult;
-    }
-
-    public void setMainBean(MainBean mainBean) {
-        this.mainBean = mainBean;
     }
 }

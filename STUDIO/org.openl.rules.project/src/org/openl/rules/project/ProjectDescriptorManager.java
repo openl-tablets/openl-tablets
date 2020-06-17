@@ -24,10 +24,10 @@ import com.rits.cloning.Cloner;
 public class ProjectDescriptorManager {
 
     private IProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
-    private ProjectDescriptorValidator validator = new ProjectDescriptorValidator();
+    private final ProjectDescriptorValidator validator = new ProjectDescriptorValidator();
     private PathMatcher pathMatcher = new AntPathMatcher();
 
-    private Cloner cloner = new SafeCloner();
+    private final Cloner cloner = new SafeCloner();
 
     public PathMatcher getPathMatcher() {
         return pathMatcher;

@@ -19,7 +19,7 @@ public class ProjectResolver {
     private static final ProjectResolver INSTANCE = new ProjectResolver();
     private final Logger log = LoggerFactory.getLogger(ProjectResolver.class);
 
-    public static ProjectResolver instance() {
+    public static ProjectResolver getInstance() {
         return INSTANCE;
     }
 

@@ -3,9 +3,6 @@ package org.openl.rules.webstudio.web.tableeditor;
 import java.io.IOException;
 import java.util.*;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
 
@@ -23,12 +20,14 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.WebStudioFormats;
+import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Service;
 
-@ManagedBean
-@ViewScoped
+@Service
+@ViewScope
 public class TableDetailsBean {
     private boolean editable;
     private List<PropertyRow> propertyRows;
@@ -39,10 +38,9 @@ public class TableDetailsBean {
     private String propertyToAdd;
     private String id;
 
-    @ManagedProperty(value = "#{environment}")
-    private PropertyResolver propertyResolver;
+    private final PropertyResolver propertyResolver;
 
-    public TableDetailsBean() {
+    public TableDetailsBean(PropertyResolver propertyResolver) {
         WebStudio studio = WebStudioUtils.getWebStudio();
 
         id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
@@ -64,9 +62,7 @@ public class TableDetailsBean {
                     uri) && !table.getName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
             initPropertyGroups(table, table.getProperties());
         }
-    }
 
-    public void setPropertyResolver(PropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;
     }
 
@@ -156,7 +152,7 @@ public class TableDetailsBean {
         return null;
     }
 
-    public final IOpenLTable getTable() {
+    public IOpenLTable getTable() {
         return WebStudioUtils.getWebStudio().getModel().getTableById(id);
     }
 

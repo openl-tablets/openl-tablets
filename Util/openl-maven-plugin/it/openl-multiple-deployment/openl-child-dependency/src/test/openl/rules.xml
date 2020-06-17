@@ -1,0 +1,14 @@
+<project>
+    <name>openl-child-tests</name>
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+        </module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <name>openl-child-dependency</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+    </dependencies>
+</project>

@@ -5,10 +5,6 @@ import static org.openl.rules.webstudio.web.admin.AdministrationSettings.*;
 import java.io.IOException;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 
@@ -19,6 +15,7 @@ import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.security.AccessManager;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
+import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
@@ -31,35 +28,27 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Service;
 
 /**
  * TODO Remove property getters/setters when migrating to EL 2.2
  *
  * @author Andrei Astrouski
  */
-@ManagedBean
-@ViewScoped
+@Service
+@ViewScope
 public class SystemSettingsBean {
     private final Logger log = LoggerFactory.getLogger(SystemSettingsBean.class);
 
-    @ManagedProperty(value = "#{productionRepositoriesTreeController}")
-    private ProductionRepositoriesTreeController productionRepositoriesTreeController;
+    private final ProductionRepositoriesTreeController productionRepositoriesTreeController;
 
-    @ManagedProperty(value = "#{productionRepositoryFactoryProxy}")
-    private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
+    private final DeploymentManager deploymentManager;
 
-    @ManagedProperty(value = "#{deploymentManager}")
-    private DeploymentManager deploymentManager;
+    private final DesignTimeRepository designTimeRepository;
 
-    @ManagedProperty(value = "#{designTimeRepository}")
-    private DesignTimeRepository designTimeRepository;
+    private final RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{repositoryTreeState}")
-    private RepositoryTreeState repositoryTreeState;
-
-    @ManagedProperty(value = "#{environment}")
-    private PropertyResolver propertyResolver;
-    private PropertiesHolder properties;
+    private final PropertiesHolder properties;
 
     private RepositoryConfiguration designRepositoryConfiguration;
     private RepositoryConfiguration deployConfigRepositoryConfiguration;
@@ -67,13 +56,19 @@ public class SystemSettingsBean {
     private ProductionRepositoryEditor productionRepositoryEditor;
     private SystemSettingsValidator validator;
 
-    public void setPropertyResolver(PropertyResolver propertyResolver) {
-        this.propertyResolver = propertyResolver;
-        properties = new InMemoryProperties(propertyResolver);
-    }
+    public SystemSettingsBean(ProductionRepositoriesTreeController productionRepositoriesTreeController,
+        ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy,
+        DeploymentManager deploymentManager,
+        DesignTimeRepository designTimeRepository,
+        RepositoryTreeState repositoryTreeState,
+        PropertyResolver propertyResolver) {
+        this.productionRepositoriesTreeController = productionRepositoriesTreeController;
+        this.deploymentManager = deploymentManager;
+        this.designTimeRepository = designTimeRepository;
+        this.repositoryTreeState = repositoryTreeState;
 
-    @PostConstruct
-    public void afterPropertiesSet() {
+        properties = new InMemoryProperties(propertyResolver);
+
         try {
             designRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DESIGN_CONFIG, properties);
             if (designRepositoryConfiguration.getErrorMessage() != null) {
@@ -280,18 +275,6 @@ public class SystemSettingsBean {
         }
     }
 
-    public void setDeploymentManager(DeploymentManager deploymentManager) {
-        this.deploymentManager = deploymentManager;
-    }
-
-    public void setDesignTimeRepository(DesignTimeRepository designTimeRepository) {
-        this.designTimeRepository = designTimeRepository;
-    }
-
-    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
-        this.repositoryTreeState = repositoryTreeState;
-    }
-
     public void deleteProductionRepository(String configName) {
         try {
             productionRepositoryEditor.deleteProductionRepository(configName,
@@ -310,15 +293,6 @@ public class SystemSettingsBean {
 
     public SystemSettingsValidator getValidator() {
         return validator;
-    }
-
-    public void setProductionRepositoriesTreeController(
-            ProductionRepositoriesTreeController productionRepositoriesTreeController) {
-        this.productionRepositoriesTreeController = productionRepositoriesTreeController;
-    }
-
-    public void setProductionRepositoryFactoryProxy(ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy) {
-        this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
     }
 
     private void refreshConfig() {

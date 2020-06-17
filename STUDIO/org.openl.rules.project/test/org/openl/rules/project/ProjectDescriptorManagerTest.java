@@ -163,7 +163,7 @@ public class ProjectDescriptorManagerTest {
         ProjectDescriptor projectDescriptor = projectDescriptorManager
             .readDescriptor("./test-resources/descriptor/rules-clspth.xml");
         URL[] classPathUrls = projectDescriptor.getClassPathUrls();
-        assertEquals(9, classPathUrls.length);
+        assertEquals(10, classPathUrls.length);
 
     }
 }

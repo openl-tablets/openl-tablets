@@ -15,7 +15,9 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.ChangesetType;
@@ -39,6 +41,7 @@ import org.yaml.snakeyaml.Yaml;
 public class RulesDeployerService implements Closeable {
 
     private static final String RULES_XML = "rules.xml";
+    private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     private static final String DEFAULT_DEPLOYMENT_NAME = "openl_rules_";
     static final String DEFAULT_AUTHOR_NAME = "OpenL_Deployer";
     private static final String DEPLOYMENT_DESCRIPTOR_FILE_NAME = "deployment";
@@ -101,14 +104,36 @@ public class RulesDeployerService implements Closeable {
     }
 
     /**
-     * Read a file by the given path name.
+     * Read a service by the given path name.
      *
-     * @param serviceName the path name of the file to read.
-     * @return the file descriptor or null if the file is absent.
+     * @param serviceName the path name of the service to read.
+     * @return the InputStream containing project archive.
      * @throws IOException if not possible to read the file.
      */
-    public FileItem read(String serviceName) throws IOException {
-        return deployRepo.read(serviceName);
+    public InputStream read(String serviceName) throws IOException {
+        if (deployRepo.supports().folders()) {
+            serviceName = serviceName + "/";
+            List<FileData> files = deployRepo.list(serviceName);
+            ByteArrayOutputStream fos = new ByteArrayOutputStream();
+            ZipOutputStream zipOut = new ZipOutputStream(fos);
+            for (FileData fileData : files) {
+                FileItem fileItem = deployRepo.read(fileData.getName());
+                ZipEntry zipEntry = new ZipEntry(fileItem.getData().getName().replace(serviceName, ""));
+                zipOut.putNextEntry(zipEntry);
+                InputStream stream = fileItem.getStream();
+                byte[] bytes = new byte[1024];
+                int length;
+                while ((length = stream.read(bytes)) >= 0) {
+                    zipOut.write(bytes, 0, length);
+                }
+                stream.close();
+            }
+            zipOut.close();
+            fos.close();
+            return new ByteArrayInputStream(fos.toByteArray());
+        } else {
+            return deployRepo.read(serviceName).getStream();
+        }
     }
 
     /**
@@ -229,16 +254,13 @@ public class RulesDeployerService implements Closeable {
             String defaultName,
             boolean overridable) throws IOException {
 
-        String projectName = readProjectName(zipEntries.get(RULES_XML), defaultName);
-        String apiVersion = readApiVersion(zipEntries.get("rules-deploy.xml"));
+        String serviceName = readServiceName(zipEntries.get(RULES_DEPLOY_XML));
+        String projectName = readProjectName(zipEntries.get(RULES_XML),
+            serviceName != null ? serviceName : defaultName);
+        String apiVersion = readApiVersion(zipEntries.get(RULES_DEPLOY_XML));
 
-        String deploymentName;
-        if (defaultDeploymentName == null) {
-            deploymentName = projectName;
-            projectName = "Rules";
-        } else {
-            deploymentName = defaultDeploymentName;
-        }
+        String deploymentName = defaultDeploymentName == null ? projectName : defaultDeploymentName;
+
         if (apiVersion != null && !apiVersion.isEmpty()) {
             deploymentName += DeploymentUtils.API_VERSION_SEPARATOR + apiVersion;
         }
@@ -254,10 +276,10 @@ public class RulesDeployerService implements Closeable {
     }
 
     private String readProjectName(byte[] bytes, String defaultName) {
-        String name = null;
-        if (bytes != null) {
-            name = DeploymentUtils.getProjectName(new ByteArrayInputStream(bytes));
+        if (bytes == null) {
+            return null;
         }
+        String name = DeploymentUtils.getProjectName(new ByteArrayInputStream(bytes));
         return name == null || name.isEmpty() ? defaultName : name;
     }
 
@@ -266,6 +288,13 @@ public class RulesDeployerService implements Closeable {
             return null;
         }
         return DeploymentUtils.getApiVersion(new ByteArrayInputStream(bytes));
+    }
+
+    private String readServiceName(byte[] bytes) {
+        if (bytes == null) {
+            return null;
+        }
+        return DeploymentUtils.getServiceName(new ByteArrayInputStream(bytes));
     }
 
     private void doDeploy(FileData dest, Integer contentSize, InputStream inputStream) throws IOException {

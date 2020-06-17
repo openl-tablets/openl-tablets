@@ -36,7 +36,7 @@ public class MessagesDelegatingTest {
     @Before
     public void init() throws Exception {
         File rulesFolder = new File("test-resources/modules_with_errors/");
-        project = ProjectResolver.instance().resolve(rulesFolder);
+        project = ProjectResolver.getInstance().resolve(rulesFolder);
         dependencyManager = new SimpleDependencyManager(Collections
             .singletonList(project), Thread.currentThread().getContextClassLoader(), false, false, null);
     }

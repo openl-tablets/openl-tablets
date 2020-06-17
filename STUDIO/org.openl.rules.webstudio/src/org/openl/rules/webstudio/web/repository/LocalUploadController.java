@@ -7,11 +7,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
-import javax.servlet.http.HttpSession;
-
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.resolving.ProjectResolver;
@@ -25,16 +20,19 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
-@ManagedBean(name = "localUpload")
-@RequestScoped
+@Service("localUpload")
+@RequestScope
 public class LocalUploadController {
     public static class UploadBean {
         private String projectName;
 
         private boolean selected;
 
-        public UploadBean(String projectName) {
+        UploadBean(String projectName) {
             this.projectName = projectName;
         }
 
@@ -63,8 +61,11 @@ public class LocalUploadController {
 
     private String createProjectCommentTemplate;
 
-    @ManagedProperty(value = "#{designRepositoryComments}")
-    private Comments designRepoComments;
+    private final Comments designRepoComments;
+
+    public LocalUploadController(@Qualifier("designRepositoryComments") Comments designRepoComments) {
+        this.designRepoComments = designRepoComments;
+    }
 
     private void createProject(File baseFolder,
             RulesUserSession rulesUserSession,
@@ -79,7 +80,7 @@ public class LocalUploadController {
     public List<UploadBean> getProjects4Upload() {
         if (uploadBeans == null) {
             uploadBeans = new ArrayList<>();
-            RulesUserSession userRules = getRules();
+            RulesUserSession userRules = WebStudioUtils.getRulesUserSession();
             WebStudio webStudio = WebStudioUtils.getWebStudio();
             if (webStudio != null && userRules != null) {
                 DesignTimeRepository dtr;
@@ -125,27 +126,15 @@ public class LocalUploadController {
         this.projectFolder = folder;
     }
 
-    /**
-     * EPBDS-8384: JSF beans discovery does not work if the bean contains static field with lambda expression. Possibly
-     * need to upgrade JSF version to fully support java 8. Until then use anonymous class instead.
-     */
-    private static Comparator<File> fileNameComparator = new Comparator<File>() {
-        @Override
-        public int compare(File f1, File f2) {
-            String name1 = f1.getName();
-            String name2 = f2.getName();
-            return name1.compareToIgnoreCase(name2);
-        }
+    private static final Comparator<File> fileNameComparator = (f1, f2) -> {
+        String name1 = f1.getName();
+        String name2 = f2.getName();
+        return name1.compareToIgnoreCase(name2);
     };
-
-    private RulesUserSession getRules() {
-        HttpSession session = WebStudioUtils.getSession();
-        return WebStudioUtils.getRulesUserSession(session);
-    }
 
     public String upload() {
         String workspacePath = WebStudioUtils.getWebStudio().getWorkspacePath();
-        RulesUserSession rulesUserSession = getRules();
+        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
 
         List<UploadBean> beans = uploadBeans;
         uploadBeans = null; // force re-read.
@@ -182,10 +171,6 @@ public class LocalUploadController {
         }
 
         return null;
-    }
-
-    public void setDesignRepoComments(Comments designRepoComments) {
-        this.designRepoComments = designRepoComments;
     }
 
     public String getCreateProjectCommentTemplate() {

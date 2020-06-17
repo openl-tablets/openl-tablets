@@ -11,9 +11,6 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.PreDestroy;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.model.SelectItem;
 
@@ -41,22 +38,22 @@ import org.richfaces.component.UITree;
 import org.richfaces.function.RichFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * Supplies repository structured diff UI tree with data.
  *
  * @author Andrey Naumenko
  */
-@ManagedBean
-@SessionScoped
+@Service
+@SessionScope
 public class RepositoryDiffController extends AbstractDiffController {
     private final Logger log = LoggerFactory.getLogger(RepositoryDiffController.class);
 
-    @ManagedProperty(value = "#{repositoryTreeState}")
-    private RepositoryTreeState repositoryTreeState;
+    private final RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{designTimeRepository}")
-    private DesignTimeRepository designTimeRepository;
+    private final DesignTimeRepository designTimeRepository;
 
     private String branch;
     private AProject projectUW; // User Workspace project
@@ -66,6 +63,12 @@ public class RepositoryDiffController extends AbstractDiffController {
     private String selectedExcelFileUW;
     private String selectedExcelFileRepo;
     private String selectedVersionRepo;
+
+    public RepositoryDiffController(RepositoryTreeState repositoryTreeState,
+        DesignTimeRepository designTimeRepository) {
+        this.repositoryTreeState = repositoryTreeState;
+        this.designTimeRepository = designTimeRepository;
+    }
 
     public String getBranch() {
         return branch;
@@ -137,14 +140,6 @@ public class RepositoryDiffController extends AbstractDiffController {
             excelItems.add(new SelectItem(excelArtefact.getArtefactPath().getStringValue(), excelArtefact.getName()));
         }
         return excelItems;
-    }
-
-    public void setDesignTimeRepository(DesignTimeRepository designTimeRepository) {
-        this.designTimeRepository = designTimeRepository;
-    }
-
-    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
-        this.repositoryTreeState = repositoryTreeState;
     }
 
     public String init() {

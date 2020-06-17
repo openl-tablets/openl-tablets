@@ -6,8 +6,8 @@
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich">
 
-    <f:view transient="#{module=='rules' ? true : false}">
-    <rich:popupPanel id="modalUserProfile" width="500" autosized="true">
+    <f:view transient="#{module=='rules'}">
+    <rich:popupPanel id="modalUserProfile" minWidth="500" maxWidth="500" autosized="true">
         <f:facet name="header">User Profile</f:facet>
 
         <f:facet name="controls">
@@ -20,8 +20,8 @@
             <input style="display:none" type="text" name="fake-username-field" class="fake-autofill-field"/>
             <input style="display:none" type="password" name="fake-password-field" class="fake-autofill-field"/>
 
-            <rich:tabPanel switchType="client" id="userProfileTab">
-                <rich:tab header="Details" id="userProfileDetails">
+            <rich:tabPanel switchType="client" id="userProfileTab" onitemchange="resizePopupPanel('modalUserProfile')">
+                <rich:tab header="Details" name="userProfileDetails">
                     <div class="fields">
                         <section>
                             <h3>Account</h3>
@@ -113,7 +113,7 @@
                         </h:panelGroup>
                     </div>
                 </rich:tab>
-                <rich:tab header="Settings" id="userProfileSettings">
+                <rich:tab header="Settings" name="userProfileSettings">
                     <div class="fields">
                         <h:panelGroup rendered="#{studio.changeableModuleMode}">
                             <section>
@@ -184,6 +184,9 @@
                     oncomplete="hideAndReload()" styleClass="button-primary save-button" />
                 <input class="restore-changed-state" type="button" value="Cancel" onclick="hideUserProfile();" />
             </footer>
+
+            <a4j:jsFunction name="renderUserProfile" render="@form" oncomplete="showUserProfile()"/>
+
         </h:form>
 
     </rich:popupPanel>
@@ -191,7 +194,14 @@
 
 <script>
     //<![CDATA[
-    $j(function () {
+    let userProfileTab;
+
+    function editUserProfile(tab) {
+        userProfileTab = tab;
+        renderUserProfile();
+    }
+
+    function showUserProfile() {
         $j("#userProfileForm").find('.save-button').prop("disabled", true);
 
         // Ignore hidden input for selected tab from the dirtiness check
@@ -206,12 +216,10 @@
         });
         // Enable save button only if the form is dirty - using events.
         $j("#userProfileForm").areYouSure();
-    });
 
-    function editUserProfile(tab) {
+        RichFaces.$("userProfileForm:userProfileTab").switchToItem(
+                userProfileTab === "settings" ? "userProfileSettings" : "@first");
         RichFaces.$("modalUserProfile").show();
-        #{rich:component("userProfileTab")}.switchToItem(
-                tab === "settings" ? "userProfileSettings" : "userProfileDetails");
     }
 
     function hideAndReload() {

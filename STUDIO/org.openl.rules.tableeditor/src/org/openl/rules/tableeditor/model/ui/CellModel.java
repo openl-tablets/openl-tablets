@@ -4,8 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.rules.table.ui.ICellFont;
+import org.openl.util.StringUtils;
 
 public class CellModel implements ICellModel {
+
+    public static final String CANNOT_SHOW_FORMULA_HINT = "double click to show formula";
 
     private int row;
     private int column;
@@ -372,7 +375,11 @@ public class CellModel implements ICellModel {
 
     @Override
     public void setFormula(String formula) {
-        this.formula = "=" + formula;
+        if (!StringUtils.isEmpty(formula)) {
+            this.formula = "=" + formula;
+        } else {
+            this.formula = CANNOT_SHOW_FORMULA_HINT;
+        }
         hasFormula = true;
     }
 

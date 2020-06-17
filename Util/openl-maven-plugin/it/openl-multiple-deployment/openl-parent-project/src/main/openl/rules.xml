@@ -11,7 +11,4 @@
             <autoIncluded>false</autoIncluded>
         </dependency>
     </dependencies>
-    <classpath>
-        <entry path="lib/*.jar"/>
-    </classpath>
 </project>

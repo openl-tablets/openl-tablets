@@ -1,7 +1,14 @@
 package org.openl.rules.project.instantiation;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
@@ -26,7 +33,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     private final boolean executionMode;
     private final String module;
     private final ClassLoader classLoader;
-    private final File workspace;
+    private final File[] projectDependencies;
     private final File project;
     private final Class<?> interfaceClass;
     // lazy initialization.
@@ -43,6 +50,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         private Class<T> interfaceClass = null;
         private Map<String, Object> externalParameters = Collections.emptyMap();
         private boolean executionMode = true;
+        private String[] projectDependencies;
 
         public SimpleProjectEngineFactoryBuilder<T> setProject(String project) {
             if (project == null || project.isEmpty()) {
@@ -102,14 +110,52 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             return this;
         }
 
+        public SimpleProjectEngineFactoryBuilder<T> setProjectDependencies(String... projectDependencies) {
+            if (projectDependencies == null || projectDependencies.length == 0) {
+                return this;
+            }
+            for (String dependency : projectDependencies) {
+                if (dependency == null || dependency.isEmpty()) {
+                    throw new IllegalArgumentException("Dependency cannot be null or empty.");
+                }
+            }
+            this.projectDependencies = projectDependencies;
+            return this;
+        }
+
+        private File[] getProjectDependencies() {
+            List<File> dependencies = new ArrayList<>();
+            if (workspace != null) {
+                File workspaceFile = new File(workspace);
+                if (!workspaceFile.isDirectory()) {
+                    throw new IllegalArgumentException("Workspace is not a directory with projects.");
+                }
+                File[] dirs = workspaceFile.listFiles(File::isDirectory);
+                if (dirs != null) {
+                    dependencies.addAll(Arrays.asList(dirs));
+                }
+            }
+            if (projectDependencies != null) {
+                for (String dependency : projectDependencies) {
+                    File dependencyFile = new File(dependency);
+                    if (!dependencyFile.isDirectory()) {
+                        throw new IllegalArgumentException("Dependency is not a project directory");
+                    }
+                    dependencies.add(dependencyFile);
+                }
+            }
+            return dependencies.isEmpty() ? null : dependencies.toArray(new File[0]);
+        }
+
         public SimpleProjectEngineFactory<T> build() {
             if (project == null || project.isEmpty()) {
                 throw new IllegalArgumentException("project cannot be null or empty.");
             }
             File projectFile = new File(project);
-            File workspaceFile = workspace == null ? null : new File(workspace);
+            File[] dependencies = getProjectDependencies();
+
             return new SimpleProjectEngineFactory<>(projectFile,
-                workspaceFile,
+                dependencies,
                 classLoader,
                 module,
                 interfaceClass,
@@ -122,7 +168,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     }
 
     private SimpleProjectEngineFactory(File project,
-            File workspace,
+            File[] projectDependencies,
             ClassLoader classLoader,
             String module,
             Class<T> interfaceClass,
@@ -131,10 +177,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             boolean provideVariations,
             boolean executionMode) {
         this.project = Objects.requireNonNull(project, "project arg cannot be null");
-        if (workspace != null && !workspace.isDirectory()) {
-            throw new IllegalArgumentException("workspace is not a directory with projects.");
-        }
-        this.workspace = workspace;
+        this.projectDependencies = projectDependencies;
         this.classLoader = classLoader;
         this.interfaceClass = interfaceClass;
         this.externalParameters = externalParameters;
@@ -198,24 +241,21 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
     protected IDependencyManager buildDependencyManager() throws ProjectResolvingException {
         Collection<ProjectDescriptor> projectDescriptors = new ArrayList<>();
-        ProjectResolver projectResolver = ProjectResolver.instance();
+        ProjectResolver projectResolver = ProjectResolver.getInstance();
         ProjectDescriptor projectDescriptor = getProjectDescriptor();
-        if (workspace != null) {
-            File[] files = workspace.listFiles();
-            if (files != null) {
-                List<ProjectDescriptor> projects;
-                ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-                try {
-                    if (classLoader != null) {
-                        Thread.currentThread().setContextClassLoader(classLoader);
-                    }
-                    projects = projectResolver.resolve(files);
-                } finally {
-                    Thread.currentThread().setContextClassLoader(oldClassLoader);
+        if (projectDependencies != null) {
+            List<ProjectDescriptor> projects;
+            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+            try {
+                if (classLoader != null) {
+                    Thread.currentThread().setContextClassLoader(classLoader);
                 }
-                List<ProjectDescriptor> dependentProjects = getDependentProjects(projectDescriptor, projects);
-                projectDescriptors.addAll(dependentProjects);
+                projects = projectResolver.resolve(projectDependencies);
+            } finally {
+                Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
+            List<ProjectDescriptor> dependentProjects = getDependentProjects(projectDescriptor, projects);
+            projectDescriptors.addAll(dependentProjects);
         }
         projectDescriptors.add(projectDescriptor);
         return new SimpleDependencyManager(projectDescriptors,
@@ -280,7 +320,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
     protected final synchronized ProjectDescriptor getProjectDescriptor() throws ProjectResolvingException {
         if (this.projectDescriptor == null) {
-            ProjectResolver projectResolver = ProjectResolver.instance();
+            ProjectResolver projectResolver = ProjectResolver.getInstance();
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             ProjectDescriptor pd;
             try {

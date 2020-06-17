@@ -2,9 +2,6 @@ package org.openl.rules.webstudio.web;
 
 import java.util.UUID;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
@@ -23,40 +20,36 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean providing logic for Main page.
  */
-@ManagedBean
-@RequestScoped
+@Service
+@RequestScope
 public class MainBean {
 
-    @ManagedProperty(value = "#{repositoryTreeState}")
-    private RepositoryTreeState repositoryTreeState;
+    private final RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{designRepositoryComments}")
-    private Comments designRepoComments;
+    private final Comments designRepoComments;
 
-    private CommentValidator commentValidator;
+    private final CommentValidator commentValidator;
 
     private String requestId;
 
     private final Logger log = LoggerFactory.getLogger(MainBean.class);
 
-    public MainBean() {
+    public MainBean(RepositoryTreeState repositoryTreeState,
+        @Qualifier("designRepositoryComments") Comments designRepoComments) {
         if (WebContext.getContextPath() == null) {
             WebContext.setContextPath(WebStudioUtils.getExternalContext().getRequestContextPath());
         }
         requestId = UUID.randomUUID().toString();
 
         commentValidator = CommentValidator.forDesignRepo();
-    }
-
-    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
-    }
-
-    public void setDesignRepoComments(Comments designRepoComments) {
         this.designRepoComments = designRepoComments;
     }
 
@@ -114,7 +107,7 @@ public class MainBean {
 
     public void reload() {
         try {
-            WebStudioUtils.getRulesUserSession(WebStudioUtils.getSession()).getUserWorkspace().refresh();
+            WebStudioUtils.getRulesUserSession().getUserWorkspace().refresh();
         } catch (CommonException e) {
             log.error("Error on reloading user's workspace", e);
         }
