@@ -51,7 +51,6 @@ public class InterfaceGenerator {
         classWriter.visit(Opcodes.V1_8, PUBLIC_ABSTRACT_INTERFACE, name, null, JAVA_LANG_OBJECT, null);
 
         for (RuleInfo ruleInfo : rules) {
-
             String ruleName = ruleInfo.getName();
             classWriter.visitMethod(PUBLIC_ABSTRACT, ruleName, getMethodTypes(ruleInfo), null, null);
         }

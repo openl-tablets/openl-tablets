@@ -8,7 +8,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
-import org.openl.rules.variation.VariationException;
 
 public class RunITest {
 
@@ -66,7 +65,7 @@ public class RunITest {
     }
 
     @Test
-    public void testCalVehicleYearVariationsPack_SOAP() throws VariationException {
+    public void testCalVehicleYearVariationsPack_SOAP() {
         client.post("/EPBDS-6437", "/variation.req.xml", "/variation.resp.xml");
     }
 

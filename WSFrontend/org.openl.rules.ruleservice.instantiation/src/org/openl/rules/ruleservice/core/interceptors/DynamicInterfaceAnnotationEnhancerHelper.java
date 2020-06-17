@@ -149,16 +149,15 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
         if (!templateClass.isInterface()) {
             throw new InstantiationException("Interface is expected.");
         }
+        final String enhancedClassName = originalClass
+            .getName() + DynamicInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
 
         ClassWriter cw = new ClassWriter(0);
         DynamicInterfaceAnnotationEnhancerClassVisitor dynamicInterfaceAnnotationEnhancerClassVisitor = new DynamicInterfaceAnnotationEnhancerClassVisitor(
             cw,
             templateClass);
-
         processServiceExtraMethods(dynamicInterfaceAnnotationEnhancerClassVisitor, templateClass);
 
-        String enhancedClassName = originalClass
-            .getName() + DynamicInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enhancedClassName);
         transformer.accept(dynamicInterfaceAnnotationEnhancerClassVisitor);
         cw.visitEnd();
