@@ -301,6 +301,12 @@
             <artifactId>jakarta.activation-api</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!--added for fix problem webstudio failure on Jboss 7.1 and JBoss 7.2, due to new JSF version-->
+        <dependency>
+            <groupId>org.reactivestreams</groupId>
+            <artifactId>reactive-streams</artifactId>
+            <version>1.0.1</version>
+        </dependency>
     </dependencies>
 
     <profiles>
