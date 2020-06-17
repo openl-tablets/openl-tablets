@@ -1,17 +1,12 @@
 package org.openl.rules.project.instantiation.variation;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.openl.rules.runtime.InterfaceGenerator;
-import org.openl.rules.runtime.RuleInfo;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.util.ClassUtils;
@@ -25,6 +20,8 @@ import org.slf4j.LoggerFactory;
  * @author PUdalau, Marat Kamalov
  */
 public final class VariationInstantiationStrategyEnhancerHelper {
+    private static final String VARIATIONS_PACK_TYPE = "Lorg/openl/rules/variation/VariationsPack;";
+    private static final String VARIATIONS_RESULT_TYPE = "Lorg/openl/rules/variation/VariationsResult;";
 
     private VariationInstantiationStrategyEnhancerHelper() {
     }
@@ -64,13 +61,9 @@ public final class VariationInstantiationStrategyEnhancerHelper {
      */
     public static boolean isDecoratedMethod(Method method) {
         int paramsLength = method.getParameterTypes().length;
-        if (paramsLength == 0 || method.getParameterTypes()[paramsLength - 1] != VariationsPack.class || !method
+        return paramsLength != 0 && method.getParameterTypes()[paramsLength - 1] == VariationsPack.class && method
             .getReturnType()
-            .equals(VariationsResult.class)) {
-            return false;
-        } else {
-            return true;
-        }
+            .equals(VariationsResult.class);
     }
 
     /**
@@ -87,19 +80,20 @@ public final class VariationInstantiationStrategyEnhancerHelper {
             throw new IllegalArgumentException("Only interface classes are supported.");
         }
 
-        final Logger log = LoggerFactory.getLogger(VariationInstantiationStrategyEnhancerHelper.class);
+        final String className = clazz.getName() + UNDECORATED_CLASS_NAME_SUFFIX;
+        try {
+            return classLoader.loadClass(className);
+        } catch (ClassNotFoundException e) {
+            Logger log = LoggerFactory.getLogger(VariationInstantiationStrategyEnhancerHelper.class);
+            log.debug("Generating interface without variations for '{}' class", clazz.getName());
 
-        String className = clazz.getName() + UNDECORATED_CLASS_NAME_SUFFIX;
-
-        log.debug("Generating interface without variations for '{}' class", clazz.getName());
-
-        return innerUndecorateInterface(className, clazz, classLoader);
+            return innerUndecorateInterface(className, clazz, classLoader);
+        }
     }
 
     private static Class<?> innerUndecorateInterface(String className,
             Class<?> original,
             ClassLoader classLoader) throws Exception {
-
         ClassWriter classWriter = new ClassWriter(0);
         ClassVisitor classVisitor = new UndecoratingClassWriter(classWriter, className);
         InterfaceTransformer transformer = new InterfaceTransformer(original, className);
@@ -116,21 +110,6 @@ public final class VariationInstantiationStrategyEnhancerHelper {
     }
 
     /**
-     * TODO: replace with a configurable implementation
-     * <p/>
-     * <p/>
-     * Check that method should be ignored by enhancer.
-     *
-     * @param method method to check
-     * @return <code>true</code> if method should be ignored; <code>false</code> - otherwise
-     */
-    private static boolean isIgnored(Method method) {
-        // Ignore methods what are inherited from Object.class
-        // Note that ignored inherited methods only.
-        return ArrayUtils.contains(Object.class.getMethods(), method);
-    }
-
-    /**
      * Decorates methods signatures of given clazz. New decorated class will have both original methods and decorated
      * methods with {@link VariationsPack} as the last parameter and {@link VariationsResult} as the return type.
      *
@@ -140,52 +119,36 @@ public final class VariationInstantiationStrategyEnhancerHelper {
      * @throws Exception
      */
     public static Class<?> decorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
-        final Logger log = LoggerFactory.getLogger(VariationInstantiationStrategyEnhancerHelper.class);
-
-        Method[] methods = clazz.getMethods();
-        List<RuleInfo> rules = getRulesDecorated(methods);
-
-        String className = clazz.getName() + DECORATED_CLASS_NAME_SUFFIX;
-        RuleInfo[] rulesArray = rules.toArray(new RuleInfo[rules.size()]);
-
-        log.debug("Generating interface for '{}' class", clazz.getName());
-
-        return InterfaceGenerator.generateInterface(className, rulesArray, classLoader);
-    }
-
-    /**
-     * Gets list of rules.
-     *
-     * @param methods array of methods what represents rule methods
-     * @return list of rules meta-info
-     */
-    private static List<RuleInfo> getRulesDecorated(Method[] methods) {
-
-        List<RuleInfo> rules = new ArrayList<>(methods.length);
-
-        for (Method method : methods) {
-
-            // Check that method should be ignored or not.
-            if (isIgnored(method)) {
-                continue;
-            }
-
-            String methodName = method.getName();
-
-            Class<?>[] paramTypes = method.getParameterTypes();
-            Class<?> returnType = VariationsResult.class;
-            Class<?>[] newParams = new Class<?>[] { VariationsPack.class };
-            Class<?>[] extendedParamTypes = ArrayUtils.addAll(paramTypes, newParams);
-
-            RuleInfo ruleInfoEnhanced = InterfaceGenerator.createRuleInfo(methodName, extendedParamTypes, returnType);
-            RuleInfo ruleInfoOriginal = InterfaceGenerator
-                .createRuleInfo(methodName, paramTypes, method.getReturnType());
-
-            rules.add(ruleInfoEnhanced);
-            rules.add(ruleInfoOriginal);
+        if (!clazz.isInterface()) {
+            throw new IllegalArgumentException("Only interface classes are supported.");
         }
 
-        return rules;
+        final String className = clazz.getName() + DECORATED_CLASS_NAME_SUFFIX;
+        try {
+            return classLoader.loadClass(className);
+        } catch (ClassNotFoundException e) {
+            Logger log = LoggerFactory.getLogger(VariationInstantiationStrategyEnhancerHelper.class);
+            log.debug("Generating interface with variations for '{}' class", clazz.getName());
+            return innerDecorateInterface(className, clazz, classLoader);
+        }
+    }
+
+    private static Class<?> innerDecorateInterface(String className,
+            Class<?> original,
+            ClassLoader classLoader) throws Exception {
+        ClassWriter classWriter = new ClassWriter(0);
+        ClassVisitor classVisitor = new DecoratingClassWriter(classWriter, className);
+        InterfaceTransformer transformer = new InterfaceTransformer(original, className);
+        transformer.accept(classVisitor);
+        classWriter.visitEnd();
+
+        // Create class object.
+        //
+        ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
+
+        // Return loaded to classpath class object.
+        //
+        return Class.forName(className, true, classLoader);
     }
 
     /**
@@ -206,8 +169,31 @@ public final class VariationInstantiationStrategyEnhancerHelper {
         }
     }
 
-    // FIXME skip decorated methods
+    private static class DecoratingClassWriter extends ClassVisitor {
+        private final String className;
 
+        public DecoratingClassWriter(ClassVisitor delegatedClassVisitor, String className) {
+            super(Opcodes.ASM5, delegatedClassVisitor);
+            this.className = className;
+        }
+
+        @Override
+        public void visit(int arg0, int arg1, String arg2, String arg3, String arg4, String[] arg5) {
+            super.visit(arg0, arg1, className.replace('.', '/'), arg3, arg4, arg5);
+        }
+
+        @Override
+        public MethodVisitor visitMethod(int arg0, String arg1, String arg2, String arg3, String[] arg4) {
+            super.visitMethod(arg0, arg1, addVariationToSignature(arg2), arg3, arg4);
+            return super.visitMethod(arg0, arg1, arg2, arg3, arg4);
+        }
+
+        private String addVariationToSignature(String signature) {
+            return signature.substring(0, signature.indexOf(")")) + VARIATIONS_PACK_TYPE + ")" + VARIATIONS_RESULT_TYPE;
+        }
+    }
+
+    // FIXME skip decorated methods
     /**
      * {@link ClassWriter} for creation undecorated class: all decorated with variations methods will be removed from
      * interface.
@@ -215,10 +201,7 @@ public final class VariationInstantiationStrategyEnhancerHelper {
      * @author PUdalau
      */
     private static class UndecoratingClassWriter extends ClassVisitor {
-        // *TODO
-        private static final String VARIATIONS_PACK_TYPE = "Lorg/openl/rules/variation/VariationsPack;";
-        private static final String VARIATIONS_RESULT_TYPE = "Lorg/openl/rules/variation/VariationsResult;";
-        private String className;
+        private final String className;
 
         public UndecoratingClassWriter(ClassVisitor delegatedClassVisitor, String className) {
             super(Opcodes.ASM5, delegatedClassVisitor);
@@ -241,7 +224,7 @@ public final class VariationInstantiationStrategyEnhancerHelper {
         }
 
         private boolean isDecoratedMethod(String signature) {
-            return signature.contains(VARIATIONS_PACK_TYPE) && signature.endsWith(VARIATIONS_RESULT_TYPE);
+            return signature.contains(VARIATIONS_PACK_TYPE + ")") && signature.endsWith(VARIATIONS_RESULT_TYPE);
         }
 
     }
