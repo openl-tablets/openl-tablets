@@ -1,10 +1,12 @@
 package org.openl.classloader;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -152,7 +154,7 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
 
     private InputStream findResourceAsStreamInBundleClassLoader(String name) {
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
-            InputStream inputStream = null;
+            InputStream inputStream;
             if (bundleClassLoader instanceof OpenLBundleClassLoader && bundleClassLoader.getParent() == this) {
                 OpenLBundleClassLoader sbcl = (OpenLBundleClassLoader) bundleClassLoader;
                 inputStream = sbcl.findResourceAsStreamInBundleClassLoader(name);
@@ -164,6 +166,31 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
             }
         }
         return null;
+    }
+
+    private Enumeration<URL> findResourcesInBundleClassLoader(String name) throws IOException {
+        for (ClassLoader bundleClassLoader : bundleClassLoaders) {
+            Enumeration<URL> resources;
+            if (bundleClassLoader instanceof OpenLBundleClassLoader && bundleClassLoader.getParent() == this) {
+                OpenLBundleClassLoader sbcl = (OpenLBundleClassLoader) bundleClassLoader;
+                resources = sbcl.findResourcesInBundleClassLoader(name);
+            } else {
+                resources = bundleClassLoader.getResources(name);
+            }
+            if (resources != null) {
+                return resources;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Enumeration<URL> getResources(String name) throws IOException {
+        Enumeration<URL> resources = findResourcesInBundleClassLoader(name);
+        if (resources != null) {
+            return resources;
+        }
+        return super.getResources(name);
     }
 
     @Override
