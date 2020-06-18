@@ -33,7 +33,6 @@ import org.objectweb.asm.Type;
 import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.datatype.gen.ASMUtils;
-import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.publish.common.ExceptionResponseDto;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.types.IOpenClass;
@@ -336,7 +335,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
         public MethodVisitor visitMethod(int arg0, String methodName, String arg2, String arg3, String[] arg4) {
             Method originalMethod = ASMUtils.getMethod(originalClass, methodName, arg2);
             if (originalMethod == null) {
-                throw new RuleServiceRuntimeException("Method is not found in the original class.");
+                throw new IllegalStateException("Method is not found in the original class.");
             }
 
             MethodVisitor mv;
@@ -363,11 +362,11 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
                 String[] parameterNames = resolveParameterNames(originalMethod);
                 processAnnotationsOnMethodParameters(originalMethod, mv);
-                List<JAXRSOpenLServiceEnhancerHelper.ParamAnnotationValue> paramAnnotationsValues = getParamAnnotationsValue(
+                List<ParamAnnotationValue> paramAnnotationsValues = getParamAnnotationsValue(
                     originalMethod);
                 Set<String> usedValues = paramAnnotationsValues.stream()
                     .filter(Objects::nonNull)
-                    .map(JAXRSOpenLServiceEnhancerHelper.ParamAnnotationValue::getFieldName)
+                    .map(ParamAnnotationValue::getFieldName)
                     .collect(Collectors.toSet());
                 int i = 0;
                 for (String paramName : parameterNames) {
@@ -419,21 +418,21 @@ public class JAXRSOpenLServiceEnhancerHelper {
                    GenUtils.getParameterNames(originalMethod);
         }
 
-        private List<JAXRSOpenLServiceEnhancerHelper.ParamAnnotationValue> getParamAnnotationsValue(
+        private List<ParamAnnotationValue> getParamAnnotationsValue(
                 Method originalMethod) {
-            final List<JAXRSOpenLServiceEnhancerHelper.ParamAnnotationValue> values = new ArrayList<>(
+            final List<ParamAnnotationValue> values = new ArrayList<>(
                 originalMethod.getParameterCount());
             for (Annotation[] annotations : originalMethod.getParameterAnnotations()) {
                 if (annotations.length > 0) {
                     for (Annotation annotation : annotations) {
                         if (annotation instanceof PathParam) {
-                            values.add(new JAXRSOpenLServiceEnhancerHelper.ParamAnnotationValue(PathParam.class,
+                            values.add(new ParamAnnotationValue(PathParam.class,
                                 ((PathParam) annotation).value()));
                             // it is possible that PathParam and QueryParam annotations will be indicated together for
                             // one parameter
                             break;
                         } else if (annotation instanceof QueryParam) {
-                            values.add(new JAXRSOpenLServiceEnhancerHelper.ParamAnnotationValue(QueryParam.class,
+                            values.add(new ParamAnnotationValue(QueryParam.class,
                                 ((QueryParam) annotation).value()));
                             // it is possible that PathParam and QueryParam annotations will be indicated together for
                             // one parameter

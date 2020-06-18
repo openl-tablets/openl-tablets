@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!-- This file is for releasing OpenL version wIth maven-release-plugin -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
@@ -90,7 +91,8 @@
         <cassandra.driver.version>4.3.1</cassandra.driver.version>
         <cassandra.unit.version>3.11.2.0</cassandra.unit.version>
         <cassandra.unit.driver.version>3.8.0</cassandra.unit.driver.version>
-        <org.apache.cxf.version>3.3.6</org.apache.cxf.version>
+        <org.apache.cxf.version>3.3.6</org.apache.cxf.version> <!-- if updated org.apache.cxf.version to version from org.apache.cxf -->
+        <jakarta.ws.rs-api.version>2.1.5</jakarta.ws.rs-api.version>
         <log4j.version>2.13.3</log4j.version>
         <org.slf4j.version>1.7.30</org.slf4j.version>
         <org.apache.poi.version>4.1.2</org.apache.poi.version>
@@ -395,7 +397,7 @@
             </activation>
             <properties>
                 <!-- Empty for building without JaCoCo agent -->
-                <jacoco.argLine />
+                <jacoco.argLine/>
                 <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
             </properties>
         </profile>
@@ -407,7 +409,7 @@
                 </property>
             </activation>
             <properties>
-                <sonar />
+                <sonar/>
                 <invoker.timeoutInSeconds>40</invoker.timeoutInSeconds>
             </properties>
             <build>
@@ -969,6 +971,11 @@
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>jakarta.ws.rs</groupId>
+                <artifactId>jakarta.ws.rs-api</artifactId>
+                <version>${jakarta.ws.rs-api.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-rs-service-description</artifactId>
                 <version>${org.apache.cxf.version}</version>
@@ -1402,6 +1409,11 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>2.0.10</version>
+            </dependency>
             <!--Activity -->
             <dependency>
                 <groupId>org.activiti</groupId>
@@ -1628,7 +1640,12 @@
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.instantiation</artifactId>
+                <artifactId>org.openl.rules.ruleservice.common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.ws.common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

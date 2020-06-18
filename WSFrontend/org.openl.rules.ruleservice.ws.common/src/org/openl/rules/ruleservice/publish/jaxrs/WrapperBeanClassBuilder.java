@@ -7,7 +7,7 @@ import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 
 class WrapperBeanClassBuilder extends JavaBeanClassBuilder {
 
-    private String methodName;
+    private final String methodName;
 
     public WrapperBeanClassBuilder(String beanName, String methodName) {
         super(beanName);

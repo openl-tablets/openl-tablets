@@ -19,7 +19,7 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.ruleservice.instantiation</artifactId>
+            <artifactId>org.openl.rules.ruleservice.common</artifactId>
         </dependency>
     </dependencies>
 </project>

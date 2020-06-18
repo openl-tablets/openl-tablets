@@ -6,9 +6,9 @@ import org.openl.rules.ruleservice.core.ExceptionType;
 
 @XmlRootElement
 public class JAXRSErrorResponse {
-    private String message;
-    private ExceptionType type;
-    private String[] details;
+    private final String message;
+    private final ExceptionType type;
+    private final String[] details;
 
     public JAXRSErrorResponse(String message, ExceptionType type, String[] details) {
         this.message = message;

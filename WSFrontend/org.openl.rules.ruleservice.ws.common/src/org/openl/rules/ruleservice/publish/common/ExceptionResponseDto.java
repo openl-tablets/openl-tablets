@@ -9,18 +9,16 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.rules.ruleservice.core.ExceptionType;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 public class ExceptionResponseDto {
 
     public static final int INTERNAL_SERVER_ERROR_CODE = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
     public static final int BAD_REQUEST = Response.Status.BAD_REQUEST.getStatusCode();
     public static final int UNPROCESSABLE_ENTITY = 422;
 
-    private String message;
-    private int statusCode;
-    private ExceptionType type;
-    private String detail;
+    private final String message;
+    private final int statusCode;
+    private final ExceptionType type;
+    private final String detail;
 
     private ExceptionResponseDto(String message, int statusCode, ExceptionType type, String detail) {
         this.message = message;
@@ -59,7 +57,7 @@ public class ExceptionResponseDto {
         int status = INTERNAL_SERVER_ERROR_CODE;
         ExceptionType type = ExceptionType.SYSTEM;
         String detail = null;
-        String message = null;
+        String message;
 
         if (t instanceof RuleServiceWrapperException) {
             RuleServiceWrapperException wrapperException = (RuleServiceWrapperException) t;
@@ -73,9 +71,15 @@ public class ExceptionResponseDto {
         } else {
             message = ExceptionUtils.getRootCauseMessage(e);
             detail = ExceptionUtils.getStackTrace(e);
-            if (t instanceof JsonProcessingException) {
-                status = BAD_REQUEST;
-                type = ExceptionType.BAD_REQUEST;
+            try {
+                Class<?> jsonProcessingException = Thread.currentThread()
+                    .getContextClassLoader()
+                    .loadClass("com.fasterxml.jackson.core.JsonProcessingException");
+                if (t != null && jsonProcessingException.isAssignableFrom(t.getClass())) {
+                    status = BAD_REQUEST;
+                    type = ExceptionType.BAD_REQUEST;
+                }
+            } catch (ClassNotFoundException ignored) {
             }
         }
 

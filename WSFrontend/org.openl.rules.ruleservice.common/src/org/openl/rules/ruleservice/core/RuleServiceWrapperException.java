@@ -10,9 +10,9 @@ public class RuleServiceWrapperException extends RuleServiceRuntimeException {
 
     private static final long serialVersionUID = 3618613334261575918L;
 
-    private String simpleMessage;
+    private final String simpleMessage;
 
-    private ExceptionType type;
+    private final ExceptionType type;
 
     /**
      * Constructs a new RuleServiceWrapperException with the specified detail message and cause.
