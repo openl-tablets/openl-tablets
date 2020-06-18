@@ -77,7 +77,7 @@ public final class VariationInstantiationStrategyEnhancerHelper {
      */
     public static Class<?> undecorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
         if (!clazz.isInterface()) {
-            throw new IllegalArgumentException("Only interface classes are supported.");
+            throw new IllegalArgumentException("Only interface classes are supported");
         }
 
         final String className = clazz.getName() + UNDECORATED_CLASS_NAME_SUFFIX;
@@ -120,7 +120,7 @@ public final class VariationInstantiationStrategyEnhancerHelper {
      */
     public static Class<?> decorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
         if (!clazz.isInterface()) {
-            throw new IllegalArgumentException("Only interface classes are supported.");
+            throw new IllegalArgumentException("Only interface classes are supported");
         }
 
         final String className = clazz.getName() + DECORATED_CLASS_NAME_SUFFIX;

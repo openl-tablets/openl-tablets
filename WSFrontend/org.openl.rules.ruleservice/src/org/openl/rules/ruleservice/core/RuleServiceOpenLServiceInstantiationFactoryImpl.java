@@ -18,6 +18,7 @@ import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategy
 import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancer;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.validation.ProjectValidator;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdviceListener;
@@ -25,7 +26,6 @@ import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactory;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl;
 import org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache;
-import org.openl.rules.project.validation.ProjectValidator;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.types.IOpenClass;
 import org.slf4j.Logger;
@@ -57,8 +57,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     private void initService(ServiceDescription serviceDescription,
             RuleServiceDependencyManager dependencyManager,
             OpenLService service) throws RuleServiceInstantiationException, RulesInstantiationException {
-        RulesInstantiationStrategy instantiationStrategy = instantiationStrategyFactory.getStrategy(serviceDescription,
-            dependencyManager);
+        RulesInstantiationStrategy baseInstantiationStrategy = instantiationStrategyFactory
+            .getStrategy(serviceDescription, dependencyManager);
+        RulesInstantiationStrategy instantiationStrategy = baseInstantiationStrategy;
         Map<String, Object> parameters = ProjectExternalDependenciesHelper
             .getExternalParamsWithProjectDependencies(externalParameters, service.getModules());
         instantiationStrategy.setExternalParameters(parameters);
@@ -77,6 +78,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             if (service.getPublishers().contains(RulesDeploy.PublisherType.RMI.toString())) {
                 resolveRmiInterface(service);
             }
+            validate(service, baseInstantiationStrategy);
             instantiateServiceBean(service, serviceTarget, serviceClassLoader);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -98,17 +100,19 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     private void compileOpenClass(OpenLService service,
             RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
         CompiledOpenClass compiledOpenClass = instantiationStrategy.compile();
-        service.setCompiledOpenClass(validateCompiledOpenClass(service, compiledOpenClass));
+        service.setCompiledOpenClass(compiledOpenClass);
     }
 
-    private CompiledOpenClass validateCompiledOpenClass(OpenLService service, CompiledOpenClass compiledOpenClass) {
+    private void validate(OpenLService service,
+            RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
+        CompiledOpenClass compiledOpenClass = service.getCompiledOpenClass();
         if (!service.getModules().isEmpty()) {
             for (ProjectValidator projectValidator : getProjectValidators()) {
                 compiledOpenClass = projectValidator.validate(service.getModules().iterator().next().getProject(),
-                    compiledOpenClass);
+                    instantiationStrategy);
             }
         }
-        return compiledOpenClass;
+        service.setCompiledOpenClass(compiledOpenClass);
     }
 
     private void instantiateServiceBean(OpenLService service,
@@ -145,6 +149,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper
                     .buildInterfaceForInstantiationStrategy(serviceClass,
                         instantiationStrategy.getClassLoader(),
+                        serviceDescription.isProvideRuntimeContext(),
                         serviceDescription.isProvideVariations());
                 instantiationStrategy.setServiceClass(interfaceForInstantiationStrategy);
                 service.setServiceClass(serviceClass);
@@ -159,7 +164,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         serviceClass = processGeneratedServiceClass(serviceDescription,
             service.getOpenClass(),
             instanceClass,
-            serviceTarget,
             service.getClassLoader());
         service.setServiceClassName(null); // Generated class is used.
         service.setServiceClass(serviceClass);
@@ -187,15 +191,13 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     private Class<?> processGeneratedServiceClass(ServiceDescription serviceDescription,
             IOpenClass openClass,
             Class<?> serviceClass,
-            Object serviceTarget,
             ClassLoader serviceClassLoader) {
         Class<?> annotatedClass = processAnnotatedTemplateClass(serviceDescription, serviceClass, serviceClassLoader);
         return RuleServiceInstantiationFactoryHelper.buildInterfaceForService(openClass,
             annotatedClass,
-            serviceTarget,
             serviceClassLoader,
+            serviceDescription.isProvideRuntimeContext(),
             serviceDescription.isProvideVariations());
-
     }
 
     private Class<?> processAnnotatedTemplateClass(ServiceDescription serviceDescription,
@@ -213,14 +215,10 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                         serviceDescription.getName());
                     return decoratedClass;
                 }
-                log.error(
-                    "Interface is required! Intercepting template class is not used! Failed to load or apply intercepting template class '{}'.",
+                log.error("Failed to apply annotation template class '{}'. Interface is expected, but class is found.",
                     annotationTemplateClassName);
             } catch (Exception | NoClassDefFoundError e) {
-                log.error(
-                    "Intercepting template class is not used! Failed to load or apply intercepting template class '{}'.",
-                    annotationTemplateClassName,
-                    e);
+                log.error("Failed to load or apply annotation template class '{}'.", annotationTemplateClassName, e);
             }
         }
         return serviceClass;

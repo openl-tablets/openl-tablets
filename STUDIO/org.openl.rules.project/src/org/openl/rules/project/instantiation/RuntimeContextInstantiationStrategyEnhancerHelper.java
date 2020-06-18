@@ -51,7 +51,7 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
      */
     public static Class<?> undecorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
         if (!clazz.isInterface()) {
-            throw new IllegalArgumentException("Supports only interface classes.");
+            throw new IllegalArgumentException("Only interface classes are supported");
         }
 
         final String className = clazz.getName() + UNDECORATED_CLASS_NAME_SUFFIX;
@@ -95,7 +95,7 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
      */
     public static Class<?> decorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
         if (!clazz.isInterface()) {
-            throw new IllegalArgumentException("Supports only interface classes.");
+            throw new IllegalArgumentException("Only interface classes are supported");
         }
 
         final String className = clazz.getName() + DECORATED_CLASS_NAME_SUFFIX;

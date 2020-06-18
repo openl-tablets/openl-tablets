@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.openl.binding.MethodUtil;
-import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.annotations.Name;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -64,52 +62,42 @@ public final class MethodUtils {
         }
     }
 
-    public static IOpenMethod getRulesMethod(Method method, OpenLService service) {
-        try {
-            if (service != null && service.getOpenClass() != null) {
-                return OpenClassHelper.findRulesMethod(service.getOpenClass(), method);
-            }
-        } catch (RuleServiceInstantiationException ignored) {
+    public static IOpenMethod getRulesMethod(IOpenClass openClass, Method method) {
+        if (openClass != null) {
+            return OpenClassHelper.findRulesMethod(openClass, method);
         }
         return null;
     }
 
-    public static String[] getParameterNames(Method method, OpenLService service) {
-        try {
-            if (service != null && service.getOpenClass() != null) {
-                IOpenClass openClass = service.getOpenClass();
-                boolean provideRuntimeContext = service.isProvideRuntimeContext();
-                boolean provideVariations = service.isProvideVariations();
-                String[] parameterNames = GenUtils
-                    .getParameterNames(method, openClass, provideRuntimeContext, provideVariations);
-
-                int i = 0;
-                for (Annotation[] annotations : method.getParameterAnnotations()) {
-                    for (Annotation annotation : annotations) {
-                        if (annotation instanceof Name) {
-                            Name name = (Name) annotation;
-                            if (!name.value().isEmpty()) {
-                                parameterNames[i] = name.value();
-                            } else {
-                                Logger log = LoggerFactory.getLogger(MethodUtils.class);
-                                if (log.isWarnEnabled()) {
-                                    log.warn(
-                                        "Invalid parameter name '{}' is used in @Name annotation for method '{}.{}'.",
-                                        name.value(),
-                                        method.getClass().getTypeName(),
-                                        MethodUtil.printMethod(method.getName(), method.getParameterTypes()));
-                                }
+    public static String[] getParameterNames(IOpenClass openClass,
+            Method method,
+            boolean provideRuntimeContext,
+            boolean provideVariations) {
+        if (openClass != null) {
+            String[] parameterNames = GenUtils
+                .getParameterNames(method, openClass, provideRuntimeContext, provideVariations);
+            int i = 0;
+            for (Annotation[] annotations : method.getParameterAnnotations()) {
+                for (Annotation annotation : annotations) {
+                    if (annotation instanceof Name) {
+                        Name name = (Name) annotation;
+                        if (!name.value().isEmpty()) {
+                            parameterNames[i] = name.value();
+                        } else {
+                            Logger log = LoggerFactory.getLogger(MethodUtils.class);
+                            if (log.isWarnEnabled()) {
+                                log.warn("Invalid parameter name '{}' is used in @Name annotation for method '{}.{}'.",
+                                    name.value(),
+                                    method.getClass().getTypeName(),
+                                    MethodUtil.printMethod(method.getName(), method.getParameterTypes()));
                             }
                         }
                     }
-                    i++;
                 }
-
-                validateAndUpdateParameterNames(parameterNames);
-
-                return parameterNames;
+                i++;
             }
-        } catch (RuleServiceInstantiationException ignored) {
+            validateAndUpdateParameterNames(parameterNames);
+            return parameterNames;
         }
         return GenUtils.getParameterNames(method);
     }

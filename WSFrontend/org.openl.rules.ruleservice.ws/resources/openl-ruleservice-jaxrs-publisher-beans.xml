@@ -173,7 +173,7 @@
     <!-- Exposes web services. -->
     <bean id="jaxrsServiceEnhancer" class="org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer"
           scope="prototype">
-        <property name="resolveMethodParameterNamesEnabled"
+        <property name="resolveMethodParameterNames"
                   ref="jaxrsServiceConfigurationResolveMethodParameterNamesFactoryBean"/>
     </bean>
 

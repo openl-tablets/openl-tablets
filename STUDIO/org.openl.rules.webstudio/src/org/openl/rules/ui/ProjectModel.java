@@ -36,6 +36,7 @@ import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.instantiation.SimpleDependencyLoader;
@@ -966,7 +967,7 @@ public class ProjectModel {
             // Find all dependent XlsModuleSyntaxNode-s
             compiledOpenClass = instantiationStrategy.compile();
 
-            compiledOpenClass = validateCompiledOpenClass(compiledOpenClass);
+            compiledOpenClass = validate(instantiationStrategy);
 
             addAllSyntaxNodes(webStudioWorkspaceDependencyManager.getDependencyLoaders().values());
 
@@ -1005,9 +1006,10 @@ public class ProjectModel {
         }
     }
 
-    private CompiledOpenClass validateCompiledOpenClass(CompiledOpenClass compiledOpenClass) {
+    private CompiledOpenClass validate(
+            RulesInstantiationStrategy rulesInstantiationStrategy) throws RulesInstantiationException {
         OpenApiProjectValidator openApiProjectValidator = new OpenApiProjectValidator();
-        return openApiProjectValidator.validate(moduleInfo.getProject(), compiledOpenClass);
+        return openApiProjectValidator.validate(moduleInfo.getProject(), rulesInstantiationStrategy);
     }
 
     private void addAllSyntaxNodes(

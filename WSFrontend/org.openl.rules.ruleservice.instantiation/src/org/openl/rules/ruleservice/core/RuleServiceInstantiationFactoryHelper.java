@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.core;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,10 +37,12 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.UseOpenMethodRe
 import org.openl.rules.ruleservice.core.interceptors.converters.SPRToPlainConverterAdvice;
 import org.openl.rules.ruleservice.core.interceptors.converters.VariationResultSPRToPlainConverterAdvice;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.OpenClassHelper;
 import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
 import org.slf4j.Logger;
@@ -123,35 +126,39 @@ public final class RuleServiceInstantiationFactoryHelper {
      */
     public static Class<?> buildInterfaceForInstantiationStrategy(Class<?> serviceClass,
             ClassLoader classLoader,
+            boolean provideRuntimeContext,
             boolean provideVariations) {
-        return processInterface(null, serviceClass, null, true, false, classLoader, provideVariations);
+        return processInterface(null, serviceClass, true, false, classLoader, provideRuntimeContext, provideVariations);
     }
 
     public static Class<?> buildInterfaceForService(IOpenClass openClass,
             Class<?> serviceClass,
-            Object serviceTarget,
             ClassLoader classLoader,
+            boolean provideRuntimeContext,
             boolean provideVariations) {
-        return processInterface(openClass, serviceClass, serviceTarget, false, true, classLoader, provideVariations);
+        return processInterface(openClass,
+            serviceClass,
+            false,
+            true,
+            classLoader,
+            provideRuntimeContext,
+            provideVariations);
     }
 
     public static Class<?> processInterface(IOpenClass openClass,
             Class<?> serviceClass,
-            Object serviceTarget,
             boolean removeServiceExtraMethods,
             boolean toServiceClass,
             ClassLoader classLoader,
+            boolean provideRuntimeContext,
             boolean provideVariations) {
         Objects.requireNonNull(serviceClass, "serviceClass cannot be null");
-        if (toServiceClass) {
-            Objects.requireNonNull(serviceTarget, "serviceTarget cannot be null");
-        }
 
         Map<Method, Pair<Class<?>, Boolean>> methodsWithReturnTypeNeedsChange = getMethodsWithReturnTypeNeedsChange(
             openClass,
             serviceClass,
-            serviceTarget,
             toServiceClass,
+            provideRuntimeContext,
             provideVariations);
 
         Set<Method> methodsToRemove = getMethodsToRemove(serviceClass, removeServiceExtraMethods);
@@ -214,8 +221,8 @@ public final class RuleServiceInstantiationFactoryHelper {
 
     private static Class<?> notNullIfNewMethodReturnTypeWithAnnotations(IOpenClass openClass,
             Method method,
-            Object serviceTarget,
             boolean toServiceClass,
+            boolean provideRuntimeContext,
             boolean provideVariations) {
         ServiceCallAfterInterceptor serviceCallAfterInterceptor = method
             .getAnnotation(ServiceCallAfterInterceptor.class);
@@ -226,9 +233,10 @@ public final class RuleServiceInstantiationFactoryHelper {
             if (lastServiceMethodAfterAdvice != null) {
                 return extractTypeForMethod(openClass,
                     method,
-                    serviceTarget,
                     toServiceClass,
-                    lastServiceMethodAfterAdvice);
+                    lastServiceMethodAfterAdvice,
+                    provideRuntimeContext,
+                    provideVariations);
             }
         }
 
@@ -238,25 +246,32 @@ public final class RuleServiceInstantiationFactoryHelper {
             .equals(VariationsResult.class))) {
             Class<? extends ServiceMethodAroundAdvice<?>> serviceMethodAroundAdvice = serviceCallAroundInterceptor
                 .value();
-            return extractTypeForMethod(openClass, method, serviceTarget, toServiceClass, serviceMethodAroundAdvice);
+            return extractTypeForMethod(openClass,
+                method,
+                toServiceClass,
+                serviceMethodAroundAdvice,
+                provideRuntimeContext,
+                provideVariations);
         }
         return null;
     }
 
     private static Class<?> extractTypeForMethod(IOpenClass openClass,
             Method method,
-            Object serviceTarget,
             boolean toServiceClass,
-            Class<? extends ServiceMethodAdvice> serviceMethodAdvice) {
+            Class<? extends ServiceMethodAdvice> serviceMethodAdvice,
+            boolean provideRuntimeContext,
+            boolean provideVariations) {
         if (toServiceClass) {
             UseOpenMethodReturnType useOpenMethodReturnType = serviceMethodAdvice
                 .getAnnotation(UseOpenMethodReturnType.class);
             if (useOpenMethodReturnType != null) {
                 Class<?> t = extractOpenMethodReturnType(openClass,
                     method,
-                    serviceTarget,
                     serviceMethodAdvice,
-                    useOpenMethodReturnType.value());
+                    useOpenMethodReturnType.value(),
+                    provideRuntimeContext,
+                    provideVariations);
                 if (t != null) {
                     return t;
                 }
@@ -271,12 +286,13 @@ public final class RuleServiceInstantiationFactoryHelper {
 
     private static Class<?> extractOpenMethodReturnType(IOpenClass openClass,
             Method method,
-            Object serviceTarget,
-            Class<?> interceptorClass,
-            TypeResolver typeResolver) {
-        IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.extractOpenMember(method, serviceTarget);
+            Class<?> serviceClass,
+            TypeResolver typeResolver,
+            boolean provideRuntimeContext,
+            boolean provideVariations) {
+        IOpenMember openMember = extractOpenMember(openClass, method, provideRuntimeContext, provideVariations);
         if (openMember == null) {
-            logWarn(method, interceptorClass);
+            logWarn(method, serviceClass);
             return null;
         }
         IOpenClass returnType = openMember.getType();
@@ -342,22 +358,21 @@ public final class RuleServiceInstantiationFactoryHelper {
      */
     private static Map<Method, Pair<Class<?>, Boolean>> getMethodsWithReturnTypeNeedsChange(IOpenClass openClass,
             Class<?> serviceClass,
-            Object serviceTarget,
             boolean toServiceClass,
+            boolean provideRuntimeContext,
             boolean provideVariations) {
         Map<Method, Pair<Class<?>, Boolean>> ret = new HashMap<>();
         for (Method method : serviceClass.getMethods()) {
             Class<?> newReturnType = notNullIfNewMethodReturnTypeWithAnnotations(openClass,
                 method,
-                serviceTarget,
                 toServiceClass,
+                provideRuntimeContext,
                 provideVariations);
             if (newReturnType != null) {
                 ret.put(method, Pair.of(newReturnType, Boolean.TRUE));
             } else if (toServiceClass && !isTypeChangingAnnotationPresent(method) && !method
                 .isAnnotationPresent(ServiceExtraMethod.class)) {
-                IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.extractOpenMember(method,
-                    serviceTarget);
+                IOpenMember openMember = extractOpenMember(openClass, method, provideRuntimeContext, provideVariations);
                 if (openMember == null) {
                     throw new IllegalStateException("Open member is not found.");
                 }
@@ -394,6 +409,22 @@ public final class RuleServiceInstantiationFactoryHelper {
             }
         }
         return ret;
+    }
+
+    private static IOpenMember extractOpenMember(IOpenClass moduleOpenClass,
+            Method method,
+            boolean provideRuntimeContext,
+            boolean provideVariations) {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        if (provideRuntimeContext) {
+            parameterTypes = Arrays.copyOfRange(parameterTypes, 1, parameterTypes.length);
+        }
+        if (provideVariations) {
+            if (parameterTypes.length > 0 && Objects.equals(parameterTypes[parameterTypes.length - 1],
+                VariationsPack.class))
+                parameterTypes = Arrays.copyOfRange(parameterTypes, 0, parameterTypes.length - 1);
+        }
+        return OpenClassHelper.findRulesMember(moduleOpenClass, method.getName(), parameterTypes);
     }
 
     /**
