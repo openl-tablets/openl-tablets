@@ -303,7 +303,7 @@ public class RulesDeployerService implements Closeable {
 
     private String readProjectName(byte[] bytes, String defaultName) {
         if (bytes == null) {
-            return null;
+            return defaultName;
         }
         String name = DeploymentUtils.getProjectName(new ByteArrayInputStream(bytes));
         return name == null || name.isEmpty() ? defaultName : name;
