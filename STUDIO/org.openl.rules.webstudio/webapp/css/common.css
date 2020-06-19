@@ -721,6 +721,15 @@ form .formfields {
 .error {
     color: red;
     padding: 0 2px;
+    /* See above default width for input. */
+    max-width: 350px;
+    display: inline-block;
+}
+
+table.properties-form.wide .error {
+    /* See above the width for inputs in table.properties-form.wide. */
+    max-width: 315px;
+    display: inline-block;
 }
 
 .success {
@@ -1166,6 +1175,10 @@ form .formfields {
 .rf-tab-hdr-brd {
     border: 0 !important;
     height: 0 !important;
+}
+
+.rf-tab-hdr-spcr {
+    border-bottom: 1px solid #C0C0C0;
 }
 
 .rf-insp {
