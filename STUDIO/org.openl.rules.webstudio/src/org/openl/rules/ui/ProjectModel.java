@@ -975,7 +975,9 @@ public class ProjectModel {
             if (!isSingleModuleMode()) {
                 List<WorkbookSyntaxNode> workbookSyntaxNodes = new ArrayList<>();
                 for (XlsModuleSyntaxNode xlsSyntaxNode : allXlsModuleSyntaxNodes) {
-                    workbookSyntaxNodes.addAll(Arrays.asList(xlsSyntaxNode.getWorkbookSyntaxNodes()));
+                    if (!(xlsSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
+                        workbookSyntaxNodes.addAll(Arrays.asList(xlsSyntaxNode.getWorkbookSyntaxNodes()));
+                    }
                 }
                 this.workbookSyntaxNodes = workbookSyntaxNodes.toArray(new WorkbookSyntaxNode[0]);
                 // EPBDS-7629: In multimodule mode xlsModuleSyntaxNode does not contain Virtual Module with dispatcher
