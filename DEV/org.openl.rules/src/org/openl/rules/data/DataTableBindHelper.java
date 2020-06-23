@@ -1,8 +1,10 @@
 package org.openl.rules.data;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -195,6 +197,7 @@ public class DataTableBindHelper {
 
         int count = 0;
         int width = dataTable.getWidth();
+        Set<String> uniqueFieldNames = new HashSet<>();
 
         for (int i = 0; i < width; ++i) {
 
@@ -207,6 +210,33 @@ public class DataTableBindHelper {
             // Remove extra spaces.
             //
             fieldName = StringUtils.trim(fieldName);
+            if (!uniqueFieldNames.add(fieldName)) {
+                continue; //don't count duplicates
+            }
+            //if it's field chain started with array index
+            IOpenClass openClass = tableType;
+            while (openClass.isArray() && fieldName.charAt(0) == '[') {
+                boolean arrayIndex = false;
+                int endIndex = fieldName.indexOf(']');
+                for (int j = 1; j < endIndex; j++) {
+                    char ch = fieldName.charAt(j);
+                    arrayIndex = Character.isDigit(ch);
+                    if (!arrayIndex) {
+                        break; //stop parsing if index isn't numeric
+                    }
+                }
+                if (!arrayIndex) {
+                    break;
+                }
+                openClass = openClass.getComponentClass();
+                if (!openClass.isArray()) {
+                    endIndex++;
+                    if (fieldName.length() <= endIndex || fieldName.charAt(endIndex) != '.') {
+                        endIndex--;
+                    }
+                }
+                fieldName = fieldName.substring(endIndex + 1);
+            }
 
             // if it is field chain get first token
             int dotIndex = fieldName.indexOf('.');
@@ -219,7 +249,7 @@ public class DataTableBindHelper {
                 fieldName = fieldName.substring(0, brIndex);
             }
 
-            IOpenField field = findField(fieldName, null, tableType);
+            IOpenField field = findField(fieldName, null, openClass);
 
             if (field != null && !field.isConst() && field.isWritable()) {
                 count++;
