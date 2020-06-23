@@ -19,7 +19,7 @@
     }
   </style>
 
-  <rich:popupPanel id="modalResolveConflicts" minWidth="580" autosized="true">
+  <rich:popupPanel id="modalResolveConflicts" minWidth="580">
     <f:facet name="header">
       <h:outputText value="Resolve conflicts" />
     </f:facet>
@@ -207,14 +207,16 @@
       }
 
       function showResolveConflictDialog() {
-        var $dialog = RichFaces.$("modalResolveConflicts");
-        $dialog.show();
+        let maxHeight = $j(window).height() * 0.8;
 
-        var maxHeight = $j(window).height() * 0.8;
-        if ($dialog.height() > maxHeight) {
-          $dialog.setSize($dialog.width(), maxHeight);
-          $dialog.moveTo($j(window).height() * 0.1, $dialog.getLeft());
-        }
+        // Dialog is initialized already. Change its maxHeight settings.
+        const $dialog = RichFaces.$("modalResolveConflicts");
+        $dialog.maxHeight = maxHeight;
+        $dialog.options.maxHeight = maxHeight;
+
+        // Autosize only once: when show popup. Don't autosize when it's opened already to avoid autoscrolling when
+        // dialog is rerendered.
+        $dialog.show(null, {autosized: true});
       }
 
       function onConflictResolutionChange(conflict, resolutionElement) {
