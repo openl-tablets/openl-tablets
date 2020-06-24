@@ -213,10 +213,19 @@ public class RunWebservicesITest {
         client.post("/EPBDS-9678-project2/test1", "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.req.json", "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.resp.txt");
     }
 
-
     @Test
     public void EPBDS_9928() {
         client.get("/EPBDS-9928-rs/swagger.json", "/EPBDS-9928/EPBDS-9928_swagger.resp.json");
         client.get("/EPBDS-9928-rs/openapi.json", "/EPBDS-9928/EPBDS-9928_openapi.resp.json");
+    }
+
+    @Test
+    public void EPBDS_10027() {
+        client.get("/REST/EPBDS-10027/EPBDS-10027/swagger.json", "/EPBDS-10027/EPBDS-10027_swagger.resp.json");
+        client.get("/REST/EPBDS-10027/EPBDS-10027/openapi.json", "/EPBDS-10027/EPBDS-10027_openapi.resp.json");
+        client.get("/REST/EPBDS-10027/EPBDS-10027?_wadl", "/EPBDS-10027/EPBDS-10027_wadl.resp.xml");
+        client.get("/EPBDS-10027/EPBDS-10027?wsdl", "/EPBDS-10027/EPBDS-10027_wsdl.resp.xml");
+
+        client.post("/REST/EPBDS-10027/EPBDS-10027/nonEnglishLangs", "/EPBDS-10027/EPBDS-10027.req.json", "/EPBDS-10027/EPBDS-10027.resp.json");
     }
 }

@@ -51,8 +51,6 @@ import org.openl.util.text.IPosition;
 import org.openl.util.text.TextInfo;
 import org.openl.util.text.TextInterval;
 
-import gcardone.junidecode.Junidecode;
-
 /**
  *
  * @author DLiauchuk
@@ -62,18 +60,18 @@ import gcardone.junidecode.Junidecode;
 public class SpreadsheetComponentsBuilder {
 
     /** tableSyntaxNode of the spreadsheet **/
-    private TableSyntaxNode tableSyntaxNode;
+    private final TableSyntaxNode tableSyntaxNode;
 
     /** binding context for indicating execution mode **/
-    private IBindingContext bindingContext;
+    private final IBindingContext bindingContext;
 
-    private CellsHeaderExtractor cellsHeaderExtractor;
+    private final CellsHeaderExtractor cellsHeaderExtractor;
 
     private ReturnSpreadsheetHeaderDefinition returnHeaderDefinition;
 
-    private Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = new HashMap<>();
-    private Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = new HashMap<>();
-    private BidiMap<String, SpreadsheetHeaderDefinition> headerDefinitions = new DualHashBidiMap<>();
+    private final Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = new HashMap<>();
+    private final Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = new HashMap<>();
+    private final BidiMap<String, SpreadsheetHeaderDefinition> headerDefinitions = new DualHashBidiMap<>();
 
     public SpreadsheetComponentsBuilder(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) {
         this.tableSyntaxNode = tableSyntaxNode;
@@ -96,18 +94,23 @@ public class SpreadsheetComponentsBuilder {
         return columnHeaders;
     }
 
-    private static String handleWrongSymbols(String s) {
+    private static String removeWrongSymbols(String s) {
         if (s == null) {
             return null;
         }
         s = s.trim();
         if (s.length() > 0) {
-            s = Junidecode.unidecode(s);
-            if (JavaKeywordUtils.isJavaKeyword(s) || Character.isDigit(s.charAt(0))) {
+            s = s.replaceAll("\\s+", "_"); // Replace whitespaces
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < s.length(); i++) {
+                if (Character.isJavaIdentifierPart(s.charAt(i))) {
+                    sb.append(s.charAt(i));
+                }
+            }
+            s = sb.toString();
+            if (JavaKeywordUtils.isJavaKeyword(s) || !Character.isJavaIdentifierStart(s.charAt(0))) {
                 s = "_" + s;
             }
-            s = s.replaceAll("\\s+", "_"); // Replace whitespaces
-            s = s.replaceAll("[^0-9a-zA-Z_]+", "");
         }
         return s;
     }
@@ -128,7 +131,7 @@ public class SpreadsheetComponentsBuilder {
                 e -> !e.getDefinition().isTildePresented());
         }
         for (int i = 0; i < ret.length; i++) {
-            ret[i] = handleWrongSymbols(ret[i]);
+            ret[i] = removeWrongSymbols(ret[i]);
         }
         return ret;
     }
@@ -150,7 +153,7 @@ public class SpreadsheetComponentsBuilder {
         }
 
         for (int i = 0; i < ret.length; i++) {
-            ret[i] = handleWrongSymbols(ret[i]);
+            ret[i] = removeWrongSymbols(ret[i]);
         }
 
         return ret;
@@ -368,7 +371,7 @@ public class SpreadsheetComponentsBuilder {
                     cell = cellsHeaderExtractor.getColumnNamesTable().getColumn(headerDefinition.getColumn());
                 }
                 if (headerDefinition.getDefinition().isAsteriskPresented()) {
-                    String s = handleWrongSymbols(headerDefinition.getDefinitionName());
+                    String s = removeWrongSymbols(headerDefinition.getDefinitionName());
                     if (StringUtils.isEmpty(s)) {
                         s = "Empty string";
                     }
