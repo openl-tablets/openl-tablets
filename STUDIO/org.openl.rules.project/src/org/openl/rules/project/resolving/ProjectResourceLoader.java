@@ -1,8 +1,11 @@
 package org.openl.rules.project.resolving;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -26,7 +29,13 @@ public class ProjectResourceLoader {
             URL[] urls = urlClassLoader.getURLs();
             List<ProjectResource> projectResources = new ArrayList<>();
             for (URL url : urls) {
-                File projectFolder = new File(url.getFile());
+                String filePath;
+                try {
+                    filePath = URLDecoder.decode(url.getFile(), StandardCharsets.UTF_8.name());
+                } catch (UnsupportedEncodingException ignored) {
+                    filePath = url.getFile();
+                }
+                File projectFolder = new File(filePath);
                 ResolvingStrategy resolvingStrategy = ProjectResolver.getInstance().isRulesProject(projectFolder);
                 if (resolvingStrategy != null) {
                     try {

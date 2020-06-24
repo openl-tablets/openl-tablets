@@ -42,7 +42,7 @@ public class DefaultRmiHandlerTest implements ApplicationContextAware {
         Assert.assertNotNull(defaultRmiHandler);
 
         String result = (String) defaultRmiHandler
-            .execute("baseHello", new Class<?>[] { int.class }, new Object[] { new Integer(10) });
+            .execute("baseHello", new Class<?>[] { int.class }, new Object[] { 10 });
 
         Assert.assertEquals("Good Morning", result);
 

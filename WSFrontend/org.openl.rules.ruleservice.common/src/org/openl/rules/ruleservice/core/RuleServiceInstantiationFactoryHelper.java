@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.core;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,13 +35,12 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.TypeResolver;
 import org.openl.rules.ruleservice.core.interceptors.annotations.UseOpenMethodReturnType;
 import org.openl.rules.ruleservice.core.interceptors.converters.SPRToPlainConverterAdvice;
 import org.openl.rules.ruleservice.core.interceptors.converters.VariationResultSPRToPlainConverterAdvice;
+import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.types.java.OpenClassHelper;
 import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
 import org.slf4j.Logger;
@@ -290,7 +288,8 @@ public final class RuleServiceInstantiationFactoryHelper {
             TypeResolver typeResolver,
             boolean provideRuntimeContext,
             boolean provideVariations) {
-        IOpenMember openMember = extractOpenMember(openClass, method, provideRuntimeContext, provideVariations);
+        IOpenMember openMember = MethodUtils
+            .findRulesMember(openClass, method, provideRuntimeContext, provideVariations);
         if (openMember == null) {
             logWarn(method, serviceClass);
             return null;
@@ -372,7 +371,8 @@ public final class RuleServiceInstantiationFactoryHelper {
                 ret.put(method, Pair.of(newReturnType, Boolean.TRUE));
             } else if (toServiceClass && !isTypeChangingAnnotationPresent(method) && !method
                 .isAnnotationPresent(ServiceExtraMethod.class)) {
-                IOpenMember openMember = extractOpenMember(openClass, method, provideRuntimeContext, provideVariations);
+                IOpenMember openMember = MethodUtils
+                    .findRulesMember(openClass, method, provideRuntimeContext, provideVariations);
                 if (openMember == null) {
                     throw new IllegalStateException("Open member is not found.");
                 }
@@ -409,22 +409,6 @@ public final class RuleServiceInstantiationFactoryHelper {
             }
         }
         return ret;
-    }
-
-    private static IOpenMember extractOpenMember(IOpenClass moduleOpenClass,
-            Method method,
-            boolean provideRuntimeContext,
-            boolean provideVariations) {
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        if (provideRuntimeContext) {
-            parameterTypes = Arrays.copyOfRange(parameterTypes, 1, parameterTypes.length);
-        }
-        if (provideVariations) {
-            if (parameterTypes.length > 0 && Objects.equals(parameterTypes[parameterTypes.length - 1],
-                VariationsPack.class))
-                parameterTypes = Arrays.copyOfRange(parameterTypes, 0, parameterTypes.length - 1);
-        }
-        return OpenClassHelper.findRulesMember(moduleOpenClass, method.getName(), parameterTypes);
     }
 
     /**

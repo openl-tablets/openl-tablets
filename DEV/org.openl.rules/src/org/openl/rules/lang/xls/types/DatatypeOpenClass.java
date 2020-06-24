@@ -18,6 +18,7 @@ import java.util.Objects;
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.rules.lang.xls.XlsBinder;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -49,6 +50,9 @@ public class DatatypeOpenClass extends ADynamicClass {
     private final String javaName;
 
     private final String packageName;
+
+    private TableSyntaxNode tableSyntaxNode;
+
     private byte[] bytecode;
 
     /**
@@ -312,4 +316,11 @@ public class DatatypeOpenClass extends ADynamicClass {
         OBJECT_CLASS_METHODS = Collections.unmodifiableMap(objectClassMethods);
     }
 
+    public TableSyntaxNode getTableSyntaxNode() {
+        return tableSyntaxNode;
+    }
+
+    public void setTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {
+        this.tableSyntaxNode = tableSyntaxNode;
+    }
 }

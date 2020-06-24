@@ -362,8 +362,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
                 String[] parameterNames = resolveParameterNames(originalMethod);
                 processAnnotationsOnMethodParameters(originalMethod, mv);
-                List<ParamAnnotationValue> paramAnnotationsValues = getParamAnnotationsValue(
-                    originalMethod);
+                List<ParamAnnotationValue> paramAnnotationsValues = getParamAnnotationsValue(originalMethod);
                 Set<String> usedValues = paramAnnotationsValues.stream()
                     .filter(Objects::nonNull)
                     .map(ParamAnnotationValue::getFieldName)
@@ -413,27 +412,23 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private String[] resolveParameterNames(Method originalMethod) {
-            return resolveMethodParameterNames ?
-                   MethodUtils.getParameterNames(openClass, originalMethod, provideRuntimeContext, provideVariations) :
-                   GenUtils.getParameterNames(originalMethod);
+            return resolveMethodParameterNames ? MethodUtils
+                .getParameterNames(openClass, originalMethod, provideRuntimeContext, provideVariations)
+                                               : GenUtils.getParameterNames(originalMethod);
         }
 
-        private List<ParamAnnotationValue> getParamAnnotationsValue(
-                Method originalMethod) {
-            final List<ParamAnnotationValue> values = new ArrayList<>(
-                originalMethod.getParameterCount());
+        private List<ParamAnnotationValue> getParamAnnotationsValue(Method originalMethod) {
+            final List<ParamAnnotationValue> values = new ArrayList<>(originalMethod.getParameterCount());
             for (Annotation[] annotations : originalMethod.getParameterAnnotations()) {
                 if (annotations.length > 0) {
                     for (Annotation annotation : annotations) {
                         if (annotation instanceof PathParam) {
-                            values.add(new ParamAnnotationValue(PathParam.class,
-                                ((PathParam) annotation).value()));
+                            values.add(new ParamAnnotationValue(PathParam.class, ((PathParam) annotation).value()));
                             // it is possible that PathParam and QueryParam annotations will be indicated together for
                             // one parameter
                             break;
                         } else if (annotation instanceof QueryParam) {
-                            values.add(new ParamAnnotationValue(QueryParam.class,
-                                ((QueryParam) annotation).value()));
+                            values.add(new ParamAnnotationValue(QueryParam.class, ((QueryParam) annotation).value()));
                             // it is possible that PathParam and QueryParam annotations will be indicated together for
                             // one parameter
                             break;
@@ -529,7 +524,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 String summary = originalMethod.getReturnType().getSimpleName() + " " + MethodUtil
                     .printMethod(originalMethod.getName(), originalMethod.getParameterTypes(), true);
 
-                IOpenMethod openMethod = MethodUtils.getRulesMethod(openClass, originalMethod);
+                IOpenMethod openMethod = MethodUtils.findRulesMethod(openClass, originalMethod);
                 String detailedSummary = openMethod != null ? openMethod.getType()
                     .getDisplayName(INamedThing.LONG) + " " + MethodUtil.printSignature(openMethod, INamedThing.LONG)
                                                             : originalMethod.getReturnType()
@@ -725,6 +720,27 @@ public class JAXRSOpenLServiceEnhancerHelper {
             return extractedType == null ? type : extractedType;
         }
 
+    }
+
+    public static Map<Method, Method> buildMethodMap(Class<?> serviceClass,
+            Class<?> enhancedServiceClass) throws Exception {
+        Map<Method, Method> methodMap = new HashMap<>();
+        for (Method method : enhancedServiceClass.getMethods()) {
+            String methodName = method.getName();
+            Class<?>[] parameterTypes = method.getParameterTypes();
+            try {
+                Method targetMethod = serviceClass.getMethod(methodName, parameterTypes);
+                methodMap.put(method, targetMethod);
+            } catch (NoSuchMethodException ex) {
+                if (parameterTypes.length == 1) {
+                    Class<?> methodArgument = parameterTypes[0];
+                    parameterTypes = (Class<?>[]) methodArgument.getMethod("_types").invoke(null);
+                }
+                Method targetMethod = serviceClass.getMethod(methodName, parameterTypes);
+                methodMap.put(method, targetMethod);
+            }
+        }
+        return methodMap;
     }
 
     public static Class<?> enhanceInterface(Class<?> originalClass,

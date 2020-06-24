@@ -39,7 +39,6 @@ import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
-import org.openl.rules.project.instantiation.SimpleDependencyLoader;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -954,7 +953,6 @@ public class ProjectModel {
 
         }
         instantiationStrategy.setExternalParameters(externalParameters);
-        instantiationStrategy.setServiceClass(SimpleDependencyLoader.EmptyInterface.class);
 
         // If autoCompile is false we cannot unload workbook during editing because we must show to a user latest edited
         // data (not parsed and compiled data).
