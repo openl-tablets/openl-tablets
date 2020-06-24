@@ -134,7 +134,9 @@ public final class OpenLTest {
 
         File[] files = testsDir.listFiles();
         // files = new File[] {new File(sourceDir, "CastsTest.xlsx")}; // Just for debugging.
-
+        if (files == null) {
+            return;
+        }
         for (File file : files) {
             final long startTime = System.nanoTime();
             int errors = 0;
