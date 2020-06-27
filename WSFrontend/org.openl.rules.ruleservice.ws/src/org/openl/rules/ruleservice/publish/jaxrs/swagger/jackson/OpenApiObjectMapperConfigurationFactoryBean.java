@@ -4,8 +4,6 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.swagger.v3.oas.models.media.Schema;
-
 public final class OpenApiObjectMapperConfigurationFactoryBean extends AbstractFactoryBean<ObjectMapper> {
 
     private ObjectMapper objectMapper;
@@ -26,7 +24,6 @@ public final class OpenApiObjectMapperConfigurationFactoryBean extends AbstractF
     @Override
     protected ObjectMapper createInstance() {
         ObjectMapper objectMapper = getObjectMapper();
-        objectMapper.addMixIn(Schema.class, OpenApiXmlIgnoreMixIn.class);
-        return objectMapper;
+        return OpenApiObjectMapperConfigurationHelper.configure(objectMapper);
     }
 }

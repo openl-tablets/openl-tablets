@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.commons.jxpath.JXPathContext;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.validation.base.ValidatedCompiledOpenClass;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.models.media.MediaType;
 
 class Context {
     private ValidatedCompiledOpenClass validatedCompiledOpenClass;
+    private RulesDeploy rulesDeploy;
     private OpenAPI expectedOpenAPI;
     private OpenAPI actualOpenAPI;
     private IOpenClass openClass;
@@ -38,6 +40,9 @@ class Context {
 
     private Method method;
     private IOpenMethod openMethod;
+
+    private boolean typeValidationInProgress;
+    private IOpenClass type;
 
     public ValidatedCompiledOpenClass getValidatedCompiledOpenClass() {
         return validatedCompiledOpenClass;
@@ -197,6 +202,30 @@ class Context {
 
     public void setMethodMap(Map<Method, Method> methodMap) {
         this.methodMap = methodMap;
+    }
+
+    public RulesDeploy getRulesDeploy() {
+        return rulesDeploy;
+    }
+
+    public void setRulesDeploy(RulesDeploy rulesDeploy) {
+        this.rulesDeploy = rulesDeploy;
+    }
+
+    public boolean isTypeValidationInProgress() {
+        return typeValidationInProgress;
+    }
+
+    public IOpenClass getType() {
+        return type;
+    }
+
+    public void setType(IOpenClass type) {
+        this.type = type;
+    }
+
+    public void setTypeValidationInProgress(boolean typeValidationInProgress) {
+        this.typeValidationInProgress = typeValidationInProgress;
     }
 
     public TableSyntaxNode getTableSyntaxNode() {

@@ -1,27 +1,15 @@
 package org.openl.rules.ruleservice.databinding;
 
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import javax.xml.bind.annotation.XmlSeeAlso;
-
-import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
-import org.openl.rules.ruleservice.databinding.annotation.JacksonBindingConfigurationUtils;
-import org.openl.rules.variation.ArgumentReplacementVariation;
-import org.openl.rules.variation.ComplexVariation;
-import org.openl.rules.variation.DeepCloningVariation;
-import org.openl.rules.variation.JXPathVariation;
-import org.openl.rules.variation.NoVariation;
-import org.openl.rules.variation.Variation;
-import org.openl.rules.variation.VariationsResult;
-import org.openl.types.IOpenClass;
-import org.openl.util.ClassUtils;
+import org.openl.rules.serialization.JacksonObjectMapperFactoryBeanHelper;
 
 public class ServiceConfigurationRootClassNamesBindingFactoryBean extends ServiceConfigurationFactoryBean<Set<String>> {
     private static final String ROOT_CLASS_NAMES_BINDING = "rootClassNamesBinding";
@@ -42,97 +30,22 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
         Set<String> ret = new HashSet<>(getDefaultAdditionalRootClassNames());
         ret.addAll(fromServiceDescription());
         ret.addAll(fromOpenLService());
-        ret.addAll(fromConfiguration());
-        checkXmlSeeAlso(ret);
         return Collections.unmodifiableSet(ret);
-    }
-
-    private void checkXmlSeeAlso(Set<String> rootClassNames, Class<?> clazz) {
-        if (!JacksonBindingConfigurationUtils.isConfiguration(clazz)) {
-            XmlSeeAlso xmlSeeAlso = clazz.getAnnotation(XmlSeeAlso.class);
-            if (xmlSeeAlso != null) {
-                for (Class<?> cls : xmlSeeAlso.value()) {
-                    rootClassNames.add(cls.getName());
-                    checkXmlSeeAlso(rootClassNames, cls);
-                }
-            }
-        }
-    }
-
-    private void checkXmlSeeAlso(Set<String> rootClassNames) throws ServiceConfigurationException {
-        OpenLService openLService = getOpenLService();
-        Set<String> tmp = new HashSet<>(rootClassNames);
-        for (String className : tmp) {
-            try {
-                Class<?> cls = openLService.getClassLoader().loadClass(className);
-                checkXmlSeeAlso(rootClassNames, cls);
-            } catch (RuleServiceInstantiationException | ClassNotFoundException e) {
-                throw new ServiceConfigurationException(e);
-            }
-        }
     }
 
     private Set<String> fromOpenLService() throws ServiceConfigurationException {
         OpenLService openLService = getOpenLService();
-
-        boolean found = false;
-
-        Set<String> ret = new HashSet<>();
         try {
             if (openLService.getOpenClass() != null) {
-                for (IOpenClass type : openLService.getOpenClass().getTypes()) {
-                    if (type instanceof CustomSpreadsheetResultOpenClass) {
-                        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
-                        XlsModuleOpenClass module = (XlsModuleOpenClass) openLService.getOpenClass();
-                        CustomSpreadsheetResultOpenClass csrt = (CustomSpreadsheetResultOpenClass) module
-                            .findType(customSpreadsheetResultOpenClass.getName());
-                        Class<?> beanClass = csrt.getBeanClass();
-                        ret.add(beanClass.getName());
-                        if (!found) {
-                            for (Method method : openLService.getServiceClass().getMethods()) {
-                                if (!found && ClassUtils.isAssignable(beanClass, method.getReturnType())) {
-                                    found = true;
-                                }
-                            }
-                        }
-                    }
-                }
-                if (openLService.getOpenClass() instanceof XlsModuleOpenClass) {
-                    Class<?> spreadsheetResultBeanClass = ((XlsModuleOpenClass) openLService.getOpenClass())
-                        .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                        .toCustomSpreadsheetResultOpenClass()
-                        .getBeanClass();
-                    ret.add(spreadsheetResultBeanClass.getName());
-                    if (!found) {
-                        for (Method method : openLService.getServiceClass().getMethods()) {
-                            if (!found && ClassUtils.isAssignable(spreadsheetResultBeanClass, method.getReturnType())) {
-                                found = true;
-                            }
-                        }
-                    }
-                }
+                Set<Class<?>> classes = JacksonObjectMapperFactoryBeanHelper.extractSpreadsheetResultBeanClasses(
+                    (XlsModuleOpenClass) openLService.getOpenClass(),
+                    openLService.getServiceClass());
+                return classes.stream().map(Class::getName).collect(Collectors.toSet());
             }
+            return Collections.emptySet();
         } catch (RuleServiceInstantiationException e) {
             throw new ServiceConfigurationException(e);
         }
-
-        return found ? ret : Collections.emptySet();
-    }
-
-    private Set<String> fromConfiguration() throws ServiceConfigurationException {
-        OpenLService openLService = getOpenLService();
-        Set<String> ret = new HashSet<>();
-        if (openLService.isProvideVariations()) {
-            ret.add(Variation.class.getName());
-            ret.add(NoVariation.class.getName());
-            ret.add(ArgumentReplacementVariation.class.getName());
-            ret.add(ComplexVariation.class.getName());
-            ret.add(DeepCloningVariation.class.getName());
-            ret.add(JXPathVariation.class.getName());
-            ret.add(VariationsResult.class.getName());
-        }
-
-        return ret;
     }
 
     private Set<String> fromServiceDescription() throws Exception {
@@ -172,7 +85,7 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         if (this.defaultAdditionalRootClassNames == null) {
             this.defaultAdditionalRootClassNames = new HashSet<>();
         }

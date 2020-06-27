@@ -22,12 +22,12 @@
             <artifactId>org.openl.rules.ruleservice.ws.common</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.swagger.parser.v3</groupId>
-            <artifactId>swagger-parser</artifactId>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.jackson</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-jaxrs2</artifactId>
+            <groupId>io.swagger.parser.v3</groupId>
+            <artifactId>swagger-parser</artifactId>
         </dependency>
     </dependencies>
 </project>

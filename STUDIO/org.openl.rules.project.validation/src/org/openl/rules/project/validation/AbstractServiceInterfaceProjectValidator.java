@@ -52,7 +52,7 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
         if (projectResource != null) {
             try {
                 return rulesDeploySerializer
-                    .deserialize(new FileInputStream(new File(projectResource.getUrl().getFile())));
+                    .deserialize(new FileInputStream(new File(projectResource.getFile())));
             } catch (FileNotFoundException e) {
                 return null;
             }

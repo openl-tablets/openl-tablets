@@ -711,7 +711,7 @@ public class ProjectModel {
             }
         }
 
-        return nodes.toArray(new TableSyntaxNode[0]);
+        return nodes.toArray(TableSyntaxNode.EMPTY_ARRAY);
     }
 
     public int getNumberOfTables() {

@@ -6,8 +6,8 @@ import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.swagger.models.Swagger;
 import io.swagger.v3.oas.integration.OpenApiContextLocator;
+import io.swagger.v3.oas.integration.api.OpenApiContext;
 
 public final class OpenApiRulesCacheWorkaround {
 
@@ -18,9 +18,8 @@ public final class OpenApiRulesCacheWorkaround {
     public static void reset() {
         try {
             Field mapField = OpenApiContextLocator.class.getDeclaredField("map");
-
             mapField.setAccessible(true);
-            ConcurrentMap<String, Swagger> swaggerMap = (ConcurrentMap<String, Swagger>) mapField
+            ConcurrentMap<String, OpenApiContext> swaggerMap = (ConcurrentMap<String, OpenApiContext>) mapField
                 .get(OpenApiContextLocator.getInstance());
             swaggerMap.clear();
         } catch (NoSuchFieldException | IllegalAccessException e) {
