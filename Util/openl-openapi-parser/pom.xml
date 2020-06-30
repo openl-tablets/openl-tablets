@@ -30,8 +30,17 @@
             <artifactId>openl-openapi-model-scaffolding</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>openl-excel-builder</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.openl</groupId>
             <artifactId>org.openl.commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-jxpath</groupId>
+            <artifactId>commons-jxpath</artifactId>
         </dependency>
     </dependencies>
 </project>

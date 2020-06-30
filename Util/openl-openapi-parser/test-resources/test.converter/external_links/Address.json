@@ -11,7 +11,7 @@
       "type": "string"
     },
     "building": {
-      "$ref": "./models.json#/components/schemas/Building"
+      "$ref": "./models.json#/components1/schemas/Building"
     },
     "t": {
       "$ref": "./external.yaml#/SomeId"

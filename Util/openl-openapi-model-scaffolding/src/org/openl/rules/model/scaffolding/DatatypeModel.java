@@ -3,6 +3,7 @@ package org.openl.rules.model.scaffolding;
 import java.util.List;
 
 public class DatatypeModel {
+    private String parent;
     private String name;
     private List<FieldModel> fields;
 
@@ -25,5 +26,12 @@ public class DatatypeModel {
     public void setFields(List<FieldModel> fields) {
         this.fields = fields;
     }
-}
 
+    public String getParent() {
+        return parent;
+    }
+
+    public void setParent(String parent) {
+        this.parent = parent;
+    }
+}

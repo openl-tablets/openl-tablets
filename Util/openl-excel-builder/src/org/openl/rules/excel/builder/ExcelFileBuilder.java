@@ -1,4 +1,4 @@
-package org.openl.rules.model.scaffolding;
+package org.openl.rules.excel.builder;
 
 import java.io.FileOutputStream;
 import java.math.BigDecimal;
@@ -13,6 +13,13 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openl.rules.model.scaffolding.DatatypeModel;
+import org.openl.rules.model.scaffolding.FieldModel;
+import org.openl.rules.model.scaffolding.ProjectModel;
+import org.openl.rules.model.scaffolding.SpreadsheetResultModel;
+import org.openl.rules.model.scaffolding.StepModel;
+import org.openl.rules.model.scaffolding.TypeModel;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +40,7 @@ public class ExcelFileBuilder {
     public static final String DATATYPE_FIELD_DEFAULT_VALUE = "\\{datatype.field.defaultValue}";
 
     public static final String SPREADSHEET_RESULT_NAME_TEMPLATE = "\\{spr.name.template}";
+    public static final String SPREADSHEET_RESULT_TYPE_TEMPLATE = "\\{spr.return.type}";
     public static final String SPREADSHEET_RESULT_STEP_NAME = "\\{spr.step.name}";
     public static final String SPREADSHEET_RESULT_STEP_VALUE = "\\{spr.step.value}";
 
@@ -115,8 +123,11 @@ public class ExcelFileBuilder {
         int rowCounter = 0;
         for (SpreadsheetResultModel spreadsheetResultModel : projectModel.getSpreadsheetResultModels()) {
 
-            String spreadsheetResultNameValue = spreadsheetNameTemplate.replaceAll(SPREADSHEET_RESULT_NAME_TEMPLATE,
+            String spreadsheetHeader = spreadsheetNameTemplate.replaceAll(SPREADSHEET_RESULT_NAME_TEMPLATE,
                 spreadsheetResultModel.getSignature());
+
+            spreadsheetHeader = spreadsheetHeader.replaceAll(SPREADSHEET_RESULT_TYPE_TEMPLATE,
+                spreadsheetResultModel.getType());
 
             CellRangeAddress region = new CellRangeAddress(rowCounter,
                 rowCounter + sprRegionSettings.getHeight(),
@@ -126,7 +137,7 @@ public class ExcelFileBuilder {
                 addRegion(sheet, sprDefinitionStyle, region);
             }
             Cell sprNameCell = getOrCreateCell(0, rowCounter, sheet);
-            sprNameCell.setCellValue(spreadsheetResultNameValue);
+            sprNameCell.setCellValue(spreadsheetHeader);
             // properties and description
             rowCounter += 2;
             CellRangeAddress stepHeaderRegion = new CellRangeAddress(rowCounter,
@@ -144,7 +155,7 @@ public class ExcelFileBuilder {
             valueHeaderCell.setCellStyle(valueHeaderStyle);
             rowCounter++;
 
-            for (FieldModel field : spreadsheetResultModel.getModel().getFields()) {
+            for (StepModel step : spreadsheetResultModel.getSteps()) {
                 CellRangeAddress stepNameRegion = new CellRangeAddress(rowCounter,
                     rowCounter + stepNameSettings.getHeight(),
                     0,
@@ -152,11 +163,11 @@ public class ExcelFileBuilder {
                 if (stepNameRegion.getFirstRow() != stepNameTemplateRegion.getFirstRow())
                     addRegion(sheet, stepNameCellStyle, stepNameRegion);
 
-                String stepNameValue = stepNameTemplate.replaceAll(SPREADSHEET_RESULT_STEP_NAME, field.getName());
+                String stepNameValue = stepNameTemplate.replaceAll(SPREADSHEET_RESULT_STEP_NAME, step.getName());
                 Cell stepNameCell = getOrCreateCell(0, rowCounter, sheet);
                 stepNameCell.setCellValue(stepNameValue);
 
-                Object defaultValue = field.getDefaultValue();
+                Object defaultValue = step.getValue();
                 String valueStep = stepValueTemplate.replaceAll(SPREADSHEET_RESULT_STEP_VALUE,
                     defaultValue != null ? String.valueOf(defaultValue) : "");
                 Cell valueStepCell = getOrCreateCell(stepNameSettings.getWidth() + 1, rowCounter, sheet);
@@ -212,7 +223,12 @@ public class ExcelFileBuilder {
             for (FieldModel field : dataType.getFields()) {
 
                 Cell typeCell = getOrCreateCell(FIELD_CLASS_CELL_INDEX, rowCounter, sheet);
-                String fieldClass = classNameTemplate.replaceAll(DATATYPE_FIELD_CLASS, field.getType());
+                TypeModel type = field.getType();
+                String typeName = StringUtils.capitalize(type.getName());
+                if (type.isArray()) {
+                    typeName += "[]";
+                }
+                String fieldClass = classNameTemplate.replaceAll(DATATYPE_FIELD_CLASS, typeName);
                 typeCell.setCellStyle(fieldClassStyle);
                 typeCell.setCellValue(fieldClass);
 
@@ -241,8 +257,8 @@ public class ExcelFileBuilder {
             format = field.getFormat();
         }
         String valueAsString = field.getDefaultValue().toString();
-        switch (field.getType()) {
-            case "Integer":
+        switch (field.getType().getName()) {
+            case "integer":
                 Number casted = NumberFormat.getInstance().parse(valueAsString);
                 if (casted.longValue() <= Integer.MAX_VALUE) {
                     defaultValueCell.setCellValue(Integer.parseInt(valueAsString));
@@ -250,7 +266,7 @@ public class ExcelFileBuilder {
                     defaultValueCell.setCellValue(Long.parseLong(valueAsString));
                 }
                 break;
-            case "Number":
+            case "number":
                 BigDecimal bigDecimalValue = new BigDecimal(valueAsString);
                 if (format.equals("double")) {
                     defaultValueCell.setCellValue(bigDecimalValue.doubleValue());
@@ -260,10 +276,10 @@ public class ExcelFileBuilder {
                     defaultValueCell.setCellValue(0.0);
                 }
                 break;
-            case "String":
+            case "string":
                 defaultValueCell.setCellValue(valueAsString);
                 break;
-            case "Boolean":
+            case "boolean":
                 defaultValueCell.setCellValue(Boolean.parseBoolean(valueAsString));
                 break;
             default:

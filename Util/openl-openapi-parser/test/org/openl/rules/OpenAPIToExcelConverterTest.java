@@ -3,9 +3,10 @@ package org.openl.rules;
 import java.io.IOException;
 
 import org.junit.Test;
-import org.openl.rules.model.scaffolding.ExcelFileBuilder;
+import org.openl.rules.excel.builder.ExcelFileBuilder;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
+import org.openl.rules.openapi.impl.OpenAPIExperiments;
 import org.openl.rules.openapi.impl.OpenAPIToExcelModelConverter;
 
 public class OpenAPIToExcelConverterTest {
@@ -17,29 +18,29 @@ public class OpenAPIToExcelConverterTest {
 
     @Test
     public void testAutoPolicyJson() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIToExcelModelConverter();
+        OpenAPIModelConverter converter = new OpenAPIExperiments();
         ProjectModel projectModel = converter.extractProjectModel(JSON_FILE_NAME);
-        ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
     @Test
     public void testBankRating() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIToExcelModelConverter();
+        OpenAPIModelConverter converter = new OpenAPIExperiments();
         ProjectModel projectModel = converter.extractProjectModel(BANK_RATING);
-        ExcelFileBuilder.generateExcelFile(projectModel);
+//        ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
     @Test
     public void testFolderWithJsonFiles() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIToExcelModelConverter();
+        // OpenAPIModelConverter converter = new OpenAPIToExcelModelConverter();
+        OpenAPIModelConverter converter = new OpenAPIExperiments();
         ProjectModel projectModel = converter.extractProjectModel(EXTERNAL_LINKS_JSON_TEST);
-        ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
     @Test
     public void testNested() throws IOException {
         OpenAPIModelConverter converter = new OpenAPIToExcelModelConverter();
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/multiple_objects_inside/Continent.json");
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/multiple_objects_inside/Continent.json");
         ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
@@ -52,29 +53,66 @@ public class OpenAPIToExcelConverterTest {
 
     @Test
     public void testInline() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIToExcelModelConverter();
+        // OpenAPIModelConverter converter = new OpenAPIToExcelModelConverter();
+        OpenAPIModelConverter converter = new OpenAPIExperiments();
         ProjectModel projectModel = converter.extractProjectModel("test.converter/inline_object/InlineSample.json");
-        ExcelFileBuilder.generateExcelFile(projectModel);
+    }
+
+    @Test
+    public void testInlin1e() throws IOException {
+        // OpenAPIModelConverter converter = new OpenAPIToExcelModelConverter();
+        OpenAPIModelConverter converter = new OpenAPIExperiments();
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/inline_object/inline.yaml");
     }
 
     @Test
     public void testInlineWithBodyNamedObject() throws IOException {
         OpenAPIModelConverter converter = new OpenAPIToExcelModelConverter();
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/inline_object/InlineSample_bodyNamedObjectInside.json");
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/inline_object/InlineSample_bodyNamedObjectInside.json");
         ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
     @Test
     public void testCombined() throws IOException {
         OpenAPIModelConverter converter = new OpenAPIToExcelModelConverter();
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/combinedSchemas/combined.yml");
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/inheritance_and_polymorphism/anyOf.yml");
         ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
     @Test
     public void testCombinedRequest() throws IOException {
         OpenAPIModelConverter converter = new OpenAPIToExcelModelConverter();
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/combinedSchemas/combined_request.yml");
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/inheritance_and_polymorphism/oneOfRequest.yml");
         ExcelFileBuilder.generateExcelFile(projectModel);
+    }
+
+    @Test
+    public void testAllOf() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIExperiments();
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/inheritance_and_polymorphism/allOf.yml");
+    }
+
+    @Test
+    public void testReusableBody() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIExperiments();
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/reusable_body/reusablebody.yml");
+    }
+
+    @Test
+    public void testRequests() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIToExcelModelConverter();
+        ProjectModel projectModel = converter.extractProjectModel("Requests.json");
+        ExcelFileBuilder.generateExcelFile(projectModel);
+    }
+
+    @Test
+    public void testAllOfInsideOneOf() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIExperiments();
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/inheritance_and_polymorphism/allOfInsideOneOf.yml");
     }
 }

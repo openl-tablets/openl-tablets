@@ -1,4 +1,4 @@
-package org.openl.rules.model.scaffolding;
+package org.openl.rules.excel.builder;
 
 import org.apache.poi.ss.util.CellRangeAddress;
 

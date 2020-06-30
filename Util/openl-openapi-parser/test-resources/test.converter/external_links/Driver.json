@@ -4,7 +4,72 @@
     "title": "Example, Multiple Files",
     "version": "1.0.0"
   },
+  "paths": {
+    "/drivers": {
+      "get": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/DriverRequest"
+        },
+        "responses": {
+          "default": {
+            "description": "Default response for drivers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/DriverResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/driversXmlFormat": {
+      "get": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/DriverRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/DriverResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "components": {
+    "requestBodies": {
+      "DriverRequest": {
+        "description": "driver request",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SomeValue"
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "DriverResponse": {
+        "description": "driver response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Driver"
+            }
+          }
+        }
+      }
+    },
     "schemas": {
       "Driver": {
         "type": "object",
@@ -56,7 +121,5 @@
         }
       }
     }
-  },
-  "paths": {
   }
 }

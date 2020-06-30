@@ -1,15 +1,18 @@
 package org.openl.rules.model.scaffolding;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SpreadsheetResultModel {
 
     private String signature;
     private String type;
-    private DatatypeModel model;
+    private List<StepModel> steps = new ArrayList<>();
 
-    public SpreadsheetResultModel(String signature, String type, DatatypeModel model) {
+    public SpreadsheetResultModel(String signature, String type, List<StepModel> steps) {
         this.signature = signature;
         this.type = type;
-        this.model = model;
+        this.steps = steps;
     }
 
     public SpreadsheetResultModel() {
@@ -32,11 +35,11 @@ public class SpreadsheetResultModel {
         this.type = type;
     }
 
-    public DatatypeModel getModel() {
-        return model;
+    public List<StepModel> getSteps() {
+        return steps;
     }
 
-    public void setModel(DatatypeModel model) {
-        this.model = model;
+    public void setSteps(List<StepModel> steps) {
+        this.steps = steps;
     }
 }

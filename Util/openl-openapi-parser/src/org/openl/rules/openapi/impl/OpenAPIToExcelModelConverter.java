@@ -9,12 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetResultModel;
+import org.openl.rules.model.scaffolding.TypeModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,30 +47,31 @@ public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
 
     public static final String HTTP_SUCCESS_CODE = "200";
 
-    private final static String INTEGER_TYPE = "integer";
-    private final static String NUMBER_TYPE = "number";
-    private final static String STRING_TYPE = "string";
-    private final static String BOOLEAN_TYPE = "boolean";
+    public static final String APPLICATION_JSON = "application/json";
+    public static final String TEXT_PLAIN = "text/plain";
 
-    private final static Set<String> DEFAULT_TYPES = new HashSet<>(
-        Arrays.asList(INTEGER_TYPE, NUMBER_TYPE, STRING_TYPE, BOOLEAN_TYPE));
+    private static final String INTEGER_TYPE = "integer";
+    private static final String DOUBLE_TYPE = "double";
+    private static final String FLOAT_TYPE = "float";
+    private static final String STRING_TYPE = "string";
+    private static final String BOOLEAN_TYPE = "boolean";
+    private static final Set<String> DEFAULT_TYPES = new HashSet<>(
+        Arrays.asList(INTEGER_TYPE, DOUBLE_TYPE, FLOAT_TYPE, STRING_TYPE, BOOLEAN_TYPE));
 
     @Override
     public ProjectModel extractProjectModel(String pathTo) {
         try {
-            ParseOptions options = new ParseOptions();
-            options.setResolve(true);
-            options.setFlatten(true);
+            ParseOptions options = getParseOptions();
             OpenAPI openAPI = new OpenAPIV3Parser().read(pathTo, null, options);
+
             String projectName = openAPI.getInfo().getTitle();
 
             Map<String, Set<String>> allTypesMap = new HashMap<>();
+            Map<String, Set<String>> allTypesClearMap = new HashMap<>();
+            Map<String, Set<String>> refMaps = new HashMap<>();
             Map<String, Integer> requestsTypes = new HashMap<>();
             Set<String> responsesTypes = new HashSet<>();
-            // Extracting datatype models. Also we're filling the map with all types which were defined with their
-            // dependencies
-            // TODO: now it stores the "clear" name - possible problem - when the reference type and simple type are
-            // named equally. Is it possible?
+
             List<DatatypeModel> dataTypes = extractDatatypes(openAPI, allTypesMap);
             extractRequestsAndResponses(openAPI, requestsTypes, responsesTypes, allTypesMap);
             // This types are used only in requests -> we need to remove them from data types and expand at methods
@@ -76,13 +80,28 @@ public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
             // Extracting spreadsheetResults -> we're removing returning types which were used in requests
             Set<String> possibleSpreadSheetResults = removeRequestTypes(requestsTypes, responsesTypes);
 
-            List<SpreadsheetResultModel> spreadsheetResultModels = extractSprModels(openAPI, dataTypes);
+            List<DatatypeModel> filteredDatatypes = dataTypes.stream()
+                .filter(x -> !possibleSpreadSheetResults.contains(x.getName()) && !typesToExpand.contains(x.getName()))
+                .collect(Collectors.toList());
 
-            return new ProjectModel(projectName, dataTypes, spreadsheetResultModels);
+            List<SpreadsheetResultModel> spreadsheetResultModels = extractSprModels(openAPI,
+                dataTypes,
+                typesToExpand,
+                possibleSpreadSheetResults,
+                allTypesMap);
+
+            return new ProjectModel(projectName, filteredDatatypes, spreadsheetResultModels);
         } catch (Exception e) {
             logger.error("Something went wrong", e);
         }
         return null;
+    }
+
+    private ParseOptions getParseOptions() {
+        ParseOptions options = new ParseOptions();
+        options.setResolve(true);
+        options.setFlatten(true);
+        return options;
     }
 
     private Set<String> removeRequestTypes(Map<String, Integer> requestsTypes, Set<String> responsesTypes) {
@@ -104,51 +123,95 @@ public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
 
     private void extractRequestsAndResponses(OpenAPI openAPI,
             Map<String, Integer> requestsTypes,
-            Set<String> responses,
+            Set<String> responsesTypes,
             Map<String, Set<String>> allTypesMap) {
         Paths paths = openAPI.getPaths();
         for (Map.Entry<String, PathItem> pathEntry : paths.entrySet()) {
+            String pathName = pathEntry.getKey();
             PathItem value = pathEntry.getValue();
+
             List<Operation> operations = value.readOperations();
             if (operations.size() > 1) {
-                throw new UnsupportedOperationException("There are more than 1 http method");
+                throw new UnsupportedOperationException("There are more than 1 http method in the path:" + pathName);
             }
             if (operations.isEmpty()) {
-                logger.info("There were no operations in OpenAPI scheme");
-                return;
+                logger.info("There were no operations in OpenAPI schema for the path: '{}', skipping it", pathName);
+                continue;
             }
-            Optional<Operation> operation = operations.stream().findFirst();
-            Operation existingOperation = Optional.of(operation).get().orElse(null);
-            if (existingOperation == null) {
-                throw new IllegalStateException("");
-            }
-            RequestBody requestBody = existingOperation.getRequestBody();
-            if (requestBody != null) {
-                Content bodyContent = requestBody.getContent();
+            Operation existingOperation = Optional.of(operations.stream().findFirst())
+                .get()
+                .orElseThrow(IllegalStateException::new);
 
-                boolean applicationJson = bodyContent.containsKey("application/json");
-                boolean textPlain = bodyContent.containsKey("text/plain");
-                if (applicationJson) {
-                    MediaType mediaType = bodyContent.get("application/json");
-                    String typeName = extractTypeName(mediaType.getSchema()).replaceAll("\\p{P}", "");
-                    requestsTypes.merge(typeName, 1, Integer::sum);
-                    Set<String> innerTypes = collectInnerTypes(typeName, allTypesMap);
-                    for (String innerType : innerTypes) {
-                        requestsTypes.merge(innerType, 1, Integer::sum);
-                    }
-                }
-            }
-            ApiResponses apiResponses = existingOperation.getResponses();
-            ApiResponse defaultResponse = apiResponses.getDefault();
-            ApiResponse successResponse = apiResponses.get(HTTP_SUCCESS_CODE);
-            // TODO situation with not existing default and success responses
-            Content content = successResponse == null ? defaultResponse.getContent() : successResponse.getContent();
-            // TODO: mediatypes?
-            for (Map.Entry<String, MediaType> stringMediaTypeEntry : content.entrySet()) {
-                responses.add(extractTypeName(stringMediaTypeEntry.getValue().getSchema()).replaceAll("\\p{P}", ""));
-            }
+            fillRequests(pathName, existingOperation, requestsTypes, allTypesMap);
+            fillResponses(pathName, existingOperation, responsesTypes);
         }
 
+    }
+
+    private void fillResponses(String pathName, Operation existingOperation, Set<String> responsesTypes) {
+        ApiResponse response = extractResponse(existingOperation.getResponses());
+        if (response == null) {
+            logger.warn("There are no success/default responses for the path : '{}', skipping it.", pathName);
+        } else {
+            Content content = response.getContent();
+            MediaType mediaType = extractMediaType(content);
+            if (mediaType == null) {
+                logger.warn("There are no media types in response for the path : '{}', skipping it.", pathName);
+            } else {
+                responsesTypes.add(extractType(mediaType.getSchema()).getName());
+            }
+        }
+    }
+
+    private void fillRequests(String pathName,
+            Operation existingOperation,
+            Map<String, Integer> requestsTypes,
+            Map<String, Set<String>> allTypesMap) {
+        RequestBody requestBody = existingOperation.getRequestBody();
+        if (requestBody == null) {
+            logger.info("Request body of path: '{}' is empty", pathName);
+        } else {
+            Content bodyContent = requestBody.getContent();
+            MediaType mediaType = extractMediaType(bodyContent);
+            if (mediaType == null) {
+                logger.warn("There are no media types in request body for the path : '{}', skipping it.", pathName);
+            } else {
+                String typeName = extractType(mediaType.getSchema()).getName();
+                requestsTypes.merge(typeName, 1, Integer::sum);
+                Set<String> innerTypes = collectInnerTypes(typeName, allTypesMap);
+                for (String innerType : innerTypes) {
+                    requestsTypes.merge(innerType, 1, Integer::sum);
+                }
+            }
+        }
+    }
+
+    private ApiResponse extractResponse(ApiResponses apiResponses) {
+        ApiResponse successResponse = apiResponses.get(HTTP_SUCCESS_CODE);
+        ApiResponse defaultResponse = apiResponses.getDefault();
+        return successResponse == null ? defaultResponse : successResponse;
+    }
+
+    /**
+     * Extracting media type schema from body. Searching for application/json, if not found searching for text/plain.
+     * Both aren't presented -> using first found.
+     * 
+     * @param bodyContent - body content
+     * @return media type schema
+     */
+    private MediaType extractMediaType(final Content bodyContent) {
+        boolean applicationJson = bodyContent.containsKey(APPLICATION_JSON);
+        boolean textPlain = bodyContent.containsKey(TEXT_PLAIN);
+        MediaType mediaType;
+        if (applicationJson) {
+            mediaType = bodyContent.get(APPLICATION_JSON);
+        } else if (textPlain) {
+            mediaType = bodyContent.get(TEXT_PLAIN);
+        } else {
+            Optional<Map.Entry<String, MediaType>> first = bodyContent.entrySet().stream().findFirst();
+            mediaType = first.map(Map.Entry::getValue).get();
+        }
+        return mediaType;
     }
 
     private Set<String> collectInnerTypes(String typeName, Map<String, Set<String>> allTypesMap) {
@@ -169,42 +232,50 @@ public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
         }
     }
 
-    private List<SpreadsheetResultModel> extractSprModels(OpenAPI openAPI, List<DatatypeModel> dataTypes) {
+    private List<SpreadsheetResultModel> extractSprModels(OpenAPI openAPI,
+            List<DatatypeModel> dataTypes,
+            Set<String> typesToExpand,
+            Set<String> possibleSpreadSheetResults,
+            Map<String, Set<String>> allTypesMap) {
         Paths paths = openAPI.getPaths();
         List<SpreadsheetResultModel> resultModels = new ArrayList<>();
-
-        Set<String> sprTypes = new HashSet<>();
-
         for (Map.Entry<String, PathItem> pathEntry : paths.entrySet()) {
             PathItem item = pathEntry.getValue();
-            for (Operation operation : item.readOperations()) {
-                ApiResponses responses = operation.getResponses();
-                ApiResponse defaultResponse = responses.getDefault();
-                ApiResponse successResponse = responses.get(HTTP_SUCCESS_CODE);
-                Content content = defaultResponse == null ? successResponse.getContent() : defaultResponse.getContent();
+            String requestName = pathEntry.getKey();
+            Operation operation = Optional.of(item.readOperations().stream().findFirst())
+                .get()
+                .orElseThrow(IllegalStateException::new);
+            ApiResponse response = extractResponse(operation.getResponses());
+            Content content = response.getContent();
+            MediaType mediaType = extractMediaType(content);
+            if (mediaType == null) {
+                continue;
+            }
+            TypeModel responseTypeModel = extractType(mediaType.getSchema());
+            String responseTypeName = responseTypeModel.getName();
+            if (possibleSpreadSheetResults.contains(responseTypeName)) {
+                SpreadsheetResultModel spreadsheetResultModel = new SpreadsheetResultModel();
                 RequestBody requestBody = operation.getRequestBody();
-                for (Map.Entry<String, MediaType> stringMediaTypeEntry : content.entrySet()) {
-                    Schema schema = stringMediaTypeEntry.getValue().getSchema();
-                    String type = extractTypeName(schema);
-                    // todo
-                    if (true) {
-                        SpreadsheetResultModel spreadsheetResultModel = new SpreadsheetResultModel();
-                        if (requestBody != null) {
-                            Content bodyContent = requestBody.getContent();
-                            for (Map.Entry<String, MediaType> requestEntry : bodyContent.entrySet()) {
-                                spreadsheetResultModel.setSignature(
-                                    type + "(" + extractTypeName(requestEntry.getValue().getSchema()) + ")");
-                            }
-                        }
-                        Optional<DatatypeModel> datatypeResponseModel = dataTypes.stream()
-                            .filter(x -> x.getName().equals(type))
-                            .findFirst();
-                        if (datatypeResponseModel.isPresent()) {
-                            sprTypes.add(type);
-                            spreadsheetResultModel.setModel(datatypeResponseModel.get());
-                        }
-                        resultModels.add(spreadsheetResultModel);
+                if (requestBody != null) {
+                    Content bodyContent = requestBody.getContent();
+                    MediaType bodyType = extractMediaType(bodyContent);
+                    TypeModel typeModel = extractType(bodyType.getSchema());
+                    String requestType = typeModel.getName();
+                    String exampleParameterName = requestType;
+                    if (typeModel.isArray()) {
+                        requestType += "[]";
+                        exampleParameterName += "s";
                     }
+                    // if (typesToExpand.contains(requestType)) {
+                    // // expand type there
+                    // }
+                    spreadsheetResultModel.setSignature(requestName.substring(1) + "(" + StringUtils
+                        .capitalize(requestType) + " " + StringUtils.uncapitalize(exampleParameterName) + ")");
+                    if (responseTypeModel.isArray()) {
+                        responseTypeName += "[]";
+                    }
+                    spreadsheetResultModel.setType(StringUtils.capitalize(responseTypeName));
+                    resultModels.add(spreadsheetResultModel);
                 }
             }
         }
@@ -220,22 +291,23 @@ public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
             DatatypeModel datatype = new DatatypeModel(requestName);
             Schema value = schemaEntry.getValue();
 
-            Set<String> types = new HashSet<>();
-
+            // second case - inline type - it will be schema
             boolean outsideType = !(value instanceof ObjectSchema || value.getClass().equals(Schema.class));
             if (outsideType) {
+                // testFolderWithJsonFiles(SomeId) - IntegerSchema
                 FieldModel fieldModel = extractFieldModel(schemaEntry);
                 datatype.setFields(Collections.singletonList(fieldModel));
                 result.add(datatype);
-                types.add(fieldModel.getType());
+                allTypesMap.put(requestName, Collections.singleton(fieldModel.getType().getName()));
                 continue;
             }
             List<FieldModel> fields = new ArrayList<>();
+            Set<String> types = new HashSet<>();
             Map<String, Schema> properties = value.getProperties();
             for (Map.Entry<String, Schema> property : properties.entrySet()) {
                 FieldModel f = extractFieldModel(property);
                 fields.add(f);
-                types.add(f.getType().replaceAll("\\p{P}", ""));
+                types.add(f.getType().getName());
             }
             datatype.setFields(fields);
             result.add(datatype);
@@ -248,14 +320,13 @@ public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
         String propertyName = property.getKey();
         Schema valueSchema = property.getValue();
 
-        String propertyType = extractTypeName(valueSchema);
+        TypeModel typeModel = extractType(valueSchema);
         Object defaultValue = valueSchema.getDefault();
-        String format = valueSchema.getFormat();
 
         return new FieldModel.Builder().setName(propertyName)
-            .setType(propertyType)
+            .setType(typeModel)
             .setDefaultValue(defaultValue)
-            .setFormat(format)
+            .setFormat(valueSchema.getFormat())
             .build();
     }
 
@@ -265,24 +336,26 @@ public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
             ComposedSchema schema = (ComposedSchema) valueSchema;
             List<Schema> allOf = schema.getAllOf();
             for (Schema allOfSchema : allOf) {
-                result.add(extractTypeName(allOfSchema).replaceAll("\\p{P}", ""));
+                result.add(extractType(allOfSchema).getName());
             }
             List<Schema> anyOf = schema.getAnyOf();
             for (Schema anyOfSchema : anyOf) {
-                result.add(extractTypeName(anyOfSchema).replaceAll("\\p{P}", ""));
+                result.add(extractType(anyOfSchema).getName());
             }
             List<Schema> oneOf = schema.getOneOf();
             for (Schema oneOfSchema : oneOf) {
-                result.add(extractTypeName(oneOfSchema).replaceAll("\\p{P}", ""));
+                result.add(extractType(oneOfSchema).getName());
             }
         } else {
-            result.add(extractTypeName(valueSchema).replaceAll("\\p{P}", ""));
+            result.add(extractType(valueSchema).getName());
         }
         return result;
     }
 
-    private String extractTypeName(Schema valueSchema) {
-        String result;
+    private TypeModel extractType(Schema valueSchema) {
+        String typeName;
+        boolean isArray = false;
+        String format = valueSchema.getFormat();
         if (valueSchema.getType() != null) {
             String type = valueSchema.getType();
             // arrays
@@ -294,18 +367,35 @@ public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
                 } else {
                     type = RefUtils.computeDefinitionName(itemsSchema.get$ref());
                 }
-                result = type + "[]";
+                typeName = type;
+                isArray = true;
             } else {
                 // primitives
-                result = type;
+                typeName = type;
             }
         } else {
             // custom objects
-            result = RefUtils.computeDefinitionName(valueSchema.get$ref());
+            typeName = RefUtils.computeDefinitionName(valueSchema.get$ref());
         }
-        // capitalize first letter was there
-        // StringUtils.capitalize(result);
-        return result;
+        if (format != null) {
+            switch (format) {
+                case "int32":
+                    typeName = INTEGER_TYPE;
+                    break;
+                case "int64":
+                    typeName = "long";
+                    break;
+                case FLOAT_TYPE:
+                    typeName = FLOAT_TYPE;
+                    break;
+                case DOUBLE_TYPE:
+                    typeName = DOUBLE_TYPE;
+                    break;
+                default:
+                    break;
+            }
+        }
+        return new TypeModel(typeName, isArray);
     }
 
 }
