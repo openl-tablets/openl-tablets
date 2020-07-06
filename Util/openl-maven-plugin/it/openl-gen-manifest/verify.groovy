@@ -44,8 +44,9 @@ try {
     assert customManifestContent.any { it == 'Build-Branch: myBranch' }
     assert customManifestContent.any { it ==~ /Created-By: OpenL Maven Plugin .+/ }
     assert customManifestContent.any { it ==~ /Built-By: superuser/ }
-    assert customManifestContent.any { it ==~ /Build-Date: \d{4}(-\d{2}){2}T(\d{2}:?){3}.+/ }
-    assert customManifestContent.length == 9
+    assert customManifestContent.any { it ==~ /Build-Date: \d{4}(-\d{2}){2} (\d{2}:?){2}/ }
+    assert customManifestContent.any { it == 'Name: OpenL Plugin: Custom Manifest' }
+    assert customManifestContent.length == 10
 
     def disabledManifestZips = new File(basedir, 'openl-disabled-manifest/target').listFiles(new FilenameFilter() {
         @Override
