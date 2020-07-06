@@ -8,7 +8,7 @@
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws.all</artifactId>
     <packaging>war</packaging>
-    <name>OpenL - Ruleservice - Web Services All WAR</name>
+    <name>OpenL - Ruleservice - Rule Services All WAR</name>
     <description>OpenL Rules Webservice (all war)</description>
     <url>https://openl-tablets.org</url>
     <organization>
