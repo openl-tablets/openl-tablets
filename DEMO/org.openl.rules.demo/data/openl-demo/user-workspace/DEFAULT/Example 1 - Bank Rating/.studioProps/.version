@@ -1,8 +1,9 @@
 #Project version
-#Wed Dec 04 16:32:11 MSK 2019
-version=f621432a711d0e3ff6f905f1f71933322da36dc3
+#Mon Jul 06 20:12:20 GMT+03:00 2020
+version=94ae044e35da2fce1ef67ff9dc20481e51cb6df1
 size=-1
 branch=master
 author=DEFAULT
-modified-at=2019-12-04
-comment=Project Example 1 - Bank Rating is created.
+modified-at-long=1594051765000
+modified-at=2020-07-06
+comment=Project Example 1 - Bank Rating is created.\n
