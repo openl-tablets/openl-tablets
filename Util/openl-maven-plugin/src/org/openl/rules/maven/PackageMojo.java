@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.jar.Attributes;
+import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.Artifact;
@@ -49,12 +50,6 @@ public final class PackageMojo extends BaseOpenLMojo {
 
     private static final String DEPLOYMENT_YAML = "deployment.yaml";
     private static final String DEPLOYMENT_CLASSIFIER = "deployment";
-    private static final String MANIFEST_BUILD_NUMBER = "Build-Number";
-    private static final String MANIFEST_BUILD_BRANCH = "Build-Branch";
-    private static final String MANIFEST_BUILT_BY = "Built-By";
-    private static final String MANIFEST_IMPL_TITLE = "Implementation-Title";
-    private static final String MANIFEST_IMPL_VER = "Implementation-Version";
-    private static final String MANIFEST_IMPL_VENDOR = "Implementation-Vendor";
 
     @Parameter(defaultValue = "${project.packaging}", readonly = true)
     private String packaging;
@@ -124,37 +119,7 @@ public final class PackageMojo extends BaseOpenLMojo {
     private boolean includeManifest;
 
     /**
-     * Configuration properties for MANIFEST.MF:
-     * <table cellspacing="2">
-     * <tr>
-     * <td align="center">Property</td>
-     * <td align="center">Default Value</td>
-     * </tr>
-     * <tr>
-     * <td align="center">Build-Number</td>
-     * <td align="center">Empty</td>
-     * </tr>
-     * <tr>
-     * <td align="center">Build-Branch</td>
-     * <td align="center">Empty</td>
-     * </tr>
-     * <tr>
-     * <td align="center">Built-By</td>
-     * <td align="center">OS User</td>
-     * </tr>
-     * <tr>
-     * <td align="center">Implementation-Title</td>
-     * <td align="center">Project groupId and artifactId</td>
-     * </tr>
-     * <tr>
-     * <td align="center">Implementation-Version</td>
-     * <td align="center">Project version</td>
-     * </tr>
-     * <tr>
-     * <td align="center">Implementation-Vendor</td>
-     * <td align="center">Project Organization Name</td>
-     * </tr>
-     * </table>
+     * Configuration properties for MANIFEST.MF. Supports all possible MANIFEST.MF attributes.
      */
     @Parameter
     private Map<String, String> manifestConfiguration = new HashMap<>();
@@ -208,6 +173,12 @@ public final class PackageMojo extends BaseOpenLMojo {
             File outputFile = getOutputFile(outputDirectory, finalName, classifier, type);
 
             try (ZipArchiver arch = new ZipArchiver(outputFile.toPath())) {
+                if (includeManifest) {
+                    Manifest manifest = createManifest();
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    manifest.write(baos);
+                    arch.addFile(new ByteArrayInputStream(baos.toByteArray()), JarFile.MANIFEST_NAME);
+                }
 
                 ProjectPackager.addOpenLProject(openLSourceDir, arch);
 
@@ -217,12 +188,6 @@ public final class PackageMojo extends BaseOpenLMojo {
                 for (Artifact artifact : dependencies) {
                     File file = artifact.getFile();
                     arch.addFile(file, classpathFolder + file.getName());
-                }
-                if (includeManifest) {
-                    Manifest manifest = createManifest();
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    manifest.write(baos);
-                    arch.addFile(new ByteArrayInputStream(baos.toByteArray()), "META-INF/MANIFEST.MF");
                 }
             }
 
@@ -388,40 +353,27 @@ public final class PackageMojo extends BaseOpenLMojo {
     private Manifest createManifest() {
         Manifest manifest = new Manifest();
         Attributes attributes = manifest.getMainAttributes();
-        attributes.putValue("Manifest-Version", "1.0");
-
-        final String buildNumber = manifestConfiguration.get(MANIFEST_BUILD_NUMBER);
-        if (buildNumber != null) {
-            attributes.putValue(MANIFEST_BUILD_NUMBER, manifestConfiguration.get(MANIFEST_BUILD_NUMBER));
-        }
-
-        final String buildBranch = manifestConfiguration.get(MANIFEST_BUILD_BRANCH);
-        if (buildBranch != null) {
-            attributes.putValue(MANIFEST_BUILD_BRANCH, buildBranch);
-        }
-
+        //initialize with default values
+        attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
         attributes.putValue("Build-Date", dateFormat.format(new Date()));
-
-        final String builtBy = manifestConfiguration.getOrDefault(MANIFEST_BUILT_BY,
-                session.getSystemProperties().getProperty("user.name"));
-        attributes.putValue(MANIFEST_BUILT_BY, builtBy);
-
-        final String implTitle = manifestConfiguration.getOrDefault(MANIFEST_IMPL_TITLE,
-                String.format("%s:%s", project.getGroupId(), project.getArtifactId()));
-        attributes.putValue(MANIFEST_IMPL_TITLE, implTitle);
-
-        final String implVersion = manifestConfiguration.getOrDefault(MANIFEST_IMPL_VER, project.getVersion());
-        attributes.putValue(MANIFEST_IMPL_VER, implVersion);
-
-        String orgName = manifestConfiguration.get(MANIFEST_IMPL_VENDOR);
-        if (orgName == null && project.getOrganization() != null) {
-            orgName = project.getOrganization().getName();
-        }
-        if (orgName != null) {
-            attributes.putValue(MANIFEST_IMPL_VENDOR, orgName);
+        attributes.putValue("Built-By", session.getSystemProperties().getProperty("user.name"));
+        attributes.put(Attributes.Name.IMPLEMENTATION_TITLE, String.format("%s:%s", project.getGroupId(), project.getArtifactId()));
+        attributes.put(Attributes.Name.IMPLEMENTATION_VERSION,  project.getVersion());
+        if (project.getOrganization() != null) {
+            attributes.put(Attributes.Name.IMPLEMENTATION_VENDOR, project.getOrganization().getName());
         }
         attributes.putValue("Created-By", "OpenL Maven Plugin " + OpenLVersion.getVersion());
+
+        for (Map.Entry<String, String> entry : manifestConfiguration.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (StringUtils.isEmpty(value)) {
+                //if value is empty, create an entry with empty string to prevent nulls in file
+                value = "";
+            }
+            attributes.putValue(key, value);
+        }
         return manifest;
     }
 }
