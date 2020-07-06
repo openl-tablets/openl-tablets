@@ -8,7 +8,7 @@
 	</parent>
 	<artifactId>org.openl.rules.ruleservice.ws.storelogdata.cassandra.annotation</artifactId>
 	<packaging>jar</packaging>
-	<name>OpenL - RuleService - Web Services - Store Log Data Cassandra Annotation</name>
+	<name>OpenL - RuleService - Rule Services - Store Log Data Cassandra Annotation</name>
 	<description>OpenL Rules Webservice Store Log Data Cassandra</description>
 	<url>https://openl-tablets.org</url>
 	<dependencies>
