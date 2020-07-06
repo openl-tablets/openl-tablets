@@ -22,7 +22,7 @@
                 <artifactId>openl-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-                    <includeManifest>false</includeManifest>
+                    <addDefaultManifest>false</addDefaultManifest>
                 </configuration>
             </plugin>
         </plugins>

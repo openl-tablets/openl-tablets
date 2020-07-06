@@ -23,9 +23,9 @@ try {
     assert defManifestContent.any { it == 'Implementation-Title: org.openl.internal:openl-default-manifest' }
     assert defManifestContent.any { it == 'Implementation-Version: 0.0.0' }
     assert defManifestContent.any { it == 'Implementation-Vendor: OpenL Tablets' }
-    assert defManifestContent.any { it ==~ /Created-By: OpenL Maven Plugin .+/ }
-    assert defManifestContent.any { it ==~ /Built-By: .*/ }
-    assert defManifestContent.any { it ==~ /Build-Date: \d{4}(-\d{2}){2}T(\d{2}:?){3}.+/ }
+    assert defManifestContent.any { it ==~ /Created-By: OpenL Maven Plugin v.+/ }
+    assert defManifestContent.any { it ==~ /Built-By: \S+/ }
+    assert defManifestContent.any { it ==~ /Build-Date: \d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.\d+(Z|([-+]\d\d:\d\d))/ }
     assert defManifestContent.length == 7
 
     def customManifestZips = new File(basedir, 'openl-custom-manifest/target').listFiles(new FilenameFilter() {
@@ -42,7 +42,7 @@ try {
     assert customManifestContent.any { it == 'Implementation-Vendor: My Vendor' }
     assert customManifestContent.any { it == 'Build-Number: 1e1eb11271dd' }
     assert customManifestContent.any { it == 'Build-Branch: myBranch' }
-    assert customManifestContent.any { it ==~ /Created-By: OpenL Maven Plugin .+/ }
+    assert customManifestContent.any { it ==~ /Created-By: OpenL Maven Plugin v.+/ }
     assert customManifestContent.any { it ==~ /Built-By: superuser/ }
     assert customManifestContent.any { it ==~ /Build-Date: \d{4}(-\d{2}){2} (\d{2}:?){2}/ }
     assert customManifestContent.any { it == 'Name: OpenL Plugin: Custom Manifest' }

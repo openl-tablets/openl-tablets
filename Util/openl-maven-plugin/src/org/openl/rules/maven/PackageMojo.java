@@ -5,9 +5,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -116,13 +116,13 @@ public final class PackageMojo extends BaseOpenLMojo {
      * Marker if MANIFEST.MF file must be generated and included into deployment archive
      */
     @Parameter(defaultValue = "true")
-    private boolean includeManifest;
+    private boolean addDefaultManifest;
 
     /**
      * Configuration properties for MANIFEST.MF. Supports all possible MANIFEST.MF attributes.
      */
     @Parameter
-    private Map<String, String> manifestConfiguration = new HashMap<>();
+    private Map<String, String> manifestEntries;
 
     @Parameter(defaultValue = "${session}", readonly = true, required = true )
     private MavenSession session;
@@ -173,7 +173,7 @@ public final class PackageMojo extends BaseOpenLMojo {
             File outputFile = getOutputFile(outputDirectory, finalName, classifier, type);
 
             try (ZipArchiver arch = new ZipArchiver(outputFile.toPath())) {
-                if (includeManifest) {
+                if (addDefaultManifest || manifestEntries != null) {
                     Manifest manifest = createManifest();
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     manifest.write(baos);
@@ -355,24 +355,22 @@ public final class PackageMojo extends BaseOpenLMojo {
         Attributes attributes = manifest.getMainAttributes();
         //initialize with default values
         attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
-        attributes.putValue("Build-Date", dateFormat.format(new Date()));
+        attributes.putValue("Build-Date", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
         attributes.putValue("Built-By", session.getSystemProperties().getProperty("user.name"));
         attributes.put(Attributes.Name.IMPLEMENTATION_TITLE, String.format("%s:%s", project.getGroupId(), project.getArtifactId()));
         attributes.put(Attributes.Name.IMPLEMENTATION_VERSION,  project.getVersion());
         if (project.getOrganization() != null) {
             attributes.put(Attributes.Name.IMPLEMENTATION_VENDOR, project.getOrganization().getName());
         }
-        attributes.putValue("Created-By", "OpenL Maven Plugin " + OpenLVersion.getVersion());
+        attributes.putValue("Created-By", "OpenL Maven Plugin v" + OpenLVersion.getVersion());
 
-        for (Map.Entry<String, String> entry : manifestConfiguration.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            if (StringUtils.isEmpty(value)) {
+        if (manifestEntries != null) {
+            for (Map.Entry<String, String> entry : manifestEntries.entrySet()) {
+                String key = entry.getKey();
                 //if value is empty, create an entry with empty string to prevent nulls in file
-                value = "";
+                String value = StringUtils.trimToEmpty(entry.getValue());
+                attributes.putValue(key, value);
             }
-            attributes.putValue(key, value);
         }
         return manifest;
     }

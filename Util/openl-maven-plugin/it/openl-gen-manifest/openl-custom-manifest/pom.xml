@@ -22,7 +22,7 @@
                 <artifactId>openl-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-                    <manifestConfiguration>
+                    <manifestEntries>
                         <Build-Number>1e1eb11271dd</Build-Number>
                         <Build-Branch>myBranch</Build-Branch>
                         <Built-By>superuser</Built-By>
@@ -31,7 +31,7 @@
                         <Implementation-Vendor>My Vendor</Implementation-Vendor>
                         <Build-Date>${maven.build.timestamp}</Build-Date>
                         <Name>${project.name}</Name>
-                    </manifestConfiguration>
+                    </manifestEntries>
                 </configuration>
             </plugin>
         </plugins>
