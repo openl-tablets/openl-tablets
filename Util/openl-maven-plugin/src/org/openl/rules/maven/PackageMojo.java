@@ -20,7 +20,6 @@ import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -113,19 +112,24 @@ public final class PackageMojo extends BaseOpenLMojo {
     private String deploymentName;
 
     /**
-     * Marker if MANIFEST.MF file must be generated and included into deployment archive
+     * Parameter that adds default manifest entries into MANIFEST.MF file.
+     *
+     * @since 5.23.4
      */
     @Parameter(defaultValue = "true")
     private boolean addDefaultManifest;
 
     /**
-     * Configuration properties for MANIFEST.MF. Supports all possible MANIFEST.MF attributes.
+     * Set of key/values to be included to MANIFEST.MF. This parameter overrides default values added by
+     * {@linkplain #addDefaultManifest} parameter.
+     * 
+     * @since 5.23.4
      */
     @Parameter
     private Map<String, String> manifestEntries;
 
-    @Parameter(defaultValue = "${session}", readonly = true, required = true )
-    private MavenSession session;
+    @Parameter(defaultValue = "${user.name}", readonly = true, required = true)
+    private String userName;
 
     @Override
     void execute(String sourcePath, boolean hasDependencies) throws Exception {
@@ -353,21 +357,24 @@ public final class PackageMojo extends BaseOpenLMojo {
     private Manifest createManifest() {
         Manifest manifest = new Manifest();
         Attributes attributes = manifest.getMainAttributes();
-        //initialize with default values
         attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
-        attributes.putValue("Build-Date", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
-        attributes.putValue("Built-By", session.getSystemProperties().getProperty("user.name"));
-        attributes.put(Attributes.Name.IMPLEMENTATION_TITLE, String.format("%s:%s", project.getGroupId(), project.getArtifactId()));
-        attributes.put(Attributes.Name.IMPLEMENTATION_VERSION,  project.getVersion());
-        if (project.getOrganization() != null) {
-            attributes.put(Attributes.Name.IMPLEMENTATION_VENDOR, project.getOrganization().getName());
+        if (addDefaultManifest) {
+            // initialize with default values
+            attributes.putValue("Build-Date", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+            attributes.putValue("Built-By", userName);
+            attributes.put(Attributes.Name.IMPLEMENTATION_TITLE,
+                    String.format("%s:%s", project.getGroupId(), project.getArtifactId()));
+            attributes.put(Attributes.Name.IMPLEMENTATION_VERSION, project.getVersion());
+            if (project.getOrganization() != null) {
+                attributes.put(Attributes.Name.IMPLEMENTATION_VENDOR, project.getOrganization().getName());
+            }
+            attributes.putValue("Created-By", "OpenL Maven Plugin v" + OpenLVersion.getVersion());
         }
-        attributes.putValue("Created-By", "OpenL Maven Plugin v" + OpenLVersion.getVersion());
 
         if (manifestEntries != null) {
             for (Map.Entry<String, String> entry : manifestEntries.entrySet()) {
                 String key = entry.getKey();
-                //if value is empty, create an entry with empty string to prevent nulls in file
+                // if value is empty, create an entry with empty string to prevent nulls in file
                 String value = StringUtils.trimToEmpty(entry.getValue());
                 attributes.putValue(key, value);
             }

@@ -1,61 +1,52 @@
-import java.util.zip.ZipFile
-import java.util.zip.ZipEntry
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.jar.Attributes
+import java.util.jar.JarInputStream
 
-static String findManifest(ZipFile zipFile) {
-    def defManifest = zipFile.entries().find{ !it.directory && it.name == "META-INF/MANIFEST.MF" }
-    assert defManifest != null
-    ByteArrayOutputStream baos = new ByteArrayOutputStream()
-    baos << zipFile.getInputStream(defManifest as ZipEntry)
-    return baos.toString()
+Attributes readManifest(String path) {
+    def zipFile = new File(basedir, path).listFiles(new FilenameFilter() {
+        @Override
+        boolean accept(File dir, String name) {
+            return name.endsWith(".zip")
+        }
+    })
+    assert zipFile.length == 1
+    return new JarInputStream(zipFile[0].newInputStream()).manifest?.mainAttributes
 }
 
 try {
 
-    def defManifestZips = new File(basedir, 'openl-default-manifest/target').listFiles(new FilenameFilter() {
-        @Override
-        boolean accept(File dir, String name) {
-            return name.endsWith(".zip")
-        }
-    })
-    assert defManifestZips.length == 1
-    def defManifestContent = findManifest(new ZipFile(defManifestZips[0])).split("\\r?\\n")
-    assert defManifestContent.any { it == 'Manifest-Version: 1.0' }
-    assert defManifestContent.any { it == 'Implementation-Title: org.openl.internal:openl-default-manifest' }
-    assert defManifestContent.any { it == 'Implementation-Version: 0.0.0' }
-    assert defManifestContent.any { it == 'Implementation-Vendor: OpenL Tablets' }
-    assert defManifestContent.any { it ==~ /Created-By: OpenL Maven Plugin v.+/ }
-    assert defManifestContent.any { it ==~ /Built-By: \S+/ }
-    assert defManifestContent.any { it ==~ /Build-Date: \d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.\d+(Z|([-+]\d\d:\d\d))/ }
-    assert defManifestContent.length == 7
+    def defManifest = readManifest('openl-default-manifest/target')
+    assert defManifest.size() == 7
+    assert defManifest.getValue('Manifest-Version') == '1.0'
+    assert defManifest.getValue('Implementation-Title') == 'org.openl.internal:openl-default-manifest'
+    assert defManifest.getValue('Implementation-Version') == '0.0.0'
+    assert defManifest.getValue('Implementation-Vendor') == 'OpenL Tablets'
+    assert defManifest.getValue('Created-By') ==~ /OpenL Maven Plugin v.+/
+    assert defManifest.getValue('Built-By') ==~ /\S+/
+    assert ZonedDateTime.parse(defManifest.getValue('Build-Date')) <= ZonedDateTime.now()
 
-    def customManifestZips = new File(basedir, 'openl-custom-manifest/target').listFiles(new FilenameFilter() {
-        @Override
-        boolean accept(File dir, String name) {
-            return name.endsWith(".zip")
-        }
-    })
-    assert customManifestZips.length == 1
-    def customManifestContent = findManifest(new ZipFile(customManifestZips[0])).split("\\r?\\n")
-    assert customManifestContent.any { it == 'Manifest-Version: 1.0' }
-    assert customManifestContent.any { it == 'Implementation-Title: My Title' }
-    assert customManifestContent.any { it == 'Implementation-Version: My Version' }
-    assert customManifestContent.any { it == 'Implementation-Vendor: My Vendor' }
-    assert customManifestContent.any { it == 'Build-Number: 1e1eb11271dd' }
-    assert customManifestContent.any { it == 'Build-Branch: myBranch' }
-    assert customManifestContent.any { it ==~ /Created-By: OpenL Maven Plugin v.+/ }
-    assert customManifestContent.any { it ==~ /Built-By: superuser/ }
-    assert customManifestContent.any { it ==~ /Build-Date: \d{4}(-\d{2}){2} (\d{2}:?){2}/ }
-    assert customManifestContent.any { it == 'Name: OpenL Plugin: Custom Manifest' }
-    assert customManifestContent.length == 10
+    def customManifest = readManifest('openl-custom-manifest/target')
+    assert customManifest.size() == 10
+    assert customManifest.getValue('Manifest-Version') == '1.0'
+    assert customManifest.getValue('Implementation-Title') == 'My Title'
+    assert customManifest.getValue('Implementation-Version') == 'My Version'
+    assert customManifest.getValue('Implementation-Vendor') == 'My Vendor'
+    assert customManifest.getValue('Build-Number') == '1e1eb11271dd'
+    assert customManifest.getValue('Build-Branch') == 'myBranch'
+    assert customManifest.getValue('Created-By') ==~ /OpenL Maven Plugin v.+/
+    assert customManifest.getValue('Built-By') == 'superuser'
+    assert customManifest.getValue('Name') == 'OpenL Plugin: Custom Manifest'
+    assert LocalDateTime.parse(customManifest.getValue('Build-Date'), DateTimeFormatter.ofPattern('yyyy-MM-dd HH:mm')) != null
 
-    def disabledManifestZips = new File(basedir, 'openl-disabled-manifest/target').listFiles(new FilenameFilter() {
-        @Override
-        boolean accept(File dir, String name) {
-            return name.endsWith(".zip")
-        }
-    })
-    assert disabledManifestZips.length == 1
-    assert new ZipFile(disabledManifestZips[0]).entries().find{ !it.directory && it.name == "META-INF/MANIFEST.MF" } == null
+    def disabledManifest = readManifest('openl-disabled-manifest/target')
+    assert disabledManifest.size() == 3
+    assert disabledManifest.getValue('Manifest-Version') == '1.0'
+    assert disabledManifest.getValue('Build-Number') == '1e1eb11271dd'
+    assert disabledManifest.getValue('Build-Branch') == 'myBranch'
+
+    assert readManifest('openl-no-manifest/target') == null
 
 } catch(Throwable e) {
     e.printStackTrace()

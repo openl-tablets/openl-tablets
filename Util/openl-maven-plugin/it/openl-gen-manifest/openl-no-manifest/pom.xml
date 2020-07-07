@@ -7,13 +7,11 @@
         <version>0.0.0</version>
     </parent>
 
-    <artifactId>openl-disabled-manifest</artifactId>
+    <artifactId>openl-no-manifest</artifactId>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: Disabled Manifest</name>
+    <name>OpenL Plugin: No Manifest</name>
 
-    <organization>
-        <name>OpenL Tablets</name>
-    </organization>
+    <organization/>
 
     <build>
         <plugins>
@@ -23,10 +21,6 @@
                 <extensions>true</extensions>
                 <configuration>
                     <addDefaultManifest>false</addDefaultManifest>
-                    <manifestEntries>
-                        <Build-Number>1e1eb11271dd</Build-Number>
-                        <Build-Branch>myBranch</Build-Branch>
-                    </manifestEntries>
                 </configuration>
             </plugin>
         </plugins>
