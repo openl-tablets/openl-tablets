@@ -340,6 +340,9 @@
                 html += "<a href='" + url + "'\>" + name + "</a>";
             }
         });
+        if (service.hasManifest) {
+            html += "<a href='admin/services/" + service.name + "/MANIFEST.MF'\>MANIFEST.MF</a>";
+        }
         if (deployerEnabled) {
             html += "&nbsp";
             html += "<button type='button' class='delete-button'>Delete</button>";
