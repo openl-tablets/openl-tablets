@@ -169,6 +169,7 @@ public class LocalRepository extends FileSystemRepository {
         return FolderHelper.PROPERTIES_FOLDER.equals(file.getName());
     }
 
+    // TODO: Add a new parameter: project path
     public ProjectState getProjectState(final String pathInProject) {
         return new ProjectState() {
             private static final String MODIFIED_FILE_NAME = ".modified";

@@ -12,21 +12,24 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileTypeHelper;
 
 public class ProjectUploader {
-    private String projectName;
-    private String projectFolder;
-    private UserWorkspace userWorkspace;
-    private PathFilter zipFilter;
-    private List<ProjectFile> uploadedFiles;
+    private final String projectName;
+    private final String projectFolder;
+    private final UserWorkspace userWorkspace;
+    private final PathFilter zipFilter;
+    private final List<ProjectFile> uploadedFiles;
     private final ZipCharsetDetector zipCharsetDetector;
     private final String comment;
+    private final String repositoryId;
 
-    public ProjectUploader(ProjectFile uploadedFile,
-            String projectName,
-            String projectFolder,
-            UserWorkspace userWorkspace,
-            String comment,
-            PathFilter zipFilter,
-            ZipCharsetDetector zipCharsetDetector) {
+    public ProjectUploader(String repositoryId,
+        ProjectFile uploadedFile,
+        String projectName,
+        String projectFolder,
+        UserWorkspace userWorkspace,
+        String comment,
+        PathFilter zipFilter,
+        ZipCharsetDetector zipCharsetDetector) {
+        this.repositoryId = repositoryId;
         this.projectFolder = projectFolder;
         this.comment = comment;
         this.zipCharsetDetector = zipCharsetDetector;
@@ -38,13 +41,15 @@ public class ProjectUploader {
         this.zipFilter = zipFilter;
     }
 
-    public ProjectUploader(List<ProjectFile> uploadedFiles,
-            String projectName,
-            String projectFolder,
-            UserWorkspace userWorkspace,
-            String comment,
-            PathFilter zipFilter,
-            ZipCharsetDetector zipCharsetDetector) {
+    public ProjectUploader(String repositoryId,
+        List<ProjectFile> uploadedFiles,
+        String projectName,
+        String projectFolder,
+        UserWorkspace userWorkspace,
+        String comment,
+        PathFilter zipFilter,
+        ZipCharsetDetector zipCharsetDetector) {
+        this.repositoryId = repositoryId;
         this.uploadedFiles = uploadedFiles;
         this.projectName = projectName;
         this.projectFolder = projectFolder;
@@ -66,7 +71,7 @@ public class ProjectUploader {
                 String fileName = file.getName();
                 if (FileTypeHelper.isZipFile(fileName)) {
                     // Create project creator for the single zip file
-                    projectCreator = new ZipFileProjectCreator(fileName,
+                    projectCreator = new ZipFileProjectCreator(repositoryId, fileName,
                         file.getInput(),
                         projectName,
                         projectFolder,
@@ -75,7 +80,7 @@ public class ProjectUploader {
                         zipFilter,
                         zipCharsetDetector);
                 } else {
-                    projectCreator = new ExcelFilesProjectCreator(projectName,
+                    projectCreator = new ExcelFilesProjectCreator(repositoryId, projectName,
                         projectFolder,
                         userWorkspace,
                         comment,

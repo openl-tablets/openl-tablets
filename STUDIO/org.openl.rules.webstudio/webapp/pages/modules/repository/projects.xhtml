@@ -21,7 +21,7 @@
                 <rich:column>
                   <h:outputText value="Name" />
                 </rich:column>
-                <rich:column rendered="#{repositoryTreeController.supportsBranches}">
+                <rich:column rendered="#{repositoryTreeController.anySupportsBranches}">
                   <h:outputText value="Branch" />
                 </rich:column>
                 <rich:column style="min-width: 90px">
@@ -44,7 +44,7 @@
                   <f:param name="projectName" value="#{prj.name}" />
                 </h:commandLink>
               </rich:column>
-              <rich:column style="text-align:center" rendered="#{repositoryTreeController.supportsBranches}">
+              <rich:column style="text-align:center" rendered="#{repositoryTreeController.anySupportsBranches}">
                 <h:outputText value="#{prj.data.branch}" />
               </rich:column>
               <rich:column style="text-align:center">
@@ -63,7 +63,7 @@
                   &#160;
                   <h:commandLink immediate="true"
                       rendered="#{repositoryTreeState.canCreate}"
-                      onclick="openCopyProjectDialog('#{prj.name}', function() {location.href = location.href;}); return false;" title="Copy project">
+                      onclick="openCopyProjectDialog('#{prj.data.repository.id}', '#{prj.name}', function() {location.href = location.href;}); return false;" title="Copy project">
                       <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" alt="Copy"/>
                   </h:commandLink>
                   <h:panelGroup rendered="#{repositoryTreeController.canUnlock and prj.data.locked and not prj.data.lockedByMe}">
@@ -72,6 +72,7 @@
                           action="#{repositoryTreeController.unlockProject}"
                           onclick="if(!window.confirm('All unsaved user changes will be lost during unlock. Do you want to proceed?')) {return false;}"
                           title="Unlock project">
+                          <f:param name="repositoryId" value="#{prj.data.repository.id}" />
                           <f:param name="projectName" value="#{prj.name}" />
                           <h:graphicImage url="/webresource/images/unlock.png" styleClass="actionImage" alt="Unlock"/>
                       </h:commandLink>

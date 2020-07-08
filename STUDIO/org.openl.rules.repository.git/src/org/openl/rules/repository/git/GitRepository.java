@@ -66,6 +66,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private final Logger log = LoggerFactory.getLogger(GitRepository.class);
 
+    private String id;
+    private String name;
     private String uri;
     private String login;
     private String password;
@@ -94,6 +96,24 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private Map<String, List<String>> branches = new HashMap<>();
 
     private boolean closed;
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
 
     @Override
     public List<FileData> list(String path) throws IOException {
@@ -2052,6 +2072,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
         GitRepository repo = new GitRepository();
 
+        repo.setId(id);
+        repo.setName(name);
         repo.setUri(uri);
         repo.setLogin(login);
         repo.setPassword(password);

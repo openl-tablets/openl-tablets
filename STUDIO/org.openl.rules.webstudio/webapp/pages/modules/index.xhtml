@@ -73,6 +73,7 @@
             var WS_PREVIOUS_PAGE_STATE_VAR = "WS_PREVIOUS_PAGE_STATE";
 
             var current  = {
+                repositoryId: 0,
                 project: 0,
                 module: 0,
                 branch: 0
@@ -615,16 +616,20 @@
             })();
 
             (function initRouter() {
-                var determineIfModuleChanged = function (project, module) {
+                var determineIfModuleChanged = function (repositoryId, project, module) {
                     var previousPageState = ws.storage.get(WS_PREVIOUS_PAGE_STATE_VAR);
                     if (!previousPageState) {
                         previousPageState = {
+                            repositoryId: "",
                             project: "",
                             module: ""
                         };
                     }
-                    projectPageChanged = previousPageState.project != project || previousPageState.module != module;
+                    projectPageChanged = previousPageState.repositoryId !== repositoryId
+                        || previousPageState.project !== project
+                        || previousPageState.module !== module;
                     var pageState = {
+                        repositoryId: repositoryId,
                         project: project,
                         module: module
                     };
@@ -637,74 +642,74 @@
                 crossroads.addRoute("/", function(reload) {
                     var toReload = { top: 1, left: 1, bottom: 0, right: 0 };
                     var toOpen = { bottom: 0, right: 0 };
-                    determineIfModuleChanged("", "");
+                    determineIfModuleChanged("", "", "");
                     render("home.xhtml", 0, toReload, toOpen);
                 });
                 // Project page
-                crossroads.addRoute("{project}", function(reload, project) {
-                    var url = "project.xhtml?name=" + project;
-                    setModule(project);
+                crossroads.addRoute("{repositoryId}/{project}", function(reload, repositoryId, project) {
+                    var url = "project.xhtml?repositoryId=" + repositoryId + "&name=" + project;
+                    setModule(repositoryId, project);
                     var leftReload = reload == "true" || !$("#projects-tree").length;
                     var toReload = { top: 1, left: leftReload, bottom: 0, right: 0 };
                     var toOpen = { bottom: 0, right: 0 };
-                    determineIfModuleChanged(project, "");
-                    render(url, { project: project }, toReload, toOpen, openProjectNode);
+                    determineIfModuleChanged(repositoryId, project, "");
+                    render(url, { repositoryId: repositoryId, project: project }, toReload, toOpen, openProjectNode);
                 });
                 // Project-specific additional info pages
-                crossroads.addRoute("{project}?page={page}&:{query}:", function(reload, project, page, query) {
+                crossroads.addRoute("{repositoryId}/{project}?page={page}&:{query}:", function(reload, repositoryId, project, page, query) {
                     let url = page + ".xhtml";
                     if (query) {
                         url += "?" + query;
                     }
-                    setModule(project);
+                    setModule(repositoryId, project);
                     let leftReload = reload === "true" || !$("#projects-tree").length;
                     let toReload = {top: 1, left: leftReload, bottom: 0, right: 0};
                     let toOpen = {bottom: 0, right: 0};
-                    determineIfModuleChanged(project, "");
-                    render(url, { project: project }, toReload, toOpen, openProjectNode);
+                    determineIfModuleChanged(repositoryId, project, "");
+                    render(url, { repositoryId: repositoryId, project: project }, toReload, toOpen, openProjectNode);
                 });
                 // Project with branch page
-                crossroads.addRoute("{project}/[{branch}]", function(reload, project, branch) {
-                    var url = "project.xhtml?name=" + project;
+                crossroads.addRoute("{repositoryId}/{project}/[{branch}]", function(reload, repositoryId, project, branch) {
+                    var url = "project.xhtml?repositoryId=" + repositoryId + "&name=" + project;
                     var branchChanged = current.branch !== branch;
-                    setModule(project, undefined, branch);
+                    setModule(repositoryId, project, undefined, branch);
                     var leftReload = reload == "true" || !$("#projects-tree").length || branchChanged;
                     var toReload = { top: 1, left: leftReload, bottom: 0, right: 0 };
                     var toOpen = { bottom: 0, right: 0 };
-                    determineIfModuleChanged(project, "");
-                    render(url, { branch: branch, project: project }, toReload, toOpen, openProjectNode);
+                    determineIfModuleChanged(repositoryId, project, "");
+                    render(url, { repositoryId: repositoryId, branch: branch, project: project }, toReload, toOpen, openProjectNode);
                 });
                 // Module page
-                crossroads.addRoute("{project}/{module}", function(reload, project, module) {
-                    var url = "module.xhtml?project=" + project + "&name=" + module;
-                    var newModule = setModule(project, module);
+                crossroads.addRoute("{repositoryId}/{project}/{module}", function(reload, repositoryId, project, module) {
+                    var url = "module.xhtml?repositoryId=" + repositoryId + "&project=" + project + "&name=" + module;
+                    var newModule = setModule(repositoryId, project, module);
                     var topReload =  reload == "true" || !$("#breadcrumbs-module").length || newModule;
                     var leftReload = reload == "true" || !$("#rulesTree").length || newModule;
                     var bottomReload = reload == "true" || !$("#bottomPanel").length || newModule;
                     var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 0 };
                     var toOpen = { bottom: 1, right: 0 };
-                    determineIfModuleChanged(project, module);
-                    render(url, { project: project, module: module }, toReload, toOpen);
+                    determineIfModuleChanged(repositoryId, project, module);
+                    render(url, { repositoryId: repositoryId, project: project, module: module }, toReload, toOpen);
                 });
                 // Table page
-                crossroads.addRoute("{project}/{module}/table?{query}", function(reload, project, module, query) {
+                crossroads.addRoute("{repositoryId}/{project}/{module}/table?{query}", function(reload, repositoryId, project, module, query) {
                     var url = [
                         { url: "table.xhtml?" + query },
                         { url: "tableDetailsData.xhtml?" + query, target: "#tableProperties" }
                     ];
 
                     //var toReload = !current.module || setModule(project, module);
-                    var newModule = setModule(project, module);
+                    var newModule = setModule(repositoryId, project, module);
                     var topReload =  reload == "true" || !$("#breadcrumbs-module").length || newModule;
                     var leftReload = reload == "true" || !$("#rulesTree").length || newModule;
                     var bottomReload = reload == "true" || !$("#bottomPanel").length || newModule;
                     var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 1 };
                     var toOpen = { bottom: 1, right: 1 };
-                    determineIfModuleChanged(project, module);
-                    render(url, { project: project, module: module }, toReload, toOpen, openTreeNode);
+                    determineIfModuleChanged(repositoryId, project, module);
+                    render(url, { repositoryId: repositoryId, project: project, module: module }, toReload, toOpen, openTreeNode);
                 });
                 // Other pages
-                crossroads.addRoute("{project}/{module}/{page*}", function(reload, project, module, page) {
+                crossroads.addRoute("{repositoryId}/{project}/{module}/{page*}", function(reload, repositoryId, project, module, page) {
                     var query;
                     if (page.indexOf("?") > -1) {
                         var parts = page.split("?");
@@ -712,14 +717,14 @@
                         query = parts[1];
                     }
                     var url = page + ".xhtml" + (query ? ("?" + query) : "");
-                    var newModule = setModule(project, module);
+                    var newModule = setModule(repositoryId, project, module);
                     var topReload =  reload == "true" || !$("#breadcrumbs-module").length || newModule;
                     var leftReload = reload == "true" || !$("#rulesTree").length || newModule;
                     var bottomReload = reload == "true" || !$("#bottomPanel").length || newModule;
                     var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 0 };
                     var toOpen = { bottom: 1, right: 0 };
-                    determineIfModuleChanged(project, module);
-                    render(url, { project: project, module: module }, toReload, toOpen);
+                    determineIfModuleChanged(repositoryId, project, module);
+                    render(url, { repositoryId: repositoryId, project: project, module: module }, toReload, toOpen);
                 });
             })();
 
@@ -761,11 +766,12 @@
                 crossroads.parse(page, params);
             };
 
-            var setModule = function(project, module, branch) {
-                var newModule = project && module
-                        && (!current.module || (current.project && current.module
-                        && (current.project != project || current.module != module)));
+            var setModule = function(repositoryId, project, module, branch) {
+                var newModule = repositoryId && project && module
+                        && (!current.module || (current.repositoryId && current.project && current.module
+                        && (current.repositoryId !== repositoryId || current.project !== project || current.module !== module)));
 
+                current.repositoryId = repositoryId || 0;
                 current.project = project || 0;
                 current.module = module || 0;
                 current.branch = branch || 0;
@@ -837,6 +843,7 @@
                 var initUrl = urlRewrite.prefix + "init.xhtml";
                 if (init && init.project) {
                     initUrl += ("?project=" + init.project);
+                    initUrl += ("&repositoryId=" + init.repositoryId);
                     if (init.module) {
                         initUrl += "&module=" + init.module;
                     }
@@ -921,20 +928,24 @@
             };
 
             var openProjectNode = function(pageToOpen) {
-                var page = pageToOpen || getCurrentPage();
+                let page = pageToOpen || getCurrentPage();
 
                 if (page && page.indexOf("modules/") > -1) {
-                    var projectName = page.split("modules/")[1];
+                    let projectName = page.split("modules/")[1];
                     let queryIndex = projectName.indexOf("?");
                     if (queryIndex > -1) {
                         projectName = projectName.substring(0, queryIndex);
                     }
+                    let repoEndIdx = projectName.indexOf("/");
+                    let repoId = projectName.substring(0, repoEndIdx);
+                    projectName = projectName.substring(repoEndIdx + 1);
+
                     //remove branch from project name. To re-render project tree in correct way
-                    var branchStartIdx = projectName.indexOf("/[");
+                    let branchStartIdx = projectName.indexOf("/[");
                     if (branchStartIdx > -1) {
                         projectName = projectName.substring(0, branchStartIdx);
                     }
-                    var projectLink = $("#projects-tree a[href = '#" + projectName + "']");
+                    let projectLink = $("#projects-tree a[href = '#" + repoId + "/" + projectName + "']");
                     if (projectLink.length) { // Firefox has bug with decoding url after refresh
                         // Select node
                         filterSpecificProject(decodeURIComponent(projectName));

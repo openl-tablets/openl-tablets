@@ -56,7 +56,7 @@ public class RepositoryDiffController extends AbstractDiffController {
     private final DesignTimeRepository designTimeRepository;
 
     private String branch;
-    private AProject projectUW; // User Workspace project
+    private UserWorkspaceProject projectUW; // User Workspace project
     private List<AProjectArtefact> excelArtefactsUW;
     private List<AProjectArtefact> excelArtefactsRepo;
 
@@ -107,9 +107,10 @@ public class RepositoryDiffController extends AbstractDiffController {
     public List<ProjectVersion> getVersionsRepo() {
         try {
             List<ProjectVersion> versions;
-            if (designTimeRepository.getRepository().supports().branches()) {
-                Repository repository = ((BranchRepository) designTimeRepository.getRepository()).forBranch(branch);
-                String folderPath = designTimeRepository.getProject(projectUW.getName()).getFolderPath();
+            Repository designRepository = projectUW.getDesignRepository();
+            if (designRepository.supports().branches()) {
+                Repository repository = ((BranchRepository) designRepository).forBranch(branch);
+                String folderPath = designTimeRepository.getProject(designRepository.getId(), projectUW.getName()).getFolderPath();
                 versions = new AProject(repository, folderPath).getVersions();
             } else {
                 versions = projectUW.getVersions();
@@ -142,6 +143,10 @@ public class RepositoryDiffController extends AbstractDiffController {
         return excelItems;
     }
 
+    public String getRepositoryId() {
+        return projectUW == null ? null : projectUW.getRepository().getId();
+    }
+
     public String init() {
         initProjectUW();
         initProjectRepo();
@@ -171,18 +176,19 @@ public class RepositoryDiffController extends AbstractDiffController {
             // Repository project
             AProject projectRepo;
 
-            if (designTimeRepository.getRepository().supports().branches()) {
-                projectRepo = designTimeRepository.getProject(branch, projectUW.getName(), selectedVersionRepo);
+            Repository designRepository = projectUW.getDesignRepository();
+            if (designRepository.supports().branches()) {
+                projectRepo = designTimeRepository.getProject(designRepository.getId(), branch, projectUW.getName(), selectedVersionRepo);
             } else {
                 CommonVersionImpl version = new CommonVersionImpl(selectedVersionRepo);
                 try {
-                    projectRepo = designTimeRepository.getProject(projectUW.getName(), version);
+                    projectRepo = designTimeRepository.getProject(designRepository.getId(), projectUW.getName(), version);
                 } catch (Exception e) {
                     log.warn("Could not get project'{}' of version '{}'",
                         projectUW.getName(),
                         version.getVersionName(),
                         e);
-                    projectRepo = designTimeRepository.getProject(projectUW.getName());
+                    projectRepo = designTimeRepository.getProject(designRepository.getId(), projectUW.getName());
                 }
             }
             excelArtefactsRepo = getExcelArtefacts(projectRepo, "");

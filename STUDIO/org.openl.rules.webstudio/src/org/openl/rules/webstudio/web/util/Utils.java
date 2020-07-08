@@ -35,6 +35,10 @@ public class Utils {
         return makeUrl(path1, path2);
     }
 
+    public String toUrl(String path1, String path2, String path3) {
+        return makeUrl(path1, path2, path3);
+    }
+
     public String makeUrl(String... path) {
         return "#" + Stream.of(path)
             .filter(StringUtils::isNotBlank)

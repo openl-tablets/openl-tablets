@@ -23,6 +23,8 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
     private File root;
     private int rootPathLength;
     private ChangesMonitor monitor;
+    private String id;
+    private String name;
 
     public void setRoot(File root) {
         this.root = root;
@@ -49,6 +51,24 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
         String rootPath = root.getCanonicalPath();
         rootPathLength = rootPath.length() + 1;
         monitor = new ChangesMonitor(new FileChangesMonitor(getRoot()), 10);
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override

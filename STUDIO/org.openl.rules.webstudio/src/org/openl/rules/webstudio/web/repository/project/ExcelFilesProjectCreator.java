@@ -11,17 +11,20 @@ import org.openl.util.IOUtils;
 
 public class ExcelFilesProjectCreator extends AProjectCreator {
 
-    private ProjectFile[] files;
-    private PathFilter pathFilter;
+    private final ProjectFile[] files;
+    private final String repositoryId;
+    private final PathFilter pathFilter;
     private final String comment;
 
-    public ExcelFilesProjectCreator(String projectName,
-            String projectFolder,
-            UserWorkspace userWorkspace,
-            String comment,
-            PathFilter pathFilter,
-            ProjectFile... files) {
+    public ExcelFilesProjectCreator(String repositoryId,
+        String projectName,
+        String projectFolder,
+        UserWorkspace userWorkspace,
+        String comment,
+        PathFilter pathFilter,
+        ProjectFile... files) {
         super(projectName, projectFolder, userWorkspace);
+        this.repositoryId = repositoryId;
         this.comment = comment;
         this.pathFilter = pathFilter;
         this.files = files;
@@ -29,7 +32,7 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
 
     @Override
     protected RulesProjectBuilder getProjectBuilder() throws ProjectException {
-        RulesProjectBuilder projectBuilder = new RulesProjectBuilder(getUserWorkspace(),
+        RulesProjectBuilder projectBuilder = new RulesProjectBuilder(getUserWorkspace(), repositoryId,
             getProjectName(),
             getProjectFolder(),
             comment);

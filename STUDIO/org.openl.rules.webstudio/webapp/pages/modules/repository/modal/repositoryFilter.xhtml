@@ -16,16 +16,26 @@
     <h:form id="filterForm">
       <table>
         <tr>
-          <td>Filter files by extensions (semicolon-separated)</td>
+          <td>Filter files by extensions (semicolon-separated):</td>
           <td>
             <h:inputText id="filter" value="#{repositoryTreeController.filterString}" />
           </td>
         </tr>
         <tr>
-          <td>Hide deleted projects</td>
+          <td>Hide deleted projects:</td>
           <td>
             <h:selectBooleanCheckbox id="hideDeleted" value="#{repositoryTreeController.hideDeleted}"
                 style="margin:0" />
+          </td>
+        </tr>
+        <tr>
+          <td>Repository:</td>
+          <td>
+            <h:selectOneMenu id="repository" value="#{repositoryTreeController.filterRepositoryId}">
+              <f:selectItem itemLabel="All repositiries" itemValue="#{null}"/>
+              <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                             itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
+            </h:selectOneMenu>
           </td>
         </tr>
       </table>

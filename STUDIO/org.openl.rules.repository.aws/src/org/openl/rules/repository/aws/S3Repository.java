@@ -52,6 +52,8 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
 
     private AmazonS3 s3;
     private ChangesMonitor monitor;
+    private String id;
+    private String name;
 
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
@@ -120,6 +122,24 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
         } catch (SdkClientException | IOException e) {
             throw new RRepositoryException(e.getMessage(), e);
         }
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override

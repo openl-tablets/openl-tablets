@@ -28,6 +28,9 @@ public class ProjectDescriptorHelper {
 
         for (ProjectDescriptor descriptor : descriptors) {
             builder.append("  <descriptor>\n");
+            if (descriptor.getRepositoryId() != null) {
+                builder.append("    <repositoryId>").append(descriptor.getRepositoryId()).append("</repositoryId>\n");
+            }
             builder.append("    <projectName>").append(descriptor.getProjectName()).append("</projectName>\n");
             builder.append("    <projectVersion>")
                 .append(descriptor.getProjectVersion().getVersionName())
@@ -38,7 +41,7 @@ public class ProjectDescriptorHelper {
         return IOUtils.toInputStream(builder.toString());
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "rawtypes" })
     public static List<ProjectDescriptor> deserialize(InputStream source) {
         List<ProjectDescriptor> result = null;
         XMLInputFactory factory = XMLInputFactory.newInstance();
@@ -68,9 +71,7 @@ public class ProjectDescriptorHelper {
 
                 }
             }
-        } catch (XMLStreamException e) {
-            throw new IllegalStateException(e);
-        } catch (IOException e) {
+        } catch (XMLStreamException | IOException e) {
             throw new IllegalStateException(e);
         }
         throw new IllegalStateException("Unexpected end of the document");
@@ -102,6 +103,7 @@ public class ProjectDescriptorHelper {
     }
 
     private static ProjectDescriptor parseDescripor(XMLStreamReader streamReader) throws XMLStreamException {
+        String repositoryId = null;
         String projectName = null;
         String projectVersion = null;
         while (streamReader.hasNext()) {
@@ -114,6 +116,8 @@ public class ProjectDescriptorHelper {
                         projectName = parseElementAsString("projectName", streamReader);
                     } else if ("projectVersion".equals(localName)) {
                         projectVersion = parseElementAsString("projectVersion", streamReader);
+                    } else if ("repositoryId".equals(localName)) {
+                        repositoryId = parseElementAsString("repositoryId", streamReader);
                     } else {
                         throw new IllegalStateException(String.format("An inappropriate element <%s>", localName));
                     }
@@ -124,7 +128,7 @@ public class ProjectDescriptorHelper {
                             String.format("An inappropriate closing element </%s>", streamReader.getLocalName()));
                     }
                     CommonVersionImpl commonVersion = new CommonVersionImpl(projectVersion);
-                    return new ProjectDescriptorImpl(projectName, commonVersion);
+                    return new ProjectDescriptorImpl(repositoryId, projectName, commonVersion);
             }
         }
         throw new IllegalStateException("Unexpected end of the document");

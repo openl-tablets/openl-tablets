@@ -52,7 +52,7 @@
                 <ui:include src="/pages/modules/repository/modal/addDeploymentItem.xhtml" />
             </h:panelGroup>
         </h:panelGroup>
-        <h:panelGroup rendered="#{repositoryTreeController.supportsBranches}">
+        <h:panelGroup rendered="#{repositoryTreeController.anySupportsBranches}">
             <ui:include src="/pages/modules/repository/modal/editBranches.xhtml" />
             <ui:include src="/pages/modules/repository/modal/mergeBranches.xhtml" />
         </h:panelGroup>

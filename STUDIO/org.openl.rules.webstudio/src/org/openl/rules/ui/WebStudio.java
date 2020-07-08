@@ -11,7 +11,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
@@ -33,6 +41,7 @@ import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.project.IProjectDescriptorSerializer;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
@@ -78,6 +87,7 @@ import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.filter.PathFilter;
+import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.util.CollectionUtils;
@@ -122,7 +132,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private String tableUri;
     private final ProjectModel model;
     private ProjectResolver projectResolver;
-    private List<ProjectDescriptor> projects = null;
+    private Map<String, List<ProjectDescriptor>> projects = null;
 
     private RulesTreeView treeView;
     private String tableView;
@@ -133,6 +143,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private boolean showComplexResult;
     private ModuleMode defaultModuleMode = ModuleMode.MULTI;
 
+    private String currentRepositoryId;
     private ProjectDescriptor currentProject;
     private Module currentModule;
 
@@ -305,12 +316,12 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public RulesProject getCurrentProject() {
         if (currentProject != null) {
             String projectFolder = currentProject.getProjectFolder().getName();
-            return getProject(projectFolder);
+            return getProject(currentRepositoryId, projectFolder);
         }
         return null;
     }
 
-    public RulesProject getProject(String name) {
+    public RulesProject getProject(String repositoryId, String name) {
         UserWorkspace userWorkspace;
         try {
             userWorkspace = rulesUserSession.getUserWorkspace();
@@ -319,9 +330,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
             return null;
         }
 
-        if (userWorkspace.hasProject(name)) {
+        if (userWorkspace.hasProject(repositoryId, name)) {
             try {
-                return userWorkspace.getProject(name, false);
+                return userWorkspace.getProject(repositoryId, name, false);
             } catch (ProjectException e) {
                 // Should not occur
                 log.error(e.getMessage(), e);
@@ -446,27 +457,42 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return workspacePath;
     }
 
+    public Collection<? extends AProject> getWorkspaceProjects() {
+        try {
+            return rulesUserSession.getUserWorkspace().getLocalWorkspace().getProjects();
+        } catch (WorkspaceException e) {
+            log.error(e.getMessage(), e);
+            return Collections.emptyList();
+        }
+    }
+
     public synchronized List<ProjectDescriptor> getAllProjects() {
+        List<ProjectDescriptor> allProjects = new ArrayList<>();
+        getProjects().values().forEach(allProjects::addAll);
+        return allProjects;
+    }
+
+    public synchronized Map<String, List<ProjectDescriptor>> getProjects() {
         if (projects == null) {
-            File[] files = new File(workspacePath).listFiles();
+            try {
+                projects = new HashMap<>();
+                LocalWorkspace localWorkspace = rulesUserSession.getUserWorkspace().getLocalWorkspace();
 
-            // Keep only projects existing in user workspace.
-            if (files != null) {
-                files = Arrays.stream(files).filter(projectFolder -> {
-                    try {
-                        return getProject(projectFolder.getName()) != null;
-                    } catch (Exception e) {
-                        log.warn(e.getMessage(), e);
-                        return false;
+                for (AProject project : localWorkspace.getProjects()) {
+                    String repoId = project.getRepository().getId();
+                    List<ProjectDescriptor> projectDescriptors = projects.computeIfAbsent(repoId,
+                        k -> new ArrayList<>());
+                    File repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
+                    File folder = new File(repoRoot, project.getRealPath());
+                    ProjectDescriptor resolvedDescriptor = projectResolver.resolve(folder);
+                    if (resolvedDescriptor != null) {
+                        projectDescriptors.add(resolvedDescriptor);
                     }
-                }).toArray(File[]::new);
-
-                projects = projectResolver.resolve(files);
-                for (ProjectDescriptor pd : projects) {
-                    pd.getModules().sort(MODULES_COMPARATOR);
                 }
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                projects = null;
             }
-
         }
         return projects;
     }
@@ -507,10 +533,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
         manualCompile = true;
     }
 
-    public synchronized void init(String branchName, String projectName, String moduleName) {
+    public synchronized void init(String repositoryId, String branchName, String projectName, String moduleName) {
         try {
-            log.debug("Branch='{}'  Project='{}'  Module='{}'", branchName, projectName, moduleName);
-            ProjectDescriptor project = getProjectByName(projectName);
+            log.debug("Repository id='{}' Branch='{}'  Project='{}'  Module='{}'", repositoryId, branchName, projectName, moduleName);
+            currentRepositoryId = repositoryId;
+            ProjectDescriptor project = getProjectByName(currentRepositoryId, projectName);
             if (StringUtils.isNotBlank(projectName) && project == null) {
                 // Not empty project name is requested but it's not found
                 WebStudioUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -521,7 +548,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             if (branchName != null && project != null) {
                 setProjectBranch(project, branchName);
                 // reload project descriptor. Because it might be changed
-                project = getProjectByName(projectName);
+                project = getProjectByName(currentRepositoryId, projectName);
                 if (StringUtils.isNotBlank(projectName) && project == null) {
                     // Not empty project name is requested but it's not found
                     WebStudioUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -590,7 +617,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             File sourceFile = new File(module.getRulesRootPath().getPath());
             historyListener.beforeSave(sourceFile);
 
-            LocalRepository repository = rulesUserSession.getUserWorkspace().getLocalWorkspace().getRepository();
+            LocalRepository repository = rulesUserSession.getUserWorkspace().getLocalWorkspace().getRepository(currentRepositoryId);
 
             File projectFolder = getCurrentProjectDescriptor().getProjectFolder();
             String relativePath = getRelativePath(projectFolder, sourceFile);
@@ -646,7 +673,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
             final String userName = rulesUserSession.getUserName();
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
-            final LocalRepository repository = userWorkspace.getLocalWorkspace().getRepository();
+            final LocalRepository repository = userWorkspace.getLocalWorkspace().getRepository(currentRepositoryId);
             // project folder is not the same as project name
             final String projectPath = projectDescriptor.getProjectFolder().getName();
 
@@ -898,8 +925,18 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return null;
     }
 
-    public ProjectDescriptor getProjectByName(final String name) {
-        return CollectionUtils.findFirst(getAllProjects(), project -> project.getName().equals(name));
+    public AProject getProjectByName(final String name) {
+        for (AProject workspaceProject : getWorkspaceProjects()) {
+            if (workspaceProject.getName().equals(name)) {
+                return workspaceProject;
+            }
+        }
+
+        return null;
+    }
+
+    public ProjectDescriptor getProjectByName(String repositoryId, final String name) {
+        return CollectionUtils.findFirst(getProjects().get(repositoryId), project -> project.getName().equals(name));
     }
 
     public ProjectDependencyDescriptor getProjectDependency(final String dependencyName) {
@@ -913,13 +950,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * @param name physical or logical project name
      * @return true only if there is a project with specified name and it is not current project
      */
-    public boolean isProjectExists(final String name) {
+    private boolean isProjectExists(final String name) {
         HttpSession session = WebStudioUtils.getSession();
         UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
 
         // The order of getting projects is important!
         Collection<RulesProject> projects = userWorkspace.getProjects(); // #1
-        RulesProject project = getProject(name); // #2
+        // TODO: Remove unique project name check
+        RulesProject project = getProject(currentRepositoryId, name); // #2
         RulesProject currentProject = getCurrentProject(); // #3
 
         return project != null && project != currentProject;
@@ -1087,7 +1125,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
             projectName = getCurrentProjectDescriptor() == null ? null : getCurrentProjectDescriptor().getName();
         } else {
             // Get a project
-            ProjectDescriptor project = CollectionUtils.findFirst(getAllProjects(), projectDescriptor -> {
+            List<ProjectDescriptor> allProjects = getAllProjects();
+            ProjectDescriptor project = CollectionUtils.findFirst(allProjects, projectDescriptor -> {
                 String projectURI = projectDescriptor.getProjectFolder().toURI().toString();
                 return tableURI.startsWith(projectURI);
             });
@@ -1141,9 +1180,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
             // list.
         }
         if (StringUtils.isBlank(moduleName)) {
-            return "#" + StringTool.encodeURL(projectName);
+            return "#" + StringTool.encodeURL(currentRepositoryId) + "/" + StringTool.encodeURL(projectName);
         }
-        String moduleUrl = "#" + StringTool.encodeURL(projectName) + "/" + StringTool.encodeURL(moduleName);
+        String moduleUrl = "#" + StringTool.encodeURL(currentRepositoryId) + "/" + StringTool.encodeURL(projectName) + "/" + StringTool.encodeURL(moduleName);
         if (StringUtils.isBlank(pageUrl)) {
             return moduleUrl;
         }
@@ -1177,7 +1216,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private void setProjectBranch(ProjectDescriptor descriptor, String branch) {
         try {
             String projectFolder = descriptor.getProjectFolder().getName();
-            RulesProject project = getProject(projectFolder);
+            RulesProject project = getProject(currentRepositoryId, projectFolder);
             if (isSupportsBranches() && project != null) {
                 String previousBranch = project.getBranch();
                 if (!branch.equals(previousBranch)) {
@@ -1305,6 +1344,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     boolean isProjectFrozen(String name) {
         return frozenProjects.contains(name);
+    }
+
+    public String getCurrentRepositoryId() {
+        return currentRepositoryId;
     }
 
     @Override

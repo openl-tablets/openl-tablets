@@ -26,11 +26,12 @@ public class LocalWorkspaceManagerImplTest {
     public void removeWorkspaceOnSessionTimeout() throws Exception {
         WorkspaceUserImpl user = new WorkspaceUserImpl("user1");
         LocalWorkspace workspace1 = manager.getWorkspace(user);
+        String repoId = "design";
 
         // Must return cached version
         LocalWorkspace workspace2 = manager.getWorkspace(user);
         assertSame(workspace1, workspace2);
-        assertSame(workspace1.getRepository(), workspace2.getRepository());
+        assertSame(workspace1.getRepository(repoId), workspace2.getRepository(repoId));
 
         // Session timeout
         workspace1.release();
@@ -38,6 +39,6 @@ public class LocalWorkspaceManagerImplTest {
         // Must create new instance
         workspace2 = manager.getWorkspace(user);
         assertNotSame(workspace1, workspace2);
-        assertNotSame(workspace1.getRepository(), workspace2.getRepository());
+        assertNotSame(workspace1.getRepository(repoId), workspace2.getRepository(repoId));
     }
 }

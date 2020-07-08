@@ -54,7 +54,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     }
 
     private void cacheDesignProject(AProject project) throws IOException {
-        Repository repository = designRepository.getRepository();
+        Repository repository = designRepository.getRepository(project.getRepository().getId());
         List<ProjectVersion> versions = project.getVersions();
         if (repository.supports().branches()) {
             for (String branch : ((BranchRepository) repository).getBranches(project.getName())) {
@@ -76,7 +76,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
                 projectVersion.getVersionInfo().getCreatedAt(),
                 ProjectVersionH2CacheDB.RepoType.DESIGN);
             if (StringUtils.isEmpty(hash)) {
-                AProject designProject = designRepository.getProject(project.getName(), projectVersion);
+                AProject designProject = designRepository.getProject(project.getRepository().getId(), project.getName(), projectVersion);
                 cacheProjectVersion(designProject, ProjectVersionH2CacheDB.RepoType.DESIGN);
             }
         }

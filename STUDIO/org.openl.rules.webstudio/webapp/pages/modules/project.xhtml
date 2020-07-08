@@ -124,6 +124,22 @@
                                 </td>
                             </tr>
                         </h:panelGroup>
+                        <ui:fragment rendered="#{not projectData.localOnly }">
+                        <tr>
+                            <td>Repository:</td>
+                            <td>
+                                <h:outputText value="#{projectData.repository.name}"/>
+                            </td>
+                        </tr>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{projectData.repository.supports().mappedFolders() }">
+                            <tr>
+                                <td>Path:</td>
+                                <td>
+                                    <h:outputText value="#{projectData.realPath}"/>
+                                </td>
+                            </tr>
+                        </ui:fragment>
                     </table>
                 </div>
             </div>
@@ -152,14 +168,14 @@
                                         #{empty module.name ? 'Multiple modules' : module.name}
                                     </h:panelGroup>
                                     <h:panelGroup rendered="#{!isModuleWithWildcard}">
-                                        <a href="#{utils.toUrl(project.name, module.name)}">#{module.name}</a>
+                                        <a href="#{utils.toUrl(projectData.repository.id, projectData.name, module.name)}">#{module.name}</a>
                                     </h:panelGroup>
                                     <span class="path">#{projectBean.getModulePath(module)}</span>
                                 </div>
                                 <ui:repeat var="matchedModule"
                                            value="#{projectBean.getModulesMatchingPathPattern(module)}">
                                     <div class="nested-item">
-                                        <a href="#{utils.toUrl(project.name, matchedModule.name)}">#{matchedModule.name}</a>
+                                        <a href="#{utils.toUrl(projectData.repository.id, projectData.name, matchedModule.name)}">#{matchedModule.name}</a>
                                         <span class="path">#{projectBean.getModulePath(matchedModule)}</span>
                                     </div>
                                 </ui:repeat>
@@ -234,13 +250,14 @@
                         <div class="list">
                             <ui:repeat var="dependency" value="#{project.dependencies}">
                                 <div class="list-item">
-                                    <h:panelGroup rendered="#{!empty studio.getProjectByName(dependency.name)}">
-                                        <a href="#{utils.toUrl(dependency.name)}">#{dependency.name}</a>
+                                    <ui:param name="dependentProject" value="#{studio.getProjectByName(dependency.name)}"/>
+                                    <h:panelGroup rendered="#{!empty dependentProject}">
+                                        <a href="#{utils.toUrl(dependentProject.repository.id, dependentProject.name)}">#{dependency.name}</a>
                                         <h:panelGroup rendered="#{dependency.autoIncluded}" styleClass="path">
                                             All Modules
                                         </h:panelGroup>
                                     </h:panelGroup>
-                                    <h:panelGroup rendered="#{empty studio.getProjectByName(dependency.name)}">
+                                    <h:panelGroup rendered="#{empty dependentProject}">
                                         <span>#{dependency.name}</span>
                                         <span class="path" style="color:red">Could not find the project
                                         <h:form style="display: inline;">
@@ -409,7 +426,7 @@
                 <footer>
                     <a4j:commandButton id="editProjectBtn" value="Update" action="#{projectBean.editName}"
                                        styleClass="button-primary"
-                                       oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editProjectPopup');ws.nav.go('#{utils.toUrl(projectData.name)}', true)}"/>
+                                       oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editProjectPopup');ws.nav.go('#{utils.toUrl(projectData.repository.id, projectData.name)}', true)}"/>
                     <input type="button" value="Cancel" onclick="ws.ui.hide('editProjectPopup');"/>
                 </footer>
             </h:form>

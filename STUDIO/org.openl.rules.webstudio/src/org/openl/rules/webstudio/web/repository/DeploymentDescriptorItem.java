@@ -8,14 +8,16 @@ import org.openl.rules.common.CommonVersion;
 public class DeploymentDescriptorItem extends AbstractItem {
     private static final long serialVersionUID = -3870494832804679843L;
 
+    private final String repositoryId;
     /** Project version. */
     private CommonVersion version;
 
-    DeploymentDescriptorItem(String name, CommonVersion version) {
-        this(name, version, null);
+    DeploymentDescriptorItem(String repositoryId, String name, CommonVersion version) {
+        this(repositoryId, name, version, null);
     }
 
-    private DeploymentDescriptorItem(String name, CommonVersion version, String messages) {
+    private DeploymentDescriptorItem(String repositoryId, String name, CommonVersion version, String messages) {
+        this.repositoryId = repositoryId;
         setName(name);
         this.version = version;
         setMessages(messages);
@@ -32,7 +34,11 @@ public class DeploymentDescriptorItem extends AbstractItem {
 
         DeploymentDescriptorItem that = (DeploymentDescriptorItem) o;
 
-        return getName().equals(that.getName()) && version.equals(that.version);
+        return repositoryId.equals(that.repositoryId) && getName().equals(that.getName()) && version.equals(that.version);
+    }
+
+    public String getRepositoryId() {
+        return repositoryId;
     }
 
     public CommonVersion getVersion() {
@@ -43,6 +49,7 @@ public class DeploymentDescriptorItem extends AbstractItem {
     public int hashCode() {
         int result;
         result = getName().hashCode();
+        result = 31 * result + repositoryId.hashCode();
         result = 31 * result + version.hashCode();
         return result;
     }

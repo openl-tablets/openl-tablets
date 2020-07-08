@@ -8,7 +8,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -170,12 +169,7 @@ public class RepositoryService {
 
                 final String rulesPath = getDesignTimeRepository().getRulesLocation();
 
-                entity = new StreamingOutput() {
-                    @Override
-                    public void write(OutputStream out) throws IOException {
-                        RepositoryUtils.archive((FolderRepository) repository, rulesPath, name, version, out);
-                    }
-                };
+                entity = (StreamingOutput) out -> RepositoryUtils.archive((FolderRepository) repository, rulesPath, name, version, out);
             } else {
                 FileItem fileItem = repository.readHistory(projectPath, version);
                 if (fileItem == null) {
@@ -310,11 +304,12 @@ public class RepositoryService {
             String comment) throws WorkspaceException {
         try {
             UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
-            if (userWorkspace.hasProject(name)) {
+            String repositoryId = getDefaultRepositoryId();
+            if (userWorkspace.hasProject(repositoryId, name)) {
                 if (!isGranted(Privileges.EDIT_PROJECTS)) {
                     return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
                 }
-                RulesProject project = userWorkspace.getProject(name);
+                RulesProject project = userWorkspace.getProject(repositoryId, name);
                 if (!project.tryLock()) {
                     String lockedBy = project.getLockInfo().getLockedBy().getUserName();
                     return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
@@ -358,7 +353,7 @@ public class RepositoryService {
                 data.setSize(zipSize);
                 save = repository.save(data, zipFile);
             }
-            userWorkspace.getProject(name).unlock();
+            userWorkspace.getProject(repositoryId, name).unlock();
             return Response.created(new URI(uri + "/" + StringTool.encodeURL(save.getVersion()))).build();
         } catch (IOException | URISyntaxException | RuntimeException ex) {
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
@@ -397,7 +392,7 @@ public class RepositoryService {
         if (!isGranted(Privileges.EDIT_PROJECTS)) {
             return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
         }
-        RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(name);
+        RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(getDefaultRepositoryId(), name);
         if (!project.tryLock()) {
             String lockedBy = project.getLockInfo().getLockedBy().getUserName();
             return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
@@ -419,7 +414,7 @@ public class RepositoryService {
         if (!isGranted(Privileges.EDIT_PROJECTS)) {
             return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
         }
-        RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(name);
+        RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(getDefaultRepositoryId(), name);
         if (!project.isLocked()) {
             return Response.status(Status.FORBIDDEN).entity("The project is not locked.").build();
         } else if (!project.isLockedByMe()) {
@@ -431,7 +426,13 @@ public class RepositoryService {
     }
 
     private Repository getRepository() throws WorkspaceException {
-        return getDesignTimeRepository().getRepository();
+        return getDesignTimeRepository().getRepository(getDefaultRepositoryId());
+    }
+
+    @Deprecated
+    private String getDefaultRepositoryId() throws WorkspaceException {
+        // We don't support several repositories for now. Use first repository.
+        return getDesignTimeRepository().getRepositories().get(0).getId();
     }
 
     private DesignTimeRepository getDesignTimeRepository() throws WorkspaceException {

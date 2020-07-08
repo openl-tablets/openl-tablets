@@ -67,7 +67,7 @@
 
     <div class="panel">
         <div class="panel-header">
-            <h:panelGroup rendered="#{not empty studio.allProjects}">
+            <h:panelGroup rendered="#{not empty studio.workspaceProjects}">
                 <div class="filter-name">
                     <input type="text" id="nameFilter" onkeyup="filterProjects(this.value)"
                         placeholder="#{msg['ws.projects.filter']}" class="input-container" />
@@ -82,15 +82,16 @@
 
         <div class="panel-body">
             <h:form prependId="false" id="projects-tree">
-                <h:panelGroup id="projects" rendered="#{not empty studio.allProjects}" layout="block">
+                <h:panelGroup id="projects" rendered="#{not empty studio.workspaceProjects}" layout="block">
                     <ul>
-                        <ui:repeat value="#{studio.allProjects}" var="project">
+                        <ui:repeat value="#{studio.workspaceProjects}" var="project">
                         <li>
-                            <a class="projectName" href="#{utils.toUrl(project.name)}">#{project.name}</a>
+                            <ui:param name="repoId" value="#{project.repository.id}"/>
+                            <a class="projectName" href="#{utils.toUrl(repoId, project.name)}">#{project.name}</a>
                             <ul>
-                                <ui:repeat value="#{project.modules}" var="module">
+                                <ui:repeat value="#{studio.getProjectByName(repoId, project.name).modules}" var="module">
                                 <li>
-                                    <a href="#{utils.toUrl(project.name, module.name)}">#{module.name}</a>
+                                    <a href="#{utils.toUrl(repoId, project.name, module.name)}">#{module.name}</a>
                                 </li>
                                 </ui:repeat>
                             </ul>
@@ -145,7 +146,7 @@
                     </script>
                 </h:panelGroup>
 
-                <h:panelGroup rendered="#{empty studio.allProjects}">
+                <h:panelGroup rendered="#{empty studio.workspaceProjects}">
                     <h:outputText value="#{msg['ws.projects.no']}" style="color:red; font-weight: bold" />
                     <br />
                     <c:if test="true">

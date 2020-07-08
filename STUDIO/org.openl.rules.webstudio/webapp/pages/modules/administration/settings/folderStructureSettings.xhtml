@@ -21,7 +21,7 @@
 
     <h:panelGroup id="#{prependId}flatStructureParameters">
         <h:panelGrid columns="2" columnClasses="titleColumn" rendered="#{settings.flatFolderStructure}">
-            <h:outputText value="Path in repository:" required="true"/>
+            <h:outputText value="Path:" required="true"/>
             <h:inputText value="#{settings.basePath}"
                          id="#{prependId}pathInRepository"
                          validator="#{validators.pathInRepository}"

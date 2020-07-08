@@ -42,29 +42,6 @@ public final class RepositoryUtils {
     private RepositoryUtils() {
     }
 
-    /**
-     * @deprecated
-     */
-    @Deprecated
-    public static RulesUserSession getRulesUserSession() {
-        return (RulesUserSession) WebStudioUtils.getExternalContext().getSessionMap().get(Constants.RULES_USER_SESSION);
-    }
-
-    /**
-     * @return user's workspace or <code>null</code>
-     * @deprecated
-     */
-    @Deprecated
-    public static UserWorkspace getWorkspace() {
-        final Logger log = LoggerFactory.getLogger(RepositoryUtils.class);
-        try {
-            return getRulesUserSession().getUserWorkspace();
-        } catch (Exception e) {
-            log.error("Error obtaining user workspace", e);
-        }
-        return null;
-    }
-
     public static String getTreeNodeId(String name) {
         if (StringUtils.isNotBlank(name)) {
             // FIXME name.hashCode() can produce collisions. Not good for id.

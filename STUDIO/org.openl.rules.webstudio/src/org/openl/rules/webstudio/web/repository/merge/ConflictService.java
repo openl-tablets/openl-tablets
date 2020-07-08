@@ -45,7 +45,8 @@ public class ConflictService {
     @GET
     @Path("repository")
     @Produces("application/octet-stream")
-    public Response repository(@QueryParam(Constants.REQUEST_PARAM_NAME) final String name,
+    public Response repository(@QueryParam(Constants.REQUEST_PARAM_NAME) final String repoId,
+            @QueryParam(Constants.REQUEST_PARAM_NAME) final String name,
             @QueryParam(Constants.REQUEST_PARAM_VERSION) final String version,
             @QueryParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
             @Context HttpServletRequest request) {
@@ -56,7 +57,7 @@ public class ConflictService {
             try {
                 FileItem file = workspaceManager.getUserWorkspace(getUser())
                     .getDesignTimeRepository()
-                    .getRepository()
+                    .getRepository(repoId)
                     .readHistory(name, version);
                 if (file == null) {
                     throw new FileNotFoundException(String.format("File '%s' is not found.", name));
@@ -79,7 +80,8 @@ public class ConflictService {
     @GET
     @Path("local")
     @Produces("application/octet-stream")
-    public Response local(@QueryParam(Constants.REQUEST_PARAM_NAME) final String name,
+    public Response local(@QueryParam(Constants.REQUEST_PARAM_NAME) final String repoId,
+            @QueryParam(Constants.REQUEST_PARAM_NAME) final String name,
             @QueryParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
             @Context HttpServletRequest request) {
 
@@ -90,7 +92,7 @@ public class ConflictService {
                 UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
                 String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
                 String localName = name.substring(rulesLocation.length());
-                FileItem file = userWorkspace.getLocalWorkspace().getRepository().read(localName);
+                FileItem file = userWorkspace.getLocalWorkspace().getRepository(repoId).read(localName);
                 if (file == null) {
                     throw new FileNotFoundException(String.format("File %s is not found.", localName));
                 }

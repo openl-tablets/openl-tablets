@@ -12,13 +12,14 @@ import java.util.zip.ZipInputStream;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.folder.FileChangesFromZip;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
     private final Logger log = LoggerFactory.getLogger(FileChangesToDeploy.class);
-    private final Repository designRepo;
+    private final DesignTimeRepository designRepo;
     private final List<ProjectDescriptor> descriptors;
     private final String rulesPath;
     private final String deploymentPath;
@@ -26,7 +27,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
     private InputStream openedStream;
 
     FileChangesToDeploy(Collection<ProjectDescriptor> projectDescriptors,
-            Repository designRepo,
+            DesignTimeRepository designRepo,
             String rulesPath,
             String deploymentPath) {
         this.descriptors = new ArrayList<>(projectDescriptors);
@@ -49,30 +50,35 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
 
                 if (descriptorIndex < descriptors.size()) {
                     ProjectDescriptor<?> pd = descriptors.get(descriptorIndex++);
+                    String repositoryId = pd.getRepositoryId();
+                    if (repositoryId == null) {
+                        repositoryId = designRepo.getRepositories().get(0).getId();
+                    }
+                    Repository repository = designRepo.getRepository(repositoryId);
                     String version = pd.getProjectVersion().getVersionName();
                     String projectName = pd.getProjectName();
-                    projectIterator = getProjectIterator(projectName, version);
+                    projectIterator = getProjectIterator(repository, projectName, version);
                     return projectIterator != null && projectIterator.hasNext();
                 } else {
                     return false;
                 }
             }
 
-            private Iterator<FileItem> getProjectIterator(String projectName, String version) {
+            private Iterator<FileItem> getProjectIterator(Repository baseRepo, String projectName, String version) {
                 try {
-                    if (designRepo.supports().folders()) {
+                    if (baseRepo.supports().folders()) {
                         // Project in design repository is stored as a folder
                         String srcProjectPath = rulesPath + projectName + "/";
                         FolderRepository repository = RepositoryUtils
-                            .getRepositoryForVersion((FolderRepository) designRepo, rulesPath, projectName, version);
+                            .getRepositoryForVersion((FolderRepository) baseRepo, rulesPath, projectName, version);
                         List<FileData> files = repository.listFiles(srcProjectPath, version);
                         if (files.isEmpty()) {
                             log.warn("Cannot find files in project {}", projectName);
                         }
-                        return new FolderIterator(files);
+                        return new FolderIterator(repository, files);
                     } else {
                         // Project in design repository is stored as a zip file
-                        FileItem srcPrj = designRepo.readHistory(rulesPath + projectName, version);
+                        FileItem srcPrj = baseRepo.readHistory(rulesPath + projectName, version);
                         if (srcPrj == null) {
                             throw new FileNotFoundException(String
                                 .format("File '%s' for version %s is not found.", rulesPath + projectName, version));
@@ -107,10 +113,12 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
     }
 
     private class FolderIterator implements Iterator<FileItem> {
+        private final Repository baseRepo;
         private final List<FileData> files;
         private int fileIndex = 0;
 
-        private FolderIterator(List<FileData> files) {
+        private FolderIterator(Repository baseRepo, List<FileData> files) {
+            this.baseRepo = baseRepo;
             this.files = files;
         }
 
@@ -126,7 +134,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
             String fileTo = deploymentPath + srcFileName.substring(rulesPath.length());
             FileItem fileItem;
             try {
-                fileItem = designRepo.readHistory(file.getName(), file.getVersion());
+                fileItem = baseRepo.readHistory(file.getName(), file.getVersion());
                 IOUtils.closeQuietly(openedStream);
                 openedStream = fileItem.getStream();
                 return new FileItem(fileTo, openedStream);

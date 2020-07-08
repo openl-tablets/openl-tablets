@@ -44,9 +44,9 @@ public interface DesignTimeRepository extends ProjectsContainer {
      * @param version exact version of project
      * @return specified version of rules project
      */
-    AProject getProject(String name, CommonVersion version);
+    AProject getProject(String repositoryId, String name, CommonVersion version);
 
-    AProject getProject(String branch, String project, String version) throws IOException;
+    AProject getProject(String repositoryId, String branch, String project, String version) throws IOException;
 
     /**
      * Checks whether the DTR has deployment project with specified name.
@@ -60,7 +60,9 @@ public interface DesignTimeRepository extends ProjectsContainer {
 
     void removeListener(DesignTimeRepositoryListener listener);
 
-    Repository getRepository();
+    Repository getRepository(String id);
+
+    List<Repository> getRepositories();
 
     String getRulesLocation();
 }

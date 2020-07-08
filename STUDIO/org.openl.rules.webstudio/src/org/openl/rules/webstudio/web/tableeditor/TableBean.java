@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Workbook;
@@ -62,7 +64,8 @@ import org.springframework.web.context.annotation.RequestScope;
 @Service
 @RequestScope
 public class TableBean {
-    private static final String REQUEST_ID_PREFIX = "project-";
+    private static final String REQUEST_ID_FORMAT = "request-id:(%s);project-name:(%s)";
+    private static final Pattern REQUEST_ID_PATTERN = Pattern.compile("request-id:(.+);project-name:(.+)");
     private static final int MAX_PROBLEMS = 100;
     private final Logger log = LoggerFactory.getLogger(TableBean.class);
 
@@ -479,19 +482,25 @@ public class TableBean {
     public String getRequestId() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         RulesProject currentProject = studio.getCurrentProject();
+        String requestId = currentProject == null ? "" : currentProject.getRepository().getId();
         String projectName = currentProject == null ? "" : currentProject.getName();
-        return REQUEST_ID_PREFIX + projectName;
+        return String.format(REQUEST_ID_FORMAT, requestId, projectName);
     }
 
     public static void tryUnlock(String requestId) {
-        if (StringUtils.isBlank(requestId) || !requestId.startsWith(REQUEST_ID_PREFIX)) {
+        if (StringUtils.isBlank(requestId)) {
+            return;
+        }
+        Matcher matcher = REQUEST_ID_PATTERN.matcher(requestId);
+        if (!matcher.matches()) {
             return;
         }
 
-        String projectName = requestId.substring(REQUEST_ID_PREFIX.length());
+        String repositoryId = matcher.group(1);
+        String projectName = matcher.group(2);
 
         final WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getProject(projectName);
+        RulesProject currentProject = studio.getProject(repositoryId, projectName);
         if (currentProject != null) {
             try {
                 if (!currentProject.isModified()) {

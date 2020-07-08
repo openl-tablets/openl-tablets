@@ -7,7 +7,7 @@
     <bean id="localWorkspaceManager" class="org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl"
           init-method="init">
         <constructor-arg name="propertyResolver" ref="environment"/>
-        <property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter"/>
+        <constructor-arg name="designTimeRepository" ref="designTimeRepository"/>
         <property name="enableLocks" value="#{'${user.mode}' != 'single'}"/>
     </bean>
 

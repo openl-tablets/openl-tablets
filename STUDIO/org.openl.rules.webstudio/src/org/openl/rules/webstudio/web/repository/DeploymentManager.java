@@ -103,9 +103,8 @@ public class DeploymentManager implements InitializingBean {
             if (deployRepo.supports().folders()) {
                 FolderRepository folderRepo = (FolderRepository) deployRepo;
 
-                Repository designRepo = designRepository.getRepository();
                 try (FileChangesToDeploy changes = new FileChangesToDeploy(projectDescriptors,
-                    designRepo,
+                    designRepository,
                     rulesPath,
                     deploymentPath)) {
                     FileData deploymentData = new FileData();
@@ -122,10 +121,14 @@ public class DeploymentManager implements InitializingBean {
                     deployRepo.delete(fileData);
                 }
 
-                Repository designRepo = designRepository.getRepository();
                 for (ProjectDescriptor<?> pd : projectDescriptors) {
                     InputStream stream = null;
                     try {
+                        String repositoryId = pd.getRepositoryId();
+                        if (repositoryId == null) {
+                            repositoryId = designRepository.getRepositories().get(0).getId();
+                        }
+                        Repository designRepo = designRepository.getRepository(repositoryId);
                         String version = pd.getProjectVersion().getVersionName();
                         String projectName = pd.getProjectName();
 
@@ -201,7 +204,11 @@ public class DeploymentManager implements InitializingBean {
         for (ProjectDescriptor pd : deploymentConfiguration.getProjectDescriptors()) {
             try {
                 try {
-                    AProject project = designRepository.getProject(pd.getProjectName(), pd.getProjectVersion());
+                    String repositoryId = pd.getRepositoryId();
+                    if (repositoryId == null) {
+                        repositoryId = designRepository.getRepositories().get(0).getId();
+                    }
+                    AProject project = designRepository.getProject(repositoryId, pd.getProjectName(), pd.getProjectVersion());
 
                     AProjectArtefact artifact = project.getArtefact(DeployUtils.RULES_DEPLOY_XML);
                     if (artifact instanceof AProjectResource) {

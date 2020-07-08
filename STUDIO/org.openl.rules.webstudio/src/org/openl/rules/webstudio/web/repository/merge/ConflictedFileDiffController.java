@@ -63,8 +63,9 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                     SecurityContextHolder.getContext().getAuthentication().getName());
                 UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(user);
 
+                String repositoryId = mergeConflict.getRepositoryId();
                 FileItem their = userWorkspace.getDesignTimeRepository()
-                    .getRepository()
+                    .getRepository(repositoryId)
                     .readHistory(conflictedFile, exception.getTheirCommit());
                 File theirFile = createTempFile(their, conflictedFile);
                 File ourFile;
@@ -72,7 +73,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                 FileItem our;
                 if (mergeConflict.isMerging()) {
                     our = userWorkspace.getDesignTimeRepository()
-                        .getRepository()
+                        .getRepository(repositoryId)
                         .readHistory(conflictedFile, exception.getYourCommit());
                     ourFile = createTempFile(our, conflictedFile);
                     if (mergeConflict.isExportOperation()) {
@@ -83,7 +84,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                 } else {
                     String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
                     String localName = conflictedFile.substring(rulesLocation.length());
-                    our = userWorkspace.getLocalWorkspace().getRepository().read(localName);
+                    our = userWorkspace.getLocalWorkspace().getRepository(repositoryId).read(localName);
                     ourFile = createTempFile(our, conflictedFile);
                 }
 

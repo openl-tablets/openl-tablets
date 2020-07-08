@@ -20,7 +20,11 @@ public class RulesProjectBuilder {
     private final UserWorkspace workspace;
     private final String comment;
 
-    public RulesProjectBuilder(UserWorkspace workspace, String projectName, String projectFolder, String comment) {
+    public RulesProjectBuilder(UserWorkspace workspace,
+        String repositoryId,
+        String projectName,
+        String projectFolder,
+        String comment) {
         this.workspace = workspace;
         this.comment = comment;
         String internalPath = projectFolder + projectName;
@@ -31,7 +35,7 @@ public class RulesProjectBuilder {
             FileData designData = new FileData();
             designData.setName(workspace.getDesignTimeRepository().getRulesLocation() + projectName);
 
-            Repository designRepository = workspace.getDesignTimeRepository().getRepository();
+            Repository designRepository = workspace.getDesignTimeRepository().getRepository(repositoryId);
             if (designRepository.supports().mappedFolders()) {
                 FileMappingData mappingData = new FileMappingData(internalPath);
                 designData.addAdditionalData(mappingData);
@@ -39,7 +43,7 @@ public class RulesProjectBuilder {
             }
 
             project = new RulesProject(workspace,
-                workspace.getLocalWorkspace().getRepository(),
+                workspace.getLocalWorkspace().getRepository(repositoryId),
                 localData,
                 designRepository,
                 designData,

@@ -152,11 +152,12 @@ public class SystemSettingsBean {
     }
 
     public boolean isUseDesignRepo() {
-        return !Boolean.parseBoolean(properties.getProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO));
+        return StringUtils.isNotBlank(properties.getProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG));
     }
 
     public void setUseDesignRepo(boolean useDesignRepo) {
-        properties.setProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO, !useDesignRepo);
+        // TODO: We should point specific design repository
+        properties.setProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG, useDesignRepo ? ConfigNames.DESIGN_CONFIG : null);
     }
 
     public FolderStructureSettings getDesignFolderStructure() {
@@ -255,7 +256,7 @@ public class SystemSettingsBean {
     public void restoreDefaults() {
         try {
             designRepositoryConfiguration.revert();
-            properties.revertProperties(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO);
+            properties.revertProperties(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG);
             deployConfigRepositoryConfiguration.revert();
 
             productionRepositoryEditor.revertChanges();

@@ -689,7 +689,7 @@ public class ProjectModel {
 
     private LocalRepository getLocalRepository() {
         UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
-        return userWorkspace.getLocalWorkspace().getRepository();
+        return userWorkspace.getLocalWorkspace().getRepository(studio.getCurrentRepositoryId());
     }
 
     public TableSyntaxNode[] getTableSyntaxNodes() {

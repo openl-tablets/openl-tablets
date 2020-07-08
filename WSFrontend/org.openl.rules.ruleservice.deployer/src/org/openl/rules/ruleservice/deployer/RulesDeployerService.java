@@ -66,6 +66,7 @@ public class RulesDeployerService implements Closeable {
         this.deployPath = deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
 
         Map<String, String> params = new HashMap<>();
+        params.put("id", "production-repository");
         params.put("uri", properties.getProperty("production-repository.uri"));
         params.put("login", properties.getProperty("production-repository.login"));
         params.put("password", properties.getProperty("production-repository.password"));

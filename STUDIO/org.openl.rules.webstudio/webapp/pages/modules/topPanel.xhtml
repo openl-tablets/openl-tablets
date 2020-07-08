@@ -59,13 +59,13 @@
                 </a>
                 <ul class="dropdown-menu" role="menu">
                     <li class="nav-header">Current Project</li>
-                    <li><a href="#{utils.toUrl(project.name)}">#{project.name}</a></li>
-                    <h:panelGroup rendered="#{studio.allProjects.size() > 1}">
+                    <li><a href="#{utils.toUrl(rProject.repository.id, rProject.name)}">#{project.name}</a></li>
+                    <h:panelGroup rendered="#{studio.workspaceProjects.size() > 1}">
                         <li class="divider"></li>
                         <li class="nav-header">All Projects</li>
-                        <ui:repeat value="#{studio.allProjects}" var="pr">
+                        <ui:repeat value="#{studio.workspaceProjects}" var="pr">
                             <h:panelGroup rendered="#{pr.name != project.name}">
-                                <li><a href="#{utils.toUrl(pr.name)}">#{pr.name}</a></li>
+                                <li><a href="#{utils.toUrl(pr.repository.id, pr.name)}">#{pr.name}</a></li>
                             </h:panelGroup>
                         </ui:repeat>
                     </h:panelGroup>
@@ -80,13 +80,13 @@
                     </a>
                     <ul class="dropdown-menu" role="menu">
                         <li class="nav-header">Current Branch</li>
-                        <li><a href="#{utils.toUrl(project.name)}/[#{utils.encode(studio.projectBranch)}]">#{studio.projectBranch}</a></li>
+                        <li><a href="#{utils.toUrl(rProject.repository.id, rProject.name)}/[#{utils.encode(studio.projectBranch)}]">#{studio.projectBranch}</a></li>
                         <h:panelGroup rendered="#{studio.projectBranches.size() > 1}">
                             <li class="divider"></li>
                             <li class="nav-header">All Branches</li>
                             <ui:repeat value="#{studio.projectBranches}" var="branch">
                                 <h:panelGroup rendered="#{branch != studio.projectBranch}">
-                                    <li><a href="#{utils.toUrl(project.name)}/[#{utils.encode(branch)}]" onclick="return canOpenOtherBranch();">#{branch}</a></li>
+                                    <li><a href="#{utils.toUrl(rProject.repository.id, rProject.name)}/[#{utils.encode(branch)}]" onclick="return canOpenOtherBranch();">#{branch}</a></li>
                                 </h:panelGroup>
                             </ui:repeat>
                         </h:panelGroup>
@@ -101,13 +101,13 @@
                 </a>
                 <ul class="dropdown-menu" role="menu">
                     <li class="nav-header">Current Module</li>
-                    <li><a href="#{utils.toUrl(project.name, module.name)}">#{module.name}</a></li>
+                    <li><a href="#{utils.toUrl(rProject.repository.id, rProject.name, module.name)}">#{module.name}</a></li>
                     <h:panelGroup rendered="#{studio.currentProjectDescriptor.modules.size() > 1}">
                     <li class="divider"></li>
                     <li class="nav-header">All Modules</li>
                     <ui:repeat value="#{studio.currentProjectDescriptor.modules}" var="m">
                         <h:panelGroup rendered="#{m.name != module.name}">
-                        <li><a href="#{utils.toUrl(project.name, m.name)}">#{m.name}</a></li>
+                        <li><a href="#{utils.toUrl(rProject.repository.id, rProject.name, m.name)}">#{m.name}</a></li>
                         </h:panelGroup>
                     </ui:repeat>
                     </h:panelGroup>
@@ -131,12 +131,12 @@
                                value="Sync"
                                title="Synchronize updates"
                                rendered="#{studio.canMerge}" />
-                <h:commandLink styleClass="changes-listener" onclick="openSmartRedeployDialogFromEditor('#{rProject.name}'); return false;" value="Deploy"
+                <h:commandLink styleClass="changes-listener" onclick="openSmartRedeployDialogFromEditor('#{rProject.repository.id}', '#{rProject.name}'); return false;" value="Deploy"
                                id="deployProjectButton"
                                title="Deploy the project"
                                rendered="#{studio.canRedeploy}">
                 </h:commandLink>
-                <h:commandLink styleClass="changes-listener" onclick="openCopyProjectDialog('#{rProject.name}'); return false;"
+                <h:commandLink styleClass="changes-listener" onclick="openCopyProjectDialog('#{rProject.repository.id}', '#{rProject.name}'); return false;"
                                id="copyProjectButton"
                                value="Copy" title="Copy project"
                                rendered="#{!empty rProject and copyBean.canCreate}" />
@@ -227,7 +227,7 @@
                 </a>
                 <ul class="dropdown-menu" role="menu">
                     <h:panelGroup rendered="#{!empty project}">
-                        <li><a tabindex="-1" href="#{utils.toUrl(rProject.name)}?page=revisions&amp;"
+                        <li><a tabindex="-1" href="#{utils.toUrl(rProject.repository.id, rProject.name)}?page=revisions&amp;"
                                title="Show project revisions">Revisions</a></li>
                         <h:panelGroup rendered="#{empty module}">
                             <li class="divider"></li>

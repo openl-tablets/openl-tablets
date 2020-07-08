@@ -96,6 +96,16 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     @Override
+    public String getId() {
+        return delegate.getId();
+    }
+
+    @Override
+    public String getName() {
+        return delegate.getName();
+    }
+
+    @Override
     public List<FileData> list(String path) throws IOException {
         Map<String, String> mapping = getMappingForRead();
 

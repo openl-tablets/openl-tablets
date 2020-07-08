@@ -83,7 +83,7 @@
       function goToNewProject() {
           var hash = $location.getHash(true);
           var index = hash.indexOf('/');
-          var newUrl = '#{utils.encode(artefact.name)}';
+          var newUrl = '#{utils.encode(artefact.repository.id)}/#{utils.encode(artefact.name)}';
           if (index > 0) {
               newUrl += hash.substring(index);
           }

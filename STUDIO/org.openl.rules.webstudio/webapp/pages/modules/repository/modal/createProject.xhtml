@@ -85,10 +85,22 @@
                                     onchange="createProjectFormTemplCommentHandler.generateTemplate(this.value.trim(), #{rich:element('createProjectFormTempl:commentTemplate')});"/>
                             </td>
                         </tr>
+                        <tr>
+                            <td class="label" style="width: 100px">
+                                <h:outputLabel for="repositoryTemplate" styleClass="required" value="Repository:" />
+                            </td>
+                            <td>
+                                <h:selectOneMenu id="repositoryTemplate" value="#{repositoryTreeController.repositoryId}">
+                                    <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                                    <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                                                   itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
+                                </h:selectOneMenu>
+                            </td>
+                        </tr>
                         <ui:fragment rendered="#{repositoryTreeController.supportsMappedFolders}">
                         <tr>
                             <td class="label" style="width: 100px">
-                                <h:outputLabel for="projectFolderTemplate" value="Path in repository:" />
+                                <h:outputLabel for="projectFolderTemplate" value="Path:" />
                             </td>
                             <td><h:inputText id="projectFolderTemplate" size="35"
                                     value="#{repositoryTreeController.projectFolder}"/>
@@ -144,7 +156,14 @@
                             onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtFiles')});"
                             onchange="createProjectFormFilesCommentHandler.generateTemplate(this.value.trim(), #{rich:element('createProjectFormFiles:commentExcel')});"/>
 
-                        <h:outputLabel for="projectFolderExcel" value="Path in repository:"
+                        <h:outputLabel for="repositoryExcel" value="Repository:" styleClass="required"/>
+                        <h:selectOneMenu id="repositoryExcel" value="#{repositoryTreeController.repositoryId}">
+                            <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                            <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                                           itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
+                        </h:selectOneMenu>
+
+                        <h:outputLabel for="projectFolderExcel" value="Path:"
                                        rendered="#{repositoryTreeController.supportsMappedFolders}"/>
                         <h:inputText id="projectFolderExcel" size="35"
                                      value="#{repositoryTreeController.projectFolder}"
@@ -192,7 +211,14 @@
                             onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtZips')});"
                             onchange="uploadProjectFormCommentHandler.generateTemplate(this.value.trim(), #{rich:element('uploadProjectForm:commentZip')});"/>
 
-                    <h:outputLabel for="projectFolderZip" value="Path in repository:"
+                    <h:outputLabel for="repositoryZip" value="Repository:" styleClass="required"/>
+                    <h:selectOneMenu id="repositoryZip" value="#{repositoryTreeController.repositoryId}">
+                        <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                        <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                                       itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
+                    </h:selectOneMenu>
+
+                    <h:outputLabel for="projectFolderZip" value="Path:"
                                    rendered="#{repositoryTreeController.supportsMappedFolders}"/>
                     <h:inputText id="projectFolderZip" size="35"
                                  value="#{repositoryTreeController.projectFolder}"
@@ -250,9 +276,20 @@
                             <h:outputText value="All projects are already in repository"
                                 rendered="#{empty localUpload.projects4Upload}" />
                         </h:panelGrid>
+
+                        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
+                            rendered="#{not empty localUpload.projects4Upload}">
+                            <h:outputLabel for="repositoryLocal" value="Repository:" styleClass="required"/>
+                            <h:selectOneMenu id="repositoryLocal" value="#{repositoryTreeController.repositoryId}">
+                                <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                                <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                                               itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
+                            </h:selectOneMenu>
+                        </h:panelGrid>
+
                         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                                      rendered="#{repositoryTreeController.supportsMappedFolders}">
-                            <h:outputLabel for="projectFolderLocal" value="Path in repository:"/>
+                            <h:outputLabel for="projectFolderLocal" value="Path:"/>
                             <h:inputText id="projectFolderLocal" size="35"
                                          value="#{localUpload.projectFolder}"/>
                         </h:panelGrid>
@@ -284,6 +321,10 @@
             </rich:tab>
 
             <h:form>
+                <a4j:jsFunction name="initNewProjectDialog" action="#{repositoryTreeController.openNewProjectDialog}"
+                                render="createProjectFormTempl createProjectFormFiles uploadProjectForm uploadWorkspaceProjectForm"
+                                oncomplete="showNewProjectDialog()"/>
+
                 <a4j:jsFunction name="clearFiles">
                     <a4j:param name="fileNames" assignTo="#{repositoryTreeController.fileNamesToRemove}"/>
                 </a4j:jsFunction>
@@ -316,12 +357,22 @@
         var createProjectFormFilesCommentHandler = new CommentTemplateHandler();
         //]]>
 
-        enableCreateButton(false, #{rich:element("sbtFiles")});
-        enableCreateButton(false, #{rich:element("sbtZips")});
-        enableCreateButton(false, #{rich:element("sbtWorkspace")});
-        
-        #{rich:element("createProjectFormFiles:projectName")}.onpaste=function(){enableCreateButton(true, #{rich:element("sbtFiles")});}
-        #{rich:element("uploadProjectForm:projectName")}.onpaste=function(){enableCreateButton(true, #{rich:element("sbtZips")});}
+        function initNewProjectDialogUI() {
+            enableCreateButton(false, #{rich:element("sbtFiles")});
+            enableCreateButton(false, #{rich:element("sbtZips")});
+            enableCreateButton(false, #{rich:element("sbtWorkspace")});
+
+            #{rich:element("createProjectFormFiles:projectName")}.onpaste=function(){enableCreateButton(true, #{rich:element("sbtFiles")});}
+            #{rich:element("uploadProjectForm:projectName")}.onpaste=function(){enableCreateButton(true, #{rich:element("sbtZips")});}
+
+            initTemplates();
+            $j("#createProjectFormFiles\\:projectName").val("");
+            $j("#uploadProjectForm\\:projectName").val("");
+
+            $j("#projectTemplates").on("click", "td", function() {
+                selectTemplate($j(this));
+            });
+        }
 
         function enableCreateButton(enable, button) {
             if (button) {
@@ -330,6 +381,12 @@
         }
 
         function openNewProjectDialog() {
+            initNewProjectDialog();
+        }
+
+        function showNewProjectDialog() {
+            initNewProjectDialogUI();
+
             RichFaces.$("projectType").switchToItem("@first");
             RichFaces.$("modalNewProject").show();
             focusElement("createProjectFormTempl:projectName");
@@ -397,14 +454,6 @@
 
             enableCreateButton(projectNameInput.val().trim().length > 0, #{rich:element('sbtTemplates')});
         }
-
-        initTemplates();
-        $j("#createProjectFormFiles\\:projectName").val("");
-        $j("#uploadProjectForm\\:projectName").val("");
-
-        $j("#projectTemplates").on("click", "td", function() {
-            selectTemplate($j(this));
-        });
 
         function onClearFile(event) {
             let files = "";

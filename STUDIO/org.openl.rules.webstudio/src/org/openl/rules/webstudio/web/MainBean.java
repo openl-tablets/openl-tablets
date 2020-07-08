@@ -64,11 +64,12 @@ public class MainBean {
     public void init() {
         WebStudio studio = WebStudioUtils.getWebStudio(true);
 
+        String repositoryId = WebStudioUtils.getRequestParameter("repositoryId");
         String branchName = WebStudioUtils.getRequestParameter("branch");
         String projectName = WebStudioUtils.getRequestParameter("project");
         String moduleName = WebStudioUtils.getRequestParameter("module");
 
-        studio.init(branchName, projectName, moduleName);
+        studio.init(repositoryId, branchName, projectName, moduleName);
     }
 
     public String getVersionComment() {

@@ -120,7 +120,7 @@
                                          onclick="openMergeBranchesDialog('#{node.name}'); return false;"/>
 
                         <h:commandButton id="copyId1" rendered="#{repositoryTreeState.canCreate}" value="Copy"
-                                         onclick="openCopyProjectDialog('#{artefact.name}', function() {location.href = location.href;});return false;"
+                                         onclick="openCopyProjectDialog('#{artefact.repository.id}', '#{artefact.name}', function() {location.href = location.href;});return false;"
                                          title="#{copyMessage}"/>
                         <h:commandButton id="deleteId2" rendered="#{repositoryTreeState.canDelete}" value="Delete"
                                          onclick="#{rich:component('modalDeleteNode')}.show();return false;"
@@ -252,6 +252,26 @@
                             </c:choose>
                         </td>
                     </tr>
+                    <ui:fragment rendered="#{not repositoryTreeState.localOnly }">
+                    <tr>
+                        <td class="label">
+                            <h:outputText value="Repository:"/>
+                        </td>
+                        <td>
+                            <h:outputText value="#{artefact.repository.name}"/>
+                        </td>
+                    </tr>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{artefact.repository.supports().mappedFolders() }">
+                        <tr>
+                            <td class="label">
+                                <h:outputText value="Path:"/>
+                            </td>
+                            <td>
+                                <h:outputText value="#{artefact.realPath}"/>
+                            </td>
+                        </tr>
+                    </ui:fragment>
                 </h:panelGroup>
             </table>
         </rich:tab>

@@ -259,7 +259,7 @@
                                     <a4j:commandLink action="#{tableBean.removeTable}" title="Delete the table"
                                         rendered="#{tableBean.canRemove}"
                                         onclick="if (!onBeforeEdit()) return false; if (!confirm('Do you really want to remove this table?'))return false;"
-                                        oncomplete="ws.changes.revertChanges();ws.nav.go('#' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'), true)"
+                                        oncomplete="ws.changes.revertChanges();ws.nav.go('#' + encodeURIComponent('#{studio.currentRepositoryId}') + '/' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'), true)"
                                         styleClass="toolbarButton">
                                         <img src="#{contextPath}/webresource/images/delete.png" />
                                         <span>Remove</span>

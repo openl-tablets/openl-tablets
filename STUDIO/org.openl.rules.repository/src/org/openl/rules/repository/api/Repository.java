@@ -32,6 +32,19 @@ import java.util.List;
  * @author Yury Molchan
  */
 public interface Repository {
+    /**
+     * Get unique identifier for Repository. Used to distinguish one repository from another. Must be unique.
+     * 
+     * @return repository id.
+     */
+    String getId();
+
+    /**
+     * Get repository name shown on UI.
+     * 
+     * @return repository name
+     */
+    String getName();
 
     /**
      * Return a list of files recursively in the given folder.
