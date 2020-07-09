@@ -1,14 +1,9 @@
 <project>
-    <name>${project-name}</name>
+    <name>EPBDS-10072_CW_multiple_states</name>
 
     <modules>
         <module>
             <rules-root path="rules/*.xlsx"/>
-            <method-filter>
-                <includes>
-                    <value>.+ SayHello\(.+\)</value>
-                </includes>
-            </method-filter>
         </module>
     </modules>
 

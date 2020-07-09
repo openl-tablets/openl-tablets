@@ -1,0 +1,11 @@
+<project>
+    <name>EPBDS-10072_ALL_multiple_caProvince</name>
+
+    <modules>
+        <module>
+            <rules-root path="rules/*.xlsx"/>
+        </module>
+    </modules>
+
+    <properties-file-name-pattern>.*-%caProvinces%-%caRegions%-%country%-%currency%-%lang%-%region%-%state%-%usregion%-%effectiveDate:MMddyyyy%-%startRequestDate:MMddyyyy%</properties-file-name-pattern>
+</project>
