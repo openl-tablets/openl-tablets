@@ -10,6 +10,7 @@ try {
         def fileNames = zf.entries().collect { it.name }
 
         assert fileNames.contains('rules.xml')
+        assert fileNames.contains('META-INF/MANIFEST.MF')
         assert fileNames.contains('rules/TemplateRules.xlsx')
         assert fileNames.contains('lib/openl-dependency-a-0.0.0.jar')
         assert fileNames.contains('lib/openl-dependency-b-0.0.0.jar')
@@ -27,7 +28,7 @@ try {
         assert !fileNames.any { it.startsWith('lib/org.openl.rules.project') }
 
         // There must be no extra jar
-        assert zf.entries().findAll { !it.directory }.size() == 9
+        assert zf.entries().findAll { !it.directory }.size() == 10
     }
 
     return true

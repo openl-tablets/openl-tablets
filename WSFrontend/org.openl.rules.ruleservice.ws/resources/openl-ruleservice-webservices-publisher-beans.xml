@@ -51,7 +51,7 @@
         <property name="bus" ref="cxf"/>
     </bean>
 
-    <!-- Initializes OpenL Engine instances according to web services configuration 
+    <!-- Initializes OpenL Engine instances according to Rule Services configuration
         description and calls DeploymentAdmin to expose corresponding web service -->
     <!-- Exposes web services. -->
     <bean id="jaxwsServiceEnhancer" class="org.openl.rules.ruleservice.publish.jaxws.JAXWSOpenLServiceEnhancer" scope="prototype">

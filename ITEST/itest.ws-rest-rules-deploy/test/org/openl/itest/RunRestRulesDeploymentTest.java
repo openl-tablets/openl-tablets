@@ -87,6 +87,7 @@ public class RunRestRulesDeploymentTest {
         assertEquals(ServiceInfoResponse.ServiceStatus.FAILED, servicesInfo5[0].getStatus());
         client.get("/admin/services/deployed-rules/errors", "/deployed-rules_errors.resp.json");
 
+        client.get("/admin/services/deployed-rules/MANIFEST.MF", 404);
         client.delete("/admin/delete/deployed-rules");
         UiInfoResponse uiInfoResponseResponseEntity2 = client.get("/admin/ui/info", UiInfoResponse.class);
         assertEquals(0, uiInfoResponseResponseEntity2.getServices().length);
@@ -125,11 +126,18 @@ public class RunRestRulesDeploymentTest {
         // should be updated
         client.put("/admin/deploy", "/multiple-deployment_v2.zip", 201);
         client.post("/REST/project1/sayHello", "/project1_sayHello.req.txt", "/project1_sayHello_2.resp.txt");
+
+        client.delete("/admin/delete/project1");
+        client.delete("/admin/delete/yaml_project_project2");
     }
 
     @Test
     public void testMissingServiceMethods() {
         client.get("/admin/services/missing-name/methods", 404);
+        client.delete("/admin/delete/missing-name", 404);
+        client.get("/admin/read/missing-name", 404);
+        client.get("/admin/services/missing-name/errors", 404);
+        client.get("/admin/services/missing-name/MANIFEST.MF", 404);
     }
 
     @Test
@@ -181,6 +189,13 @@ public class RunRestRulesDeploymentTest {
 
         MultipleFailureException.assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream())
                 .collect(Collectors.toList()));
+    }
+
+    @Test
+    public void test_EPBDS_10068_MANIFEST() {
+        client.put("/admin/deploy", "/EPBDS-10068/EPBDS-10068.zip", 201);
+        client.get("/admin/services/EPBDS-10068/MANIFEST.MF", "/EPBDS-10068/MANIFEST.MF.resp.json");
+        client.delete("/admin/delete/EPBDS-10068");
     }
 
     private void checkServiceInfo(ServiceInfoResponse service,

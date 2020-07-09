@@ -10,28 +10,39 @@ Usage
 
   OpenL Tablets Maven plugin expects the following directory structure:
 
-+--------------------------------------
-|- your-project/                   Project root folder
-| |- pom.xml                       Maven project file
-| |
-| |- src/
-| |
-| | |- main/
-| | |
-| | | |- java/                     Contains java sources
-| | | |
-| | | |- resources/                Contains java resources
-| | | |
-| | | |- openl/                    Contains all OpenL-related resources (rules, xml etc.)
-| | | |
-| | | |
-| | | | |- rules.xml               OpenL project descriptor (for OpenL only)
-| | | | |- rules/
-| | | | | |- TemplateRules.xls     File with rules
-+--------------------------------------
++-------------------------------
+|- your-project/                     Project root folder
+|  |- pom.xml                        Maven project file
+|  |
+|  |- src/
+|  |  |
+|  |  |
+|  |  |- main/
+|  |  |  |
+|  |  |  |- java/                    Contains java sources
+|  |  |  |
+|  |  |  |- resources/               Contains java resources
+|  |  |  |
+|  |  |  |- openl/                   Contains all OpenL-related resources (rules, xml etc.)
+|  |  |  |  |
+|  |  |  |  |- rules.xml             OpenL project descriptor
+|  |  |  |  |- rules/
+|  |  |  |  |  |- MyRules.xlsx       File with rules
+|  |  |
+|  |  |
+|  |  |- test/                       Contains tests run upon build generation
+|  |  |  |
+|  |  |  |- openl/                   OpenL project for testing the rules
+|  |  |  |  |
+|  |  |  |  |- rules.xml             OpenL project descriptor, contains dependency on the tested OpenL project
+|  |  |  |  |- rules/
+|  |  |  |  |  |- MyTest.xlsx        File with OpenL tests
++-------------------------------
 
   Note that OpenL Tablets-related resources are located in the <<<src/main/openl>>> directory.
   It can be changed to fit user needs by modifying the <<<sourceDirectory>>> parameter in Maven plugin configuration.
+
+  The test directory contains tests run on Maven plugin upon build generation but not included in the target project.
 
   <<Note:>> It is not recommended to put OpenL Tablets-related resources to the <<<src/main/resources>>> folder.
   In this case, OpenL Tablets resources will be inside the JAR file alongside with the compiled Java classes, which

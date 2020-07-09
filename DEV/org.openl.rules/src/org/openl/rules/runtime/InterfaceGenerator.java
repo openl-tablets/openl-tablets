@@ -12,6 +12,8 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.binding.impl.component.ComponentOpenClass.GetOpenClass;
 import org.openl.binding.impl.component.ComponentOpenClass.ThisField;
+import org.openl.rules.data.DataOpenField;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -215,6 +217,12 @@ public class InterfaceGenerator {
      *         <code>false</code> - otherwise
      */
     private static boolean isIgnoredMember(IOpenMember member) {
+        if (member instanceof DataOpenField) {
+            DataOpenField dataOpenField = (DataOpenField) member;
+            if (XlsNodeTypes.XLS_TEST_METHOD.equals(dataOpenField.getNodeType())) {
+                return true;
+            }
+        }
         return member instanceof JavaOpenConstructor || member instanceof ThisField || member instanceof GetOpenClass || member instanceof TestSuiteMethod;
     }
 

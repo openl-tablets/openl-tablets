@@ -8,11 +8,14 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.core.annotations.Name;
+import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.OpenClassHelper;
 import org.openl.util.generation.GenUtils;
@@ -62,11 +65,48 @@ public final class MethodUtils {
         }
     }
 
-    public static IOpenMethod getRulesMethod(IOpenClass openClass, Method method) {
+    public static IOpenMethod findRulesMethod(IOpenClass openClass, Method method) {
         if (openClass != null) {
             return OpenClassHelper.findRulesMethod(openClass, method);
         }
         return null;
+    }
+
+    public static IOpenMethod findRulesMethod(IOpenClass openClass,
+            Method method,
+            boolean provideRuntimeContext,
+            boolean provideVariations) {
+        if (openClass != null) {
+            Class<?>[] parameterTypes = cutParameterTypes(method.getParameterTypes(),
+                provideRuntimeContext,
+                provideVariations);
+            return OpenClassHelper.findRulesMethod(openClass, method.getName(), parameterTypes);
+        }
+        return null;
+    }
+
+    private static Class<?>[] cutParameterTypes(Class<?>[] parameterTypes,
+            boolean provideRuntimeContext,
+            boolean provideVariations) {
+        if (provideRuntimeContext) {
+            parameterTypes = Arrays.copyOfRange(parameterTypes, 1, parameterTypes.length);
+        }
+        if (provideVariations) {
+            if (parameterTypes.length > 0 && Objects.equals(parameterTypes[parameterTypes.length - 1],
+                VariationsPack.class))
+                parameterTypes = Arrays.copyOfRange(parameterTypes, 0, parameterTypes.length - 1);
+        }
+        return parameterTypes;
+    }
+
+    public static IOpenMember findRulesMember(IOpenClass openClass,
+            Method method,
+            boolean provideRuntimeContext,
+            boolean provideVariations) {
+        Class<?>[] parameterTypes = cutParameterTypes(method.getParameterTypes(),
+            provideRuntimeContext,
+            provideVariations);
+        return OpenClassHelper.findRulesMember(openClass, method.getName(), parameterTypes);
     }
 
     public static String[] getParameterNames(IOpenClass openClass,
@@ -86,7 +126,8 @@ public final class MethodUtils {
                         } else {
                             Logger log = LoggerFactory.getLogger(MethodUtils.class);
                             if (log.isWarnEnabled()) {
-                                log.warn("Invalid parameter name '{}' is used in @Name annotation for method '{}.{}'.",
+                                log.warn(
+                                    "Invalid parameter name '{}' is used in @Name annotation for the method '{}.{}'.",
                                     name.value(),
                                     method.getClass().getTypeName(),
                                     MethodUtil.printMethod(method.getName(), method.getParameterTypes()));

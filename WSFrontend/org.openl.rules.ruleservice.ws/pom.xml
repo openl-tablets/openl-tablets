@@ -9,7 +9,7 @@
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws</artifactId>
     <packaging>war</packaging>
-    <name>OpenL - Ruleservice - Web Services WAR</name>
+    <name>OpenL - Ruleservice - Rule Services WAR</name>
     <description>OpenL Rules Webservice(war)</description>
     <url>https://openl-tablets.org</url>
     <organization>
@@ -77,6 +77,21 @@
                                 <resource>draftv3/schema</resource>
                                 <resource>draftv4/schema</resource>
                             </resources>
+                        </exception>
+                        <exception>
+                            <conflictingDependencies>
+                                <dependency>
+                                    <groupId>io.github.classgraph</groupId>
+                                    <artifactId>classgraph</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>org.apache.logging.log4j</groupId>
+                                    <artifactId>log4j-api</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                            <classes>
+                                <class>META-INF.versions.9.module-info</class>
+                            </classes>
                         </exception>
                     </exceptions>
                     <ignoredResourcePatterns>

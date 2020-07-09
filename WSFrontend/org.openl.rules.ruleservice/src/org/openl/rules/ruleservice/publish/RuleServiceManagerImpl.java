@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.publish;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -52,7 +53,7 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
     public Collection<ServiceInfo> getServicesInfo() {
         return services.values()
             .stream()
-            .map(s -> new ServiceInfo(startDates.get(s.getName()), s.getName(), getUrls(s), s.getServicePath()))
+            .map(s -> new ServiceInfo(startDates.get(s.getName()), s.getName(), getUrls(s), s.getServicePath(), s.getManifest() != null))
             .sorted(Comparator.comparing(ServiceInfo::getName, String.CASE_INSENSITIVE_ORDER))
             .collect(Collectors.toList());
     }
@@ -89,6 +90,9 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
     @Override
     public List<String> getServiceErrors(String serviceName) {
         OpenLService service = services.get(serviceName);
+        if (service == null) {
+            return null;
+        }
         Collection<OpenLMessage> messages = service.getCompiledOpenClass().getMessages();
         Collection<OpenLMessage> openLMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
         List<String> errors = openLMessages.stream().map(OpenLMessage::getSummary).collect(Collectors.toList());
@@ -97,6 +101,15 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
             errors.add(exception.toString());
         }
         return errors;
+    }
+
+    @Override
+    public Manifest getManifest(String serviceName) {
+        OpenLService service = services.get(serviceName);
+        if (service == null) {
+            return null;
+        }
+        return service.getManifest();
     }
 
     private MethodDescriptor toDescriptor(Method method) {

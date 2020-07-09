@@ -1,8 +1,9 @@
 #Project version
-#Wed Dec 04 16:32:21 MSK 2019
-version=92417be3f9e3992c5f35a490a1dd8270e2484e05
+#Mon Jul 06 20:13:38 GMT+03:00 2020
+version=5341f6418580f0abca36421019c7a758c3d3fde6
 size=-1
 branch=master
 author=DEFAULT
-modified-at=2019-12-04
-comment=Project Tutorial 1 - Introduction to Decision Tables is created.
+modified-at-long=1594051853000
+modified-at=2020-07-06
+comment=Project Tutorial 1 - Introduction to Decision Tables is created.\n

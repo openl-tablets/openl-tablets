@@ -69,9 +69,8 @@ public class POJOByteCodeGenerator {
 
         this.writers = new ArrayList<>();
         writers.add(new DefaultConstructorWriter(beanNameWithPackage, parentType, this.fields));
-        if (additionalConstructor && allFields.size() < 256 && allFields.size() > 0 && !OBJECT_TYPE_DESCRIPTION
-            .getTypeName()
-            .equals(parentType.getTypeDescriptor())) {
+        if (additionalConstructor && allFields.size() > 0 && isFollowJavaSpecification(
+            allFields) && !OBJECT_TYPE_DESCRIPTION.getTypeName().equals(parentType.getTypeDescriptor())) {
             // Generate constructor with parameters only in case where there are
             // less than 256 arguments.
             // 255 arguments to the method is a Java limitation
@@ -89,6 +88,17 @@ public class POJOByteCodeGenerator {
             writers.add(new EqualsWriter(beanNameWithPackage, allFields));
             writers.add(new HashCodeWriter(beanNameWithPackage, allFields));
         }
+    }
+
+    private boolean isFollowJavaSpecification(Map<String, FieldDescription> allFields) {
+        int max = 254;
+        for (FieldDescription fieldDescription : allFields.values()) {
+            // if type uses more than 4 bytes then reduce a size for one
+            if ("long".equals(fieldDescription.getTypeName()) || "double".equals(fieldDescription.getTypeName())) {
+                max--;
+            }
+        }
+        return allFields.size() <= max;
     }
 
     private void visitClassDescription(ClassWriter classWriter) {

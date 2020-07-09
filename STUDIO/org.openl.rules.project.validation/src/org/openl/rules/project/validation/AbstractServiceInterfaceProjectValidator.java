@@ -9,6 +9,7 @@ import java.util.Objects;
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
@@ -31,6 +32,8 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
 
     private final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
 
+    private RulesDeploy rulesDeploy;
+
     protected ProjectResource loadProjectResource(ProjectResourceLoader projectResourceLoader,
             ProjectDescriptor projectDescriptor,
             String name) {
@@ -49,7 +52,7 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
         if (projectResource != null) {
             try {
                 return rulesDeploySerializer
-                    .deserialize(new FileInputStream(new File(projectResource.getUrl().getFile())));
+                    .deserialize(new FileInputStream(new File(projectResource.getFile())));
             } catch (FileNotFoundException e) {
                 return null;
             }
@@ -57,11 +60,27 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
         return null;
     }
 
+    protected RulesDeploy getRulesDeploy(ProjectDescriptor projectDescriptor, CompiledOpenClass compiledOpenClass) {
+        if (rulesDeploy == null) {
+            rulesDeploy = loadRulesDeploy(projectDescriptor, compiledOpenClass);
+        }
+        return rulesDeploy;
+    }
+
+    private ClassLoader resolveServiceClassLoader(
+            RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
+        ClassLoader moduleGeneratedClassesClassLoader = ((XlsModuleOpenClass) instantiationStrategy.compile()
+            .getOpenClassWithErrors()).getClassGenerationClassLoader();
+        OpenLBundleClassLoader openLBundleClassLoader = new OpenLBundleClassLoader(null);
+        openLBundleClassLoader.addClassLoader(moduleGeneratedClassesClassLoader);
+        openLBundleClassLoader.addClassLoader(instantiationStrategy.getClassLoader());
+        return openLBundleClassLoader;
+    }
+
     protected Class<?> resolveInterface(ProjectDescriptor projectDescriptor,
             RulesInstantiationStrategy rulesInstantiationStrategy,
             ValidatedCompiledOpenClass validatedCompiledOpenClass) throws RulesInstantiationException {
-        OpenLBundleClassLoader classLoader = new OpenLBundleClassLoader(rulesInstantiationStrategy.getClassLoader());
-        RulesDeploy rulesDeploy = loadRulesDeploy(projectDescriptor, validatedCompiledOpenClass);
+        RulesDeploy rulesDeploy = getRulesDeploy(projectDescriptor, validatedCompiledOpenClass);
         if (rulesDeploy != null && rulesDeploy.getServiceName() != null) {
             final String serviceClassName = rulesDeploy.getServiceName().trim();
             try {
@@ -91,6 +110,7 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
                 }
             }
             Class<?> serviceClass = rulesInstantiationStrategy.getInstanceClass();
+            ClassLoader classLoader = resolveServiceClassLoader(rulesInstantiationStrategy);
             if (annotationTemplateClassName != null) {
                 try {
                     Class<?> annotationTemplateClass = classLoader.loadClass(annotationTemplateClassName);
@@ -107,8 +127,12 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
                             annotationTemplateClassName)));
                 }
             }
-            return RuleServiceInstantiationFactoryHelper.buildInterfaceForService(rulesInstantiationStrategy.compile()
-                .getOpenClassWithErrors(), serviceClass, classLoader, provideRuntimeContext, provideVariations);
+            return RuleServiceInstantiationFactoryHelper.buildInterfaceForService(
+                rulesInstantiationStrategy.compile().getOpenClassWithErrors(),
+                serviceClass,
+                classLoader,
+                provideRuntimeContext,
+                provideVariations);
         }
         return rulesInstantiationStrategy.getInstanceClass();
     }

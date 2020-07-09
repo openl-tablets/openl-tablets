@@ -142,7 +142,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
     @Override
     public Class<T> getInterfaceClass() {
         if (super.getInterfaceClass() == null) {
-            IOpenClass openClass = getCompiledOpenClass().getOpenClass();
+            IOpenClass openClass = getCompiledOpenClass().getOpenClassWithErrors();
             String className = openClass.getName();
             ClassLoader classLoader = getCompiledOpenClass().getClassLoader();
             try {
@@ -160,7 +160,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
                     return interfaceClass;
                 }
             } catch (Exception e) {
-                throw new OpenlNotCheckedException("Failed to generate interface: " + className, e);
+                throw new OpenlNotCheckedException("Failed to generate the interface '" + className + "'", e);
             }
         } else {
             return super.getInterfaceClass();

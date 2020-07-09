@@ -1,0 +1,8 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <serviceName>${artifactId}</serviceName>
+    <url>${artifactId}-rs</url>
+    <publishers>
+        <publisher>restful</publisher>
+    </publishers>
+</rules-deploy>

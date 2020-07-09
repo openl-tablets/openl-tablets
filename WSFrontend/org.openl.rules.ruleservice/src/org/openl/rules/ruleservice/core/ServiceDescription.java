@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.core;
 
 import java.util.*;
+import java.util.jar.Manifest;
 
 import org.openl.rules.project.model.Module;
 
@@ -13,20 +14,21 @@ import org.openl.rules.project.model.Module;
  *
  */
 public final class ServiceDescription {
-    private String name;
-    private String url;
-    private String servicePath;
-    private String serviceClassName;
-    private String rmiServiceClassName;
-    private String rmiName;
-    private String annotationTemplateClassName;
-    private boolean provideRuntimeContext;
-    private boolean provideVariations;
-    private Map<String, Object> configuration;
-    private Collection<Module> modules;
-    private DeploymentDescription deployment;
-    private String[] publishers;
-    private ResourceLoader resourceLoader;
+    private final String name;
+    private final String url;
+    private final String servicePath;
+    private final String serviceClassName;
+    private final String rmiServiceClassName;
+    private final String rmiName;
+    private final String annotationTemplateClassName;
+    private final boolean provideRuntimeContext;
+    private final boolean provideVariations;
+    private final Map<String, Object> configuration;
+    private final Collection<Module> modules;
+    private final DeploymentDescription deployment;
+    private final String[] publishers;
+    private final ResourceLoader resourceLoader;
+    private final Manifest manifest;
 
     /**
      * Main constructor.
@@ -51,7 +53,8 @@ public final class ServiceDescription {
             DeploymentDescription deployment,
             Map<String, Object> configuration,
             String[] publishers,
-            ResourceLoader resourceLoader) {
+            ResourceLoader resourceLoader,
+            Manifest manifest) {
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.resourceLoader = Objects.requireNonNull(resourceLoader, "resourceLoader cannot be null");
         this.url = url;
@@ -75,6 +78,7 @@ public final class ServiceDescription {
 
         this.publishers = publishers;
         this.deployment = deployment;
+        this.manifest = manifest;
     }
 
     private ServiceDescription(ServiceDescriptionBuilder builder) {
@@ -91,7 +95,8 @@ public final class ServiceDescription {
             builder.deployment,
             builder.configuration,
             builder.publishers.toArray(new String[] {}),
-            builder.resourceLoader);
+            builder.resourceLoader,
+            builder.manifest);
     }
 
     /**
@@ -207,6 +212,10 @@ public final class ServiceDescription {
         return deployment;
     }
 
+    public Manifest getManifest() {
+        return manifest;
+    }
+
     public String[] getPublishers() {
         if (publishers == null) {
             return new String[] {};
@@ -267,6 +276,7 @@ public final class ServiceDescription {
         private DeploymentDescription deployment;
         private Set<String> publishers = new HashSet<>();
         private ResourceLoader resourceLoader;
+        private Manifest manifest;
 
         public ServiceDescriptionBuilder setResourceLoader(ResourceLoader resourceLoader) {
             this.resourceLoader = Objects.requireNonNull(resourceLoader, "resourceLoader cannot be null");
@@ -450,6 +460,11 @@ public final class ServiceDescription {
 
         public ServiceDescriptionBuilder setConfiguration(Map<String, Object> configuration) {
             this.configuration = configuration;
+            return this;
+        }
+
+        public ServiceDescriptionBuilder setManifest(Manifest manifest) {
+            this.manifest = manifest;
             return this;
         }
 

@@ -159,6 +159,10 @@ public class HttpClient {
         send(HttpMethod.DELETE, url, null, 200, NO_BODY);
     }
 
+    public void delete(String url, int status) {
+        send(HttpMethod.DELETE, url, null, status, NO_BODY);
+    }
+
     private <T> T request(HttpMethod method, String url, String requestFile, int status, Class<T> clazz) {
         ResponseEntity<T> response = rest.exchange(url, method, file(requestFile, null), clazz);
         assertEquals("URL :" + url, status, response.getStatusCodeValue());

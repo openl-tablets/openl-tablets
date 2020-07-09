@@ -187,7 +187,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
     }
 
     private boolean checkFileSize(ZipEntry file) {
-        if (file.getSize() > 100 * 1024 * 1024) {
+        if (file.getSize() > 1000 * 1024 * 1024) {
             WebStudioUtils.addErrorMessage("Size of the file " + file.getName() + " is more then 100MB.");
             return false;
         }

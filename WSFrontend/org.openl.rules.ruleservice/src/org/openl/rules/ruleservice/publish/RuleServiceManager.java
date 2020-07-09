@@ -1,13 +1,14 @@
 package org.openl.rules.ruleservice.publish;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.jar.Manifest;
+
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.servlet.MethodDescriptor;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
-
-import java.util.Collection;
-import java.util.List;
 
 public interface RuleServiceManager {
 
@@ -48,4 +49,6 @@ public interface RuleServiceManager {
     Collection<MethodDescriptor> getServiceMethods(String serviceName);
 
     List<String> getServiceErrors(String serviceName);
+
+    Manifest getManifest(String serviceName);
 }

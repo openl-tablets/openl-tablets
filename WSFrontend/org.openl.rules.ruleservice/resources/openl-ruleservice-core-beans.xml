@@ -29,7 +29,7 @@
 		</property>
 	</bean>
 
-	<!-- Bean orchestrates logic for web services application to identify and deploy services.  -->
+	<!-- Bean orchestrates logic for Rule Services application to identify and deploy services.  -->
 	<bean id="ruleService" class="org.openl.rules.ruleservice.core.RuleServiceImpl">
 		<property name="ruleServiceInstantiationFactory" ref="ruleServiceInstantiationFactory"/>
 		<property name="ruleServiceManager" ref="ruleServiceManager"/>

@@ -6,9 +6,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.jar.Manifest;
 
 import org.openl.CompiledOpenClass;
-import org.openl.OpenClassUtil;
 import org.openl.rules.project.model.Module;
 import org.openl.types.IOpenClass;
 
@@ -23,23 +23,24 @@ public final class OpenLService {
     /**
      * Unique for service.
      */
-    private String name;
-    private String url;
-    private String servicePath;
+    private final String name;
+    private final String url;
+    private final String servicePath;
     private String serviceClassName;
     private String rmiServiceClassName;
-    private String rmiName;
+    private final String rmiName;
     private Class<?> serviceClass;
     private Class<?> rmiServiceClass;
     private Object serviceBean;
     private CompiledOpenClass compiledOpenClass;
-    private boolean provideRuntimeContext = false;
-    private boolean provideVariations = false;
-    private Collection<Module> modules;
-    private Set<String> publishers;
+    private final boolean provideRuntimeContext;
+    private final boolean provideVariations;
+    private final Collection<Module> modules;
+    private final Set<String> publishers;
     private ClassLoader classLoader;
     private OpenLServiceInitializer initializer;
     private Throwable exception;
+    private final Manifest manifest;
 
     /**
      * Returns service classloader
@@ -72,7 +73,8 @@ public final class OpenLService {
             Set<String> publishers,
             Collection<Module> modules,
             ClassLoader classLoader,
-            Class<?> serviceClass) {
+            Class<?> serviceClass,
+            Manifest manifest) {
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.url = url;
         this.servicePath = servicePath;
@@ -94,6 +96,7 @@ public final class OpenLService {
 
         this.classLoader = classLoader;
         this.serviceClass = serviceClass;
+        this.manifest = manifest;
     }
 
     private OpenLService(OpenLServiceBuilder builder, OpenLServiceInitializer initializer) {
@@ -108,7 +111,8 @@ public final class OpenLService {
             builder.publishers,
             builder.modules,
             builder.classLoader,
-            builder.serviceClass);
+            builder.serviceClass,
+            builder.manifest);
         this.initializer = Objects.requireNonNull(initializer, "initializer cannot be null");
     }
 
@@ -287,6 +291,10 @@ public final class OpenLService {
         this.exception = exception;
     }
 
+    public Manifest getManifest() {
+        return manifest;
+    }
+
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
@@ -338,6 +346,7 @@ public final class OpenLService {
         private Collection<Module> modules;
         private Set<String> publishers;
         private ClassLoader classLoader;
+        private Manifest manifest;
 
         public OpenLServiceBuilder setClassLoader(ClassLoader classLoader) {
             this.classLoader = classLoader;
@@ -398,7 +407,7 @@ public final class OpenLService {
         /**
          * Sets RMI class name to the builder.
          *
-         * @param serviceClassName
+         * @param rmiServiceClassName
          * @return
          */
         public OpenLServiceBuilder setRmiServiceClassName(String rmiServiceClassName) {
@@ -508,6 +517,11 @@ public final class OpenLService {
 
         public OpenLServiceBuilder setServiceClass(Class<?> serviceClass) {
             this.serviceClass = serviceClass;
+            return this;
+        }
+
+        public OpenLServiceBuilder setManifest(Manifest manifest) {
+            this.manifest = manifest;
             return this;
         }
 

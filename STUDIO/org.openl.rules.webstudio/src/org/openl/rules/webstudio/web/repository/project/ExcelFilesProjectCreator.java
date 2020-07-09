@@ -75,7 +75,7 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
     }
 
     private boolean checkFileSize(ProjectFile file) {
-        return file.getSize() <= 100 * 1024 * 1024;
+        return file.getSize() <= 1000 * 1024 * 1024;
     }
 
 }

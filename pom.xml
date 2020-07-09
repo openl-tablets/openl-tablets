@@ -93,6 +93,7 @@
         <cassandra.unit.driver.version>3.8.0</cassandra.unit.driver.version>
         <org.apache.cxf.version>3.3.6</org.apache.cxf.version> <!-- if updated org.apache.cxf.version to version from org.apache.cxf -->
         <jakarta.ws.rs-api.version>2.1.5</jakarta.ws.rs-api.version>
+        <io.swagger.core.v3.version>2.0.10</io.swagger.core.v3.version>
         <log4j.version>2.13.3</log4j.version>
         <org.slf4j.version>1.7.30</org.slf4j.version>
         <org.apache.poi.version>4.1.2</org.apache.poi.version>
@@ -123,6 +124,7 @@
         <module>DEMO/org.openl.rules.demo</module>
         <module>Util/openl-maven-plugin</module>
         <module>Util/openl-simple-project-archetype</module>
+        <module>Util/openl-project-archetype</module>
     </modules>
     <distributionManagement>
         <repository>
@@ -1417,8 +1419,13 @@
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-jaxrs2</artifactId>
+                <version>${io.swagger.core.v3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations</artifactId>
-                <version>2.0.10</version>
+                <version>${io.swagger.core.v3.version}</version>
             </dependency>
             <!--Activity -->
             <dependency>
@@ -1456,11 +1463,6 @@
                 <version>${kafka.version}</version>
             </dependency>
             <!-- Kafka -->
-            <dependency>
-                <groupId>com.github.sps.junidecode</groupId>
-                <artifactId>junidecode</artifactId>
-                <version>0.3</version>
-            </dependency>
             <!-- dependencies to annotations for maven-plugin-plugin -->
             <dependency>
                 <groupId>org.apache.maven.plugin-tools</groupId>

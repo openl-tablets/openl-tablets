@@ -8,5 +8,6 @@
     <bean id="openApiProjectValidator" class="org.open.rules.project.validation.openapi.OpenApiProjectValidator">
         <property name="provideRuntimeContext" value="${ruleservice.isProvideRuntimeContext}"/>
         <property name="provideVariations" value="${ruleservice.isSupportVariations}"/>
+        <property name="resolveMethodParameterNames" value="${ruleservice.jaxrs.resolveMethodParameterNames:true}"/>
     </bean>
 </beans>

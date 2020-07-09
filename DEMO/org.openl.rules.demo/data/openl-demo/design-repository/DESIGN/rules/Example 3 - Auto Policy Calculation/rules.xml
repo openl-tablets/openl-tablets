@@ -1,0 +1,9 @@
+<project>
+  <name>Example 3 - Auto Policy Calculation</name>
+  <modules>
+    <module>
+      <rules-root path="*.xlsx"/>
+    </module>
+  </modules>
+  <classpath/>
+</project>

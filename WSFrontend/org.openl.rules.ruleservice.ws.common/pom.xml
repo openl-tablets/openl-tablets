@@ -9,8 +9,8 @@
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws.common</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - Ruleservice - Web Services - Common</name>
-    <description>Common OpenL Web Services Common</description>
+    <name>OpenL - Ruleservice - Rule Services - Common</name>
+    <description>Common parts of OpenL Rule Services</description>
     <url>https://openl-tablets.org</url>
     <dependencies>
         <dependency>
@@ -34,6 +34,14 @@
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-jaxrs2</artifactId>
         </dependency>
     </dependencies>
 </project>

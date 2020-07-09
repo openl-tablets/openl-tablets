@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.namespace.QName;
 import javax.xml.transform.dom.DOMSource;
 
@@ -206,6 +207,28 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         return null;
     }
 
+    private void addClassesWithXmlSeeAlso(Set<String> overrideTypes, Class<?> clazz) {
+        if (!JacksonBindingConfigurationUtils.isConfiguration(clazz)) {
+            XmlSeeAlso xmlSeeAlso = clazz.getAnnotation(XmlSeeAlso.class);
+            if (xmlSeeAlso != null) {
+                for (Class<?> cls : xmlSeeAlso.value()) {
+                    overrideTypes.add(cls.getName());
+                    addClassesWithXmlSeeAlso(overrideTypes, cls);
+                }
+            }
+        }
+    }
+
+    private void addClassesWithXmlSeeAlso(Set<String> overrideTypes) {
+        Set<String> tmp = new HashSet<>(overrideTypes);
+        for (String className : tmp) {
+            Class<?> cls = tryToLoadClass(className);
+            if (cls != null) {
+                addClassesWithXmlSeeAlso(overrideTypes, cls);
+            }
+        }
+    }
+
     protected Set<String> getPreparedOverrideTypes() {
         Set<String> overrideTypes = new HashSet<>();
         if (getOverrideTypes() != null) {
@@ -217,23 +240,27 @@ public abstract class AbstractAegisDatabindingFactoryBean {
             }
         }
 
+        addClassesWithXmlSeeAlso(overrideTypes);
+
         overrideTypes.add(SpreadsheetResult.class.getName());
 
         if (supportVariations) {
-            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.VariationsResult");
-            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.Variation");
-            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.ComplexVariation");
-            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.NoVariation");
-            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.JXPathVariation");
-            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.DeepCloningVariation");
-            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.ArgumentReplacementVariation");
+            tryToLoadAndAdd(overrideTypes, "org.openl.rules.variation.VariationsResult");
+            tryToLoadAndAdd(overrideTypes, "org.openl.rules.variation.Variation");
+            tryToLoadAndAdd(overrideTypes, "org.openl.rules.variation.ComplexVariation");
+            tryToLoadAndAdd(overrideTypes, "org.openl.rules.variation.NoVariation");
+            tryToLoadAndAdd(overrideTypes, "org.openl.rules.variation.JXPathVariation");
+            tryToLoadAndAdd(overrideTypes, "org.openl.rules.variation.DeepCloningVariation");
+            tryToLoadAndAdd(overrideTypes, "org.openl.rules.variation.ArgumentReplacementVariation");
         }
         return overrideTypes;
     }
 
-    private void tryToLoadAndAppend(Set<String> overrideTypes, String className) {
-        tryToLoadClass(className);
-        overrideTypes.add(className);
+    private void tryToLoadAndAdd(Set<String> overrideTypes, String className) {
+        Class<?> cls = tryToLoadClass(className);
+        if (cls != null) {
+            overrideTypes.add(className);
+        }
     }
 
     public Boolean getWriteXsiTypes() {

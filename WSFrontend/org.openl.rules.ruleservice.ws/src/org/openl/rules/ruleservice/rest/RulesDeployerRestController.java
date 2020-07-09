@@ -17,7 +17,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.deployer.RulesDeployInputException;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
@@ -101,6 +100,9 @@ public class RulesDeployerRestController {
     @Produces("application/zip")
     public Response read(@PathParam("serviceName") final String serviceName) throws Exception {
         OpenLService service = ruleServiceManager.getServiceByName(serviceName);
+        if (service == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
         InputStream read = rulesDeployerService.read(service.getServicePath());
         return Response.ok(read)
             .header("Content-Disposition", "attachment;filename='" + serviceName + ".zip'")
@@ -116,6 +118,9 @@ public class RulesDeployerRestController {
     @Path("/delete/{serviceName}")
     public Response delete(@PathParam("serviceName") final String serviceName) throws Exception {
         OpenLService service = ruleServiceManager.getServiceByName(serviceName);
+        if (service == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
         boolean deleted = rulesDeployerService.delete(service.getServicePath());
         return Response.status(deleted ? Response.Status.OK : Status.NOT_FOUND).build();
     }

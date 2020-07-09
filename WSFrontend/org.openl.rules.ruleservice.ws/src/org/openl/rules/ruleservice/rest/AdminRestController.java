@@ -52,7 +52,7 @@ public class AdminRestController {
     @GET
     @Path("/ui/info")
     public Response getServiceInfoWithSettings() {
-        HashMap<String, Object> info = new HashMap<>(uiConfig);
+        Map<String, Object> info = new HashMap<>(uiConfig);
         info.put("services", ruleServiceManager.getServicesInfo());
         info.put("noWadlServices", jaxrsRuleServicePublisher.listNoWadlServices());
         return Response.ok(info).build();
@@ -74,6 +74,12 @@ public class AdminRestController {
     @Path("/services/{serviceName}/errors/")
     public Response getServiceErrors(@PathParam("serviceName") final String serviceName) {
         return okOrNotFound(ruleServiceManager.getServiceErrors(serviceName));
+    }
+
+    @GET
+    @Path("/services/{serviceName}/MANIFEST.MF")
+    public Response getManifest(@PathParam("serviceName") final String serviceName) {
+        return okOrNotFound(ruleServiceManager.getManifest(serviceName));
     }
 
     private Response okOrNotFound(Object entity) {

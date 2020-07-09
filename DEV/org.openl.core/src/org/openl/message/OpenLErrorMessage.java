@@ -16,7 +16,7 @@ import org.openl.util.StringUtils;
  */
 public class OpenLErrorMessage extends OpenLMessage {
 
-    private OpenLException error;
+    private final OpenLException error;
 
     public OpenLErrorMessage(OpenLException error) {
         super(getOpenLExceptionMessage(error), Severity.ERROR);

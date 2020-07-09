@@ -1,6 +1,7 @@
 package org.openl.rules.data;
 
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.types.IUriMember;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
@@ -13,6 +14,7 @@ public class DataOpenField extends AOpenField implements IUriMember {
     private Object data;
     private ModuleOpenClass declaringClass;
     private String uri;
+    private XlsNodeTypes nodeType;
 
     public DataOpenField() {
         super(null, null);
@@ -26,6 +28,7 @@ public class DataOpenField extends AOpenField implements IUriMember {
         this.table = table;
         this.uri = table.getTableSyntaxNode().getTable().getSource().getUri();
         data = table.getDataArray();
+        this.nodeType = table.getTableSyntaxNode().getNodeType();
         this.declaringClass = declaringClass;
     }
 
@@ -78,4 +81,7 @@ public class DataOpenField extends AOpenField implements IUriMember {
         }
     }
 
+    public XlsNodeTypes getNodeType() {
+        return nodeType;
+    }
 }

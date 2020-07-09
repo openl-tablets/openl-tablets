@@ -13,9 +13,12 @@ package org.openl.rules.serialization;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
+
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -33,6 +36,7 @@ import org.openl.rules.variation.ArgumentReplacementVariation;
 import org.openl.rules.variation.ComplexVariation;
 import org.openl.rules.variation.DeepCloningVariation;
 import org.openl.rules.variation.JXPathVariation;
+import org.openl.rules.variation.NoVariation;
 import org.openl.rules.variation.Variation;
 import org.openl.rules.variation.VariationsResult;
 import org.slf4j.Logger;
@@ -58,6 +62,14 @@ import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
 public class JacksonObjectMapperFactoryBean {
+
+    private static final Class<?>[] VARIATION_CLASSES = new Class[] { Variation.class,
+            NoVariation.class,
+            ArgumentReplacementVariation.class,
+            ComplexVariation.class,
+            DeepCloningVariation.class,
+            JXPathVariation.class,
+            VariationsResult.class };
 
     private static final DefaultTypingMode DEFAULT_VALUE_FOR_DEFAULT_TYPING_MODE = DefaultTypingMode.JAVA_LANG_OBJECT;
 
@@ -140,7 +152,7 @@ public class JacksonObjectMapperFactoryBean {
             }
         }
         if (!DefaultTypingMode.DISABLED.equals(getDefaultTypingMode())) {
-            List<Class<?>> classes = new ArrayList<>();
+            Set<Class<?>> classes = new HashSet<>();
             if (getOverrideTypes() != null) {
                 for (String className : getOverrideTypes()) {
                     Class<?> clazz = loadClass(className);
@@ -152,6 +164,14 @@ public class JacksonObjectMapperFactoryBean {
             }
             if (getOverrideClasses() != null) {
                 for (Class<?> clazz : getOverrideClasses()) {
+                    registerOverrideClass(basicPolymorphicTypeValidatorBuilder,
+                        polymorphicTypeValidation,
+                        classes,
+                        clazz);
+                }
+            }
+            if (isSupportVariations()) {
+                for (Class<?> clazz : VARIATION_CLASSES) {
                     registerOverrideClass(basicPolymorphicTypeValidatorBuilder,
                         polymorphicTypeValidation,
                         classes,
@@ -247,13 +267,24 @@ public class JacksonObjectMapperFactoryBean {
 
     private void registerOverrideClass(Builder basicPolymorphicTypeValidatorBuilder,
             boolean polymorphicTypeValidation,
-            List<Class<?>> classes,
+            Set<Class<?>> classes,
             Class<?> clazz) {
-        if (!JacksonBindingConfigurationUtils.isConfiguration(clazz)) {
-            classes.add(clazz);
-            if (polymorphicTypeValidation) {
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(clazz);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(clazz);
+        if (!classes.contains(clazz)) {
+            if (!JacksonBindingConfigurationUtils.isConfiguration(clazz)) {
+                classes.add(clazz);
+                if (polymorphicTypeValidation) {
+                    basicPolymorphicTypeValidatorBuilder.allowIfBaseType(clazz);
+                    basicPolymorphicTypeValidatorBuilder.allowIfSubType(clazz);
+                }
+                XmlSeeAlso xmlSeeAlso = clazz.getAnnotation(XmlSeeAlso.class);
+                if (xmlSeeAlso != null) {
+                    for (Class<?> cls : xmlSeeAlso.value()) {
+                        registerOverrideClass(basicPolymorphicTypeValidatorBuilder,
+                            polymorphicTypeValidation,
+                            classes,
+                            cls);
+                    }
+                }
             }
         }
     }

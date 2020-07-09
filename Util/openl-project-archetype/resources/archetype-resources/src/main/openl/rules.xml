@@ -1,0 +1,17 @@
+<project>
+    <name>Sample Project</name>
+
+    <modules>
+        <module>
+            <rules-root path="rules/*.xlsx"/>
+            <method-filter>
+                <includes>
+                    <value>.+ SayHello\(.+\)</value>
+                </includes>
+            </method-filter>
+        </module>
+    </modules>
+
+    <properties-file-name-pattern>.*-%state%-%effectiveDate:MMddyyyy%-%startRequestDate:MMddyyyy%</properties-file-name-pattern>
+    <properties-file-name-processor>org.openl.rules.project.resolving.CWPropertyFileNameProcessor</properties-file-name-processor>
+</project>

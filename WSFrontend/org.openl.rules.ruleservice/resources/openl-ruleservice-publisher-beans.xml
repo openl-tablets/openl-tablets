@@ -9,7 +9,7 @@
 	<!-- Simple front end to access all services. -->
 	<bean id="frontend" class="org.openl.rules.ruleservice.simple.RulesFrontendImpl"/>
 
-	<!-- Initializes OpenL Engine instances according to web services configuration 
+	<!-- Initializes OpenL Engine instances according to Rule Services configuration
 		description and calls DeploymentAdmin to expose corresponding web service. -->
 	<bean id="javaClassRuleServicePublisher" class="org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher">
 		<property name="frontend" ref="frontend"/>
