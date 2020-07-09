@@ -1,5 +1,5 @@
 <project>
-    <name>Sample Project Test</name>
+    <name>${project-name} Test</name>
     <modules>
         <module>
             <rules-root path="rules/*.xlsx"/>
@@ -7,7 +7,7 @@
     </modules>
     <dependencies>
         <dependency>
-            <name>Sample Project</name>
+            <name>${project-name}</name>
             <autoIncluded>true</autoIncluded>
         </dependency>
     </dependencies>

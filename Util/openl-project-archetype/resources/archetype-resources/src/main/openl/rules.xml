@@ -1,5 +1,5 @@
 <project>
-    <name>Sample Project</name>
+    <name>${project-name}</name>
 
     <modules>
         <module>
