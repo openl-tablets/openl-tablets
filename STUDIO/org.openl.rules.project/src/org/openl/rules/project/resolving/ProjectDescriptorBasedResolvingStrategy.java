@@ -58,9 +58,13 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                 }
             }
             if (processor != null) {
+                Set<String> globalWarnMessages = new LinkedHashSet<>();
+                if (processor instanceof CWPropertyFileNameProcessor) {
+                    globalWarnMessages.add("CWPropertyFileNameProcessor is deprecated. 'CW' keyword support for 'state' property was moved to the default property processor. Delete declaration of this class from rules.xml");
+                }
                 for (Module module : projectDescriptor.getModules()) {
                     Set<String> moduleErrorMessages = new HashSet<>(globalErrorMessages);
-                    Set<String> moduleWarnMessages = new HashSet<>();
+                    Set<String> moduleWarnMessages = new HashSet<>(globalWarnMessages);
                     Map<String, Object> params = new HashMap<>();
                     try {
                         ITableProperties tableProperties = processor.process(module,

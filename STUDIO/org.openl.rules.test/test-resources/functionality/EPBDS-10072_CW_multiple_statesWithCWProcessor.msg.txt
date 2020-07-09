@@ -1,0 +1,2 @@
+WARN: Module 'Tests' does not match file name pattern '.*-%state%-%effectiveDate:MMddyyyy%-%startRequestDate:MMddyyyy%'.
+WARN: CWPropertyFileNameProcessor is deprecated. 'CW' keyword support for 'state' property was moved to the default property processor. Delete declaration of this class from rules.xml
