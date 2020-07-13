@@ -1,0 +1,16 @@
+<project>
+    <name>${project-name}</name>
+
+    <modules>
+        <module>
+            <rules-root path="rules/*.xlsx"/>
+            <method-filter>
+                <includes>
+                    <value>.+ SayHello\(.+\)</value>
+                </includes>
+            </method-filter>
+        </module>
+    </modules>
+
+    <properties-file-name-pattern>.*-%state%-%effectiveDate:MMddyyyy%-%startRequestDate:MMddyyyy%</properties-file-name-pattern>
+</project>

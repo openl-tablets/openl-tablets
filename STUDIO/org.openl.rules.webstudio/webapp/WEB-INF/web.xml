@@ -187,7 +187,8 @@
     <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
     <multipart-config>
-      <max-file-size>104857600</max-file-size>
+      <!--parameter max-file-size should not be deleted. It is necessary for the WebSphere to work correctly with the jsf file downloader, but also we do not need to limit the file size in it, so the limit is 100 gigabytes-->
+      <max-file-size>104857600000</max-file-size>
       <max-request-size>418018841</max-request-size>
       <file-size-threshold>1048576</file-size-threshold>
     </multipart-config>

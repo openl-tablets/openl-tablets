@@ -5,9 +5,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,11 +15,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.jar.Attributes;
+import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -49,12 +49,6 @@ public final class PackageMojo extends BaseOpenLMojo {
 
     private static final String DEPLOYMENT_YAML = "deployment.yaml";
     private static final String DEPLOYMENT_CLASSIFIER = "deployment";
-    private static final String MANIFEST_BUILD_NUMBER = "Build-Number";
-    private static final String MANIFEST_BUILD_BRANCH = "Build-Branch";
-    private static final String MANIFEST_BUILT_BY = "Built-By";
-    private static final String MANIFEST_IMPL_TITLE = "Implementation-Title";
-    private static final String MANIFEST_IMPL_VER = "Implementation-Version";
-    private static final String MANIFEST_IMPL_VENDOR = "Implementation-Vendor";
 
     @Parameter(defaultValue = "${project.packaging}", readonly = true)
     private String packaging;
@@ -118,49 +112,24 @@ public final class PackageMojo extends BaseOpenLMojo {
     private String deploymentName;
 
     /**
-     * Marker if MANIFEST.MF file must be generated and included into deployment archive
+     * Parameter that adds default manifest entries into MANIFEST.MF file.
+     *
+     * @since 5.23.4
      */
     @Parameter(defaultValue = "true")
-    private boolean includeManifest;
+    private boolean addDefaultManifest;
 
     /**
-     * Configuration properties for MANIFEST.MF:
-     * <table cellspacing="2">
-     * <tr>
-     * <td align="center">Property</td>
-     * <td align="center">Default Value</td>
-     * </tr>
-     * <tr>
-     * <td align="center">Build-Number</td>
-     * <td align="center">Empty</td>
-     * </tr>
-     * <tr>
-     * <td align="center">Build-Branch</td>
-     * <td align="center">Empty</td>
-     * </tr>
-     * <tr>
-     * <td align="center">Built-By</td>
-     * <td align="center">OS User</td>
-     * </tr>
-     * <tr>
-     * <td align="center">Implementation-Title</td>
-     * <td align="center">Project groupId and artifactId</td>
-     * </tr>
-     * <tr>
-     * <td align="center">Implementation-Version</td>
-     * <td align="center">Project version</td>
-     * </tr>
-     * <tr>
-     * <td align="center">Implementation-Vendor</td>
-     * <td align="center">Project Organization Name</td>
-     * </tr>
-     * </table>
+     * Set of key/values to be included to MANIFEST.MF. This parameter overrides default values added by
+     * {@linkplain #addDefaultManifest} parameter.
+     * 
+     * @since 5.23.4
      */
     @Parameter
-    private Map<String, String> manifestConfiguration = new HashMap<>();
+    private Map<String, String> manifestEntries;
 
-    @Parameter(defaultValue = "${session}", readonly = true, required = true )
-    private MavenSession session;
+    @Parameter(defaultValue = "${user.name}", readonly = true, required = true)
+    private String userName;
 
     @Override
     void execute(String sourcePath, boolean hasDependencies) throws Exception {
@@ -208,6 +177,12 @@ public final class PackageMojo extends BaseOpenLMojo {
             File outputFile = getOutputFile(outputDirectory, finalName, classifier, type);
 
             try (ZipArchiver arch = new ZipArchiver(outputFile.toPath())) {
+                if (addDefaultManifest || manifestEntries != null) {
+                    Manifest manifest = createManifest();
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    manifest.write(baos);
+                    arch.addFile(new ByteArrayInputStream(baos.toByteArray()), JarFile.MANIFEST_NAME);
+                }
 
                 ProjectPackager.addOpenLProject(openLSourceDir, arch);
 
@@ -217,12 +192,6 @@ public final class PackageMojo extends BaseOpenLMojo {
                 for (Artifact artifact : dependencies) {
                     File file = artifact.getFile();
                     arch.addFile(file, classpathFolder + file.getName());
-                }
-                if (includeManifest) {
-                    Manifest manifest = createManifest();
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    manifest.write(baos);
-                    arch.addFile(new ByteArrayInputStream(baos.toByteArray()), "META-INF/MANIFEST.MF");
                 }
             }
 
@@ -388,40 +357,28 @@ public final class PackageMojo extends BaseOpenLMojo {
     private Manifest createManifest() {
         Manifest manifest = new Manifest();
         Attributes attributes = manifest.getMainAttributes();
-        attributes.putValue("Manifest-Version", "1.0");
-
-        final String buildNumber = manifestConfiguration.get(MANIFEST_BUILD_NUMBER);
-        if (buildNumber != null) {
-            attributes.putValue(MANIFEST_BUILD_NUMBER, manifestConfiguration.get(MANIFEST_BUILD_NUMBER));
+        attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        if (addDefaultManifest) {
+            // initialize with default values
+            attributes.putValue("Build-Date", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+            attributes.putValue("Built-By", userName);
+            attributes.put(Attributes.Name.IMPLEMENTATION_TITLE,
+                    String.format("%s:%s", project.getGroupId(), project.getArtifactId()));
+            attributes.put(Attributes.Name.IMPLEMENTATION_VERSION, project.getVersion());
+            if (project.getOrganization() != null) {
+                attributes.put(Attributes.Name.IMPLEMENTATION_VENDOR, project.getOrganization().getName());
+            }
+            attributes.putValue("Created-By", "OpenL Maven Plugin v" + OpenLVersion.getVersion());
         }
 
-        final String buildBranch = manifestConfiguration.get(MANIFEST_BUILD_BRANCH);
-        if (buildBranch != null) {
-            attributes.putValue(MANIFEST_BUILD_BRANCH, buildBranch);
+        if (manifestEntries != null) {
+            for (Map.Entry<String, String> entry : manifestEntries.entrySet()) {
+                String key = entry.getKey();
+                // if value is empty, create an entry with empty string to prevent nulls in file
+                String value = StringUtils.trimToEmpty(entry.getValue());
+                attributes.putValue(key, value);
+            }
         }
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
-        attributes.putValue("Build-Date", dateFormat.format(new Date()));
-
-        final String builtBy = manifestConfiguration.getOrDefault(MANIFEST_BUILT_BY,
-                session.getSystemProperties().getProperty("user.name"));
-        attributes.putValue(MANIFEST_BUILT_BY, builtBy);
-
-        final String implTitle = manifestConfiguration.getOrDefault(MANIFEST_IMPL_TITLE,
-                String.format("%s:%s", project.getGroupId(), project.getArtifactId()));
-        attributes.putValue(MANIFEST_IMPL_TITLE, implTitle);
-
-        final String implVersion = manifestConfiguration.getOrDefault(MANIFEST_IMPL_VER, project.getVersion());
-        attributes.putValue(MANIFEST_IMPL_VER, implVersion);
-
-        String orgName = manifestConfiguration.get(MANIFEST_IMPL_VENDOR);
-        if (orgName == null && project.getOrganization() != null) {
-            orgName = project.getOrganization().getName();
-        }
-        if (orgName != null) {
-            attributes.putValue(MANIFEST_IMPL_VENDOR, orgName);
-        }
-        attributes.putValue("Created-By", "OpenL Maven Plugin " + OpenLVersion.getVersion());
         return manifest;
     }
 }

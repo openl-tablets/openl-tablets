@@ -9,7 +9,7 @@
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws.annotation</artifactId>
     <packaging>pom</packaging>
-    <name>OpenL - Ruleservice - Web Services - Annotations</name>
+    <name>OpenL - Ruleservice - Rule Services - Annotations</name>
     <description>OpenL Rules Webservices Annotations</description>
     <url>https://openl-tablets.org</url>
     <organization>

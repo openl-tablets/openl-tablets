@@ -22,7 +22,11 @@
                 <artifactId>openl-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-                    <includeManifest>false</includeManifest>
+                    <addDefaultManifest>false</addDefaultManifest>
+                    <manifestEntries>
+                        <Build-Number>1e1eb11271dd</Build-Number>
+                        <Build-Branch>myBranch</Build-Branch>
+                    </manifestEntries>
                 </configuration>
             </plugin>
         </plugins>

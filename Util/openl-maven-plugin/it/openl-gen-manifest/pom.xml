@@ -33,5 +33,6 @@
         <module>openl-default-manifest</module>
         <module>openl-custom-manifest</module>
         <module>openl-disabled-manifest</module>
+        <module>openl-no-manifest</module>
     </modules>
 </project>

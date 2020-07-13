@@ -124,6 +124,7 @@
         <module>DEMO/org.openl.rules.demo</module>
         <module>Util/openl-maven-plugin</module>
         <module>Util/openl-simple-project-archetype</module>
+        <module>Util/openl-project-archetype</module>
     </modules>
     <distributionManagement>
         <repository>

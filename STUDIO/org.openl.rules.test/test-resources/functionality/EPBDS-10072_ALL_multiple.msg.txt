@@ -1,0 +1,1 @@
+WARN: Module 'Tests' does not match file name pattern '.*-%caProvinces%-%caRegions%-%country%-%currency%-%lang%-%region%-%state%-%usregion%-%effectiveDate:MMddyyyy%-%startRequestDate:MMddyyyy%'.

@@ -11,6 +11,14 @@
     <packaging>openl</packaging>
     <name>OpenL Plugin: Custom Manifest</name>
 
+    <properties>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+    </properties>
+
+    <organization>
+        <url>example.com</url>
+    </organization>
+
     <build>
         <plugins>
             <plugin>
@@ -18,14 +26,16 @@
                 <artifactId>openl-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-                    <manifestConfiguration>
+                    <manifestEntries>
                         <Build-Number>1e1eb11271dd</Build-Number>
                         <Build-Branch>myBranch</Build-Branch>
                         <Built-By>superuser</Built-By>
                         <Implementation-Title>My Title</Implementation-Title>
                         <Implementation-Version>My Version</Implementation-Version>
                         <Implementation-Vendor>My Vendor</Implementation-Vendor>
-                    </manifestConfiguration>
+                        <Build-Date>${maven.build.timestamp}</Build-Date>
+                        <Name>${project.name}</Name>
+                    </manifestEntries>
                 </configuration>
             </plugin>
         </plugins>

@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8"/>
-    <title>OpenL Tablets Web Services</title>
+    <title>OpenL Tablets Rule Services</title>
     <script type="text/javascript">
         var path = location.pathname;
         if (path.lastIndexOf('/') !== (path.length - 1)) { /* endWith does not work under IE 10 */
@@ -137,7 +137,7 @@
 </head>
 
 <body>
-<div id="header">OpenL Tablets Web Services</div>
+<div id="header">OpenL Tablets Rule Services</div>
 <div id="main"></div>
 <div id="footer">&#169; 2020 <a href="https://openl-tablets.org" target="_blank">OpenL Tablets</a></div>
 <script>
@@ -341,6 +341,9 @@
                 html += "<a href='" + url + "'\>" + name + "</a>";
             }
         });
+        if (service.hasManifest) {
+            html += "<a href='admin/services/" + service.name + "/MANIFEST.MF'\>MANIFEST.MF</a>";
+        }
         if (deployerEnabled) {
             html += "&nbsp";
             html += "<button type='button' class='delete-button'>Delete</button>";
