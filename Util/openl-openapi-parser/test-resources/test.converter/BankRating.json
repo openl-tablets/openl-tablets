@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Example 1 - Bank Rating_Example 1 - Bank Rating",
+    "title": "Example 1 - Bank Rating",
     "version": "1.0.0"
   },
   "servers": [

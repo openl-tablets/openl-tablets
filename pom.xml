@@ -537,24 +537,23 @@
                             <classpathScope>runtime</classpathScope>
                             <source>
                                 ConfigurationFactory.setConfigurationFactory(new ConfigurationFactory() {
-                                // Disable logging using log4j2.properties which are located somewhere in the classpath
-                                // Use the default logging
-                                @Override
-                                protected String[] getSupportedTypes() {
-                                return null;
-                                }
+                                    // Disable logging using log4j2.properties which are located somewhere in the classpath
+                                    // Use the default logging
+                                    @Override
+                                    protected String[] getSupportedTypes() {
+                                        return null;
+                                    }
 
-                                @Override
-                                Configuration getConfiguration(LoggerContext loggerContext, ConfigurationSource source)
-                                {
-                                return new DefaultConfiguration();
-                                }
+                                    @Override
+                                    Configuration getConfiguration(LoggerContext loggerContext, ConfigurationSource source) {
+                                        return new DefaultConfiguration();
+                                    }
 
-                                @Override
-                                Configuration getConfiguration(LoggerContext loggerContext, String name, URI
-                                configLocation, ClassLoader loader) {
-                                return new DefaultConfiguration();
-                                }
+                                    @Override
+                                    Configuration getConfiguration(LoggerContext loggerContext, String name, URI
+                                            configLocation, ClassLoader loader) {
+                                        return new DefaultConfiguration();
+                                    }
                                 })
                                 System.setProperty("log4j2.disable.jmx", "true");
                                 log.info("Generating application.properties from:")
@@ -569,38 +568,37 @@
                                 import org.springframework.core.io.Resource;
                                 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-                                PathMatchingResourcePatternResolver prpr = new
-                                PathMatchingResourcePatternResolver(this.class.getClassLoader());
+                                PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver(this.class.getClassLoader());
                                 // See :org.openl.spring artifact.
                                 Resource[] resources = prpr.getResources("classpath*:openl-default.properties");
 
                                 def out = new File(project.build.outputDirectory, "application.properties");
                                 out.write("### This file was generated!\n\r\n\r")
                                 def write = {
-                                String text -&gt;
-                                out.append(text)
-                                if (!text.endsWith("\r\n")) {
-                                out.append("\r\n")
-                                }
-                                log.debug(" | {}", text)
+                                    String text -&gt;
+                                        out.append(text)
+                                        if (!text.endsWith("\r\n")) {
+                                            out.append("\r\n")
+                                        }
+                                        log.debug(" | {}", text)
                                 }
 
                                 resources.each {
-                                def url = it.getURL()
-                                log.info(" {}", url)
-                                write "###"
-                                write "### From: ${(url =~ /([^\/]+(!\/.*)?)$/)[0][1]}"
-                                write "###"
-                                it.getInputStream().eachLine {
-                                if (StringUtils.isBlank(it)) {
-                                write ""
-                                } else if (it.startsWith('#')) {
-                                write it.trim()
-                                } else {
-                                write "#" + it.trim()
-                                }
-                                }
-                                write ""
+                                    def url = it.getURL()
+                                    log.info(" {}", url)
+                                    write "###"
+                                    write "### From: ${(url =~ /([^\/]+(!\/.*)?)$/)[0][1]}"
+                                    write "###"
+                                    it.getInputStream().eachLine {
+                                        if (StringUtils.isBlank(it)) {
+                                            write ""
+                                        } else if (it.startsWith('#')) {
+                                            write it.trim()
+                                        } else {
+                                            write "#" + it.trim()
+                                        }
+                                    }
+                                    write ""
                                 }
                             </source>
                         </configuration>
@@ -1288,6 +1286,11 @@
                 <artifactId>h2</artifactId>
                 <version>1.4.199</version>
                 <!--<version>1.4.200</version> does not work with policy file due to FilePermission, will be fixed in the next version-->
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>42.2.8</version>
             </dependency>
             <!-- Flyway: The agile database migration framework for Java. -->
             <dependency>

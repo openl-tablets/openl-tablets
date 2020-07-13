@@ -15,7 +15,6 @@ import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetResultModel;
-import org.openl.rules.model.scaffolding.TypeModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -158,7 +157,7 @@ public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
             if (mediaType == null) {
                 logger.warn("There are no media types in response for the path : '{}', skipping it.", pathName);
             } else {
-                responsesTypes.add(extractType(mediaType.getSchema()).getName());
+                responsesTypes.add(extractType(mediaType.getSchema()));
             }
         }
     }
@@ -176,7 +175,7 @@ public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
             if (mediaType == null) {
                 logger.warn("There are no media types in request body for the path : '{}', skipping it.", pathName);
             } else {
-                String typeName = extractType(mediaType.getSchema()).getName();
+                String typeName = extractType(mediaType.getSchema());
                 requestsTypes.merge(typeName, 1, Integer::sum);
                 Set<String> innerTypes = collectInnerTypes(typeName, allTypesMap);
                 for (String innerType : innerTypes) {
@@ -251,30 +250,28 @@ public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
             if (mediaType == null) {
                 continue;
             }
-            TypeModel responseTypeModel = extractType(mediaType.getSchema());
-            String responseTypeName = responseTypeModel.getName();
-            if (possibleSpreadSheetResults.contains(responseTypeName)) {
+            String responseTypeModel = extractType(mediaType.getSchema());
+            if (possibleSpreadSheetResults.contains(responseTypeModel)) {
                 SpreadsheetResultModel spreadsheetResultModel = new SpreadsheetResultModel();
                 RequestBody requestBody = operation.getRequestBody();
                 if (requestBody != null) {
                     Content bodyContent = requestBody.getContent();
                     MediaType bodyType = extractMediaType(bodyContent);
-                    TypeModel typeModel = extractType(bodyType.getSchema());
-                    String requestType = typeModel.getName();
-                    String exampleParameterName = requestType;
-                    if (typeModel.isArray()) {
-                        requestType += "[]";
-                        exampleParameterName += "s";
-                    }
+                    String typeModel = extractType(bodyType.getSchema());
+                    String exampleParameterName = typeModel;
+                    // if (typeModel) {
+                    // exampleParameterName += "s";
+                    // }
                     // if (typesToExpand.contains(requestType)) {
                     // // expand type there
                     // }
                     spreadsheetResultModel.setSignature(requestName.substring(1) + "(" + StringUtils
-                        .capitalize(requestType) + " " + StringUtils.uncapitalize(exampleParameterName) + ")");
-                    if (responseTypeModel.isArray()) {
-                        responseTypeName += "[]";
-                    }
-                    spreadsheetResultModel.setType(StringUtils.capitalize(responseTypeName));
+                        .capitalize(typeModel) + " " + StringUtils.uncapitalize(exampleParameterName) + ")");
+
+                    // if (responseTypeModel.isArray()) {
+                    // responseTypeName += "[]";
+                    // }
+                    spreadsheetResultModel.setType(StringUtils.capitalize(typeModel));
                     resultModels.add(spreadsheetResultModel);
                 }
             }
@@ -298,7 +295,7 @@ public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
                 FieldModel fieldModel = extractFieldModel(schemaEntry);
                 datatype.setFields(Collections.singletonList(fieldModel));
                 result.add(datatype);
-                allTypesMap.put(requestName, Collections.singleton(fieldModel.getType().getName()));
+                allTypesMap.put(requestName, Collections.singleton(fieldModel.getType()));
                 continue;
             }
             List<FieldModel> fields = new ArrayList<>();
@@ -307,7 +304,7 @@ public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
             for (Map.Entry<String, Schema> property : properties.entrySet()) {
                 FieldModel f = extractFieldModel(property);
                 fields.add(f);
-                types.add(f.getType().getName());
+                types.add(f.getType());
             }
             datatype.setFields(fields);
             result.add(datatype);
@@ -320,13 +317,12 @@ public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
         String propertyName = property.getKey();
         Schema valueSchema = property.getValue();
 
-        TypeModel typeModel = extractType(valueSchema);
+        String typeModel = extractType(valueSchema);
         Object defaultValue = valueSchema.getDefault();
 
         return new FieldModel.Builder().setName(propertyName)
             .setType(typeModel)
             .setDefaultValue(defaultValue)
-            .setFormat(valueSchema.getFormat())
             .build();
     }
 
@@ -336,23 +332,23 @@ public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
             ComposedSchema schema = (ComposedSchema) valueSchema;
             List<Schema> allOf = schema.getAllOf();
             for (Schema allOfSchema : allOf) {
-                result.add(extractType(allOfSchema).getName());
+                result.add(extractType(allOfSchema));
             }
             List<Schema> anyOf = schema.getAnyOf();
             for (Schema anyOfSchema : anyOf) {
-                result.add(extractType(anyOfSchema).getName());
+                result.add(extractType(anyOfSchema));
             }
             List<Schema> oneOf = schema.getOneOf();
             for (Schema oneOfSchema : oneOf) {
-                result.add(extractType(oneOfSchema).getName());
+                result.add(extractType(oneOfSchema));
             }
         } else {
-            result.add(extractType(valueSchema).getName());
+            result.add(extractType(valueSchema));
         }
         return result;
     }
 
-    private TypeModel extractType(Schema valueSchema) {
+    private String extractType(Schema valueSchema) {
         String typeName;
         boolean isArray = false;
         String format = valueSchema.getFormat();
@@ -380,10 +376,10 @@ public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
         if (format != null) {
             switch (format) {
                 case "int32":
-                    typeName = INTEGER_TYPE;
+                    typeName = "Integer";
                     break;
                 case "int64":
-                    typeName = "long";
+                    typeName = "Long";
                     break;
                 case FLOAT_TYPE:
                     typeName = FLOAT_TYPE;
@@ -395,7 +391,10 @@ public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
                     break;
             }
         }
-        return new TypeModel(typeName, isArray);
+        if (isArray) {
+            typeName += "[]";
+        }
+        return typeName;
     }
 
 }

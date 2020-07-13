@@ -81,14 +81,14 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             .addMergedRegion(new CellRangeAddress(reg.getTop(), reg.getBottom(), reg.getLeft(), reg.getRight()));
     }
 
-    private RegionsPool getMergedRegionsPool() {
+    public RegionsPool getMergedRegionsPool() {
         if (mergedRegionsPool == null) {
             extractMergedRegions();
         }
         return mergedRegionsPool;
     }
 
-    private Object findFirstValueInRegion(IGridRegion reg) {
+    public Object findFirstValueInRegion(IGridRegion reg) {
         for (int row = reg.getTop(); row <= reg.getBottom(); row++) {
             for (int column = reg.getLeft(); column <= reg.getRight(); column++) {
                 Object cellValue = getCell(column, row).getObjectValue();
@@ -527,7 +527,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         return result;
     }
 
-    private Sheet getSheet() {
+    public Sheet getSheet() {
         return sheetSource.getSheet();
     }
 

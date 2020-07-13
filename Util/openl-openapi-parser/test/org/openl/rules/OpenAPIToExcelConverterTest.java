@@ -26,7 +26,7 @@ public class OpenAPIToExcelConverterTest {
     public void testBankRating() throws IOException {
         OpenAPIModelConverter converter = new OpenAPIExperiments();
         ProjectModel projectModel = converter.extractProjectModel(BANK_RATING);
-//        ExcelFileBuilder.generateExcelFile(projectModel);
+        ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
     @Test
@@ -34,6 +34,7 @@ public class OpenAPIToExcelConverterTest {
         // OpenAPIModelConverter converter = new OpenAPIToExcelModelConverter();
         OpenAPIModelConverter converter = new OpenAPIExperiments();
         ProjectModel projectModel = converter.extractProjectModel(EXTERNAL_LINKS_JSON_TEST);
+        ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
     @Test
@@ -114,5 +115,19 @@ public class OpenAPIToExcelConverterTest {
         OpenAPIModelConverter converter = new OpenAPIExperiments();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/inheritance_and_polymorphism/allOfInsideOneOf.yml");
+    }
+
+    @Test
+    public void testSimpleDatatype() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIExperiments();
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/datatype/datatype_simple.json");
+        ExcelFileBuilder.generateExcelFile(projectModel);
+    }
+
+    @Test
+    public void testNesting() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIExperiments();
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/datatype/datatype_with_parent.json");
+        ExcelFileBuilder.generateExcelFile(projectModel);
     }
 }

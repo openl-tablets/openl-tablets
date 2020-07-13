@@ -1,30 +1,28 @@
 package org.openl.rules.model.scaffolding;
 
 public class FieldModel {
-    private String name;
-    private TypeModel type;
-    private Object defaultValue;
-    private String format;
 
-    private FieldModel(String name, TypeModel type, Object defaultValue, String format) {
+    private String name;
+    private String type;
+    private Object defaultValue;
+
+    private FieldModel(String name, String type, Object defaultValue) {
         this.name = name;
         this.type = type;
         this.defaultValue = defaultValue;
-        this.format = format;
     }
 
     public static final class Builder {
         private String name;
-        private TypeModel type;
+        private String type;
         private Object defaultValue;
-        private String format;
 
         public Builder setName(String name) {
             this.name = name;
             return this;
         }
 
-        public Builder setType(TypeModel type) {
+        public Builder setType(String type) {
             this.type = type;
             return this;
         }
@@ -34,13 +32,8 @@ public class FieldModel {
             return this;
         }
 
-        public Builder setFormat(String format) {
-            this.format = format;
-            return this;
-        }
-
         public FieldModel build() {
-            return new FieldModel(name, type, defaultValue, format);
+            return new FieldModel(name, type, defaultValue);
         }
     }
 
@@ -48,7 +41,7 @@ public class FieldModel {
         return name;
     }
 
-    public TypeModel getType() {
+    public String getType() {
         return type;
     }
 
@@ -56,7 +49,4 @@ public class FieldModel {
         return defaultValue;
     }
 
-    public String getFormat() {
-        return format;
-    }
 }

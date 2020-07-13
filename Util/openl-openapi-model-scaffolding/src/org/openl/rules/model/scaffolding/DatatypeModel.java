@@ -2,7 +2,8 @@ package org.openl.rules.model.scaffolding;
 
 import java.util.List;
 
-public class DatatypeModel {
+public class DatatypeModel implements Model{
+
     private String parent;
     private String name;
     private List<FieldModel> fields;

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProjectModel {
+
     private String name;
     private List<DatatypeModel> datatypeModels = new ArrayList<>();
     private List<SpreadsheetResultModel> spreadsheetResultModels = new ArrayList<>();

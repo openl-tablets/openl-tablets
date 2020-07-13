@@ -1,90 +1,68 @@
 package org.openl.rules.openapi.impl;
 
+import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.getSchemas;
+import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.getSimpleName;
+
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import io.swagger.v3.oas.models.media.ObjectSchema;
-import org.apache.commons.jxpath.JXPathContext;
 import org.openl.rules.model.scaffolding.DatatypeModel;
+import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetResultModel;
-import org.openl.rules.model.scaffolding.TypeModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.responses.ApiResponse;
-import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 
-import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.getSchemas;
-import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.getSimpleName;
-
 public class OpenAPIExperiments implements OpenAPIModelConverter {
 
+    public static final String SPREADSHEET_RESULT = "SpreadsheetResult";
     private final Logger logger = LoggerFactory.getLogger(OpenAPIExperiments.class);
+
+    private boolean generateUnusedModels = true;
+
+    public OpenAPIExperiments() {
+    }
+
+    public OpenAPIExperiments(boolean generateUnusedModels) {
+        this.generateUnusedModels = generateUnusedModels;
+    }
 
     @Override
     public ProjectModel extractProjectModel(String pathTo) {
         ParseOptions options = OpenLOpenAPIUtils.getParseOptions();
         OpenAPI openAPI = new OpenAPIV3Parser().read(pathTo, null, options);
-        JXPathContext jxPathContext = JXPathContext.newContext(openAPI);
 
-        Map<String, Integer> allUsedRefs = OpenLOpenAPIUtils.getAllUsedRefs(openAPI, OpenLOpenAPIUtils.Path.ALL);
-        Map<String, Integer> allUsedRefsInRequests = OpenLOpenAPIUtils.getAllUsedRefs(openAPI,
+        String projectName = openAPI.getInfo().getTitle();
+
+        Map<String, Integer> allUsedSchemaRefs = OpenLOpenAPIUtils.getAllUsedSchemaRefs(openAPI, OpenLOpenAPIUtils.Path.ALL);
+        Map<String, Integer> allUsedSchemaRefsInRequests = OpenLOpenAPIUtils.getAllUsedSchemaRefs(openAPI,
             OpenLOpenAPIUtils.Path.REQUESTS);
+        Set<String> allUnusedRefs = OpenLOpenAPIUtils.getUnusedSchemaRefs(openAPI, allUsedSchemaRefs.keySet());
 
         // all the requests which were used only once needed to be extracted
-        Set<String> refsToExpand = allUsedRefsInRequests.entrySet()
+        Set<String> refsToExpand = allUsedSchemaRefsInRequests.entrySet()
             .stream()
-            .filter(x -> x.getValue().equals(1))
+            .filter(x -> x.getValue().equals(1) && (!allUsedSchemaRefs.containsKey(x.getKey()) ||
+                    allUsedSchemaRefs.get(x.getKey()).equals(1)))
             .map(Map.Entry::getKey)
             .collect(Collectors.toSet());
 
-        Map<String, PathItem> paths = openAPI.getPaths();
-        Map<String, Set<String>> allSchemaRefResponses = new HashMap<>();
-        if (paths != null) {
-            for (Map.Entry<String, PathItem> p : paths.entrySet()) {
-                PathItem path = p.getValue();
-                Map<PathItem.HttpMethod, Operation> operationsMap = path.readOperationsMap();
-                if (CollectionUtils.isNotEmpty(operationsMap)) {
-                    Operation satisfyingOperation = OpenLOpenAPIUtils.getOperation(path);
-                    if (satisfyingOperation != null) {
-                        ApiResponses responses = satisfyingOperation.getResponses();
-                        if (responses != null) {
-                            ApiResponse response = OpenLOpenAPIUtils.getResponse(openAPI, responses);
-                            if (response != null) {
-                                if (CollectionUtils.isNotEmpty(response.getContent())) {
-                                    MediaType mediaType = OpenLOpenAPIUtils.getMediaType(response.getContent());
-                                    if (mediaType != null) {
-                                        Schema mediaTypeSchema = mediaType.getSchema();
-                                        if (mediaTypeSchema != null) {
-                                            Set<String> refs = OpenLOpenAPIUtils.visitResponseSchema(openAPI,
-                                                mediaTypeSchema);
-                                            allSchemaRefResponses.put(p.getKey(), refs);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        Map<String, Set<String>> allSchemaRefResponses = OpenLOpenAPIUtils.getAllUsedRefResponses(openAPI);
 
         // paths with responses with primitive returns are possible spreadsheetResults too
         Set<String> primitiveReturnsPaths = allSchemaRefResponses.entrySet()
@@ -98,7 +76,7 @@ public class OpenAPIExperiments implements OpenAPIModelConverter {
             .stream()
             .filter(entry -> !entry.getValue().isEmpty() && entry.getValue()
                 .stream()
-                .noneMatch(allUsedRefsInRequests::containsKey))
+                .noneMatch(allUsedSchemaRefsInRequests::containsKey))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         Set<String> sprResultRefs = pathWithPotentialSprResult.values()
@@ -106,106 +84,161 @@ public class OpenAPIExperiments implements OpenAPIModelConverter {
             .flatMap(Collection::stream)
             .collect(Collectors.toSet());
 
-        Set<String> allTheRefsWhichAreDatatypes = allUsedRefs.keySet()
+        Set<String> allTheRefsWhichAreDatatypes = allUsedSchemaRefs.keySet()
             .stream()
             .filter(x -> !sprResultRefs.contains(x) && !refsToExpand.contains(x))
             .collect(Collectors.toSet());
 
-        List<DatatypeModel> dts = generateDatatypeTables(openAPI, allTheRefsWhichAreDatatypes);
-        List<SpreadsheetResultModel> spreadsheetResultModels = generateSpreadSheetResults(openAPI,
-            jxPathContext,
-            pathWithPotentialSprResult,
+        List<DatatypeModel> dts = extractDataTypeModels(openAPI, allTheRefsWhichAreDatatypes, false);
+        if (generateUnusedModels) {
+            dts.addAll(extractDataTypeModels(openAPI, allUnusedRefs, true));
+        }
+        List<SpreadsheetResultModel> spreadsheetResultModels = extractSprModels(openAPI,
+            pathWithPotentialSprResult.keySet(),
             primitiveReturnsPaths,
             refsToExpand);
 
-        return null;
+        return new ProjectModel(projectName, dts, spreadsheetResultModels);
     }
 
-    private List<SpreadsheetResultModel> generateSpreadSheetResults(OpenAPI openAPI,
-            JXPathContext jxPathContext,
-            Map<String, Set<String>> pathWithPotentialSprResult,
-            Set<String> pathsWithPrimitiveReturns,
-            Set<String> refsToExpand) {
+    private List<SpreadsheetResultModel> extractSprModels(OpenAPI openAPI,
+                                                          Set<String> pathWithPotentialSprResult,
+                                                          Set<String> pathsWithPrimitiveReturns,
+                                                          Set<String> refsToExpand) {
 
-        List<SpreadsheetResultModel> spr = new ArrayList<>();
+        List<SpreadsheetResultModel> spreadSheetModels = new ArrayList<>();
         Paths paths = openAPI.getPaths();
         if (paths != null) {
-            for (Map.Entry<String, Set<String>> p : pathWithPotentialSprResult.entrySet()) {
-                PathItem pathItem = paths.get(p.getKey());
+            for (String path : pathWithPotentialSprResult) {
+                PathItem pathItem = paths.get(path);
                 if (pathItem != null) {
                     SpreadsheetResultModel spreadsheetResultModel = new SpreadsheetResultModel();
-                    // spreadsheetResultModel.setType();
-                    // spreadsheetResultModel.setSignature();
-                    // spreadsheetResultModel.setSteps();
+                    String signature = extractSignature(openAPI, refsToExpand, pathItem);
+                    spreadsheetResultModel.setSignature(signature);
+                    spreadsheetResultModel.setName(path.substring(1));
+                    DatatypeModel type = extractType(openAPI, pathItem);
+                    if (type != null) {
+                        spreadsheetResultModel.setType(SPREADSHEET_RESULT);
+                        spreadsheetResultModel.setSteps(type.getFields());
+                    }
+                    spreadSheetModels.add(spreadsheetResultModel);
+                }
+            }
+            for (String p : pathsWithPrimitiveReturns) {
+                PathItem pathItem = paths.get(p);
+                if (pathItem != null) {
+                    SpreadsheetResultModel spreadsheetResultModel = new SpreadsheetResultModel();
+                    String signature = extractSignature(openAPI, refsToExpand, pathItem);
+                    spreadsheetResultModel.setSignature(signature);
+                    spreadsheetResultModel.setName(p.substring(1));
+                    DatatypeModel type = extractSimpleType(openAPI, pathItem, p);
+                    if (type != null) {
+                        spreadsheetResultModel.setType(type.getName());
+                        spreadsheetResultModel.setSteps(type.getFields());
+                    }
+                    spreadSheetModels.add(spreadsheetResultModel);
                 }
             }
         }
-        return null;
+        return spreadSheetModels;
     }
 
-    private List<DatatypeModel> generateDatatypeTables(OpenAPI openAPI, Set<String> allTheRefsWhichAreDatatypes) {
-        List<DatatypeModel> result = new ArrayList<>();
-        for (String datatypeRef : allTheRefsWhichAreDatatypes) {
-            // todo it is possible to have there a response,request etc -> use resolve
-            Schema schema = getSchemas(openAPI).get(getSimpleName(datatypeRef));
-            if (schema != null) {
-                // get parent name
+    private DatatypeModel extractSimpleType(OpenAPI openAPI, PathItem pathItem, String p) {
+        DatatypeModel dt = null;
+        String usedSchemaInResponse = OpenLOpenAPIUtils.getUsedSchemaInResponse(openAPI, pathItem);
+        if (usedSchemaInResponse != null) {
+            dt = new DatatypeModel(usedSchemaInResponse);
+            dt.setFields(
+                Collections.singletonList(new FieldModel.Builder().setName(StringUtils.uncapitalize(p.substring(1)))
+                    .setType(usedSchemaInResponse)
+                    .setDefaultValue(0)
+                    .build()));
+        }
+        return dt;
+    }
 
+    private DatatypeModel extractType(OpenAPI openAPI, PathItem pathItem) {
+        DatatypeModel dt = null;
+        String usedSchemaInResponse = OpenLOpenAPIUtils.getUsedSchemaInResponse(openAPI, pathItem);
+        if (usedSchemaInResponse != null) {
+            Schema<?> schema = getSchemas(openAPI).get(usedSchemaInResponse);
+            if (schema != null) {
+                dt = new DatatypeModel(usedSchemaInResponse);
+                Map<String, Schema> properties = schema.getProperties();
+                List<FieldModel> fieldModels = new ArrayList<>();
+                if (CollectionUtils.isNotEmpty(properties)) {
+                    fieldModels = properties.entrySet().stream().map(this::extractField).collect(Collectors.toList());
+                }
+                dt.setFields(fieldModels);
             }
         }
-        return result;
+        return dt;
     }
 
-    private void extractSpreadSheetResults(Paths paths) {
-
-    }
-
-    private TypeModel extractInfo(Schema inputSchema) {
-        String result;
-        boolean isArray = false;
-        if (inputSchema instanceof ArraySchema) {
-            isArray = true;
-            result = extractArrayType((ArraySchema) inputSchema);
-        } else {
-            if (inputSchema.getType() != null) {
-                result = inputSchema.getType();
-                String format = inputSchema.getFormat();
-                if (format != null) {
-                    switch (format) {
-                        case "int32":
-                            result = "integer";
-                            break;
-                        case "int64":
-                            result = "long";
-                            break;
-                        case "float":
-                            result = "float";
-                            break;
-                        case "double":
-                            result = "double";
-                            break;
-                        default:
-                            break;
+    private String extractSignature(OpenAPI openAPI, Set<String> refsToExpand, PathItem pathItem) {
+        String usedSchemaInRequest = OpenLOpenAPIUtils.getUsedSchemaInRequest(openAPI, pathItem);
+        StringBuilder signature = new StringBuilder();
+        if (usedSchemaInRequest != null) {
+            if (refsToExpand.contains(usedSchemaInRequest)) {
+                Schema<?> schema = getSchemas(openAPI).get(getSimpleName(usedSchemaInRequest));
+                if (schema != null) {
+                    Map<String, Schema> properties = schema.getProperties();
+                    if (CollectionUtils.isNotEmpty(properties)) {
+                        String param = properties.entrySet()
+                            .stream()
+                            .map(this::extractField)
+                            .map(x -> x.getType() + " " + x.getName())
+                            .collect(Collectors.joining(", "));
+                        signature.append(param);
                     }
                 }
             } else {
-                result = inputSchema.get$ref();
+                String formattedName = getSimpleName(usedSchemaInRequest);
+                signature = new StringBuilder(formattedName + " " + StringUtils.uncapitalize(formattedName));
             }
-
         }
-
-        return new TypeModel(result, isArray);
+        return signature.toString();
     }
 
-    private String extractArrayType(ArraySchema inputSchema) {
-        String result;
-        Schema<?> items = inputSchema.getItems();
-        if (items.getType() != null) {
-            result = items.getType();
-        } else {
-            result = items.get$ref();
+    private List<DatatypeModel> extractDataTypeModels(OpenAPI openAPI,
+                                                      Set<String> allTheRefsWhichAreDatatypes,
+                                                      boolean unused) {
+        List<DatatypeModel> result = new ArrayList<>();
+        for (String datatypeRef : allTheRefsWhichAreDatatypes) {
+            // todo it is possible to have there a response,request etc -> use resolve
+            String schemaName;
+            if (unused) {
+                schemaName = datatypeRef;
+            } else {
+                schemaName = getSimpleName(datatypeRef);
+            }
+            Schema<?> schema = getSchemas(openAPI).get(schemaName);
+            if (schema != null) {
+                // todo get parent name
+                DatatypeModel dm = new DatatypeModel(schemaName);
+                // find parent name
+                // dm.setParent();
+                List<FieldModel> fields = new ArrayList<>();
+                Map<String, Schema> properties = schema.getProperties();
+                for (Map.Entry<String, Schema> property : properties.entrySet()) {
+                    FieldModel f = extractField(property);
+                    fields.add(f);
+                }
+                dm.setFields(fields);
+                result.add(dm);
+            }
         }
         return result;
+    }
+
+    private FieldModel extractField(Map.Entry<String, Schema> property) {
+        String propertyName = property.getKey();
+        Schema valueSchema = property.getValue();
+
+        String typeModel = OpenLOpenAPIUtils.extractType(valueSchema);
+        Object defaultValue = valueSchema.getDefault();
+
+        return new FieldModel.Builder().setName(propertyName).setType(typeModel).setDefaultValue(defaultValue).build();
     }
 
 }

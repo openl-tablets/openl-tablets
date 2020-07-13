@@ -9,12 +9,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.jxpath.CompiledExpression;
 import org.apache.commons.jxpath.JXPathContext;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,13 +36,49 @@ import io.swagger.v3.parser.core.models.ParseOptions;
 
 public class OpenLOpenAPIUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenLOpenAPIUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(OpenLOpenAPIUtils.class);
 
     public static ParseOptions getParseOptions() {
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
         options.setFlatten(true);
         return options;
+    }
+
+    public static Set<String> getUnusedSchemaRefs(OpenAPI openAPI, Set<String> usedRefs) {
+        Set<String> unusedSchemas = new HashSet<>();
+
+        Map<String, Schema> schemas = getSchemas(openAPI);
+        unusedSchemas.addAll(schemas.keySet());
+        for (String usedRef : usedRefs) {
+            String simpleName = getSimpleName(usedRef);
+            unusedSchemas.remove(simpleName);
+        }
+
+        return unusedSchemas;
+    }
+
+    public static String getUsedSchemaInResponse(OpenAPI openAPI, PathItem pathItem) {
+        String ref = null;
+        Operation satisfyingOperation = OpenLOpenAPIUtils.getOperation(pathItem);
+        if (satisfyingOperation != null) {
+            ApiResponses responses = satisfyingOperation.getResponses();
+            if (responses != null) {
+                ApiResponse response = getResponse(openAPI, responses);
+                if (response != null && CollectionUtils.isNotEmpty(response.getContent())) {
+                    MediaType mediaType = OpenLOpenAPIUtils.getMediaType(response.getContent());
+                    if (mediaType != null) {
+                        Schema<?> mediaTypeSchema = mediaType.getSchema();
+                        if (mediaTypeSchema != null) {
+                            // get schema by ref...if not schema -> $ref once again
+                            ref = extractType(mediaTypeSchema);
+                        }
+                    }
+                }
+
+            }
+        }
+        return ref;
     }
 
     public enum Path {
@@ -96,9 +131,9 @@ public class OpenLOpenAPIUtils {
 
     public static String getSimpleName(String ref) {
         if (ref.startsWith("#/components/")) {
-            ref = ref.substring(ref.lastIndexOf("/") + 1);
+            ref = ref.substring(ref.lastIndexOf('/') + 1);
         } else {
-            LOGGER.warn("Failed to get the schema name: {}", ref);
+            logger.warn("Failed to get the schema name: {}", ref);
             return null;
         }
         return ref;
@@ -117,7 +152,7 @@ public class OpenLOpenAPIUtils {
         return compiledExpression.createPath(jxPathContext).getValue();
     }
 
-    public static Map<String, Integer> getAllUsedRefs(OpenAPI openAPI, Path explorePath) {
+    public static Map<String, Integer> getAllUsedSchemaRefs(OpenAPI openAPI, Path explorePath) {
         Map<String, Integer> types = new HashMap<>();
         visitOpenAPI(openAPI, explorePath, s -> {
             if (s.get$ref() != null) {
@@ -128,8 +163,61 @@ public class OpenLOpenAPIUtils {
         return types;
     }
 
+    public static Map<String, Set<String>> getAllUsedRefResponses(OpenAPI openAPI) {
+        Map<String, PathItem> paths = openAPI.getPaths();
+        Map<String, Set<String>> allSchemaRefResponses = new HashMap<>();
+        if (paths != null) {
+            for (Map.Entry<String, PathItem> p : paths.entrySet()) {
+                PathItem path = p.getValue();
+                Map<PathItem.HttpMethod, Operation> operationsMap = path.readOperationsMap();
+                if (CollectionUtils.isNotEmpty(operationsMap)) {
+                    Operation satisfyingOperation = OpenLOpenAPIUtils.getOperation(path);
+                    if (satisfyingOperation != null) {
+                        ApiResponses responses = satisfyingOperation.getResponses();
+                        if (responses != null) {
+                            ApiResponse response = OpenLOpenAPIUtils.getResponse(openAPI, responses);
+                            if (response != null && CollectionUtils.isNotEmpty(response.getContent())) {
+                                MediaType mediaType = OpenLOpenAPIUtils.getMediaType(response.getContent());
+                                if (mediaType != null) {
+                                    Schema<?> mediaTypeSchema = mediaType.getSchema();
+                                    if (mediaTypeSchema != null) {
+                                        Set<String> refs = OpenLOpenAPIUtils.visitSchema(openAPI, mediaTypeSchema);
+                                        allSchemaRefResponses.put(p.getKey(), refs);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return allSchemaRefResponses;
+    }
 
-    public static Set<String> visitResponseSchema(OpenAPI openAPI, Schema schema) {
+    public static String getUsedSchemaInRequest(OpenAPI openAPI, PathItem p) {
+        String ref = null;
+        Operation satisfyingOperation = OpenLOpenAPIUtils.getOperation(p);
+        if (satisfyingOperation != null) {
+            RequestBody requestBody = OpenLOpenAPIUtils.getReferencedRequestBody(openAPI,
+                satisfyingOperation.getRequestBody());
+            if (requestBody != null && CollectionUtils.isNotEmpty(requestBody.getContent())) {
+                MediaType mediaType = OpenLOpenAPIUtils.getMediaType(requestBody.getContent());
+                if (mediaType != null) {
+                    Schema<?> mediaTypeSchema = mediaType.getSchema();
+                    if (mediaTypeSchema != null) {
+                        if (mediaTypeSchema.get$ref() != null) {
+                            ref = mediaTypeSchema.get$ref();
+                        } else {
+                            ref = extractType(mediaTypeSchema);
+                        }
+                    }
+                }
+            }
+        }
+        return ref;
+    }
+
+    public static Set<String> visitSchema(OpenAPI openAPI, Schema<?> schema) {
         Set<String> result = new HashSet<>();
         Set<String> visitedSchema = new HashSet<>();
         visitSchema(openAPI, schema, null, visitedSchema, x -> {
@@ -140,9 +228,7 @@ public class OpenLOpenAPIUtils {
         return result;
     }
 
-    private static void visitOpenAPI(OpenAPI openAPI,
-            Path explorePath,
-            OpenAPISchemaExplorer visitor) {
+    private static void visitOpenAPI(OpenAPI openAPI, Path explorePath, OpenAPISchemaExplorer visitor) {
         Map<String, PathItem> paths = openAPI.getPaths();
         Set<String> visitedSchemas = new HashSet<>();
 
@@ -243,14 +329,13 @@ public class OpenLOpenAPIUtils {
                     }
                     visitContent(openAPI, parameter.getContent(), visitor, visitedSchemas);
                 } else {
-                    LOGGER.warn("Unreferenced parameter(s) found.");
+                    logger.warn("Unreferenced parameter(s) found.");
                 }
             }
         }
     }
 
-    private static Parameter getReferencedParameter(OpenAPI openAPI,
-            Parameter parameter) {
+    private static Parameter getReferencedParameter(OpenAPI openAPI, Parameter parameter) {
         if (parameter != null && StringUtils.isNotEmpty(parameter.get$ref())) {
             String name = getSimpleName(parameter.get$ref());
             Parameter referencedParameter = getParameter(openAPI, name);
@@ -272,8 +357,7 @@ public class OpenLOpenAPIUtils {
         return null;
     }
 
-    private static RequestBody getReferencedRequestBody(OpenAPI openAPI,
-            RequestBody requestBody) {
+    public static RequestBody getReferencedRequestBody(OpenAPI openAPI, RequestBody requestBody) {
         if (requestBody != null && StringUtils.isNotEmpty(requestBody.get$ref())) {
             String name = getSimpleName(requestBody.get$ref());
             RequestBody referencedRequestBody = getRequestBody(openAPI, name);
@@ -301,7 +385,7 @@ public class OpenLOpenAPIUtils {
             Set<String> visitedSchemas) {
         if (content != null) {
             for (Map.Entry<String, MediaType> e : content.entrySet()) {
-                Schema mediaTypeSchema = e.getValue().getSchema();
+                Schema<?> mediaTypeSchema = e.getValue().getSchema();
                 if (mediaTypeSchema != null) {
                     visitSchema(openAPI, mediaTypeSchema, e.getKey(), visitedSchemas, visitor, true);
                 }
@@ -309,8 +393,7 @@ public class OpenLOpenAPIUtils {
         }
     }
 
-    public static ApiResponse getReferencedApiResponse(OpenAPI openAPI,
-            ApiResponse apiResponse) {
+    public static ApiResponse getReferencedApiResponse(OpenAPI openAPI, ApiResponse apiResponse) {
         if (apiResponse != null && StringUtils.isNotBlank(apiResponse.get$ref())) {
             String name = getSimpleName(apiResponse.get$ref());
             ApiResponse referencedApiResponse = getApiResponse(openAPI, name);
@@ -377,7 +460,7 @@ public class OpenLOpenAPIUtils {
     }
 
     private static void visitSchema(OpenAPI openAPI,
-            Schema schema,
+            Schema<?> schema,
             String mimeType,
             Set<String> visitedSchemas,
             OpenAPISchemaExplorer visitor,
@@ -387,7 +470,7 @@ public class OpenLOpenAPIUtils {
             String ref = schema.get$ref();
             if (!visitedSchemas.contains(ref)) {
                 visitedSchemas.add(ref);
-                Schema referencedSchema = getSchemas(openAPI).get(getSimpleName(ref));
+                Schema<?> referencedSchema = getSchemas(openAPI).get(getSimpleName(ref));
                 if (referencedSchema != null) {
                     visitSchema(openAPI, referencedSchema, mimeType, visitedSchemas, visitor, visitProperties);
                 }
@@ -396,24 +479,24 @@ public class OpenLOpenAPIUtils {
         if (schema instanceof ComposedSchema) {
             List<Schema> oneOf = ((ComposedSchema) schema).getOneOf();
             if (oneOf != null) {
-                for (Schema s : oneOf) {
+                for (Schema<?> s : oneOf) {
                     visitSchema(openAPI, s, mimeType, visitedSchemas, visitor, visitProperties);
                 }
             }
             List<Schema> allOf = ((ComposedSchema) schema).getAllOf();
             if (allOf != null) {
-                for (Schema s : allOf) {
+                for (Schema<?> s : allOf) {
                     visitSchema(openAPI, s, mimeType, visitedSchemas, visitor, visitProperties);
                 }
             }
             List<Schema> anyOf = ((ComposedSchema) schema).getAnyOf();
             if (anyOf != null) {
-                for (Schema s : anyOf) {
+                for (Schema<?> s : anyOf) {
                     visitSchema(openAPI, s, mimeType, visitedSchemas, visitor, visitProperties);
                 }
             }
         } else if (schema instanceof ArraySchema) {
-            Schema itemsSchema = ((ArraySchema) schema).getItems();
+            Schema<?> itemsSchema = ((ArraySchema) schema).getItems();
             if (itemsSchema != null) {
                 visitSchema(openAPI, itemsSchema, mimeType, visitedSchemas, visitor, visitProperties);
             }
@@ -429,14 +512,14 @@ public class OpenLOpenAPIUtils {
         if (visitProperties) {
             Map<String, Schema> properties = schema.getProperties();
             if (properties != null) {
-                for (Schema property : properties.values()) {
+                for (Schema<?> property : properties.values()) {
                     visitSchema(openAPI, property, mimeType, visitedSchemas, visitor, visitProperties);
                 }
             }
         }
     }
 
-    private static boolean isMapSchema(Schema schema) {
+    private static boolean isMapSchema(Schema<?> schema) {
         if (schema instanceof MapSchema) {
             return true;
         }
@@ -449,11 +532,7 @@ public class OpenLOpenAPIUtils {
             return true;
         }
 
-        if (schema.getAdditionalProperties() instanceof Boolean && (Boolean) schema.getAdditionalProperties()) {
-            return true;
-        }
-
-        return false;
+        return schema.getAdditionalProperties() instanceof Boolean && (Boolean) schema.getAdditionalProperties();
     }
 
     public static Map<String, Schema> getSchemas(OpenAPI openAPI) {
@@ -478,11 +557,8 @@ public class OpenLOpenAPIUtils {
                 entry -> entry.getValue().stream().map(e -> e.getKey()).collect(Collectors.toList())));
     }
 
-    private static boolean isComposedSchema(Schema schema) {
-        if (schema instanceof ComposedSchema) {
-            return true;
-        }
-        return false;
+    private static boolean isComposedSchema(Schema<?> schema) {
+        return schema instanceof ComposedSchema;
     }
 
     public static String getParentName(ComposedSchema composedSchema, Map<String, Schema> allSchemas) {
@@ -492,13 +568,13 @@ public class OpenLOpenAPIUtils {
         List<String> refedWithoutDiscriminator = new ArrayList<>();
 
         if (interfaces != null && !interfaces.isEmpty()) {
-            for (Schema schema : interfaces) {
+            for (Schema<?> schema : interfaces) {
                 // get the actual schema
                 if (StringUtils.isNotEmpty(schema.get$ref())) {
                     String parentName = getSimpleName(schema.get$ref());
-                    Schema s = allSchemas.get(parentName);
+                    Schema<?> s = allSchemas.get(parentName);
                     if (s == null) {
-                        LOGGER.error("Failed to obtain schema from {}", parentName);
+                        logger.error("Failed to obtain schema from {}", parentName);
                         return "UNKNOWN_PARENT_NAME";
                     } else if (hasOrInheritsDiscriminator(s, allSchemas)) {
                         // discriminator.propertyName is used
@@ -529,7 +605,7 @@ public class OpenLOpenAPIUtils {
         // parent name only makes sense when there is a single obvious parent
         if (refedWithoutDiscriminator.size() == 1) {
             if (hasAmbiguousParents) {
-                LOGGER.warn(
+                logger.warn(
                     "[deprecated] inheritance without use of 'discriminator.propertyName' is deprecated " + "and will be removed in a future release. Generating model for composed schema name: {}. Title: {}",
                     composedSchema.getName(),
                     composedSchema.getTitle());
@@ -552,21 +628,21 @@ public class OpenLOpenAPIUtils {
         }
     }
 
-    private static boolean hasOrInheritsDiscriminator(Schema schema, Map<String, Schema> allSchemas) {
+    private static boolean hasOrInheritsDiscriminator(Schema<?> schema, Map<String, Schema> allSchemas) {
         if (schema.getDiscriminator() != null && StringUtils.isNotEmpty(schema.getDiscriminator().getPropertyName())) {
             return true;
         } else if (StringUtils.isNotEmpty(schema.get$ref())) {
             String parentName = getSimpleName(schema.get$ref());
-            Schema s = allSchemas.get(parentName);
+            Schema<?> s = allSchemas.get(parentName);
             if (s != null) {
                 return hasOrInheritsDiscriminator(s, allSchemas);
             } else {
-                LOGGER.error("Failed to obtain schema from {}", parentName);
+                logger.error("Failed to obtain schema from {}", parentName);
             }
         } else if (schema instanceof ComposedSchema) {
             final ComposedSchema composed = (ComposedSchema) schema;
             final List<Schema> interfaces = getInterfaces(composed);
-            for (Schema i : interfaces) {
+            for (Schema<?> i : interfaces) {
                 if (hasOrInheritsDiscriminator(i, allSchemas)) {
                     return true;
                 }
@@ -575,10 +651,63 @@ public class OpenLOpenAPIUtils {
         return false;
     }
 
-    private static boolean isNullType(Schema schema) {
-        if ("null".equals(schema.getType())) {
-            return true;
+    private static boolean isNullType(Schema<?> schema) {
+        return "null".equals(schema.getType());
+    }
+
+    public static String extractType(Schema inputSchema) {
+        String result;
+        boolean isArray = false;
+        if (inputSchema instanceof ArraySchema) {
+            isArray = true;
+            result = extractArrayType((ArraySchema) inputSchema);
+        } else {
+            if (inputSchema.getType() != null) {
+                result = inputSchema.getType();
+            } else {
+                result = getSimpleName(inputSchema.get$ref());
+            }
+
         }
-        return false;
+        String format = inputSchema.getFormat();
+        if (format != null) {
+            switch (format) {
+                case "int32":
+                    result = "Integer";
+                    break;
+                case "int64":
+                    result = "Long";
+                    break;
+                case "float":
+                    result = "Float";
+                    break;
+                case "double":
+                    result = "Double";
+                    break;
+                case "date":
+                case "date-time":
+                    result = "Date";
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        result = StringUtils.capitalize(result);
+        if (isArray) {
+            result += "[]";
+        }
+        return result;
+    }
+
+    private static String extractArrayType(ArraySchema inputSchema) {
+        String result;
+        Schema<?> items = inputSchema.getItems();
+        if (items.getType() != null) {
+            result = items.getType();
+        } else {
+            result = getSimpleName(items.get$ref());
+        }
+        return result;
     }
 }
