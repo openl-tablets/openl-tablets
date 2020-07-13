@@ -17,7 +17,6 @@
         <url>https://openl-tablets.org</url>
     </organization>
     <properties>
-        <war.name>openl-tablets-webstudio-${project.version}</war.name>
         <generate-application.properties>process-resources</generate-application.properties>
         <sonar.sources>src,webapp</sonar.sources>
     </properties>
@@ -96,6 +95,33 @@
                         <ignoredClassPattern>META-INF\.versions\.\d+\.module-info</ignoredClassPattern>
                     </ignoredClassPatterns>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>websphere-fix-by-removing-beans-xml-file</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <jar destfile="${project.build.directory}/${project.build.finalName}/WEB-INF/lib/swagger-jaxrs2-${io.swagger.core.v3.version}-repacked.jar">
+                                    <zipfileset
+                                            src="${project.build.directory}/${project.build.finalName}/WEB-INF/lib/swagger-jaxrs2-${io.swagger.core.v3.version}.jar"
+                                            excludes="META-INF/beans.xml"/>
+                                </jar>
+                                <delete failonerror="true" verbose="true"
+                                        file="${project.build.directory}/${project.build.finalName}/WEB-INF/lib/swagger-jaxrs2-${io.swagger.core.v3.version}.jar"/>
+                                <delete failonerror="true" verbose="true"
+                                        file="${project.build.directory}/${project.build.finalName}.war"/>
+                                <jar destfile="${project.build.directory}/${project.build.finalName}.war"
+                                     basedir="${project.build.directory}/${project.build.finalName}"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -315,7 +341,6 @@
             <scope>runtime</scope>
         </dependency>
     </dependencies>
-
     <profiles>
         <profile>
             <id>java11</id>
