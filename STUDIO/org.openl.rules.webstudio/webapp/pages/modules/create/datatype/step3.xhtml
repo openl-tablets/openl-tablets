@@ -8,7 +8,7 @@
         <a4j:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}"
             immediate="true" oncomplete="go('datatype/step2.xhtml')" />
         <a4j:commandButton value="Save" action="#{wizard.finish}" data="#{wizard.newTableId}"
-            oncomplete="if(event.data) ws.nav.go('#{studio.url('table')}?id=' + event.data, true)" />
+            oncomplete="if(event.data) ws.nav.go('#{studio.url('table', wizard.newTableURI)}?id=' + event.data, true)" />
         <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
             oncomplete="go('step0.xhtml')" />
     </ui:define>

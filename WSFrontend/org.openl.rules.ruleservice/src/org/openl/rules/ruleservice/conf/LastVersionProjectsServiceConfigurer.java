@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.conf;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,6 +10,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
@@ -205,6 +208,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                         } catch (ProjectException ignored) {
                         }
 
+                        serviceDescriptionBuilder.setManifest(readManifestFile(project));
                         serviceDescriptionBuilder.setName(buildServiceName(deployment, projectName, rulesDeploy));
                         serviceDescriptionBuilder.setUrl(buildServiceUrl(deployment, projectName, rulesDeploy));
                         serviceDescriptionBuilder.setServicePath(project.getFolderPath());
@@ -238,6 +242,19 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         }
 
         return serviceDescriptions;
+    }
+
+    private Manifest readManifestFile(AProject project) {
+        try {
+            AProjectArtefact artifact = project.getArtefact(JarFile.MANIFEST_NAME);
+            if (artifact instanceof AProjectResource) {
+                try (InputStream content = ((AProjectResource) artifact).getContent()) {
+                    return new Manifest(content);
+                }
+            }
+        } catch (IOException | ProjectException ignored) {
+        }
+        return null;
     }
 
     private Set<String> getSupportedGroupsSet() {

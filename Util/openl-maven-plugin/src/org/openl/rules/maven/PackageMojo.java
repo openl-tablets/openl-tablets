@@ -1,8 +1,12 @@
 package org.openl.rules.maven;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,6 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
@@ -21,6 +28,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProjectHelper;
+import org.openl.info.OpenLVersion;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.ProjectPackager;
@@ -103,6 +111,26 @@ public final class PackageMojo extends BaseOpenLMojo {
     @Parameter(defaultValue = "${project.build.finalName}")
     private String deploymentName;
 
+    /**
+     * Parameter that adds default manifest entries into MANIFEST.MF file.
+     *
+     * @since 5.23.4
+     */
+    @Parameter(defaultValue = "true")
+    private boolean addDefaultManifest;
+
+    /**
+     * Set of key/values to be included to MANIFEST.MF. This parameter overrides default values added by
+     * {@linkplain #addDefaultManifest} parameter.
+     * 
+     * @since 5.23.4
+     */
+    @Parameter
+    private Map<String, String> manifestEntries;
+
+    @Parameter(defaultValue = "${user.name}", readonly = true, required = true)
+    private String userName;
+
     @Override
     void execute(String sourcePath, boolean hasDependencies) throws Exception {
 
@@ -149,6 +177,12 @@ public final class PackageMojo extends BaseOpenLMojo {
             File outputFile = getOutputFile(outputDirectory, finalName, classifier, type);
 
             try (ZipArchiver arch = new ZipArchiver(outputFile.toPath())) {
+                if (addDefaultManifest || manifestEntries != null) {
+                    Manifest manifest = createManifest();
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    manifest.write(baos);
+                    arch.addFile(new ByteArrayInputStream(baos.toByteArray()), JarFile.MANIFEST_NAME);
+                }
 
                 ProjectPackager.addOpenLProject(openLSourceDir, arch);
 
@@ -318,5 +352,33 @@ public final class PackageMojo extends BaseOpenLMojo {
             options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
             new Yaml(options).dump(properties, writer);
         }
+    }
+
+    private Manifest createManifest() {
+        Manifest manifest = new Manifest();
+        Attributes attributes = manifest.getMainAttributes();
+        attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        if (addDefaultManifest) {
+            // initialize with default values
+            attributes.putValue("Build-Date", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+            attributes.putValue("Built-By", userName);
+            attributes.put(Attributes.Name.IMPLEMENTATION_TITLE,
+                    String.format("%s:%s", project.getGroupId(), project.getArtifactId()));
+            attributes.put(Attributes.Name.IMPLEMENTATION_VERSION, project.getVersion());
+            if (project.getOrganization() != null) {
+                attributes.put(Attributes.Name.IMPLEMENTATION_VENDOR, project.getOrganization().getName());
+            }
+            attributes.putValue("Created-By", "OpenL Maven Plugin v" + OpenLVersion.getVersion());
+        }
+
+        if (manifestEntries != null) {
+            for (Map.Entry<String, String> entry : manifestEntries.entrySet()) {
+                String key = entry.getKey();
+                // if value is empty, create an entry with empty string to prevent nulls in file
+                String value = StringUtils.trimToEmpty(entry.getValue());
+                attributes.putValue(key, value);
+            }
+        }
+        return manifest;
     }
 }

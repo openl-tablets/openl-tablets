@@ -33,9 +33,6 @@
                 The module can't be edited. Multimodule definition at the project page should be edited instead.
             </span>
 
-            <!--Workaround for a bug in jsf with displaying validation messages in incorrect place -->
-            <a4j:outputPanel ajaxRendered="true"/>
-
             <table class="properties properties-form wide">
                 <tr>
                     <td>Name:</td>
@@ -72,6 +69,7 @@
 
             <footer>
                 <a4j:commandButton id="editModuleBtn" value="Save" action="#{projectBean.editModule}"
+                    render="@form"
                     styleClass="button-primary"
                     oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editModulePopup');editModuleDone();}" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('editModulePopup');" />

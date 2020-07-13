@@ -89,50 +89,23 @@ public abstract class AEngineFactory {
                 // Try to find appropriate method candidate in openClass's
                 // fields.
                 //
-                if (interfaceMethodName.startsWith("get")) {
-                    // Build field name to find.
-                    //
-                    String fieldName = ClassUtils.toFieldName(interfaceMethodName);
-                    // Try to find appropriate field.
-                    //
-                    IOpenField rulesField = moduleOpenClass.getField(fieldName, true);
-
-                    if (rulesField == null) {
-                        fieldName = ClassUtils.capitalize(fieldName);
-                        rulesField = moduleOpenClass.getField(fieldName, true);
-                    }
-
-                    if (rulesField != null) {
-                        // Cast method return type to appropriate OpenClass
-                        // type.
-                        //
-                        IOpenClass methodReturnType = moduleOpenClass.getField(fieldName).getType();
-
-                        if (methodReturnType.isAssignableFrom(rulesField.getType())) {
-                            // If openClass's field type is equal to method
-                            // return
-                            // type then add new entry to methods map.
-                            //
-                            methodMap.put(interfaceMethod, rulesField);
-                            // Jump to the next interface method.
-                            //
-                            continue;
-                        } else {
-                            // If openClass does not have appropriate field
-                            // (field's type does not
-                            // equal to method return type) then throw runtime
-                            // exception.
-                            //
+                IOpenField ruleField = OpenClassHelper.findRulesField(moduleOpenClass, interfaceMethod);
+                if (ruleField != null) {
+                    methodMap.put(interfaceMethod, ruleField);
+                    continue;
+                } else {
+                    if (interfaceMethod.getParameterCount() == 0) {
+                        IOpenField openField = OpenClassHelper.findRulesField(moduleOpenClass,
+                            interfaceMethod.getName());
+                        if (openField != null) {
                             String message = String.format(INCORRECT_RET_TYPE_MSG,
-                                rulesField.getType(),
+                                openField.getType(),
                                 interfaceMethodName,
-                                methodReturnType.getName());
-
+                                interfaceMethod.getName());
                             throw new RuntimeException(message);
                         }
                     }
                 }
-
                 // If openClass does not have appropriate method or field then
                 // throw runtime exception.
                 //

@@ -67,7 +67,7 @@ public class RunITest {
 
     @Test
     public void testDefaultDateFormatConfiguration() {
-        client.get("/rules-defaultdateformat/getDate", "/default_dat_format.txt");
+        client.get("/rules-defaultdateformat/getDate", "/default_date_format.txt");
         client.post("/rules-defaultdateformat/spr", "/spr-dateFormat.req.json", "/spr-dateFormat.resp.json");
     }
 

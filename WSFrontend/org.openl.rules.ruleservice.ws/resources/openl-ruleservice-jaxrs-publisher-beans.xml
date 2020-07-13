@@ -168,12 +168,12 @@
     <bean id="openApiInitializationBean"
           class="org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiInitializationBean"/>
 
-    <!-- Initializes OpenL Engine instances according to web services configuration description and calls RuleServicePublisher 
+    <!-- Initializes OpenL Engine instances according to Rule Services configuration description and calls RuleServicePublisher
         to expose corresponding web service -->
     <!-- Exposes web services. -->
     <bean id="jaxrsServiceEnhancer" class="org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer"
           scope="prototype">
-        <property name="resolveMethodParameterNamesEnabled"
+        <property name="resolveMethodParameterNames"
                   ref="jaxrsServiceConfigurationResolveMethodParameterNamesFactoryBean"/>
     </bean>
 

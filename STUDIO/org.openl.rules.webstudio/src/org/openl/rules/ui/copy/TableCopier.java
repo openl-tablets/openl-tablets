@@ -185,7 +185,7 @@ public class TableCopier extends TableCreationWizard {
         ProjectModel model = studio.getModel();
         XlsSheetSourceCodeModule sheetSourceModule = getDestinationSheet();
         String newTableUri = buildTable(sheetSourceModule, model);
-        setNewTableId(newTableUri);
+        setNewTableURI(newTableUri);
         getModifiedWorkbooks().add(sheetSourceModule.getWorkbookSource());
     }
 

@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.ITable;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.wrapper.base.WrapperValidation;
 import org.openl.rules.ruleservice.publish.lazy.LazyMember;
 import org.openl.types.IMemberMetaInfo;
@@ -119,5 +120,10 @@ public final class DataOpenFieldLazyWrapper extends DataOpenField {
     @Override
     public String getContextProperty() {
         return delegate.getContextProperty();
+    }
+
+    @Override
+    public XlsNodeTypes getNodeType() {
+        return delegate.getNodeType();
     }
 }

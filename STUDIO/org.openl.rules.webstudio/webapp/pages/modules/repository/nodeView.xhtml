@@ -92,7 +92,7 @@
                                              value="Open Revision"
                                              type="button" onclick="openOpenVersionDialog()"
                                              title="#{openVersionMessage}"/>
-                            <!-- We don't need forms validation when we are closing the project. So use immediate="true" to bypass validation -->
+                            <ui:remove><!-- We don't need forms validation when we are closing the project. So use immediate="true" to bypass validation --></ui:remove>
                             <h:commandButton id="closeId1" rendered="#{repositoryTreeState.canClose}" value="Close"
                                              action="#{repositoryTreeController.closeProject}" title="#{closeMessage}"
                                              immediate="true"

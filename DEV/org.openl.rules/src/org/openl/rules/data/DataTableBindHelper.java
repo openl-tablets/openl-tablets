@@ -1,8 +1,10 @@
 package org.openl.rules.data;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -179,7 +181,6 @@ public class DataTableBindHelper {
                 }
             }
         }
-
         return false;
     }
 
@@ -195,6 +196,7 @@ public class DataTableBindHelper {
 
         int count = 0;
         int width = dataTable.getWidth();
+        Set<String> uniqueFieldNames = new HashSet<>();
 
         for (int i = 0; i < width; ++i) {
 
@@ -207,6 +209,33 @@ public class DataTableBindHelper {
             // Remove extra spaces.
             //
             fieldName = StringUtils.trim(fieldName);
+            if (!uniqueFieldNames.add(fieldName)) {
+                continue; // don't count duplicates
+            }
+            // if it's field chain started with array index
+            IOpenClass openClass = tableType;
+            while (openClass.isArray() && fieldName.charAt(0) == '[') {
+                boolean arrayIndex = false;
+                int endIndex = fieldName.indexOf(']');
+                for (int j = 1; j < endIndex; j++) {
+                    char ch = fieldName.charAt(j);
+                    arrayIndex = Character.isDigit(ch);
+                    if (!arrayIndex) {
+                        break; // stop parsing if index isn't numeric
+                    }
+                }
+                if (!arrayIndex) {
+                    break;
+                }
+                openClass = openClass.getComponentClass();
+                if (!openClass.isArray()) {
+                    endIndex++;
+                    if (fieldName.length() <= endIndex || fieldName.charAt(endIndex) != '.') {
+                        endIndex--;
+                    }
+                }
+                fieldName = fieldName.substring(endIndex + 1);
+            }
 
             // if it is field chain get first token
             int dotIndex = fieldName.indexOf('.');
@@ -219,7 +248,7 @@ public class DataTableBindHelper {
                 fieldName = fieldName.substring(0, brIndex);
             }
 
-            IOpenField field = findField(fieldName, null, tableType);
+            IOpenField field = findField(fieldName, null, openClass);
 
             if (field != null && !field.isConst() && field.isWritable()) {
                 count++;
@@ -475,10 +504,12 @@ public class DataTableBindHelper {
         int width = descriptorRows.getWidth();
         ColumnDescriptor[] columnDescriptors = new ColumnDescriptor[width];
 
-        List<IdentifierNode[]> columnIdentifiers = getColumnIdentifiers(bindingContext, table, descriptorRows);
-
-        for (int columnNum = 0; columnNum < columnIdentifiers.size(); columnNum++) {
-            IdentifierNode[] fieldAccessorChainTokens = columnIdentifiers.get(columnNum);
+        LinkedHashSet<IdentifierNodesBucket> columnIdentifiers = getColumnIdentifiers(bindingContext,
+            table,
+            descriptorRows);
+        int columnNum = 0;
+        for (IdentifierNodesBucket node : columnIdentifiers) {
+            IdentifierNode[] fieldAccessorChainTokens = node.getNode();
             if (fieldAccessorChainTokens != null) {
 
                 IOpenField descriptorField = null;
@@ -534,18 +565,17 @@ public class DataTableBindHelper {
 
                 columnDescriptors[columnNum] = currentColumnDescriptor;
             }
+            columnNum++;
         }
 
         boolean hasSupportMultirowsAfter = false;
 
-        for (int columnNum = columnIdentifiers.size() - 1; columnNum >= 0; columnNum--) {
+        for (columnNum = columnIdentifiers.size() - 1; columnNum >= 0; columnNum--) {
             if (columnDescriptors[columnNum] != null) {
                 if (hasSupportMultirowsAfter) {
                     columnDescriptors[columnNum].setSupportMultirows(true);
-                } else {
-                    if (columnDescriptors[columnNum].isSupportMultirows()) {
-                        hasSupportMultirowsAfter = true;
-                    }
+                } else if (columnDescriptors[columnNum].isSupportMultirows()) {
+                    hasSupportMultirowsAfter = true;
                 }
             }
         }
@@ -559,13 +589,12 @@ public class DataTableBindHelper {
      *            <code>null</code>.
      * @param table is needed only for error processing. Can be <code>null</code>.
      */
-    public static List<IdentifierNode[]> getColumnIdentifiers(IBindingContext bindingContext,
+    public static LinkedHashSet<IdentifierNodesBucket> getColumnIdentifiers(IBindingContext bindingContext,
             ITable table,
             ILogicalTable descriptorRows) {
         int width = descriptorRows.getWidth();
-        List<IdentifierNode[]> identifiers = new ArrayList<>();
+        LinkedHashSet<IdentifierNodesBucket> identifiers = new LinkedHashSet<>();
         for (int columnNum = 0; columnNum < width; columnNum++) {
-
             GridCellSourceCodeModule cellSourceModule = getCellSourceModule(descriptorRows, columnNum);
             cellSourceModule.update(bindingContext);
 
@@ -583,16 +612,20 @@ public class DataTableBindHelper {
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
                     processError(bindingContext, table, error);
                 }
-
-                if (contains(identifiers, fieldAccessorChainTokens)) {
+                if (identifiers.contains(new IdentifierNodesBucket(fieldAccessorChainTokens))) {
                     String message = String.format("Found duplicate of field '%s'", code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
                     processError(bindingContext, table, error);
                 } else {
-                    identifiers.add(fieldAccessorChainTokens);
+                    boolean added = identifiers.add(new IdentifierNodesBucket(fieldAccessorChainTokens));
+                    if (!added) {
+                        String message = String.format("Found duplicate of field '%s'", code);
+                        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
+                        processError(bindingContext, table, error);
+                    }
                 }
             } else {
-                identifiers.add(null);
+                identifiers.add(new IdentifierNodesBucket(null));
             }
         }
         return identifiers;
@@ -1163,51 +1196,11 @@ public class DataTableBindHelper {
         }
     }
 
-    private static boolean contains(List<IdentifierNode[]> identifiers, IdentifierNode[] identifier) {
-        for (IdentifierNode[] existIdentifier : identifiers) {
-            if (isEqualsIdentifier(existIdentifier, identifier)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static boolean isEqualsIdentifier(IdentifierNode[] identifier1, IdentifierNode[] identifier2) {
-
-        if (identifier1 == null || identifier2 == null) {
-            return false;
-        }
-
-        int length1 = identifier1.length;
-        int length2 = identifier2.length;
-
-        // if the last identifier is precision then decrease the length
-        if (isPrecisionNode(identifier1[length1 - 1])) {
-            length1--;
-        }
-        if (isPrecisionNode(identifier2[length2 - 1])) {
-            length2--;
-        }
-
-        if (length1 != length2) {
-            return false;
-        }
-
-        for (int i = 0; i < length1; i++) {
-            if (!identifier1[i].getIdentifier().equals(identifier2[i].getIdentifier())) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static boolean isPrecisionNode(IdentifierNode node) {
+    static boolean isPrecisionNode(IdentifierNode node) {
         return StringUtils.matches(PRECISION_PATTERN, node.getIdentifier());
     }
 
-    private static final NewInstanceBuilder STUB_SPR_NEW_INSTANCE_BUILDER = new StubSpreadsheetResultNewInstanceBuilder();
+    static final NewInstanceBuilder STUB_SPR_NEW_INSTANCE_BUILDER = new StubSpreadsheetResultNewInstanceBuilder();
 
     private static final class StubSpreadsheetResultNewInstanceBuilder implements NewInstanceBuilder {
         @Override

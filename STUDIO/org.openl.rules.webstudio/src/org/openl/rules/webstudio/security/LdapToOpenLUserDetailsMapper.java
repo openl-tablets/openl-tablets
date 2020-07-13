@@ -10,8 +10,6 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.PartialResultException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -32,14 +30,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.ldap.LdapUtils;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 
 public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     private final Logger log = LoggerFactory.getLogger(LdapToOpenLUserDetailsMapper.class);
     private final UserDetailsContextMapper delegate;
 
-    private final String primaryGroupFilter;
     private final String groupFilter;
 
     // Fields below are needed to make additional requests to AD:
@@ -54,12 +50,12 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
         this.domain = StringUtils.isNotBlank(domainProperty) ? domainProperty.toLowerCase() : null;
         this.url = propertyResolver.getProperty("security.ad.server-url");
         this.searchFilter = propertyResolver.getProperty("security.ad.search-filter");
-        this.primaryGroupFilter = propertyResolver.getProperty("security.ad.primary-group-filter");
         this.groupFilter = propertyResolver.getProperty("security.ad.group-filter");
 
         rootDn = this.domain == null ? null : rootDnFromDomain(this.domain);
     }
 
+    
     @Override
     public UserDetails mapUserFromContext(DirContextOperations ctx,
             String username,
@@ -130,27 +126,16 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
             // "userData"
             // contains objectSid attribute with String type and is broken.
             NamingEnumeration<SearchResult> userSearch = context
-                .search(searchBaseDn, searchFilter, new Object[] { bindPrincipal }, searchControls);
+                .search(searchBaseDn, searchFilter, new Object[] { bindPrincipal, username }, searchControls);
             if (!userSearch.hasMoreElements()) {
                 log.warn("Cannot find account '" + username + "'. Skip nested groups and primary group search.");
                 return null;
             }
-            String primaryGroupSid = getPrimaryGroupSid(userSearch.next().getAttributes());
-            LdapUtils.closeEnumeration(userSearch);
+            userSearch.close();
 
             // Find all groups
-            NamingEnumeration<SearchResult> groupsSearch;
-            if (primaryGroupSid != null) {
-                // Find nested groups + primary group
-                groupsSearch = context.search(searchBaseDn,
-                    primaryGroupFilter,
-                    new Object[] { userData.getDn(), primaryGroupSid },
-                    searchControls);
-            } else {
-                // Find nested groups without primary group
-                groupsSearch = context
-                    .search(searchBaseDn, groupFilter, new Object[] { userData.getDn() }, searchControls);
-            }
+            NamingEnumeration<SearchResult> groupsSearch = context
+                    .search(searchBaseDn, groupFilter, new Object[] { bindPrincipal, username, userData.getDn() }, searchControls);
 
             // Fill authorities using search result
             ArrayList<GrantedAuthority> authorities = new ArrayList<>();
@@ -166,7 +151,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
                     authorities.add(new SimpleGrantedAuthority(dn.removeLast().getValue()));
                 }
             } catch (PartialResultException e) {
-                LdapUtils.closeEnumeration(groupsSearch);
+                groupsSearch.close();
                 log.info("Ignoring PartialResultException with message: " + e.getMessage());
             }
 
@@ -185,8 +170,6 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
         env.put(Context.SECURITY_CREDENTIALS, password);
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(Context.OBJECT_FACTORIES, DefaultDirObjectFactory.class.getName());
-        // Needed to get objectSid as binary array and then find primary group
-        env.put("java.naming.ldap.attributes.binary", "objectSid");
         // To handle "Unprocessed Continuation Reference(s)" errors
         env.put(Context.REFERRAL, "follow");
 
@@ -202,7 +185,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
             throw new ConfigurationException(message);
         }
 
-        return rootDnFromDomain(bindPrincipal.substring(atChar + 1, bindPrincipal.length()));
+        return rootDnFromDomain(bindPrincipal.substring(atChar + 1));
     }
 
     private String rootDnFromDomain(String domain) {
@@ -225,74 +208,5 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
         }
 
         return username + "@" + domain;
-    }
-
-    /**
-     * Get SID of a primary group based on primaryGroupId and objectSid of current user.
-     *
-     * @see <a href=
-     *      "https://support.microsoft.com/en-us/help/297951/how-to-use-the-primarygroupid-attribute-to-find-the-primary-group-for">How
-     *      to use the PrimaryGroupID attribute to find the primary group for a user</a>
-     */
-    private String getPrimaryGroupSid(Attributes attributes) throws NamingException {
-        Attribute attrPrimaryGroupId = attributes.get("primaryGroupId");
-        Attribute attrObjectSid = attributes.get("objectSid");
-
-        if (attrPrimaryGroupId != null && attrObjectSid != null) {
-            String primaryGroupId = attrPrimaryGroupId.get().toString();
-            String objectSid = decodeSid((byte[]) attrObjectSid.get());
-
-            return objectSid.substring(0, objectSid.lastIndexOf('-') + 1) + primaryGroupId;
-        }
-
-        return null;
-    }
-
-    /**
-     * The binary data is in the form: byte[0] - revision level byte[1] - count of sub-authorities byte[2-7] - 48 bit
-     * identifier authority (big-endian) and then count x 32 bit sub authorities (little-endian)
-     * <p>
-     * The String value is: S-Revision-Authority-SubAuthority[n]...
-     * <p>
-     *
-     * @see <a href="https://technet.microsoft.com/en-us/library/cc962011.aspx">Security Identifier Structure</a>
-     * @see <a href="https://blogs.msdn.microsoft.com/oldnewthing/20040315-00/?p=40253">How do I convert a SID between
-     *      binary and string forms?</a>
-     */
-    private static String decodeSid(byte[] sid) {
-        final StringBuilder strSid = new StringBuilder("S-");
-
-        // Revision
-        strSid.append(Integer.toString(sid[0]));
-
-        // The count of sub-authorities
-        final int subAuthoritiesCount = sid[1] & 0xFF;
-
-        // 6 bytes of identifier authority (big-endian)
-        long authority = 0;
-        final int firstByteIndex = 2;
-        final int lastByteIndex = 7;
-        for (int i = firstByteIndex; i <= lastByteIndex; i++) {
-            authority |= (long) sid[i] << 8 * (lastByteIndex - i);
-        }
-        strSid.append("-");
-        strSid.append(authority);
-
-        // Sub authorities (little-endian)
-        int offset = 8;
-        final int authSize = 4; // 4 bytes for each sub auth
-        for (int j = 0; j < subAuthoritiesCount; j++) {
-            long subAuthority = 0;
-            for (int k = 0; k < authSize; k++) {
-                subAuthority |= (long) (sid[offset + k] & 0xFF) << 8 * k;
-            }
-
-            strSid.append("-");
-            strSid.append(subAuthority);
-
-            offset += authSize;
-        }
-
-        return strSid.toString();
     }
 }

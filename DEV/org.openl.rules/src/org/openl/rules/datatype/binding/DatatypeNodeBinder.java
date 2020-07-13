@@ -145,6 +145,10 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
             DatatypeOpenClass tableType = new DatatypeOpenClass(typeName, packageName);
 
+            if (!bindingContext.isExecutionMode()) {
+                tableType.setTableSyntaxNode(tsn);
+            }
+
             // set meta info with uri to the DatatypeOpenClass for indicating the source of the datatype table
             //
             tableType.setMetaInfo(new DatatypeMetaInfo(tableSource.getCode(), tsn.getUri()));

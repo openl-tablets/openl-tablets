@@ -101,6 +101,9 @@ function fixTabIndexesInRichPopupPanels() {
  * to remove that unnecessary line breaks.
  */
 function initPopupPanels() {
+    if (!$j) {
+        return;
+    }
     $j('.rf-pp-cntr').parent().addClass('popup-panel');
 }
 
@@ -180,4 +183,67 @@ function resizePopupPanel(panelName) {
     const panel = RichFaces.$(panelName);
     panel.hide();
     panel.show();
+}
+
+/**
+ * To fix EPBDS-9950: if clear uploaded file in the pop-up, it can't be uploaded again.
+ */
+function fixFileUpload() {
+    if (!RichFaces.ui.FileUpload) {
+        return;
+    }
+
+    const delegate = RichFaces.ui.FileUpload.prototype.__addFiles;
+    RichFaces.ui.FileUpload.prototype.__addFiles = function(files) {
+        delegate.call(this, files);
+
+        // EPBDS-9950
+        this.input.val("")
+    };
+}
+
+/**
+ * Dynamically change PopupPanel size if it's content changes.
+ */
+function makePopupPanelsReallyResizable() {
+    if (!RichFaces.ui.PopupPanel) {
+        return;
+    }
+
+    const showDelegate = RichFaces.ui.PopupPanel.prototype.show;
+    RichFaces.ui.PopupPanel.prototype.show = function (event, opts) {
+        showDelegate.call(this, event, opts);
+        const self = this;
+        // ResizeObserver isn't supported by IE 11, so we use MutationObserver instead.
+        const observer = new MutationObserver(function () {
+            self.doResizeOrMove(RichFaces.ui.PopupPanel.Sizer.Diff.EMPTY);
+        });
+        observer.observe(this.contentDiv.get(0), {
+            attributes: true,
+            childList: true,
+            subtree: true
+        });
+        this['__observer'] = observer;
+    };
+
+    const hideDelegate = RichFaces.ui.PopupPanel.prototype.hide;
+    RichFaces.ui.PopupPanel.prototype.hide = function (event, opts) {
+        hideDelegate.call(this, event, opts);
+        const observer = this['__observer'];
+        observer && observer.disconnect();
+    };
+}
+
+/**
+ * Fix all RichFaces issues.
+ */
+function fixRichFaces() {
+    if (!RichFaces) {
+        return;
+    }
+
+    fixTabIndexesInRichPopupPanels();
+    fixFileUpload();
+    initPopupPanels();
+    makePopupPanelsReallyResizable();
 }

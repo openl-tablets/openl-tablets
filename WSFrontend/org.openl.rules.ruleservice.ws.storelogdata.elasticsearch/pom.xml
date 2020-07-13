@@ -8,7 +8,7 @@
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws.storelogdata.elasticsearch</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - RuleService - Web Services - Store Log Data ElasticSearch</name>
+    <name>OpenL - RuleService - Rule Services - Store Log Data ElasticSearch</name>
     <description>OpenL Rules Webservice Store Log Data ElasticSearch</description>
     <url>https://openl-tablets.org</url>
     <build>

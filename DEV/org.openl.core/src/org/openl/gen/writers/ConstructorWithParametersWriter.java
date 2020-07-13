@@ -11,8 +11,8 @@ import org.openl.gen.TypeDescription;
 
 public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
 
-    private Map<String, FieldDescription> parentFields;
-    private Map<String, FieldDescription> allFields;
+    private final Map<String, FieldDescription> parentFields;
+    private final Map<String, FieldDescription> allFields;
 
     /**
      *

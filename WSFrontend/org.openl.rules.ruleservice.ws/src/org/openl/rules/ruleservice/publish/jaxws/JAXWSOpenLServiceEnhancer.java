@@ -122,7 +122,10 @@ public final class JAXWSOpenLServiceEnhancer {
                     // for
                     // generated
                     // interfaces
-                    String[] parameterNames = MethodUtils.getParameterNames(originalMethod, service);
+                    String[] parameterNames = MethodUtils.getParameterNames(service.getOpenClass(),
+                        originalMethod,
+                        service.isProvideRuntimeContext(),
+                        service.isProvideVariations());
                     int i = 0;
                     for (String paramName : parameterNames) {
                         Annotation[] annotations = originalMethod.getParameterAnnotations()[i];

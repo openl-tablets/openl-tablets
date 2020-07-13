@@ -22,7 +22,7 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
     /**
      * Instantiation strategy delegate.
      */
-    private RulesInstantiationStrategy instantiationStrategy;
+    private final RulesInstantiationStrategy instantiationStrategy;
 
     /**
      * Internal generated class at runtime which used as service class.
@@ -130,7 +130,6 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
 
     @Override
     public ClassLoader getClassLoader() throws RulesInstantiationException {
-
         return getOriginalInstantiationStrategy().getInstanceClass().getClassLoader();
     }
 

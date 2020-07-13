@@ -17,5 +17,9 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.project</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.common</artifactId>
+        </dependency>
     </dependencies>
 </project>

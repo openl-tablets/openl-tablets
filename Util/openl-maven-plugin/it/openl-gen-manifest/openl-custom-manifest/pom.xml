@@ -1,0 +1,43 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openl.internal</groupId>
+        <artifactId>openl-gen-manifest</artifactId>
+        <version>0.0.0</version>
+    </parent>
+
+    <artifactId>openl-custom-manifest</artifactId>
+    <packaging>openl</packaging>
+    <name>OpenL Plugin: Custom Manifest</name>
+
+    <properties>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+    </properties>
+
+    <organization>
+        <url>example.com</url>
+    </organization>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <manifestEntries>
+                        <Build-Number>1e1eb11271dd</Build-Number>
+                        <Build-Branch>myBranch</Build-Branch>
+                        <Built-By>superuser</Built-By>
+                        <Implementation-Title>My Title</Implementation-Title>
+                        <Implementation-Version>My Version</Implementation-Version>
+                        <Implementation-Vendor>My Vendor</Implementation-Vendor>
+                        <Build-Date>${maven.build.timestamp}</Build-Date>
+                        <Name>${project.name}</Name>
+                    </manifestEntries>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

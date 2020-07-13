@@ -153,7 +153,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
     protected void onFinish() throws Exception {
         XlsSheetSourceCodeModule sheetSourceModule = getDestinationSheet();
         String newTableUri = buildTable(sheetSourceModule);
-        setNewTableId(newTableUri);
+        setNewTableURI(newTableUri);
         getModifiedWorkbooks().add(sheetSourceModule.getWorkbookSource());
         super.onFinish();
     }

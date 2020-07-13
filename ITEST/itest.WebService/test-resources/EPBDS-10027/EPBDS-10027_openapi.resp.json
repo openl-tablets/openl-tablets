@@ -1,0 +1,485 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "EPBDS-10027_EPBDS-10027",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/REST/EPBDS-10027/EPBDS-10027",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/nonEnglishLangs": {
+      "post": {
+        "summary": "NonEnglishLangs nonEnglishLangs(IRulesRuntimeContext, Integer)",
+        "description": "Method: org.openl.generated.spreadsheetresults.NonEnglishLangs nonEnglishLangs(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer)",
+        "operationId": "nonEnglishLangs",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NonEnglishLangsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NonEnglishLangs"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "JAXRSErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "USER_ERROR",
+              "RULES_RUNTIME",
+              "COMPILATION",
+              "SYSTEM",
+              "BAD_REQUEST",
+              "VALIDATION"
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "NonEnglishLangs": {
+        "type": "object",
+        "properties": {
+          "тест": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "アスタリスク": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "TestЫЫЫ": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "印刷中的星号": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "aaa": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "DefaultRulesRuntimeContext": {
+        "type": "object",
+        "properties": {
+          "currentDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "requestDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lob": {
+            "type": "string"
+          },
+          "nature": {
+            "type": "string"
+          },
+          "usState": {
+            "type": "string",
+            "enum": [
+              "AL",
+              "AK",
+              "AZ",
+              "AR",
+              "CA",
+              "CO",
+              "CT",
+              "DC",
+              "DE",
+              "FL",
+              "GA",
+              "HI",
+              "ID",
+              "IL",
+              "IN",
+              "IA",
+              "KS",
+              "KY",
+              "LA",
+              "ME",
+              "MD",
+              "MA",
+              "MI",
+              "MN",
+              "MS",
+              "MO",
+              "MT",
+              "NE",
+              "NV",
+              "NH",
+              "NJ",
+              "NM",
+              "NY",
+              "NC",
+              "ND",
+              "OH",
+              "OK",
+              "OR",
+              "PA",
+              "PR",
+              "RI",
+              "SC",
+              "SD",
+              "TN",
+              "TX",
+              "UT",
+              "VT",
+              "VA",
+              "WA",
+              "WV",
+              "WI",
+              "WY"
+            ]
+          },
+          "country": {
+            "type": "string",
+            "enum": [
+              "AL",
+              "DZ",
+              "AR",
+              "AU",
+              "AT",
+              "BH",
+              "BY",
+              "BE",
+              "BO",
+              "BA",
+              "BR",
+              "BG",
+              "CA",
+              "CL",
+              "CN",
+              "CO",
+              "CR",
+              "HR",
+              "CY",
+              "CZ",
+              "DK",
+              "DO",
+              "EC",
+              "EG",
+              "SV",
+              "EE",
+              "FI",
+              "FR",
+              "DE",
+              "GR",
+              "GT",
+              "HN",
+              "HK",
+              "HU",
+              "IS",
+              "IN",
+              "ID",
+              "IQ",
+              "IE",
+              "IL",
+              "IT",
+              "JP",
+              "JO",
+              "KW",
+              "LV",
+              "LB",
+              "LT",
+              "LU",
+              "MK",
+              "MY",
+              "MT",
+              "MX",
+              "MA",
+              "NL",
+              "NZ",
+              "NI",
+              "NO",
+              "OM",
+              "PA",
+              "PY",
+              "PE",
+              "PH",
+              "PL",
+              "PT",
+              "PR",
+              "QA",
+              "RO",
+              "RU",
+              "SA",
+              "CS",
+              "SG",
+              "SK",
+              "SI",
+              "ZA",
+              "ES",
+              "SD",
+              "SE",
+              "CH",
+              "SY",
+              "TW",
+              "TH",
+              "TN",
+              "TR",
+              "UA",
+              "AE",
+              "GB",
+              "US",
+              "UY",
+              "VE",
+              "VN",
+              "YE"
+            ]
+          },
+          "usRegion": {
+            "type": "string",
+            "enum": [
+              "MW",
+              "NE",
+              "SE",
+              "SW",
+              "W"
+            ]
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "ALL",
+              "DZD",
+              "ARS",
+              "AUD",
+              "BHD",
+              "BYR",
+              "BOB",
+              "BAM",
+              "BRL",
+              "CAD",
+              "CLP",
+              "CNY",
+              "COP",
+              "CRC",
+              "HRK",
+              "CZK",
+              "DKK",
+              "DOP",
+              "EGP",
+              "EUR",
+              "GTQ",
+              "HNL",
+              "HKD",
+              "HUF",
+              "ISK",
+              "INR",
+              "IDR",
+              "IQD",
+              "ILS",
+              "JPY",
+              "JOD",
+              "KWD",
+              "LVL",
+              "LBP",
+              "LTL",
+              "MKD",
+              "MYR",
+              "MXN",
+              "MAD",
+              "NZD",
+              "NIO",
+              "NOK",
+              "OMR",
+              "PAB",
+              "PYG",
+              "PEN",
+              "PHP",
+              "PLN",
+              "QAR",
+              "RON",
+              "RUB",
+              "SAR",
+              "RSD",
+              "SGD",
+              "ZAR",
+              "SDG",
+              "SEK",
+              "CHF",
+              "SYP",
+              "TWD",
+              "TND",
+              "TRY",
+              "UAH",
+              "AED",
+              "GBP",
+              "USD",
+              "UYU",
+              "VEF",
+              "VND",
+              "YER"
+            ]
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "ALB",
+              "ARA",
+              "BEL",
+              "BUL",
+              "CAT",
+              "CHI",
+              "SCR",
+              "CZE",
+              "DAN",
+              "DUT",
+              "ENG",
+              "FIN",
+              "FRE",
+              "GER",
+              "GRE",
+              "HEB",
+              "HIN",
+              "HUN",
+              "IND",
+              "GLE",
+              "ITA",
+              "JPN",
+              "LAV",
+              "LIT",
+              "MAC",
+              "MAY",
+              "MLT",
+              "NOR",
+              "POL",
+              "POR",
+              "RUM",
+              "RUS",
+              "SCC",
+              "SLO",
+              "SPA",
+              "THA",
+              "TUR",
+              "UKR",
+              "VIE"
+            ]
+          },
+          "region": {
+            "type": "string",
+            "enum": [
+              "NCSA",
+              "EU",
+              "EMEA",
+              "APJ"
+            ]
+          },
+          "caProvince": {
+            "type": "string",
+            "enum": [
+              "AB",
+              "BC",
+              "PE",
+              "MB",
+              "NB",
+              "NS",
+              "NU",
+              "ON",
+              "QC",
+              "SK",
+              "NL",
+              "YT",
+              "NT"
+            ]
+          },
+          "caRegion": {
+            "type": "string",
+            "enum": [
+              "QC",
+              "HQ"
+            ]
+          }
+        }
+      },
+      "NonEnglishLangsRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "someValues": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      }
+    }
+  }
+}

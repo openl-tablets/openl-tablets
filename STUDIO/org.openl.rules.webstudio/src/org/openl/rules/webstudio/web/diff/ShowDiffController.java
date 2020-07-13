@@ -13,11 +13,10 @@ public class ShowDiffController extends ExcelDiffController implements AutoClose
     private static final String DELETED = "deleted";
     private static final String MODIFIED = "modified";
     private final String fileName;
-    private final String fileStatus;
+    private String fileStatus;
 
     ShowDiffController(File tempFile1, File tempFile2, String fileName) {
         this.fileName = fileName;
-        this.fileStatus = tempFile2 == null ? DELETED : MODIFIED;
         addTempFile(tempFile1);
         addTempFile(tempFile2);
         try {
@@ -28,6 +27,19 @@ public class ShowDiffController extends ExcelDiffController implements AutoClose
             } catch (Throwable ignore) {
             }
             throw t;
+        } finally {
+            defineFileStatus(tempFile2);
+        }
+    }
+
+    private void defineFileStatus(File tempFile2) {
+        if (tempFile2 == null) {
+            this.fileStatus = DELETED;
+        } else {
+            this.fileStatus = MODIFIED;
+            if (this.changesStatus != null) {
+                this.fileStatus += (". " + this.changesStatus);
+            }
         }
     }
 

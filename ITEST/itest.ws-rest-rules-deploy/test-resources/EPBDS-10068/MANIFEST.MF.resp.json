@@ -1,0 +1,12 @@
+{
+  "entries": {},
+  "mainAttributes": {
+    "Implementation-Title": "org.openl.rules:EPBDS-10068",
+    "Build-Date": "2020-07-07T14:48:54.241+03:00",
+    "Implementation-Version": "0.0.0",
+    "Built-By": "superuser",
+    "Created-By": "OpenL Maven Plugin v5.24.0-SNAPSHOT",
+    "Manifest-Version": "1.0",
+    "Implementation-Vendor": "OpenL Tablets"
+  }
+}

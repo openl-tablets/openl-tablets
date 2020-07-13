@@ -20,7 +20,7 @@ public abstract class SingleModuleInstantiationStrategy extends CommonRulesInsta
     /**
      * Root <code>Module</code> that is used as start point for Openl compilation.
      */
-    private Module module;
+    private final Module module;
 
     public SingleModuleInstantiationStrategy(Module module,
             IDependencyManager dependencyManager,

@@ -69,7 +69,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
             "rootClassNamesBinding",
             CLIENT_ID_GENERATOR };
 
-    private Map<OpenLService, Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>>> runningServices = new HashMap<>();
+    private final Map<OpenLService, Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>>> runningServices = new HashMap<>();
 
     private ResourceLoader resourceLoader;
 
@@ -79,7 +79,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     private String defaultBootstrapServers;
     private String defaultGroupId;
 
-    private Cloner cloner = new Cloner();
+    private final Cloner cloner = new Cloner();
 
     private StoreLogDataManager storeLogDataManager;
 

@@ -36,9 +36,9 @@ import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
-import org.openl.rules.project.instantiation.SimpleDependencyLoader;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -93,6 +93,7 @@ public class ProjectModel {
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
     private Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = new HashSet<>();
+    private WorkbookSyntaxNode[] workbookSyntaxNodes;
 
     private Module moduleInfo;
 
@@ -469,6 +470,18 @@ public class ProjectModel {
         return getXlsModuleNode().getWorkbookSyntaxNodes();
     }
 
+    /**
+     * Get all workbooks of all modules
+     * @return all workbooks
+     */
+    public WorkbookSyntaxNode[] getAllWorkbookNodes() {
+        if (!isProjectCompiledSuccessfully()) {
+            return null;
+        }
+
+        return workbookSyntaxNodes;
+    }
+
     public boolean isSourceModified() {
         RulesProject project = getProject();
         if (project != null && studio.isProjectFrozen(project.getName())) {
@@ -698,7 +711,7 @@ public class ProjectModel {
             }
         }
 
-        return nodes.toArray(new TableSyntaxNode[0]);
+        return nodes.toArray(TableSyntaxNode.EMPTY_ARRAY);
     }
 
     public int getNumberOfTables() {
@@ -856,6 +869,7 @@ public class ProjectModel {
         allXlsModuleSyntaxNodes.clear();
         messageNodeIds.clear();
         projectRoot = null;
+        workbookSyntaxNodes = null;
     }
 
     private void resetWebStudioWorkspaceDependencyManagerForSingleMode(Module moduleInfo, Module previousModuleInfo) {
@@ -916,6 +930,7 @@ public class ProjectModel {
         projectRoot = null;
         xlsModuleSyntaxNode = null;
         allXlsModuleSyntaxNodes.clear();
+        workbookSyntaxNodes = null;
 
         prepareWebstudioWorkspaceDependencyManager(singleModuleMode, previousModuleInfo);
 
@@ -938,7 +953,6 @@ public class ProjectModel {
 
         }
         instantiationStrategy.setExternalParameters(externalParameters);
-        instantiationStrategy.setServiceClass(SimpleDependencyLoader.EmptyInterface.class);
 
         // If autoCompile is false we cannot unload workbook during editing because we must show to a user latest edited
         // data (not parsed and compiled data).
@@ -951,7 +965,7 @@ public class ProjectModel {
             // Find all dependent XlsModuleSyntaxNode-s
             compiledOpenClass = instantiationStrategy.compile();
 
-            compiledOpenClass = validateCompiledOpenClass(compiledOpenClass);
+            compiledOpenClass = validate(instantiationStrategy);
 
             addAllSyntaxNodes(webStudioWorkspaceDependencyManager.getDependencyLoaders().values());
 
@@ -961,12 +975,21 @@ public class ProjectModel {
 
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
             if (!isSingleModuleMode()) {
+                List<WorkbookSyntaxNode> workbookSyntaxNodes = new ArrayList<>();
+                for (XlsModuleSyntaxNode xlsSyntaxNode : allXlsModuleSyntaxNodes) {
+                    if (!(xlsSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
+                        workbookSyntaxNodes.addAll(Arrays.asList(xlsSyntaxNode.getWorkbookSyntaxNodes()));
+                    }
+                }
+                this.workbookSyntaxNodes = workbookSyntaxNodes.toArray(new WorkbookSyntaxNode[0]);
                 // EPBDS-7629: In multimodule mode xlsModuleSyntaxNode does not contain Virtual Module with dispatcher
                 // table syntax nodes.
                 // Such dispatcher syntax nodes are needed to show dispatcher tables in Trace.
                 // That's why we should add virtual module to allXlsModuleSyntaxNodes.
                 XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
                 allXlsModuleSyntaxNodes.add(xmi.getXlsModuleNode());
+            } else {
+                workbookSyntaxNodes = xlsModuleSyntaxNode.getWorkbookSyntaxNodes();
             }
             WorkbookLoaders.resetCurrentFactory();
         } catch (Throwable t) {
@@ -983,9 +1006,10 @@ public class ProjectModel {
         }
     }
 
-    private CompiledOpenClass validateCompiledOpenClass(CompiledOpenClass compiledOpenClass) {
+    private CompiledOpenClass validate(
+            RulesInstantiationStrategy rulesInstantiationStrategy) throws RulesInstantiationException {
         OpenApiProjectValidator openApiProjectValidator = new OpenApiProjectValidator();
-        return openApiProjectValidator.validate(moduleInfo.getProject(), compiledOpenClass);
+        return openApiProjectValidator.validate(moduleInfo.getProject(), rulesInstantiationStrategy);
     }
 
     private void addAllSyntaxNodes(

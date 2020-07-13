@@ -91,7 +91,9 @@
         <cassandra.driver.version>4.3.1</cassandra.driver.version>
         <cassandra.unit.version>3.11.2.0</cassandra.unit.version>
         <cassandra.unit.driver.version>3.8.0</cassandra.unit.driver.version>
-        <org.apache.cxf.version>3.3.6</org.apache.cxf.version>
+        <org.apache.cxf.version>3.3.6</org.apache.cxf.version> <!-- if updated org.apache.cxf.version to version from org.apache.cxf -->
+        <jakarta.ws.rs-api.version>2.1.5</jakarta.ws.rs-api.version>
+        <io.swagger.core.v3.version>2.0.10</io.swagger.core.v3.version>
         <log4j.version>2.13.3</log4j.version>
         <org.slf4j.version>1.7.30</org.slf4j.version>
         <org.apache.poi.version>4.1.2</org.apache.poi.version>
@@ -122,6 +124,7 @@
         <module>DEMO/org.openl.rules.demo</module>
         <module>Util/openl-maven-plugin</module>
         <module>Util/openl-simple-project-archetype</module>
+        <module>Util/openl-project-archetype</module>
         <module>Util/openl-openapi-model-scaffolding</module>
         <module>Util/openl-openapi-parser</module>
         <module>Util/openl-excel-builder</module>
@@ -550,8 +553,7 @@
                                     }
 
                                     @Override
-                                    Configuration getConfiguration(LoggerContext loggerContext, String name, URI
-                                            configLocation, ClassLoader loader) {
+                                    Configuration getConfiguration(LoggerContext loggerContext, String name, URI configLocation, ClassLoader loader) {
                                         return new DefaultConfiguration();
                                     }
                                 })
@@ -580,12 +582,12 @@
                                         if (!text.endsWith("\r\n")) {
                                             out.append("\r\n")
                                         }
-                                        log.debug(" | {}", text)
+                                        log.debug("   | {}", text)
                                 }
 
                                 resources.each {
                                     def url = it.getURL()
-                                    log.info(" {}", url)
+                                    log.info("  {}", url)
                                     write "###"
                                     write "### From: ${(url =~ /([^\/]+(!\/.*)?)$/)[0][1]}"
                                     write "###"
@@ -862,6 +864,12 @@
                 <groupId>javax.enterprise</groupId>
                 <artifactId>cdi-api</artifactId>
                 <version>2.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.el</groupId>
+                        <artifactId>javax.el-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- RichFaces -->
             <!-- RichFaces reached end-of-life status with version 4.5.17.Final so vulnerabilities will not be fixed.
@@ -972,6 +980,11 @@
                         <artifactId>javax.annotation-api</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.ws.rs</groupId>
+                <artifactId>jakarta.ws.rs-api</artifactId>
+                <version>${jakarta.ws.rs-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
@@ -1412,6 +1425,16 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-jaxrs2</artifactId>
+                <version>${io.swagger.core.v3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${io.swagger.core.v3.version}</version>
+            </dependency>
             <!--Activity -->
             <dependency>
                 <groupId>org.activiti</groupId>
@@ -1448,11 +1471,6 @@
                 <version>${kafka.version}</version>
             </dependency>
             <!-- Kafka -->
-            <dependency>
-                <groupId>com.github.sps.junidecode</groupId>
-                <artifactId>junidecode</artifactId>
-                <version>0.3</version>
-            </dependency>
             <!-- dependencies to annotations for maven-plugin-plugin -->
             <dependency>
                 <groupId>org.apache.maven.plugin-tools</groupId>
@@ -1638,7 +1656,12 @@
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.instantiation</artifactId>
+                <artifactId>org.openl.rules.ruleservice.common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.ws.common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

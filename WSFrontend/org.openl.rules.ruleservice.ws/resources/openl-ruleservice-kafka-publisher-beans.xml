@@ -125,7 +125,7 @@
         <property name="jacksonObjectMapperFactoryBean" ref="kafkaConsumerJacksonDatabindingFactoryBean"/>
     </bean>
 
-    <!-- Initializes OpenL Engine instances according to web services configuration 
+    <!-- Initializes OpenL Engine instances according to Rule Services configuration
         description and calls RuleServicePublisher to expose corresponding web service -->
     <!-- Exposes Kafka Services. -->
     <bean id="kafkaServicesRuleServicePublisher"

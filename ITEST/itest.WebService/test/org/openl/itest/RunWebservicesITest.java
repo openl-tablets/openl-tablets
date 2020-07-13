@@ -67,9 +67,9 @@ public class RunWebservicesITest {
     @Test
     @Ignore("EPBDS-9728 Ignored because of unstable WSDL schema generation for ArrayOfAnyType.")
     /**
-     * NOTE
-     * The result of {@link org.apache.cxf.aegis.type.collection.CollectionType#getComponentType()#isNillable()}always
-     * {@code true}. But it's {@code false} for {@link org.apache.cxf.aegis.type.basic.ArrayType#getComponentType()}.</br>
+     * NOTE The result of
+     * {@link org.apache.cxf.aegis.type.collection.CollectionType#getComponentType()#isNillable()}always {@code true}.
+     * But it's {@code false} for {@link org.apache.cxf.aegis.type.basic.ArrayType#getComponentType()}.</br>
      * It may give a different result that depends on position of it in
      * {@link org.apache.cxf.aegis.databinding.AegisDatabinding#createSchemas(...)} in local HashMap {@code tns2Type}.
      */
@@ -191,7 +191,9 @@ public class RunWebservicesITest {
 
     @Test
     public void EPBDS_9576() {
-        client.post("/REST/EPBDS-9576/mySpr", "/EPBDS-9576/EPBDS-9576_mySpr.req.json", "/EPBDS-9576/EPBDS-9576_mySpr.resp.json");
+        client.post("/REST/EPBDS-9576/mySpr",
+            "/EPBDS-9576/EPBDS-9576_mySpr.req.json",
+            "/EPBDS-9576/EPBDS-9576_mySpr.resp.json");
         client.get("/REST/EPBDS-9576/swagger.json", "/EPBDS-9576/EPBDS-9576_swagger.resp.json");
         client.get("/REST/EPBDS-9576/openapi.json", "/EPBDS-9576/EPBDS-9576_openapi.resp.json");
         client.get("/REST/EPBDS-9576?_wadl", "/EPBDS-9576/EPBDS-9576_wadl.resp.xml");
@@ -200,7 +202,9 @@ public class RunWebservicesITest {
 
     @Test
     public void EPBDS_9665() {
-        client.post("/REST/EPBDS-9665/EPBDS-9665/anotherSpr", "/EPBDS-9665/EPBDS-9665_anotherSpr.req.json", "/EPBDS-9665/EPBDS-9665_anotherSpr.resp.txt");
+        client.post("/REST/EPBDS-9665/EPBDS-9665/anotherSpr",
+            "/EPBDS-9665/EPBDS-9665_anotherSpr.req.json",
+            "/EPBDS-9665/EPBDS-9665_anotherSpr.resp.txt");
     }
 
     @Test
@@ -208,9 +212,14 @@ public class RunWebservicesITest {
         client.post("/REST/EPBDS-9678/EPBDS-9678/someRule", "/EPBDS-9678/EPBDS-9678_someRule.req.json", 404);
         client.get("/admin/services/EPBDS-9678_EPBDS-9678/errors", "/EPBDS-9678/EPBDS-9678_comopilation_errors.json");
 
-        client.get("/admin/services/EPBDS-9678-project1/errors", "/EPBDS-9678/multi/EPBDS-9678-project1_compilation_validation_errors.json");
-        client.post("/EPBDS-9678-project2/someRule", "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.req.json", "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.resp.txt");
-        client.post("/EPBDS-9678-project2/test1", "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.req.json", "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.resp.txt");
+        client.get("/admin/services/EPBDS-9678-project1/errors",
+            "/EPBDS-9678/multi/EPBDS-9678-project1_compilation_validation_errors.json");
+        client.post("/EPBDS-9678-project2/someRule",
+            "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.req.json",
+            "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.resp.txt");
+        client.post("/EPBDS-9678-project2/test1",
+            "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.req.json",
+            "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.resp.txt");
     }
 
     @Test
@@ -228,5 +237,16 @@ public class RunWebservicesITest {
     public void EPBDS_9928() {
         client.get("/EPBDS-9928-rs/swagger.json", "/EPBDS-9928/EPBDS-9928_swagger.resp.json");
         client.get("/EPBDS-9928-rs/openapi.json", "/EPBDS-9928/EPBDS-9928_openapi.resp.json");
+    }
+
+    @Test
+    public void EPBDS_10027() {
+        client.get("/REST/EPBDS-10027/EPBDS-10027/swagger.json", "/EPBDS-10027/EPBDS-10027_swagger.resp.json");
+        client.get("/REST/EPBDS-10027/EPBDS-10027/openapi.json", "/EPBDS-10027/EPBDS-10027_openapi.resp.json");
+        client.get("/REST/EPBDS-10027/EPBDS-10027?_wadl", "/EPBDS-10027/EPBDS-10027_wadl.resp.xml");
+        client.get("/EPBDS-10027/EPBDS-10027?wsdl", "/EPBDS-10027/EPBDS-10027_wsdl.resp.xml");
+        client.post("/REST/EPBDS-10027/EPBDS-10027/nonEnglishLangs",
+            "/EPBDS-10027/EPBDS-10027.req.json",
+            "/EPBDS-10027/EPBDS-10027.resp.json");
     }
 }
