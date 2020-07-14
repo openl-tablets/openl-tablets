@@ -37,7 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
-public class MappedRepository implements FolderRepository, BranchRepository, RRepositoryFactory, Closeable {
+public class MappedRepository implements FolderRepository, BranchRepository, RRepositoryFactory, Closeable, FolderMapper {
     private static final Pattern PROJECT_PROPERTY_PATTERN = Pattern.compile("(project\\.\\d+\\.)\\w+");
     private final Logger log = LoggerFactory.getLogger(MappedRepository.class);
 
@@ -45,11 +45,30 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     private volatile Map<String, String> externalToInternal = Collections.emptyMap();
 
-    private ReadWriteLock mappingLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock mappingLock = new ReentrantReadWriteLock();
     private RepositoryMode repositoryMode;
     private String configFile;
     private String baseFolder;
+    private Repository settingsRepository;
 
+    public static Repository create(FolderRepository delegate,
+            RepositoryMode repositoryMode,
+            String baseFolder,
+            Repository settingsRepository) throws RRepositoryException {
+        MappedRepository mappedRepository = new MappedRepository();
+        mappedRepository.setDelegate(delegate);
+        mappedRepository.setRepositoryMode(repositoryMode);
+        mappedRepository.setConfigFile(delegate.getId() + "/openl-projects.properties");
+        mappedRepository.setBaseFolder(baseFolder);
+        mappedRepository.setSettingsRepository(settingsRepository);
+        mappedRepository.initialize();
+        return mappedRepository;
+    }
+
+    private MappedRepository() {
+    }
+
+    @Override
     public FolderRepository getDelegate() {
         return delegate;
     }
@@ -58,16 +77,20 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         this.delegate = delegate;
     }
 
-    public void setRepositoryMode(RepositoryMode repositoryMode) {
+    private void setRepositoryMode(RepositoryMode repositoryMode) {
         this.repositoryMode = repositoryMode;
     }
 
-    public void setConfigFile(String configFile) {
+    private void setConfigFile(String configFile) {
         this.configFile = configFile;
     }
 
-    public void setBaseFolder(String baseFolder) {
+    private void setBaseFolder(String baseFolder) {
         this.baseFolder = baseFolder;
+    }
+
+    private void setSettingsRepository(Repository settingsRepository) {
+        this.settingsRepository = settingsRepository;
     }
 
     private void setExternalToInternal(Map<String, String> externalToInternal) {
@@ -167,18 +190,15 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public void setListener(final Listener callback) {
-        delegate.setListener(new Listener() {
-            @Override
-            public void onChange() {
-                try {
-                    initialize();
-                } catch (Exception e) {
-                    log.warn(e.getMessage(), e);
-                }
+        delegate.setListener(() -> {
+            try {
+                initialize();
+            } catch (Exception e) {
+                log.warn(e.getMessage(), e);
+            }
 
-                if (callback != null) {
-                    callback.onChange();
-                }
+            if (callback != null) {
+                callback.onChange();
             }
         });
     }
@@ -229,7 +249,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                     configData.setName(configFile);
                     configData.setAuthor(data.getAuthor());
                     configData.setComment(data.getComment());
-                    delegate.save(configData, inputStream);
+                    settingsRepository.save(configData, inputStream);
                 }
 
                 // Use mapping before modification
@@ -252,7 +272,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 configData.setName(configFile);
                 configData.setAuthor(destData.getAuthor());
                 configData.setComment(destData.getComment());
-                delegate.save(configData, configStream);
+                settingsRepository.save(configData, configStream);
 
                 Map<String, String> mapping = getMappingForRead();
                 return toExternal(mapping,
@@ -302,39 +322,29 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             ChangesetType changesetType) throws IOException {
         if (isUpdateConfigNeeded(folderData)) {
             try {
-                FileItem configChange = new FileItem(configFile, updateConfigFile(folderData));
-                Iterable<FileItem> filesWithMapping = new CompositeFileChanges(files, configChange);
-
-                // Mapping was updated on previous step.
-                Map<String, String> mapping = getMappingForRead();
-                FileData result = delegate
-                    .save(toInternal(mapping, folderData), toInternal(mapping, filesWithMapping), changesetType);
-                return toExternal(mapping, result);
-            } catch (MergeConflictException e) {
-                refreshMapping();
-                Map<String, String> mapping = getMappingForRead();
-                throw new MergeConflictException(toExternalKeys(mapping, e.getDiffs()),
-                    e.getBaseCommit(),
-                    e.getYourCommit(),
-                    e.getTheirCommit());
+                ByteArrayInputStream configStream = updateConfigFile(folderData);
+                FileData configData = new FileData();
+                configData.setName(configFile);
+                configData.setAuthor(folderData.getAuthor());
+                configData.setComment(folderData.getComment());
+                settingsRepository.save(configData, configStream);
             } catch (IOException | RuntimeException e) {
                 // Failed to update mapping. Restore current saved version.
                 refreshMapping();
                 throw e;
             }
-        } else {
-            try {
-                Map<String, String> mapping = getMappingForRead();
-                return toExternal(mapping,
-                    delegate.save(toInternal(mapping, folderData), toInternal(mapping, files), changesetType));
-            } catch (MergeConflictException e) {
-                Map<String, String> mapping = getMappingForRead();
-                throw new MergeConflictException(toExternalKeys(mapping, e.getDiffs()),
-                    e.getBaseCommit(),
-                    e.getYourCommit(),
-                    e.getTheirCommit());
+        }
+        try {
+            Map<String, String> mapping = getMappingForRead();
+            return toExternal(mapping,
+                delegate.save(toInternal(mapping, folderData), toInternal(mapping, files), changesetType));
+        } catch (MergeConflictException e) {
+            Map<String, String> mapping = getMappingForRead();
+            throw new MergeConflictException(toExternalKeys(mapping, e.getDiffs()),
+                e.getBaseCommit(),
+                e.getYourCommit(),
+                e.getTheirCommit());
 
-            }
         }
     }
 
@@ -411,6 +421,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         mappedRepository.setRepositoryMode(repositoryMode);
         mappedRepository.setConfigFile(configFile);
         mappedRepository.setBaseFolder(baseFolder);
+        mappedRepository.setSettingsRepository(settingsRepository);
         try {
             mappedRepository.initialize();
         } catch (RRepositoryException e) {
@@ -418,6 +429,69 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         }
 
         return mappedRepository;
+    }
+
+    @Override
+    public void addMapping(String external, String internal) throws IOException {
+        Lock lock = mappingLock.writeLock();
+        try {
+            lock.lock();
+            Map<String, String> newMap = new LinkedHashMap<>(externalToInternal);
+            newMap.put(external, internal);
+
+            ByteArrayInputStream configInputStream = getStreamFromProperties(newMap);
+            externalToInternal = newMap;
+
+            FileData configData = new FileData();
+            configData.setName(configFile);
+            configData.setAuthor(getClass().getName());
+            configData.setComment("Add mapping");
+            settingsRepository.save(configData, configInputStream);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void renameMapping(String externalBefore, String externalAfter) throws IOException {
+        Lock lock = mappingLock.writeLock();
+        try {
+            lock.lock();
+            Map<String, String> newMap = new LinkedHashMap<>(externalToInternal);
+            newMap.put(externalAfter, newMap.remove(externalBefore));
+
+            ByteArrayInputStream configInputStream = getStreamFromProperties(newMap);
+            externalToInternal = newMap;
+
+            FileData configData = new FileData();
+            configData.setName(configFile);
+            configData.setAuthor(getClass().getName());
+            configData.setComment("Rename mapping");
+            settingsRepository.save(configData, configInputStream);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void removeMapping(String external) throws IOException {
+        Lock lock = mappingLock.writeLock();
+        try {
+            lock.lock();
+            Map<String, String> newMap = new LinkedHashMap<>(externalToInternal);
+            newMap.remove(external);
+
+            ByteArrayInputStream configInputStream = getStreamFromProperties(newMap);
+            externalToInternal = newMap;
+
+            FileData configData = new FileData();
+            configData.setName(configFile);
+            configData.setAuthor(getClass().getName());
+            configData.setComment("Remove mapping");
+            settingsRepository.save(configData, configInputStream);
+        } finally {
+            lock.unlock();
+        }
     }
 
     private Map<String, String> getMappingForRead() {
@@ -433,31 +507,26 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     private Iterable<FileItem> toInternal(final Map<String, String> mapping, final Iterable<FileItem> files) {
-        return new Iterable<FileItem>() {
+        return () -> new Iterator<FileItem>() {
+            private final Iterator<FileItem> delegate = files.iterator();
+
             @Override
-            public Iterator<FileItem> iterator() {
-                return new Iterator<FileItem>() {
-                    private final Iterator<FileItem> delegate = files.iterator();
+            public boolean hasNext() {
+                return delegate.hasNext();
+            }
 
-                    @Override
-                    public boolean hasNext() {
-                        return delegate.hasNext();
-                    }
+            @Override
+            public FileItem next() {
+                FileItem external = delegate.next();
+                FileData data = external.getData();
+                String name = toInternal(mapping, external.getData().getName());
+                data.setName(name);
+                return new FileItem(data, external.getStream());
+            }
 
-                    @Override
-                    public FileItem next() {
-                        FileItem external = delegate.next();
-                        FileData data = external.getData();
-                        String name = toInternal(mapping, external.getData().getName());
-                        data.setName(name);
-                        return new FileItem(data, external.getStream());
-                    }
-
-                    @Override
-                    public void remove() {
-                        throw new UnsupportedOperationException("Remove is not supported");
-                    }
-                };
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("Remove is not supported");
             }
         };
     }
@@ -471,13 +540,8 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         copy.setDeleted(data.isDeleted());
         copy.setName(toInternal(externalToInternal, data.getName()));
 
-        for (AdditionalData value : data.getAdditionalData().values()) {
-            copy.addAdditionalData(value.convertPaths(new PathConverter() {
-                @Override
-                public String convert(String oldPath) {
-                    return toInternal(externalToInternal, oldPath);
-                }
-            }));
+        for (AdditionalData<?> value : data.getAdditionalData().values()) {
+            copy.addAdditionalData(value.convertPaths(oldPath -> toInternal(externalToInternal, oldPath)));
         }
 
         return copy;
@@ -569,7 +633,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             String baseFolder) throws IOException {
         baseFolder = StringUtils.isBlank(baseFolder) ? "" : baseFolder.endsWith("/") ? baseFolder : baseFolder + "/";
         Map<String, String> externalToInternal = new LinkedHashMap<>();
-        FileItem fileItem = delegate.read(configFile);
+        FileItem fileItem = settingsRepository.read(configFile);
         if (fileItem == null) {
             log.debug("Repository configuration file {} is not found.", configFile);
             return generateExternalToInternalMap(delegate, repositoryMode, baseFolder);
@@ -760,7 +824,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public boolean isValidBranchName(String branch) {
-        if (delegate instanceof BranchRepository) {
+        if (delegate.supports().branches()) {
             return ((BranchRepository) delegate).isValidBranchName(branch);
         }
         return true;
@@ -768,9 +832,10 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public boolean branchExists(String branch) throws IOException {
-        return delegate instanceof BranchRepository && ((BranchRepository) delegate).branchExists(branch);
+        return delegate.supports().branches() && ((BranchRepository) delegate).branchExists(branch);
     }
 
+    @Override
     public String getRealPath(String externalPath) {
         Map<String, String> mapping = getMappingForRead();
         return toInternal(mapping, externalPath);

@@ -38,6 +38,7 @@ import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
@@ -1101,7 +1102,9 @@ public class GitRepositoryTest {
         repo.setTagPrefix(TAG_PREFIX);
         repo.setCommentTemplate("WebStudio: {commit-type}. {user-message}");
         String settingsPath = local.getParent() + "/git-settings";
-        repo.setGitSettingsPath(settingsPath);
+        FileSystemRepository settingsRepository = new FileSystemRepository();
+        settingsRepository.setUri(settingsPath);
+        repo.setSettingsRepository(settingsRepository);
         repo.setGcAutoDetach(false);
         repo.initialize();
 

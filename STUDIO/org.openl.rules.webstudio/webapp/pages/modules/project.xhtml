@@ -132,7 +132,7 @@
                             </td>
                         </tr>
                         </ui:fragment>
-                        <ui:fragment rendered="#{projectData.repository.supports().mappedFolders() }">
+                        <ui:fragment rendered="#{utils.supportsMappedFolders(projectData) }">
                             <tr>
                                 <td>Path:</td>
                                 <td>
@@ -352,10 +352,19 @@
                         </a4j:outputPanel></td>
                     </tr>
 
+                    <ui:fragment rendered="#{not utils.supportsMappedFolders(projectData)}">
                     <tr>
                         <td>Name:</td>
-                        <td class="aligned-property"><h:outputText id="projectName" value="#{project.name}"/></td>
+                        <td class="aligned-property"><h:outputText value="#{project.name}"/></td>
                     </tr>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{utils.supportsMappedFolders(projectData)}">
+                    <tr>
+                        <td class="required">Name</td>
+                        <td><h:inputText id="projectName" value="#{project.name}"
+                                         validator="#{projectBean.validateProjectName}" /></td>
+                    </tr>
+                    </ui:fragment>
                     <tr>
                         <td></td>
                         <td><h:panelGroup styleClass="warning" rendered="#{projectData.name != project.name}">
@@ -536,6 +545,7 @@
 
         <script>
             //<![CDATA[
+            var initProjectName = $j("#projectName").val();
             var initProjectDescription = $j("#projectDescription").val(); // Плохо, очень плохо!!!
 
             var initDependencies = $j("#dependenciesTable tr > td:first-child input:checked").get();
@@ -562,6 +572,7 @@
                 var btn = $j("#editProjectBtn");
 
                 btn.prop("disabled", true);
+                $j("#projectName").val(initProjectName);
                 $j("#projectDescription").val(initProjectDescription);
                 $j("#propertiesFileNamePattern").val(initPropertiesFileNamePattern);
                 $j("#propertiesFileNameProcessor").val(initPropertiesFileNameProcessor);
@@ -573,17 +584,19 @@
                 ws.ui.show("editProjectPopup");
 
                 var updateButtonState = function () {
+                    var projectName = $j("#projectName").val();
                     var description = $j("#projectDescription").val();
                     var propertiesFileNamePattern = $j("#propertiesFileNamePattern").val();
                     var propertiesFileNameProcessor = $j("#propertiesFileNameProcessor").val();
                     var supportedVersion = $j("#supportedVersion").val();
-                    btn.prop("disabled", description == initProjectDescription &&
+                    btn.prop("disabled", projectName == initProjectName &&
+                        description == initProjectDescription &&
                         propertiesFileNamePattern == initPropertiesFileNamePattern &&
                         propertiesFileNameProcessor == initPropertiesFileNameProcessor &&
                         supportedVersion == initSupportedVersion);
                 };
 
-                $j("#projectDescription, #propertiesFileNamePattern, #propertiesFileNameProcessor").on("change keyup cut paste", updateButtonState);
+                $j("#projectName, #projectDescription, #propertiesFileNamePattern, #propertiesFileNameProcessor").on("change keyup cut paste", updateButtonState);
                 $j("#customPropertiesFileNameProcessor").click(updateButtonState);
                 $j("#supportedVersion").change(updateButtonState);
             }

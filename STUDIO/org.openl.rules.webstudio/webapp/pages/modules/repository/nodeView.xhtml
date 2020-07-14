@@ -262,7 +262,7 @@
                         </td>
                     </tr>
                     </ui:fragment>
-                    <ui:fragment rendered="#{artefact.repository.supports().mappedFolders() }">
+                    <ui:fragment rendered="#{utils.supportsMappedFolders(artefact) }">
                         <tr>
                             <td class="label">
                                 <h:outputText value="Path:"/>

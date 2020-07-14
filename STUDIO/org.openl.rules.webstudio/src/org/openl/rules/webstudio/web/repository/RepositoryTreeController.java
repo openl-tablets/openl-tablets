@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -57,6 +58,8 @@ import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderMapper;
+import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.WebStudio;
@@ -187,6 +190,7 @@ public class RepositoryTreeController {
     private String restoreProjectComment;
     private String eraseProjectComment;
     private String filterRepositoryId;
+    private boolean eraseFromRepository;
 
     public void setZipFilter(PathFilter zipFilter) {
         this.zipFilter = zipFilter;
@@ -595,8 +599,9 @@ public class RepositoryTreeController {
             return msg;
         }
 
-        if (StringUtils.isBlank(repositoryId)) {
-            return "You must select a Repository.";
+        msg = validateRepositoryId();
+        if (msg != null) {
+            return msg;
         }
 
         msg = validateProjectFolder();
@@ -606,6 +611,13 @@ public class RepositoryTreeController {
 
         msg = validateCreateProjectComment(comment);
         return msg;
+    }
+
+    private String validateRepositoryId() {
+        if (StringUtils.isBlank(repositoryId)) {
+            return "Repository must be selected.";
+        }
+        return null;
     }
 
     private String validateProjectName() {
@@ -1015,7 +1027,13 @@ public class RepositoryTreeController {
                         comment = comments.eraseProject(project.getName());
                     }
                     try {
-                        project.erase(userWorkspace.getUser(), comment);
+                        Repository designRepository = project.getDesignRepository();
+                        boolean mappedFolders = designRepository.supports().mappedFolders();
+                        if (!mappedFolders || eraseFromRepository) {
+                            project.erase(userWorkspace.getUser(), comment);
+                        } else {
+                            ((FolderMapper) designRepository).removeMapping(project.getFolderPath());
+                        }
                     } catch (ProjectException e) {
                         Throwable cause = e.getCause();
                         if (cause instanceof MergeConflictException) {
@@ -1988,10 +2006,14 @@ public class RepositoryTreeController {
         }
     }
 
+    public List<Repository> getNonFlatRepositories() {
+        return userWorkspace.getDesignTimeRepository().getRepositories().stream().filter(r -> r.supports().mappedFolders()).collect(
+            Collectors.toList());
+    }
+
     @Deprecated
     public boolean isSupportsMappedFolders() {
-        // TODO: User repositoryId instead of 0 and rerender UI when repository is changed.
-        return isSupportsMappedFolders(userWorkspace.getDesignTimeRepository().getRepositories().get(0).getId());
+        return repositoryId != null && isSupportsMappedFolders(repositoryId);
     }
 
     public boolean isSupportsMappedFolders(String repositoryId) {
@@ -2242,6 +2264,7 @@ public class RepositoryTreeController {
         } else {
             deployConfigCommentValidator = designCommentValidator;
         }
+        eraseFromRepository = false;
     }
 
     @PreDestroy
@@ -2271,4 +2294,82 @@ public class RepositoryTreeController {
         this.filterRepositoryId = filterRepositoryId;
     }
 
+    public void importFromRepo() {
+        String msg = validateImportFromRepoParams();
+        if (msg != null) {
+            WebStudioUtils.addErrorMessage(msg);
+            clearForm();
+            return;
+        }
+
+        try {
+            Repository mappedRepo = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
+            if (!mappedRepo.supports().mappedFolders()) {
+                throw new IllegalArgumentException("Repository " + repositoryId + " has flat folder structure.");
+            }
+            FolderRepository repository = ((FolderMapper) mappedRepo).getDelegate();
+            if (!projectFolder.endsWith("/")) {
+                projectFolder += "/";
+            }
+            FileData fileData = repository.check(projectFolder);
+            if (fileData == null) {
+                WebStudioUtils.addErrorMessage("Project doesn't exist in the path " + projectFolder + ".");
+                clearForm();
+                return;
+            }
+
+            String realProjectName;
+            try {
+                AProject project = new AProject(mappedRepo, projectFolder);
+                AProjectArtefact projectDescriptorArtifact = project.getArtefact(
+                    ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                IProjectDescriptorSerializer serializer = projectDescriptorSerializerFactory
+                    .getSerializer(project);
+
+                AProjectResource resource = (AProjectResource) projectDescriptorArtifact;
+                try (InputStream content = resource.getContent()) {
+                    ProjectDescriptor projectDescriptor = serializer.deserialize(content);
+                    realProjectName = projectDescriptor.getName();
+                }
+            } catch (ProjectException e) {
+                realProjectName = projectName;
+            }
+
+            if (StringUtils.isBlank(realProjectName)) {
+                WebStudioUtils.addErrorMessage("Project doesn't contain rules.xml. You must specify project name yourself.");
+                clearForm();
+                return;
+            }
+
+            String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
+            ((FolderMapper) mappedRepo).addMapping(rulesLocation + realProjectName, projectFolder);
+            WebStudioUtils.addInfoMessage("Project was imported successfully.");
+            clearForm();
+        } catch (Exception e) {
+            WebStudioUtils.addErrorMessage("Can't import the project: " + e.getMessage());
+            clearForm();
+        }
+    }
+
+    public String validateImportFromRepoParams() {
+        String msg = validateRepositoryId();
+        if (msg != null) {
+            return msg;
+        }
+
+        if (StringUtils.isBlank(projectFolder)) {
+            WebStudioUtils.addErrorMessage("Path must not be empty.");
+        }
+
+        msg = validateProjectFolder();
+        return msg;
+    }
+
+    public boolean getEraseFromRepository() {
+        return eraseFromRepository;
+    }
+
+    public void setEraseFromRepository(boolean eraseFromRepository) {
+        this.eraseFromRepository = eraseFromRepository;
+    }
 }

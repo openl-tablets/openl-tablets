@@ -1,7 +1,6 @@
 package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,7 +21,6 @@ import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 
 public class LocalWorkspaceImpl implements LocalWorkspace {
 
-    private static final String REPO_FOLDER = "repo";
     private final WorkspaceUser user;
     private final File location;
     private final Map<ProjectKey, AProject> localProjects;
@@ -53,7 +51,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             throw new IllegalArgumentException("Path " + location.getPath() + " does not denote a directory");
         }
         for (File folder : folders) {
-            LocalRepository localRepository = new LocalRepository(new File(folder, REPO_FOLDER));
+            LocalRepository localRepository = new LocalRepository(folder);
             try {
                 String id = folder.getName();
                 localRepository.setId(id);
@@ -86,7 +84,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         }
 
         File repoBase = new File(location, id);
-        LocalRepository repository = new LocalRepository(new File(repoBase, REPO_FOLDER));
+        LocalRepository repository = new LocalRepository(repoBase);
         repository.setId(id);
         if (designTimeRepository != null) {
             Repository designRepository = designTimeRepository.getRepository(id);

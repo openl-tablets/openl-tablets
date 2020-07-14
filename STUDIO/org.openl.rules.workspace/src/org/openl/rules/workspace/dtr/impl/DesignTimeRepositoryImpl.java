@@ -23,6 +23,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
@@ -45,9 +46,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private static final String RULES_LOCATION_CONFIG_NAME = "repository.design.base.path";
     private static final String DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME = "repository.deploy-config.base.path";
     private static final String PROJECTS_FLAT_FOLDER_STRUCTURE = "repository.%s.folder-structure.flat";
-    private static final String PROJECTS_NESTED_FOLDER_CONFIG = "repository.%s.folder-structure.configuration";
     private static final String DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE = "repository.deploy-config.folder-structure.flat";
-    private static final String DEPLOY_CONFIG_NESTED_FOLDER_CONFIG = "repository.deploy-config.folder-structure.configuration";
 
     private volatile List<Repository> repositories;
     private volatile Repository deployConfigRepository;
@@ -64,9 +63,14 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private final List<DesignTimeRepositoryListener> listeners = new ArrayList<>();
 
     private PropertyResolver propertyResolver;
+    private Repository settingsRepository;
 
     public void setPropertyResolver(PropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;
+    }
+
+    public void setSettingsRepository(Repository settingsRepository) {
+        this.settingsRepository = settingsRepository;
     }
 
     public void init() {
@@ -87,10 +91,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             for (String designRepositoryId : designRepositories) {
                 boolean flatProjects = Boolean.parseBoolean(propertyResolver.getProperty(String.format(PROJECTS_FLAT_FOLDER_STRUCTURE, designRepositoryId)));
 
-                Repository repository = createRepo(designRepositoryId,
-                    flatProjects,
-                    String.format(PROJECTS_NESTED_FOLDER_CONFIG, designRepositoryId),
-                    rulesLocation);
+                Repository repository = createRepo(designRepositoryId, flatProjects, rulesLocation);
 
                 repositories.add(repository);
 
@@ -113,17 +114,15 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 .parseBoolean(propertyResolver.getProperty(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE));
             if (!separateDeployConfigRepo) {
                 Repository repository = getRepository(repositoryForDeployConfig);
-                if (!(repository instanceof MappedRepository)) {
+                if (!(repository.supports().mappedFolders())) {
                     deployConfigRepository = repository;
                 } else {
                     // Deploy config repository currently supports only flat folder structure.
-                    deployConfigRepository = ((MappedRepository) repository).getDelegate();
+                    deployConfigRepository = ((FolderMapper) repository).getDelegate();
                 }
             } else {
                 deployConfigRepository = createRepo(ConfigNames.DEPLOY_CONFIG,
-                    flatDeployConfig,
-                    DEPLOY_CONFIG_NESTED_FOLDER_CONFIG,
-                    deploymentConfigurationLocation);
+                    flatDeployConfig, deploymentConfigurationLocation);
             }
 
             if (separateDeployConfigRepo) {
@@ -132,16 +131,13 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
     }
 
-    private Repository createRepo(String configName, boolean flatStructure, String folderConfig, String baseFolder) {
+    private Repository createRepo(String configName, boolean flatStructure, String baseFolder) {
         try {
             Repository repo = RepositoryInstatiator.newRepository(configName, propertyResolver);
             if (!flatStructure && repo.supports().folders()) {
                 // Nested folder structure is supported for FolderRepository only
                 FolderRepository delegate = (FolderRepository) repo;
-                String configFile = propertyResolver.getProperty(folderConfig);
 
-                MappedRepository mappedRepository = new MappedRepository();
-                mappedRepository.setDelegate(delegate);
                 RepositoryMode repositoryMode = RepositoryMode.PRODUCTION;
                 switch (configName) {
                     case ConfigNames.DEPLOY_CONFIG:
@@ -151,11 +147,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                         repositoryMode = RepositoryMode.DESIGN;
                         break;
                 }
-                mappedRepository.setRepositoryMode(repositoryMode);
-                mappedRepository.setConfigFile(configFile);
-                mappedRepository.setBaseFolder(baseFolder);
-                mappedRepository.initialize();
-                repo = mappedRepository;
+                repo = MappedRepository.create(delegate, repositoryMode, baseFolder, settingsRepository);
             }
 
             return repo;

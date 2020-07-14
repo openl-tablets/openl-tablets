@@ -154,6 +154,17 @@ public class ProjectBean {
     }
 
     // TODO Move messages to ValidationMessages.properties
+    public void validateProjectName(FacesContext context, UIComponent toValidate, Object value) {
+        String name = (String) value;
+
+        WebStudioUtils.validate(StringUtils.isNotBlank(name), "Can not be empty");
+
+        if (!studio.getCurrentProjectDescriptor().getName().equals(name)) {
+            WebStudioUtils.validate(NameChecker.checkName(name), NameChecker.BAD_PROJECT_NAME_MSG);
+            WebStudioUtils.validate(!studio.isProjectExists(name), "Project with such name already exists");
+        }
+    }
+
     public void validatePropertiesFileNameProcessor(FacesContext context, UIComponent toValidate, Object value) {
         String className = (String) value;
 

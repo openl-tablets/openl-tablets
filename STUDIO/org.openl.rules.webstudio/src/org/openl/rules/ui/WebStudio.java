@@ -483,7 +483,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     List<ProjectDescriptor> projectDescriptors = projects.computeIfAbsent(repoId,
                         k -> new ArrayList<>());
                     File repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
-                    File folder = new File(repoRoot, project.getRealPath());
+                    File folder = new File(repoRoot, project.getFolderPath());
                     ProjectDescriptor resolvedDescriptor = projectResolver.resolve(folder);
                     if (resolvedDescriptor != null) {
                         projectDescriptors.add(resolvedDescriptor);
@@ -950,7 +950,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * @param name physical or logical project name
      * @return true only if there is a project with specified name and it is not current project
      */
-    private boolean isProjectExists(final String name) {
+    public boolean isProjectExists(final String name) {
         HttpSession session = WebStudioUtils.getSession();
         UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
 

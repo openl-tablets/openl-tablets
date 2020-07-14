@@ -11,9 +11,16 @@
         <property name="enableLocks" value="#{'${user.mode}' != 'single'}"/>
     </bean>
 
+    <bean name="settingsRepository" class="org.openl.rules.repository.RepositoryInstatiator" factory-method="newRepository">
+        <constructor-arg name="configName" value="settings"/>
+        <constructor-arg name="propertyResolver" ref="environment"/>
+    </bean>
+
+
     <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl"
           init-method="init" destroy-method="destroy">
         <property name="propertyResolver" ref="environment"/>
+        <property name="settingsRepository" ref="settingsRepository"/>
     </bean>
 
     <bean id="workspaceManager" class="org.openl.rules.workspace.MultiUserWorkspaceManager">

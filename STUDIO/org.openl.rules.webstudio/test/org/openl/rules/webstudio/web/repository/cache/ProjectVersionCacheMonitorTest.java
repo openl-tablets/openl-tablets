@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.repository.git.GitRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -70,7 +71,9 @@ public class ProjectVersionCacheMonitorTest {
     private GitRepository createRepository(File local) throws RRepositoryException {
         GitRepository repo = new GitRepository();
         repo.setLocalRepositoryPath(local.getAbsolutePath());
-        repo.setGitSettingsPath(local.getParent() + "/git-settings");
+        FileSystemRepository settingsRepository = new FileSystemRepository();
+        settingsRepository.setUri(local.getParent() + "/git-settings");
+        repo.setSettingsRepository(settingsRepository);
         repo.setCommentTemplate("WebStudio: {commit-type}. {user-message}");
         repo.initialize();
         return repo;

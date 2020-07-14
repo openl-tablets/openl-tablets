@@ -15,9 +15,9 @@ import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -367,7 +367,7 @@ public class AProjectFolder extends AProjectArtefact {
         String folderPath = getFolderPath();
         Repository repository = getRepository();
         if (repository.supports().mappedFolders()) {
-            return ((MappedRepository) repository).getRealPath(folderPath);
+            return ((FolderMapper) repository).getRealPath(folderPath);
         } else {
             return folderPath;
         }

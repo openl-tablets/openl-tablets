@@ -17,6 +17,7 @@ import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -493,5 +494,16 @@ public class RulesProject extends UserWorkspaceProject {
 
     public Repository getLocalRepository() {
         return localRepository;
+    }
+
+    @Override
+    public String getRealPath() {
+        String folderPath = getDesignFolderName();
+        Repository repository = getDesignRepository();
+        if (repository.supports().mappedFolders()) {
+            return ((FolderMapper) repository).getRealPath(folderPath);
+        } else {
+            return folderPath;
+        }
     }
 }

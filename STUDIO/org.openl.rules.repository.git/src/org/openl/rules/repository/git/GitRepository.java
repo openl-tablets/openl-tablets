@@ -82,7 +82,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private String commentTemplate;
     private String escapedCommentTemplate;
     private CommitMessageParser commitMessageParser;
-    private String gitSettingsPath;
+    private org.openl.rules.repository.api.Repository settingsRepository;
     private boolean noVerify;
     private Boolean gcAutoDetach;
 
@@ -772,8 +772,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         this.commitMessageParser = new CommitMessageParser(commentTemplate);
     }
 
-    public void setGitSettingsPath(String gitSettingsPath) {
-        this.gitSettingsPath = gitSettingsPath;
+    public void setSettingsRepository(org.openl.rules.repository.api.Repository settingsRepository) {
+        this.settingsRepository = settingsRepository;
     }
 
     /**
@@ -2087,7 +2087,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         repo.setListenerTimerPeriod(listenerTimerPeriod);
         repo.setConnectionTimeout(connectionTimeout);
         repo.setCommentTemplate(commentTemplate);
-        repo.setGitSettingsPath(gitSettingsPath);
+        repo.setSettingsRepository(settingsRepository);
         repo.git = git;
         repo.repositoryLock = repositoryLock; // must be common for all instances because git
         // repository is same
@@ -2139,13 +2139,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private void readBranches() throws IOException {
         branches.clear();
 
-        if (StringUtils.isBlank(gitSettingsPath)) {
+        if (settingsRepository == null) {
             return;
         }
 
-        File settings = new File(new File(gitSettingsPath), "branches.properties");
-        if (settings.isFile()) {
-            try (InputStreamReader in = new InputStreamReader(new FileInputStream(settings), StandardCharsets.UTF_8)) {
+        FileItem fileItem = settingsRepository.read(id + "/branches.properties");
+        if (fileItem != null) {
+            try (InputStreamReader in = new InputStreamReader(fileItem.getStream(), StandardCharsets.UTF_8)) {
                 Properties properties = new Properties();
                 properties.load(in);
                 String numStr = properties.getProperty("projects.number");
@@ -2169,15 +2169,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private void saveBranches() throws IOException {
-        if (StringUtils.isBlank(gitSettingsPath)) {
+        if (settingsRepository == null) {
             return;
         }
-        File parent = new File(gitSettingsPath);
-        if (!parent.mkdirs() && !parent.exists()) {
-            throw new FileNotFoundException("Cannot create folder " + gitSettingsPath);
-        }
-        File settings = new File(parent, "branches.properties");
-        try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(settings), StandardCharsets.UTF_8)) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try (OutputStreamWriter out = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
             Properties properties = new Properties();
             properties.setProperty("projects.number", String.valueOf(branches.size()));
 
@@ -2190,6 +2186,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
             properties.store(out, null);
         }
+
+        FileData data = new FileData();
+        data.setName(id + "/branches.properties");
+        data.setAuthor(getClass().getName());
+        data.setComment("Update branches info");
+        settingsRepository.save(data, new ByteArrayInputStream(outputStream.toByteArray()));
     }
 
     private void removeAbsentFiles(String baseAbsolutePath,

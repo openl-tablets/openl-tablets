@@ -8,6 +8,9 @@ import javax.annotation.PostConstruct;
 
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
@@ -61,5 +64,14 @@ public class Utils {
 
     public String getDescriptiveVersion(ProjectVersion version) {
         return getDescriptiveVersion(version, dateTimeFormat);
+    }
+
+    public boolean supportsMappedFolders(AProjectArtefact artefact) {
+        if (artefact == null) {
+            return false;
+        }
+        Repository repository = artefact instanceof UserWorkspaceProject ?
+                                ((UserWorkspaceProject) artefact).getDesignRepository() : artefact.getRepository();
+        return repository.supports().mappedFolders();
     }
 }

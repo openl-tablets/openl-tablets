@@ -91,6 +91,7 @@
                             </td>
                             <td>
                                 <h:selectOneMenu id="repositoryTemplate" value="#{repositoryTreeController.repositoryId}">
+                                    <f:ajax event="change" execute="@form" render="@form" onevent="initNewProjectDialogUI"/>
                                     <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
                                     <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
                                                    itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
@@ -158,6 +159,7 @@
 
                         <h:outputLabel for="repositoryExcel" value="Repository:" styleClass="required"/>
                         <h:selectOneMenu id="repositoryExcel" value="#{repositoryTreeController.repositoryId}">
+                            <f:ajax event="change" execute="@form" render="@form" onevent="initNewProjectDialogUI"/>
                             <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
                             <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
                                            itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
@@ -213,6 +215,7 @@
 
                     <h:outputLabel for="repositoryZip" value="Repository:" styleClass="required"/>
                     <h:selectOneMenu id="repositoryZip" value="#{repositoryTreeController.repositoryId}">
+                        <f:ajax event="change" execute="@form" render="@form" onevent="initNewProjectDialogUI"/>
                         <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
                         <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
                                        itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
@@ -281,6 +284,7 @@
                             rendered="#{not empty localUpload.projects4Upload}">
                             <h:outputLabel for="repositoryLocal" value="Repository:" styleClass="required"/>
                             <h:selectOneMenu id="repositoryLocal" value="#{repositoryTreeController.repositoryId}">
+                                <f:ajax event="change" execute="@form" render="@form" onevent="initNewProjectDialogUI"/>
                                 <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
                                 <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
                                                itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
@@ -317,6 +321,36 @@
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
                     </footer>
                     </h:panelGroup>
+                </h:form>
+            </rich:tab>
+
+            <rich:tab header="Repository" rendered="#{not empty repositoryTreeController.nonFlatRepositories}">
+                <h:form id="importFromRepoForm" style="padding-top: 6px">
+                    <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+                        <h:outputLabel for="repositoryImport" value="Repository:" styleClass="required"/>
+                        <h:selectOneMenu id="repositoryImport" value="#{repositoryTreeController.repositoryId}">
+                            <f:ajax event="change" execute="@form" render="@form" onevent="initNewProjectDialogUI"/>
+                            <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                            <f:selectItems value="#{repositoryTreeController.nonFlatRepositories}" var="repository"
+                                           itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
+                        </h:selectOneMenu>
+
+                        <h:outputLabel for="projectFolderImport" value="Path:"/>
+                        <h:inputText id="projectFolderImport" size="35"
+                                     value="#{repositoryTreeController.projectFolder}"/>
+
+                        <h:outputLabel for="projectNameImport" styleClass="required" value="Project Name:" />
+                        <h:inputText id="projectNameImport" size="35"
+                                     maxlength="70"
+                                     value="#{repositoryTreeController.projectName}"/>
+
+                    </h:panelGrid>
+
+                    <footer>
+                        <h:commandButton id="sbtRepo" value="Import" action="#{repositoryTreeController.importFromRepo}"
+                                         styleClass="button-primary" />
+                        <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
+                    </footer>
                 </h:form>
             </rich:tab>
 
