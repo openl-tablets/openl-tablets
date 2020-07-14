@@ -1,24 +1,13 @@
 package org.openl.rules.project.impl.local;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Properties;
 
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.LockException;
-import org.openl.util.IOUtils;
 
 public class LockEngineImpl implements LockEngine {
     public static final String LOCKS_FOLDER_NAME = ".locks";
-    private static final String USER_NAME = "user";
-    private static final String DATE = "date";
-    private static final String DATE_FORMAT = "yyyy-MM-dd";
     private final File locksRoot;
 
     /**
@@ -40,64 +29,29 @@ public class LockEngineImpl implements LockEngine {
 
     @Override
     public synchronized boolean tryLock(String branch, String projectName, String userName) throws LockException {
-        LockInfo lockInfo = getLockInfo(branch, projectName);
+        File branchFolder = getBranchFolder(branch, projectName);
+        LockInfo lockInfo = IndependentLocks.getLockInfo(branchFolder.getAbsolutePath(), projectName);
         if (lockInfo.isLocked()) {
             return userName.equals(lockInfo.getLockedBy().getUserName());
         }
-        Properties properties = new Properties();
-        properties.setProperty(USER_NAME, userName);
-        properties.setProperty(DATE, new SimpleDateFormat(DATE_FORMAT).format(new Date()));
-
-        File branchFolder = getBranchFolder(branch, projectName);
-        File file = new File(branchFolder, projectName);
-        File folder = file.getParentFile();
-        if (folder != null && !folder.mkdirs() && !folder.exists()) {
-            throw new IllegalStateException("Cannot create a folder for locks");
-        }
-
-        FileOutputStream os = null;
-        try {
-            file.createNewFile();
-            os = new FileOutputStream(file);
-            properties.store(os, "Lock info");
-        } catch (IOException e) {
-            throw new LockException("Cannot lock the project " + projectName, e);
-        } finally {
-            IOUtils.closeQuietly(os);
-        }
-        return true;
-
+        return IndependentLocks.createLock(branchFolder.getAbsolutePath(), projectName, userName);
     }
 
     @Override
     public synchronized void unlock(String branch, String projectName) {
         File branchFolder = getBranchFolder(branch, projectName);
-        File file = new File(branchFolder, projectName);
-        file.delete();
+        try {
+            IndependentLocks.unlock(branchFolder.getAbsolutePath() , projectName);
+        } catch (LockException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public synchronized LockInfo getLockInfo(String branch, String projectName) {
         File branchFolder = getBranchFolder(branch, projectName);
-        File file = new File(branchFolder, projectName);
-        if (!file.exists() || !file.isFile()) {
-            return SimpleLockInfo.NO_LOCK;
-        }
-
-        Properties properties = new Properties();
-        FileInputStream is = null;
-        try {
-            is = new FileInputStream(file);
-            properties.load(is);
-            final String userName = properties.getProperty(USER_NAME);
-            final Date date = new SimpleDateFormat(DATE_FORMAT).parse(properties.getProperty(DATE));
-
-            return new SimpleLockInfo(true, date, userName);
-        } catch (IOException | ParseException e) {
-            throw new IllegalStateException(e);
-        } finally {
-            IOUtils.closeQuietly(is);
-        }
+        LockInfo lockInfo = IndependentLocks.getLockInfo(branchFolder.getAbsolutePath(), projectName);
+        return lockInfo;
     }
 
     /**
