@@ -37,6 +37,7 @@ class Context {
     private Operation actualOperation;
     private MediaType expectedMediaType;
     private MediaType actualMediaType;
+    private String mediaType;
 
     private Method method;
     private IOpenMethod openMethod;
@@ -194,6 +195,14 @@ class Context {
 
     public void setActualOpenAPIJXPathContext(JXPathContext actualOpenAPIJXPathContext) {
         this.actualOpenAPIJXPathContext = actualOpenAPIJXPathContext;
+    }
+
+    public String getMediaType() {
+        return mediaType;
+    }
+
+    public void setMediaType(String mediaType) {
+        this.mediaType = mediaType;
     }
 
     public Map<Method, Method> getMethodMap() {
