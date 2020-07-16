@@ -9,6 +9,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.junit.Assert;
@@ -126,7 +127,7 @@ public class JAXRSOpenLServiceEnhancerTest {
     }
 
     public interface TestAnnotatedInterface1 {
-        @Path("/someMethod/{arg1}/{arg2}")
+        @Path("/someMethod/{arg1}")
         @GET
         String someMethod(@PathParam("arg1") String arg, String arg2);
     }
@@ -137,7 +138,7 @@ public class JAXRSOpenLServiceEnhancerTest {
         Method someMethod = enhancedClass.getMethod("someMethod", String.class, String.class);
         Path path = someMethod.getAnnotation(Path.class);
         Assert.assertNotNull(path);
-        Assert.assertEquals("/someMethod/{arg1}/{arg2}", path.value());
+        Assert.assertEquals("/someMethod/{arg1}", path.value());
         Assert.assertNotNull(someMethod.getAnnotation(GET.class));
         Assert.assertNull(someMethod.getAnnotation(POST.class));
         int i = 0;
@@ -146,7 +147,7 @@ public class JAXRSOpenLServiceEnhancerTest {
                 if (i == 0) {
                     Assert.assertEquals("arg1", ((PathParam) parameterAnnotation[0]).value());
                 } else {
-                    Assert.assertEquals("arg11", ((PathParam) parameterAnnotation[0]).value());
+                    Assert.assertEquals("arg1", ((QueryParam) parameterAnnotation[0]).value());
                 }
             } else {
                 Assert.fail("Expected @PathParam annotation");
@@ -327,7 +328,7 @@ public class JAXRSOpenLServiceEnhancerTest {
             Assert.assertNotNull("Expected @Path annotation.", pathAnnotation);
 
             String path = null;
-            switch (method.getParameterTypes().length) {
+            switch (method.getParameterCount()) {
                 case 0:
                     path = "/someMethod1";
                     break;
