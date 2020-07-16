@@ -1,6 +1,7 @@
 package org.open.rules.project.validation.openapi;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -12,7 +13,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.CookieParam;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.MatrixParam;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 
 import org.apache.commons.jxpath.CompiledExpression;
 import org.apache.commons.jxpath.JXPathContext;
@@ -373,7 +381,10 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
     @SuppressWarnings("unchecked")
     private <T> T resolve(Context context, JXPathContext jxPathContext, T obj, Function<T, String> getRefFunc) {
         if (obj != null && getRefFunc.apply(obj) != null) {
-            return (T) resolveByRef(context, jxPathContext, getRefFunc.apply(obj));
+            return resolve(context,
+                jxPathContext,
+                (T) resolveByRef(context, jxPathContext, getRefFunc.apply(obj)),
+                getRefFunc);
         }
         return obj;
     }
@@ -384,9 +395,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             return compiledExpression.createPath(jxPathContext).getValue();
         } catch (JXPathException e) {
             if (context.isTypeValidationInProgress()) {
-                addTypeError(context, String.format("Invalid reference '%s' is used in the OpenAPI file.", ref));
+                addTypeError(context, String.format("Invalid $ref '%s' is found in the OpenAPI file.", ref));
             } else {
-                addMethodError(context, String.format("Invalid reference '%s' is used in the OpenAPI file.", ref));
+                addMethodError(context, String.format("Invalid $ref '%s' is found in the OpenAPI file.", ref));
             }
             return null;
         }
@@ -427,10 +438,12 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         try {
                             context.setActualMediaType(actualMediaType);
                             context.setExpectedMediaType(expectedMediaType);
+                            context.setMediaType(entry.getKey());
                             validateMediaType(context);
                         } finally {
                             context.setActualMediaType(null);
                             context.setExpectedMediaType(null);
+                            context.setMediaType(null);
                         }
                     }
                 }
@@ -472,96 +485,157 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             context.getActualOpenAPIJXPathContext(),
             actualMediaType.getSchema(),
             Schema::get$ref);
+        if (expectedSchema == null) {
+            addMethodError(context,
+                String.format(
+                    "Missed mandatory schema definition for the operation '%s' and media type '%s' related to the path item '%s' in the OpenAPI file.",
+                    context.getOperationType(),
+                    context.getMediaType(),
+                    context.getPath()));
+            return;
+        }
         Method method = context.getMethodMap().get(context.getMethod());
-        Schema<?>[] parameterSchemas = new Schema[method.getParameterCount()];
-        String[] parameterNames;
-        Map<String, Schema> allPropertiesOfActualSchema = extractAllProperties(context,
-            context.getActualOpenAPIJXPathContext(),
-            actualSchema);
-        if (method.getParameterCount() > 1) {
-            parameterNames = MethodUtils.getParameterNames(
-                isResolveMethodParameterNames() ? context.getOpenClass() : null,
-                method,
-                context.isProvideRuntimeContext(),
-                context.isProvideRuntimeContext());
+        String[] parameterNames = MethodUtils.getParameterNames(
+            isResolveMethodParameterNames() ? context.getOpenClass() : null,
+            method,
+            context.isProvideRuntimeContext(),
+            context.isProvideRuntimeContext());
+        if (method.getParameterCount() > 1 && context.getMethod().getParameterCount() == 1) {
+            Map<String, Schema> allPropertiesOfActualSchema = extractAllProperties(context,
+                context.getActualOpenAPIJXPathContext(),
+                actualSchema);
+            Map<String, Schema> allPropertiesOfExpectedSchema = extractAllProperties(context,
+                context.getExpectedOpenAPIJXPathContext(),
+                expectedSchema);
             int i = 0;
             for (String parameterName : parameterNames) {
-                parameterSchemas[i++] = allPropertiesOfActualSchema.get(parameterName);
+                Schema<?> parameterSchema = allPropertiesOfActualSchema.get(parameterName);
+                Class<?> parameterType = method.getParameterTypes()[i];
+                IOpenClass parameterOpenClass = extractParameterOpenClass(context,
+                    openMethod,
+                    method,
+                    i,
+                    parameterType);
+                Schema<?> expectedParameterSchema = allPropertiesOfExpectedSchema.get(parameterNames[i]);
+                if (expectedParameterSchema == null) {
+                    addMethodError(context,
+                        String.format("The parameter '%s' of the method '%s' is not specified in the OpenAPI file.",
+                            parameterNames[i],
+                            method.getName()));
+                    i++;
+                    continue;
+                }
+
+                if (isIncompatibleTypes(parameterSchema, expectedParameterSchema, parameterOpenClass)) {
+                    addMethodError(context,
+                        String.format(
+                            "The schema type of the parameter '%s' of the method '%s' is declared as '%s' that mismatches to the schema type '%s' specified in the OpenAPI file.",
+                            parameterNames[i],
+                            method.getName(),
+                            resolveType(parameterSchema),
+                            resolveType(expectedParameterSchema)));
+                    i++;
+                    continue;
+                }
+                try {
+                    context.setTypeValidationInProgress(true);
+                    validateType(context,
+                        parameterSchema,
+                        expectedParameterSchema,
+                        parameterOpenClass,
+                        new HashSet<>());
+                } finally {
+                    context.setTypeValidationInProgress(false);
+                }
+                i++;
             }
-        } else if (method.getParameterCount() == 1) {
-            parameterSchemas[0] = actualSchema;
-            parameterNames = new String[] { openMethod.getSignature().getParameterName(0) };
-        } else {
-            parameterNames = new String[0];
-        }
-        int i = 0;
-
-        Map<String, Schema> allPropertiesOfExpectedSchema = extractAllProperties(context,
-            context.getExpectedOpenAPIJXPathContext(),
-            expectedSchema);
-
-        for (Schema<?> parameterSchema : parameterSchemas) {
-            Class<?> parameterType = method.getParameterTypes()[i];
-
-            IOpenClass parameterOpenClass = null;
-            if (!(context
-                .isProvideVariations() && VariationsPack.class == parameterType && i == parameterSchemas.length - 1)) {
-                if (context.isProvideRuntimeContext()) {
-                    if (i > 0) {
-                        parameterOpenClass = openMethod.getSignature().getParameterType(i - 1);
-                    }
-                } else {
-                    parameterOpenClass = openMethod.getSignature().getParameterType(i);
+            for (Map.Entry<String, Schema> entry : allPropertiesOfExpectedSchema.entrySet()) {
+                if (allPropertiesOfActualSchema.get(entry.getKey()) == null) {
+                    addMethodError(context,
+                        String.format(
+                            "The parameter '%s' of the method '%s' is not found, but it is specified in the OpenAPI file.",
+                            entry.getKey(),
+                            method.getName()));
                 }
             }
-            if (parameterOpenClass == null) {
-                parameterOpenClass = JavaOpenClass.getOpenClass(parameterType);
-            }
+        } else {
+            if (method.getParameterCount() > 0) {
+                int i = 0;
+                for (Annotation[] parameterAnnotations : method.getParameterAnnotations()) {
+                    Class<?> parameterType = method.getParameterTypes()[i];
+                    IOpenClass parameterOpenClass = extractParameterOpenClass(context,
+                        openMethod,
+                        method,
+                        i,
+                        parameterType);
+                    if (!isNonRequestBodyParameter(parameterAnnotations)) {
+                        if (isIncompatibleTypes(actualSchema, expectedSchema, parameterOpenClass)) {
+                            addMethodError(context,
+                                String.format(
+                                    "The schema type of the parameter '%s' of the method '%s' is declared as '%s' that mismatches to the schema type '%s' specified in the OpenAPI file.",
+                                    parameterNames[i],
+                                    method.getName(),
+                                    resolveType(actualSchema),
+                                    resolveType(expectedSchema)));
+                        } else {
+                            try {
+                                context.setTypeValidationInProgress(true);
+                                validateType(context,
+                                    actualSchema,
+                                    expectedSchema,
+                                    parameterOpenClass,
+                                    new HashSet<>());
+                            } finally {
+                                context.setTypeValidationInProgress(false);
+                            }
+                        }
+                        return;
+                    }
+                    i++;
+                }
 
-            Schema<?> expectedParameterSchema = method.getParameterCount() == 1 ? expectedSchema
-                                                                                : allPropertiesOfExpectedSchema
-                                                                                    .get(parameterNames[i]);
-            if (expectedParameterSchema == null) {
-                addMethodError(context,
-                    String.format("The parameter '%s' of the method '%s' is not specified in the OpenAPI file.",
-                        parameterNames[i],
-                        method.getName()));
-                i++;
-                continue;
-            }
-
-            if (isCompatibleTypes(parameterSchema, expectedParameterSchema, parameterOpenClass)) {
-                addMethodError(context,
-                    String.format(
-                        "The schema type for the parameter '%s' of the method '%s' is declared as '%s' that mismatches to the schema type '%s' specified in the OpenAPI file.",
-                        parameterNames[i],
-                        method.getName(),
-                        resolveType(parameterSchema),
-                        resolveType(expectedParameterSchema)));
-                i++;
-                continue;
-            }
-            try {
-                context.setTypeValidationInProgress(true);
-                validateType(context, parameterSchema, expectedParameterSchema, parameterOpenClass, new HashSet<>());
-            } finally {
-                context.setTypeValidationInProgress(false);
-            }
-            i++;
-        }
-
-        for (Map.Entry<String, Schema> entry : allPropertiesOfExpectedSchema.entrySet()) {
-            if (allPropertiesOfActualSchema.get(entry.getKey()) == null) {
-                addMethodError(context,
-                    String.format(
-                        "The parameter '%s' of the method '%s' is not found, but it is specified in the OpenAPI file.",
-                        entry.getKey(),
-                        method.getName()));
             }
         }
     }
 
-    private boolean isCompatibleTypes(Schema<?> parameterSchema,
+    private IOpenClass extractParameterOpenClass(Context context,
+            IOpenMethod openMethod,
+            Method method,
+            int index,
+            Class<?> parameterType) {
+        IOpenClass parameterOpenClass = null;
+        if (!(context.isProvideVariations() && VariationsPack.class == parameterType && index == method
+            .getParameterCount() - 1)) {
+            if (context.isProvideRuntimeContext()) {
+                if (index > 0) {
+                    parameterOpenClass = openMethod.getSignature().getParameterType(index - 1);
+                }
+            } else {
+                parameterOpenClass = openMethod.getSignature().getParameterType(index);
+            }
+        }
+        return parameterOpenClass == null ? JavaOpenClass.getOpenClass(parameterType) : parameterOpenClass;
+    }
+
+    private boolean isNonRequestBodyParameter(Annotation[] annotations) {
+        for (Annotation annotation : annotations) {
+            if (annotation instanceof PathParam || annotation instanceof QueryParam || annotation instanceof CookieParam || annotation instanceof FormParam || annotation instanceof BeanParam || annotation instanceof HeaderParam || annotation instanceof MatrixParam) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isFormParameter(Annotation[] annotations) {
+        for (Annotation annotation : annotations) {
+            if (annotation instanceof FormParam) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isIncompatibleTypes(Schema<?> parameterSchema,
             Schema<?> expectedParameterSchema,
             IOpenClass parameterOpenClass) {
         String expectedParameterSchemaType = resolveType(expectedParameterSchema);
@@ -694,7 +768,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         if (fieldActualSchema == null) {
                             throw new IllegalStateException("Failed to resolve a reference for the generated schema");
                         } else {
-                            if (isCompatibleTypes(actualSchema, entry.getValue(), openField.getType())) {
+                            if (isIncompatibleTypes(fieldActualSchema, entry.getValue(), openField.getType())) {
                                 addTypeError(context,
                                     String.format(
                                         "The schema type of the property '%s' declared in the type '%s' is '%s' that mismatches to the type '%s' specified in the OpenAPI file.",

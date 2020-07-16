@@ -45,7 +45,7 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
         boolean wasFound = false;
         for (OpenLMessage message : getCompiledOpenClass().getMessages()) {
             if (message.getSeverity() == Severity.WARN) {
-                if (message.getSummary().equals("Field 'field1' has been already defined in class 'ParentType'.")) {
+                if (message.getSummary().equals("Field 'field1' is already defined in the parent class 'ParentType'.")) {
                     wasFound = true;
                 }
             }
@@ -59,7 +59,7 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
         for (OpenLMessage message : getCompiledOpenClass().getMessages()) {
             if (message.getSeverity() == Severity.ERROR) {
                 if (message.getSummary()
-                    .equals("Field 'field1' has been already defined in class 'ParentType' with another type.")) {
+                    .equals("Field 'field1' is already defined in the class 'ParentType' with another type.")) {
                     wasFound = true;
                 }
             }
@@ -74,12 +74,12 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
         IOpenClass secondLevelChildType = moduleOpenClass.findType("SecondLevelChildType");
 
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-        String childTypeToStringResult = (String) childType.getMethod("toString", new IOpenClass[] {})
+        String childTypeToStringResult = (String) childType.getMethod("toString", IOpenClass.EMPTY)
             .invoke(childType.newInstance(env), new Object[] {}, env);
         assertTrue(childTypeToStringResult.contains("field5"));
         assertTrue(childTypeToStringResult.startsWith("ChildType"));
         String secondLevelChildTypeToStringResult = (String) secondLevelChildType
-            .getMethod("toString", new IOpenClass[] {})
+            .getMethod("toString", IOpenClass.EMPTY)
             .invoke(secondLevelChildType.newInstance(env), new Object[] {}, env);
         assertTrue(secondLevelChildTypeToStringResult.contains("field7"));
         assertTrue(secondLevelChildTypeToStringResult.startsWith("SecondLevelChildType"));

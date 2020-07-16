@@ -7,7 +7,11 @@
 Creating a Project with a Working Example of OpenL Maven Plugin Usage
 
   OpenL Tablets has an archetype which can be used to create a simple OpenL Tablets rules project containing an example
-  of OpenL Maven plugin usage. Proceed as follows:
+  of OpenL Maven plugin usage.
+
+* Simple OpenL project archetype
+
+  Current project uses OpenL dynamic wrapper to show how OpenL rules can be used in java application.
 
   [[1]] Execute the following command in the command line:
 
@@ -41,3 +45,35 @@ Creating a Project with a Working Example of OpenL Maven Plugin Usage
   It demonstrates how OpenL Tablets rules can be invoked from the Java code.
 
   * A JAR file that contains only compiled Java classes.
+
+* OpenL rules project archetype
+
+  Current project is ready to deploy to OpenL Rule Services and shows an example of pure OpenL rules project with separated main and test modules.
+
+  [[1]] Execute the following command in the command line:
+
+  ------------------------
+    mvn archetype:generate
+  ------------------------
+
+  [[2]] Select the <<<openl-project-archetype>>> menu item then follow the wizard instructions to complete project creation.
+
+  When the new Maven-based project is created, it appears in the file system:
+
+  * The main OpenL project are located in <<src/main/openl>> directory.
+
+  * The test OpenL project are located in <<src/test/openl>> directory.
+
+  [[3]] To compile the project, in the command line, execute the following command from the root of the project folder:
+
+  -------------
+    mvn install
+  -------------
+
+  After that, the following objects can be found the <<<target>>> folder:
+
+  * ZIP file with <<${project.artifactId}-${project.version}.zip>> name.
+
+  This archive contains only main project from <<src/main/openl>> directory and can be deployed to the OpenL Rules Services.
+  For more information, see [Rule Services Usage and Customization Guide].
+  All test tables from the test project are executed on Maven <<test>> goal aren't included to the final ZIP archive.

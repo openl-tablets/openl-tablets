@@ -1,16 +1,24 @@
 package org.openl.rules.ruleservice.databinding;
 
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.OpenLServiceHolder;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.databinding.jackson.NonNullMixIn;
 import org.openl.types.IOpenClass;
+import org.openl.util.ClassUtils;
+import org.openl.util.generation.InterfaceTransformer;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public final class OpenLServiceObjectMapperEnhancerFactoryBean extends AbstractFactoryBean<ObjectMapper> {
+    private static final AtomicLong incrementer = new AtomicLong();
 
     private JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean;
 
@@ -27,6 +35,29 @@ public final class OpenLServiceObjectMapperEnhancerFactoryBean extends AbstractF
         return ObjectMapper.class;
     }
 
+    private Class<?> enhanceMixInClass(Class<?> originalMixInClass, ClassLoader classLoader) {
+        if (originalMixInClass.isInterface()) {
+            String className = originalMixInClass.getName() + "$Enhanced$" + incrementer.getAndIncrement();
+            try {
+                return classLoader.loadClass(className);
+            } catch (ClassNotFoundException e) {
+                ClassWriter classWriter = new ClassWriter(0);
+                ClassVisitor classVisitor = new SpreadsheetResultBeanClassMixInAnnotationsWriter(classWriter,
+                    className, originalMixInClass);
+                InterfaceTransformer transformer = new InterfaceTransformer(originalMixInClass, className, true);
+                transformer.accept(classVisitor);
+                classWriter.visitEnd();
+                try {
+                    ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
+                    return Class.forName(className, true, classLoader);
+                } catch (Exception e1) {
+                    throw new RuntimeException(e1);
+                }
+            }
+        }
+        return originalMixInClass;
+    }
+
     @Override
     protected ObjectMapper createInstance() throws Exception {
         ObjectMapper objectMapper = getJacksonObjectMapperFactoryBean().createJacksonObjectMapper();
@@ -37,20 +68,31 @@ public final class OpenLServiceObjectMapperEnhancerFactoryBean extends AbstractF
         if (openLService.getOpenClass() != null) {
             for (IOpenClass openClass : openLService.getOpenClass().getTypes()) {
                 if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-                    if (objectMapper
-                        .findMixInClassFor(((CustomSpreadsheetResultOpenClass) openClass).getBeanClass()) == null) {
-                        objectMapper.addMixIn(((CustomSpreadsheetResultOpenClass) openClass).getBeanClass(),
-                            NonNullMixIn.class);
-                    }
+                    Class<?> sprBeanClass = ((CustomSpreadsheetResultOpenClass) openClass).getBeanClass();
+                    addMixInAnnotationsToSprBeanClass(objectMapper, openLService, sprBeanClass);
                 }
             }
             if (openLService.getOpenClass() instanceof XlsModuleOpenClass) {
-                objectMapper.addMixIn(((XlsModuleOpenClass) openLService.getOpenClass())
+                Class<?> sprBeanClass = ((XlsModuleOpenClass) openLService.getOpenClass())
                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                     .toCustomSpreadsheetResultOpenClass()
-                    .getBeanClass(), NonNullMixIn.class);
+                    .getBeanClass();
+                addMixInAnnotationsToSprBeanClass(objectMapper, openLService, sprBeanClass);
             }
         }
         return objectMapper;
+    }
+
+    private void addMixInAnnotationsToSprBeanClass(ObjectMapper objectMapper,
+            OpenLService openLService,
+            Class<?> sprBeanClass) throws RuleServiceInstantiationException {
+        Class<?> originalMixInClass = objectMapper.findMixInClassFor(sprBeanClass);
+        Class<?> mixInClass;
+        if (originalMixInClass == null) {
+            mixInClass = NonNullMixIn.class;
+        } else {
+            mixInClass = enhanceMixInClass(originalMixInClass, openLService.getClassLoader());
+        }
+        objectMapper.addMixIn(sprBeanClass, mixInClass);
     }
 }

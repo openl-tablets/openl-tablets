@@ -7,9 +7,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.serialization.JacksonObjectMapperFactoryBeanHelper;
+import org.openl.types.IOpenClass;
 
 public class ServiceConfigurationRootClassNamesBindingFactoryBean extends ServiceConfigurationFactoryBean<Set<String>> {
     private static final String ROOT_CLASS_NAMES_BINDING = "rootClassNamesBinding";
@@ -33,13 +35,25 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
         return Collections.unmodifiableSet(ret);
     }
 
+    private Set<Class<?>> extractDatatypesClasses(IOpenClass moduleOpenClass) {
+        Set<Class<?>> datatypeClasses = new HashSet<>();
+        for (IOpenClass openClass : moduleOpenClass.getTypes()) {
+            if (openClass instanceof DatatypeOpenClass) {
+                datatypeClasses.add(openClass.getInstanceClass());
+            }
+        }
+        return datatypeClasses;
+    }
+
     private Set<String> fromOpenLService() throws ServiceConfigurationException {
         OpenLService openLService = getOpenLService();
         try {
             if (openLService.getOpenClass() != null) {
-                Set<Class<?>> classes = JacksonObjectMapperFactoryBeanHelper.extractSpreadsheetResultBeanClasses(
+                Set<Class<?>> classes = new HashSet<>();
+                classes.addAll(JacksonObjectMapperFactoryBeanHelper.extractSpreadsheetResultBeanClasses(
                     (XlsModuleOpenClass) openLService.getOpenClass(),
-                    openLService.getServiceClass());
+                    openLService.getServiceClass()));
+                classes.addAll(extractDatatypesClasses(openLService.getOpenClass()));
                 return classes.stream().map(Class::getName).collect(Collectors.toSet());
             }
             return Collections.emptySet();

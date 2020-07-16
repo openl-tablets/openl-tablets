@@ -1,5 +1,5 @@
 <project>
-    <name>Sample Project</name>
+    <name>${project-name}</name>
 
     <modules>
         <module>
@@ -13,5 +13,4 @@
     </modules>
 
     <properties-file-name-pattern>.*-%state%-%effectiveDate:MMddyyyy%-%startRequestDate:MMddyyyy%</properties-file-name-pattern>
-    <properties-file-name-processor>org.openl.rules.project.resolving.CWPropertyFileNameProcessor</properties-file-name-processor>
 </project>

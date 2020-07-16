@@ -4,7 +4,11 @@ import org.openl.rules.common.ProjectException;
 
 public class LockException extends ProjectException {
 
-    public LockException(String mesage, Throwable exception) {
-        super(mesage, exception);
+    public LockException(String message, Throwable exception) {
+        super(message, exception);
+    }
+
+    public LockException(String message) {
+        super(message);
     }
 }

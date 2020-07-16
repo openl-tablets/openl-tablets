@@ -9,17 +9,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -65,25 +59,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
         TEXT_MEDIA_TYPE_SET.add(Enum.class);
         TEXT_MEDIA_TYPE_SET.add(String.class);
         TEXT_MEDIA_TYPE_SET.add(Date.class);
-    }
-
-    private static class ParamAnnotationValue {
-
-        private final Class<?> annotationClass;
-        private final String fieldName;
-
-        public ParamAnnotationValue(Class<?> withPathParamValues, String fieldName) {
-            this.annotationClass = withPathParamValues;
-            this.fieldName = fieldName;
-        }
-
-        public Class<?> getAnnotationClass() {
-            return annotationClass;
-        }
-
-        public String getFieldName() {
-            return fieldName;
-        }
     }
 
     private static class JAXRSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
@@ -331,6 +306,21 @@ public class JAXRSOpenLServiceEnhancerHelper {
             return paths.get(method);
         }
 
+        boolean isJAXRSParamAnnotation(Annotation annotation) {
+            return annotation instanceof PathParam || annotation instanceof QueryParam || annotation instanceof CookieParam || annotation instanceof FormParam || annotation instanceof BeanParam || annotation instanceof HeaderParam || annotation instanceof MatrixParam;
+        }
+
+        boolean isJAXRSParamAnnotationUsedInMethod(Method method) {
+            for (Annotation[] paramAnnotations : method.getParameterAnnotations()) {
+                for (Annotation paramAnnotation : paramAnnotations) {
+                    if (isJAXRSParamAnnotation(paramAnnotation)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         @Override
         public MethodVisitor visitMethod(int arg0, String methodName, String arg2, String arg3, String[] arg4) {
             Method originalMethod = ASMUtils.getMethod(originalClass, methodName, arg2);
@@ -362,35 +352,71 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
                 String[] parameterNames = resolveParameterNames(originalMethod);
                 processAnnotationsOnMethodParameters(originalMethod, mv);
-                List<ParamAnnotationValue> paramAnnotationsValues = getParamAnnotationsValue(originalMethod);
-                Set<String> usedValues = paramAnnotationsValues.stream()
-                    .filter(Objects::nonNull)
-                    .map(ParamAnnotationValue::getFieldName)
-                    .collect(Collectors.toSet());
-                int i = 0;
-                for (String paramName : parameterNames) {
-                    if (paramAnnotationsValues.get(i) == null) {
-                        String p = paramName;
-                        int j = 1;
-                        while (usedValues.contains(p)) {
-                            p = paramName + j;
-                        }
-                        sb.append("/{").append(p).append(": .*}");
-                        addPathParamAnnotation(mv, i, p);
-                        usedValues.add(p);
-                    } else if (paramAnnotationsValues.get(i).getAnnotationClass().isAssignableFrom(PathParam.class)) {
-                        sb.append("/{").append(paramAnnotationsValues.get(i).getFieldName()).append(": .*}");
-                    }
-                    i++;
-                }
-
                 addGetAnnotation(mv, originalMethod);
-                addPathAnnotation(mv, originalMethod, sb.toString());
+                if (!originalMethod.isAnnotationPresent(Path.class)) {
+                    Set<String> usedPathParamValues = getUsedValuesInParamAnnotations(originalMethod,
+                        e -> e instanceof PathParam,
+                        e -> ((PathParam) e).value());
+                    int i = 0;
+                    for (String paramName : parameterNames) {
+                        Annotation[] paramAnnotations = originalMethod.getParameterAnnotations()[i];
+                        PathParam pathParam = null;
+                        for (Annotation paramAnnotation : paramAnnotations) {
+                            if (paramAnnotation instanceof PathParam) {
+                                pathParam = (PathParam) paramAnnotation;
+                            }
+                        }
+                        if (pathParam == null) {
+                            String p = paramName;
+                            int j = 1;
+                            while (usedPathParamValues.contains(p)) {
+                                p = paramName + j;
+                            }
+                            sb.append("/{").append(p).append(": .*}");
+                            addPathParamAnnotation(mv, i, p);
+                            usedPathParamValues.add(p);
+                        } else {
+                            sb.append("/{").append(pathParam.value()).append(": .*}");
+                        }
+                        i++;
+                    }
+                    addPathAnnotation(mv, originalMethod, sb.toString());
+                } else {
+                    Set<String> usedQueryParamValues = getUsedValuesInParamAnnotations(originalMethod,
+                        e -> e instanceof QueryParam,
+                        e -> ((QueryParam) e).value());
+                    int i = 0;
+                    for (String paramName : parameterNames) {
+                        Annotation[] paramAnnotations = originalMethod.getParameterAnnotations()[i];
+                        boolean jaxrsAnnotationPresented = false;
+                        for (Annotation annotation : paramAnnotations) {
+                            if (isJAXRSParamAnnotation(annotation)) {
+                                jaxrsAnnotationPresented = true;
+                                break;
+                            }
+                        }
+                        if (!jaxrsAnnotationPresented) {
+                            String p = paramName;
+                            int j = 1;
+                            while (usedQueryParamValues.contains(p)) {
+                                p = paramName + j;
+                            }
+                            addQueryParamAnnotation(mv, i, p);
+                            usedQueryParamValues.add(p);
+                        }
+                        i++;
+                    }
+                }
             } else {
                 try {
                     if (numOfParameters > 1) {
-                        String changeArgumentTypes = changeArgumentTypes(arg2, originalMethod);
-                        mv = super.visitMethod(arg0, methodName, changeArgumentTypes, arg3, arg4);
+                        if (!isJAXRSParamAnnotationUsedInMethod(originalMethod)) {
+                            String changeArgumentTypes = changeArgumentTypes(arg2, originalMethod);
+                            mv = super.visitMethod(arg0, methodName, changeArgumentTypes, arg3, arg4);
+                        } else {
+                            mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
+                            processAnnotationsOnMethodParameters(originalMethod, mv);
+                        }
                     } else {
                         mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
                         processAnnotationsOnMethodParameters(originalMethod, mv);
@@ -411,34 +437,25 @@ public class JAXRSOpenLServiceEnhancerHelper {
             return mv;
         }
 
+        private Set<String> getUsedValuesInParamAnnotations(Method originalMethod,
+                Predicate<Annotation> predicate,
+                Function<Annotation, String> func) {
+            Set<String> usedPathParamValues = new HashSet<>();
+            for (Annotation[] paramAnnotations : originalMethod.getParameterAnnotations()) {
+                for (Annotation paramAnnotation : paramAnnotations) {
+                    if (predicate.test(paramAnnotation)) {
+                        usedPathParamValues.add(func.apply(paramAnnotation));
+                        break;
+                    }
+                }
+            }
+            return usedPathParamValues;
+        }
+
         private String[] resolveParameterNames(Method originalMethod) {
             return resolveMethodParameterNames ? MethodUtils
                 .getParameterNames(openClass, originalMethod, provideRuntimeContext, provideVariations)
                                                : GenUtils.getParameterNames(originalMethod);
-        }
-
-        private List<ParamAnnotationValue> getParamAnnotationsValue(Method originalMethod) {
-            final List<ParamAnnotationValue> values = new ArrayList<>(originalMethod.getParameterCount());
-            for (Annotation[] annotations : originalMethod.getParameterAnnotations()) {
-                if (annotations.length > 0) {
-                    for (Annotation annotation : annotations) {
-                        if (annotation instanceof PathParam) {
-                            values.add(new ParamAnnotationValue(PathParam.class, ((PathParam) annotation).value()));
-                            // it is possible that PathParam and QueryParam annotations will be indicated together for
-                            // one parameter
-                            break;
-                        } else if (annotation instanceof QueryParam) {
-                            values.add(new ParamAnnotationValue(QueryParam.class, ((QueryParam) annotation).value()));
-                            // it is possible that PathParam and QueryParam annotations will be indicated together for
-                            // one parameter
-                            break;
-                        }
-                    }
-                } else {
-                    values.add(null);
-                }
-            }
-            return values;
         }
 
         private boolean isTextMediaType(Class<?> type) {
@@ -605,6 +622,12 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
         private void addPathParamAnnotation(MethodVisitor mv, int index, String paramName) {
             AnnotationVisitor av = mv.visitParameterAnnotation(index, Type.getDescriptor(PathParam.class), true);
+            av.visit("value", paramName);
+            av.visitEnd();
+        }
+
+        private void addQueryParamAnnotation(MethodVisitor mv, int index, String paramName) {
+            AnnotationVisitor av = mv.visitParameterAnnotation(index, Type.getDescriptor(QueryParam.class), true);
             av.visit("value", paramName);
             av.visitEnd();
         }

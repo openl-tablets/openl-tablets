@@ -18,10 +18,16 @@
                 <include>*.xlsx</include>
             </includes>
         </fileSet>
-        <fileSet encoding="UTF-8">
+        <fileSet filtered="true" encoding="UTF-8">
             <directory>src/test/openl</directory>
             <includes>
-                <include>**/*.*</include>
+                <include>*.xml</include>
+            </includes>
+        </fileSet>
+        <fileSet encoding="UTF-8">
+            <directory>src/test/openl/rules</directory>
+            <includes>
+                <include>*.xlsx</include>
             </includes>
         </fileSet>
         <fileSet filtered="true" encoding="UTF-8">
@@ -31,5 +37,11 @@
             </includes>
         </fileSet>
     </fileSets>
+
+    <requiredProperties>
+        <requiredProperty key="project-name">
+            <defaultValue>Sample Project</defaultValue>
+        </requiredProperty>
+    </requiredProperties>
 
 </archetype-descriptor>

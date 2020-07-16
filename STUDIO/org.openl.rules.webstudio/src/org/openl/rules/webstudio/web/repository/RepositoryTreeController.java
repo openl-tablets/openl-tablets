@@ -39,6 +39,7 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.IProjectDescriptorSerializer;
+import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -1778,7 +1779,10 @@ public class RepositoryTreeController {
                     Module module = new Module();
                     module.setName(fileName.substring(0, fileName.lastIndexOf('.')));
                     module.setRulesRootPath(new PathEntry(modulePath));
-                    projectDescriptor.getModules().add(module);
+                    ProjectDescriptorManager descriptorManager = new ProjectDescriptorManager();
+                    if (!descriptorManager.isCoveredByWildcardModule(projectDescriptor, module)) {
+                        projectDescriptor.getModules().add(module);
+                    }
                     String xmlString = serializer.serialize(projectDescriptor);
                     InputStream newContent = IOUtils.toInputStream(xmlString);
                     resource.setContent(newContent);

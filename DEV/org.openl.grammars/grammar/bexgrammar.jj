@@ -488,7 +488,7 @@ TOKEN :
 
 TOKEN :
 {
-  < RANGE_VARIABLE : < IDENTIFIER > ":" < IDENTIFIER > >
+  < RANGE_VARIABLE : "$" < IDENTIFIER > ":$" < IDENTIFIER > >
 }
 
 /* COMMENTS */

@@ -26,9 +26,9 @@ import org.springframework.core.annotation.AnnotationUtils;
  */
 public class InterfaceTransformer {
     private final Logger log = LoggerFactory.getLogger(InterfaceTransformer.class);
-    private Class<?> interfaceToTransform;
-    private String className;
-    private boolean processParamAnnotation;
+    private final Class<?> interfaceToTransform;
+    private final String className;
+    private final boolean processParamAnnotation;
 
     /**
      * @param interfaceToTransform Base class for generations.
@@ -101,11 +101,11 @@ public class InterfaceTransformer {
                 }
                 if (processParamAnnotation) {
                     int index = 0;
-                    for (Annotation[] annotatons : method.getParameterAnnotations()) {
-                        for (Annotation annotaton : annotatons) {
-                            String descriptor = Type.getDescriptor(annotaton.annotationType());
+                    for (Annotation[] annotations : method.getParameterAnnotations()) {
+                        for (Annotation annotation : annotations) {
+                            String descriptor = Type.getDescriptor(annotation.annotationType());
                             AnnotationVisitor av = methodVisitor.visitParameterAnnotation(index, descriptor, true);
-                            processAnnotation(annotaton, av);
+                            processAnnotation(annotation, av);
                         }
                         index++;
                     }

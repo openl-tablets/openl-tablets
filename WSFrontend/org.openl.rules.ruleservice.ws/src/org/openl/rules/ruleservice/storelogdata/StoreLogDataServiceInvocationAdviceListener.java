@@ -31,10 +31,10 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object result,
             Exception lastOccurredException,
             Predicate<PrepareStoreLogData> predicate) {
-        PrepareStoreLogDatas storeLoggings = interfaceMethod.getAnnotation(PrepareStoreLogDatas.class);
-        if (storeLoggings != null) {
+        PrepareStoreLogDatas prepareStoreLogDatas = interfaceMethod.getAnnotation(PrepareStoreLogDatas.class);
+        if (prepareStoreLogDatas != null) {
             StoreLogData storeLogData = null;
-            for (PrepareStoreLogData storeLogging : storeLoggings.value()) {
+            for (PrepareStoreLogData storeLogging : prepareStoreLogDatas.value()) {
                 if (predicate.test(storeLogging)) {
                     StoreLogDataAdvice storeLogDataAdvice = null;
                     try {
