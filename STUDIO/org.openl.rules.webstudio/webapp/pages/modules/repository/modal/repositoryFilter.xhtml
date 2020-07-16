@@ -32,7 +32,7 @@
           <td>Repository:</td>
           <td>
             <h:selectOneMenu id="repository" value="#{repositoryTreeController.filterRepositoryId}">
-              <f:selectItem itemLabel="All repositiries" itemValue="#{null}"/>
+              <f:selectItem itemLabel="All repositories" itemValue="#{null}"/>
               <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
                              itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
             </h:selectOneMenu>
