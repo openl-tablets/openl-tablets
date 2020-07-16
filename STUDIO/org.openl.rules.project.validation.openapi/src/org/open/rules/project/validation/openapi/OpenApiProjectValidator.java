@@ -500,13 +500,15 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             method,
             context.isProvideRuntimeContext(),
             context.isProvideRuntimeContext());
+
+        Map<String, Schema> allPropertiesOfActualSchema = extractAllProperties(context,
+            context.getActualOpenAPIJXPathContext(),
+            actualSchema);
+        Map<String, Schema> allPropertiesOfExpectedSchema = extractAllProperties(context,
+            context.getExpectedOpenAPIJXPathContext(),
+            expectedSchema);
+
         if (method.getParameterCount() > 1 && context.getMethod().getParameterCount() == 1) {
-            Map<String, Schema> allPropertiesOfActualSchema = extractAllProperties(context,
-                context.getActualOpenAPIJXPathContext(),
-                actualSchema);
-            Map<String, Schema> allPropertiesOfExpectedSchema = extractAllProperties(context,
-                context.getExpectedOpenAPIJXPathContext(),
-                expectedSchema);
             int i = 0;
             for (String parameterName : parameterNames) {
                 Schema<?> parameterSchema = allPropertiesOfActualSchema.get(parameterName);
@@ -516,37 +518,13 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     method,
                     i,
                     parameterType);
-                Schema<?> expectedParameterSchema = allPropertiesOfExpectedSchema.get(parameterNames[i]);
-                if (expectedParameterSchema == null) {
-                    addMethodError(context,
-                        String.format("The parameter '%s' of the method '%s' is not specified in the OpenAPI file.",
-                            parameterNames[i],
-                            method.getName()));
-                    i++;
-                    continue;
-                }
-
-                if (isIncompatibleTypes(parameterSchema, expectedParameterSchema, parameterOpenClass)) {
-                    addMethodError(context,
-                        String.format(
-                            "The schema type of the parameter '%s' of the method '%s' is declared as '%s' that mismatches to the schema type '%s' specified in the OpenAPI file.",
-                            parameterNames[i],
-                            method.getName(),
-                            resolveType(parameterSchema),
-                            resolveType(expectedParameterSchema)));
-                    i++;
-                    continue;
-                }
-                try {
-                    context.setTypeValidationInProgress(true);
-                    validateType(context,
-                        parameterSchema,
-                        expectedParameterSchema,
-                        parameterOpenClass,
-                        new HashSet<>());
-                } finally {
-                    context.setTypeValidationInProgress(false);
-                }
+                Schema<?> expectedParameterSchema = allPropertiesOfExpectedSchema.get(parameterName);
+                validateMethodParameter(context,
+                    method,
+                    parameterName,
+                    parameterSchema,
+                    parameterOpenClass,
+                    expectedParameterSchema);
                 i++;
             }
             for (Map.Entry<String, Schema> entry : allPropertiesOfExpectedSchema.entrySet()) {
@@ -559,7 +537,20 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 }
             }
         } else {
-            if (method.getParameterCount() > 0) {
+            if (method.getParameterCount() == 1 && isJAXRSBeanParamAnnotationPresented(
+                method.getParameterAnnotations()[0])) {
+                IOpenClass parameterOpenClass = extractParameterOpenClass(context,
+                    openMethod,
+                    method,
+                    0,
+                    method.getParameterTypes()[0]);
+                validateMethodParameter(context,
+                    method,
+                    parameterNames[0],
+                    actualSchema,
+                    parameterOpenClass,
+                    expectedSchema);
+            } else if (method.getParameterCount() > 0) {
                 int i = 0;
                 for (Annotation[] parameterAnnotations : method.getParameterAnnotations()) {
                     Class<?> parameterType = method.getParameterTypes()[i];
@@ -568,32 +559,75 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         method,
                         i,
                         parameterType);
-                    if (!isNonRequestBodyParameter(parameterAnnotations)) {
-                        if (isIncompatibleTypes(actualSchema, expectedSchema, parameterOpenClass)) {
-                            addMethodError(context,
-                                String.format(
-                                    "The schema type of the parameter '%s' of the method '%s' is declared as '%s' that mismatches to the schema type '%s' specified in the OpenAPI file.",
-                                    parameterNames[i],
-                                    method.getName(),
-                                    resolveType(actualSchema),
-                                    resolveType(expectedSchema)));
-                        } else {
-                            try {
-                                context.setTypeValidationInProgress(true);
-                                validateType(context,
-                                    actualSchema,
-                                    expectedSchema,
-                                    parameterOpenClass,
-                                    new HashSet<>());
-                            } finally {
-                                context.setTypeValidationInProgress(false);
-                            }
-                        }
+                    String parameterName = parameterNames[i];
+                    if (!isJAXRSParameterAnnotationPresented(parameterAnnotations)) {
+                        validateMethodParameter(context,
+                            method,
+                            parameterName,
+                            actualSchema,
+                            parameterOpenClass,
+                            expectedSchema);
                         return;
                     }
                     i++;
                 }
+                i = 0;
+                for (String parameterName : parameterNames) {
+                    Schema<?> parameterSchema = allPropertiesOfActualSchema.get(parameterName);
+                    Class<?> parameterType = method.getParameterTypes()[i];
+                    boolean isJAXRSFormParamAnnotationPresented = isJAXRSFormParamAnnotationPresented(
+                        method.getParameterAnnotations()[i]);
+                    if (isJAXRSFormParamAnnotationPresented) {
+                        IOpenClass parameterOpenClass = extractParameterOpenClass(context,
+                            openMethod,
+                            method,
+                            i,
+                            parameterType);
+                        Schema<?> expectedParameterSchema = allPropertiesOfExpectedSchema.get(parameterName);
+                        validateMethodParameter(context,
+                            method,
+                            parameterName,
+                            parameterSchema,
+                            parameterOpenClass,
+                            expectedParameterSchema);
+                    }
+                    i++;
+                }
+            }
+        }
+    }
 
+    private void validateMethodParameter(Context context,
+            Method method,
+            String parameterName,
+            Schema<?> parameterSchema,
+            IOpenClass parameterOpenClass,
+            Schema<?> expectedParameterSchema) {
+        if (expectedParameterSchema == null) {
+            addMethodError(context,
+                String.format("The parameter '%s' of the method '%s' is not specified in the OpenAPI file.",
+                    parameterName,
+                    method.getName()));
+        } else {
+            if (isIncompatibleTypes(parameterSchema, expectedParameterSchema, parameterOpenClass)) {
+                addMethodError(context,
+                    String.format(
+                        "The schema type of the parameter '%s' of the method '%s' is declared as '%s' that mismatches to the schema type '%s' specified in the OpenAPI file.",
+                        parameterName,
+                        method.getName(),
+                        resolveType(parameterSchema),
+                        resolveType(expectedParameterSchema)));
+            } else {
+                try {
+                    context.setTypeValidationInProgress(true);
+                    validateType(context,
+                        parameterSchema,
+                        expectedParameterSchema,
+                        parameterOpenClass,
+                        new HashSet<>());
+                } finally {
+                    context.setTypeValidationInProgress(false);
+                }
             }
         }
     }
@@ -617,7 +651,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         return parameterOpenClass == null ? JavaOpenClass.getOpenClass(parameterType) : parameterOpenClass;
     }
 
-    private boolean isNonRequestBodyParameter(Annotation[] annotations) {
+    private boolean isJAXRSParameterAnnotationPresented(Annotation[] annotations) {
         for (Annotation annotation : annotations) {
             if (annotation instanceof PathParam || annotation instanceof QueryParam || annotation instanceof CookieParam || annotation instanceof FormParam || annotation instanceof BeanParam || annotation instanceof HeaderParam || annotation instanceof MatrixParam) {
                 return true;
@@ -626,9 +660,18 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         return false;
     }
 
-    private boolean isFormParameter(Annotation[] annotations) {
+    private boolean isJAXRSFormParamAnnotationPresented(Annotation[] annotations) {
         for (Annotation annotation : annotations) {
             if (annotation instanceof FormParam) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isJAXRSBeanParamAnnotationPresented(Annotation[] annotations) {
+        for (Annotation annotation : annotations) {
+            if (annotation instanceof BeanParam) {
                 return true;
             }
         }
