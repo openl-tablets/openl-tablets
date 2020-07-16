@@ -13,14 +13,8 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
-import org.openl.rules.webstudio.web.servlet.RulesUserSession;
-import org.openl.rules.webstudio.web.util.Constants;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Repository Utilities
@@ -28,21 +22,32 @@ import org.slf4j.LoggerFactory;
  * @author Aleh Bykhavets
  */
 public final class RepositoryUtils {
-    public static final Comparator<AProjectArtefact> ARTEFACT_COMPARATOR = new Comparator<AProjectArtefact>() {
-        @Override
-        public int compare(AProjectArtefact o1, AProjectArtefact o2) {
-            if (o1.isFolder() == o2.isFolder()) {
-                return o1.getName().compareTo(o2.getName());
-            } else {
-                return o1.isFolder() ? -1 : 1;
-            }
+    public static final Comparator<AProjectArtefact> ARTEFACT_COMPARATOR = (o1, o2) -> {
+        if (o1.isFolder() == o2.isFolder()) {
+            return o1.getName().compareTo(o2.getName());
+        } else {
+            return o1.isFolder() ? -1 : 1;
         }
     };
 
     private RepositoryUtils() {
     }
 
-    public static String getTreeNodeId(String name) {
+    public static String getTreeNodeId(AProjectArtefact artefact) {
+        if (artefact == null) {
+            return null;
+        }
+
+        String repoId = artefact.getRepository().getId();
+        String name = artefact.getName();
+        return getTreeNodeId(repoId, name);
+    }
+
+    static String getTreeNodeId(String repoId, String name) {
+        return getTreeNodeId(repoId) + "_" + getTreeNodeId(name);
+    }
+
+    private static String getTreeNodeId(String name) {
         if (StringUtils.isNotBlank(name)) {
             // FIXME name.hashCode() can produce collisions. Not good for id.
             return String.valueOf(name.hashCode());

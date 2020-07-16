@@ -41,6 +41,7 @@
 
               <rich:column>
                 <h:commandLink value="#{prj.name}" action="#{repositoryTreeController.selectRulesProject}">
+                  <f:param name="repositoryId" value="#{prj.data.repository.id}" />
                   <f:param name="projectName" value="#{prj.name}" />
                 </h:commandLink>
               </rich:column>
@@ -82,6 +83,7 @@
                       <h:commandLink immediate="true"
                           onclick="#{rich:component('modalDeleteNode')}.show();"
                           title="Archive project">
+                          <f:param name="repositoryId" value="#{prj.data.repository.id}" />
                           <f:param name="projectName" value="#{prj.name}" />
                           <f:ajax listener="#{repositoryTreeController.deleteRulesProjectListener}" render=":deleteNodeForm"/>
                           <h:graphicImage url="/webresource/images/delete.png" styleClass="actionImage" alt="Delete"/>

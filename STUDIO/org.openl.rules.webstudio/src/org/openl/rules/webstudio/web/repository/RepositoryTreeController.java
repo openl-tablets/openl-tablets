@@ -665,7 +665,7 @@ public class RepositoryTreeController {
             ADeploymentProject project = userWorkspace.getDDProject(projectName);
             // projectInTree must be initialized before project was deleted
             TreeNode projectInTree = repositoryTreeState.getDeploymentRepository()
-                .getChild(RepositoryUtils.getTreeNodeId(project.getName()));
+                .getChild(RepositoryUtils.getTreeNodeId(project));
             String comment = deployConfigRepoComments.archiveProject(project.getName());
             project.delete(userWorkspace.getUser(), comment);
             if (repositoryTreeState.isHideDeleted()) {
@@ -751,10 +751,10 @@ public class RepositoryTreeController {
     }
 
     public String deleteElement() {
-        repositoryTreeState.getSelectedNode().getData();
+        AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getData();
         String childName = WebStudioUtils.getRequestParameter("element");
         AProjectArtefact childArtefact = ((TreeNode) repositoryTreeState.getSelectedNode()
-            .getChild(RepositoryUtils.getTreeNodeId(childName))).getData();
+            .getChild(RepositoryUtils.getTreeNodeId(artefact.getRepository().getId(), childName))).getData();
 
         try {
             studio.getModel().clearModuleInfo(); // Release resources like jars
@@ -1460,7 +1460,7 @@ public class RepositoryTreeController {
 
     private void selectProject(String projectName, TreeRepository root) {
         for (TreeNode node : root.getChildNodes()) {
-            if (node.getName().equals(projectName)) {
+            if (node.getName().equals(projectName) && repositoryId.equals(node.getData().getRepository().getId())) {
                 repositoryTreeState.setSelectedNode(node);
                 break;
             }
@@ -1468,7 +1468,9 @@ public class RepositoryTreeController {
     }
 
     public String selectRulesProject() {
+        String repositoryId = WebStudioUtils.getRequestParameter("repositoryId");
         String projectName = WebStudioUtils.getRequestParameter("projectName");
+        setRepositoryId(repositoryId);
         setRulesProject(projectName);
         return null;
     }
@@ -1976,11 +1978,12 @@ public class RepositoryTreeController {
     }
 
     public void deleteRulesProjectListener(AjaxBehaviorEvent event) {
+        String repositoryId = WebStudioUtils.getRequestParameter("repositoryId");
         final String projectName = WebStudioUtils.getRequestParameter("projectName");
 
         try {
             activeProjectNode = repositoryTreeState.getRulesRepository()
-                .getChild(RepositoryUtils.getTreeNodeId(projectName));
+                .getChild(RepositoryUtils.getTreeNodeId(repositoryId, projectName));
         } catch (Exception e) {
             log.error("Cannot delete rules project '{}'.", projectName, e);
             WebStudioUtils.addErrorMessage("Failed to delete rules project.", e.getMessage());
