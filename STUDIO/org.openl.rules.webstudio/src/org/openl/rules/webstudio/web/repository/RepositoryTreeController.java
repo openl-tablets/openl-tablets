@@ -2308,9 +2308,6 @@ public class RepositoryTreeController {
                 throw new IllegalArgumentException("Repository " + repositoryId + " has flat folder structure.");
             }
             FolderRepository repository = ((FolderMapper) mappedRepo).getDelegate();
-            if (!projectFolder.endsWith("/")) {
-                projectFolder += "/";
-            }
             FileData fileData = repository.check(projectFolder);
             if (fileData == null) {
                 WebStudioUtils.addErrorMessage("Project doesn't exist in the path " + projectFolder + ".");
@@ -2318,31 +2315,12 @@ public class RepositoryTreeController {
                 return;
             }
 
-            String realProjectName;
-            try {
-                AProject project = new AProject(mappedRepo, projectFolder);
-                AProjectArtefact projectDescriptorArtifact = project.getArtefact(
-                    ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-                IProjectDescriptorSerializer serializer = projectDescriptorSerializerFactory
-                    .getSerializer(project);
+            ((FolderMapper) mappedRepo).addMapping(projectFolder);
 
-                AProjectResource resource = (AProjectResource) projectDescriptorArtifact;
-                try (InputStream content = resource.getContent()) {
-                    ProjectDescriptor projectDescriptor = serializer.deserialize(content);
-                    realProjectName = projectDescriptor.getName();
-                }
-            } catch (ProjectException e) {
-                realProjectName = projectName;
-            }
+            userWorkspace.refresh();
+            repositoryTreeState.invalidateTree();
+            resetStudioModel();
 
-            if (StringUtils.isBlank(realProjectName)) {
-                WebStudioUtils.addErrorMessage("Project doesn't contain rules.xml. You must specify project name yourself.");
-                clearForm();
-                return;
-            }
-
-            String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
-            ((FolderMapper) mappedRepo).addMapping(rulesLocation + realProjectName, projectFolder);
             WebStudioUtils.addInfoMessage("Project was imported successfully.");
             clearForm();
         } catch (Exception e) {

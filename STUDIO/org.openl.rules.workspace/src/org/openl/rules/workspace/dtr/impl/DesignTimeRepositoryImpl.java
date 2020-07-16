@@ -2,6 +2,7 @@ package org.openl.rules.workspace.dtr.impl;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -134,18 +135,27 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private Repository createRepo(String configName, boolean flatStructure, String baseFolder) {
         try {
             Repository repo = RepositoryInstatiator.newRepository(configName, propertyResolver);
+            if (settingsRepository != null) {
+                String setter = "setSettingsRepository";
+                try {
+                    Method setMethod = repo.getClass().getMethod(setter, Repository.class);
+                    setMethod.invoke(repo, settingsRepository);
+                } catch (NoSuchMethodException e) {
+                    log.debug(e.getMessage(), e);
+                }
+            }
+
             if (!flatStructure && repo.supports().folders()) {
                 // Nested folder structure is supported for FolderRepository only
                 FolderRepository delegate = (FolderRepository) repo;
 
-                RepositoryMode repositoryMode = RepositoryMode.PRODUCTION;
-                switch (configName) {
-                    case ConfigNames.DEPLOY_CONFIG:
-                        repositoryMode = RepositoryMode.DEPLOY_CONFIG;
-                        break;
-                    case ConfigNames.DESIGN_CONFIG:
-                        repositoryMode = RepositoryMode.DESIGN;
-                        break;
+                RepositoryMode repositoryMode = null;
+                if (configName.startsWith(ConfigNames.DEPLOY_CONFIG)) {
+                    repositoryMode = RepositoryMode.DEPLOY_CONFIG;
+                } else if (configName.startsWith(ConfigNames.DESIGN_CONFIG)) {
+                    repositoryMode = RepositoryMode.DESIGN;
+                } else if (configName.startsWith(ConfigNames.PRODUCTION)) {
+                    repositoryMode = RepositoryMode.PRODUCTION;
                 }
                 repo = MappedRepository.create(delegate, repositoryMode, baseFolder, settingsRepository);
             }

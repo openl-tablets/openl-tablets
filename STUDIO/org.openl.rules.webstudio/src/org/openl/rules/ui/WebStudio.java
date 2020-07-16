@@ -11,15 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
@@ -286,7 +278,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
             freezeProject(project.getName());
             String logicalName = getLogicalName(project);
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
-            if (!logicalName.equals(project.getName())) {
+            boolean renameProject = !logicalName.equals(project.getName());
+            if (renameProject && !project.getDesignRepository().supports().mappedFolders()) {
                 getModel().clearModuleInfo();
 
                 // Revert project name in rules.xml
@@ -303,6 +296,19 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 resetProjects();
             }
             project.save();
+            if (renameProject) {
+                if (project.getDesignRepository().supports().mappedFolders()) {
+                    LocalWorkspace localWorkspace = rulesUserSession.getUserWorkspace().getLocalWorkspace();
+                    File repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
+                    String prevPath = project.getFolderPath();
+                    int index = prevPath.lastIndexOf('/');
+                    String newPath = prevPath.substring(0, index + 1) + logicalName;
+                    boolean renamed = new File(repoRoot, prevPath).renameTo(new File(repoRoot, newPath));
+                    if (!renamed) {
+                        log.warn("Can't rename folder from " + prevPath + " to " + newPath);
+                    }
+                }
+            }
             userWorkspace.refresh();
             model.resetSourceModified();
         } catch (WorkspaceException e) {
@@ -455,15 +461,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
      */
     public String getWorkspacePath() {
         return workspacePath;
-    }
-
-    public Collection<? extends AProject> getWorkspaceProjects() {
-        try {
-            return rulesUserSession.getUserWorkspace().getLocalWorkspace().getProjects();
-        } catch (WorkspaceException e) {
-            log.error(e.getMessage(), e);
-            return Collections.emptyList();
-        }
     }
 
     public synchronized List<ProjectDescriptor> getAllProjects() {
@@ -926,10 +923,27 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public AProject getProjectByName(final String name) {
-        for (AProject workspaceProject : getWorkspaceProjects()) {
-            if (workspaceProject.getName().equals(name)) {
-                return workspaceProject;
+        try {
+            List<ProjectDescriptor> allProjects = getAllProjects();
+            Optional<ProjectDescriptor> descriptor = allProjects.stream().filter(p -> p.getName().equals(name)).findFirst();
+            if (!descriptor.isPresent()) {
+                return null;
             }
+            ProjectDescriptor projectDescriptor = descriptor.get();
+
+            LocalWorkspace localWorkspace = rulesUserSession.getUserWorkspace().getLocalWorkspace();
+
+            for (AProject project : localWorkspace.getProjects()) {
+                File repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
+                File folder = new File(repoRoot, project.getFolderPath());
+                if (folder.equals(projectDescriptor.getProjectFolder())) {
+                    return project;
+                }
+            }
+
+            log.warn("Projects descriptor is found but the project isn't found.");
+        } catch (Exception e) {
+            return null;
         }
 
         return null;

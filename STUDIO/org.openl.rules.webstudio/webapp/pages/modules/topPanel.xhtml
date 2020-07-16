@@ -60,12 +60,13 @@
                 <ul class="dropdown-menu" role="menu">
                     <li class="nav-header">Current Project</li>
                     <li><a href="#{utils.toUrl(rProject.repository.id, rProject.name)}">#{project.name}</a></li>
-                    <h:panelGroup rendered="#{studio.workspaceProjects.size() > 1}">
+                    <h:panelGroup rendered="#{studio.allProjects.size() > 1}">
                         <li class="divider"></li>
                         <li class="nav-header">All Projects</li>
-                        <ui:repeat value="#{studio.workspaceProjects}" var="pr">
+                        <ui:repeat value="#{studio.allProjects}" var="pr">
+                            <ui:param name="prj" value="#{studio.getProjectByName(pr.name)}"/>
                             <h:panelGroup rendered="#{pr.name != project.name}">
-                                <li><a href="#{utils.toUrl(pr.repository.id, pr.name)}">#{pr.name}</a></li>
+                                <li><a href="#{utils.toUrl(prj.repository.id, pr.name)}">#{pr.name}</a></li>
                             </h:panelGroup>
                         </ui:repeat>
                     </h:panelGroup>
@@ -127,7 +128,7 @@
                                id="saveProjectButton"
                                title="Save the project changes in Design Repository as a new revision and make it available for editing to other users"
                                rendered="#{!empty rProject and rProject.openedForEditing and rProject.modified and studio.model.editable}" />
-                <h:commandLink styleClass="changes-listener" onclick="openMergeBranchesDialog('#{rProject.name}'); return false;"
+                <h:commandLink styleClass="changes-listener" onclick="openMergeBranchesDialog('#{rProject.repository.id}', '#{rProject.name}'); return false;"
                                value="Sync"
                                title="Synchronize updates"
                                rendered="#{studio.canMerge}" />

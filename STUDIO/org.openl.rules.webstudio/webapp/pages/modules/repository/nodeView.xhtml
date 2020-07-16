@@ -117,7 +117,7 @@
                                          rendered="#{repositoryTreeState.canSaveProject and !repositoryTreeState.localOnly}"
                                          value="Save" onclick="openSaveDialog();return false;" title="#{saveMessage}"/>
                         <h:commandButton rendered="#{repositoryTreeState.canMerge}" value="Sync" title="#{mergeMessage}"
-                                         onclick="openMergeBranchesDialog('#{node.name}'); return false;"/>
+                                         onclick="openMergeBranchesDialog('#{artefact.repository.id}', '#{node.name}'); return false;"/>
 
                         <h:commandButton id="copyId1" rendered="#{repositoryTreeState.canCreate}" value="Copy"
                                          onclick="openCopyProjectDialog('#{artefact.repository.id}', '#{artefact.name}', function() {location.href = location.href;});return false;"
@@ -191,7 +191,7 @@
                                         render="projectTree nodeView :eraseProjectForm"/>
                             </h:selectOneMenu>
                             <input type="button" value="..." title="Manage project branches"
-                                   onclick="openEditBranchesDialog('#{node.name}');"
+                                   onclick="openEditBranchesDialog('#{artefact.repository.id}', '#{node.name}');"
                                    style="height: 23px;padding: 0px 5px;"/>
                             <a4j:outputPanel ajaxRendered="true" id="branchSelectorError" style="display: grid;">
                                 <h:message for="branchSelector" styleClass="error" style="padding-top: 10px;"/>

@@ -70,8 +70,15 @@ public class Utils {
         if (artefact == null) {
             return false;
         }
-        Repository repository = artefact instanceof UserWorkspaceProject ?
-                                ((UserWorkspaceProject) artefact).getDesignRepository() : artefact.getRepository();
+        Repository repository;
+        if (artefact instanceof UserWorkspaceProject) {
+            repository = ((UserWorkspaceProject) artefact).getDesignRepository();
+            if (repository == null) {
+                repository = artefact.getRepository();
+            }
+        } else {
+            repository = artefact.getRepository();
+        }
         return repository.supports().mappedFolders();
     }
 }

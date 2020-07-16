@@ -223,6 +223,10 @@ public class BranchesBean {
         }
     }
 
+    public void setCurrentRepositoryId(String currentRepositoryId) {
+        this.currentRepositoryId = currentRepositoryId;
+    }
+
     public void setInitProject(String currentProjectName) {
         try {
             this.currentProjectName = currentProjectName;
@@ -233,12 +237,10 @@ public class BranchesBean {
                 if (repository.supports().branches()) {
                     ((BranchRepository) repository).pull(getUserWorkspace().getUser().getUserId());
                 }
-                currentRepositoryId = repository.getId();
                 branches = getBranches(project);
                 currentBranch = project.getBranch();
                 initBranchToMerge(currentProjectName, (BranchRepository) repository);
             } else {
-                currentRepositoryId = null;
                 currentBranch = null;
             }
         } catch (Exception e) {

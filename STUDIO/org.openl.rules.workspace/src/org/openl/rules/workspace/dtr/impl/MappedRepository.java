@@ -11,17 +11,15 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
@@ -36,14 +34,18 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.TypeDescription;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.representer.Representer;
 
 public class MappedRepository implements FolderRepository, BranchRepository, RRepositoryFactory, Closeable, FolderMapper {
-    private static final Pattern PROJECT_PROPERTY_PATTERN = Pattern.compile("(project\\.\\d+\\.)\\w+");
     private final Logger log = LoggerFactory.getLogger(MappedRepository.class);
 
     private FolderRepository delegate;
 
-    private volatile Map<String, String> externalToInternal = Collections.emptyMap();
+    private volatile ProjectIndex externalToInternal = new ProjectIndex();
 
     private final ReadWriteLock mappingLock = new ReentrantReadWriteLock();
     private RepositoryMode repositoryMode;
@@ -58,7 +60,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         MappedRepository mappedRepository = new MappedRepository();
         mappedRepository.setDelegate(delegate);
         mappedRepository.setRepositoryMode(repositoryMode);
-        mappedRepository.setConfigFile(delegate.getId() + "/openl-projects.properties");
+        mappedRepository.setConfigFile(delegate.getId() + "/openl-projects.yaml");
         mappedRepository.setBaseFolder(baseFolder);
         mappedRepository.setSettingsRepository(settingsRepository);
         mappedRepository.initialize();
@@ -93,11 +95,11 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         this.settingsRepository = settingsRepository;
     }
 
-    private void setExternalToInternal(Map<String, String> externalToInternal) {
+    private void setExternalToInternal(ProjectIndex externalToInternal) {
         Lock lock = mappingLock.writeLock();
         try {
             lock.lock();
-            this.externalToInternal = Collections.unmodifiableMap(externalToInternal);
+            this.externalToInternal = externalToInternal;
         } finally {
             lock.unlock();
         }
@@ -108,7 +110,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         Lock lock = mappingLock.writeLock();
         try {
             lock.lock();
-            externalToInternal = Collections.emptyMap();
+            externalToInternal = new ProjectIndex();
         } finally {
             lock.unlock();
         }
@@ -130,13 +132,13 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public List<FileData> list(String path) throws IOException {
-        Map<String, String> mapping = getMappingForRead();
+        ProjectIndex mapping = getMappingForRead();
 
         List<FileData> internal = new ArrayList<>();
-        for (Map.Entry<String, String> entry : mapping.entrySet()) {
-            String external = entry.getKey();
+        for (ProjectInfo project : mapping.getProjects()) {
+            String external = baseFolder + project.getName();
             if (external.startsWith(path)) {
-                internal.addAll(delegate.list(entry.getValue() + "/"));
+                internal.addAll(delegate.list(project.getPath() + "/"));
             } else if (path.startsWith(external + "/")) {
                 internal.addAll(delegate.list(toInternal(mapping, path)));
             }
@@ -147,19 +149,29 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public FileData check(String name) throws IOException {
-        Map<String, String> mapping = getMappingForRead();
-        return toExternal(mapping, delegate.check(toInternal(mapping, name)));
+        ProjectIndex mapping = getMappingForRead();
+        FileData check = delegate.check(toInternal(mapping, name));
+        if (delegate.supports().versions()) {
+            Optional<ProjectInfo> project = externalToInternal.getProjects()
+                .stream()
+                .filter(p -> name.equals(baseFolder + p.getName()))
+                .findFirst();
+            if (project.isPresent() && project.get().isArchived()) {
+                check.setDeleted(true);
+            }
+        }
+        return toExternal(mapping, check);
     }
 
     @Override
     public FileItem read(String name) throws IOException {
-        Map<String, String> mapping = getMappingForRead();
+        ProjectIndex mapping = getMappingForRead();
         return toExternal(mapping, delegate.read(toInternal(mapping, name)));
     }
 
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
-        Map<String, String> mapping = getMappingForRead();
+        ProjectIndex mapping = getMappingForRead();
         try {
             return toExternal(mapping, delegate.save(toInternal(mapping, data), stream));
         } catch (MergeConflictException e) {
@@ -172,7 +184,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
-        Map<String, String> mapping = getMappingForRead();
+        ProjectIndex mapping = getMappingForRead();
         List<FileItem> fileItemsInternal = new ArrayList<>(fileItems.size());
         for (FileItem fi : fileItems) {
             fileItemsInternal.add(new FileItem(toInternal(mapping, fi.getData()), fi.getStream()));
@@ -184,7 +196,16 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public boolean delete(FileData data) throws IOException {
-        Map<String, String> mapping = getMappingForRead();
+        if (delegate.supports().versions()) {
+            Optional<ProjectInfo> projectInfo = findProject(data);
+            if (projectInfo.isPresent()) {
+                projectInfo.get().setArchived(true);
+                saveProjectIndex(externalToInternal);
+                return true;
+            }
+        }
+
+        ProjectIndex mapping = getMappingForRead();
         return delegate.delete(toInternal(mapping, data));
     }
 
@@ -205,51 +226,35 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public List<FileData> listHistory(String name) throws IOException {
-        Map<String, String> mapping = getMappingForRead();
+        ProjectIndex mapping = getMappingForRead();
         return toExternal(mapping, delegate.listHistory(toInternal(mapping, name)));
     }
 
     @Override
     public FileData checkHistory(String name, String version) throws IOException {
-        Map<String, String> mapping = getMappingForRead();
+        ProjectIndex mapping = getMappingForRead();
         return toExternal(mapping, delegate.checkHistory(toInternal(mapping, name), version));
     }
 
     @Override
     public FileItem readHistory(String name, String version) throws IOException {
-        Map<String, String> mapping = getMappingForRead();
+        ProjectIndex mapping = getMappingForRead();
         return toExternal(mapping, delegate.readHistory(toInternal(mapping, name), version));
     }
 
     @Override
     public boolean deleteHistory(FileData data) throws IOException {
-        Map<String, String> mapping = getMappingForRead();
+        ProjectIndex mapping = getMappingForRead();
 
         if (data.getVersion() == null) {
             try {
-                ByteArrayInputStream inputStream = null;
-
                 Lock lock = mappingLock.writeLock();
                 try {
                     lock.lock();
 
-                    if (externalToInternal.containsKey(data.getName())) {
-                        Map<String, String> newMap = new LinkedHashMap<>(externalToInternal);
-                        newMap.remove(data.getName());
-                        inputStream = getStreamFromProperties(newMap);
-
-                        externalToInternal = newMap;
-                    }
+                    removeMapping(data.getName());
                 } finally {
                     lock.unlock();
-                }
-
-                if (inputStream != null) {
-                    FileData configData = new FileData();
-                    configData.setName(configFile);
-                    configData.setAuthor(data.getAuthor());
-                    configData.setComment(data.getComment());
-                    settingsRepository.save(configData, inputStream);
                 }
 
                 // Use mapping before modification
@@ -259,6 +264,17 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 throw e;
             }
         } else {
+            if (delegate.supports().versions()) {
+                Optional<ProjectInfo> project = findProject(data);
+                if (project.isPresent()) {
+                    ProjectInfo projectInfo = project.get();
+                    if (projectInfo.isArchived()) {
+                        projectInfo.setArchived(false);
+                        saveProjectIndex(externalToInternal);
+                        return true;
+                    }
+                }
+            }
             return delegate.deleteHistory(toInternal(mapping, data));
         }
     }
@@ -274,7 +290,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 configData.setComment(destData.getComment());
                 settingsRepository.save(configData, configStream);
 
-                Map<String, String> mapping = getMappingForRead();
+                ProjectIndex mapping = getMappingForRead();
                 return toExternal(mapping,
                     delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version));
             } catch (IOException | RuntimeException e) {
@@ -283,7 +299,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 throw e;
             }
         } else {
-            Map<String, String> mapping = getMappingForRead();
+            ProjectIndex mapping = getMappingForRead();
             return toExternal(mapping,
                 delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version));
         }
@@ -291,17 +307,22 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public List<FileData> listFolders(String path) throws IOException {
-        Map<String, String> mapping = getMappingForRead();
+        ProjectIndex mapping = getMappingForRead();
 
         List<FileData> internal = new ArrayList<>();
-        for (Map.Entry<String, String> entry : mapping.entrySet()) {
-            String external = entry.getKey();
+        for (ProjectInfo project : mapping.getProjects()) {
+            String external = baseFolder + project.getName();
             if (external.startsWith(path) && !external.substring(path.length()).contains("/")) {
                 // "external" is direct child of "path"
-                FileData data = delegate.check(entry.getValue());
+                FileData data = delegate.check(project.getPath());
                 if (data == null) {
-                    log.error("Project {} is not found.", entry.getValue());
+                    log.error("Project {} is not found.", project.getPath());
                 } else {
+                    if (delegate.supports().versions()) {
+                        if (project.isArchived()) {
+                            data.setDeleted(true);
+                        }
+                    }
                     internal.add(data);
                 }
             }
@@ -312,7 +333,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public List<FileData> listFiles(String path, String version) throws IOException {
-        Map<String, String> mapping = getMappingForRead();
+        ProjectIndex mapping = getMappingForRead();
         return toExternal(mapping, delegate.listFiles(toInternal(mapping, path), version));
     }
 
@@ -335,11 +356,11 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             }
         }
         try {
-            Map<String, String> mapping = getMappingForRead();
+            ProjectIndex mapping = getMappingForRead();
             return toExternal(mapping,
                 delegate.save(toInternal(mapping, folderData), toInternal(mapping, files), changesetType));
         } catch (MergeConflictException e) {
-            Map<String, String> mapping = getMappingForRead();
+            ProjectIndex mapping = getMappingForRead();
             throw new MergeConflictException(toExternalKeys(mapping, e.getDiffs()),
                 e.getBaseCommit(),
                 e.getYourCommit(),
@@ -357,7 +378,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         if (folderItems.get(0).getData().getAdditionalData(FileMappingData.class) != null) {
             throw new UnsupportedOperationException("File name mapping is not supported.");
         }
-        Map<String, String> mapping = getMappingForRead();
+        ProjectIndex mapping = getMappingForRead();
 
         List<FolderItem> folderItemsInternal = new ArrayList<>(folderItems.size());
         for (FolderItem fi : folderItems) {
@@ -432,21 +453,30 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     @Override
-    public void addMapping(String external, String internal) throws IOException {
+    public void addMapping(String internal) throws IOException {
         Lock lock = mappingLock.writeLock();
         try {
             lock.lock();
-            Map<String, String> newMap = new LinkedHashMap<>(externalToInternal);
-            newMap.put(external, internal);
+            if (internal.endsWith("/")) {
+                internal = internal.substring(0, internal.length() - 1);
+            }
+            ProjectInfo project = new ProjectInfo();
+            project.setPath(internal);
 
-            ByteArrayInputStream configInputStream = getStreamFromProperties(newMap);
-            externalToInternal = newMap;
+            String fullName = internal + "/rules.xml";
+            FileData fileData = delegate.check(fullName);
+            if (fileData != null) {
+                FileItem descriptorItem = delegate.read(fullName);
+                try (InputStream is = descriptorItem.getStream()) {
+                    project.setName(getProjectName(is));
+                }
+            } else {
+                project.setName(internal.substring(internal.lastIndexOf('/') + 1));
+            }
 
-            FileData configData = new FileData();
-            configData.setName(configFile);
-            configData.setAuthor(getClass().getName());
-            configData.setComment("Add mapping");
-            settingsRepository.save(configData, configInputStream);
+            externalToInternal.getProjects().add(project);
+
+            saveProjectIndex(externalToInternal);
         } finally {
             lock.unlock();
         }
@@ -457,17 +487,12 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         Lock lock = mappingLock.writeLock();
         try {
             lock.lock();
-            Map<String, String> newMap = new LinkedHashMap<>(externalToInternal);
-            newMap.put(externalAfter, newMap.remove(externalBefore));
+            externalToInternal.getProjects()
+                .stream()
+                .filter(p -> externalBefore.equals(baseFolder + p.getName()))
+                .findFirst().ifPresent(p -> p.setName(externalAfter.substring(baseFolder.length())));
 
-            ByteArrayInputStream configInputStream = getStreamFromProperties(newMap);
-            externalToInternal = newMap;
-
-            FileData configData = new FileData();
-            configData.setName(configFile);
-            configData.setAuthor(getClass().getName());
-            configData.setComment("Rename mapping");
-            settingsRepository.save(configData, configInputStream);
+            saveProjectIndex(externalToInternal);
         } finally {
             lock.unlock();
         }
@@ -478,25 +503,38 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         Lock lock = mappingLock.writeLock();
         try {
             lock.lock();
-            Map<String, String> newMap = new LinkedHashMap<>(externalToInternal);
-            newMap.remove(external);
+            externalToInternal.getProjects()
+                .removeIf(projectInfo -> external.equals(baseFolder + projectInfo.getName()));
 
-            ByteArrayInputStream configInputStream = getStreamFromProperties(newMap);
-            externalToInternal = newMap;
-
-            FileData configData = new FileData();
-            configData.setName(configFile);
-            configData.setAuthor(getClass().getName());
-            configData.setComment("Remove mapping");
-            settingsRepository.save(configData, configInputStream);
+            saveProjectIndex(externalToInternal);
         } finally {
             lock.unlock();
         }
     }
 
-    private Map<String, String> getMappingForRead() {
+    private Optional<ProjectInfo> findProject(FileData data) {
+        String name = data.getName().startsWith(baseFolder) ?
+                      data.getName().substring(baseFolder.length()) :
+                      data.getName();
+        return externalToInternal.getProjects()
+            .stream()
+            .filter(p -> name.equals(p.getName()))
+            .findFirst();
+    }
+
+    private void saveProjectIndex(ProjectIndex projectIndex) throws IOException {
+        ByteArrayInputStream configInputStream = getStreamFromProperties(projectIndex);
+
+        FileData configData = new FileData();
+        configData.setName(configFile);
+        configData.setAuthor(getClass().getName());
+        configData.setComment("Update mapping");
+        settingsRepository.save(configData, configInputStream);
+    }
+
+    private ProjectIndex getMappingForRead() {
         Lock lock = mappingLock.readLock();
-        Map<String, String> mapping;
+        ProjectIndex mapping;
         try {
             lock.lock();
             mapping = externalToInternal;
@@ -506,7 +544,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         return mapping;
     }
 
-    private Iterable<FileItem> toInternal(final Map<String, String> mapping, final Iterable<FileItem> files) {
+    private Iterable<FileItem> toInternal(final ProjectIndex mapping, final Iterable<FileItem> files) {
         return () -> new Iterator<FileItem>() {
             private final Iterator<FileItem> delegate = files.iterator();
 
@@ -531,7 +569,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         };
     }
 
-    private FileData toInternal(final Map<String, String> externalToInternal, FileData data) {
+    private FileData toInternal(final ProjectIndex externalToInternal, FileData data) {
         FileData copy = new FileData();
         copy.setVersion(data.getVersion());
         copy.setAuthor(data.getAuthor());
@@ -547,11 +585,11 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         return copy;
     }
 
-    private String toInternal(Map<String, String> externalToInternal, String externalPath) {
-        for (Map.Entry<String, String> entry : externalToInternal.entrySet()) {
-            String externalBase = entry.getKey();
+    private String toInternal(ProjectIndex externalToInternal, String externalPath) {
+        for (ProjectInfo project : externalToInternal.getProjects()) {
+            String externalBase = baseFolder + project.getName();
             if (externalPath.equals(externalBase) || externalPath.startsWith(externalBase + "/")) {
-                return entry.getValue() + externalPath.substring(externalBase.length());
+                return project.getPath() + externalPath.substring(externalBase.length());
             }
         }
 
@@ -559,7 +597,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         return externalPath;
     }
 
-    private List<FileData> toExternal(Map<String, String> externalToInternal, List<FileData> internal) {
+    private List<FileData> toExternal(ProjectIndex externalToInternal, List<FileData> internal) {
         List<FileData> external = new ArrayList<>(internal.size());
 
         for (FileData data : internal) {
@@ -569,14 +607,14 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         return external;
     }
 
-    private FileItem toExternal(Map<String, String> externalToInternal, FileItem internal) {
+    private FileItem toExternal(ProjectIndex externalToInternal, FileItem internal) {
         if (internal == null) {
             return null;
         }
         return new FileItem(toExternal(externalToInternal, internal.getData()), internal.getStream());
     }
 
-    private FileData toExternal(Map<String, String> externalToInternal, FileData data) {
+    private FileData toExternal(ProjectIndex externalToInternal, FileData data) {
         if (data == null) {
             return null;
         }
@@ -585,7 +623,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         return data;
     }
 
-    private Map<String, String> toExternalKeys(Map<String, String> externalToInternal, Map<String, String> internal) {
+    private Map<String, String> toExternalKeys(ProjectIndex externalToInternal, Map<String, String> internal) {
         Map<String, String> external = new LinkedHashMap<>(internal.size());
 
         for (Map.Entry<String, String> entry : internal.entrySet()) {
@@ -595,11 +633,14 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         return external;
     }
 
-    private String toExternal(Map<String, String> externalToInternal, String internalPath) {
-        for (Map.Entry<String, String> entry : externalToInternal.entrySet()) {
-            String internalBase = entry.getValue();
+    private String toExternal(ProjectIndex externalToInternal, String internalPath) {
+        for (ProjectInfo project : externalToInternal.getProjects()) {
+            String internalBase = project.getPath();
+            if (internalBase.endsWith("/")) {
+                internalBase = internalBase.substring(0, internalBase.length() - 1);
+            }
             if (internalPath.equals(internalBase) || internalPath.startsWith(internalBase + "/")) {
-                return entry.getKey() + internalPath.substring(internalBase.length());
+                return baseFolder + project.getName() + internalPath.substring(internalBase.length());
             }
         }
 
@@ -627,59 +668,108 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
      * @return loaded mapping
      * @throws IOException if it was any error during operation
      */
-    private Map<String, String> readExternalToInternalMap(FolderRepository delegate,
+    private ProjectIndex readExternalToInternalMap(FolderRepository delegate,
             RepositoryMode repositoryMode,
             String configFile,
             String baseFolder) throws IOException {
         baseFolder = StringUtils.isBlank(baseFolder) ? "" : baseFolder.endsWith("/") ? baseFolder : baseFolder + "/";
-        Map<String, String> externalToInternal = new LinkedHashMap<>();
         FileItem fileItem = settingsRepository.read(configFile);
         if (fileItem == null) {
             log.debug("Repository configuration file {} is not found.", configFile);
             return generateExternalToInternalMap(delegate, repositoryMode, baseFolder);
         }
 
-        PropertiesStorage prop;
+        TypeDescription projectsDescription = new TypeDescription(ProjectIndex.class);
+        projectsDescription.addPropertyParameters("projects", ProjectInfo.class);
+        Constructor constructor = new Constructor(ProjectIndex.class);
+        constructor.addTypeDescription(projectsDescription);
+        Representer representer = new Representer();
+        representer.getPropertyUtils().setSkipMissingProperties(true);
+
         try (InputStream stream = fileItem.getStream();
                 InputStreamReader in = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
-            prop = new PropertiesStorage();
-            prop.load(in);
+            Yaml yaml = new Yaml(constructor, representer);
+            ProjectIndex projectIndex = yaml.loadAs(in, ProjectIndex.class);
+            if (projectIndex != null) {
+                boolean modified = syncProjectIndex(delegate, repositoryMode, projectIndex);
+                if (modified) {
+                    saveProjectIndex(projectIndex);
+                }
+
+                return projectIndex;
+            }
         }
 
-        Set<String> processed = new HashSet<>();
-        for (Object key : prop.keySet()) {
-            String propertyName = (String) key;
+        return new ProjectIndex();
+    }
 
-            Matcher matcher = PROJECT_PROPERTY_PATTERN.matcher(propertyName);
-            if (matcher.matches()) {
-                String suffix = matcher.group(1);
-                if (processed.add(suffix)) {
-                    String name = prop.getProperty(suffix + "name");
-                    String path = prop.getProperty(suffix + "path");
+    private boolean syncProjectIndex(FolderRepository delegate,
+        RepositoryMode repositoryMode,
+        ProjectIndex projectIndex) throws IOException {
+        boolean modified = false;
+        if (repositoryMode == RepositoryMode.DESIGN) {
+            for (Iterator<ProjectInfo> iterator = projectIndex.getProjects().iterator(); iterator.hasNext(); ) {
+                ProjectInfo project = iterator.next();
 
-                    if (name != null && path != null) {
-                        if (path.endsWith("/")) {
-                            path = path.substring(0, path.length() - 1);
+                if (delegate.check(project.getPath()) == null) {
+                    // Folder was removed.
+                    iterator.remove();
+                    modified = true;
+                } else {
+                    Date modifiedAt = project.getModifiedAt();
+                    String fullName = project.getPath() + "/rules.xml";
+                    FileData fileData = delegate.check(fullName);
+
+                    if (fileData != null) {
+                        if (modifiedAt == null || !modifiedAt.equals(fileData.getModifiedAt())) {
+                            // rules.xml was modified. Need to update modification date and project name.
+                            project.setModifiedAt(fileData.getModifiedAt());
+
+                            FileItem descriptorItem = delegate.read(fullName);
+                            try (InputStream is = descriptorItem.getStream()) {
+                                project.setName(getProjectName(is));
+                            }
+                            modified = true;
                         }
-                        String externalPath = createUniquePath(externalToInternal, baseFolder + name);
-
-                        externalToInternal.put(externalPath, path);
+                    } else {
+                        // If we don't have rules.xml, the project name will be folder name.
+                        String path = project.getPath();
+                        String folderName = path.substring(path.lastIndexOf('/') + 1);
+                        if (modifiedAt != null) {
+                            // rules.xml was exist before but now it's removed
+                            project.setModifiedAt(null);
+                            project.setName(folderName);
+                            modified = true;
+                        } else {
+                            if (!project.getName().equals(folderName)) {
+                                project.setName(folderName);
+                                modified = true;
+                            }
+                        }
                     }
                 }
             }
         }
-
-        return externalToInternal;
+        return modified;
     }
 
-    private String createUniquePath(Map<String, String> externalToInternal, String externalPath) {
+    private String createUniquePath(ProjectIndex externalToInternal, String externalPath) {
         // If occasionally such project name exists already, add some suffix to it.
-        if (externalToInternal.containsKey(externalPath)) {
+        String projectName = externalPath.substring(baseFolder.length());
+        List<ProjectInfo> projects = externalToInternal.getProjects();
+        if (projects.stream().anyMatch(p -> projectName.equals(p.getName()))) {
             int i = 1;
             String copy = externalPath + "." + i;
-            while (externalToInternal.containsKey(copy)) {
+            boolean found = false;
+            do {
+                for (ProjectInfo p : projects) {
+                    if (p.getName().equals(copy.substring(baseFolder.length()))) {
+                        found = true;
+                        break;
+                    }
+                }
                 copy = externalPath + "." + (++i);
-            }
+            } while (found);
             externalPath = copy;
         }
 
@@ -697,10 +787,10 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
      * @param baseFolder virtual base folder. WebStudio will think that projects can be found in this folder.
      * @return generated mapping
      */
-    private Map<String, String> generateExternalToInternalMap(FolderRepository delegate,
+    private ProjectIndex generateExternalToInternalMap(FolderRepository delegate,
             RepositoryMode repositoryMode,
             String baseFolder) throws IOException {
-        Map<String, String> externalToInternal = new LinkedHashMap<>();
+        ProjectIndex externalToInternal = new ProjectIndex();
         List<FileData> allFiles = delegate.list("");
         for (FileData fileData : allFiles) {
             String fullName = fileData.getName();
@@ -718,7 +808,11 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
                         int cutSize = "rules.xml".length() + (nameParts.length > 1 ? 1 : 0); // Exclude "/" if exist
                         String path = fullName.substring(0, fullName.length() - cutSize);
-                        externalToInternal.put(externalPath, path);
+                        ProjectInfo project = new ProjectInfo();
+                        project.setName(externalPath.substring(baseFolder.length()));
+                        project.setPath(path);
+                        project.setModifiedAt(fileItem.getData().getModifiedAt());
+                        externalToInternal.getProjects().add(project);
                     }
                 }
             } else if (repositoryMode == RepositoryMode.DEPLOY_CONFIG) {
@@ -731,7 +825,10 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                     String externalPath = createUniquePath(externalToInternal, baseFolder + deployConfigName);
                     int cutSize = ArtefactProperties.DESCRIPTORS_FILE.length() + 1; // Exclude "/"
                     String path = fullName.substring(0, fullName.length() - cutSize);
-                    externalToInternal.put(externalPath, path);
+                    ProjectInfo project = new ProjectInfo();
+                    project.setName(externalPath.substring(baseFolder.length()));
+                    project.setPath(path);
+                    externalToInternal.getProjects().add(project);
                 }
             }
         }
@@ -741,7 +838,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     private void refreshMapping() {
         try {
-            Map<String, String> currentMapping = readExternalToInternalMap(delegate,
+            ProjectIndex currentMapping = readExternalToInternalMap(delegate,
                 repositoryMode,
                 configFile,
                 baseFolder);
@@ -749,7 +846,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             setExternalToInternal(currentMapping);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            setExternalToInternal(Collections.emptyMap());
+            setExternalToInternal(new ProjectIndex());
         }
     }
 
@@ -763,38 +860,33 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         Lock lock = mappingLock.writeLock();
         try {
             lock.lock();
-            Map<String, String> newMap = new LinkedHashMap<>(externalToInternal);
-            newMap.put(folderData.getName(), mappingData.getInternalPath());
+            List<ProjectInfo> projects = externalToInternal.getProjects();
+            Optional<ProjectInfo> project = findProject(folderData);
+            if (project.isPresent()) {
+                project.get().setPath(mappingData.getInternalPath());
+            } else {
+                String projectName = folderData.getName().substring(baseFolder.length());
+                ProjectInfo info = new ProjectInfo();
+                info.setName(projectName);
+                info.setPath(mappingData.getInternalPath());
+                projects.add(info);
+            }
 
-            ByteArrayInputStream configInputStream = getStreamFromProperties(newMap);
-            externalToInternal = newMap;
-            return configInputStream;
+            return getStreamFromProperties(externalToInternal);
         } finally {
             lock.unlock();
         }
     }
 
-    private ByteArrayInputStream getStreamFromProperties(Map<String, String> newMap) throws IOException {
-        String parent = StringUtils.isBlank(baseFolder) ? "" : baseFolder.endsWith("/") ? baseFolder : baseFolder + "/";
-
-        PropertiesStorage prop = new PropertiesStorage();
-        int i = 1;
-        for (Map.Entry<String, String> entry : newMap.entrySet()) {
-            if (entry.getKey().length() <= parent.length()) {
-                log.warn("Skip mapping for {} to {}", entry.getKey(), entry.getValue());
-                continue;
-            }
-            String name = entry.getKey().substring(parent.length());
-            String path = entry.getValue();
-
-            prop.setProperty("project." + i + ".name", name);
-            prop.setProperty("project." + i + ".path", path);
-            i++;
-        }
+    private ByteArrayInputStream getStreamFromProperties(ProjectIndex projectIndex) throws IOException {
+        DumperOptions options = new DumperOptions();
+        options.setPrettyFlow(true);
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        Yaml yaml = new Yaml(options);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-            prop.store(writer);
+            yaml.dump(projectIndex, writer);
         }
 
         return new ByteArrayInputStream(outputStream.toByteArray());
@@ -816,7 +908,10 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         FileMappingData mappingData = folderData.getAdditionalData(FileMappingData.class);
         if (mappingData != null) {
             String external = folderData.getName();
-            String internal = getMappingForRead().get(external);
+            String internal = getMappingForRead().getProjects()
+                .stream()
+                .filter(p -> (baseFolder + p.getName()).equals(external))
+                .findFirst().map(ProjectInfo::getPath).orElse(null);
             return !mappingData.getInternalPath().equals(internal);
         }
         return false;
@@ -837,7 +932,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public String getRealPath(String externalPath) {
-        Map<String, String> mapping = getMappingForRead();
+        ProjectIndex mapping = getMappingForRead();
         return toInternal(mapping, externalPath);
     }
 }

@@ -67,7 +67,7 @@
 
     <div class="panel">
         <div class="panel-header">
-            <h:panelGroup rendered="#{not empty studio.workspaceProjects}">
+            <h:panelGroup rendered="#{not empty studio.allProjects}">
                 <div class="filter-name">
                     <input type="text" id="nameFilter" onkeyup="filterProjects(this.value)"
                         placeholder="#{msg['ws.projects.filter']}" class="input-container" />
@@ -82,11 +82,11 @@
 
         <div class="panel-body">
             <h:form prependId="false" id="projects-tree">
-                <h:panelGroup id="projects" rendered="#{not empty studio.workspaceProjects}" layout="block">
+                <h:panelGroup id="projects" rendered="#{not empty studio.allProjects}" layout="block">
                     <ul>
-                        <ui:repeat value="#{studio.workspaceProjects}" var="project">
+                        <ui:repeat value="#{studio.allProjects}" var="project">
                         <li>
-                            <ui:param name="repoId" value="#{project.repository.id}"/>
+                            <ui:param name="repoId" value="#{studio.getProjectByName(project.name).repository.id}"/>
                             <a class="projectName" href="#{utils.toUrl(repoId, project.name)}">#{project.name}</a>
                             <ul>
                                 <ui:repeat value="#{studio.getProjectByName(repoId, project.name).modules}" var="module">
@@ -146,7 +146,7 @@
                     </script>
                 </h:panelGroup>
 
-                <h:panelGroup rendered="#{empty studio.workspaceProjects}">
+                <h:panelGroup rendered="#{empty studio.allProjects}">
                     <h:outputText value="#{msg['ws.projects.no']}" style="color:red; font-weight: bold" />
                     <br />
                     <c:if test="true">

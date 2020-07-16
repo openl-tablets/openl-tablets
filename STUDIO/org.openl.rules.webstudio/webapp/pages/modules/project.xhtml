@@ -435,7 +435,7 @@
                 <footer>
                     <a4j:commandButton id="editProjectBtn" value="Update" action="#{projectBean.editName}"
                                        styleClass="button-primary"
-                                       oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editProjectPopup');ws.nav.go('#{utils.toUrl(projectData.repository.id, projectData.name)}', true)}"/>
+                                       oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editProjectPopup');ws.nav.go('#{utils.toUrl(projectData.repository.id, project.name)}', true)}"/>
                     <input type="button" value="Cancel" onclick="ws.ui.hide('editProjectPopup');"/>
                 </footer>
             </h:form>

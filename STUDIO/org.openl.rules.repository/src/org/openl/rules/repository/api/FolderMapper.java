@@ -5,7 +5,7 @@ import java.io.IOException;
 public interface FolderMapper {
     FolderRepository getDelegate();
 
-    void addMapping(String external, String internal) throws IOException;
+    void addMapping(String internal) throws IOException;
 
     void renameMapping(String externalBefore, String externalAfter) throws IOException;
 
