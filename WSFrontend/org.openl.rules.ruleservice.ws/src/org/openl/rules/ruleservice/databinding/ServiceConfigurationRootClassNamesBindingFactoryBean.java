@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.databinding.annotation.JacksonBindingConfigurationUtils;
@@ -35,6 +36,16 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
 
     public Set<String> getDefaultAdditionalRootClassNames() {
         return defaultAdditionalRootClassNames;
+    }
+
+    private Set<String> extractDatatypesClasses(IOpenClass moduleOpenClass) {
+        Set<String> datatypeClasses = new HashSet<>();
+        for (IOpenClass openClass : moduleOpenClass.getTypes()) {
+            if (openClass instanceof DatatypeOpenClass) {
+                datatypeClasses.add(openClass.getInstanceClass().getName());
+            }
+        }
+        return datatypeClasses;
     }
 
     @Override
@@ -111,6 +122,14 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
                         }
                     }
                 }
+                if (!found) {
+                    ret.clear();
+                }
+                Set<String> datatypeClasses = extractDatatypesClasses(openLService.getOpenClass());
+                if (!datatypeClasses.isEmpty()) {
+                    found = true;
+                }
+                ret.addAll(datatypeClasses);
             }
         } catch (RuleServiceInstantiationException e) {
             throw new ServiceConfigurationException(e);
