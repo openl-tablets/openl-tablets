@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * @author snshor
  *
  */
-public class JavaImportTypeLibrary implements ITypeLibrary {
+public final class JavaImportTypeLibrary implements ITypeLibrary {
 
     private final Logger log = LoggerFactory.getLogger(JavaImportTypeLibrary.class);
 
