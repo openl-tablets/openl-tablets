@@ -14,6 +14,7 @@ import org.openl.dependency.IDependencyManager;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.ModuleFileSourceCodeModule;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.code.IParsedCode;
@@ -90,17 +91,23 @@ public class OpenLCompileManager {
         return processedCode;
     }
 
-    private Collection<IDependency> getDependencies(IDependencyManager dependencyManager, IDependency[] dependencies) {
-        Set<IDependency> result = new HashSet<>();
+    private Collection<IDependency> getDependencies(IOpenSourceCodeModule source,
+            IDependencyManager dependencyManager,
+            IDependency[] dependencies) {
+        Set<IDependency> resolvedDependencies = new HashSet<>();
         if (dependencyManager == null) {
             return Arrays.asList(dependencies);
         }
         Set<String> dependencyNames;
-        Collection<String> deps = dependencyManager.getAllDependencies();
+        Collection<String> deps = dependencyManager.getAvailableDependencies();
         if (deps.isEmpty()) {
             return Arrays.asList(dependencies);
         } else {
             dependencyNames = new HashSet<>(deps);
+        }
+        String currentModule = null;
+        if (source instanceof ModuleFileSourceCodeModule) {
+            currentModule = ((ModuleFileSourceCodeModule) source).getModuleName();
         }
         for (IDependency dependency : dependencies) {
             String value = dependency.getNode().getIdentifier();
@@ -110,20 +117,21 @@ public class OpenLCompileManager {
 
             boolean found = false;
             for (String dependencyName : dependencyNames) {
-                if (Pattern.matches(value, dependencyName)) {
+                if (!Objects.equals(currentModule, dependencyName) && Pattern.matches(value, dependencyName)) {
                     found = true;
-                    result.add(new Dependency(dependency.getType(),
+                    resolvedDependencies.add(new Dependency(dependency.getType(),
                         new IdentifierNode(dependency.getNode().getType(), null, dependencyName, null)));
                 }
             }
 
-            if (!found) {
+            if (!found && !(dependency.getNode().getIdentifier().contains("*") || dependency.getNode()
+                .getIdentifier()
+                .contains("?"))) {
                 // Needed to create error message "Dependency wasn't found" later
-                result.add(dependency);
+                resolvedDependencies.add(dependency);
             }
-
         }
-        return result;
+        return resolvedDependencies;
     }
 
     private static final Comparator<IDependency> COMP = Comparator.comparing(a -> a.getNode().getIdentifier());
@@ -153,7 +161,8 @@ public class OpenLCompileManager {
 
         // compile source dependencies
 
-        Collection<IDependency> dependencyManagerDependencies = getDependencies(dependencyManager,
+        Collection<IDependency> dependencyManagerDependencies = getDependencies(source,
+            dependencyManager,
             parsedCode.getDependencies());
         Collection<IDependency> externalDependencies = getExternalDependencies(source);
 
