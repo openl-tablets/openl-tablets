@@ -1,6 +1,8 @@
 package org.open.rules.project.validation.openapi;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 import org.apache.commons.jxpath.JXPathContext;
@@ -15,6 +17,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.Schema;
 
 class Context {
     private ValidatedCompiledOpenClass validatedCompiledOpenClass;
@@ -41,6 +44,12 @@ class Context {
 
     private Method method;
     private IOpenMethod openMethod;
+
+    @SuppressWarnings("rawtypes")
+    private final Map<Schema, Map<String, Schema>> allSchemaPropertiesCache = new IdentityHashMap<>();
+
+    private final Map<String, Object> resolvedByRefForExpectedOpenAPIJXPathContext = new HashMap<>();
+    private final Map<String, Object> resolvedByRefForActualOpenAPIJXPathContext = new HashMap<>();
 
     private boolean typeValidationInProgress;
     private IOpenClass type;
@@ -245,4 +254,16 @@ class Context {
         return null;
     }
 
+    @SuppressWarnings("rawtypes")
+    public Map<Schema, Map<String, Schema>> getAllSchemaPropertiesCache() {
+        return allSchemaPropertiesCache;
+    }
+
+    public Map<String, Object> getResolvedByRefForExpectedOpenAPIJXPathContext() {
+        return resolvedByRefForExpectedOpenAPIJXPathContext;
+    }
+
+    public Map<String, Object> getResolvedByRefForActualOpenAPIJXPathContext() {
+        return resolvedByRefForActualOpenAPIJXPathContext;
+    }
 }
