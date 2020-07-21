@@ -48,7 +48,8 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
                 }
 
                 ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(type, element)
-                    .keyField(config.getKeyField())
+                    .keyField(
+                        config.getKeyField() != null ? config.getKeyField() : collectionElementType.getIndexField())
                     .parent(this)
                     .hasExplainLinks(config.isHasExplainLinks())
                     .requestId(config.getRequestId())
