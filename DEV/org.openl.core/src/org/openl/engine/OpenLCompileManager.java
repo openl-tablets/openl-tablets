@@ -124,9 +124,7 @@ public class OpenLCompileManager {
                 }
             }
 
-            if (!found && !(dependency.getNode().getIdentifier().contains("*") || dependency.getNode()
-                .getIdentifier()
-                .contains("?"))) {
+            if (!found) {
                 // Needed to create error message "Dependency wasn't found" later
                 resolvedDependencies.add(dependency);
             }
