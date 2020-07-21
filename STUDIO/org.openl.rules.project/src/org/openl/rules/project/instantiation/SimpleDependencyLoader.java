@@ -10,7 +10,6 @@ import org.openl.OpenClassUtil;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
-import org.openl.engine.OpenLCompileManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
@@ -35,7 +34,6 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         Map<String, Object> params = dependencyManager.getExternalParameters();
         if (!singleModuleMode) {
             params = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(params, getModules());
-            return params;
         }
         return params;
     }

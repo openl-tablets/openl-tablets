@@ -124,8 +124,19 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     }
 
     @Override
-    public final Collection<String> getAllDependencies() {
+    public Collection<String> getAllDependencies() {
         return Collections.unmodifiableSet(getDependencyLoaders().keySet());
+    }
+
+    @Override
+    public final Collection<String> getAvailableDependencies() {
+        Set<String> availableDependencies = new HashSet<>();
+        for (Map.Entry<String, Collection<IDependencyLoader>> entry : getDependencyLoaders().entrySet()) {
+            if (entry.getValue().stream().noneMatch(IDependencyLoader::isProject)) {
+                availableDependencies.add(entry.getKey());
+            }
+        }
+        return availableDependencies;
     }
 
     // Disable cache. if cache required it should be used in loaders.
