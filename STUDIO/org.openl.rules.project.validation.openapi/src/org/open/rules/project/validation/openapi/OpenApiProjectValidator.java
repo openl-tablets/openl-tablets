@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -22,12 +21,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
-import org.apache.commons.jxpath.CompiledExpression;
-import org.apache.commons.jxpath.JXPathContext;
-import org.apache.commons.jxpath.JXPathException;
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
-import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
@@ -46,8 +41,6 @@ import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiSupportConverter
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperConfigurationHelper;
 import org.openl.rules.serialization.JacksonObjectMapperFactoryBean;
 import org.openl.rules.variation.VariationsPack;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -59,11 +52,11 @@ import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.jaxrs2.Reader;
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
@@ -121,7 +114,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             compiledOpenClass);
         final Context context = new Context();
         context.setExpectedOpenAPI(expectedOpenAPI);
-        context.setExpectedOpenAPIJXPathContext(JXPathContext.newContext(expectedOpenAPI));
+        context.setExpectedOpenAPIResolver(new OpenAPIResolver(context, expectedOpenAPI));
         context.setValidatedCompiledOpenClass(validatedCompiledOpenClass);
         context.setOpenClass(validatedCompiledOpenClass.getOpenClassWithErrors());
         Class<?> serviceClass = resolveInterface(projectDescriptor,
@@ -150,6 +143,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         RulesDeploy rulesDeploy = getRulesDeploy(projectDescriptor, compiledOpenClass);
         context.setRulesDeploy(rulesDeploy);
         ObjectMapper objectMapper = createObjectMapper(context);
+        context.setObjectMapper(objectMapper);
         synchronized (OpenApiRulesCacheWorkaround.class) {
             OpenApiRulesCacheWorkaround.reset();
             OpenApiObjectMapperHack openApiObjectMapperHack = new OpenApiObjectMapperHack();
@@ -158,7 +152,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             openApiObjectMapperHack.revert();
         }
         context.setActualOpenAPI(actualOpenAPI);
-        context.setActualOpenAPIJXPathContext(JXPathContext.newContext(actualOpenAPI));
+        context.setActualOpenAPIResolver(new OpenAPIResolver(context, actualOpenAPI));
         validateOpenAPI(context);
         return validatedCompiledOpenClass;
     }
@@ -221,6 +215,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             provideVariations);
     }
 
+    @SuppressWarnings("rawtypes")
     private void validateOpenAPI(Context context) {
         if (context.getExpectedOpenAPI().getPaths() != null) {
             for (Map.Entry<String, PathItem> entry : context.getExpectedOpenAPI().getPaths().entrySet()) {
@@ -245,9 +240,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                             context.setOpenMethod(openMethod);
                             validatePathItem(context);
                         } else {
-                            addMethodError(context,
+                            OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                                 String.format(
-                                    "The method related to the path item '%s' is found, but it is specified in the OpenAPI file.",
+                                    "The method related to the path '%s' is found, but it is not specified in the OpenAPI file.",
                                     context.getPath()));
                         }
                     }
@@ -264,74 +259,34 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             for (Map.Entry<String, PathItem> entry : context.getActualOpenAPI().getPaths().entrySet()) {
                 PathItem expectedPathItem = context.getExpectedOpenAPI().getPaths().get(entry.getKey());
                 if (expectedPathItem == null) {
-                    addMethodError(context,
+                    OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                         String.format(
-                            "Unexpected method related to the path item '%s' is found, but it is not specified in the OpenAPI file.",
+                            "Unexpected method related to the path '%s' is found, but it is not specified in the OpenAPI file.",
                             entry.getKey()));
                 }
             }
         }
-    }
 
-    private void addMethodWarning(Context context, String summary) {
-        // TODO Remove duplicates, add error only for the current project
-        if (context.getTableSyntaxNode() != null) {
-            OpenLMessage openLMessage = OpenLMessagesUtils.newWarnMessage(summary, context.getTableSyntaxNode());
-            context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
-        } else {
-            addWarning(context, summary);
-        }
-    }
-
-    private void addMethodError(Context context, String summary) {
-        // TODO Remove duplicates, add error only for the current project
-        if (context.getTableSyntaxNode() != null) {
-            SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary,
-                context.getTableSyntaxNode());
-            OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
-            context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
-            context.getTableSyntaxNode().addError(syntaxNodeException);
-        } else {
-            addError(context, summary);
-        }
-    }
-
-    private void addError(Context context, String summary) {
-        context.getValidatedCompiledOpenClass().addValidationMessage(OpenLMessagesUtils.newErrorMessage(summary));
-    }
-
-    private void addWarning(Context context, String summary) {
-        context.getValidatedCompiledOpenClass().addValidationMessage(OpenLMessagesUtils.newWarnMessage(summary));
-    }
-
-    private void addTypeError(Context context, String summary) {
-        // TODO Remove duplicates, add error only for the current project
-        if (context.getType() instanceof DatatypeOpenClass) {
-            DatatypeOpenClass datatypeOpenClass = (DatatypeOpenClass) context.getType();
-            if (datatypeOpenClass.getTableSyntaxNode() != null) {
-                SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary,
-                    datatypeOpenClass.getTableSyntaxNode());
-                OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
-                context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
-                datatypeOpenClass.getTableSyntaxNode().addError(syntaxNodeException);
-                return;
+        if (context.getExpectedOpenAPI().getComponents() != null && context.getActualOpenAPI()
+            .getComponents() != null) {
+            Components expectedComponents = context.getExpectedOpenAPI().getComponents();
+            Components actualComponents = context.getActualOpenAPI().getComponents();
+            if (expectedComponents.getSchemas() != null && actualComponents.getSchemas() != null) {
+                for (Map.Entry<String, Schema> entry : expectedComponents.getSchemas().entrySet()) {
+                    Schema actualSchema = actualComponents.getSchemas().get(entry.getKey());
+                    Schema expectedSchema = entry.getValue();
+                    IOpenClass type = context.getOpenClass().findType(entry.getKey());
+                    if (actualSchema != null && expectedSchema != null && type != null) {
+                        try {
+                            context.setTypeValidationInProgress(true);
+                            // validateType(context, actualSchema, expectedSchema, type, new HashSet<>());
+                        } finally {
+                            context.setTypeValidationInProgress(false);
+                        }
+                    }
+                }
             }
         }
-        addError(context, summary);
-    }
-
-    private void addTypeWarning(Context context, IOpenClass openClass, String summary) {
-        // TODO Remove duplicates, add error only for the current project
-        if (openClass instanceof DatatypeOpenClass) {
-            DatatypeOpenClass datatypeOpenClass = (DatatypeOpenClass) openClass;
-            if (datatypeOpenClass.getTableSyntaxNode() != null) {
-                OpenLMessage openLMessage = OpenLMessagesUtils.newWarnMessage(summary,
-                    datatypeOpenClass.getTableSyntaxNode());
-                context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
-                return;
-            }
-        }
-        context.getValidatedCompiledOpenClass().addValidationMessage(OpenLMessagesUtils.newWarnMessage(summary));
     }
 
     private void getAndValidateOperation(Context context, Function<PathItem, Operation> func, String operationType) {
@@ -343,15 +298,15 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
 
         if (expectedOperation != null || actualOperation != null) {
             if (actualOperation == null) {
-                addMethodError(context,
+                OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                     String.format(
-                        "The operation '%s' related to the path item '%s' is found, but is not specified in the OpenAPI file.",
+                        "The operation '%s' related to the path '%s' is found, but it is not specified in the OpenAPI file.",
                         operationType,
                         context.getPath()));
             } else if (expectedOperation == null) {
-                addMethodError(context,
+                OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                     String.format(
-                        "The operation '%s' related to the path item '%s' is not found, but it is specified in the OpenAPI file.",
+                        "The operation '%s' related to the path '%s' is not found, but it is specified in the OpenAPI file.",
                         operationType,
                         context.getPath()));
             } else {
@@ -379,62 +334,13 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T resolve(Context context, JXPathContext jxPathContext, T obj, Function<T, String> getRefFunc) {
-        if (obj != null && getRefFunc.apply(obj) != null) {
-            return resolve(context,
-                jxPathContext,
-                (T) resolveByRef(context, jxPathContext, getRefFunc.apply(obj)),
-                getRefFunc);
-        }
-        return obj;
-    }
-
-    private Object resolveByRef(Context context, JXPathContext jxPathContext, String ref) {
-        if (jxPathContext == context.getActualOpenAPIJXPathContext()) {
-            if (context.getResolvedByRefForActualOpenAPIJXPathContext().containsKey(ref)) {
-                return context.getResolvedByRefForActualOpenAPIJXPathContext().get(ref);
-            }
-        }
-        if (jxPathContext == context.getExpectedOpenAPIJXPathContext()) {
-            if (context.getResolvedByRefForExpectedOpenAPIJXPathContext().containsKey(ref)) {
-                return context.getResolvedByRefForExpectedOpenAPIJXPathContext().get(ref);
-            }
-        }
-        CompiledExpression compiledExpression = JXPathContext.compile(ref.substring(1));
-        try {
-            Object resolvedByRef = compiledExpression.createPath(jxPathContext).getValue();
-            if (jxPathContext == context.getActualOpenAPIJXPathContext()) {
-                context.getResolvedByRefForActualOpenAPIJXPathContext().put(ref, resolvedByRef);
-            }
-            if (jxPathContext == context.getExpectedOpenAPIJXPathContext()) {
-                context.getResolvedByRefForExpectedOpenAPIJXPathContext().put(ref, resolvedByRef);
-            }
-            return resolvedByRef;
-        } catch (JXPathException e) {
-            if (jxPathContext == context.getExpectedOpenAPIJXPathContext()) {
-                context.getResolvedByRefForExpectedOpenAPIJXPathContext().put(ref, null);
-            }
-            if (context.isTypeValidationInProgress()) {
-                addTypeError(context, String.format("Invalid $ref '%s' is found in the OpenAPI file.", ref));
-            } else {
-                addMethodError(context, String.format("Invalid $ref '%s' is found in the OpenAPI file.", ref));
-            }
-            return null;
-        }
-    }
-
     private void validateOperation(Context context) {
         Operation expectedOperation = context.getExpectedOperation();
         Operation actualOperation = context.getActualOperation();
-        RequestBody actualRequestBody = resolve(context,
-            context.getActualOpenAPIJXPathContext(),
-            actualOperation.getRequestBody(),
-            RequestBody::get$ref);
-        RequestBody expectedRequestBody = resolve(context,
-            context.getExpectedOpenAPIJXPathContext(),
-            expectedOperation.getRequestBody(),
-            RequestBody::get$ref);
+        RequestBody actualRequestBody = context.getActualOpenAPIResolver()
+            .resolve(actualOperation.getRequestBody(), RequestBody::get$ref);
+        RequestBody expectedRequestBody = context.getExpectedOpenAPIResolver()
+            .resolve(expectedOperation.getRequestBody(), RequestBody::get$ref);
         if (expectedRequestBody != null && expectedRequestBody.getContent() != null) {
             for (Map.Entry<String, MediaType> entry : expectedRequestBody.getContent().entrySet()) {
                 MediaType expectedMediaType = entry.getValue();
@@ -442,16 +348,16 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     .getContent() != null ? actualRequestBody.getContent().get(entry.getKey()) : null;
                 if (expectedMediaType != null || actualMediaType != null) {
                     if (actualMediaType == null) {
-                        addMethodError(context,
+                        OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                             String.format(
-                                "The request body for the operation '%s' and media type '%s' related to the path item '%s' is found, but it is not specified in the OpenAPI file.",
+                                "The request body for the operation '%s' and media type '%s' related to the path '%s' is found, but it is not specified in the OpenAPI file.",
                                 context.getOperationType(),
                                 entry.getKey(),
                                 context.getPath()));
                     } else if (expectedMediaType == null) {
-                        addMethodError(context,
+                        OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                             String.format(
-                                "The request body for the operation '%s' and media type '%s' related to the path item '%s' is not found, but it is specified in the OpenAPI file.",
+                                "The request body for the operation '%s' and media type '%s' related to the path '%s' is not found, but it is specified in the OpenAPI file.",
                                 context.getOperationType(),
                                 entry.getKey(),
                                 context.getPath()));
@@ -475,9 +381,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 MediaType expectedMediaType = expectedRequestBody != null && expectedRequestBody
                     .getContent() != null ? expectedRequestBody.getContent().get(entry.getKey()) : null;
                 if (expectedMediaType == null) {
-                    addMethodError(context,
+                    OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                         String.format(
-                            "The operation '%s' and media type '%s' related to the path item '%s' is not specified in the OpenAPI file.",
+                            "The operation '%s' and media type '%s' related to the path '%s' is found, but it is not specified in the OpenAPI file.",
                             context.getOperationType(),
                             entry.getKey(),
                             context.getPath()));
@@ -487,15 +393,15 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
 
         if (expectedOperation.getResponses() != null || actualOperation.getResponses() != null) {
             if (expectedOperation.getResponses() == null) {
-                addMethodError(context,
+                OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                     String.format(
-                        "The response for the operation '%s' related to the path item '%s' is not specified in the OpenAPI file.",
+                        "The response for the operation '%s' related to the path '%s' is found, but it is not specified in the OpenAPI file.",
                         context.getOperationType(),
                         context.getPath()));
             } else if (actualOperation.getResponses() == null) {
-                addMethodError(context,
+                OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                     String.format(
-                        "The response for the operation '%s' related to the path item '%s' is not specified in the OpenAPI file.",
+                        "The response for the operation '%s' related to the path '%s' is not found, but it is specified in the OpenAPI file.",
                         context.getOperationType(),
                         context.getPath()));
             } else {
@@ -507,71 +413,70 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 if (actualApiResponse == null) {
                     actualApiResponse = actualOperation.getResponses().get("200");
                 }
-                expectedApiResponse = resolve(context,
-                    context.getExpectedOpenAPIJXPathContext(),
-                    expectedApiResponse,
-                    ApiResponse::get$ref);
-                actualApiResponse = resolve(context,
-                    context.getActualOpenAPIJXPathContext(),
-                    actualApiResponse,
-                    ApiResponse::get$ref);
+                expectedApiResponse = context.getExpectedOpenAPIResolver()
+                    .resolve(expectedApiResponse, ApiResponse::get$ref);
+                actualApiResponse = context.getActualOpenAPIResolver().resolve(actualApiResponse, ApiResponse::get$ref);
                 if (expectedApiResponse != null || actualApiResponse != null) {
                     if (expectedApiResponse == null) {
-                        addMethodError(context,
+                        OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                             String.format(
-                                "The response for the operation '%s' related to the path item '%s' is not specified in the OpenAPI file.",
+                                "The response for the operation '%s' related to the path '%s' is found, but it is not specified in the OpenAPI file.",
                                 context.getOperationType(),
                                 context.getPath()));
                     } else if (actualApiResponse == null) {
-                        addMethodError(context,
+                        OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                             String.format(
-                                "The response for the operation '%s' related to the path item '%s' is not specified in the OpenAPI file.",
+                                "The response for the operation '%s' related to the path '%s' is not found, but it is specified in the OpenAPI file.",
                                 context.getOperationType(),
                                 context.getPath()));
 
                     } else {
-                        for (Map.Entry<String, MediaType> entry : expectedApiResponse.getContent().entrySet()) {
-                            MediaType expectedMediaType = entry.getValue();
-                            MediaType actualMediaType = actualApiResponse.getContent().get(entry.getKey());
-                            if (expectedMediaType != null || actualMediaType != null) {
-                                if (actualMediaType == null) {
-                                    addMethodError(context,
-                                        String.format(
-                                            "The response for the operation '%s' and media type '%s' related to the path item '%s' is found, but it is not specified in the OpenAPI file.",
-                                            context.getOperationType(),
-                                            entry.getKey(),
-                                            context.getPath()));
-                                } else if (expectedMediaType == null) {
-                                    addMethodError(context,
-                                        String.format(
-                                            "The response for the operation '%s' and media type '%s' related to the path item '%s' is not found, but it is specified in the OpenAPI file.",
-                                            context.getOperationType(),
-                                            entry.getKey(),
-                                            context.getPath()));
-                                } else {
-                                    try {
-                                        context.setActualMediaType(actualMediaType);
-                                        context.setExpectedMediaType(expectedMediaType);
-                                        context.setMediaType(entry.getKey());
-                                        validateResponse(context);
-                                    } finally {
-                                        context.setActualMediaType(null);
-                                        context.setExpectedMediaType(null);
-                                        context.setMediaType(null);
+                        if (expectedApiResponse.getContent() != null) {
+                            for (Map.Entry<String, MediaType> entry : expectedApiResponse.getContent().entrySet()) {
+                                MediaType expectedMediaType = entry.getValue();
+                                MediaType actualMediaType = actualApiResponse.getContent().get(entry.getKey());
+                                if (expectedMediaType != null || actualMediaType != null) {
+                                    if (actualMediaType == null) {
+                                        OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                            String.format(
+                                                "The response for the operation '%s' and media type '%s' related to the path '%s' is found, but it is not specified in the OpenAPI file.",
+                                                context.getOperationType(),
+                                                entry.getKey(),
+                                                context.getPath()));
+                                    } else if (expectedMediaType == null) {
+                                        OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                            String.format(
+                                                "The response for the operation '%s' and media type '%s' related to the path '%s' is not found, but it is specified in the OpenAPI file.",
+                                                context.getOperationType(),
+                                                entry.getKey(),
+                                                context.getPath()));
+                                    } else {
+                                        try {
+                                            context.setActualMediaType(actualMediaType);
+                                            context.setExpectedMediaType(expectedMediaType);
+                                            context.setMediaType(entry.getKey());
+                                            validateResponse(context);
+                                        } finally {
+                                            context.setActualMediaType(null);
+                                            context.setExpectedMediaType(null);
+                                            context.setMediaType(null);
+                                        }
                                     }
                                 }
                             }
                         }
-                        for (Map.Entry<String, MediaType> entry : actualApiResponse.getContent().entrySet()) {
-                            MediaType expectedMediaType = expectedRequestBody != null && expectedRequestBody
-                                .getContent() != null ? expectedRequestBody.getContent().get(entry.getKey()) : null;
-                            if (expectedMediaType == null) {
-                                addMethodError(context,
-                                    String.format(
-                                        "The response for the operation '%s' and media type '%s' related to the path item '%s' is not specified in the OpenAPI file.",
-                                        context.getOperationType(),
-                                        entry.getKey(),
-                                        context.getPath()));
+                        if (actualApiResponse.getContent() != null) {
+                            for (Map.Entry<String, MediaType> entry : actualApiResponse.getContent().entrySet()) {
+                                MediaType expectedMediaType = expectedApiResponse
+                                    .getContent() != null ? expectedApiResponse.getContent().get(entry.getKey()) : null;
+                                if (expectedMediaType == null) {
+                                    OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                        String.format(
+                                            "The response for the operation '%s' and media type '%s' related to the path '%s' is found, but it is not specified in the OpenAPI file.",
+                                            context.getOperationType(),
+                                            entry.getKey(),
+                                            context.getPath()));
+                                }
                             }
                         }
                     }
@@ -579,9 +484,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             }
         }
         if (expectedOperation.getCallbacks() != null && !expectedOperation.getCallbacks().isEmpty()) {
-            addMethodWarning(context,
+            OpenApiProjectValidatorMessagesUtils.addMethodWarning(context,
                 String.format(
-                    "Out-of band callback related to the operation '%s' and the path item '%s' is ignored, because callbacks are not supported.",
+                    "Out-of band callback related to the operation '%s' and the path '%s' in the OpenAPI file is ignored. Callbacks are not supported.",
                     context.getOperationType(),
                     context.getPath()));
         }
@@ -591,18 +496,14 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         MediaType expectedMediaType = context.getExpectedMediaType();
         MediaType actualMediaType = context.getActualMediaType();
         IOpenMethod openMethod = context.getOpenMethod();
-        Schema<?> expectedSchema = resolve(context,
-            context.getExpectedOpenAPIJXPathContext(),
-            expectedMediaType.getSchema(),
-            Schema::get$ref);
-        Schema<?> actualSchema = resolve(context,
-            context.getActualOpenAPIJXPathContext(),
-            actualMediaType.getSchema(),
-            Schema::get$ref);
+        Schema<?> expectedSchema = context.getExpectedOpenAPIResolver()
+            .resolve(expectedMediaType.getSchema(), Schema::get$ref);
+        Schema<?> actualSchema = context.getActualOpenAPIResolver()
+            .resolve(actualMediaType.getSchema(), Schema::get$ref);
         if (expectedSchema == null) {
-            addMethodError(context,
+            OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                 String.format(
-                    "Missed mandatory schema definition for the response in the operation '%s' and media type '%s' related to the path item '%s' in the OpenAPI file.",
+                    "Missed a schema definition for the response in the operation '%s' and media type '%s' related to the path '%s' in the OpenAPI file.",
                     context.getOperationType(),
                     context.getMediaType(),
                     context.getPath()));
@@ -612,9 +513,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         IOpenClass returnType = method.getReturnType() == openMethod.getType().getInstanceClass() ? openMethod
             .getType() : JavaOpenClass.getOpenClass(method.getReturnType());
         if (isIncompatibleTypes(actualSchema, expectedSchema, returnType)) {
-            addMethodError(context,
+            OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                 String.format(
-                    "The return type of the method '%s' is declared as '%s' that mismatches to the schema type '%s' specified in the OpenAPI file.",
+                    "Schema type for the return type of the method '%s' is declared as '%s' that mismatches to the schema type '%s' specified in the OpenAPI file.",
                     method.getName(),
                     resolveType(actualSchema),
                     resolveType(expectedSchema)));
@@ -633,18 +534,14 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         MediaType expectedMediaType = context.getExpectedMediaType();
         MediaType actualMediaType = context.getActualMediaType();
         IOpenMethod openMethod = context.getOpenMethod();
-        Schema<?> expectedSchema = resolve(context,
-            context.getExpectedOpenAPIJXPathContext(),
-            expectedMediaType.getSchema(),
-            Schema::get$ref);
-        Schema<?> actualSchema = resolve(context,
-            context.getActualOpenAPIJXPathContext(),
-            actualMediaType.getSchema(),
-            Schema::get$ref);
+        Schema<?> expectedSchema = context.getExpectedOpenAPIResolver()
+            .resolve(expectedMediaType.getSchema(), Schema::get$ref);
+        Schema<?> actualSchema = context.getActualOpenAPIResolver()
+            .resolve(actualMediaType.getSchema(), Schema::get$ref);
         if (expectedSchema == null) {
-            addMethodError(context,
+            OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                 String.format(
-                    "Missed mandatory schema definition for the operation '%s' and media type '%s' related to the path item '%s' in the OpenAPI file.",
+                    "Schema definition for the operation '%s' and media type '%s' related to the path '%s' is found, but it is not specified in the OpenAPI file.",
                     context.getOperationType(),
                     context.getMediaType(),
                     context.getPath()));
@@ -657,12 +554,11 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             context.isProvideRuntimeContext(),
             context.isProvideRuntimeContext());
 
-        Map<String, Schema> allPropertiesOfActualSchema = extractAllProperties(context,
-            context.getActualOpenAPIJXPathContext(),
-            actualSchema);
-        Map<String, Schema> allPropertiesOfExpectedSchema = extractAllProperties(context,
-            context.getExpectedOpenAPIJXPathContext(),
-            expectedSchema);
+        Map<String, Schema> allPropertiesOfActualSchema = context.getActualOpenAPIResolver()
+            .resolveAllProperties(actualSchema);
+
+        Map<String, Schema> allPropertiesOfExpectedSchema = context.getExpectedOpenAPIResolver()
+            .resolveAllProperties(expectedSchema);
 
         if (method.getParameterCount() > 1 && context.getMethod().getParameterCount() == 1) {
             int i = 0;
@@ -685,7 +581,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             }
             for (Map.Entry<String, Schema> entry : allPropertiesOfExpectedSchema.entrySet()) {
                 if (allPropertiesOfActualSchema.get(entry.getKey()) == null) {
-                    addMethodError(context,
+                    OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                         String.format(
                             "The parameter '%s' of the method '%s' is not found, but it is specified in the OpenAPI file.",
                             entry.getKey(),
@@ -760,13 +656,13 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             IOpenClass parameterOpenClass,
             Schema<?> expectedParameterSchema) {
         if (expectedParameterSchema == null) {
-            addMethodError(context,
+            OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                 String.format("The parameter '%s' of the method '%s' is not specified in the OpenAPI file.",
                     parameterName,
                     method.getName()));
         } else {
             if (isIncompatibleTypes(parameterSchema, expectedParameterSchema, parameterOpenClass)) {
-                addMethodError(context,
+                OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                     String.format(
                         "The schema type of the parameter '%s' of the method '%s' is declared as '%s' that mismatches to the schema type '%s' specified in the OpenAPI file.",
                         parameterName,
@@ -846,42 +742,6 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         .equals(expectedParameterSchema.getName(), parameterSchema.getName()));
     }
 
-    @SuppressWarnings("rawtypes")
-    private Map<String, Schema> extractAllProperties(Context context, JXPathContext jxPathContext, Schema<?> schema) {
-        Map<String, Schema> allProperties = context.getAllSchemaPropertiesCache().get(schema);
-        if (allProperties != null) {
-            return allProperties;
-        }
-        Schema<?> resolvedSchema = resolve(context, jxPathContext, schema, Schema::get$ref);
-        if (resolvedSchema != null) {
-            allProperties = new HashMap<>();
-            if (resolvedSchema instanceof ComposedSchema) {
-                ComposedSchema composedSchema = (ComposedSchema) resolvedSchema;
-                if (composedSchema.getAllOf() != null && !composedSchema.getAllOf().isEmpty()) {
-                    for (Schema<?> embeddedSchema : composedSchema.getAllOf()) {
-                        Map<String, Schema> embeddedSchemaProperties = extractAllProperties(context,
-                            jxPathContext,
-                            embeddedSchema);
-                        if (embeddedSchemaProperties != null) {
-                            allProperties.putAll(embeddedSchemaProperties);
-                        }
-                    }
-                }
-            } else {
-                if (resolvedSchema.getProperties() != null) {
-                    allProperties.putAll(resolvedSchema.getProperties());
-                }
-            }
-            if (resolvedSchema != schema) {
-                context.getAllSchemaPropertiesCache().put(resolvedSchema, allProperties);
-            }
-        } else {
-            allProperties = schema.getProperties() != null ? schema.getProperties() : Collections.emptyMap();
-        }
-        context.getAllSchemaPropertiesCache().put(schema, allProperties);
-        return allProperties;
-    }
-
     private boolean isSimpleType(String type) {
         return "String".equals(type) || "Float".equals(type) || "Double".equals(type) || "Integer"
             .equals(type) || "Long".equals(type) || "Boolean".equals(type) || "Date".equals(type);
@@ -932,15 +792,10 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             Set<Schema<?>> validatedSchemas) {
         IOpenClass oldType = context.getType();
         try {
-            Schema<?> resolvedActualSchema = resolve(context,
-                context.getActualOpenAPIJXPathContext(),
-                actualSchema,
-                Schema::get$ref);
+            Schema<?> resolvedActualSchema = context.getActualOpenAPIResolver().resolve(actualSchema, Schema::get$ref);
             if (resolvedActualSchema != null) {
-                Schema<?> resolvedExpectedSchema = resolve(context,
-                    context.getExpectedOpenAPIJXPathContext(),
-                    expectedSchema,
-                    Schema::get$ref);
+                Schema<?> resolvedExpectedSchema = context.getExpectedOpenAPIResolver()
+                    .resolve(expectedSchema, Schema::get$ref);
                 if (resolvedExpectedSchema != null) {
                     if (validatedSchemas.contains(resolvedActualSchema)) {
                         return;
@@ -951,57 +806,45 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     return;
                 }
                 context.setType(openClass);
-                Map<String, Schema> allPropertiesOfExpectedSchema = extractAllProperties(context,
-                    context.getExpectedOpenAPIJXPathContext(),
-                    expectedSchema);
-                Map<String, Schema> allPropertiesOfActualSchema = extractAllProperties(context,
-                    context.getActualOpenAPIJXPathContext(),
-                    resolvedActualSchema);
+                Map<String, Schema> allPropertiesOfExpectedSchema = context.getExpectedOpenAPIResolver()
+                    .resolveAllProperties(expectedSchema);
+                Map<String, Schema> allPropertiesOfActualSchema = context.getActualOpenAPIResolver()
+                    .resolveAllProperties(resolvedActualSchema);
 
                 for (Map.Entry<String, Schema> entry : allPropertiesOfExpectedSchema.entrySet()) {
-                    IOpenField openField = openClass.getField(entry.getKey());
-                    if (openField == null || openField.isTransient()) {
-                        if (openField == null) {
-                            addTypeError(context,
-                                String.format(
-                                    "The field '%s' is not found in the type '%s', but it is specified in the OpenAPI file.",
-                                    entry.getKey(),
-                                    openClass.getDisplayName(INamedThing.REGULAR)));
-                        } else {
-                            addTypeError(context,
-                                String.format(
-                                    "The field '%s' of the type '%s' is transient, but it is specified in the OpenAPI file.",
-                                    entry.getKey(),
-                                    openClass.getDisplayName(INamedThing.REGULAR)));
-                        }
+                    Schema<?> fieldActualSchema = allPropertiesOfActualSchema.get(entry.getKey());
+                    if (fieldActualSchema == null) {
+                        OpenApiProjectValidatorMessagesUtils.addTypeError(context,
+                            String.format(
+                                "The field '%s' is not found in the type '%s' or the field is a transient, but it is specified in the OpenAPI file.",
+                                entry.getKey(),
+                                openClass.getDisplayName(INamedThing.REGULAR)));
                     } else {
-                        Schema<?> fieldActualSchema = allPropertiesOfActualSchema.get(entry.getKey());
-                        if (fieldActualSchema == null) {
-                            throw new IllegalStateException("Failed to resolve a reference for the generated schema");
+                        IOpenField openField = context.getOpenClassPropertiesResolver()
+                            .getField(openClass, entry.getKey());
+                        if (isIncompatibleTypes(fieldActualSchema, entry.getValue(), openField.getType())) {
+                            OpenApiProjectValidatorMessagesUtils.addTypeError(context,
+                                String.format(
+                                    "The schema type of the property '%s' declared in the type '%s' is '%s' that mismatches to the type '%s' specified in the OpenAPI file.",
+                                    entry.getKey(),
+                                    openClass.getDisplayName(INamedThing.REGULAR),
+                                    resolveType(fieldActualSchema),
+                                    resolveType(entry.getValue())));
                         } else {
-                            if (isIncompatibleTypes(fieldActualSchema, entry.getValue(), openField.getType())) {
-                                addTypeError(context,
-                                    String.format(
-                                        "The schema type of the property '%s' declared in the type '%s' is '%s' that mismatches to the type '%s' specified in the OpenAPI file.",
-                                        entry.getKey(),
-                                        openClass.getDisplayName(INamedThing.REGULAR),
-                                        resolveType(fieldActualSchema),
-                                        resolveType(entry.getValue())));
-                            } else {
-                                validateType(context,
-                                    fieldActualSchema,
-                                    entry.getValue(),
-                                    openField.getType(),
-                                    validatedSchemas);
-                            }
+                            validateType(context,
+                                fieldActualSchema,
+                                entry.getValue(),
+                                openField.getType(),
+                                validatedSchemas);
                         }
                     }
+
                 }
 
                 for (Map.Entry<String, Schema> entry : allPropertiesOfActualSchema.entrySet()) {
                     Schema<?> fieldExpectedSchema = allPropertiesOfExpectedSchema.get(entry.getKey());
                     if (fieldExpectedSchema == null) {
-                        addTypeWarning(context,
+                        OpenApiProjectValidatorMessagesUtils.addTypeWarning(context,
                             openClass,
                             String.format(
                                 "The field '%s' is declared in the type '%s', but it is not specified in the OpenAPI file.",
