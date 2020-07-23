@@ -42,7 +42,7 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
             while (iterator.hasNext()) {
                 Object element = iterator.next();
                 IOpenClass type = collectionElementType;
-                if (element != null) {
+                if (element != null && element.getClass() != collectionElementType.getInstanceClass()) {
                     // Show content of complex objects
                     type = JavaOpenClass.getOpenClass(element.getClass());
                 }
