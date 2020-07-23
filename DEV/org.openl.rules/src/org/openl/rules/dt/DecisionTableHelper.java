@@ -2176,7 +2176,7 @@ public final class DecisionTableHelper {
         return b2 <= b1 && b1 <= e2 || b2 <= e1 && e1 <= e2 || b1 <= b2 && b2 <= e1 || b1 <= e2 && e2 <= e1;
     }
 
-    private static List<DTHeader> optimizeDtHeaders(ILogicalTable originalTable, List<DTHeader> dtHeaders) {
+    private static List<DTHeader> findStrongDtHeaders(ILogicalTable originalTable, List<DTHeader> dtHeaders) {
         // Remove headers that intersect with declared dt header if declared dt header is matched 100%
         boolean[] f = new boolean[dtHeaders.size()];
         Arrays.fill(f, false);
@@ -2197,7 +2197,7 @@ public final class DecisionTableHelper {
             }
         }
         final int lastColumn = originalTable.getSource().getWidth();
-        Set<Integer> indexes = new HashSet<>();
+        List<DTHeader> ret = new ArrayList<>();
         for (int i = 0; i < dtHeaders.size(); i++) {
             DTHeader dtHeader = dtHeaders.get(i);
             // Exclude from optimization conditions and actions that matches to the last column, where return is
@@ -2207,24 +2207,7 @@ public final class DecisionTableHelper {
                 continue;
             }
             if (dtHeader instanceof DeclaredDTHeader && !f[i]) {
-                indexes.add(i);
-            }
-        }
-        List<DTHeader> ret = new ArrayList<>(dtHeaders);
-        Iterator<DTHeader> itr = ret.iterator();
-        while (itr.hasNext()) {
-            DTHeader dtHeader = itr.next();
-            if (!(dtHeader instanceof DeclaredDTHeader)) {
-                for (Integer index : indexes) {
-                    DTHeader t = dtHeaders.get(index);
-                    if (intersects(t.getColumn(),
-                        t.getColumn() + t.getWidth() - 1,
-                        dtHeader.getColumn(),
-                        dtHeader.getColumn() + dtHeader.getWidth() - 1)) {
-                        itr.remove();
-                        break;
-                    }
-                }
+                ret.add(dtHeader);
             }
         }
         return ret;
@@ -2309,7 +2292,6 @@ public final class DecisionTableHelper {
             boolean twoColumnsForReturn,
             int firstColumnHeight,
             IBindingContext bindingContext) throws OpenLCompilationException {
-        dtHeaders = optimizeDtHeaders(originalTable, dtHeaders);
         int numberOfParametersForVCondition = numberOfParameters - numberOfHCondition;
         boolean[][] matrix = new boolean[dtHeaders.size()][dtHeaders.size()];
         for (int i = 0; i < dtHeaders.size(); i++) {
@@ -2497,6 +2479,18 @@ public final class DecisionTableHelper {
         return c <= t / 2 + t % 2;
     }
 
+    private static boolean conflictsWithStrongDtHeader(List<DTHeader> strongDtHeaders, int column, int width) {
+        for (DTHeader dtHeader : strongDtHeaders) {
+            if (intersects(dtHeader.getColumn(),
+                dtHeader.getColumn() + dtHeader.getWidth() - 1,
+                column,
+                column + width - 1)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static List<DTHeader> getDTHeaders(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             ILogicalTable originalTable,
@@ -2527,7 +2521,6 @@ public final class DecisionTableHelper {
         List<DTHeader> dtHeaders = new ArrayList<>();
         int i = 0;
         int column = 0;
-        SimpleReturnDTHeader lastSimpleReturnDTHeader = null;
         while (column < lastColumn) {
             int w = originalTable.getSource().getCell(column, 0).getWidth();
             if (isSmart) {
@@ -2539,46 +2532,19 @@ public final class DecisionTableHelper {
                     dtHeaders,
                     firstColumnHeight,
                     bindingContext);
-                List<DTHeader> fuzzyHeaders = matchWithFuzzySearch(decisionTable,
-                    originalTable,
-                    fuzzyContext,
-                    numberOfColumnsUnderTitleCounter,
-                    numberOfHCondition,
-                    column,
-                    dtHeaders,
-                    firstColumnHeight,
-                    false);
-                if (numberOfHCondition == 0) {
-                    String titleForColumn = getTitleForColumn(originalTable, firstColumnHeight, column);
-                    int width = originalTable.getSource().getCell(column, 0).getWidth();
-                    lastSimpleReturnDTHeader = new SimpleReturnDTHeader(null, titleForColumn, column, width);
-                    if (fuzzyContext != null && fuzzyContext.isFuzzySupportsForReturnType()) {
-                        List<FuzzyResult> returnTypeFuzzyExtractResult = OpenLFuzzyUtils
-                            .fuzzyExtract(titleForColumn, new Token[] { new Token(returnTokenString, -1) }, true);
-                        if (!returnTypeFuzzyExtractResult.isEmpty()) {
-                            dtHeaders.add(new FuzzyDTHeader(column,
-                                null,
-                                titleForColumn,
-                                null,
-                                column,
-                                column,
-                                width,
-                                returnTypeFuzzyExtractResult.get(0),
-                                true));
-                        } else if (fuzzyHeaders.stream()
-                            .noneMatch(DTHeader::isReturn) && numberOfColumnsUnderTitleCounter
-                                .get(column) == 1 && (column + w >= lastColumn || columnWithFormulas(originalTable,
-                                    firstColumnHeight,
-                                    column))) {
-                            dtHeaders.add(lastSimpleReturnDTHeader);
-                        }
-                    } else {
-                        dtHeaders.add(lastSimpleReturnDTHeader);
-                    }
-                }
-            } else {
-                if (numberOfHCondition == 0 && i >= numberOfParameters) {
-                    matchWithFuzzySearch(decisionTable,
+            }
+            column = column + w;
+            i++;
+        }
+        List<DTHeader> strongDtHeaders = findStrongDtHeaders(originalTable, dtHeaders);
+        i = 0;
+        column = 0;
+        SimpleReturnDTHeader lastSimpleReturnDTHeader = null;
+        while (column < lastColumn) {
+            int w = originalTable.getSource().getCell(column, 0).getWidth();
+            if (!conflictsWithStrongDtHeader(strongDtHeaders, column, w)) {
+                if (isSmart) {
+                    List<DTHeader> fuzzyHeaders = matchWithFuzzySearch(decisionTable,
                         originalTable,
                         fuzzyContext,
                         numberOfColumnsUnderTitleCounter,
@@ -2586,21 +2552,60 @@ public final class DecisionTableHelper {
                         column,
                         dtHeaders,
                         firstColumnHeight,
-                        true);
-                }
-                if (i < numberOfParameters - numberOfHCondition) {
-                    SimpleDTHeader simpleDTHeader = new SimpleDTHeader(i,
-                        decisionTable.getSignature().getParameterName(i),
-                        null,
-                        column,
-                        w);
-                    dtHeaders.add(simpleDTHeader);
-                } else if (numberOfHCondition == 0) {
-                    SimpleReturnDTHeader simpleReturnDTHeader = new SimpleReturnDTHeader(null, null, column, w);
-                    dtHeaders.add(simpleReturnDTHeader);
+                        false);
+                    if (numberOfHCondition == 0) {
+                        String titleForColumn = getTitleForColumn(originalTable, firstColumnHeight, column);
+                        int width = originalTable.getSource().getCell(column, 0).getWidth();
+                        lastSimpleReturnDTHeader = new SimpleReturnDTHeader(null, titleForColumn, column, width);
+                        if (fuzzyContext != null && fuzzyContext.isFuzzySupportsForReturnType()) {
+                            List<FuzzyResult> returnTypeFuzzyExtractResult = OpenLFuzzyUtils
+                                .fuzzyExtract(titleForColumn, new Token[] { new Token(returnTokenString, -1) }, true);
+                            if (!returnTypeFuzzyExtractResult.isEmpty()) {
+                                dtHeaders.add(new FuzzyDTHeader(column,
+                                    null,
+                                    titleForColumn,
+                                    null,
+                                    column,
+                                    column,
+                                    width,
+                                    returnTypeFuzzyExtractResult.get(0),
+                                    true));
+                            } else if (fuzzyHeaders.stream()
+                                .noneMatch(DTHeader::isReturn) && numberOfColumnsUnderTitleCounter
+                                    .get(column) == 1 && (column + w >= lastColumn || columnWithFormulas(originalTable,
+                                        firstColumnHeight,
+                                        column))) {
+                                dtHeaders.add(lastSimpleReturnDTHeader);
+                            }
+                        } else {
+                            dtHeaders.add(lastSimpleReturnDTHeader);
+                        }
+                    }
+                } else {
+                    if (numberOfHCondition == 0 && i >= numberOfParameters) {
+                        matchWithFuzzySearch(decisionTable,
+                            originalTable,
+                            fuzzyContext,
+                            numberOfColumnsUnderTitleCounter,
+                            numberOfHCondition,
+                            column,
+                            dtHeaders,
+                            firstColumnHeight,
+                            true);
+                    }
+                    if (i < numberOfParameters - numberOfHCondition) {
+                        SimpleDTHeader simpleDTHeader = new SimpleDTHeader(i,
+                            decisionTable.getSignature().getParameterName(i),
+                            null,
+                            column,
+                            w);
+                        dtHeaders.add(simpleDTHeader);
+                    } else if (numberOfHCondition == 0) {
+                        SimpleReturnDTHeader simpleReturnDTHeader = new SimpleReturnDTHeader(null, null, column, w);
+                        dtHeaders.add(simpleReturnDTHeader);
+                    }
                 }
             }
-
             column = column + w;
             i++;
         }
