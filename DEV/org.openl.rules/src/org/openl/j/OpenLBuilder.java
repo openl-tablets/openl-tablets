@@ -152,19 +152,15 @@ public class OpenLBuilder extends AOpenLBuilder {
         javatype.setClassName(org.openl.types.java.JavaPrimitiveTypeLibrary.class.getName());
         nstc.addConfiguration(javatype);
 
-        javatype = new JavaTypeConfiguration();
-        javatype.setClassName(org.openl.types.java.JavaLang.class.getName());
-        nstc.addConfiguration(javatype);
-
         JavaLongNameTypeConfiguration javaLongNameType = new JavaLongNameTypeConfiguration();
         nstc.addConfiguration(javaLongNameType);
 
-        JavaImportTypeConfiguration javaimport = new JavaImportTypeConfiguration();
+        JavaImportTypeConfiguration javaImports = new JavaImportTypeConfiguration();
+        javaImports.addPackageImport("java.lang");
+        javaImports.addPackageImport("java.util");
+        javaImports.addPackageImport("java.math");
 
-        javaimport.addPackageImport("java.util");
-        javaimport.addPackageImport("java.math");
-
-        nstc.addConfiguration(javaimport);
+        nstc.addConfiguration(javaImports);
 
         types.addConfiguredTypeLibrary(nstc);
 

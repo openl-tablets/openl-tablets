@@ -51,8 +51,8 @@ public final class JAXWSOpenLServiceEnhancer {
     private class JAXWSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$JAXWSAnnotated";
 
-        private Class<?> originalClass;
-        private OpenLService service;
+        private final Class<?> originalClass;
+        private final OpenLService service;
 
         private Map<Method, String> operationNames = null;
 

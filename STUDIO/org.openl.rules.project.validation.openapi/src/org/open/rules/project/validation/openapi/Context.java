@@ -3,13 +3,14 @@ package org.open.rules.project.validation.openapi;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import org.apache.commons.jxpath.JXPathContext;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.validation.base.ValidatedCompiledOpenClass;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -26,8 +27,6 @@ class Context {
     private Map<Method, Method> methodMap;
     private boolean provideRuntimeContext;
     private boolean provideVariations;
-    private JXPathContext expectedOpenAPIJXPathContext;
-    private JXPathContext actualOpenAPIJXPathContext;
 
     private String path;
     private String operationType;
@@ -37,9 +36,15 @@ class Context {
     private Operation actualOperation;
     private MediaType expectedMediaType;
     private MediaType actualMediaType;
+    private String mediaType;
 
     private Method method;
     private IOpenMethod openMethod;
+    private ObjectMapper objectMapper;
+
+    private final OpenClassPropertiesResolver openClassPropertiesResolver = new OpenClassPropertiesResolver(this);
+    private OpenAPIResolver actualOpenAPIResolver;
+    private OpenAPIResolver expectedOpenAPIResolver;
 
     private boolean typeValidationInProgress;
     private IOpenClass type;
@@ -180,20 +185,12 @@ class Context {
         this.actualMediaType = actualMediaType;
     }
 
-    public JXPathContext getExpectedOpenAPIJXPathContext() {
-        return expectedOpenAPIJXPathContext;
+    public String getMediaType() {
+        return mediaType;
     }
 
-    public void setExpectedOpenAPIJXPathContext(JXPathContext expectedOpenAPIJXPathContext) {
-        this.expectedOpenAPIJXPathContext = expectedOpenAPIJXPathContext;
-    }
-
-    public JXPathContext getActualOpenAPIJXPathContext() {
-        return actualOpenAPIJXPathContext;
-    }
-
-    public void setActualOpenAPIJXPathContext(JXPathContext actualOpenAPIJXPathContext) {
-        this.actualOpenAPIJXPathContext = actualOpenAPIJXPathContext;
+    public void setMediaType(String mediaType) {
+        this.mediaType = mediaType;
     }
 
     public Map<Method, Method> getMethodMap() {
@@ -236,4 +233,31 @@ class Context {
         return null;
     }
 
+    public OpenClassPropertiesResolver getOpenClassPropertiesResolver() {
+        return openClassPropertiesResolver;
+    }
+
+    public OpenAPIResolver getActualOpenAPIResolver() {
+        return actualOpenAPIResolver;
+    }
+
+    public void setActualOpenAPIResolver(OpenAPIResolver actualOpenAPIResolver) {
+        this.actualOpenAPIResolver = actualOpenAPIResolver;
+    }
+
+    public OpenAPIResolver getExpectedOpenAPIResolver() {
+        return expectedOpenAPIResolver;
+    }
+
+    public void setExpectedOpenAPIResolver(OpenAPIResolver expectedOpenAPIResolver) {
+        this.expectedOpenAPIResolver = expectedOpenAPIResolver;
+    }
+
+    public ObjectMapper getObjectMapper() {
+        return objectMapper;
+    }
+
+    public void setObjectMapper(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 }

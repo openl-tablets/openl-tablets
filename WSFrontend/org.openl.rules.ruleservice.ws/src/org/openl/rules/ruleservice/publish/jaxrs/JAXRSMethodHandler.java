@@ -10,8 +10,8 @@ import org.openl.runtime.AbstractOpenLMethodHandler;
 
 public class JAXRSMethodHandler extends AbstractOpenLMethodHandler<Method, Method> {
 
-    private Object target;
-    private Map<Method, Method> methodMap;
+    private final Object target;
+    private final Map<Method, Method> methodMap;
 
     @Override
     public Method getTargetMember(Method key) {

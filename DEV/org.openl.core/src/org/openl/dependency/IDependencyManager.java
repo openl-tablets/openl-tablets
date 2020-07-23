@@ -48,10 +48,12 @@ public interface IDependencyManager {
      */
     Map<String, Object> getExternalParameters();
 
+
+    Collection<String> getAllDependencies();
     /**
      * A list of available dependencies.
      */
-    Collection<String> getAllDependencies();
+    Collection<String> getAvailableDependencies();
 
     void clearOddDataForExecutionMode();
 
