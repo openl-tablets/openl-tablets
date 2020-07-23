@@ -2,12 +2,19 @@ package org.open.rules.project.validation.openapi;
 
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 
 final class OpenApiProjectValidatorMessagesUtils {
+
+    private OpenApiProjectValidatorMessagesUtils() {
+    }
+
     public static void addError(Context context, String summary) {
         context.getValidatedCompiledOpenClass().addValidationMessage(OpenLMessagesUtils.newErrorMessage(summary));
     }
@@ -17,12 +24,12 @@ final class OpenApiProjectValidatorMessagesUtils {
     }
 
     public static void addMethodError(Context context, String summary) {
-        if (context.getTableSyntaxNode() != null) {
-            SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary,
-                context.getTableSyntaxNode());
+        TableSyntaxNode tableSyntaxNode = extractTableSyntaxNode(context.getOpenMethod());
+        if (tableSyntaxNode != null) {
+            SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary, tableSyntaxNode);
             OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
             context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
-            context.getTableSyntaxNode().addError(syntaxNodeException);
+            tableSyntaxNode.addError(syntaxNodeException);
         } else {
             addError(context, summary);
         }
@@ -39,13 +46,34 @@ final class OpenApiProjectValidatorMessagesUtils {
                 datatypeOpenClass.getTableSyntaxNode().addError(syntaxNodeException);
                 return;
             }
+        } else {
+            IOpenMethod method = context.getSpreadsheetMethodResolver().resolve(context.getType());
+            if (method != null) {
+                TableSyntaxNode tableSyntaxNode = extractTableSyntaxNode(context.getOpenMethod());
+                if (tableSyntaxNode != null) {
+                    SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils
+                        .createError(summary, tableSyntaxNode);
+                    OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
+                    context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
+                    tableSyntaxNode.addError(syntaxNodeException);
+                }
+            }
         }
         addError(context, summary);
     }
 
+    private static TableSyntaxNode extractTableSyntaxNode(IOpenMethod method) {
+        if (method instanceof ExecutableRulesMethod) {
+            ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) method;
+            return executableRulesMethod.getSyntaxNode();
+        }
+        return null;
+    }
+
     public static void addMethodWarning(Context context, String summary) {
-        if (context.getTableSyntaxNode() != null) {
-            OpenLMessage openLMessage = OpenLMessagesUtils.newWarnMessage(summary, context.getTableSyntaxNode());
+        TableSyntaxNode tableSyntaxNode = extractTableSyntaxNode(context.getOpenMethod());
+        if (tableSyntaxNode != null) {
+            OpenLMessage openLMessage = OpenLMessagesUtils.newWarnMessage(summary, tableSyntaxNode);
             context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
         } else {
             addWarning(context, summary);
