@@ -1,0 +1,8 @@
+<project>
+    <name>Project with Wildcard Module</name>
+    <modules>
+        <module>
+            <rules-root path="rules/*.xlsx"/>
+        </module>
+    </modules>
+</project>
