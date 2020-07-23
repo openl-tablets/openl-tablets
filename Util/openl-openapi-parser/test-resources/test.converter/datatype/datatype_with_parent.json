@@ -2,7 +2,8 @@
   "openapi": "3.0.1",
   "info": {
     "title": "Datatype - nesting",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "description": "File with nesting (done)"
   },
   "components": {
     "schemas": {
@@ -18,7 +19,11 @@
         }
       },
       "Cat": {
-        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Animal"
+          }
+        ],
         "properties": {
           "weight": {
             "type": "string"
@@ -29,5 +34,7 @@
         }
       }
     }
+  },
+  "paths": {
   }
 }

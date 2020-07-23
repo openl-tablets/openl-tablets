@@ -2,7 +2,8 @@
   "openapi": "3.0.1",
   "info": {
     "title": "Datatype - simple",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "description": "File with simple datatype for testing (done)"
   },
   "components": {
     "schemas": {
@@ -32,5 +33,7 @@
         }
       }
     }
+  },
+  "paths": {
   }
 }

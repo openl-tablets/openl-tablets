@@ -3,13 +3,13 @@ package org.openl.rules.model.scaffolding;
 public class StepModel {
     private String name;
     private String type;
-    String description;
-    private String value;
+    private String description;
+    private Object value;
 
     public StepModel() {
     }
 
-    public StepModel(String name, String type, String description, String value) {
+    public StepModel(String name, String type, String description, Object value) {
         this.name = name;
         this.type = type;
         this.description = description;
@@ -40,11 +40,11 @@ public class StepModel {
         this.description = description;
     }
 
-    public String getValue() {
+    public Object getValue() {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(Object value) {
         this.value = value;
     }
 }

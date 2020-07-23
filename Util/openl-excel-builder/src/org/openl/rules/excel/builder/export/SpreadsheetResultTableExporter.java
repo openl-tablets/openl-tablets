@@ -1,13 +1,18 @@
 package org.openl.rules.excel.builder.export;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.rules.excel.builder.CellRangeSettings;
 import org.openl.rules.excel.builder.template.SpreadsheetResultTableStyle;
-import org.openl.rules.model.scaffolding.FieldModel;
+import org.openl.rules.excel.builder.template.TableStyle;
 import org.openl.rules.model.scaffolding.SpreadsheetResultModel;
-import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.model.scaffolding.StepModel;
+import org.openl.rules.table.xls.PoiExcelHelper;
 
 public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<SpreadsheetResultModel> {
 
@@ -20,75 +25,88 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
     public static final String SPREADSHEET_RESULT_STEP_VALUE = "\\{spr.field.value}";
 
     @Override
-    protected void exportTables(Collection<SpreadsheetResultModel> models, IWritableExtendedGrid gridToExport) {
+    protected void exportTables(Collection<SpreadsheetResultModel> models, Sheet sheet) {
         Cursor endPosition = null;
+        TableStyle style = getTableStyle();
         for (SpreadsheetResultModel model : models) {
             Cursor startPosition = nextFreePosition(endPosition);
-            endPosition = exportTable(model, gridToExport, startPosition);
+            endPosition = exportTable(model, startPosition, style, sheet);
         }
     }
 
     @Override
-    protected Cursor exportTable(SpreadsheetResultModel model, IWritableExtendedGrid gridToWrite, Cursor startPosition) {
-        SpreadsheetResultTableStyle style = (SpreadsheetResultTableStyle) getTableStyle();
+    protected Cursor exportTable(SpreadsheetResultModel model,
+            Cursor startPosition,
+            TableStyle defaultStyle,
+            Sheet sheet) {
 
-        ICellStyle headerStyle = style.getHeaderStyle();
+        SpreadsheetResultTableStyle style = (SpreadsheetResultTableStyle) defaultStyle;
+
+        CellStyle headerStyle = style.getHeaderStyle();
         String tableHeaderText = style.getHeaderTemplate();
         CellRangeSettings headerSettings = style.getHeaderSettings();
 
-        ICellStyle stepHeaderStyle = style.getStepHeaderStyle();
+        CellStyle stepHeaderStyle = style.getHeaderRowStyle().getNameStyle();
         String stepHeaderText = style.getStepHeaderText();
 
-        ICellStyle valueHeaderStyle = style.getValueHeaderStyle();
+        CellStyle valueHeaderStyle = style.getHeaderRowStyle().getValueStyle();
         String valueHeaderText = style.getValueHeaderText();
-
-        ICellStyle valueStyle = style.getStepValueStyle();
-        ICellStyle nameStyle = style.getStepNameStyle();
 
         String sprHeaderText = tableHeaderText.replaceAll(SPREADSHEET_RESULT_RETURN_TYPE, model.getType());
         sprHeaderText = sprHeaderText.replaceAll(SPREADSHEET_RESULT_NAME_TEMPLATE, model.getName());
-        sprHeaderText = sprHeaderText.replaceAll(SPREADSHEET_RESULT_SIGNATURE, model.getSignature());
+        String parameters = model.getParameters()
+            .stream()
+            .map(x -> x.getType() + " " + x.getName())
+            .collect(Collectors.joining(", "));
+        sprHeaderText = sprHeaderText.replaceAll(SPREADSHEET_RESULT_SIGNATURE, parameters);
 
-        GridRegion mergedRegion = new GridRegion(startPosition.getRow(),
-            startPosition.getColumn(),
-            startPosition.getRow() + headerSettings.getHeight(),
-            startPosition.getColumn() + headerSettings.getWidth());
-        gridToWrite.addMergedRegionUnsafe(mergedRegion);
+        int height = headerSettings.getHeight();
+        addMergedHeader(sheet, startPosition, headerStyle, height, headerSettings.getWidth());
 
-        for (int i = mergedRegion.getTop(); i <= mergedRegion.getBottom(); i++) {
-            for (int j = mergedRegion.getLeft(); j <= mergedRegion.getRight(); j++) {
-                gridToWrite.setCellStyle(j, i, headerStyle);
-            }
-        }
+        Cell topLeftCell = PoiExcelHelper.getOrCreateCell(startPosition.getColumn(), startPosition.getRow(), sheet);
+        topLeftCell.setCellValue(sprHeaderText);
 
-        gridToWrite.setCellValue(startPosition.getColumn(), startPosition.getRow(), sprHeaderText);
-        startPosition = startPosition.moveDown(headerSettings.getHeight() + 1);
+        startPosition = startPosition.moveDown(height + 1);
 
-        gridToWrite.setCellValue(startPosition.getColumn(), startPosition.getRow(), stepHeaderText);
-        gridToWrite.setCellStyle(startPosition.getColumn(), startPosition.getRow(), stepHeaderStyle);
+        Cell stepHeaderCell = PoiExcelHelper.getOrCreateCell(startPosition.getColumn(), startPosition.getRow(), sheet);
+        stepHeaderCell.setCellValue(stepHeaderText);
+        stepHeaderCell.setCellStyle(stepHeaderStyle);
+
         startPosition = startPosition.moveRight(1);
 
-        gridToWrite.setCellValue(startPosition.getColumn(), startPosition.getRow(), valueHeaderText);
-        gridToWrite.setCellStyle(startPosition.getColumn(), startPosition.getRow(), valueHeaderStyle);
+        Cell valueHeaderCell = PoiExcelHelper.getOrCreateCell(startPosition.getColumn(), startPosition.getRow(), sheet);
+        valueHeaderCell.setCellValue(valueHeaderText);
+        valueHeaderCell.setCellStyle(valueHeaderStyle);
 
         startPosition = startPosition.moveLeft(1);
 
         Cursor endPosition = startPosition;
 
-        for (FieldModel step : model.getSteps()) {
+        Iterator<StepModel> iterator = model.getSteps().iterator();
+        while (iterator.hasNext()) {
+            StepModel step = iterator.next();
+            boolean lastRow = false;
+            if (!iterator.hasNext()) {
+                lastRow = true;
+            }
             Cursor next = endPosition.moveDown(1);
 
-            gridToWrite.setCellValue(next.getColumn(), next.getRow(), step.getName());
-            gridToWrite.setCellStyle(next.getColumn(), next.getRow(), nameStyle);
+            Cell stepNameCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
+            stepNameCell.setCellValue(step.getName());
+            stepNameCell
+                .setCellStyle(lastRow ? style.getLastRowStyle().getNameStyle() : style.getRowStyle().getNameStyle());
 
             next = next.moveRight(1);
 
-            if (step.getDefaultValue() == null) {
-                gridToWrite.setCellValue(next.getColumn(), next.getRow(), convertValue(step));
+            Cell stepValueCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
+            if (isSimpleType(step.getType())) {
+                setValue(step, stepValueCell);
             } else {
-                gridToWrite.setCellFormula(next.getColumn(), next.getRow(), "testSpr");
+                stepValueCell.setCellValue(makeSprCall(step));
             }
-            gridToWrite.setCellStyle(next.getColumn(), next.getRow(), valueStyle);
+
+            stepValueCell
+                .setCellStyle(lastRow ? style.getLastRowStyle().getValueStyle() : style.getRowStyle().getValueStyle());
 
             endPosition = next.moveLeft(1);
 
@@ -97,28 +115,34 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
         return new Cursor(endPosition.getColumn(), endPosition.getRow());
     }
 
+    private String makeSprCall(StepModel step) {
+        return "=" + step.getType() + "(" + step.getValue() + ")";
+    }
+
     @Override
     protected String getExcelSheetName() {
         return SPR_RESULT_SHEET;
     }
 
-    private static Object convertValue(FieldModel model) {
-        Object result;
-        switch (model.getType()) {
-            case "Integer":
-                result = 0;
-                break;
-            case "Double":
-                result = 0.0d;
-                break;
-            case "Float":
-                result = 0.0f;
-                break;
-            default:
-                result = "";
-                break;
+    private static void setValue(StepModel model, Cell stepValueCell) {
+        if (model.getType() != null) {
+            String type = model.getType();
+            if ("Integer".equals(type)) {
+                stepValueCell.setCellValue(0);
+            } else if ("Double".equals(type)) {
+                stepValueCell.setCellValue(0.0d);
+            } else if ("Float".equals(type)) {
+                stepValueCell.setCellValue(0.0f);
+            } else if ("String".equals(type)) {
+                stepValueCell.setCellValue("");
+            }
+        } else {
+            stepValueCell.setCellValue("");
         }
-        return result;
     }
 
+    private boolean isSimpleType(String type) {
+        return "String".equals(type) || "Float".equals(type) || "Double".equals(type) || "Integer"
+            .equals(type) || "Long".equals(type) || "Boolean".equals(type) || "Date".equals(type);
+    }
 }

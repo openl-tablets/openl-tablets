@@ -1,7 +1,8 @@
 package org.openl.rules.model.scaffolding;
 
-public interface Model {
+public interface InputParameter {
 
     String getName();
 
+    String getType();
 }

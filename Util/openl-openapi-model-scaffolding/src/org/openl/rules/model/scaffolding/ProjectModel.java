@@ -2,6 +2,7 @@ package org.openl.rules.model.scaffolding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ProjectModel {
 
@@ -31,5 +32,26 @@ public class ProjectModel {
 
     public List<SpreadsheetResultModel> getSpreadsheetResultModels() {
         return spreadsheetResultModels;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ProjectModel that = (ProjectModel) o;
+
+        if (!Objects.equals(name, that.name)) return false;
+        if (!Objects.equals(datatypeModels, that.datatypeModels))
+            return false;
+        return Objects.equals(spreadsheetResultModels, that.spreadsheetResultModels);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (datatypeModels != null ? datatypeModels.hashCode() : 0);
+        result = 31 * result + (spreadsheetResultModels != null ? spreadsheetResultModels.hashCode() : 0);
+        return result;
     }
 }

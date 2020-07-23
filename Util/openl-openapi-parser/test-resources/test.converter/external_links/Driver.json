@@ -12,14 +12,7 @@
         },
         "responses": {
           "default": {
-            "description": "Default response for drivers",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/responses/DriverResponse"
-                }
-              }
-            }
+            "$ref": "#/components/responses/DriverResponse"
           }
         }
       }
@@ -31,14 +24,7 @@
         },
         "responses": {
           "200": {
-            "description": "ok",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/responses/DriverResponse"
-                }
-              }
-            }
+            "$ref": "#/components/responses/DriverResponse"
           }
         }
       }

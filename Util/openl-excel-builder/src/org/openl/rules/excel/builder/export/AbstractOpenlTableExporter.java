@@ -2,9 +2,14 @@ package org.openl.rules.excel.builder.export;
 
 import java.util.Collection;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.openl.rules.excel.builder.OpenlTableWriter;
 import org.openl.rules.excel.builder.template.TableStyle;
 import org.openl.rules.model.scaffolding.Model;
+import org.openl.rules.table.xls.PoiExcelHelper;
 
 public abstract class AbstractOpenlTableExporter<T extends Model> implements OpenlTableWriter<T> {
 
@@ -14,24 +19,38 @@ public abstract class AbstractOpenlTableExporter<T extends Model> implements Ope
     private TableStyle tableStyle;
 
     @Override
-    public IWritableExtendedGrid export(IWritableExtendedGrid gridToExport, Collection<T> models) {
+    public Sheet export(Collection<T> models, Sheet sheet) {
         if (models == null || models.isEmpty()) {
             return null;
         }
-        exportTables(models, gridToExport);
-        return gridToExport;
+        exportTables(models, sheet);
+        return sheet;
     }
 
-    protected void exportTables(Collection<T> models, IWritableExtendedGrid gridToExport) {
+    protected void exportTables(Collection<T> models, Sheet sheet) {
         Cursor startPosition = getStartPosition();
         Cursor endPosition;
         for (T table : models) {
-            endPosition = exportTable(table, gridToExport, startPosition);
+            endPosition = exportTable(table, startPosition, getTableStyle(), sheet);
             startPosition = startPosition.equals(endPosition) ? startPosition : nextFreePosition(endPosition);
         }
     }
 
-    protected abstract Cursor exportTable(T model, IWritableExtendedGrid gridToWrite, Cursor position);
+    public void addMergedHeader(Sheet sheet, Cursor cursor, CellStyle style, int height, int width) {
+        CellRangeAddress mergedRegion = new CellRangeAddress(cursor.getRow(),
+            cursor.getRow() + height,
+            cursor.getColumn(),
+            cursor.getColumn() + width);
+        sheet.addMergedRegionUnsafe(mergedRegion);
+        for (int i = mergedRegion.getFirstRow(); i <= mergedRegion.getLastRow(); i++) {
+            for (int j = mergedRegion.getFirstColumn(); j <= mergedRegion.getLastColumn(); j++) {
+                Cell sheetCell = PoiExcelHelper.getOrCreateCell(j, i, sheet);
+                sheetCell.setCellStyle(style);
+            }
+        }
+    }
+
+    protected abstract Cursor exportTable(T model, Cursor position, TableStyle tableStyle, Sheet sheet);
 
     protected abstract String getExcelSheetName();
 

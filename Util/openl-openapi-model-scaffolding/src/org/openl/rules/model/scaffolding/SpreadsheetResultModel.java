@@ -2,17 +2,21 @@ package org.openl.rules.model.scaffolding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class SpreadsheetResultModel implements Model {
 
     private String name;
-    private String signature;
+    private List<InputParameter> parameters;
     private String type;
-    private List<FieldModel> steps = new ArrayList<>();
+    private List<StepModel> steps = new ArrayList<>();
 
-    public SpreadsheetResultModel(String name, String signature, String type, List<FieldModel> steps) {
+    public SpreadsheetResultModel(String name,
+            List<InputParameter> parameterModels,
+            String type,
+            List<StepModel> steps) {
         this.name = name;
-        this.signature = signature;
+        this.parameters = parameterModels;
         this.type = type;
         this.steps = steps;
     }
@@ -28,12 +32,12 @@ public class SpreadsheetResultModel implements Model {
         this.name = name;
     }
 
-    public String getSignature() {
-        return signature;
+    public List<InputParameter> getParameters() {
+        return parameters;
     }
 
-    public void setSignature(String signature) {
-        this.signature = signature;
+    public void setParameters(List<InputParameter> parameters) {
+        this.parameters = parameters;
     }
 
     public String getType() {
@@ -44,11 +48,38 @@ public class SpreadsheetResultModel implements Model {
         this.type = type;
     }
 
-    public List<FieldModel> getSteps() {
+    public List<StepModel> getSteps() {
         return steps;
     }
 
-    public void setSteps(List<FieldModel> steps) {
+    public void setSteps(List<StepModel> steps) {
         this.steps = steps;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        SpreadsheetResultModel that = (SpreadsheetResultModel) o;
+
+        if (!Objects.equals(name, that.name))
+            return false;
+        if (!Objects.equals(parameters, that.parameters))
+            return false;
+        if (!Objects.equals(type, that.type))
+            return false;
+        return Objects.equals(steps, that.steps);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (parameters != null ? parameters.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (steps != null ? steps.hashCode() : 0);
+        return result;
     }
 }

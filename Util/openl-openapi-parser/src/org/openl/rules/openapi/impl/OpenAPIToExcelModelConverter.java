@@ -40,6 +40,7 @@ import io.swagger.v3.parser.core.models.ParseOptions;
 /**
  * Extracts data types from OpenAPI JSON files
  */
+@Deprecated
 public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
 
     private final Logger logger = LoggerFactory.getLogger(OpenAPIToExcelModelConverter.class);
@@ -265,8 +266,8 @@ public class OpenAPIToExcelModelConverter implements OpenAPIModelConverter {
                     // if (typesToExpand.contains(requestType)) {
                     // // expand type there
                     // }
-                    spreadsheetResultModel.setSignature(requestName.substring(1) + "(" + StringUtils
-                        .capitalize(typeModel) + " " + StringUtils.uncapitalize(exampleParameterName) + ")");
+//                    spreadsheetResultModel.setSignature(requestName.substring(1) + "(" + StringUtils
+//                        .capitalize(typeModel) + " " + StringUtils.uncapitalize(exampleParameterName) + ")");
 
                     // if (responseTypeModel.isArray()) {
                     // responseTypeName += "[]";

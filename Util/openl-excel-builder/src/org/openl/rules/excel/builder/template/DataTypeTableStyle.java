@@ -1,48 +1,36 @@
 package org.openl.rules.excel.builder.template;
 
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.openl.rules.excel.builder.CellRangeSettings;
-import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.excel.builder.template.row.DataTypeTableRowStyle;
 
 public class DataTypeTableStyle extends DefaultTableStyle implements TableStyle {
 
-    private ICellStyle fieldTypeStyle;
-    private ICellStyle fieldNameStyle;
-    private ICellStyle fieldDefaultValueStyle;
+    private DataTypeTableRowStyle rowStyle;
+    private CellStyle fieldDateStyle;
+    private DataTypeTableRowStyle lastRowStyle;
 
     public DataTypeTableStyle(String headerTextTemplate,
-                              ICellStyle headerStyle,
-                              CellRangeSettings headerSettings,
-                              ICellStyle fieldTypeStyle,
-                              ICellStyle fieldNameStyle,
-                              ICellStyle fieldDefaultValueStyle) {
+            CellStyle headerStyle,
+            CellRangeSettings headerSettings,
+            DataTypeTableRowStyle rowStyle,
+            CellStyle fieldDateStyle,
+            DataTypeTableRowStyle lastRowStyle) {
         super(headerTextTemplate, headerStyle, headerSettings);
-        this.fieldTypeStyle = fieldTypeStyle;
-        this.fieldNameStyle = fieldNameStyle;
-        this.fieldDefaultValueStyle = fieldDefaultValueStyle;
+        this.rowStyle = rowStyle;
+        this.fieldDateStyle = fieldDateStyle;
+        this.lastRowStyle = lastRowStyle;
     }
 
-    public ICellStyle getFieldTypeStyle() {
-        return fieldTypeStyle;
+    public DataTypeTableRowStyle getRowStyle() {
+        return rowStyle;
     }
 
-    public void setFieldTypeStyle(ICellStyle fieldTypeStyle) {
-        this.fieldTypeStyle = fieldTypeStyle;
+    public CellStyle getFieldDateStyle() {
+        return fieldDateStyle;
     }
 
-    public ICellStyle getFieldNameStyle() {
-        return fieldNameStyle;
+    public DataTypeTableRowStyle getLastRowStyle() {
+        return lastRowStyle;
     }
-
-    public void setFieldNameStyle(ICellStyle fieldNameStyle) {
-        this.fieldNameStyle = fieldNameStyle;
-    }
-
-    public ICellStyle getFieldDefaultValueStyle() {
-        return fieldDefaultValueStyle;
-    }
-
-    public void setFieldDefaultValueStyle(ICellStyle fieldDefaultValueStyle) {
-        this.fieldDefaultValueStyle = fieldDefaultValueStyle;
-    }
-
 }
