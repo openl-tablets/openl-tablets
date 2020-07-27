@@ -29,5 +29,9 @@
             <groupId>io.swagger.parser.v3</groupId>
             <artifactId>swagger-parser</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.test</artifactId>
+        </dependency>
     </dependencies>
 </project>
