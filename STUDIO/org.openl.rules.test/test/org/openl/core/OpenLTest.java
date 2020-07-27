@@ -83,7 +83,7 @@ public final class OpenLTest {
         }
 
         {
-            IOpenMethod method = openClass.getMethod("GreetingTest", new IOpenClass[] {});
+            IOpenMethod method = openClass.getMethod("GreetingTest", IOpenClass.EMPTY);
             assertNotNull(method);
             assertTrue(method instanceof TestSuiteMethod);
             TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
