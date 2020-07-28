@@ -1300,11 +1300,6 @@
                 <version>1.4.199</version>
                 <!--<version>1.4.200</version> does not work with policy file due to FilePermission, will be fixed in the next version-->
             </dependency>
-            <dependency>
-                <groupId>org.postgresql</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>42.2.8</version>
-            </dependency>
             <!-- Flyway: The agile database migration framework for Java. -->
             <dependency>
                 <groupId>org.flywaydb</groupId>
