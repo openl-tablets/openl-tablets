@@ -12,7 +12,10 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.jxpath.CompiledExpression;
 import org.apache.commons.jxpath.JXPathContext;
+import org.openl.rules.model.scaffolding.DatatypeModel;
+import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.InputParameter;
+import org.openl.rules.model.scaffolding.ParameterModel;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -41,6 +44,8 @@ public class OpenLOpenAPIUtils {
     public static final String SCHEMAS_LINK = "#/components/schemas/";
     public static final String APPLICATION_JSON = "application/json";
     public static final String TEXT_PLAIN = "text/plain";
+
+    public static final byte MAX_PARAMETERS_COUNT = 7;
 
     @SuppressWarnings("unchecked")
     public static <T> T resolve(JXPathContext jxPathContext, T obj, Function<T, String> getRefFuc) {
@@ -93,63 +98,6 @@ public class OpenLOpenAPIUtils {
             }
         }
         return ref;
-    }
-
-    @Deprecated
-    public static Set<ParameterParsingModel> collectParameters(OpenAPI openAPI,
-            JXPathContext jxPathContext,
-            Schema<?> usedSchemaInRequest) {
-        Set<String> usedRefs = visitSchema(jxPathContext, usedSchemaInRequest, true, true);
-        Set<ParameterParsingModel> properties = new HashSet<>();
-        Set<Schema<?>> visitedParents = new HashSet<>();
-        for (String usedRef : usedRefs) {
-            Schema<?> schema = (Schema<?>) resolveByRef(jxPathContext, usedRef);
-            Map<String, Schema> modelProps = schema.getProperties();
-            if (CollectionUtils.isNotEmpty(modelProps)) {
-                for (Map.Entry<String, Schema> schemaEntry : modelProps.entrySet()) {
-                    properties
-                        .add(new ParameterParsingModel(schemaEntry.getKey(), extractType(schemaEntry.getValue())));
-                }
-            }
-        }
-        return properties;
-    }
-
-    @Deprecated
-    public static Map<String, Integer> getAllUsedRefRequests(OpenAPI openAPI, JXPathContext jxPathContext) {
-        Map<String, Integer> refs = new HashMap<>();
-        Map<String, PathItem> paths = openAPI.getPaths();
-        if (CollectionUtils.isNotEmpty(paths)) {
-            for (Map.Entry<String, PathItem> pathEntry : paths.entrySet()) {
-                PathItem pathItem = pathEntry.getValue();
-                Map<PathItem.HttpMethod, Operation> httpMethodOperationMap = pathItem.readOperationsMap();
-                if (CollectionUtils.isNotEmpty(httpMethodOperationMap)) {
-                    Operation satisfyingOperation = OpenLOpenAPIUtils.getOperation(pathItem);
-                    if (satisfyingOperation != null) {
-                        RequestBody requestBody = resolve(jxPathContext,
-                            satisfyingOperation.getRequestBody(),
-                            RequestBody::get$ref);
-                        List<Parameter> parameters = satisfyingOperation.getParameters();
-                        if (requestBody != null && requestBody.getContent() != null) {
-                            MediaType mediaType = OpenLOpenAPIUtils.getMediaType(requestBody.getContent());
-                            if (mediaType != null) {
-                                Schema<?> mediaTypeSchema = mediaType.getSchema();
-                                if (mediaTypeSchema != null && mediaTypeSchema.get$ref() != null) {
-                                    refs.merge(mediaTypeSchema.get$ref(), 1, Integer::sum);
-                                }
-                            }
-                        } else if (CollectionUtils.isNotEmpty(parameters)) {
-                            for (Parameter parameter : parameters) {
-                                if (parameter.get$ref() != null) {
-                                    refs.merge(parameter.get$ref(), 1, Integer::sum);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return refs;
     }
 
     public enum PathTarget {
@@ -241,7 +189,6 @@ public class OpenLOpenAPIUtils {
                                 if (mediaType != null) {
                                     Schema<?> mediaTypeSchema = mediaType.getSchema();
                                     if (mediaTypeSchema != null) {
-                                        // TODO: check how was done in requests
                                         Set<String> refs = OpenLOpenAPIUtils
                                             .visitSchema(jxPathContext, mediaTypeSchema, false, false);
                                         allSchemaRefResponses.put(p.getKey(), refs);
@@ -254,23 +201,6 @@ public class OpenLOpenAPIUtils {
             }
         }
         return allSchemaRefResponses;
-    }
-
-    public static Schema<?> getUsedSchemaInRequest1(JXPathContext jxPathContext, PathItem p) {
-        Schema<?> mediaTypeSchema = null;
-        Operation satisfyingOperation = OpenLOpenAPIUtils.getOperation(p);
-        if (satisfyingOperation != null) {
-            RequestBody requestBody = resolve(jxPathContext,
-                satisfyingOperation.getRequestBody(),
-                RequestBody::get$ref);
-            if (requestBody != null && CollectionUtils.isNotEmpty(requestBody.getContent())) {
-                MediaType mediaType = OpenLOpenAPIUtils.getMediaType(requestBody.getContent());
-                if (mediaType != null) {
-                    mediaTypeSchema = mediaType.getSchema();
-                }
-            }
-        }
-        return mediaTypeSchema;
     }
 
     public static Set<String> visitSchema(JXPathContext jxPathContext,
@@ -313,7 +243,7 @@ public class OpenLOpenAPIUtils {
         if (allOperations != null) {
             for (Operation operation : allOperations) {
                 // Params:
-                visitParameters(jxPathContext, operation.getParameters(), visitor, visitedSchemas);
+                visitParameters(jxPathContext, operation.getParameters(), visitor, visitedSchemas, true, true);
 
                 // RequestBody:
                 RequestBody requestBody = resolve(jxPathContext, operation.getRequestBody(), RequestBody::get$ref);
@@ -360,7 +290,7 @@ public class OpenLOpenAPIUtils {
             }
         }
         // Params:
-        visitParameters(jxPathContext, pathItem.getParameters(), visitor, visitedSchemas);
+        visitParameters(jxPathContext, pathItem.getParameters(), visitor, visitedSchemas, true, true);
     }
 
     private static void visitPathItemRequests(PathItem pathItem,
@@ -371,7 +301,7 @@ public class OpenLOpenAPIUtils {
         if (allOperations != null) {
             for (Operation operation : allOperations) {
                 // parameters there too
-
+                visitParameters(jxPathContext, operation.getParameters(), visitor, visitedSchemas, false, true);
                 // RequestBody:
                 RequestBody requestBody = resolve(jxPathContext, operation.getRequestBody(), RequestBody::get$ref);
                 if (requestBody != null) {
@@ -379,22 +309,31 @@ public class OpenLOpenAPIUtils {
                 }
             }
         }
+        visitParameters(jxPathContext, pathItem.getParameters(), visitor, visitedSchemas, false, true);
     }
 
     private static void visitParameters(JXPathContext jxPathContext,
             List<Parameter> parameters,
             OpenAPISchemaExplorer visitor,
-            Set<String> visitedSchemas) {
+            Set<String> visitedSchemas,
+            boolean visitInterfaces,
+            boolean visitProperties) {
         if (parameters != null) {
             for (Parameter p : parameters) {
                 Parameter parameter = resolve(jxPathContext, p, Parameter::get$ref);
                 if (parameter != null) {
                     if (parameter.getSchema() != null) {
-                        visitSchema(jxPathContext, parameter.getSchema(), null, visitedSchemas, visitor, true, true);
+                        visitSchema(jxPathContext,
+                            parameter.getSchema(),
+                            null,
+                            visitedSchemas,
+                            visitor,
+                            visitInterfaces,
+                            visitProperties);
                     }
-                    visitContent(jxPathContext, parameter.getContent(), visitor, visitedSchemas, true);
+                    visitContent(jxPathContext, parameter.getContent(), visitor, visitedSchemas, visitInterfaces);
                 } else {
-                    logger.warn("Unreferenced parameter(s) found.");
+                    logger.warn("An unreferenced parameter(s) found.");
                 }
             }
         }
@@ -591,7 +530,7 @@ public class OpenLOpenAPIUtils {
                 }
             }
             if (refedWithoutDiscriminator.size() == 1 && nullSchemaChildrenCount == 1) {
-                // One schema is a $ref and the other is the 'null' type, so the parent is obvious.
+                // One schema is a $ref, and the other is the 'null' type, so the parent is obvious.
                 // In this particular case there is no need to specify a discriminator.
                 hasAmbiguousParents = false;
             }
@@ -686,44 +625,123 @@ public class OpenLOpenAPIUtils {
         return "";
     }
 
-    public static List<InputParameter> extractParameters(OpenAPI openAPI,
-            JXPathContext jxPathContext,
+    public static List<InputParameter> extractParameters(JXPathContext jxPathContext,
             Set<String> refsToExpand,
-            PathItem pathItem) {
-        // TODO: IF ONEOF, ANYOF - new Schema is needed
-        List<InputParameter> parameterModels = new ArrayList<>();
-        List<Parameter> parameters = pathItem.getParameters();
-        if (CollectionUtils.isNotEmpty(parameters)) {
-            // deal with parameters
-        }
-        visitPathItemForParametersOfRequest(jxPathContext, pathItem, refsToExpand);
-        return parameterModels;
+            PathItem pathItem,
+            List<DatatypeModel> dts,
+            String path) {
+        return visitPathItemForParametersOfRequest(jxPathContext, pathItem, refsToExpand, dts, path);
     }
 
-    private static void visitPathItemForParametersOfRequest(JXPathContext jxPathContext,
+    private static List<InputParameter> visitPathItemForParametersOfRequest(JXPathContext jxPathContext,
             PathItem pathItem,
-            Set<String> refsToExpand) {
+            Set<String> refsToExpand,
+            List<DatatypeModel> dts,
+            String path) {
+        List<InputParameter> parameterModels = new ArrayList<>();
+        List<Parameter> pathParameters = pathItem.getParameters();
+        if (CollectionUtils.isNotEmpty(pathParameters)) {
+            for (Parameter pathParameter : pathParameters) {
+                Parameter p = resolve(jxPathContext, pathParameter, Parameter::get$ref);
+                if (p != null) {
+                    parameterModels.add(new ParameterModel(OpenLOpenAPIUtils.extractType(p.getSchema()), p.getName()));
+                }
+            }
+        }
         Operation satisfyingOperation = OpenLOpenAPIUtils.getOperation(pathItem);
         if (satisfyingOperation != null) {
-            RequestBody requestBody = resolve(jxPathContext,
-                satisfyingOperation.getRequestBody(),
-                RequestBody::get$ref);
-            if (requestBody != null && CollectionUtils.isNotEmpty(requestBody.getContent())) {
-                MediaType mediaType = OpenLOpenAPIUtils.getMediaType(requestBody.getContent());
-                if (mediaType != null) {
-                    Schema<?> resSchema = resolve(jxPathContext, mediaType.getSchema(), Schema::get$ref);
-                    if (resSchema != null) {
-                        visitSchemaForParams(jxPathContext, refsToExpand, resSchema);
+            List<Parameter> parameters = satisfyingOperation.getParameters();
+            if (CollectionUtils.isNotEmpty(parameters)) {
+                for (Parameter parameter : parameters) {
+                    Parameter p = resolve(jxPathContext, parameter, Parameter::get$ref);
+                    if (p != null) {
+                        parameterModels
+                            .add(new ParameterModel(OpenLOpenAPIUtils.extractType(p.getSchema()), p.getName()));
+                    }
+                }
+            } else {
+                RequestBody requestBody = resolve(jxPathContext,
+                    satisfyingOperation.getRequestBody(),
+                    RequestBody::get$ref);
+                if (requestBody != null && CollectionUtils.isNotEmpty(requestBody.getContent())) {
+                    MediaType mediaType = OpenLOpenAPIUtils.getMediaType(requestBody.getContent());
+                    if (mediaType != null) {
+                        Schema<?> resSchema = resolve(jxPathContext, mediaType.getSchema(), Schema::get$ref);
+                        parameterModels = collectInputParams(jxPathContext,
+                            refsToExpand,
+                            parameterModels,
+                            mediaType,
+                            resSchema);
                     }
                 }
             }
         }
+        if (parameterModels.size() > MAX_PARAMETERS_COUNT) {
+            DatatypeModel dt = new DatatypeModel(StringUtils.capitalize(path) + "Request");
+            List<FieldModel> fields = new ArrayList<>();
+            for (InputParameter parameterModel : parameterModels) {
+                FieldModel fm = new FieldModel.Builder().setName(parameterModel.getName())
+                    .setType(parameterModel.getType())
+                    .setDefaultValue(null)
+                    .build();
+                fields.add(fm);
+            }
+            dt.setFields(fields);
+            dts.add(dt);
+            parameterModels = Collections
+                .singletonList(new ParameterModel(dt.getName(), StringUtils.uncapitalize(dt.getName())));
+        }
+        return parameterModels;
     }
 
-    private static Set<String> visitSchemaForParams(JXPathContext jxPathContext,
+    private static List<InputParameter> collectInputParams(JXPathContext jxPathContext,
             Set<String> refsToExpand,
-            Schema<?> schema) {
-        return new HashSet<>();
+            List<InputParameter> parameterModels,
+            MediaType mediaType,
+            Schema<?> resSchema) {
+        if (resSchema != null) {
+            // search for refsToExpandInside
+            // go through the schema and all the parameters
+            Set<String> allSchemasUsedInRequest = visitSchema(jxPathContext, resSchema, false, true);
+            boolean requestBodyHasExpandableParam = allSchemasUsedInRequest.stream().anyMatch(refsToExpand::contains);
+            if (requestBodyHasExpandableParam) {
+                for (String internalModel : allSchemasUsedInRequest) {
+                    refsToExpand.remove(internalModel);
+                }
+            }
+            String ref = mediaType.getSchema().get$ref();
+            // only root schema is expandable
+            if (ref != null && refsToExpand.contains(ref)) {
+                Schema<?> schema = resSchema;
+                Map<String, Schema> properties = schema.getProperties();
+                if (CollectionUtils.isNotEmpty(properties)) {
+                    if (properties.size() > MAX_PARAMETERS_COUNT) {
+                        String name = getSimpleName(ref);
+                        parameterModels = Collections.singletonList(
+                            new ParameterModel(StringUtils.capitalize(name), StringUtils.uncapitalize(name)));
+                        refsToExpand.remove(ref);
+                    } else {
+                        parameterModels = properties.entrySet()
+                            .stream()
+                            .map(OpenLOpenAPIUtils::extractParameter)
+                            .collect(Collectors.toList());
+                    }
+                }
+            } else {
+                // non expandable
+                String name = extractType(mediaType.getSchema());
+                parameterModels = Collections
+                    .singletonList(new ParameterModel(StringUtils.capitalize(name), StringUtils.uncapitalize(name)));
+            }
+        }
+        return parameterModels;
+    }
+
+    public static ParameterModel extractParameter(Map.Entry<String, Schema> property) {
+        String propertyName = property.getKey();
+        Schema<?> valueSchema = property.getValue();
+        String typeModel = OpenLOpenAPIUtils.extractType(valueSchema);
+        return new ParameterModel(typeModel, propertyName);
     }
 
 }

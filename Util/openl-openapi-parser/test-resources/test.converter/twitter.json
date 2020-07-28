@@ -308,6 +308,17 @@
         "operationId": "tweetsRecentSearch",
         "parameters": [
           {
+            "in": "query1",
+            "name": "query1",
+            "description": "1111",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          {
             "in": "query",
             "name": "query",
             "description": "One query/rule/filter for matching Tweets. Up to 512 characters.",

@@ -12,10 +12,14 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.rules.excel.builder.CellRangeSettings;
 import org.openl.rules.excel.builder.template.row.DataTypeTableRowStyle;
@@ -28,6 +32,7 @@ public class ExcelTemplateUtils {
 
     public static final byte LEFT_MARGIN = 1;
     public static final byte TOP_MARGIN = 2;
+    public static final String DATATYPE_DEFINITON = "{datatype.name}";
 
     private ExcelTemplateUtils() {
     }
@@ -36,7 +41,7 @@ public class ExcelTemplateUtils {
         Map<String, TableStyle> templateStyles = new HashMap<>();
         ClassLoader classLoader = ExcelTemplateUtils.class.getClassLoader();
         try (OPCPackage fs = OPCPackage
-            .open(Objects.requireNonNull(classLoader.getResourceAsStream("template.xlsx")))) {
+            .open(Objects.requireNonNull(classLoader.getResourceAsStream("template.xlsx"), "Template wasn't found."))) {
             XSSFWorkbook wb = new XSSFWorkbook(fs);
 
             Sheet dataTypeSheet = wb.getSheet(DATATYPES_SHEET);
@@ -67,19 +72,19 @@ public class ExcelTemplateUtils {
     private static TableStyle extractVocabularyStyle(Sheet vocabularySheet, Workbook targetWorkbook) {
         Cell datatypeAliasHeader = extractTableHeader(vocabularySheet);
         CellStyle targetAliasHeaderStyle = copyCellStyle(targetWorkbook, datatypeAliasHeader);
-        String aliasHeaderTemplate = datatypeAliasHeader.getStringCellValue();
+        RichTextString aliasHeaderTemplate = datatypeAliasHeader.getRichStringCellValue();
 
         Row vocabularyValueRow = vocabularySheet.getRow(TOP_MARGIN + 1);
         Cell vocabularyCell = vocabularyValueRow.getCell(LEFT_MARGIN);
         CellStyle cellStyle = vocabularyCell.getCellStyle();
-        return new DataTypeAliasTableStyle(aliasHeaderTemplate, targetAliasHeaderStyle, null, cellStyle);
+        return new DataTypeAliasTableStyle(aliasHeaderTemplate, targetAliasHeaderStyle, null, cellStyle, null, null);
     }
 
     private static TableStyle extractSpreadSheetResultStyle(Sheet sprResultSheet, Workbook targetWorkbook) {
         Cell sprResultHeader = extractTableHeader(sprResultSheet);
         CellStyle targetTableHeaderStyle = copyCellStyle(targetWorkbook, sprResultHeader);
 
-        String sprTableHeaderText = sprResultHeader.getStringCellValue();
+        RichTextString sprTableHeaderText = sprResultHeader.getRichStringCellValue();
 
         CellRangeAddress headerRegion = sprResultSheet.getMergedRegion(0);
         CellRangeSettings headerSettings = new CellRangeSettings(headerRegion);
@@ -117,7 +122,7 @@ public class ExcelTemplateUtils {
         SpreadsheetTableRowStyle lastRowStyle = new SpreadsheetTableRowStyle(targetLastFieldStyle,
             targetLastValueStyle);
 
-        return new SpreadsheetResultTableStyle(sprTableHeaderText,
+        return new SpreadsheetTableStyleImpl(sprTableHeaderText,
             targetTableHeaderStyle,
             headerSettings,
             headerRowStyle,
@@ -135,7 +140,17 @@ public class ExcelTemplateUtils {
 
         CellStyle targetHeaderStyle = copyCellStyle(targetWorkbook, datatypeHeaderCell);
 
-        String dtHeaderValue = datatypeHeaderCell.getStringCellValue();
+        RichTextString headerValueString = datatypeHeaderCell.getRichStringCellValue();
+        String headerText = headerValueString.getString();
+        int start = headerText.indexOf(DATATYPE_DEFINITON);
+        XSSFFont datatypeFont = ((XSSFRichTextString) headerValueString).getFontAtIndex(start);
+
+        Font targetFont = targetWorkbook.createFont();
+        targetFont.setBold(datatypeFont.getBold());
+        targetFont.setFontHeight(datatypeFont.getFontHeight());
+        targetFont.setColor(datatypeFont.getColor());
+        targetFont.setFontName(datatypeFont.getFontName());
+        targetFont.setItalic(datatypeFont.getItalic());
 
         Row datatypeFieldRow = dataTypeSheet.getRow(TOP_MARGIN + 1);
 
@@ -174,12 +189,13 @@ public class ExcelTemplateUtils {
             targetLastFieldNameStyle,
             targetLastDefaultValueStyle);
 
-        return new DataTypeTableStyle(dtHeaderValue,
+        return new DataTypeTableStyleImpl(headerValueString,
             targetHeaderStyle,
             headerSettings,
             rowStyle,
             dateStyle,
-            lastRowStyle);
+            lastRowStyle,
+            targetFont);
 
     }
 

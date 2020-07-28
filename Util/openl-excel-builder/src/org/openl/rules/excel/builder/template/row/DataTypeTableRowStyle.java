@@ -2,7 +2,7 @@ package org.openl.rules.excel.builder.template.row;
 
 import org.apache.poi.ss.usermodel.CellStyle;
 
-public class DataTypeTableRowStyle {
+public class DataTypeTableRowStyle implements RowStyle {
 
     private CellStyle typeStyle;
     private CellStyle nameStyle;
@@ -22,7 +22,7 @@ public class DataTypeTableRowStyle {
         return nameStyle;
     }
 
-    public CellStyle getDefaultValueStyle() {
+    public CellStyle getValueStyle() {
         return defaultValueStyle;
     }
 }

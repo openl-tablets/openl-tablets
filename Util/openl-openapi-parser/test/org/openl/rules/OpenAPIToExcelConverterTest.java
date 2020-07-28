@@ -180,14 +180,15 @@ public class OpenAPIToExcelConverterTest {
         assertEquals(1, spreadsheetResultModels.size());
         SpreadsheetResultModel spr = spreadsheetResultModels.iterator().next();
         List<InputParameter> parameters = spr.getParameters();
-        assertEquals(2, parameters.size());
+        assertEquals(1, parameters.size());
+        ExcelFileBuilder.generateExcelFile(oneOf);
 
         ProjectModel anyOf = converter.extractProjectModel("test.converter/project/oneOfAndAnyOf/anyOfInRequest.json");
         List<SpreadsheetResultModel> anyOfModels = anyOf.getSpreadsheetResultModels();
         assertEquals(1, anyOfModels.size());
         SpreadsheetResultModel anyOfSpr = anyOfModels.iterator().next();
         List<InputParameter> anyOfParams = anyOfSpr.getParameters();
-        assertEquals(2, anyOfParams.size());
+        assertEquals(1, anyOfParams.size());
 
         ExcelFileBuilder.generateExcelFile(anyOf);
     }
@@ -222,7 +223,7 @@ public class OpenAPIToExcelConverterTest {
         assertEquals(1, spreadsheetResultModels.size());
         SpreadsheetResultModel sprModel = spreadsheetResultModels.iterator().next();
         List<InputParameter> parameters = sprModel.getParameters();
-        assertEquals(4, parameters.size());
+        assertEquals(1, parameters.size());
         ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
@@ -255,6 +256,25 @@ public class OpenAPIToExcelConverterTest {
     public void testExpandablePropertyInsideNonExpandableScheme() throws IOException {
         OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter.extractProjectModel("test.converter/project/expand/expand_test.json");
+        List<SpreadsheetResultModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
+        List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
+        ExcelFileBuilder.generateExcelFile(projectModel);
+    }
+
+    @Test
+    public void testExpandableExceedingLimit() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/project/expand/expand_exceeds_limit.json");
+        List<SpreadsheetResultModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
+        List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
+        ExcelFileBuilder.generateExcelFile(projectModel);
+    }
+
+    @Test
+    public void twitterTest() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/twitter.json");
         List<SpreadsheetResultModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         ExcelFileBuilder.generateExcelFile(projectModel);

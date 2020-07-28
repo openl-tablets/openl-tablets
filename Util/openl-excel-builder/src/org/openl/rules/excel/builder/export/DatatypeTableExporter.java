@@ -7,9 +7,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.rules.excel.builder.CellRangeSettings;
 import org.openl.rules.excel.builder.template.DataTypeTableStyle;
@@ -43,23 +45,24 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
     @Override
     protected Cursor exportTable(DatatypeModel model, Cursor startPosition, TableStyle defaultStyle, Sheet sheet) {
         DataTypeTableStyle style = (DataTypeTableStyle) defaultStyle;
-        String headerTemplate = style.getHeaderTemplate();
-        CellRangeSettings headerSettings = style.getHeaderSettings();
+        RichTextString headerTemplate = style.getHeaderTemplate();
+        CellRangeSettings headerSettings = style.getHeaderSizeSettings();
         CellStyle headerStyle = style.getHeaderStyle();
 
-        CellStyle fieldDateStyle = style.getFieldDateStyle();
+        CellStyle fieldDateStyle = style.getDateFieldStyle();
 
-        String dtHeaderText = headerTemplate.replaceAll(DATATYPE_NAME, model.getName());
+        String dtHeaderText = headerTemplate.getString().replaceAll(DATATYPE_NAME, model.getName());
         if (StringUtils.isNotBlank(model.getParent())) {
             dtHeaderText += " extends " + model.getParent();
         }
 
-        int height = headerSettings.getHeight();
-        addMergedHeader(sheet, startPosition, headerStyle, height, headerSettings.getWidth());
+        addMergedHeader(sheet, startPosition, headerStyle, headerSettings);
 
         Cell topLeftCell = PoiExcelHelper.getOrCreateCell(startPosition.getColumn(), startPosition.getRow(), sheet);
-        topLeftCell.setCellValue(dtHeaderText);
-        startPosition = startPosition.moveDown(height);
+        RichTextString dtHeader = new HSSFRichTextString(dtHeaderText);
+        dtHeader.applyFont(style.getHeaderFont());
+        topLeftCell.setCellValue(dtHeader);
+        startPosition = startPosition.moveDown(headerSettings.getHeight());
 
         Cursor endPosition = startPosition;
 
@@ -92,8 +95,8 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
                 fieldDateStyle.setDataFormat(styleAfterWrite.getDataFormat());
                 valueCell.setCellStyle(fieldDateStyle);
             } else {
-                valueCell.setCellStyle(lastRow ? style.getLastRowStyle().getDefaultValueStyle()
-                                               : style.getRowStyle().getDefaultValueStyle());
+                valueCell.setCellStyle(
+                    lastRow ? style.getLastRowStyle().getValueStyle() : style.getRowStyle().getValueStyle());
             }
 
             endPosition = next.moveLeft(2);

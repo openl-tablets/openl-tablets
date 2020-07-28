@@ -1,18 +1,20 @@
 package org.openl.rules.excel.builder.template;
 
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.openl.rules.excel.builder.CellRangeSettings;
+import org.openl.rules.excel.builder.template.row.RowStyle;
 import org.openl.rules.excel.builder.template.row.SpreadsheetTableRowStyle;
 
-public class SpreadsheetResultTableStyle extends DefaultTableStyle implements TableStyle {
+public class SpreadsheetTableStyleImpl extends DefaultTableStyleImpl implements SpreadsheetTableStyle {
 
-    private SpreadsheetTableRowStyle headerRowStyle;
+    private RowStyle headerRowStyle;
     private String stepHeaderText;
     private String valueHeaderText;
     private SpreadsheetTableRowStyle rowStyle;
     private SpreadsheetTableRowStyle lastRowStyle;
 
-    public SpreadsheetResultTableStyle(String headerTextTemplate,
+    public SpreadsheetTableStyleImpl(RichTextString headerTextTemplate,
             CellStyle headerStyle,
             CellRangeSettings headerSettings,
             SpreadsheetTableRowStyle headerRowStyle,
@@ -28,7 +30,7 @@ public class SpreadsheetResultTableStyle extends DefaultTableStyle implements Ta
         this.lastRowStyle = lastRowStyle;
     }
 
-    public SpreadsheetTableRowStyle getHeaderRowStyle() {
+    public RowStyle getHeaderRowStyle() {
         return headerRowStyle;
     }
 
@@ -40,7 +42,7 @@ public class SpreadsheetResultTableStyle extends DefaultTableStyle implements Ta
         return valueHeaderText;
     }
 
-    public SpreadsheetTableRowStyle getRowStyle() {
+    public RowStyle getRowStyle() {
         return rowStyle;
     }
 

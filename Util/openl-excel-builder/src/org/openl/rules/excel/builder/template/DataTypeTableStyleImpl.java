@@ -4,43 +4,43 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.openl.rules.excel.builder.CellRangeSettings;
+import org.openl.rules.excel.builder.template.row.DataTypeTableRowStyle;
 import org.openl.rules.excel.builder.template.row.RowStyle;
 
-public class DataTypeAliasTableStyle extends DefaultTableStyleImpl implements DataTypeTableStyle {
+public class DataTypeTableStyleImpl extends DefaultTableStyleImpl implements DataTypeTableStyle {
 
-    private CellStyle fieldStyle;
     private RowStyle rowStyle;
-    private RowStyle lastRowStyle;
+    private CellStyle dateFieldStyle;
+    private DataTypeTableRowStyle lastRowStyle;
+    private Font datatypeFont;
 
-    public DataTypeAliasTableStyle(RichTextString headerTextTemplate,
+    public DataTypeTableStyleImpl(RichTextString headerTextTemplate,
             CellStyle headerStyle,
             CellRangeSettings headerSizeSettings,
-            CellStyle fieldStyle,
-            RowStyle rowStyle,
-            RowStyle lastRowStyle) {
+            DataTypeTableRowStyle rowStyle,
+            CellStyle dateFieldStyle,
+            DataTypeTableRowStyle lastRowStyle,
+            Font datatypeFont) {
         super(headerTextTemplate, headerStyle, headerSizeSettings);
-        this.fieldStyle = fieldStyle;
         this.rowStyle = rowStyle;
+        this.dateFieldStyle = dateFieldStyle;
         this.lastRowStyle = lastRowStyle;
-    }
-
-    public CellStyle getFieldStyle() {
-        return fieldStyle;
-    }
-
-    @Override
-    public CellStyle getDateFieldStyle() {
-        return fieldStyle;
-    }
-
-    @Override
-    public Font getHeaderFont() {
-        return null;
+        this.datatypeFont = datatypeFont;
     }
 
     @Override
     public RowStyle getRowStyle() {
         return rowStyle;
+    }
+
+    @Override
+    public CellStyle getDateFieldStyle() {
+        return dateFieldStyle;
+    }
+
+    @Override
+    public Font getHeaderFont() {
+        return datatypeFont;
     }
 
     @Override

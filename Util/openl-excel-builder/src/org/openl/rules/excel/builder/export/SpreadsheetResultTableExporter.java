@@ -6,9 +6,11 @@ import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.rules.excel.builder.CellRangeSettings;
-import org.openl.rules.excel.builder.template.SpreadsheetResultTableStyle;
+import org.openl.rules.excel.builder.template.SpreadsheetTableStyle;
+import org.openl.rules.excel.builder.template.SpreadsheetTableStyleImpl;
 import org.openl.rules.excel.builder.template.TableStyle;
 import org.openl.rules.model.scaffolding.SpreadsheetResultModel;
 import org.openl.rules.model.scaffolding.StepModel;
@@ -35,16 +37,11 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
     }
 
     @Override
-    protected Cursor exportTable(SpreadsheetResultModel model,
-            Cursor startPosition,
-            TableStyle defaultStyle,
-            Sheet sheet) {
-
-        SpreadsheetResultTableStyle style = (SpreadsheetResultTableStyle) defaultStyle;
-
+    protected Cursor exportTable(SpreadsheetResultModel model, Cursor startPosition, TableStyle defaultStyle, Sheet sheet) {
+        SpreadsheetTableStyleImpl style = (SpreadsheetTableStyleImpl) defaultStyle;
         CellStyle headerStyle = style.getHeaderStyle();
-        String tableHeaderText = style.getHeaderTemplate();
-        CellRangeSettings headerSettings = style.getHeaderSettings();
+        RichTextString tableHeaderText = style.getHeaderTemplate();
+        CellRangeSettings headerSettings = style.getHeaderSizeSettings();
 
         CellStyle stepHeaderStyle = style.getHeaderRowStyle().getNameStyle();
         String stepHeaderText = style.getStepHeaderText();
@@ -52,7 +49,7 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
         CellStyle valueHeaderStyle = style.getHeaderRowStyle().getValueStyle();
         String valueHeaderText = style.getValueHeaderText();
 
-        String sprHeaderText = tableHeaderText.replaceAll(SPREADSHEET_RESULT_RETURN_TYPE, model.getType());
+        String sprHeaderText = tableHeaderText.getString().replaceAll(SPREADSHEET_RESULT_RETURN_TYPE, model.getType());
         sprHeaderText = sprHeaderText.replaceAll(SPREADSHEET_RESULT_NAME_TEMPLATE, model.getName());
         String parameters = model.getParameters()
             .stream()
@@ -60,13 +57,12 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
             .collect(Collectors.joining(", "));
         sprHeaderText = sprHeaderText.replaceAll(SPREADSHEET_RESULT_SIGNATURE, parameters);
 
-        int height = headerSettings.getHeight();
-        addMergedHeader(sheet, startPosition, headerStyle, height, headerSettings.getWidth());
+        addMergedHeader(sheet, startPosition, headerStyle, headerSettings);
 
         Cell topLeftCell = PoiExcelHelper.getOrCreateCell(startPosition.getColumn(), startPosition.getRow(), sheet);
         topLeftCell.setCellValue(sprHeaderText);
 
-        startPosition = startPosition.moveDown(height + 1);
+        startPosition = startPosition.moveDown(headerSettings.getHeight() + 1);
 
         Cell stepHeaderCell = PoiExcelHelper.getOrCreateCell(startPosition.getColumn(), startPosition.getRow(), sheet);
         stepHeaderCell.setCellValue(stepHeaderText);

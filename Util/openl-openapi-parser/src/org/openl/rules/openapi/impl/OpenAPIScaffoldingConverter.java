@@ -15,7 +15,6 @@ import org.apache.commons.jxpath.JXPathContext;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.InputParameter;
-import org.openl.rules.model.scaffolding.ParameterModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetResultModel;
 import org.openl.rules.model.scaffolding.StepModel;
@@ -30,7 +29,6 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 
@@ -101,23 +99,24 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             .flatMap(Collection::stream)
             .collect(Collectors.toSet());
 
+        List<DatatypeModel> dts = new ArrayList<>();
+        List<SpreadsheetResultModel> spreadsheetResultModels = extractSprModels(openAPI,
+            jxPathContext,
+            pathWithPotentialSprResult.keySet(),
+            primitiveReturnsPaths,
+            refsToExpand,
+            dts);
+
         Set<String> datatypeRefs = allUsedSchemaRefs.keySet()
             .stream()
             .filter(x -> !spreadsheetResultRefs.contains(x) && !refsToExpand.contains(x))
             .collect(Collectors.toSet());
 
-        List<DatatypeModel> dts = extractDataTypeModels(openAPI, datatypeRefs, false);
+        dts.addAll(extractDataTypeModels(openAPI, datatypeRefs, false));
         if (generateUnusedModels) {
             dts.addAll(extractDataTypeModels(openAPI, allUnusedRefs, true));
         }
-        List<SpreadsheetResultModel> spreadsheetResultModels = extractSprModels(openAPI,
-            jxPathContext,
-            pathWithPotentialSprResult.keySet(),
-            primitiveReturnsPaths,
-            refsToExpand);
-
         fillSprValues(spreadsheetResultModels);
-
         return new ProjectModel(projectName, dts, spreadsheetResultModels);
     }
 
@@ -140,7 +139,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             JXPathContext jxPathContext,
             Set<String> pathWithPotentialSprResult,
             Set<String> pathsWithPrimitiveReturns,
-            Set<String> refsToExpand) {
+            Set<String> refsToExpand,
+            List<DatatypeModel> dts) {
         List<SpreadsheetResultModel> spreadSheetModels = new ArrayList<>();
         Paths paths = openAPI.getPaths();
         if (paths != null) {
@@ -152,7 +152,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                         pathItem,
                         path,
                         refsToExpand,
-                        false);
+                        false,
+                        dts);
                     spreadSheetModels.add(spr);
                 }
             }
@@ -164,7 +165,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                         pathItem,
                         p,
                         refsToExpand,
-                        true);
+                        true,
+                        dts);
                     spreadSheetModels.add(spreadsheetResultModel);
                 }
             }
@@ -177,12 +179,13 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             PathItem pathItem,
             String path,
             Set<String> refsToExpand,
-            boolean isSimplePath) {
+            boolean isSimplePath,
+            List<DatatypeModel> dts) {
         SpreadsheetResultModel spr = new SpreadsheetResultModel();
         String usedSchemaInResponse = OpenLOpenAPIUtils.getUsedSchemaInResponse(jxPathContext, pathItem);
         Schema<?> schema;
-
-        List<InputParameter> parameters = extractParameters(openAPI, jxPathContext, refsToExpand, pathItem);
+        List<InputParameter> parameters = OpenLOpenAPIUtils
+            .extractParameters(jxPathContext, refsToExpand, pathItem, dts, path);
         spr.setName(StringUtils.capitalize(path.substring(1)));
         spr.setParameters(parameters);
 
@@ -206,57 +209,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         return spr;
     }
 
-    private List<InputParameter> extractParameters(OpenAPI openAPI,
-            JXPathContext jxPathContext,
-            Set<String> refsToExpand,
-            PathItem pathItem) {
-        // TODO: IF ONEOF, ANYOF - new Schema is needed
-        List<InputParameter> parameterModels = new ArrayList<>();
-        List<Parameter> parameters = pathItem.getParameters();
-        if (CollectionUtils.isNotEmpty(parameters)) {
-            // deal with parameters
-        }
-        Schema<?> usedSchemaInRequest = OpenLOpenAPIUtils.getUsedSchemaInRequest1(jxPathContext, pathItem);
-        if (usedSchemaInRequest != null) {
-            if (usedSchemaInRequest instanceof ComposedSchema) {
-                Set<ParameterParsingModel> inputParameters = OpenLOpenAPIUtils
-                    .collectParameters(openAPI, jxPathContext, usedSchemaInRequest);
-                parameterModels = inputParameters.stream()
-                    .map(x -> new ParameterModel(StringUtils.capitalize(x.getType()),
-                        StringUtils.uncapitalize(x.getName())))
-                    .collect(Collectors.toList());
-            } else {
-                String schemaRef;
-                if (usedSchemaInRequest.get$ref() != null) {
-                    schemaRef = usedSchemaInRequest.get$ref();
-                } else {
-                    schemaRef = OpenLOpenAPIUtils.extractType(usedSchemaInRequest);
-                }
-                if (refsToExpand.contains(schemaRef)) {
-                    Schema<?> schema = getSchemas(openAPI).get(getSimpleName(schemaRef));
-                    if (schema != null) {
-                        Map<String, Schema> properties = schema.getProperties();
-                        if (CollectionUtils.isNotEmpty(properties)) {
-                            parameterModels = properties.entrySet()
-                                .stream()
-                                .map(this::extractField)
-                                .map(x -> new ParameterModel(StringUtils.capitalize(x.getType()),
-                                    StringUtils.uncapitalize(x.getName())))
-                                .collect(Collectors.toList());
-                        }
-                    }
-                } else {
-                    String formattedName = getSimpleName(schemaRef);
-                    parameterModels = Collections
-                        .singletonList(new ParameterModel(StringUtils.capitalize(formattedName),
-                            StringUtils.uncapitalize(formattedName)));
-                }
-            }
-        }
-
-        return parameterModels;
-    }
-
     private List<DatatypeModel> extractDataTypeModels(OpenAPI openAPI,
             Set<String> allTheRefsWhichAreDatatypes,
             boolean unused) {
@@ -270,24 +222,28 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             }
             Schema<?> schema = getSchemas(openAPI).get(schemaName);
             if (schema != null) {
-                DatatypeModel dm = new DatatypeModel(StringUtils.capitalize(schemaName));
-                if (schema instanceof ComposedSchema) {
-                    String parentName = OpenLOpenAPIUtils.getParentName((ComposedSchema) schema, openAPI);
-                    dm.setParent(parentName);
-                }
-                List<FieldModel> fields = new ArrayList<>();
-                Map<String, Schema> properties = schema.getProperties();
-                if (properties != null) {
-                    for (Map.Entry<String, Schema> property : properties.entrySet()) {
-                        FieldModel f = extractField(property);
-                        fields.add(f);
-                    }
-                }
-                dm.setFields(fields);
+                DatatypeModel dm = createModel(openAPI, schemaName, schema);
                 result.add(dm);
             }
         }
         return result;
+    }
+
+    private DatatypeModel createModel(OpenAPI openAPI, String schemaName, Schema<?> schema) {
+        DatatypeModel dm = new DatatypeModel(StringUtils.capitalize(schemaName));
+        if (schema instanceof ComposedSchema) {
+            String parentName = OpenLOpenAPIUtils.getParentName((ComposedSchema) schema, openAPI);
+            dm.setParent(parentName);
+        }
+        List<FieldModel> fields = new ArrayList<>();
+        Map<String, Schema> properties = schema.getProperties();
+        if (properties != null) {
+            for (Map.Entry<String, Schema> property : properties.entrySet()) {
+                fields.add(extractField(property));
+            }
+        }
+        dm.setFields(fields);
+        return dm;
     }
 
     private FieldModel extractField(Map.Entry<String, Schema> property) {
