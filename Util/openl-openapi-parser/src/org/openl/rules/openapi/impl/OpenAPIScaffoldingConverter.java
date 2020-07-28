@@ -186,7 +186,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Schema<?> schema;
         List<InputParameter> parameters = OpenLOpenAPIUtils
             .extractParameters(jxPathContext, refsToExpand, pathItem, dts, path);
-        spr.setName(StringUtils.capitalize(path.substring(1)));
+        spr.setName(OpenLOpenAPIUtils.normalizeName(path));
         spr.setParameters(parameters);
 
         List<StepModel> stepModels = new ArrayList<>();

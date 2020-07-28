@@ -10,6 +10,9 @@ public class ProjectModel {
     private List<DatatypeModel> datatypeModels = new ArrayList<>();
     private List<SpreadsheetResultModel> spreadsheetResultModels = new ArrayList<>();
 
+    public ProjectModel() {
+    }
+
     public ProjectModel(String name,
             List<DatatypeModel> datatypeModels,
             List<SpreadsheetResultModel> spreadsheetResultModels) {
@@ -36,12 +39,15 @@ public class ProjectModel {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         ProjectModel that = (ProjectModel) o;
 
-        if (!Objects.equals(name, that.name)) return false;
+        if (!Objects.equals(name, that.name))
+            return false;
         if (!Objects.equals(datatypeModels, that.datatypeModels))
             return false;
         return Objects.equals(spreadsheetResultModels, that.spreadsheetResultModels);

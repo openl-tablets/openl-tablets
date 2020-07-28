@@ -9,7 +9,6 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.rules.excel.builder.CellRangeSettings;
-import org.openl.rules.excel.builder.template.SpreadsheetTableStyle;
 import org.openl.rules.excel.builder.template.SpreadsheetTableStyleImpl;
 import org.openl.rules.excel.builder.template.TableStyle;
 import org.openl.rules.model.scaffolding.SpreadsheetResultModel;
@@ -130,7 +129,7 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
             } else if ("Float".equals(type)) {
                 stepValueCell.setCellValue(0.0f);
             } else if ("String".equals(type)) {
-                stepValueCell.setCellValue("");
+                stepValueCell.setCellValue(DEFAULT_STRING_VALUE);
             }
         } else {
             stepValueCell.setCellValue("");

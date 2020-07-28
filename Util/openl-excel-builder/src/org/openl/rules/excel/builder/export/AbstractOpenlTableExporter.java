@@ -16,6 +16,7 @@ public abstract class AbstractOpenlTableExporter<T extends Model> implements Ope
 
     public static final Cursor TOP_LEFT_POSITION = new Cursor(1, 2);
     public static final int DEFAULT_MARGIN = 3;
+    public static final String DEFAULT_STRING_VALUE = "_DEFAULT_";
 
     private TableStyle tableStyle;
 

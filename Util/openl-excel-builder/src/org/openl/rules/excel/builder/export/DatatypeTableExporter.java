@@ -145,7 +145,11 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
                 valueCell.setCellValue(Float.parseFloat(valueAsString));
                 break;
             case "String":
-                valueCell.setCellValue(valueAsString);
+                if (StringUtils.isBlank(valueAsString)) {
+                    valueCell.setCellValue(DEFAULT_STRING_VALUE);
+                } else {
+                    valueCell.setCellValue(valueAsString);
+                }
                 break;
             case "Boolean":
                 valueCell.setCellValue(Boolean.parseBoolean(valueAsString));

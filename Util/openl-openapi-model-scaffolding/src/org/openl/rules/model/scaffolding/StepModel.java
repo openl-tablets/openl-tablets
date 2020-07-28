@@ -9,6 +9,11 @@ public class StepModel {
     public StepModel() {
     }
 
+    public StepModel(String name, String type) {
+        this.name = name;
+        this.type = type;
+    }
+
     public StepModel(String name, String type, String description, Object value) {
         this.name = name;
         this.type = type;

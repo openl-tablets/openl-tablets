@@ -11,6 +11,9 @@ public class SpreadsheetResultModel implements Model {
     private String type;
     private List<StepModel> steps = new ArrayList<>();
 
+    public SpreadsheetResultModel() {
+    }
+
     public SpreadsheetResultModel(String name,
             List<InputParameter> parameterModels,
             String type,
@@ -19,9 +22,6 @@ public class SpreadsheetResultModel implements Model {
         this.parameters = parameterModels;
         this.type = type;
         this.steps = steps;
-    }
-
-    public SpreadsheetResultModel() {
     }
 
     public String getName() {

@@ -79,7 +79,7 @@ public class OpenLOpenAPIUtils {
     }
 
     public static String getUsedSchemaInResponse(JXPathContext jxPathContext, PathItem pathItem) {
-        String ref = null;
+        String type = null;
         Operation satisfyingOperation = OpenLOpenAPIUtils.getOperation(pathItem);
         if (satisfyingOperation != null) {
             ApiResponses responses = satisfyingOperation.getResponses();
@@ -90,14 +90,14 @@ public class OpenLOpenAPIUtils {
                     if (mediaType != null) {
                         Schema<?> mediaTypeSchema = mediaType.getSchema();
                         if (mediaTypeSchema != null) {
-                            ref = extractType(mediaTypeSchema);
+                            type = extractType(mediaTypeSchema);
                         }
                     }
                 }
 
             }
         }
-        return ref;
+        return type;
     }
 
     public enum PathTarget {
@@ -677,7 +677,7 @@ public class OpenLOpenAPIUtils {
             }
         }
         if (parameterModels.size() > MAX_PARAMETERS_COUNT) {
-            DatatypeModel dt = new DatatypeModel(StringUtils.capitalize(path) + "Request");
+            DatatypeModel dt = new DatatypeModel(getDataTypeName(path));
             List<FieldModel> fields = new ArrayList<>();
             for (InputParameter parameterModel : parameterModels) {
                 FieldModel fm = new FieldModel.Builder().setName(parameterModel.getName())
@@ -692,6 +692,28 @@ public class OpenLOpenAPIUtils {
                 .singletonList(new ParameterModel(dt.getName(), StringUtils.uncapitalize(dt.getName())));
         }
         return parameterModels;
+    }
+
+    private static String getDataTypeName(String path) {
+        return normalizeName(path) + "Request";
+    }
+
+    public static String normalizeName(String originalName) {
+        StringBuilder resultName = new StringBuilder();
+        char[] chars = originalName.toCharArray();
+        if (Character.isJavaIdentifierPart(chars[0])) {
+            resultName.append(Character.toUpperCase(chars[0]));
+        }
+        for (int i = 1; i < chars.length; i++) {
+            if (Character.isJavaIdentifierPart(chars[i])) {
+                if (resultName.length() == 0) {
+                    resultName.append(Character.toUpperCase(chars[i]));
+                } else {
+                    resultName.append(chars[i]);
+                }
+            }
+        }
+        return resultName.toString();
     }
 
     private static List<InputParameter> collectInputParams(JXPathContext jxPathContext,
@@ -712,8 +734,7 @@ public class OpenLOpenAPIUtils {
             String ref = mediaType.getSchema().get$ref();
             // only root schema is expandable
             if (ref != null && refsToExpand.contains(ref)) {
-                Schema<?> schema = resSchema;
-                Map<String, Schema> properties = schema.getProperties();
+                Map<String, Schema> properties = resSchema.getProperties();
                 if (CollectionUtils.isNotEmpty(properties)) {
                     if (properties.size() > MAX_PARAMETERS_COUNT) {
                         String name = getSimpleName(ref);
@@ -730,8 +751,12 @@ public class OpenLOpenAPIUtils {
             } else {
                 // non expandable
                 String name = extractType(mediaType.getSchema());
-                parameterModels = Collections
-                    .singletonList(new ParameterModel(StringUtils.capitalize(name), StringUtils.uncapitalize(name)));
+                if (StringUtils.isBlank(name)) {
+                    parameterModels = Collections.emptyList();
+                } else {
+                    parameterModels = Collections.singletonList(
+                        new ParameterModel(StringUtils.capitalize(name), StringUtils.uncapitalize(name)));
+                }
             }
         }
         return parameterModels;

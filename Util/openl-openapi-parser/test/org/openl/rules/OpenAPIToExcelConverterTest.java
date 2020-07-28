@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.Test;
-import org.openl.rules.excel.builder.ExcelFileBuilder;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.ProjectModel;
@@ -32,8 +31,6 @@ public class OpenAPIToExcelConverterTest {
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(3, datatypeModels.size());
         assertEquals(25, spreadsheetResultModels.size());
-
-        ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
     @Test
@@ -41,8 +38,6 @@ public class OpenAPIToExcelConverterTest {
         OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         String BANK_RATING = "test.converter/BankRating.json";
         ProjectModel projectModel = converter.extractProjectModel(BANK_RATING);
-        ExcelFileBuilder.generateExcelFile(projectModel);
-
         List<SpreadsheetResultModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(6, datatypeModels.size());
@@ -62,8 +57,6 @@ public class OpenAPIToExcelConverterTest {
 
         List<SpreadsheetResultModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         assertEquals(2, spreadsheetResultModels.size());
-
-        ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
     @Test
@@ -72,7 +65,6 @@ public class OpenAPIToExcelConverterTest {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/datatype/datatype_simple.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(1, datatypeModels.size());
-        ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
     @Test
@@ -81,7 +73,6 @@ public class OpenAPIToExcelConverterTest {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/datatype/datatype_with_parent.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(2, datatypeModels.size());
-        ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
     @Test
@@ -119,8 +110,6 @@ public class OpenAPIToExcelConverterTest {
         DatatypeModel animalModel = animal.get();
         assertEquals("Animal", animalModel.getName());
         assertNull(animalModel.getParent());
-
-        ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
     @Test
@@ -137,8 +126,6 @@ public class OpenAPIToExcelConverterTest {
         assertEquals(1, parameters.size());
         InputParameter param = parameters.iterator().next();
         assertEquals("Long", param.getType());
-
-        ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
     @Test
@@ -155,7 +142,6 @@ public class OpenAPIToExcelConverterTest {
         assertEquals(1, parameters.size());
         InputParameter param = parameters.iterator().next();
         assertEquals("RequestModel", param.getType());
-        ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
     @Test
@@ -168,8 +154,6 @@ public class OpenAPIToExcelConverterTest {
         DatatypeModel datatypeModel = datatypeModels.iterator().next();
         assertEquals("MyModel", datatypeModel.getName());
         assertEquals(3, datatypeModel.getFields().size());
-
-        ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
     @Test
@@ -180,17 +164,14 @@ public class OpenAPIToExcelConverterTest {
         assertEquals(1, spreadsheetResultModels.size());
         SpreadsheetResultModel spr = spreadsheetResultModels.iterator().next();
         List<InputParameter> parameters = spr.getParameters();
-        assertEquals(1, parameters.size());
-        ExcelFileBuilder.generateExcelFile(oneOf);
+        assertEquals(0, parameters.size());
 
         ProjectModel anyOf = converter.extractProjectModel("test.converter/project/oneOfAndAnyOf/anyOfInRequest.json");
         List<SpreadsheetResultModel> anyOfModels = anyOf.getSpreadsheetResultModels();
         assertEquals(1, anyOfModels.size());
         SpreadsheetResultModel anyOfSpr = anyOfModels.iterator().next();
         List<InputParameter> anyOfParams = anyOfSpr.getParameters();
-        assertEquals(1, anyOfParams.size());
-
-        ExcelFileBuilder.generateExcelFile(anyOf);
+        assertEquals(0, anyOfParams.size());
     }
 
     @Test
@@ -209,7 +190,6 @@ public class OpenAPIToExcelConverterTest {
         assertEquals(1, parameters.size());
         InputParameter ip = parameters.iterator().next();
         assertEquals("String", ip.getType());
-        ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
     @Test
@@ -223,8 +203,7 @@ public class OpenAPIToExcelConverterTest {
         assertEquals(1, spreadsheetResultModels.size());
         SpreadsheetResultModel sprModel = spreadsheetResultModels.iterator().next();
         List<InputParameter> parameters = sprModel.getParameters();
-        assertEquals(1, parameters.size());
-        ExcelFileBuilder.generateExcelFile(projectModel);
+        assertEquals(0, parameters.size());
     }
 
     @Test
@@ -239,7 +218,6 @@ public class OpenAPIToExcelConverterTest {
         SpreadsheetResultModel spreadsheetResultModel = spreadsheetResultModels.iterator().next();
         String type = spreadsheetResultModel.getType();
         assertEquals(SPREADSHEET_RESULT, type);
-        ExcelFileBuilder.generateExcelFile(projectModel);
     }
 
     @Test
@@ -249,7 +227,8 @@ public class OpenAPIToExcelConverterTest {
             .extractProjectModel("test.converter/project/oneOfAndAnyOf/oneOfInResponse.json");
         List<SpreadsheetResultModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
-        ExcelFileBuilder.generateExcelFile(projectModel);
+        assertEquals(6, datatypeModels.size());
+        assertEquals(1, spreadsheetResultModels.size());
     }
 
     @Test
@@ -258,7 +237,8 @@ public class OpenAPIToExcelConverterTest {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/project/expand/expand_test.json");
         List<SpreadsheetResultModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
-        ExcelFileBuilder.generateExcelFile(projectModel);
+        assertEquals(4, datatypeModels.size());
+        assertEquals(2, spreadsheetResultModels.size());
     }
 
     @Test
@@ -268,15 +248,17 @@ public class OpenAPIToExcelConverterTest {
             .extractProjectModel("test.converter/project/expand/expand_exceeds_limit.json");
         List<SpreadsheetResultModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
-        ExcelFileBuilder.generateExcelFile(projectModel);
+        assertEquals(5, datatypeModels.size());
+        assertEquals(2, spreadsheetResultModels.size());
     }
 
     @Test
-    public void twitterTest() throws IOException {
+    public void largeFileTest() throws IOException {
         OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter.extractProjectModel("test.converter/twitter.json");
         List<SpreadsheetResultModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
-        ExcelFileBuilder.generateExcelFile(projectModel);
+        assertEquals(104, datatypeModels.size());
+        assertEquals(9, spreadsheetResultModels.size());
     }
 }
