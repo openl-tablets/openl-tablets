@@ -206,7 +206,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             IBindingContext bindingContext) throws SyntaxNodeException {
         Set<String> runtimeContextProps = new HashSet<>();
         Set<String> testRuntimeContextProps = new HashSet<>();
-        Map<String, String> duplicatedRuntimeContextProps = new HashMap();
+        Map<String, String> duplicatedRuntimeContextProps = new HashMap<>();
         for (ColumnDescriptor descriptor : descriptors) {
             if (descriptor != null) {
                 IOpenField field = descriptor.getField();
@@ -264,7 +264,7 @@ public class DataNodeBinder extends AXlsTableBinder {
     }
 
     /**
-     * Adds sub table for displaying on bussiness view.
+     * Adds sub table for displaying on business view.
      *
      * @param tableSyntaxNode <code>TableSyntaxNode</code> representing table.
      * @param tableType Type of the data in table.

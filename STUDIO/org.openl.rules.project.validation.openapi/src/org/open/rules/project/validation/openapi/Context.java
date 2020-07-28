@@ -3,8 +3,6 @@ package org.open.rules.project.validation.openapi;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.validation.base.ValidatedCompiledOpenClass;
 import org.openl.types.IOpenClass;
@@ -45,6 +43,7 @@ class Context {
     private final OpenClassPropertiesResolver openClassPropertiesResolver = new OpenClassPropertiesResolver(this);
     private OpenAPIResolver actualOpenAPIResolver;
     private OpenAPIResolver expectedOpenAPIResolver;
+    private SpreadsheetMethodResolver spreadsheetMethodResolver = new SpreadsheetMethodResolver(this);
 
     private boolean typeValidationInProgress;
     private IOpenClass type;
@@ -225,14 +224,6 @@ class Context {
         this.typeValidationInProgress = typeValidationInProgress;
     }
 
-    public TableSyntaxNode getTableSyntaxNode() {
-        if (getOpenMethod() instanceof ExecutableRulesMethod) {
-            ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) getOpenMethod();
-            return executableRulesMethod.getSyntaxNode();
-        }
-        return null;
-    }
-
     public OpenClassPropertiesResolver getOpenClassPropertiesResolver() {
         return openClassPropertiesResolver;
     }
@@ -259,5 +250,9 @@ class Context {
 
     public void setObjectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+    }
+
+    public SpreadsheetMethodResolver getSpreadsheetMethodResolver() {
+        return spreadsheetMethodResolver;
     }
 }

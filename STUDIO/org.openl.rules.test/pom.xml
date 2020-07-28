@@ -6,10 +6,10 @@
         <artifactId>org.openl.rules.studio-pom</artifactId>
         <version>5.24.0-SNAPSHOT</version>
     </parent>
-    <artifactId>test</artifactId>
+    <artifactId>org.openl.rules.test</artifactId>
     <packaging>jar</packaging>
     <name>OpenL - TEST</name>
-    <description>OpenL functionality tests</description>
+    <description>OpenL Functionality Tests</description>
     <url>https://openl-tablets.org</url>
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>

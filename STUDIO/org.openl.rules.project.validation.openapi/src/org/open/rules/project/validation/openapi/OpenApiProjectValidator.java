@@ -838,14 +838,12 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                                 validatedSchemas);
                         }
                     }
-
                 }
 
                 for (Map.Entry<String, Schema> entry : allPropertiesOfActualSchema.entrySet()) {
                     Schema<?> fieldExpectedSchema = allPropertiesOfExpectedSchema.get(entry.getKey());
                     if (fieldExpectedSchema == null) {
-                        OpenApiProjectValidatorMessagesUtils.addTypeWarning(context,
-                            openClass,
+                        OpenApiProjectValidatorMessagesUtils.addTypeError(context,
                             String.format(
                                 "The field '%s' is declared in the type '%s', but it is not specified in the OpenAPI file.",
                                 entry.getKey(),
