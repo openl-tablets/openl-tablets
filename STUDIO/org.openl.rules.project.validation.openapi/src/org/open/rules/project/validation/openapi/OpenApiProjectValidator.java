@@ -78,13 +78,17 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
 
     private final Reader reader = new Reader();
 
-    private OpenAPI loadOpenAPI(ProjectDescriptor projectDescriptor, CompiledOpenClass compiledOpenClass) {
-        ProjectResourceLoader projectResourceLoader = new ProjectResourceLoader(compiledOpenClass);
+    private OpenAPI loadOpenAPI(ProjectDescriptor projectDescriptor,
+            ValidatedCompiledOpenClass validatedCompiledOpenClass) {
+        ProjectResourceLoader projectResourceLoader = new ProjectResourceLoader(validatedCompiledOpenClass);
+        String openApiFile = OPENAPI_JSON;
         ProjectResource projectResource = loadProjectResource(projectResourceLoader, projectDescriptor, OPENAPI_JSON);
         if (projectResource == null) {
+            openApiFile = OPENAPI_YAML;
             projectResource = loadProjectResource(projectResourceLoader, projectDescriptor, OPENAPI_YAML);
         }
         if (projectResource == null) {
+            openApiFile = OPENAPI_YML;
             projectResource = loadProjectResource(projectResourceLoader, projectDescriptor, OPENAPI_YML);
         }
         if (projectResource != null) {
@@ -94,9 +98,15 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             options.setFlatten(true);
             try {
                 String content = new String(Files.readAllBytes(Paths.get(projectResource.getFile())));
-                return openApiParser.readContents(content, null, options).getOpenAPI();
+                OpenAPI openAPI = openApiParser.readContents(content, null, options).getOpenAPI();
+                if (openAPI == null) {
+                    validatedCompiledOpenClass.addValidationMessage(
+                        OpenLMessagesUtils.newErrorMessage(String.format("Invalid file '%s' format.", openApiFile)));
+                }
+                return openAPI;
             } catch (IOException e) {
-                return null;
+                validatedCompiledOpenClass.addValidationMessage(
+                    OpenLMessagesUtils.newErrorMessage(String.format("Failed to read '%s' file.", openApiFile)));
             }
         }
         return null;
@@ -106,12 +116,12 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
     public CompiledOpenClass validate(ProjectDescriptor projectDescriptor,
             RulesInstantiationStrategy rulesInstantiationStrategy) throws RulesInstantiationException {
         final CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
-        OpenAPI expectedOpenAPI = loadOpenAPI(projectDescriptor, compiledOpenClass);
-        if (expectedOpenAPI == null) {
-            return compiledOpenClass;
-        }
         final ValidatedCompiledOpenClass validatedCompiledOpenClass = new OpenApiValidatedCompiledOpenClass(
             compiledOpenClass);
+        OpenAPI expectedOpenAPI = loadOpenAPI(projectDescriptor, validatedCompiledOpenClass);
+        if (expectedOpenAPI == null) {
+            return validatedCompiledOpenClass;
+        }
         final Context context = new Context();
         context.setExpectedOpenAPI(expectedOpenAPI);
         context.setExpectedOpenAPIResolver(new OpenAPIResolver(context, expectedOpenAPI));
@@ -221,11 +231,11 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             for (Map.Entry<String, PathItem> entry : context.getExpectedOpenAPI().getPaths().entrySet()) {
                 PathItem expectedPathItem = entry.getValue();
                 try {
+                    context.setPath(entry.getKey());
+                    context.setExpectedPathItem(expectedPathItem);
                     if (context.getActualOpenAPI().getPaths() != null) {
                         PathItem actualPathItem = context.getActualOpenAPI().getPaths().get(entry.getKey());
                         if (actualPathItem != null) {
-                            context.setPath(entry.getKey());
-                            context.setExpectedPathItem(expectedPathItem);
                             context.setActualPathItem(actualPathItem);
                             Method method = findMethodByPath(context.getServiceClass(), entry.getKey());
                             IOpenMethod openMethod = MethodUtils.findRulesMethod(context.getOpenClass(),
@@ -242,7 +252,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         } else {
                             OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                                 String.format(
-                                    "The method related to the path '%s' is found, but it is not specified in the OpenAPI file.",
+                                    "The method related to the path '%s' is not found, but it is specified in the OpenAPI file.",
                                     context.getPath()));
                         }
                     }
@@ -257,12 +267,33 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         }
         if (context.getActualOpenAPI().getPaths() != null) {
             for (Map.Entry<String, PathItem> entry : context.getActualOpenAPI().getPaths().entrySet()) {
-                PathItem expectedPathItem = context.getExpectedOpenAPI().getPaths().get(entry.getKey());
-                if (expectedPathItem == null) {
-                    OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                        String.format(
-                            "Unexpected method related to the path '%s' is found, but it is not specified in the OpenAPI file.",
-                            entry.getKey()));
+                try {
+                    context.setActualPathItem(entry.getValue());
+                    Method method = findMethodByPath(context.getServiceClass(), entry.getKey());
+                    IOpenMethod openMethod = MethodUtils.findRulesMethod(context.getOpenClass(),
+                        context.getMethodMap().get(method),
+                        context.isProvideRuntimeContext(),
+                        context.isProvideVariations());
+                    if (openMethod == null) {
+                        // Skip extra methods
+                        continue;
+                    }
+                    context.setMethod(method);
+                    context.setOpenMethod(openMethod);
+                    PathItem expectedPathItem = context.getExpectedOpenAPI().getPaths().get(entry.getKey());
+                    context.setExpectedPathItem(expectedPathItem);
+                    if (expectedPathItem == null) {
+                        OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                            String.format(
+                                "The method related to the path '%s' is found, but it is not specified in the OpenAPI file.",
+                                entry.getKey()));
+                    }
+                } finally {
+                    context.setOpenMethod(null);
+                    context.setActualPathItem(null);
+                    context.setExpectedPathItem(null);
+                    context.setPath(null);
+                    context.setMethod(null);
                 }
             }
         }
@@ -583,9 +614,10 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 if (allPropertiesOfActualSchema.get(entry.getKey()) == null) {
                     OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                         String.format(
-                            "The parameter '%s' of the method '%s' is not found, but it is specified in the OpenAPI file.",
+                            "The parameter '%s' of the method '%s' is not found, but it is specified in the OpenAPI file. Specified type for the parameter is '%s'.",
                             entry.getKey(),
-                            method.getName()));
+                            method.getName(),
+                            resolveType(entry.getValue())));
                 }
             }
         } else {
@@ -657,7 +689,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             Schema<?> expectedParameterSchema) {
         if (expectedParameterSchema == null) {
             OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                String.format("The parameter '%s' of the method '%s' is not specified in the OpenAPI file.",
+                String.format("The parameter '%s' of the method '%s' is found, but it is not specified in the OpenAPI file.",
                     parameterName,
                     method.getName()));
         } else {

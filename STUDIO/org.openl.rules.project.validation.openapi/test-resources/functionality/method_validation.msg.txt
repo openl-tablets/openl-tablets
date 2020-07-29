@@ -1,0 +1,5 @@
+ERROR: The method related to the path '/BalanceDynamicIndexCalculationRenamed' is not found, but it is specified in the OpenAPI file.
+ERROR: The method related to the path '/BalanceDynamicIndexCalculation' is found, but it is not specified in the OpenAPI file.
+ERROR: The parameter 'runtimeContext' of the method 'BalanceQualityIndexCalculation' is found, but it is not specified in the OpenAPI file.
+ERROR: The parameter 'equity' of the method 'EquityScore' is found, but it is not specified in the OpenAPI file.
+ERROR: The parameter 'extraHighLiquidityRatio' of the method 'HighLiquidityRatioScore' is not found, but it is specified in the OpenAPI file. Specified type for the parameter is 'Double'.

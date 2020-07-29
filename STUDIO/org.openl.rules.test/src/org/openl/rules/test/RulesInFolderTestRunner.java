@@ -13,7 +13,9 @@ import org.openl.CompiledOpenClass;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.testmethod.ITestUnit;
@@ -38,7 +40,9 @@ public class RulesInFolderTestRunner {
         this.allTestsMustFails = allTestsMustFails;
     }
 
-    protected CompiledOpenClass applyValidation(CompiledOpenClass compiledOpenClass) {
+    protected CompiledOpenClass validate(CompiledOpenClass compiledOpenClass,
+            ProjectDescriptor projectDescriptor,
+            RulesInstantiationStrategy rulesInstantiationStrategy) {
         return compiledOpenClass;
     }
 
@@ -85,6 +89,9 @@ public class RulesInFolderTestRunner {
                     engineFactoryBuilder.setProject(file.getPath());
                     SimpleProjectEngineFactory<Object> engineFactory = engineFactoryBuilder.build();
                     compiledOpenClass = engineFactory.getCompiledOpenClass();
+                    compiledOpenClass = validate(compiledOpenClass,
+                        engineFactory.getProjectDescriptor(),
+                        engineFactory.getRulesInstantiationStrategy());
                 } catch (ProjectResolvingException | RulesInstantiationException e) {
                     error(messagesCount++, startTime, sourceFile, "Compilation fails.", e);
                     testsFailed = true;
@@ -94,8 +101,6 @@ public class RulesInFolderTestRunner {
                 // Skip not a project files
                 continue;
             }
-
-            compiledOpenClass = applyValidation(compiledOpenClass);
 
             boolean success = true;
 

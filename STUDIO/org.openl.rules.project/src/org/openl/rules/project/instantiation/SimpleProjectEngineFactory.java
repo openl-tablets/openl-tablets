@@ -302,7 +302,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         if (generatedInterfaceClass != null) {
             return generatedInterfaceClass;
         }
-        log.info("Interface class is undefined for factory. Generated interface is used.");
+        log.info("Interface class is undefined for the factory. Generated interface is used.");
         generatedInterfaceClass = getRulesInstantiationStrategy().getInstanceClass();
         return generatedInterfaceClass;
     }
@@ -318,7 +318,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         return (T) getRulesInstantiationStrategy().instantiate();
     }
 
-    protected final synchronized ProjectDescriptor getProjectDescriptor() throws ProjectResolvingException {
+    public final synchronized ProjectDescriptor getProjectDescriptor() throws ProjectResolvingException {
         if (this.projectDescriptor == null) {
             ProjectResolver projectResolver = ProjectResolver.getInstance();
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -333,15 +333,16 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             }
             if (pd == null) {
                 throw new ProjectResolvingException(
-                    "Failed to resolve project. Defined location is not a OpenL project.");
+                    String.format("Failed to resolve the project. Folder '%s' is not a OpenL project.",
+                        project.getAbsolutePath()));
             }
             this.projectDescriptor = pd;
         }
         return this.projectDescriptor;
     }
 
-    protected final synchronized RulesInstantiationStrategy getRulesInstantiationStrategy() throws RulesInstantiationException,
-                                                                                            ProjectResolvingException {
+    public final synchronized RulesInstantiationStrategy getRulesInstantiationStrategy() throws RulesInstantiationException,
+                                                                                         ProjectResolvingException {
         if (rulesInstantiationStrategy == null) {
             RulesInstantiationStrategy instantiationStrategy = null;
             if (!isSingleModuleMode()) {
@@ -356,7 +357,8 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                     }
                 }
                 if (instantiationStrategy == null) {
-                    throw new RulesInstantiationException("Module is not found in project.");
+                    throw new RulesInstantiationException(
+                        String.format("Module '%s' is not found in the project.", this.module));
                 }
             }
 

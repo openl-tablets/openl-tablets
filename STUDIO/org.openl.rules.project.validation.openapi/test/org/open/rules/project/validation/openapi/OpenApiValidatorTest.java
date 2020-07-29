@@ -8,7 +8,6 @@ import java.util.TimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.rules.test.RulesInFolderTestRunner;
 
 public final class OpenApiValidatorTest {
 
@@ -31,9 +30,11 @@ public final class OpenApiValidatorTest {
     }
 
     @Test
-    public void testAll() {
-        final RulesInFolderTestRunner rulesInFolderTestRunner = new RulesInFolderTestRunner(false, false);
-        assertFalse("Test is failed.", rulesInFolderTestRunner.run(DIR));
+    public void testOpenApiValidator() {
+        final RulesInFolderTestRunnerWithOpenApiValidator rulesInFolderTestRunnerWithOpenApiValidator = new RulesInFolderTestRunnerWithOpenApiValidator(
+            false,
+            false);
+        assertFalse("Test is failed.", rulesInFolderTestRunnerWithOpenApiValidator.run(DIR));
     }
 
 }
