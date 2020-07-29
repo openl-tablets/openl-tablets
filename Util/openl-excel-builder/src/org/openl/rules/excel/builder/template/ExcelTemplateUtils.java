@@ -69,17 +69,6 @@ public class ExcelTemplateUtils {
         return templateStyles;
     }
 
-    private static TableStyle extractVocabularyStyle(Sheet vocabularySheet, Workbook targetWorkbook) {
-        Cell datatypeAliasHeader = extractTableHeader(vocabularySheet);
-        CellStyle targetAliasHeaderStyle = copyCellStyle(targetWorkbook, datatypeAliasHeader);
-        RichTextString aliasHeaderTemplate = datatypeAliasHeader.getRichStringCellValue();
-
-        Row vocabularyValueRow = vocabularySheet.getRow(TOP_MARGIN + 1);
-        Cell vocabularyCell = vocabularyValueRow.getCell(LEFT_MARGIN);
-        CellStyle cellStyle = vocabularyCell.getCellStyle();
-        return new DataTypeAliasTableStyle(aliasHeaderTemplate, targetAliasHeaderStyle, null, cellStyle, null, null);
-    }
-
     private static TableStyle extractSpreadSheetResultStyle(Sheet sprResultSheet, Workbook targetWorkbook) {
         Cell sprResultHeader = extractTableHeader(sprResultSheet);
         CellStyle targetTableHeaderStyle = copyCellStyle(targetWorkbook, sprResultHeader);
