@@ -1,0 +1,53 @@
+openapi: 3.0.1
+info:
+  title: Example-Combined-OneOf
+  version: 1.0.0
+servers:
+  - url: /webservice/REST/combined-OneOf
+    variables: {}
+paths:
+  /pets:
+    patch:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/Cat'
+                - $ref: '#/components/schemas/Dog'
+      responses:
+        '200':
+          content:
+            text/plain:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/CatResponse'
+                  - $ref: '#/components/schemas/DogResponse'
+
+components:
+  schemas:
+    Dog:
+      type: object
+      properties:
+        bark:
+          type: boolean
+        breed:
+          type: string
+          enum: [Dingo, Husky, Retriever, Shepherd]
+    Cat:
+      type: object
+      properties:
+        hunts:
+          type: boolean
+        age:
+          type: integer
+    CatResponse:
+      type: object
+      properties:
+        customField:
+          type: string
+    DogResponse:
+      type: object
+      properties:
+        color:
+          type: string

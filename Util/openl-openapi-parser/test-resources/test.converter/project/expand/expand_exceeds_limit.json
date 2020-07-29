@@ -1,0 +1,187 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "ExpandTest (Exceeding limit)",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "test",
+        "description": "test",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/TestRequest"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Dog"
+                    }
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "description": {
+                      "type": "string",
+                      "default": "dog decsription"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "test response"
+          }
+        }
+      }
+    },
+    "/oneMorePath": {
+      "post": {
+        "summary": "test",
+        "description": "test",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/CatRequest"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Dog"
+                    }
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "description": {
+                      "type": "string",
+                      "default": "dog decsription"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "test response"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "requestBodies": {
+      "TestRequest": {
+        "description": "test request body",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RequestModel"
+            }
+          }
+        }
+      },
+      "CatRequest": {
+        "description": "cat request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Cat"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "MyModel": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "USER_ERROR",
+              "RULES_RUNTIME",
+              "COMPILATION",
+              "SYSTEM",
+              "BAD_REQUEST",
+              "VALIDATION"
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Cat": {
+        "type": "object",
+        "properties": {
+          "age": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "owner": {
+            "$ref": "#/components/schemas/Owner"
+          }
+        }
+      },
+      "Dog": {
+        "type": "object",
+        "properties": {
+          "breed": {
+            "type": "string",
+            "enum": [
+              "a",
+              "b",
+              "c",
+              "d"
+            ]
+          }
+        }
+      },
+      "Owner": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "RequestModel": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "requestTest": {
+            "type": "string"
+          },
+          "a": {
+            "type": "string"
+          },
+          "b": {
+            "type": "string"
+          },
+          "c": {
+            "type": "string"
+          },
+          "d": {
+            "type": "string"
+          },
+          "e": {
+            "type": "string"
+          },
+          "cat": {
+            "$ref": "#/components/schemas/Cat"
+          }
+        }
+      }
+    }
+  }
+}

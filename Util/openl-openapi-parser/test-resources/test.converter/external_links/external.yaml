@@ -1,0 +1,9 @@
+SomeId:
+  type: object
+  properties:
+    value:
+      format: int32
+      description: My value 123
+      example: 123
+      default: 100000
+      type: number
