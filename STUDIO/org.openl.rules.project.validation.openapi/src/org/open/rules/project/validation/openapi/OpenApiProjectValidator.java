@@ -5,18 +5,20 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.MatrixParam;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -167,6 +169,12 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         return validatedCompiledOpenClass;
     }
 
+    public interface Service {
+        @POST
+        @Path("/method")
+        void method(String s);
+    }
+
     private ObjectMapper createObjectMapper(Context context) {
         ClassLoader classLoader = context.getValidatedCompiledOpenClass().getClassLoader();
         JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
@@ -252,7 +260,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         } else {
                             OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                                 String.format(
-                                    "The method related to the path '%s' is not found, but it is specified in the OpenAPI file.",
+                                    "There is no method found for the path '%s', but the path is specified in the OpenAPI file.",
                                     context.getPath()));
                         }
                     }
@@ -285,7 +293,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     if (expectedPathItem == null) {
                         OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                             String.format(
-                                "The method related to the path '%s' is found, but it is not specified in the OpenAPI file.",
+                                "The method '%s' related to the path '%s' is found, but it is not specified in the OpenAPI file.",
+                                openMethod.getName(),
                                 entry.getKey()));
                     }
                 } finally {
@@ -320,7 +329,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         }
     }
 
-    private void getAndValidateOperation(Context context, Function<PathItem, Operation> func, String operationType) {
+    private void getAndValidateOperation(Context context,
+            java.util.function.Function<PathItem, Operation> func,
+            String operationType) {
         PathItem actualPathItem = context.getActualPathItem();
         PathItem expectedPathItem = context.getExpectedPathItem();
 
@@ -546,14 +557,27 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         if (isIncompatibleTypes(actualSchema, expectedSchema, returnType)) {
             OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                 String.format(
-                    "Schema type for the return type of the method '%s' is declared as '%s' that mismatches to the schema type '%s' specified in the OpenAPI file.",
+                    "The method '%s' related to the path '%s' has response schema type '%s' that mismatches to the schema type '%s' specified in the OpenAPI file.",
                     method.getName(),
-                    resolveType(actualSchema),
-                    resolveType(expectedSchema)));
+                    context.getPath(),
+                    resolveType(actualMediaType.getSchema()),
+                    resolveType(expectedMediaType.getSchema())));
         } else {
             try {
                 context.setTypeValidationInProgress(true);
-                validateType(context, actualSchema, expectedSchema, returnType, new HashSet<>());
+                try {
+                    validateType(context, actualSchema, expectedSchema, returnType, new HashSet<>());
+                } catch (DifferentTypesException e) {
+                    String resolvedActualSchemaType = resolveType(actualMediaType.getSchema());
+                    String resolvedExpectedSchemaType = resolveType(expectedMediaType.getSchema());
+                    OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                        String.format(
+                            "The response schema type%s of the method '%s' related to the path '%s' mismatches to the schema type%s specified in the OpenAPI file.",
+                            resolvedActualSchemaType != null ? " '" + resolvedActualSchemaType + "'" : "",
+                            method.getName(),
+                            context.getPath(),
+                            resolvedExpectedSchemaType != null ? " '" + resolvedExpectedSchemaType + "'" : ""));
+                }
             } finally {
                 context.setTypeValidationInProgress(false);
             }
@@ -614,9 +638,10 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 if (allPropertiesOfActualSchema.get(entry.getKey()) == null) {
                     OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                         String.format(
-                            "The parameter '%s' of the method '%s' is not found, but it is specified in the OpenAPI file. Specified type for the parameter is '%s'.",
-                            entry.getKey(),
+                            "The method '%s' related to the path '%s' does not have the parameter '%s', but the parameter is specified with type '%s' in the OpenAPI file.",
                             method.getName(),
+                            context.getPath(),
+                            entry.getKey(),
                             resolveType(entry.getValue())));
                 }
             }
@@ -689,26 +714,43 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             Schema<?> expectedParameterSchema) {
         if (expectedParameterSchema == null) {
             OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                String.format("The parameter '%s' of the method '%s' is found, but it is not specified in the OpenAPI file.",
-                    parameterName,
-                    method.getName()));
+                String.format(
+                    "The method '%s' related to the path '%s' is declared with the parameter '%s', but the parameter for this method is not specified in the OpenAPI file.",
+                    method.getName(),
+                    context.getPath(),
+                    parameterName));
         } else {
             if (isIncompatibleTypes(parameterSchema, expectedParameterSchema, parameterOpenClass)) {
                 OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                     String.format(
-                        "The schema type of the parameter '%s' of the method '%s' is declared as '%s' that mismatches to the schema type '%s' specified in the OpenAPI file.",
-                        parameterName,
+                        "The method '%s' related to the path '%s' has the parameter '%s' with schema type '%s' that mismatches to the schema type '%s' specified in the OpenAPI file.",
                         method.getName(),
+                        context.getPath(),
+                        parameterName,
                         resolveType(parameterSchema),
                         resolveType(expectedParameterSchema)));
             } else {
                 try {
                     context.setTypeValidationInProgress(true);
-                    validateType(context,
-                        parameterSchema,
-                        expectedParameterSchema,
-                        parameterOpenClass,
-                        new HashSet<>());
+                    try {
+                        validateType(context,
+                            parameterSchema,
+                            expectedParameterSchema,
+                            parameterOpenClass,
+                            new HashSet<>());
+                    } catch (DifferentTypesException e) {
+                        String resolvedParameterSchemaType = resolveType(parameterSchema);
+                        String resolvedExpectedParameterSchemaType = resolveType(expectedParameterSchema);
+                        OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                            String.format(
+                                "The method '%s' related to the path '%s' has the parameter '%s' with schema type%s that mismatches to the schema type%s specified in the OpenAPI file.",
+                                method.getName(),
+                                context.getPath(),
+                                parameterName,
+                                resolvedParameterSchemaType != null ? " '" + resolvedParameterSchemaType + "'" : "",
+                                resolvedExpectedParameterSchemaType != null ? " '" + resolvedExpectedParameterSchemaType + "'"
+                                                                            : ""));
+                    }
                 } finally {
                     context.setTypeValidationInProgress(false);
                 }
@@ -816,12 +858,16 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         return null;
     }
 
+    interface Function {
+        void run();
+    }
+
     @SuppressWarnings("rawtypes")
     private void validateType(Context context,
             Schema<?> actualSchema,
             Schema<?> expectedSchema,
             IOpenClass openClass,
-            Set<Schema<?>> validatedSchemas) {
+            Set<Schema<?>> validatedSchemas) throws DifferentTypesException {
         IOpenClass oldType = context.getType();
         try {
             Schema<?> resolvedActualSchema = context.getActualOpenAPIResolver().resolve(actualSchema, Schema::get$ref);
@@ -842,36 +888,37 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     .resolveAllProperties(expectedSchema);
                 Map<String, Schema> allPropertiesOfActualSchema = context.getActualOpenAPIResolver()
                     .resolveAllProperties(resolvedActualSchema);
-
+                List<Function> wrongFields = new ArrayList<>();
+                int fieldsToValidate = 0;
                 for (Map.Entry<String, Schema> entry : allPropertiesOfExpectedSchema.entrySet()) {
                     Schema<?> fieldActualSchema = allPropertiesOfActualSchema.get(entry.getKey());
                     if (fieldActualSchema == null) {
-                        OpenApiProjectValidatorMessagesUtils.addTypeError(context,
+                        wrongFields.add(() -> OpenApiProjectValidatorMessagesUtils.addTypeError(context,
                             String.format(
                                 "The field '%s' is not found in the type '%s' or the field is a transient, but it is specified in the OpenAPI file.",
                                 entry.getKey(),
-                                openClass.getDisplayName(INamedThing.REGULAR)));
+                                openClass.getDisplayName(INamedThing.REGULAR))));
                     } else {
                         IOpenField openField = context.getOpenClassPropertiesResolver()
                             .getField(openClass, entry.getKey());
                         if (isIncompatibleTypes(fieldActualSchema, entry.getValue(), openField.getType())) {
-                            OpenApiProjectValidatorMessagesUtils.addTypeError(context,
+                            wrongFields.add(() -> OpenApiProjectValidatorMessagesUtils.addTypeError(context,
                                 String.format(
                                     "The schema type of the property '%s' declared in the type '%s' is '%s' that mismatches to the type '%s' specified in the OpenAPI file.",
                                     entry.getKey(),
                                     openClass.getDisplayName(INamedThing.REGULAR),
                                     resolveType(fieldActualSchema),
-                                    resolveType(entry.getValue())));
+                                    resolveType(entry.getValue()))));
                         } else {
-                            validateType(context,
-                                fieldActualSchema,
-                                entry.getValue(),
-                                openField.getType(),
-                                validatedSchemas);
+                            fieldsToValidate++;
                         }
                     }
                 }
-
+                if (fieldsToValidate == 0 && !wrongFields.isEmpty()) {
+                    throw new DifferentTypesException();
+                } else {
+                    wrongFields.forEach(Function::run);
+                }
                 for (Map.Entry<String, Schema> entry : allPropertiesOfActualSchema.entrySet()) {
                     Schema<?> fieldExpectedSchema = allPropertiesOfExpectedSchema.get(entry.getKey());
                     if (fieldExpectedSchema == null) {
@@ -880,6 +927,34 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                                 "The field '%s' is declared in the type '%s', but it is not specified in the OpenAPI file.",
                                 entry.getKey(),
                                 openClass.getDisplayName(INamedThing.REGULAR)));
+                    }
+                }
+                for (Map.Entry<String, Schema> entry : allPropertiesOfExpectedSchema.entrySet()) {
+                    Schema<?> fieldActualSchema = allPropertiesOfActualSchema.get(entry.getKey());
+                    if (fieldActualSchema != null) {
+                        IOpenField openField = context.getOpenClassPropertiesResolver()
+                            .getField(openClass, entry.getKey());
+                        if (!isIncompatibleTypes(fieldActualSchema, entry.getValue(), openField.getType())) {
+                            try {
+                                validateType(context,
+                                    fieldActualSchema,
+                                    entry.getValue(),
+                                    openField.getType(),
+                                    validatedSchemas);
+                            } catch (DifferentTypesException e) {
+                                String resolvedFieldActualSchemaType = resolveType(fieldActualSchema);
+                                String resolvedExpectedFieldSchemaType = resolveType(entry.getValue());
+                                OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                    String.format(
+                                        "The schema type of the property '%s' declared in the type%s is '%s' that mismatches to the type%s specified in the OpenAPI file.",
+                                        openField.getName(),
+                                        openClass.getName(),
+                                        resolvedFieldActualSchemaType != null ? " '" + resolvedFieldActualSchemaType + "'"
+                                                                              : "",
+                                        resolvedExpectedFieldSchemaType != null ? " '" + resolvedExpectedFieldSchemaType + "'"
+                                                                                : ""));
+                            }
+                        }
                     }
                 }
             }

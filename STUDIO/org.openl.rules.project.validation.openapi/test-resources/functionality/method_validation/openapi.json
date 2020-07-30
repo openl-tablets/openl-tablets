@@ -1289,10 +1289,6 @@
                     "200": {
                         "content": {
                             "text/plain": {
-                                "schema": {
-                                    "format": "double",
-                                    "type": "number"
-                                }
                             }
                         }
                     },
@@ -1430,7 +1426,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/BankRatingCalculation"
+                                    "$ref": "#/components/schemas/FinancialData"
                                 }
                             }
                         }
@@ -2898,8 +2894,7 @@
                         "content": {
                             "text/plain": {
                                 "schema": {
-                                    "format": "double",
-                                    "type": "number"
+                                    "type": "string"
                                 }
                             }
                         }
