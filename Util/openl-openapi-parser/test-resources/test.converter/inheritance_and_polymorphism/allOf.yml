@@ -1,0 +1,134 @@
+openapi: 3.0.1
+info:
+  title: Example-Combined-AllOf
+  version: 1.0.0
+servers:
+  - url: /webservice/REST/combined-allOf
+    variables: {}
+paths:
+  /pets:
+    patch:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/Cat'
+                - $ref: '#/components/schemas/Dog'
+              discriminator:
+                propertyName: pet_type
+      responses:
+        '200':
+          description: Updated
+  /myPets:
+    patch:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Cat'
+                - $ref: '#/components/schemas/Dog'
+      responses:
+        '200':
+          description: Updated
+  /myPets3:
+    patch:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Response'
+      responses:
+        '200':
+          description: Updated
+components:
+  schemas:
+    Animal:
+      type: object
+      properties:
+        kingdom:
+          type: string
+    Pet:
+      allOf:
+        - $ref: '#/components/schemas/Animal'
+        - type: object
+          required:
+            - pet_type
+          properties:
+            pet_type:
+              type: string
+          discriminator:
+            propertyName: pet_type
+    Dog:     # "Dog" is a value for the pet_type property (the discriminator value)
+      allOf: # Combines the main `Pet` schema with `Dog`-specific properties
+        - $ref: '#/components/schemas/Pet'
+        - type: object
+          # all other properties specific to a `Dog`
+          properties:
+            bark:
+              type: boolean
+            breed:
+              type: string
+              enum: [Dingo, Husky, Retriever, Shepherd]
+    Cat:     # "Cat" is a value for the pet_type property (the discriminator value)
+      allOf: # Combines the main `Pet` schema with `Cat`-specific properties
+        - $ref: '#/components/schemas/Pet'
+        - type: object
+          # all other properties specific to a `Cat`
+          properties:
+            hunts:
+              type: boolean
+            age:
+              type: integer
+    Insect:
+      oneOf:
+        - $ref: '#/components/schemas/Mosquito'
+        - $ref: '#/components/schemas/Spider'
+    Mosquito:
+      type: object
+      properties:
+        sound:
+          type: string
+        size:
+          type: integer
+    Spider:
+      type: object
+      properties:
+        name:
+          type: string
+    BaseResponse:
+      type: object
+      properties:
+        name:
+          type: string
+    ItemOne:
+      type: object
+      properties:
+        firstName:
+          type: string
+    ItemTwo:
+      type: object
+      properties:
+        secondName:
+          type: string
+    ItemThree:
+      type: object
+      properties:
+        thirdName:
+          type: string
+    Response:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          title: A full response
+          required:
+            - things
+          properties:
+            things:
+              type: array
+              items:
+                anyOf:
+                  - $ref: '#/components/schemas/ItemOne'
+                  - $ref: '#/components/schemas/ItemTwo'
+                  - $ref: '#/components/schemas/ItemThree'

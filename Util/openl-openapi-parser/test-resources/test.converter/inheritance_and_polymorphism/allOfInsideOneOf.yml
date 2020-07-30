@@ -1,0 +1,58 @@
+openapi: 3.0.0
+info:
+  title: test
+  version: 1.0.0
+paths:
+  /test:
+    get:
+      summary: test
+      responses:
+        '200':
+          description: Test
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - type: object
+                        properties:
+                          firstA:
+                            type: string
+                      - type: object
+                        properties:
+                          firstB:
+                            type: string
+                  - allOf:
+                      - type: object
+                        properties:
+                          secondA:
+                            type: string
+                      - type: object
+                        properties:
+                          secondB:
+                            type: string
+  /test1:
+    get:
+      summary: test
+      responses:
+        '200':
+          description: Test
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Nose'
+                  - allOf:
+                      - $ref: '#/components/schemas/Ear'
+components:
+  schemas:
+    Nose:
+      type: object
+      properties:
+        size:
+          type: string
+    Ear:
+      type: object
+      properties:
+        color: string

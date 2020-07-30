@@ -1,0 +1,150 @@
+openapi: 3.0.1
+info:
+  title: Example-ReusableBody
+  version: 1.0.0
+servers:
+  - url: /webservice/REST/ReusableBody
+    variables: {}
+paths:
+  /pets:
+    post:
+      summary: Add a new pet
+      requestBody:
+        $ref: '#/components/requestBodies/Pet'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+  /pets1:
+    post:
+      summary: Add a new pet
+      requestBody:
+        $ref: '#/components/requestBodies/Pet'
+      response:
+        '200':
+          - $ref: '#/components/responses/DogResponse'
+  /inlinePets:
+    post:
+      summary: inlinesubmit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dogName:
+                  type: String
+      responses:
+        '200':
+          description: kk
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dogSize:
+                    type: String
+  /pets/{petId}:
+    put:
+      summary: Update a pet
+      requestBody:
+        $ref: '#/components/requestBodies/Pet'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Pets'
+  /pets1/{petId}:
+    put:
+      summary: Update a pet
+      requestBody:
+        $ref: '#/components/requestBodies/PetRequestNew'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/requestBodies/PetRequestNew'
+components:
+  responses:
+    Leg4Response:
+      content:
+        application/json:
+          schema:
+            - $ref: '#/components/schemas/Animal'
+    DogResponse:
+      content:
+        application/json:
+          schema:
+            - $ref: '#/components/responses/Leg4Response'
+    CatResponse:
+      content:
+        application/json:
+          schema:
+            - $ref: '#/components/responses/Leg4Response'
+    Pets:
+      description: Array of pets
+      required: true
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Pet'
+  requestBodies:
+    Pet:
+      description: A JSON object containing pet information
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Pet'
+        text/plain:
+          schema:
+            $ref: '#/components/schemas/NamedPet'
+    PetRequestNew:
+      description: A JSON object containing pet information
+      required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Pet'
+              - type: object
+                properties:
+                  test:
+                    type: string
+        text/plain:
+          schema:
+            $ref: '#/components/schemas/NamedPet'
+  schemas:
+    Pet:
+      type: object
+      properties:
+        pet_type:
+          type: string
+    NamedPet:
+      type: object
+      properties:
+        name:
+          type: string
+    MappedPets:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Pet'
+    DictionaryExample:
+      type: object
+      additionalProperties:
+        type: string
+      example:
+        en: Hello
+        ru: Privet
+    Animal:
+      type: object
+      properties:
+        x:
+          type: string

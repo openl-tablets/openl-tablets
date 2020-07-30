@@ -1,0 +1,111 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Example, Multiple Files",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/drivers": {
+      "get": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/DriverRequest"
+        },
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/DriverResponse"
+          }
+        }
+      }
+    },
+    "/driversXmlFormat": {
+      "get": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/DriverRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/DriverResponse"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "requestBodies": {
+      "DriverRequest": {
+        "description": "driver request",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SomeValue"
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "DriverResponse": {
+        "description": "driver response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Driver"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Driver": {
+        "type": "object",
+        "properties": {
+          "driverType": {
+            "type": "string"
+          },
+          "hadTraining": {
+            "type": "boolean",
+            "default": false
+          },
+          "address": {
+            "$ref": "Address.json"
+          },
+          "dog": {
+            "$ref": "./Models.json#/components/schemas/Dog"
+          },
+          "someValue": {
+            "$ref": "#/components/schemas/SomeValue"
+          },
+          "contactInfo": {
+            "type": "object",
+            "properties": {
+              "email": {
+                "type": "string",
+                "format": "email"
+              },
+              "phone": {
+                "type": "string"
+              },
+              "phoneInfo": {
+                "type": "object",
+                "properties": {
+                  "manufacturer": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "SomeValue": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
