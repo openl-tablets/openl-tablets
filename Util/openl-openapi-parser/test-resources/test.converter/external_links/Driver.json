@@ -71,7 +71,7 @@
             "$ref": "Address.json"
           },
           "dog": {
-            "$ref": "./models.json#/components/schemas/Dog"
+            "$ref": "./Models.json#/components/schemas/Dog"
           },
           "someValue": {
             "$ref": "#/components/schemas/SomeValue"
