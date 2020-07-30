@@ -965,7 +965,9 @@ public class ProjectModel {
             // Find all dependent XlsModuleSyntaxNode-s
             compiledOpenClass = instantiationStrategy.compile();
 
-            compiledOpenClass = validate(instantiationStrategy);
+            if (!singleModuleMode) {
+                compiledOpenClass = validate(instantiationStrategy);
+            }
 
             addAllSyntaxNodes(webStudioWorkspaceDependencyManager.getDependencyLoaders().values());
 
