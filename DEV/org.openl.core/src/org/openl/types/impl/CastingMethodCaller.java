@@ -16,11 +16,11 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class CastingMethodCaller extends MethodCaller {
 
-    private IOpenCast[] cast;
+    private final IOpenCast[] casts;
 
     public CastingMethodCaller(IOpenMethod method, IOpenCast[] cast) {
         super(method);
-        this.cast = cast;
+        this.casts = cast;
     }
 
     @Override
@@ -28,14 +28,17 @@ public class CastingMethodCaller extends MethodCaller {
         Object[] newParams = new Object[params.length];
 
         for (int i = 0; i < newParams.length; i++) {
-            if (cast[i] == null) {
+            if (casts[i] == null) {
                 newParams[i] = params[i];
             } else {
-                newParams[i] = cast[i].convert(params[i]);
+                newParams[i] = casts[i].convert(params[i]);
             }
         }
 
         return getMethod().invoke(target, newParams, env);
     }
 
+    public IOpenCast[] getCasts() {
+        return casts;
+    }
 }

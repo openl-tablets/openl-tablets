@@ -11,7 +11,7 @@ import org.openl.types.IOpenClass;
 
 public class MethodNodeBinder extends org.openl.binding.impl.MethodNodeBinder {
     @Override
-    protected IBoundNode makeArrayParametersMethod(ISyntaxNode methodNode,
+    protected IBoundNode makeArrayArgumentsMethod(ISyntaxNode methodNode,
             IBindingContext bindingContext,
             String methodName,
             IOpenClass[] argumentTypes,
