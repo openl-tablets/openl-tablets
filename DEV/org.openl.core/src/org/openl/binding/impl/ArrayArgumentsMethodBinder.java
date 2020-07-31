@@ -7,10 +7,13 @@ import java.util.List;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.impl.cast.IOneElementArrayCast;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.impl.CastingMethodCaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,10 +39,24 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             IBindingContext bindingContext,
             IOpenClass[] methodArguments,
             Deque<Integer> arrayArgArguments) {
+        if (arrayArgArguments.isEmpty()) {
+            return null;
+        }
         // find method with given name and component type parameter.
         //
         IMethodCaller singleParameterMethodCaller = bindingContext
             .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, methodArguments);
+
+        if (singleParameterMethodCaller instanceof CastingMethodCaller) {
+            CastingMethodCaller castingMethodCaller = (CastingMethodCaller) singleParameterMethodCaller;
+            int i = 0;
+            for (IOpenCast openCast : castingMethodCaller.getCasts()) {
+                if (openCast instanceof IOneElementArrayCast && arrayArgArguments.contains(i)) {
+                    return null;
+                }
+                i++;
+            }
+        }
 
         // if can`t find, return null.
         //
