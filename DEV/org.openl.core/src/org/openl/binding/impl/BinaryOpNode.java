@@ -15,12 +15,13 @@ public class BinaryOpNode extends MethodBoundNode {
         if (boundMethod.getMethod().getSignature().getParameterTypes().length == 2) {
             return boundMethod.invoke(null, pars, env);
         }
-        return boundMethod.invoke(pars[0], new Object[] { pars[1] }, env);
 
+        return boundMethod.invoke(pars[0], new Object[] { pars[1] }, env);
     }
 
-    private boolean useBinaryMethod;
-    private IBoundNode left, right;
+    private final boolean useBinaryMethod;
+    private final IBoundNode left;
+    private final IBoundNode right;
 
     public BinaryOpNode(ISyntaxNode syntaxNode, IBoundNode left, IBoundNode right, IMethodCaller method) {
         super(syntaxNode, method, left, right);
@@ -38,6 +39,5 @@ public class BinaryOpNode extends MethodBoundNode {
             return boundMethod.invoke(null, new Object[] { leftValue, rightValue }, env);
         }
         return boundMethod.invoke(leftValue, new Object[] { rightValue }, env);
-
     }
 }

@@ -23,7 +23,8 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class BinaryOpNodeOr extends ABoundNode {
 
-    private IBoundNode left, right;
+    private final IBoundNode left;
+    private final IBoundNode right;
 
     BinaryOpNodeOr(ISyntaxNode syntaxNode, IBoundNode left, IBoundNode right) {
         super(syntaxNode, left, right);
@@ -51,7 +52,7 @@ public class BinaryOpNodeOr extends ABoundNode {
 
     @Override
     public IOpenClass getType() {
-        return JavaOpenClass.BOOLEAN;
+        return JavaOpenClass.getOpenClass(Boolean.class);
     }
 
 }
