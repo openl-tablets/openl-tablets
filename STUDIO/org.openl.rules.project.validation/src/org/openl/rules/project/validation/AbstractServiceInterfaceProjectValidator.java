@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.message.OpenLMessagesUtils;
@@ -82,11 +83,13 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
         RulesDeploy rulesDeploy = getRulesDeploy(projectDescriptor, validatedCompiledOpenClass);
         if (rulesDeploy != null && rulesDeploy.getServiceName() != null) {
             final String serviceClassName = rulesDeploy.getServiceName().trim();
-            try {
-                return validatedCompiledOpenClass.getClassLoader().loadClass(serviceClassName);
-            } catch (ClassNotFoundException | NoClassDefFoundError e) {
-                validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils
-                    .newWarnMessage(String.format("Failed to load a service class '%s'.", serviceClassName)));
+            if (!StringUtils.isEmpty(serviceClassName)) {
+                try {
+                    return validatedCompiledOpenClass.getClassLoader().loadClass(serviceClassName);
+                } catch (ClassNotFoundException | NoClassDefFoundError e) {
+                    validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils
+                        .newWarnMessage(String.format("Failed to load a service class '%s'.", serviceClassName)));
+                }
             }
         }
         final boolean provideRuntimeContext = rulesDeploy == null && isProvideRuntimeContext() || rulesDeploy != null && Boolean.TRUE
@@ -109,7 +112,7 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
         }
         Class<?> serviceClass = rulesInstantiationStrategy.getInstanceClass();
         ClassLoader classLoader = resolveServiceClassLoader(rulesInstantiationStrategy);
-        if (annotationTemplateClassName != null) {
+        if (!StringUtils.isEmpty(annotationTemplateClassName)) {
             try {
                 Class<?> annotationTemplateClass = classLoader.loadClass(annotationTemplateClassName);
                 if (annotationTemplateClass.isInterface()) {

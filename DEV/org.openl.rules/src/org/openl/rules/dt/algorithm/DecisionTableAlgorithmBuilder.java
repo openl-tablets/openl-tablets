@@ -46,13 +46,13 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     private static final Pattern ARRAY_ACCESS_PATTERN = Pattern.compile(".+\\[.+]$");
 
     private IndexInfo baseInfo;
-    private DecisionTable table;
+    private final DecisionTable table;
     private IConditionEvaluator[] evaluators;
 
-    private IOpenMethodHeader header;
-    private OpenL openl;
-    private IMethodSignature signature;
-    private RuleRow ruleRow;
+    private final IOpenMethodHeader header;
+    private final OpenL openl;
+    private final IMethodSignature signature;
+    private final RuleRow ruleRow;
 
     public DecisionTableAlgorithmBuilder(DecisionTable decisionTable, IOpenMethodHeader header, OpenL openl) {
 

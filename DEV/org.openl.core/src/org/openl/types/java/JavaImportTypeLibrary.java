@@ -22,25 +22,18 @@ import org.slf4j.LoggerFactory;
  * @author snshor
  *
  */
-public class JavaImportTypeLibrary implements ITypeLibrary {
+public final class JavaImportTypeLibrary implements ITypeLibrary {
 
     private final Logger log = LoggerFactory.getLogger(JavaImportTypeLibrary.class);
 
-    private Map<String, IOpenClass> aliases = new HashMap<>();
-
-    private Set<String> notFound = new HashSet<>();
-
-    private String[] importPackages;
-
-    private ClassLoader loader;
+    private final Map<String, IOpenClass> aliases = new HashMap<>();
+    private final Set<String> notFound = new HashSet<>();
+    private final String[] importPackages;
+    private final ClassLoader loader;
 
     public JavaImportTypeLibrary(String[] importPackages, String[] importClasses, ClassLoader loader) {
         this.loader = loader;
-        if (importPackages == null) {
-            this.importPackages = new String[] {};
-        } else {
-            this.importPackages = importPackages;
-        }
+        this.importPackages = importPackages;
         if (importClasses != null) {
             for (String importClass : importClasses) {
                 int index = importClass.lastIndexOf('.');
@@ -61,6 +54,9 @@ public class JavaImportTypeLibrary implements ITypeLibrary {
 
     @Override
     public synchronized IOpenClass getType(String typename) {
+        if (importPackages == null || importPackages.length == 0 || typename.contains(".")) {
+            return null;
+        }
 
         IOpenClass oc = aliases.get(typename);
         if (oc != null) {

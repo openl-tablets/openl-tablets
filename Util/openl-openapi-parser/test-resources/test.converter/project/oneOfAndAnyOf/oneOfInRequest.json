@@ -1,0 +1,95 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OneOf request",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "test",
+        "description": "test",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/Dog"
+                  },
+                  {
+                    "$ref": "#/components/schemas/Cat"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            },
+            "description": "test response"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MyModel": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "USER_ERROR",
+              "RULES_RUNTIME",
+              "COMPILATION",
+              "SYSTEM",
+              "BAD_REQUEST",
+              "VALIDATION"
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Cat": {
+        "type": "object",
+        "properties": {
+          "age": {
+            "type": "integer"
+          }
+        }
+      },
+      "Dog": {
+        "type": "object",
+        "properties": {
+          "breed": {
+            "type": "string",
+            "enum": [
+              "a",
+              "b",
+              "c",
+              "d"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

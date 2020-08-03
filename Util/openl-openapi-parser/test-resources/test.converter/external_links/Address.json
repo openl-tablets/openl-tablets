@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "properties": {
+    "street_address": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "building": {
+      "$ref": "./Models.json#/components1/schemas/Building"
+    },
+    "t": {
+      "$ref": "./external.yaml#/SomeId"
+    }
+  },
+  "required": [
+    "street_address",
+    "city",
+    "state"
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OneOfWithAllOf request",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "test",
+        "description": "test",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/DesertEagle"
+                  },
+                  {
+                    "$ref": "#/components/schemas/Eagle"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            },
+            "description": "test response"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Animal": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Fish": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Animal"
+          }
+        ],
+        "properties": {
+          "speed": {
+            "type": "string"
+          }
+        }
+      },
+      "Bird": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Animal"
+          }
+        ],
+        "properties": {
+          "span": {
+            "type": "string"
+          }
+        }
+      },
+      "Crucian": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Fish"
+          }
+        ],
+        "properties": {
+          "color": {
+            "type": "number",
+            "format": "int32"
+          }
+        }
+      },
+      "Eagle": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Bird"
+          }
+        ],
+        "properties": {
+          "noseSize": {
+            "type": "number",
+            "format": "int64"
+          }
+        }
+      },
+      "DesertEagle": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Eagle"
+          }
+        ],
+        "properties": {
+          "country": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

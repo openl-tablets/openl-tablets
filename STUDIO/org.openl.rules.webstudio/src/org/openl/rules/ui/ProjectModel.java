@@ -92,33 +92,33 @@ public class ProjectModel {
     private CompiledOpenClass compiledOpenClass;
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
-    private Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = new HashSet<>();
+    private final Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = new HashSet<>();
     private WorkbookSyntaxNode[] workbookSyntaxNodes;
 
     private Module moduleInfo;
 
     private boolean openedInSingleModuleMode;
 
-    private WebStudioWorkspaceDependencyManagerFactory webStudioWorkspaceDependencyManagerFactory;
+    private final WebStudioWorkspaceDependencyManagerFactory webStudioWorkspaceDependencyManagerFactory;
     private WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceDependencyManager;
 
-    private WebStudio studio;
+    private final WebStudio studio;
 
-    private ColorFilterHolder filterHolder = new ColorFilterHolder();
+    private final ColorFilterHolder filterHolder = new ColorFilterHolder();
 
     private ProjectTreeNode projectRoot = null;
 
     // TODO Fix performance
-    private Map<String, TableSyntaxNode> uriTableCache = new HashMap<>();
-    private Map<String, TableSyntaxNode> idTableCache = new HashMap<>();
+    private final Map<String, TableSyntaxNode> uriTableCache = new HashMap<>();
+    private final Map<String, TableSyntaxNode> idTableCache = new HashMap<>();
 
-    private Map<OpenLMessage, String> messageNodeIds = new HashMap<>();
+    private final Map<OpenLMessage, String> messageNodeIds = new HashMap<>();
 
     private DependencyRulesGraph dependencyGraph;
 
     private SourceHistoryManager<File> historyManager;
 
-    private RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
+    private final RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
     private final TestSuiteExecutor testSuiteExecutor;
 
     /**
@@ -284,7 +284,7 @@ public class ProjectModel {
         IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
 
         for (IOpenMethod method : openClass.getMethods()) {
-            IOpenMethod resolvedMethod = null;
+            IOpenMethod resolvedMethod;
 
             if (method instanceof OpenMethodDispatcher) {
                 resolvedMethod = resolveMethodDispatcher((OpenMethodDispatcher) method, tsn);
@@ -450,7 +450,7 @@ public class ProjectModel {
                     res.add(tester);
                 }
             }
-            return res.toArray(new IOpenMethod[0]);
+            return res.toArray(IOpenMethod.EMPTY_ARRAY);
         }
         return null;
     }
@@ -649,8 +649,8 @@ public class ProjectModel {
             }
         }
 
-        for (int i = 0; i < tableSyntaxNodes.length; i++) {
-            treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
+        for (TableSyntaxNode tableSyntaxNode : tableSyntaxNodes) {
+            treeBuilder.addToNode(root, tableSyntaxNode, treeSorters);
         }
 
         projectRoot = root;
@@ -697,7 +697,7 @@ public class ProjectModel {
             return moduleSyntaxNode.getXlsTableSyntaxNodes();
         }
 
-        return new TableSyntaxNode[0];
+        return TableSyntaxNode.EMPTY_ARRAY;
     }
 
     public TableSyntaxNode[] getAllTableSyntaxNodes() {
@@ -965,7 +965,9 @@ public class ProjectModel {
             // Find all dependent XlsModuleSyntaxNode-s
             compiledOpenClass = instantiationStrategy.compile();
 
-            compiledOpenClass = validate(instantiationStrategy);
+            if (!singleModuleMode) {
+                compiledOpenClass = validate(instantiationStrategy);
+            }
 
             addAllSyntaxNodes(webStudioWorkspaceDependencyManager.getDependencyLoaders().values());
 

@@ -45,9 +45,9 @@ public final class ProjectExternalDependenciesHelper {
             }
         }
         List<IDependency> externalDependencies = new ArrayList<>();
-        for (String virualModule : virtualModules) {
+        for (String virtualModule : virtualModules) {
             externalDependencies
-                .add(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, virualModule, null)));
+                .add(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, virtualModule, null)));
         }
 
         parameters.put(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY, externalDependencies);

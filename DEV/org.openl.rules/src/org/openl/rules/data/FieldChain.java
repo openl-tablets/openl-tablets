@@ -12,8 +12,8 @@ import org.openl.vm.IRuntimeEnv;
 
 public class FieldChain extends AOpenField {
 
-    private IOpenField[] fields;
-    private NewInstanceBuilder[] newInstanceBuilders;
+    private final IOpenField[] fields;
+    private final NewInstanceBuilder[] newInstanceBuilders;
 
     public FieldChain(IOpenClass type, IOpenField[] fields) {
         this(type, fields, null);

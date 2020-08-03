@@ -1,15 +1,15 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
 import org.richfaces.model.TreeNode;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
 
 public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     private static final String COLLECTION_TYPE = "collection";
@@ -42,13 +42,14 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
             while (iterator.hasNext()) {
                 Object element = iterator.next();
                 IOpenClass type = collectionElementType;
-                if (type == JavaOpenClass.OBJECT && element != null) {
+                if (element != null && element.getClass() != collectionElementType.getInstanceClass()) {
                     // Show content of complex objects
                     type = JavaOpenClass.getOpenClass(element.getClass());
                 }
 
                 ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(type, element)
-                    .keyField(config.getKeyField())
+                    .keyField(
+                        config.getKeyField() != null ? config.getKeyField() : collectionElementType.getIndexField())
                     .parent(this)
                     .hasExplainLinks(config.isHasExplainLinks())
                     .requestId(config.getRequestId())

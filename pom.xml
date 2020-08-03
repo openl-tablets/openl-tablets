@@ -125,6 +125,9 @@
         <module>Util/openl-maven-plugin</module>
         <module>Util/openl-simple-project-archetype</module>
         <module>Util/openl-project-archetype</module>
+        <module>Util/openl-openapi-model-scaffolding</module>
+        <module>Util/openl-openapi-parser</module>
+        <module>Util/openl-excel-builder</module>
     </modules>
     <distributionManagement>
         <repository>
@@ -1635,6 +1638,11 @@
                 <artifactId>org.openl.rules.jackson.configuration</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.test</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- WSFrontend -->
             <dependency>
                 <groupId>org.openl.rules</groupId>
@@ -1728,6 +1736,21 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-maven-plugin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-openapi-model-scaffolding</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-openapi-parser</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-excel-builder</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

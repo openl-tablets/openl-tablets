@@ -44,7 +44,7 @@
         <h:commandButton value="Open" action="#{repositoryTreeController.openProjectVersion}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="RichFaces.$('modalOpenVersion').hide();" />
       </footer>
-      <a4j:jsFunction name="renderOpenVersionDialog" action="#{repositoryTreeController.selectCurrentProjectForOpen('')}"
+      <a4j:jsFunction name="renderOpenVersionDialog" action="#{repositoryTreeController.selectCurrentProjectForOpen()}"
                       render="modalOpenVersionData" oncomplete="showOpenVersionDialog()"/>
     </h:form>
 

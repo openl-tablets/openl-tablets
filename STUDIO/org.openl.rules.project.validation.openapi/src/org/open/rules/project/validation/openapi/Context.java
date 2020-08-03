@@ -3,13 +3,12 @@ package org.open.rules.project.validation.openapi;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import org.apache.commons.jxpath.JXPathContext;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.validation.base.ValidatedCompiledOpenClass;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -26,8 +25,6 @@ class Context {
     private Map<Method, Method> methodMap;
     private boolean provideRuntimeContext;
     private boolean provideVariations;
-    private JXPathContext expectedOpenAPIJXPathContext;
-    private JXPathContext actualOpenAPIJXPathContext;
 
     private String path;
     private String operationType;
@@ -41,6 +38,12 @@ class Context {
 
     private Method method;
     private IOpenMethod openMethod;
+    private ObjectMapper objectMapper;
+
+    private final OpenClassPropertiesResolver openClassPropertiesResolver = new OpenClassPropertiesResolver(this);
+    private OpenAPIResolver actualOpenAPIResolver;
+    private OpenAPIResolver expectedOpenAPIResolver;
+    private SpreadsheetMethodResolver spreadsheetMethodResolver = new SpreadsheetMethodResolver(this);
 
     private boolean typeValidationInProgress;
     private IOpenClass type;
@@ -181,22 +184,6 @@ class Context {
         this.actualMediaType = actualMediaType;
     }
 
-    public JXPathContext getExpectedOpenAPIJXPathContext() {
-        return expectedOpenAPIJXPathContext;
-    }
-
-    public void setExpectedOpenAPIJXPathContext(JXPathContext expectedOpenAPIJXPathContext) {
-        this.expectedOpenAPIJXPathContext = expectedOpenAPIJXPathContext;
-    }
-
-    public JXPathContext getActualOpenAPIJXPathContext() {
-        return actualOpenAPIJXPathContext;
-    }
-
-    public void setActualOpenAPIJXPathContext(JXPathContext actualOpenAPIJXPathContext) {
-        this.actualOpenAPIJXPathContext = actualOpenAPIJXPathContext;
-    }
-
     public String getMediaType() {
         return mediaType;
     }
@@ -237,12 +224,35 @@ class Context {
         this.typeValidationInProgress = typeValidationInProgress;
     }
 
-    public TableSyntaxNode getTableSyntaxNode() {
-        if (getOpenMethod() instanceof ExecutableRulesMethod) {
-            ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) getOpenMethod();
-            return executableRulesMethod.getSyntaxNode();
-        }
-        return null;
+    public OpenClassPropertiesResolver getOpenClassPropertiesResolver() {
+        return openClassPropertiesResolver;
     }
 
+    public OpenAPIResolver getActualOpenAPIResolver() {
+        return actualOpenAPIResolver;
+    }
+
+    public void setActualOpenAPIResolver(OpenAPIResolver actualOpenAPIResolver) {
+        this.actualOpenAPIResolver = actualOpenAPIResolver;
+    }
+
+    public OpenAPIResolver getExpectedOpenAPIResolver() {
+        return expectedOpenAPIResolver;
+    }
+
+    public void setExpectedOpenAPIResolver(OpenAPIResolver expectedOpenAPIResolver) {
+        this.expectedOpenAPIResolver = expectedOpenAPIResolver;
+    }
+
+    public ObjectMapper getObjectMapper() {
+        return objectMapper;
+    }
+
+    public void setObjectMapper(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
+    public SpreadsheetMethodResolver getSpreadsheetMethodResolver() {
+        return spreadsheetMethodResolver;
+    }
 }

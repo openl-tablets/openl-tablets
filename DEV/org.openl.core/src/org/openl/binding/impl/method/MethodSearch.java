@@ -169,10 +169,8 @@ public final class MethodSearch {
             }
         }
 
-        for (IOpenCast iOpenCast : castHolder) {
-            if (iOpenCast instanceof IOneElementArrayCast) {
-                return NO_MATCH;
-            }
+        if (castHolder.length > 0 && castHolder[castHolder.length - 1] instanceof IOneElementArrayCast) {
+            return NO_MATCH;
         }
 
         return m;

@@ -1,0 +1,6 @@
+ERROR: The field 'bankFullName' is not found in the type 'Bank' or the field is a transient, but it is specified in the OpenAPI file.
+ERROR: The field 'isAdequateMaxCreditRisk' is not found in the type 'QualityIndicators' or the field is a transient, but it is specified in the OpenAPI file.
+ERROR: The field 'missedInRulesField' is not found in the type 'QualityIndicators' or the field is a transient, but it is specified in the OpenAPI file.
+ERROR: The field 'missedInOpenApiField' is declared in the type 'Bank', but it is not specified in the OpenAPI file.
+ERROR: The field 'missedInRulesField' is not found in the type 'Bank' or the field is a transient, but it is specified in the OpenAPI file.
+ERROR: The field 'missedInOpenApiField' is declared in the type 'QualityIndicators', but it is not specified in the OpenAPI file.

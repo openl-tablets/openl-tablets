@@ -1,0 +1,84 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Datatype - multiple nesting",
+    "version": "1.0.0",
+    "description": "File with multiple nesting (done)"
+  },
+  "components": {
+    "schemas": {
+      "Animal": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Fish": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Animal"
+          }
+        ],
+        "properties": {
+          "speed": {
+            "type": "string"
+          }
+        }
+      },
+      "Bird": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Animal"
+          }
+        ],
+        "properties": {
+          "span": {
+            "type": "string"
+          }
+        }
+      },
+      "Crucian": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Fish"
+          }
+        ],
+        "properties": {
+          "color": {
+            "type": "number",
+            "format": "int32"
+          }
+        }
+      },
+      "Eagle": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Bird"
+          }
+        ],
+        "properties": {
+          "noseSize": {
+            "type": "number",
+            "format": "int64"
+          }
+        }
+      },
+      "DesertEagle": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Eagle"
+          }
+        ],
+        "properties": {
+          "country": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+  }
+}

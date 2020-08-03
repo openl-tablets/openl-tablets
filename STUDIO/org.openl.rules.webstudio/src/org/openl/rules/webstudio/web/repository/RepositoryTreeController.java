@@ -1972,7 +1972,7 @@ public class RepositoryTreeController {
     /**
      * Mark (select) current project for open in some page (Open Version dialog or Rules Deploy Configuration tab)
      */
-    public void selectCurrentProjectForOpen(AjaxBehaviorEvent event) {
+    public void selectCurrentProjectForOpen() {
         currentProject = getSelectedProject();
         if (currentProject == null || currentProject.getVersion() == null || currentProject.isLastVersion()) {
             version = null;
