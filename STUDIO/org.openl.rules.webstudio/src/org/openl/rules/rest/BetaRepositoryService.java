@@ -219,7 +219,7 @@ public class BetaRepositoryService {
                 entity = new StreamingOutput() {
                     @Override
                     public void write(OutputStream out) throws IOException {
-                        RepositoryUtils.archive((FolderRepository) repository, rulesPath, name, version, out);
+                        RepositoryUtils.archive((FolderRepository) repository, rulesPath, name, version, out, null);
                     }
                 };
             } else {
