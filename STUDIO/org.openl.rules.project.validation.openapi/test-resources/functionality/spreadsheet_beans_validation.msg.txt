@@ -1,0 +1,3 @@
+ERROR: The schema type of the property 'Value_CapitalAdequacy' declared in the type 'BalanceQualityIndexCalculation' is 'Double' that mismatches with the type 'String' specified in the OpenAPI file.
+ERROR: The field 'Description_QuickRatioScore_Renamed' is not found in the type 'BalanceQualityIndexCalculation' or the field is a transient, but it is specified in the OpenAPI file.
+ERROR: The field 'Description_QuickRatioScore' is declared in the type 'BalanceQualityIndexCalculation', but it is not specified in the OpenAPI file.

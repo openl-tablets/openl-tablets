@@ -557,7 +557,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         if (isIncompatibleTypes(actualSchema, expectedSchema, returnType)) {
             OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                 String.format(
-                    "The method '%s' related to the path '%s' has response schema type '%s' that mismatches to the schema type '%s' specified in the OpenAPI file.",
+                    "The method '%s' related to the path '%s' has response schema type '%s' that mismatches with the schema type '%s' specified in the OpenAPI file.",
                     method.getName(),
                     context.getPath(),
                     resolveType(actualMediaType.getSchema()),
@@ -572,7 +572,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     String resolvedExpectedSchemaType = resolveType(expectedMediaType.getSchema());
                     OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                         String.format(
-                            "The response schema type%s of the method '%s' related to the path '%s' mismatches to the schema type%s specified in the OpenAPI file.",
+                            "The response schema type%s of the method '%s' related to the path '%s' mismatches with the schema type%s specified in the OpenAPI file.",
                             resolvedActualSchemaType != null ? " '" + resolvedActualSchemaType + "'" : "",
                             method.getName(),
                             context.getPath(),
@@ -723,7 +723,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             if (isIncompatibleTypes(parameterSchema, expectedParameterSchema, parameterOpenClass)) {
                 OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                     String.format(
-                        "The method '%s' related to the path '%s' has the parameter '%s' with schema type '%s' that mismatches to the schema type '%s' specified in the OpenAPI file.",
+                        "The method '%s' related to the path '%s' has the parameter '%s' with schema type '%s' that mismatches with the schema type '%s' specified in the OpenAPI file.",
                         method.getName(),
                         context.getPath(),
                         parameterName,
@@ -904,7 +904,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         if (isIncompatibleTypes(fieldActualSchema, entry.getValue(), openField.getType())) {
                             wrongFields.add(() -> OpenApiProjectValidatorMessagesUtils.addTypeError(context,
                                 String.format(
-                                    "The schema type of the property '%s' declared in the type '%s' is '%s' that mismatches to the type '%s' specified in the OpenAPI file.",
+                                    "The schema type of the property '%s' declared in the type '%s' is '%s' that mismatches with the type '%s' specified in the OpenAPI file.",
                                     entry.getKey(),
                                     openClass.getDisplayName(INamedThing.REGULAR),
                                     resolveType(fieldActualSchema),

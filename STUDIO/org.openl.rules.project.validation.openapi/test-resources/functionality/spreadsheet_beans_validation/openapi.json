@@ -71,7 +71,7 @@
                     "Description_QuickRatio": {
                         "type": "string"
                     },
-                    "Description_QuickRatioScore": {
+                    "Description_QuickRatioScore_Renamed": {
                         "type": "string"
                     },
                     "Description_SecuredByPropertyChargesClaimsRatio": {
@@ -85,8 +85,7 @@
                         "type": "number"
                     },
                     "Value_CapitalAdequacy": {
-                        "format": "double",
-                        "type": "number"
+                        "type": "string"
                     },
                     "Value_CapitalAdequacyScore": {
                         "format": "double",
@@ -171,6 +170,9 @@
                 "properties": {
                     "currentFinancialData": {
                         "$ref": "#/components/schemas/FinancialData"
+                    },
+                    "runtimeContext": {
+                        "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
                     }
                 },
                 "type": "object"
@@ -708,6 +710,10 @@
                     "countryCode": {
                         "type": "string"
                     },
+                    "equity": {
+                        "format": "double",
+                        "type": "number"
+                    },
                     "runtimeContext": {
                         "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
                     }
@@ -806,10 +812,6 @@
             "HighLiquidityRatioScoreRequest": {
                 "properties": {
                     "highLiquidityRatio": {
-                        "format": "double",
-                        "type": "number"
-                    },
-                    "extraHighLiquidityRatio": {
                         "format": "double",
                         "type": "number"
                     },
@@ -1133,7 +1135,7 @@
     },
     "openapi": "3.0.1",
     "paths": {
-        "/BalanceDynamicIndexCalculationRenamed": {
+        "/BalanceDynamicIndexCalculation": {
             "post": {
                 "description": "Method: java.lang.Double BalanceDynamicIndexCalculation(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.FinancialData, org.openl.generated.beans.FinancialData)",
                 "operationId": "BalanceDynamicIndexCalculation",
@@ -1286,9 +1288,13 @@
                     }
                 },
                 "responses": {
-                    "default": {
+                    "200": {
                         "content": {
                             "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
                             }
                         }
                     },
@@ -1426,7 +1432,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/FinancialData"
+                                    "$ref": "#/components/schemas/BankRatingCalculation"
                                 }
                             }
                         }
@@ -2894,7 +2900,8 @@
                         "content": {
                             "text/plain": {
                                 "schema": {
-                                    "type": "string"
+                                    "format": "double",
+                                    "type": "number"
                                 }
                             }
                         }

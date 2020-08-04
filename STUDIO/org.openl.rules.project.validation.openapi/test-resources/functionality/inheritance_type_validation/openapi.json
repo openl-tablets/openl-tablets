@@ -171,38 +171,36 @@
                 "properties": {
                     "currentFinancialData": {
                         "$ref": "#/components/schemas/FinancialData"
+                    },
+                    "runtimeContext": {
+                        "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
                     }
                 },
                 "type": "object"
             },
             "Bank": {
-                "properties": {
-                    "bankFullName": {
-                        "type": "string"
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/SuperBank"
                     },
-                    "bankID": {
-                        "type": "string"
-                    },
-                    "bankRatings": {
-                        "items": {
-                            "$ref": "#/components/schemas/Rating"
+                    {
+                        "properties": {
+                            "bankRatings": {
+                                "items": {
+                                    "$ref": "#/components/schemas/Rating"
+                                },
+                                "type": "array"
+                            },
+                            "previousFinancialData": {
+                                "$ref": "#/components/schemas/FinancialData"
+                            },
+                            "qualityIndicators": {
+                                "$ref": "#/components/schemas/QualityIndicators"
+                            }
                         },
-                        "type": "array"
-                    },
-                    "countryCode": {
-                        "default": "DE",
-                        "type": "string"
-                    },
-                    "currentFinancialData": {
-                        "$ref": "#/components/schemas/FinancialData"
-                    },
-                    "previousFinancialData": {
-                        "$ref": "#/components/schemas/FinancialData"
-                    },
-                    "qualityIndicators": {
-                        "$ref": "#/components/schemas/QualityIndicators"
+                        "type": "object"
                     }
-                },
+                ],
                 "type": "object"
             },
             "BankLimitIndexRequest": {
@@ -708,6 +706,10 @@
                     "countryCode": {
                         "type": "string"
                     },
+                    "equity": {
+                        "format": "double",
+                        "type": "number"
+                    },
                     "runtimeContext": {
                         "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
                     }
@@ -806,10 +808,6 @@
             "HighLiquidityRatioScoreRequest": {
                 "properties": {
                     "highLiquidityRatio": {
-                        "format": "double",
-                        "type": "number"
-                    },
-                    "extraHighLiquidityRatio": {
                         "format": "double",
                         "type": "number"
                     },
@@ -995,6 +993,18 @@
                 },
                 "type": "object"
             },
+            "NewMethodRequest": {
+                "properties": {
+                    "capitalDynamic": {
+                        "format": "double",
+                        "type": "number"
+                    },
+                    "runtimeContext": {
+                        "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+                    }
+                },
+                "type": "object"
+            },
             "OtherAssetsRatioScoreRequest": {
                 "properties": {
                     "otherAssetsRatio": {
@@ -1110,6 +1120,18 @@
                 },
                 "type": "object"
             },
+            "SuperBank": {
+                "properties": {
+                    "bankID": {
+                        "type": "string"
+                    },
+                    "countryCode": {
+                        "default": "DE",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
             "TotalBalanceScoreRequest": {
                 "properties": {
                     "countryCode": {
@@ -1133,7 +1155,7 @@
     },
     "openapi": "3.0.1",
     "paths": {
-        "/BalanceDynamicIndexCalculationRenamed": {
+        "/BalanceDynamicIndexCalculation": {
             "post": {
                 "description": "Method: java.lang.Double BalanceDynamicIndexCalculation(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.FinancialData, org.openl.generated.beans.FinancialData)",
                 "operationId": "BalanceDynamicIndexCalculation",
@@ -1286,9 +1308,13 @@
                     }
                 },
                 "responses": {
-                    "default": {
+                    "200": {
                         "content": {
                             "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
                             }
                         }
                     },
@@ -1426,7 +1452,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/FinancialData"
+                                    "$ref": "#/components/schemas/BankRatingCalculation"
                                 }
                             }
                         }
@@ -2894,7 +2920,8 @@
                         "content": {
                             "text/plain": {
                                 "schema": {
-                                    "type": "string"
+                                    "format": "double",
+                                    "type": "number"
                                 }
                             }
                         }
@@ -3720,6 +3747,75 @@
                     }
                 },
                 "summary": "QualityIndicators[] getQualityIndicatorsData(IRulesRuntimeContext)"
+            }
+        },
+        "/newMethod": {
+            "post": {
+                "description": "Method: org.openl.generated.beans.SuperBank newMethod(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+                "operationId": "newMethod",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NewMethodRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuperBank"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "SuperBank newMethod(IRulesRuntimeContext, Double)"
             }
         }
     },
