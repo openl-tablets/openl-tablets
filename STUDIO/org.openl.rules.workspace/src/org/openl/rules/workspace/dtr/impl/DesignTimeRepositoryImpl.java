@@ -28,6 +28,7 @@ import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
@@ -64,14 +65,14 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private final List<DesignTimeRepositoryListener> listeners = new ArrayList<>();
 
     private PropertyResolver propertyResolver;
-    private Repository settingsRepository;
+    private RepositorySettings repositorySettings;
 
     public void setPropertyResolver(PropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;
     }
 
-    public void setSettingsRepository(Repository settingsRepository) {
-        this.settingsRepository = settingsRepository;
+    public void setRepositorySettings(RepositorySettings repositorySettings) {
+        this.repositorySettings = repositorySettings;
     }
 
     public void init() {
@@ -135,11 +136,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private Repository createRepo(String configName, boolean flatStructure, String baseFolder) {
         try {
             Repository repo = RepositoryInstatiator.newRepository(configName, propertyResolver);
-            if (settingsRepository != null) {
-                String setter = "setSettingsRepository";
+            if (repositorySettings != null) {
+                String setter = "setRepositorySettings";
                 try {
-                    Method setMethod = repo.getClass().getMethod(setter, Repository.class);
-                    setMethod.invoke(repo, settingsRepository);
+                    Method setMethod = repo.getClass().getMethod(setter, RepositorySettings.class);
+                    setMethod.invoke(repo, repositorySettings);
                 } catch (NoSuchMethodException e) {
                     log.debug(e.getMessage(), e);
                 }
@@ -157,7 +158,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 } else if (configName.startsWith(ConfigNames.PRODUCTION)) {
                     repositoryMode = RepositoryMode.PRODUCTION;
                 }
-                repo = MappedRepository.create(delegate, repositoryMode, baseFolder, settingsRepository);
+                repo = MappedRepository.create(delegate, repositoryMode, baseFolder, repositorySettings);
             }
 
             return repo;

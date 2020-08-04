@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -90,7 +91,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private String commentTemplate;
     private String escapedCommentTemplate;
     private CommitMessageParser commitMessageParser;
-    private org.openl.rules.repository.api.Repository settingsRepository;
+    private RepositorySettings repositorySettings;
+    private Date settingsSyncDate = new Date();
     private boolean noVerify;
     private Boolean gcAutoDetach;
 
@@ -780,8 +782,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         this.commitMessageParser = new CommitMessageParser(commentTemplate);
     }
 
-    public void setSettingsRepository(org.openl.rules.repository.api.Repository settingsRepository) {
-        this.settingsRepository = settingsRepository;
+    public void setRepositorySettings(RepositorySettings repositorySettings) {
+        this.repositorySettings = repositorySettings;
     }
 
     /**
@@ -891,19 +893,24 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             TreeSet<String> availableBranches = getAvailableBranches();
 
+            BranchesData branches = getBranches();
             Set<String> projectBranches = branches.getDescriptions()
                 .stream()
                 .map(BranchDescription::getName)
                 .collect(Collectors.toCollection(HashSet::new));
             branches.getProjectBranches().values().forEach(projectBranches::addAll);
 
+            AtomicBoolean modified = new AtomicBoolean(false);
             projectBranches.forEach(projectBranch -> {
                 if (!availableBranches.contains(projectBranch)) {
+                    modified.set(true);
                     branches.removeBranch(null, projectBranch);
                 }
             });
 
-            saveBranches();
+            if (modified.get()) {
+                saveBranches();
+            }
         } finally {
             writeLock.unlock();
             log.debug("getLastRevision(): unlock write");
@@ -921,6 +928,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             readLock.unlock();
             log.debug("getLastRevision(): unlock");
         }
+    }
+
+    private BranchesData getBranches() throws IOException {
+        if (!repositorySettings.getSyncDate().equals(settingsSyncDate)) {
+            readBranches();
+        }
+        return branches;
     }
 
     /**
@@ -1930,6 +1944,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 pushBranch(new RefSpec().setSource(newBranch).setDestination(Constants.R_HEADS + newBranch));
             }
 
+            BranchesData branches = getBranches();
             branches.addBranch(projectName, branch, null);
             branches.addBranch(projectName, newBranch, branchRef.getObjectId().getName());
 
@@ -1963,6 +1978,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             reset();
 
+            BranchesData branches = getBranches();
             if (projectName == null) {
                 // Remove the branch from all mappings.
                 if (branches.removeBranch(null, branch)) {
@@ -1998,6 +2014,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("getBranches(): lock");
             readLock.lock();
+            BranchesData branches = getBranches();
             if (projectName == null) {
                 // Return all available branches
                 TreeSet<String> branchNames = getAvailableBranches();
@@ -2095,7 +2112,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         repo.setListenerTimerPeriod(listenerTimerPeriod);
         repo.setConnectionTimeout(connectionTimeout);
         repo.setCommentTemplate(commentTemplate);
-        repo.setSettingsRepository(settingsRepository);
+        repo.setRepositorySettings(repositorySettings);
         repo.git = git;
         repo.repositoryLock = repositoryLock; // must be common for all instances because git
         // repository is same
@@ -2145,11 +2162,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private void readBranches() throws IOException {
-        if (settingsRepository == null) {
+        if (repositorySettings == null) {
             return;
         }
 
-        FileItem fileItem = settingsRepository.read(id + "/branches.yaml");
+        settingsSyncDate = repositorySettings.getSyncDate();
+        FileItem fileItem = repositorySettings.getRepository().read(id + "/branches.yaml");
         if (fileItem != null) {
             try (InputStreamReader in = new InputStreamReader(fileItem.getStream(), StandardCharsets.UTF_8)) {
                 TypeDescription projectsDescription = new TypeDescription(BranchesData.class);
@@ -2159,14 +2177,14 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 Representer representer = new Representer();
                 representer.getPropertyUtils().setSkipMissingProperties(true);
                 Yaml yaml = new Yaml(constructor, representer);
-                branches = yaml.loadAs(in, BranchesData.class);
+                branches.copyFrom(yaml.loadAs(in, BranchesData.class));
             }
         }
 
     }
 
     private void saveBranches() throws IOException {
-        if (settingsRepository == null) {
+        if (repositorySettings == null) {
             return;
         }
         DumperOptions options = new DumperOptions();
@@ -2183,7 +2201,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         data.setName(id + "/branches.yaml");
         data.setAuthor(getClass().getName());
         data.setComment("Update branches info");
-        settingsRepository.save(data, new ByteArrayInputStream(outputStream.toByteArray()));
+        repositorySettings.getRepository().save(data, new ByteArrayInputStream(outputStream.toByteArray()));
     }
 
     private void removeAbsentFiles(String baseAbsolutePath,

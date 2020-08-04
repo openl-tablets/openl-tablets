@@ -37,6 +37,7 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.MergeConflictException;
+import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
@@ -1104,7 +1105,7 @@ public class GitRepositoryTest {
         String settingsPath = local.getParent() + "/git-settings";
         FileSystemRepository settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(settingsPath);
-        repo.setSettingsRepository(settingsRepository);
+        repo.setRepositorySettings(new RepositorySettings(settingsRepository));
         repo.setGcAutoDetach(false);
         repo.initialize();
 

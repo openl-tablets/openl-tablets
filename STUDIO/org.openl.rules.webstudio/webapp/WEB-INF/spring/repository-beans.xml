@@ -16,11 +16,14 @@
         <constructor-arg name="propertyResolver" ref="environment"/>
     </bean>
 
+    <bean name="repositorySettings" class="org.openl.rules.repository.api.RepositorySettings">
+        <constructor-arg name="repository" ref="settingsRepository"/>
+    </bean>
 
     <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl"
           init-method="init" destroy-method="destroy">
         <property name="propertyResolver" ref="environment"/>
-        <property name="settingsRepository" ref="settingsRepository"/>
+        <property name="repositorySettings" ref="repositorySettings"/>
     </bean>
 
     <bean id="workspaceManager" class="org.openl.rules.workspace.MultiUserWorkspaceManager">

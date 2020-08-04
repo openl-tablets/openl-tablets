@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.repository.git.GitRepository;
@@ -73,7 +74,7 @@ public class ProjectVersionCacheMonitorTest {
         repo.setLocalRepositoryPath(local.getAbsolutePath());
         FileSystemRepository settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(local.getParent() + "/git-settings");
-        repo.setSettingsRepository(settingsRepository);
+        repo.setRepositorySettings(new RepositorySettings(settingsRepository));
         repo.setCommentTemplate("WebStudio: {commit-type}. {user-message}");
         repo.initialize();
         return repo;

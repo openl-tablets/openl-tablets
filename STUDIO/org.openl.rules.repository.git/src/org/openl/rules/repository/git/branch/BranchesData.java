@@ -9,6 +9,11 @@ public class BranchesData {
     private Map<String, List<String>> projectBranches = new HashMap<>();
     private List<BranchDescription> descriptions = new ArrayList<>();
 
+    public void copyFrom(BranchesData copy) {
+        this.projectBranches = copy.projectBranches;
+        this.descriptions = copy.descriptions;
+    }
+
     public Map<String, List<String>> getProjectBranches() {
         return projectBranches;
     }
