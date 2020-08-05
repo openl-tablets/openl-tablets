@@ -256,4 +256,13 @@ public class RunWebservicesITest {
         client.get("/REST/EPBDS-10118/EPBDS-10118/openapi.json", "/EPBDS-10118/EPBDS-10118_openapi.resp.json");
         client.get("/EPBDS-10118/EPBDS-10118?wsdl", "/EPBDS-10118/EPBDS-10118_wsdl.resp.xml");
     }
+
+    @Test
+    public void EPBDS_10171() {
+        client.get("/EPBDS-10171/EPBDS-10171/swagger.json", "/EPBDS-10171/EPBDS-10171_swagger.resp.json");
+        client.get("/EPBDS-10171/EPBDS-10171/openapi.json", "/EPBDS-10171/EPBDS-10171_openapi.resp.json");
+        client.post("/EPBDS-10171/EPBDS-10171/homeRule2",
+            "/EPBDS-10171/EPBDS-10171.req.txt",
+            "/EPBDS-10171/EPBDS-10171.resp.json");
+    }
 }

@@ -39,7 +39,6 @@ import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiRulesCacheWorkaround;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiSupportConverter;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperConfigurationHelper;
 import org.openl.rules.serialization.JacksonObjectMapperFactoryBean;
 import org.openl.rules.variation.VariationsPack;
@@ -51,7 +50,6 @@ import org.openl.types.java.JavaOpenClass;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.parser.OpenAPIParser;
-import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.jaxrs2.Reader;
 import io.swagger.v3.oas.models.Components;
@@ -67,10 +65,6 @@ import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.util.RefUtils;
 
 public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectValidator {
-
-    static {
-        ModelConverters.getInstance().addConverter(new OpenApiSupportConverter());
-    }
 
     private static final String OPENAPI_JSON = "openapi.json";
     private static final String OPENAPI_YAML = "openapi.yaml";

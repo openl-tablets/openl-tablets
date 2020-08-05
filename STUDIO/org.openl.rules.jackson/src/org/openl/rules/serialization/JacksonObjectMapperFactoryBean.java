@@ -100,6 +100,8 @@ public class JacksonObjectMapperFactoryBean {
 
     private boolean caseInsensitiveProperties = false;
 
+    private boolean generateSubtypeAnnotationsForDisabledMode = false;
+
     private ClassLoader classLoader;
 
     private ObjectMapperFactory objectMapperFactory = DefaultObjectMapperFactory.getInstance();
@@ -249,13 +251,15 @@ public class JacksonObjectMapperFactoryBean {
             mapper.deactivateDefaultTyping();
         }
 
-        for (Class<?> clazz : overrideClasses) {
-            Class<?> subtypeMixinCLass = enhanceMixInClassWithSubTypes(clazz,
-                mapper.findMixInClassFor(clazz),
-                overrideClasses,
-                getClassLoader());
-            if (subtypeMixinCLass != null) {
-                mapper.addMixIn(clazz, subtypeMixinCLass);
+        if (!DefaultTypingMode.DISABLED.equals(getDefaultTypingMode()) || isGenerateSubtypeAnnotationsForDisabledMode()) {
+            for (Class<?> clazz : overrideClasses) {
+                Class<?> subtypeMixInCLass = enhanceMixInClassWithSubTypes(clazz,
+                    mapper.findMixInClassFor(clazz),
+                    overrideClasses,
+                    getClassLoader());
+                if (subtypeMixInCLass != null) {
+                    mapper.addMixIn(clazz, subtypeMixInCLass);
+                }
             }
         }
 
@@ -461,5 +465,13 @@ public class JacksonObjectMapperFactoryBean {
 
     public void setObjectMapperFactory(ObjectMapperFactory objectMapperFactory) {
         this.objectMapperFactory = objectMapperFactory;
+    }
+
+    public boolean isGenerateSubtypeAnnotationsForDisabledMode() {
+        return generateSubtypeAnnotationsForDisabledMode;
+    }
+
+    public void setGenerateSubtypeAnnotationsForDisabledMode(boolean generateSubtypeAnnotationsForDisabledMode) {
+        this.generateSubtypeAnnotationsForDisabledMode = generateSubtypeAnnotationsForDisabledMode;
     }
 }
