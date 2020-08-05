@@ -8,7 +8,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -216,12 +215,7 @@ public class BetaRepositoryService {
 
                 final String rulesPath = getDesignTimeRepository().getRulesLocation();
 
-                entity = new StreamingOutput() {
-                    @Override
-                    public void write(OutputStream out) throws IOException {
-                        RepositoryUtils.archive((FolderRepository) repository, rulesPath, name, version, out);
-                    }
-                };
+                entity = (StreamingOutput) out -> RepositoryUtils.archive((FolderRepository) repository, rulesPath, name, version, out, null);
             } else {
                 final String projectPath = getFileName(name);
                 FileItem fileItem = repository.readHistory(projectPath, version);
