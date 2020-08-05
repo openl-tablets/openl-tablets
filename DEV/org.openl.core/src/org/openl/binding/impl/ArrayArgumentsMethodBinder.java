@@ -3,17 +3,22 @@ package org.openl.binding.impl;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.cast.IOneElementArrayCast;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CastingMethodCaller;
+import org.openl.types.impl.MethodKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +43,8 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
     private IBoundNode getMultiCallMethodNode(ISyntaxNode node,
             IBindingContext bindingContext,
             IOpenClass[] methodArguments,
-            Deque<Integer> arrayArgArguments) {
+            Deque<Integer> arrayArgArguments,
+            Map<MethodKey, IOpenMethod> candidates) {
         if (arrayArgArguments.isEmpty()) {
             return null;
         }
@@ -64,6 +70,8 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             return null;
         }
 
+        candidates.put(new MethodKey(singleParameterMethodCaller.getMethod()), singleParameterMethodCaller.getMethod());
+
         BindHelper.checkOnDeprecation(node, bindingContext, singleParameterMethodCaller);
         // bound node that is going to call the single parameter method by several times on runtime and return an array
         // of results.
@@ -86,46 +94,67 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             IOpenClass[] unwrappedArgumentsTypes,
             Deque<Integer> arrayArgArguments,
             List<Integer> indexesOfArrayArguments,
-            int indexToChange) {
+            int indexToChange,
+            Map<MethodKey, IOpenMethod> candidates) {
         int arrayArgumentIndex = indexesOfArrayArguments.get(indexToChange);
 
         boolean last = indexToChange == indexesOfArrayArguments.size() - 1;
 
-        IBoundNode multiCallMethodNode;
-
         // Try interpret array argument as is, not multicall
         unwrappedArgumentsTypes[arrayArgumentIndex] = argumentsTypes[arrayArgumentIndex];
-        multiCallMethodNode = last ? getMultiCallMethodNode(node,
+        IBoundNode multiCallMethodNode1 = findMultiCallMethodNode(node,
             bindingContext,
             unwrappedArgumentsTypes,
-            arrayArgArguments)
-                                   : getMultiCallMethodNode(node,
-                                       bindingContext,
-                                       unwrappedArgumentsTypes,
-                                       arrayArgArguments,
-                                       indexesOfArrayArguments,
-                                       indexToChange + 1);
-
-        if (multiCallMethodNode != null) {
-            return multiCallMethodNode;
-        }
-
+            arrayArgArguments,
+            indexesOfArrayArguments,
+            indexToChange,
+            candidates,
+            last);
         // Try interpret array argument as multicall
         arrayArgArguments.addLast(arrayArgumentIndex);
         unwrappedArgumentsTypes[arrayArgumentIndex] = argumentsTypes[arrayArgumentIndex].getComponentClass();
-        multiCallMethodNode = last ? getMultiCallMethodNode(node,
+        IBoundNode multiCallMethodNode2 = findMultiCallMethodNode(node,
             bindingContext,
             unwrappedArgumentsTypes,
-            arrayArgArguments)
-                                   : getMultiCallMethodNode(node,
-                                       bindingContext,
-                                       unwrappedArgumentsTypes,
-                                       arrayArgArguments,
-                                       indexesOfArrayArguments,
-                                       indexToChange + 1);
+            arrayArgArguments,
+            indexesOfArrayArguments,
+            indexToChange,
+            candidates,
+            last);
         arrayArgArguments.removeLast();
+        return multiCallMethodNode1 != null ? multiCallMethodNode1 : multiCallMethodNode2;
+    }
 
-        return multiCallMethodNode;
+    private IBoundNode findMultiCallMethodNode(ISyntaxNode node,
+            IBindingContext bindingContext,
+            IOpenClass[] unwrappedArgumentsTypes,
+            Deque<Integer> arrayArgArguments,
+            List<Integer> indexesOfArrayArguments,
+            int indexToChange,
+            Map<MethodKey, IOpenMethod> candidates,
+            boolean last) {
+        if (last) {
+            try {
+                return getMultiCallMethodNode(node,
+                    bindingContext,
+                    unwrappedArgumentsTypes,
+                    arrayArgArguments,
+                    candidates);
+            } catch (AmbiguousMethodException e) {
+                for (IOpenMethod openMethod : e.getMatchingMethods()) {
+                    candidates.put(new MethodKey(openMethod), openMethod);
+                }
+                return null;
+            }
+        } else {
+            return getMultiCallMethodNode(node,
+                bindingContext,
+                unwrappedArgumentsTypes,
+                arrayArgArguments,
+                indexesOfArrayArguments,
+                indexToChange + 1,
+                candidates);
+        }
     }
 
     private List<Integer> getIndexesOfArrayArguments() {
@@ -146,12 +175,18 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             System.arraycopy(argumentsTypes, 0, unwrappedArgumentsTypes, 0, argumentsTypes.length);
 
             ArrayDeque<Integer> arrayArgArguments = new ArrayDeque<>();
-            return getMultiCallMethodNode(node,
+            Map<MethodKey, IOpenMethod> candidates = new HashMap<>();
+            IBoundNode boundNode = getMultiCallMethodNode(node,
                 bindingContext,
                 unwrappedArgumentsTypes,
                 arrayArgArguments,
                 indexesOfArrayArguments,
-                0);
+                0,
+                candidates);
+            if (candidates.size() > 1) {
+                throw new AmbiguousMethodException(methodName, argumentsTypes, new ArrayList<>(candidates.values()));
+            }
+            return boundNode;
         } else {
             log.debug("There is no any array argument in signature for method '{}'", methodName);
         }
