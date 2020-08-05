@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -56,7 +57,12 @@ public class ProjectVersionCacheManager implements InitializingBean {
         List<String> md5Strings = new ArrayList<>();
         try {
             if (wsProject.getRepository().supports().folders()) {
+                final String manName = wsProject.getProject().getFolderPath() + "/" + JarFile.MANIFEST_NAME;
                 for (AProjectArtefact artefact : wsProject.getArtefacts()) {
+                    if (manName.equals(artefact.getFileData().getName())) {
+                        //skip manifest from hash calculation
+                        continue;
+                    }
                     if (artefact instanceof AProjectResource) {
                         try (InputStream content = ((AProjectResource) artefact).getContent()) {
                             md5Strings.add(DigestUtils.md5Hex(content));
@@ -74,6 +80,10 @@ public class ProjectVersionCacheManager implements InitializingBean {
                 try (ZipInputStream zin = new ZipInputStream(zip.getStream())) {
                     ZipEntry entry;
                     while ((entry = zin.getNextEntry()) != null) {
+                        if (JarFile.MANIFEST_NAME.equals(entry.getName())) {
+                            //skip manifest from hash calculation
+                            continue;
+                        }
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         int b = zin.read();
                         while (b >= 0) {
