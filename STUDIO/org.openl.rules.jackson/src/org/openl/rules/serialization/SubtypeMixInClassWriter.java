@@ -37,15 +37,17 @@ class SubtypeMixInClassWriter extends ClassVisitor {
     public void visit(int arg0, int arg1, String arg2, String arg3, String arg4, String[] arg5) {
         super.visit(arg0, arg1, className.replace('.', '/'), arg3, arg4, arg5);
         if (!originalMixInClass.isAnnotationPresent(JsonSubTypes.class)) {
-            AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(JsonSubTypes.class), true);
-            AnnotationVisitor av1 = av.visitArray("value");
-            for (Class<?> subTypeClass : subTypes) {
-                AnnotationVisitor av2 = av1.visitAnnotation(null, Type.getDescriptor(JsonSubTypes.Type.class));
-                av2.visit("value", Type.getType(subTypeClass));
-                av2.visitEnd();
+            if (subTypes.length > 0) {
+                AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(JsonSubTypes.class), true);
+                AnnotationVisitor av1 = av.visitArray("value");
+                for (Class<?> subTypeClass : subTypes) {
+                    AnnotationVisitor av2 = av1.visitAnnotation(null, Type.getDescriptor(JsonSubTypes.Type.class));
+                    av2.visit("value", Type.getType(subTypeClass));
+                    av2.visitEnd();
+                }
+                av1.visitEnd();
+                av.visitEnd();
             }
-            av1.visitEnd();
-            av.visitEnd();
         }
         if (!originalMixInClass.isAnnotationPresent(JsonTypeInfo.class)) {
             AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(JsonTypeInfo.class), true);

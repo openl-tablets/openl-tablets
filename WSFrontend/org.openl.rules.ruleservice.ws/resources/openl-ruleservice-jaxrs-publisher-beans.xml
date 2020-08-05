@@ -80,6 +80,7 @@
                 <property name="jacksonObjectMapperFactoryBean">
                     <bean class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
                           parent="jaxrsSchemaDatabindingFactoryBeanParent">
+                        <property name="generateSubtypeAnnotationsForDisabledMode" value="true"/>
                         <property name="objectMapperFactory">
                             <bean class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.SwaggerObjectMapperFactory"/>
                         </property>
@@ -96,6 +97,7 @@
                 <property name="jacksonObjectMapperFactoryBean">
                     <bean class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
                           parent="jaxrsSchemaDatabindingFactoryBeanParent">
+                        <property name="generateSubtypeAnnotationsForDisabledMode" value="true"/>
                         <property name="objectMapperFactory">
                             <bean class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperFactory"/>
                         </property>
@@ -162,12 +164,6 @@
         <property name="bus" ref="cxf"/>
     </bean>
 
-    <bean id="swaggerInitializationBean"
-          class="org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerInitializationBean"/>
-
-    <bean id="openApiInitializationBean"
-          class="org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiInitializationBean"/>
-
     <!-- Initializes OpenL Engine instances according to Rule Services configuration description and calls RuleServicePublisher
         to expose corresponding web service -->
     <!-- Exposes web services. -->
@@ -177,8 +173,7 @@
                   ref="jaxrsServiceConfigurationResolveMethodParameterNamesFactoryBean"/>
     </bean>
 
-    <bean id="jaxrsServicesRuleServicePublisher" class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher"
-          depends-on="swaggerInitializationBean, openApiInitializationBean">
+    <bean id="jaxrsServicesRuleServicePublisher" class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher">
         <property name="storeLogDataEnabled" value="${ruleservice.store.logs.enabled}"/>
         <property name="swaggerPrettyPrint" value="${ruleservice.jaxrs.swagger.prettyprint}"/>
     </bean>
