@@ -95,6 +95,7 @@ Usage
           <artifactId>openl-maven-plugin</artifactId>
           <version>${org.openl.version}</version>
           <configuration>
+              <moduleName>TemplateRules</moduleName>
               <interfaceClass>org.company.gen.TemplateRulesInterface</interfaceClass>
           </configuration>
           <executions>
