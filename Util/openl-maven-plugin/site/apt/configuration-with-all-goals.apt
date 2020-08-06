@@ -17,17 +17,23 @@ Configuration with all OpenL Maven Plugin Goals
           <version>${openl.rules.version}</version>
           <configuration>
               <!-- generate goal -->
+              <moduleName></moduleName>
               <interfaceClass>com.example.Service</interfaceClass>
               <superInterface>com.example.Base, com.example.Custom</superInterface>
               <isProvideRuntimeContext>true</isProvideRuntimeContext>
               <isProvideVariations>true</isProvideVariations>
+              <generateSpreadsheetResultBeans>false</generateSpreadsheetResultBeans>
               <!-- test goal -->
               <skipTests>false</skipTests>
               <threadCount>auto</threadCount>
+              <singleModuleMode>false</singleModuleMode>
+              <testSourceDirectory>src/test/openl</testSourceDirectory>
               <!-- package -->
               <format>zip,jar</format>
               <classifier>openl</classifier>
               <classpathFolder>lib/</classpathFolder>
+              <addDefaultManifest>true</addDefaultManifest>
+              <manifestEntries></manifestEntries>
               <!-- common part -->
               <sourceDirectory>src/main/openl</sourceDirectory>
           </configuration>
