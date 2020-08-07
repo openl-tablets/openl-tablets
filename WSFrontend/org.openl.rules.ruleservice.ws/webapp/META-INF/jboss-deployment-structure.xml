@@ -6,6 +6,8 @@
         <exclusions>
             <module name="org.slf4j" />
             <module name="org.slf4j.impl" />
+            <!-- Resolve conflicts when the several applications are run on JBoss EAP 7.2 -->
+            <module name="org.hibernate.validator" />
         </exclusions>
         <exclude-subsystems>  
             <subsystem name="jaxrs" />  
