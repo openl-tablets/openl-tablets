@@ -5,9 +5,4 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <bean id="openApiProjectValidator" class="org.open.rules.project.validation.openapi.OpenApiProjectValidator">
-        <property name="provideRuntimeContext" value="${ruleservice.isProvideRuntimeContext}"/>
-        <property name="provideVariations" value="${ruleservice.isSupportVariations}"/>
-        <property name="resolveMethodParameterNames" value="${ruleservice.jaxrs.resolveMethodParameterNames:true}"/>
-    </bean>
 </beans>
