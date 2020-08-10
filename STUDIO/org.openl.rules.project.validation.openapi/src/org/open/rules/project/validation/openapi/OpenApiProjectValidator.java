@@ -18,7 +18,6 @@ import javax.ws.rs.CookieParam;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.MatrixParam;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -40,6 +39,7 @@ import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiRulesCacheWorkaround;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperConfigurationHelper;
+import org.openl.rules.serialization.DefaultTypingMode;
 import org.openl.rules.serialization.JacksonObjectMapperFactoryBean;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IOpenClass;
@@ -57,7 +57,9 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
@@ -163,20 +165,17 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         return validatedCompiledOpenClass;
     }
 
-    public interface Service {
-        @POST
-        @Path("/method")
-        void method(String s);
-    }
-
     private ObjectMapper createObjectMapper(Context context) {
         ClassLoader classLoader = context.getValidatedCompiledOpenClass().getClassLoader();
         JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
         jacksonObjectMapperFactoryBean.setClassLoader(classLoader);
-        Set<Class<?>> rootClassNamesBindingClasses = getRootClassNamesBindingClasses(context.getRulesDeploy(),
+        Set<Class<?>> rootClassNamesBindingClasses = getRootClassNamesBindingClasses(context.getOpenClass(),
+            context.getRulesDeploy(),
             classLoader);
-        jacksonObjectMapperFactoryBean.setOverrideClasses(rootClassNamesBindingClasses);
         jacksonObjectMapperFactoryBean.setSupportVariations(context.isProvideVariations());
+        jacksonObjectMapperFactoryBean.setDefaultTypingMode(DefaultTypingMode.DISABLED);
+        jacksonObjectMapperFactoryBean.setGenerateSubtypeAnnotationsForDisabledMode(true);
+        jacksonObjectMapperFactoryBean.setOverrideClasses(rootClassNamesBindingClasses);
         try {
             ObjectMapper objectMapper = jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
             return OpenApiObjectMapperConfigurationHelper.configure(objectMapper);
@@ -185,10 +184,12 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         }
     }
 
-    private Set<Class<?>> getRootClassNamesBindingClasses(RulesDeploy rulesDeploy, ClassLoader classLoader) {
+    private Set<Class<?>> getRootClassNamesBindingClasses(IOpenClass openClass,
+            RulesDeploy rulesDeploy,
+            ClassLoader classLoader) {
+        Set<Class<?>> rootClassNamesBindingClasses = new HashSet<>();
         if (rulesDeploy != null && rulesDeploy.getConfiguration() != null) {
             Object rootClassNamesBinding = rulesDeploy.getConfiguration().get("rootClassNamesBinding");
-            Set<Class<?>> rootClassNamesBindingClasses = new HashSet<>();
             if (rootClassNamesBinding instanceof String) {
                 String[] rootClasses = ((String) rootClassNamesBinding).split(",");
                 for (String className : rootClasses) {
@@ -201,9 +202,13 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     }
                 }
             }
-            return rootClassNamesBindingClasses;
         }
-        return Collections.emptySet();
+        for (IOpenClass type : openClass.getTypes()) {
+            if (type instanceof DatatypeOpenClass) {
+                rootClassNamesBindingClasses.add(type.getInstanceClass());
+            }
+        }
+        return Collections.unmodifiableSet(rootClassNamesBindingClasses);
     }
 
     private Class<?> enhanceWithJAXRS(Context context,
@@ -856,6 +861,15 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         void run();
     }
 
+    private IOpenClass getSuperClass(IOpenClass openClass) {
+        for (IOpenClass superClass : openClass.superClasses()) {
+            if (!superClass.isInterface()) {
+                return superClass;
+            }
+        }
+        return null;
+    }
+
     @SuppressWarnings("rawtypes")
     private void validateType(Context context,
             Schema<?> actualSchema,
@@ -878,14 +892,59 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     return;
                 }
                 context.setType(openClass);
-                Map<String, Schema> allPropertiesOfExpectedSchema = context.getExpectedOpenAPIResolver()
-                    .resolveAllProperties(expectedSchema);
-                Map<String, Schema> allPropertiesOfActualSchema = context.getActualOpenAPIResolver()
-                    .resolveAllProperties(resolvedActualSchema);
+                Map<String, Schema> propertiesOfExpectedSchema = null;
+                Map<String, Schema> propertiesOfActualSchema = null;
+                boolean parentPresentedInBothSchemas = false;
+                if (resolvedExpectedSchema instanceof ComposedSchema && resolvedActualSchema instanceof ComposedSchema) {
+                    ComposedSchema actualComposedSchema = (ComposedSchema) resolvedActualSchema;
+                    ComposedSchema expectedComposedSchema = (ComposedSchema) resolvedExpectedSchema;
+                    if (isParentPresented(actualComposedSchema) && isParentPresented(expectedComposedSchema)) {
+                        IOpenClass superClass = getSuperClass(openClass);
+                        if (superClass != null) {
+                            try {
+                                validateType(context,
+                                    extractParentSchema(actualComposedSchema),
+                                    extractParentSchema(expectedComposedSchema),
+                                    superClass,
+                                    validatedSchemas);
+                            } catch (DifferentTypesException e) {
+                                String resolvedActualSuperClassSchemaType = resolveType(
+                                    actualComposedSchema.getAllOf().get(0));
+                                String resolvedExpectedSuperClassSchemaType = resolveType(
+                                    expectedComposedSchema.getAllOf().get(0));
+                                OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                    String.format(
+                                        "The schema type%s for the type '%s' mismatches to the schema type%s specified in the OpenAPI file.",
+                                        resolvedActualSuperClassSchemaType != null ? " '" + resolvedActualSuperClassSchemaType + "'"
+                                                                                   : "",
+                                        superClass.getName(),
+                                        resolvedExpectedSuperClassSchemaType != null ? " '" + resolvedExpectedSuperClassSchemaType + "'"
+                                                                                     : ""));
+                            }
+                            propertiesOfExpectedSchema = extractObjectSchema(expectedComposedSchema).getProperties();
+                            propertiesOfActualSchema = extractObjectSchema(actualComposedSchema).getProperties();
+                            if (propertiesOfActualSchema == null) {
+                                propertiesOfActualSchema = Collections.emptyMap();
+                            }
+                            if (propertiesOfExpectedSchema == null) {
+                                propertiesOfExpectedSchema = Collections.emptyMap();
+                            }
+                            parentPresentedInBothSchemas = true;
+                        }
+                    }
+                }
+                if (!parentPresentedInBothSchemas) {
+                    context.setType(openClass);
+                    propertiesOfExpectedSchema = context.getExpectedOpenAPIResolver()
+                        .resolveAllProperties(expectedSchema);
+                    propertiesOfActualSchema = context.getActualOpenAPIResolver()
+                        .resolveAllProperties(resolvedActualSchema);
+                }
+
                 List<Function> wrongFields = new ArrayList<>();
                 int fieldsToValidate = 0;
-                for (Map.Entry<String, Schema> entry : allPropertiesOfExpectedSchema.entrySet()) {
-                    Schema<?> fieldActualSchema = allPropertiesOfActualSchema.get(entry.getKey());
+                for (Map.Entry<String, Schema> entry : propertiesOfExpectedSchema.entrySet()) {
+                    Schema<?> fieldActualSchema = propertiesOfActualSchema.get(entry.getKey());
                     if (fieldActualSchema == null) {
                         wrongFields.add(() -> OpenApiProjectValidatorMessagesUtils.addTypeError(context,
                             String.format(
@@ -913,8 +972,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 } else {
                     wrongFields.forEach(Function::run);
                 }
-                for (Map.Entry<String, Schema> entry : allPropertiesOfActualSchema.entrySet()) {
-                    Schema<?> fieldExpectedSchema = allPropertiesOfExpectedSchema.get(entry.getKey());
+                for (Map.Entry<String, Schema> entry : propertiesOfActualSchema.entrySet()) {
+                    Schema<?> fieldExpectedSchema = propertiesOfExpectedSchema.get(entry.getKey());
                     if (fieldExpectedSchema == null) {
                         OpenApiProjectValidatorMessagesUtils.addTypeError(context,
                             String.format(
@@ -923,8 +982,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                                 openClass.getDisplayName(INamedThing.REGULAR)));
                     }
                 }
-                for (Map.Entry<String, Schema> entry : allPropertiesOfExpectedSchema.entrySet()) {
-                    Schema<?> fieldActualSchema = allPropertiesOfActualSchema.get(entry.getKey());
+                for (Map.Entry<String, Schema> entry : propertiesOfExpectedSchema.entrySet()) {
+                    Schema<?> fieldActualSchema = propertiesOfActualSchema.get(entry.getKey());
                     if (fieldActualSchema != null) {
                         IOpenField openField = context.getOpenClassPropertiesResolver()
                             .getField(openClass, entry.getKey());
@@ -955,6 +1014,41 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         } finally {
             context.setType(oldType);
         }
+    }
+
+    private boolean isParentPresented(ComposedSchema expectedComposedSchema) {
+        if (expectedComposedSchema.getAllOf() != null) {
+            int i = 0;
+            for (Schema<?> schema : expectedComposedSchema.getAllOf()) {
+                if (schema instanceof ObjectSchema) {
+                    i++;
+                }
+            }
+            return expectedComposedSchema.getAllOf().size() == 2 && i == 1;
+        }
+        return false;
+    }
+
+    private Schema<?> extractObjectSchema(ComposedSchema expectedComposedSchema) {
+        if (expectedComposedSchema.getAllOf() != null) {
+            for (Schema<?> schema : expectedComposedSchema.getAllOf()) {
+                if (schema instanceof ObjectSchema) {
+                    return schema;
+                }
+            }
+        }
+        throw new IllegalStateException("Object schema is not found");
+    }
+
+    private Schema<?> extractParentSchema(ComposedSchema expectedComposedSchema) {
+        if (expectedComposedSchema.getAllOf() != null) {
+            for (Schema<?> schema : expectedComposedSchema.getAllOf()) {
+                if (!(schema instanceof ObjectSchema)) {
+                    return schema;
+                }
+            }
+        }
+        throw new IllegalStateException("Parent schema is not found");
     }
 
     private void validatePathItem(Context context) {

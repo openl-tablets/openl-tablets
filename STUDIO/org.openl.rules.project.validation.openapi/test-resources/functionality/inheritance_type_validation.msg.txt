@@ -1,3 +1,2 @@
-ERROR: The field 'currentFinancialData' is declared in the type 'Bank', but it is not specified in the OpenAPI file.
-ERROR: The field 'bankFullName' is declared in the type 'Bank', but it is not specified in the OpenAPI file.
 ERROR: The field 'bankFullName' is declared in the type 'SuperBank', but it is not specified in the OpenAPI file.
+ERROR: The field 'currentFinancialData' is declared in the type 'Bank', but it is not specified in the OpenAPI file.
