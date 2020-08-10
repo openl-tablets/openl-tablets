@@ -118,10 +118,11 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
                 if (annotationTemplateClass.isInterface()) {
                     serviceClass = DynamicInterfaceAnnotationEnhancerHelper
                         .decorate(serviceClass, annotationTemplateClass, classLoader);
+                } else {
+                    validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils.newWarnMessage(String.format(
+                            "Failed to apply annotation template class '%s'. Interface is expected, but class is found.",
+                            annotationTemplateClassName)));
                 }
-                validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                    "Failed to apply annotation template class '%s'. Interface is expected, but class is found.",
-                    annotationTemplateClassName)));
             } catch (Exception | NoClassDefFoundError ignored) {
                 validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils.newWarnMessage(String
                     .format("Failed to load or apply annotation template class '%s'.", annotationTemplateClassName)));

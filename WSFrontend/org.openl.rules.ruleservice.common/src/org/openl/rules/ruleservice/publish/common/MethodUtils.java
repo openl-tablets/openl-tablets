@@ -76,6 +76,9 @@ public final class MethodUtils {
             Method method,
             boolean provideRuntimeContext,
             boolean provideVariations) {
+        if (method == null) {
+            return null;
+        }
         if (openClass != null) {
             Class<?>[] parameterTypes = cutParameterTypes(method.getParameterTypes(),
                 provideRuntimeContext,

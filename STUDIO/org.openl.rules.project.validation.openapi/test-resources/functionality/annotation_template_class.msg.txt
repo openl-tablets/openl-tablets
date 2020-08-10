@@ -1,0 +1,4 @@
+ERROR: The response schema type 'SpreadsheetResult' of the method 'BankRatingCalculation' related to the path '/BankRatingCalculation' mismatches with the schema type 'BankRatingCalculation' specified in the OpenAPI file.
+ERROR: There is no method found for the path '/ProfitDynamicScore', but the path is specified in the OpenAPI file.
+ERROR: The operation 'GET' related to the path '/BalanceDynamicIndexCalculation' is not found, but it is specified in the OpenAPI file.
+ERROR: The operation 'POST' related to the path '/BalanceDynamicIndexCalculation' is found, but it is not specified in the OpenAPI file.
