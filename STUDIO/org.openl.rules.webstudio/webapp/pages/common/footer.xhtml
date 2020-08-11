@@ -3,17 +3,42 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-    xmlns:a4j="http://richfaces.org/a4j">
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
-    <h:form id="notificationForm">
-        <h:panelGroup
-                style="display: table; height: 35px; background-color: red; color: white; width: 100%; position: absolute"
-                rendered="#{not empty notificationBean.value}" layout="block">
-            <h:outputText value="#{notificationBean.value}" style="vertical-align: middle;display: table-cell; text-align: center"/>
-        </h:panelGroup>
-    </h:form>
-    <a4j:poll id="poll" interval="15000" render="notificationForm" status="zxc"/>
+    <style>
+        #notificationPanel {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 35px;
+            background-color: red;
+            color: white;
+            width: 100%;
+            position: absolute;
+            text-align: center;
+            white-space: pre-wrap;
+        }
+    </style>
+    <div id="notificationPanel" style="display: none;"/>
+    <script>
+        var $jq = jQuery.noConflict();
+        $jq('#notificationPanel').bind('refresh', function (e) {
+            $jq.ajax({
+                url: "#{contextPath}/web/public/notification.txt",
+                datatype: "text" })
+                .done(function (data) {
+                    var box = $jq(e.target);
+                    box.text(data);
+                    if (data) {
+                        box.show();
+                    } else {
+                        box.hide();
+                    }
+                });
+        });
+        $jq('#notificationPanel').trigger('refresh');
+        setInterval(function () {$jq('#notificationPanel').trigger('refresh')}, 15000);//time in milliseconds
+    </script>
     <div style="text-align: center; padding:11px">
         <c:set var="buildDate" value="#{versionProperties.getBuildDate()}" />
         &#169; #{fn:substring(buildDate, 0, 4)}
