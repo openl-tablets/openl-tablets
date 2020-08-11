@@ -88,7 +88,6 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     public void setOpenLHomeDir(String workingDir) {
         Preferences node = PreferencePropertySource.THE.getSource();
         node.put(DynamicPropertySource.OPENL_HOME, workingDir);
-        node.put(DynamicPropertySource.OPENL_HOME_SHARED, workingDir);
         try {
             // guard against loss in case of abnormal termination of the VM
             // in case of normal VM termination, the flush method is not required
