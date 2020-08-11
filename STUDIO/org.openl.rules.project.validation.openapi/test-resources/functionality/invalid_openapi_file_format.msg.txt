@@ -1,1 +1,1 @@
-ERROR: Invalid file 'openapi.json' format.
+ERROR: OpenAPI validation: File 'openapi.json' format is invalid.

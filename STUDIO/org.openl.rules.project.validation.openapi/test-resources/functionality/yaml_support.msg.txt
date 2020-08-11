@@ -1,1 +1,1 @@
-ERROR: The field 'bankFullName' is declared in the type 'Bank', but it is not specified in the OpenAPI file.
+ERROR: OpenAPI validation: Unexpected field 'bankFullName' in type 'Bank' is found.
