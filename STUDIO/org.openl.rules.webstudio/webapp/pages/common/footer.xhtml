@@ -36,8 +36,10 @@
                     }
                 });
         });
-        $jq('#notificationPanel').trigger('refresh');
-        setInterval(function () {$jq('#notificationPanel').trigger('refresh')}, 15000);//time in milliseconds
+        if(#{installerPage == null}){
+            $jq('#notificationPanel').trigger('refresh');
+            setInterval(function () {$jq('#notificationPanel').trigger('refresh')}, 15000);//time in milliseconds
+        }
     </script>
     <div style="text-align: center; padding:11px">
         <c:set var="buildDate" value="#{versionProperties.getBuildDate()}" />
