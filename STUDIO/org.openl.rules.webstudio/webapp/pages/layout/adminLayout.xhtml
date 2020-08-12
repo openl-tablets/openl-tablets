@@ -195,11 +195,5 @@
         <div style="display: none">
             <a4j:status onstart="showLoader()" onstop="hideLoader()" />
          </div>
-
-        <c:if test="#{environment.getProperty('webstudio.analytics') != 'false'}">
-            <ui:include src="/pages/common/analytics.xhtml">
-                <ui:param name="id" value="#{environment.getProperty('webstudio.analytics')}" />
-            </ui:include>
-        </c:if>
     </h:body>
 </html>
