@@ -33,8 +33,8 @@ import org.openl.util.generation.GenUtils;
 
 import com.helger.jcodemodel.AbstractJClass;
 import com.helger.jcodemodel.EClassType;
-import com.helger.jcodemodel.JClassAlreadyExistsException;
 import com.helger.jcodemodel.JCodeModel;
+import com.helger.jcodemodel.JCodeModelException;
 import com.helger.jcodemodel.JDefinedClass;
 import com.helger.jcodemodel.JMethod;
 import com.helger.jcodemodel.JMod;
@@ -245,7 +245,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
         }
     }
 
-    private void writeInterface(Class<?> clazz, IOpenClass openClass) throws IOException, JClassAlreadyExistsException {
+    private void writeInterface(Class<?> clazz, IOpenClass openClass) throws IOException, JCodeModelException {
         info("Interface: " + interfaceClass);
         JCodeModel model = new JCodeModel();
         CodeHelper helper = new CodeHelper();
@@ -305,7 +305,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private class CodeHelper {
         JCodeModel model = new JCodeModel();
 
-        AbstractJClass get(Class<?> clazz) throws JClassAlreadyExistsException {
+        AbstractJClass get(Class<?> clazz) throws JCodeModelException {
             if (clazz.isArray()) {
                 Class<?> componentType = clazz.getComponentType();
                 AbstractJClass arrayType = get(componentType);
@@ -316,11 +316,11 @@ public final class GenerateMojo extends BaseOpenLMojo {
             return get(clazzName, eClassType);
         }
 
-        AbstractJClass get(String clazzName) throws JClassAlreadyExistsException {
+        AbstractJClass get(String clazzName) throws JCodeModelException {
             return get(clazzName, EClassType.INTERFACE);
         }
 
-        private AbstractJClass get(String clazzName, EClassType eClassType) throws JClassAlreadyExistsException {
+        private AbstractJClass get(String clazzName, EClassType eClassType) throws JCodeModelException {
             AbstractJClass jArgType = model._getClass(clazzName);
             if (jArgType == null) {
                 jArgType = model._class(clazzName, eClassType);
