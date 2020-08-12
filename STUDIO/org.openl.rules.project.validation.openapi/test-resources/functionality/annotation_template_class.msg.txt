@@ -1,0 +1,5 @@
+ERROR: OpenAPI validation: Unexpected operation 'GET' related to path '/BalanceDynamicIndexCalculation' is found.
+ERROR: OpenAPI validation: Unexpected operation 'POST' related to path '/BalanceDynamicIndexCalculation' is found.
+ERROR: OpenAPI validation: Return type for method 'BankRatingCalculation' related to path '/BankRatingCalculation' must be compatible with OpenAPI type 'BankRatingCalculation'.
+ERROR: OpenAPI validation: Expected method related to path '/ProfitDynamicScore' is not found.
+ERROR: OpenAPI validation: Unexpected method 'extraMethod' related to path '/extraMethod' is found.

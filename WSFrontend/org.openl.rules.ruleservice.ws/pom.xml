@@ -148,10 +148,6 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.project.validation.openapi</artifactId>
-        </dependency>
         <!-- STUDIO -->
         <dependency>
             <groupId>org.openl.rules</groupId>

@@ -51,13 +51,17 @@ final class OpenApiProjectValidatorMessagesUtils {
     }
 
     public static void addMethodError(Context context, String summary) {
-        TableSyntaxNode tableSyntaxNode = extractTableSyntaxNode(context.getOpenMethod());
+        addMethodError(context, context.getOpenMethod(), summary);
+    }
+
+    public static void addMethodError(Context context, IOpenMethod method, String summary) {
+        TableSyntaxNode tableSyntaxNode = extractTableSyntaxNode(method);
         if (tableSyntaxNode != null) {
             SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary, tableSyntaxNode);
-            OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
-            context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
             if (isNotExistingError(tableSyntaxNode, summary)) {
                 tableSyntaxNode.addError(syntaxNodeException);
+                OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
+                context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
             }
         } else {
             addError(context, summary);
@@ -84,24 +88,15 @@ final class OpenApiProjectValidatorMessagesUtils {
                     context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
                     datatypeOpenClass.getTableSyntaxNode().addError(syntaxNodeException);
                 }
-                return;
             }
         } else {
             IOpenMethod method = context.getSpreadsheetMethodResolver().resolve(context.getType());
             if (method != null) {
-                TableSyntaxNode tableSyntaxNode = extractTableSyntaxNode(context.getOpenMethod());
-                if (tableSyntaxNode != null) {
-                    if (isNotExistingError(tableSyntaxNode, summary)) {
-                        SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary,
-                            tableSyntaxNode);
-                        OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
-                        context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
-                        tableSyntaxNode.addError(syntaxNodeException);
-                    }
-                }
+                addMethodError(context, method, summary);
+            } else {
+                addError(context, summary);
             }
         }
-        addError(context, summary);
     }
 
     private static TableSyntaxNode extractTableSyntaxNode(IOpenMethod method) {
@@ -132,8 +127,8 @@ final class OpenApiProjectValidatorMessagesUtils {
                     datatypeOpenClass.getTableSyntaxNode());
                 context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
             }
-            return;
+        } else {
+            addWarning(context, summary);
         }
-        addWarning(context, summary);
     }
 }

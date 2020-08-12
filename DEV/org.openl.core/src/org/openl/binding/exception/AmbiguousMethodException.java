@@ -22,11 +22,11 @@ public class AmbiguousMethodException extends OpenlNotCheckedException {
 
     private static final long serialVersionUID = -4733490029481524664L;
 
-    private List<IOpenMethod> matchingMethods;
+    private final List<IOpenMethod> matchingMethods;
 
-    private String methodName;
+    private final String methodName;
 
-    private IOpenClass[] pars;
+    private final IOpenClass[] pars;
 
     public AmbiguousMethodException(String methodName, IOpenClass[] pars, List<IOpenMethod> matchingMethods) {
         this.methodName = methodName;

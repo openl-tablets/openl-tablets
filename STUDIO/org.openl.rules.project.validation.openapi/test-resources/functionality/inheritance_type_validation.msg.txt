@@ -1,0 +1,2 @@
+ERROR: OpenAPI validation: Unexpected field 'bankFullName' in type 'SuperBank' is found.
+ERROR: OpenAPI validation: Unexpected field 'currentFinancialData' in type 'Bank' is found.

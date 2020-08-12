@@ -1,8 +1,8 @@
-ERROR: There is no method found for the path '/BalanceDynamicIndexCalculationRenamed', but the path is specified in the OpenAPI file.
-ERROR: The method 'BalanceQualityIndexCalculation' related to the path '/BalanceQualityIndexCalculation' is declared with the parameter 'runtimeContext', but the parameter for this method is not specified in the OpenAPI file.
-ERROR: The method 'EquityScore' related to the path '/EquityScore' is declared with the parameter 'equity', but the parameter for this method is not specified in the OpenAPI file.
-ERROR: The method 'HighLiquidityRatioScore' related to the path '/HighLiquidityRatioScore' does not have the parameter 'extraHighLiquidityRatio', but the parameter is specified with type 'Double' in the OpenAPI file.
-ERROR: The method 'BalanceDynamicIndexCalculation' related to the path '/BalanceDynamicIndexCalculation' is found, but it is not specified in the OpenAPI file.
-ERROR: The method 'NegativeMassMediaScore' related to the path '/NegativeMassMediaScore' has response schema type 'Double' that mismatches to the schema type 'String' specified in the OpenAPI file.
-ERROR: The response schema type 'BankRatingCalculation' of the method 'BankRatingCalculation' related to the path '/BankRatingCalculation' mismatches to the schema type 'FinancialData' specified in the OpenAPI file.
-ERROR: Missed a schema definition for the response in the operation 'POST' and media type 'text/plain' related to the path '/BankLimitIndex' in the OpenAPI file.
+ERROR: OpenAPI validation: Expected method related to path '/BalanceDynamicIndexCalculationRenamed' is not found.
+ERROR: OpenAPI validation: Unexpected parameter 'runtimeContext' in method 'BalanceQualityIndexCalculation' related to path '/BalanceQualityIndexCalculation' is found.
+ERROR: OpenAPI validation: Schema definition for the response in operation 'POST' and media type 'text/plain' related to path '/BankLimitIndex' is missed.
+ERROR: OpenAPI validation: Return type for method 'BankRatingCalculation' related to path '/BankRatingCalculation' must be compatible with OpenAPI type 'FinancialData'.
+ERROR: OpenAPI validation: Unexpected parameter 'equity' in method 'EquityScore' related to path '/EquityScore' is found.
+ERROR: OpenAPI validation: Expected parameter 'extraHighLiquidityRatio' in method 'HighLiquidityRatioScore' related to path '/HighLiquidityRatioScore' is not found.
+ERROR: OpenAPI validation: Return type for method 'NegativeMassMediaScore' related to path '/NegativeMassMediaScore' must be compatible with OpenAPI type 'string'.
+ERROR: OpenAPI validation: Unexpected method 'BalanceDynamicIndexCalculation' related to path '/BalanceDynamicIndexCalculation' is found.

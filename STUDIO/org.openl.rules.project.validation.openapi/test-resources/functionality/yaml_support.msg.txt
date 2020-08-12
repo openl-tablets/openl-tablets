@@ -1,0 +1,1 @@
+ERROR: OpenAPI validation: Unexpected field 'bankFullName' in type 'Bank' is found.

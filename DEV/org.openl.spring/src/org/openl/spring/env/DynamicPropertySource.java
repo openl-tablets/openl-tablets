@@ -28,6 +28,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     public static final String PROPS_NAME = "Dynamic properties";
 
     public static final String OPENL_HOME = "openl.home";
+    public static final String OPENL_HOME_SHARED = "openl.home.shared";
 
     private final PropertyResolver resolver;
     private final String appName;
@@ -60,13 +61,13 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     }
 
     private File getFile() {
-        String property = resolver.getProperty(OPENL_HOME);
+        String property = resolver.getProperty(OPENL_HOME_SHARED);
         return new File(property, appName + ".properties");
     }
 
     @Override
     public Object getProperty(String name) {
-        if (OPENL_HOME.equals(name)) {
+        if (OPENL_HOME.equals(name) || OPENL_HOME_SHARED.equals(name)) {
             // prevent cycled call
             return null;
         }

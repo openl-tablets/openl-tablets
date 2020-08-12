@@ -5,7 +5,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Comparator;
 import java.util.List;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -13,6 +16,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.webstudio.web.repository.deployment.DeploymentOutputStream;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
@@ -56,13 +60,14 @@ public final class RepositoryUtils {
     }
 
     public static void archive(FolderRepository folderRepository,
-            String rulesPath,
-            String projectName,
-            String version,
-            OutputStream out) throws IOException {
+                               String rulesPath,
+                               String projectName,
+                               String version,
+                               OutputStream out,
+                               Manifest manifest) throws IOException {
         ZipOutputStream zipOutputStream = null;
         try {
-            zipOutputStream = new ZipOutputStream(out);
+            zipOutputStream = new DeploymentOutputStream(out, manifest);
 
             String projectPath = rulesPath + projectName + "/";
             folderRepository = getRepositoryForVersion(folderRepository, rulesPath, projectName, version);
@@ -70,6 +75,10 @@ public final class RepositoryUtils {
 
             for (FileData file : files) {
                 String internalPath = file.getName().substring(projectPath.length());
+                if (JarFile.MANIFEST_NAME.equals(internalPath)) {
+                    //skip old manifest
+                    continue;
+                }
                 zipOutputStream.putNextEntry(new ZipEntry(internalPath));
 
                 FileItem fileItem = folderRepository.readHistory(file.getName(), file.getVersion());
@@ -82,6 +91,30 @@ public final class RepositoryUtils {
             zipOutputStream.finish();
         } finally {
             IOUtils.closeQuietly(zipOutputStream);
+        }
+    }
+
+    /**
+     * Includes generated manifest to the first position of deployed archive. The old manifest file will be skipped
+     * @param in project input stream
+     * @param out target output stream
+     * @param manifest manifest file to include
+     * @throws IOException
+     */
+    public static void includeManifestAndRepackArchive(InputStream in, OutputStream out, Manifest manifest) throws IOException {
+        try (ZipInputStream zipIn = new ZipInputStream(in);
+             ZipOutputStream zipOut = new DeploymentOutputStream(out, manifest)) {
+            byte[] buffer = new byte[64 * 1024];
+            ZipEntry entry = zipIn.getNextEntry();
+            while ( entry != null) {
+                if (!entry.isDirectory() && !JarFile.MANIFEST_NAME.equals(entry.getName())) {
+                    zipOut.putNextEntry(entry);
+                    IOUtils.copy(zipIn, zipOut, buffer);
+                    zipOut.closeEntry();
+                }
+                entry = zipIn.getNextEntry();
+            }
+            zipOut.finish();
         }
     }
 

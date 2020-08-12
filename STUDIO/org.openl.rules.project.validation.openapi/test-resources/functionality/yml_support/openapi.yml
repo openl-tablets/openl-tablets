@@ -1,0 +1,2721 @@
+openapi: 3.0.1
+info:
+  title: Example 1 - Bank Rating_Example 1 - Bank Rating
+  version: 1.0.0
+servers:
+- url: /webservice/REST/Example%201%20-%20Bank%20Rating/Example%201%20-%20Bank%20Rating
+  variables: {}
+paths:
+  /OtherAssetsRatioScore:
+    post:
+      summary: Double OtherAssetsRatioScore(IRulesRuntimeContext, Double)
+      description: 'Method: java.lang.Double OtherAssetsRatioScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Double)'
+      operationId: OtherAssetsRatioScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OtherAssetsRatioScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /CapitalAdequacyScore:
+    post:
+      summary: Double CapitalAdequacyScore(IRulesRuntimeContext, Double)
+      description: 'Method: java.lang.Double CapitalAdequacyScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Double)'
+      operationId: CapitalAdequacyScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CapitalAdequacyScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /IsAdequateMaxCreditRiskScore:
+    post:
+      summary: Double IsAdequateMaxCreditRiskScore(IRulesRuntimeContext, String, Boolean)
+      description: 'Method: java.lang.Double IsAdequateMaxCreditRiskScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.String, java.lang.Boolean)'
+      operationId: IsAdequateMaxCreditRiskScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IsAdequateMaxCreditRiskScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /EquityScore:
+    post:
+      summary: Double EquityScore(IRulesRuntimeContext, String, Double)
+      description: 'Method: java.lang.Double EquityScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.String, java.lang.Double)'
+      operationId: EquityScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquityScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /DowngradesOfBankRatingScore:
+    post:
+      summary: Double DowngradesOfBankRatingScore(IRulesRuntimeContext, boolean)
+      description: 'Method: java.lang.Double DowngradesOfBankRatingScore(org.openl.rules.context.IRulesRuntimeContext,
+        boolean)'
+      operationId: DowngradesOfBankRatingScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DowngradesOfBankRatingScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /SecuredByPropertyChargesClaimsRatioScore:
+    post:
+      summary: Double SecuredByPropertyChargesClaimsRatioScore(IRulesRuntimeContext,
+        Double)
+      description: 'Method: java.lang.Double SecuredByPropertyChargesClaimsRatioScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Double)'
+      operationId: SecuredByPropertyChargesClaimsRatioScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecuredByPropertyChargesClaimsRatioScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /SetNonZeroValues:
+    post:
+      summary: void SetNonZeroValues(IRulesRuntimeContext, FinancialData)
+      description: 'Method: void SetNonZeroValues(org.openl.rules.context.IRulesRuntimeContext,
+        org.openl.generated.beans.FinancialData)'
+      operationId: SetNonZeroValues
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetNonZeroValuesRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+  /BalanceDynamicIndexCalculation:
+    post:
+      summary: Double BalanceDynamicIndexCalculation(IRulesRuntimeContext, FinancialData,
+        FinancialData)
+      description: 'Method: java.lang.Double BalanceDynamicIndexCalculation(org.openl.rules.context.IRulesRuntimeContext,
+        org.openl.generated.beans.FinancialData, org.openl.generated.beans.FinancialData)'
+      operationId: BalanceDynamicIndexCalculation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BalanceDynamicIndexCalculationRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /getBankFinancialData:
+    post:
+      summary: FinancialData[] getBankFinancialData(IRulesRuntimeContext)
+      description: 'Method: org.openl.generated.beans.FinancialData[] getBankFinancialData(org.openl.rules.context.IRulesRuntimeContext)'
+      operationId: getBankFinancialData
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FinancialData'
+  /getQualityIndicatorsData:
+    post:
+      summary: QualityIndicators[] getQualityIndicatorsData(IRulesRuntimeContext)
+      description: 'Method: org.openl.generated.beans.QualityIndicators[] getQualityIndicatorsData(org.openl.rules.context.IRulesRuntimeContext)'
+      operationId: getQualityIndicatorsData
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QualityIndicators'
+  /getBankRatingList:
+    post:
+      summary: Rating[] getBankRatingList(IRulesRuntimeContext)
+      description: 'Method: org.openl.generated.beans.Rating[] getBankRatingList(org.openl.rules.context.IRulesRuntimeContext)'
+      operationId: getBankRatingList
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rating'
+  /NegativeMassMediaScore:
+    post:
+      summary: Double NegativeMassMediaScore(IRulesRuntimeContext, Boolean)
+      description: 'Method: java.lang.Double NegativeMassMediaScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Boolean)'
+      operationId: NegativeMassMediaScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NegativeMassMediaScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /LossesInThisYearScore:
+    post:
+      summary: Double LossesInThisYearScore(IRulesRuntimeContext, Boolean)
+      description: 'Method: java.lang.Double LossesInThisYearScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Boolean)'
+      operationId: LossesInThisYearScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LossesInThisYearScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /NetMoneyMarketLiabilitiesScore:
+    post:
+      summary: Double NetMoneyMarketLiabilitiesScore(IRulesRuntimeContext, Double)
+      description: 'Method: java.lang.Double NetMoneyMarketLiabilitiesScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Double)'
+      operationId: NetMoneyMarketLiabilitiesScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NetMoneyMarketLiabilitiesScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /BankLimitIndex:
+    post:
+      summary: Double BankLimitIndex(IRulesRuntimeContext, Bank, String)
+      description: 'Method: java.lang.Double BankLimitIndex(org.openl.rules.context.IRulesRuntimeContext,
+        org.openl.generated.beans.Bank, java.lang.String)'
+      operationId: BankLimitIndex
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BankLimitIndexRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /LiquidityDynamicScore:
+    post:
+      summary: Double LiquidityDynamicScore(IRulesRuntimeContext, Double)
+      description: 'Method: java.lang.Double LiquidityDynamicScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Double)'
+      operationId: LiquidityDynamicScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LiquidityDynamicScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /LiabilitiesToCustomersOnDemandRatioScore:
+    post:
+      summary: Double LiabilitiesToCustomersOnDemandRatioScore(IRulesRuntimeContext,
+        Double)
+      description: 'Method: java.lang.Double LiabilitiesToCustomersOnDemandRatioScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Double)'
+      operationId: LiabilitiesToCustomersOnDemandRatioScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LiabilitiesToCustomersOnDemandRatioScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /BankRatingCalculation:
+    post:
+      summary: BankRatingCalculation BankRatingCalculation(IRulesRuntimeContext, Bank)
+      description: 'Method: org.openl.generated.spreadsheetresults.BankRatingCalculation
+        BankRatingCalculation(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Bank)'
+      operationId: BankRatingCalculation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BankRatingCalculationRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankRatingCalculation'
+  /NegativeInfoShareHoldersOrManagementScore:
+    post:
+      summary: Double NegativeInfoShareHoldersOrManagementScore(IRulesRuntimeContext,
+        Boolean)
+      description: 'Method: java.lang.Double NegativeInfoShareHoldersOrManagementScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Boolean)'
+      operationId: NegativeInfoShareHoldersOrManagementScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NegativeInfoShareHoldersOrManagementScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /IsAdequateNormativeIndexCalculation:
+    post:
+      summary: Double IsAdequateNormativeIndexCalculation(IRulesRuntimeContext, Bank)
+      description: 'Method: java.lang.Double IsAdequateNormativeIndexCalculation(org.openl.rules.context.IRulesRuntimeContext,
+        org.openl.generated.beans.Bank)'
+      operationId: IsAdequateNormativeIndexCalculation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IsAdequateNormativeIndexCalculationRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /HighLiquidityRatioScore:
+    post:
+      summary: Double HighLiquidityRatioScore(IRulesRuntimeContext, Double)
+      description: 'Method: java.lang.Double HighLiquidityRatioScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Double)'
+      operationId: HighLiquidityRatioScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HighLiquidityRatioScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /TotalBalanceScore:
+    post:
+      summary: Double TotalBalanceScore(IRulesRuntimeContext, Double, String)
+      description: 'Method: java.lang.Double TotalBalanceScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Double, java.lang.String)'
+      operationId: TotalBalanceScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TotalBalanceScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /QuickRatioScore:
+    post:
+      summary: Double QuickRatioScore(IRulesRuntimeContext, Double)
+      description: 'Method: java.lang.Double QuickRatioScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Double)'
+      operationId: QuickRatioScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuickRatioScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /BankRatingGroup:
+    post:
+      summary: String BankRatingGroup(IRulesRuntimeContext, Double)
+      description: 'Method: java.lang.String BankRatingGroup(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Double)'
+      operationId: BankRatingGroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BankRatingGroupRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+  /BankQualitativeIndexCalculation:
+    post:
+      summary: Double BankQualitativeIndexCalculation(IRulesRuntimeContext, Bank)
+      description: 'Method: java.lang.Double BankQualitativeIndexCalculation(org.openl.rules.context.IRulesRuntimeContext,
+        org.openl.generated.beans.Bank)'
+      operationId: BankQualitativeIndexCalculation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BankQualitativeIndexCalculationRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /NegativeHistoryRelationsScore:
+    post:
+      summary: Double NegativeHistoryRelationsScore(IRulesRuntimeContext, Boolean)
+      description: 'Method: java.lang.Double NegativeHistoryRelationsScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Boolean)'
+      operationId: NegativeHistoryRelationsScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NegativeHistoryRelationsScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /LiabilitiesToCustomersDynamicScore:
+    post:
+      summary: Double LiabilitiesToCustomersDynamicScore(IRulesRuntimeContext, Double)
+      description: 'Method: java.lang.Double LiabilitiesToCustomersDynamicScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Double)'
+      operationId: LiabilitiesToCustomersDynamicScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LiabilitiesToCustomersDynamicScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /IsAdequateLiquidityRatioScore:
+    post:
+      summary: Double IsAdequateLiquidityRatioScore(IRulesRuntimeContext, Boolean)
+      description: 'Method: java.lang.Double IsAdequateLiquidityRatioScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Boolean)'
+      operationId: IsAdequateLiquidityRatioScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IsAdequateLiquidityRatioScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /BalanceQualityIndexCalculation:
+    post:
+      summary: BalanceQualityIndexCalculation BalanceQualityIndexCalculation(IRulesRuntimeContext,
+        FinancialData)
+      description: 'Method: org.openl.generated.spreadsheetresults.BalanceQualityIndexCalculation
+        BalanceQualityIndexCalculation(org.openl.rules.context.IRulesRuntimeContext,
+        org.openl.generated.beans.FinancialData)'
+      operationId: BalanceQualityIndexCalculation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BalanceQualityIndexCalculationRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceQualityIndexCalculation'
+  /MaxLimit:
+    post:
+      summary: Double MaxLimit(IRulesRuntimeContext)
+      description: 'Method: java.lang.Double MaxLimit(org.openl.rules.context.IRulesRuntimeContext)'
+      operationId: MaxLimit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /ClaimsOnCustomerRatioScore:
+    post:
+      summary: Double ClaimsOnCustomerRatioScore(IRulesRuntimeContext, Double)
+      description: 'Method: java.lang.Double ClaimsOnCustomerRatioScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Double)'
+      operationId: ClaimsOnCustomerRatioScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimsOnCustomerRatioScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /ProfitDynamicScore:
+    post:
+      summary: Double ProfitDynamicScore(IRulesRuntimeContext, Double, Double)
+      description: 'Method: java.lang.Double ProfitDynamicScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Double, java.lang.Double)'
+      operationId: ProfitDynamicScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfitDynamicScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /CapitalDynamicScore:
+    post:
+      summary: Double CapitalDynamicScore(IRulesRuntimeContext, Double)
+      description: 'Method: java.lang.Double CapitalDynamicScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Double)'
+      operationId: CapitalDynamicScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CapitalDynamicScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /IsAdequateCoreCapitalRatioScore:
+    post:
+      summary: Double IsAdequateCoreCapitalRatioScore(IRulesRuntimeContext, Boolean)
+      description: 'Method: java.lang.Double IsAdequateCoreCapitalRatioScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Boolean)'
+      operationId: IsAdequateCoreCapitalRatioScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IsAdequateCoreCapitalRatioScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /LiquidityRatioScore:
+    post:
+      summary: Double LiquidityRatioScore(IRulesRuntimeContext, Double)
+      description: 'Method: java.lang.Double LiquidityRatioScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Double)'
+      operationId: LiquidityRatioScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LiquidityRatioScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /CreditPortfolioQualityScore:
+    post:
+      summary: Double CreditPortfolioQualityScore(IRulesRuntimeContext, Double)
+      description: 'Method: java.lang.Double CreditPortfolioQualityScore(org.openl.rules.context.IRulesRuntimeContext,
+        java.lang.Double)'
+      operationId: CreditPortfolioQualityScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditPortfolioQualityScoreRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /getBankData:
+    post:
+      summary: Bank[] getBankData(IRulesRuntimeContext)
+      description: 'Method: org.openl.generated.beans.Bank[] getBankData(org.openl.rules.context.IRulesRuntimeContext)'
+      operationId: getBankData
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: Invalid request format e.g. missing required field, unparseable
+            JSON value, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: Internal server errors e.g. compilation or parsing errors,
+            runtime exceptions, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bank'
+components:
+  schemas:
+    JAXRSErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        type:
+          type: string
+          enum:
+          - USER_ERROR
+          - RULES_RUNTIME
+          - COMPILATION
+          - SYSTEM
+          - BAD_REQUEST
+          - VALIDATION
+        details:
+          type: array
+          items:
+            type: string
+    DefaultRulesRuntimeContext:
+      type: object
+      properties:
+        currentDate:
+          type: string
+          format: date-time
+        requestDate:
+          type: string
+          format: date-time
+        lob:
+          type: string
+        nature:
+          type: string
+        usState:
+          type: string
+          enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - PR
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+        country:
+          type: string
+          enum:
+          - AL
+          - DZ
+          - AR
+          - AU
+          - AT
+          - BH
+          - BY
+          - BE
+          - BO
+          - BA
+          - BR
+          - BG
+          - CA
+          - CL
+          - CN
+          - CO
+          - CR
+          - HR
+          - CY
+          - CZ
+          - DK
+          - DO
+          - EC
+          - EG
+          - SV
+          - EE
+          - FI
+          - FR
+          - DE
+          - GR
+          - GT
+          - HN
+          - HK
+          - HU
+          - IS
+          - IN
+          - ID
+          - IQ
+          - IE
+          - IL
+          - IT
+          - JP
+          - JO
+          - KW
+          - LV
+          - LB
+          - LT
+          - LU
+          - MK
+          - MY
+          - MT
+          - MX
+          - MA
+          - NL
+          - NZ
+          - NI
+          - "NO"
+          - OM
+          - PA
+          - PY
+          - PE
+          - PH
+          - PL
+          - PT
+          - PR
+          - QA
+          - RO
+          - RU
+          - SA
+          - CS
+          - SG
+          - SK
+          - SI
+          - ZA
+          - ES
+          - SD
+          - SE
+          - CH
+          - SY
+          - TW
+          - TH
+          - TN
+          - TR
+          - UA
+          - AE
+          - GB
+          - US
+          - UY
+          - VE
+          - VN
+          - YE
+        usRegion:
+          type: string
+          enum:
+          - MW
+          - NE
+          - SE
+          - SW
+          - W
+        currency:
+          type: string
+          enum:
+          - ALL
+          - DZD
+          - ARS
+          - AUD
+          - BHD
+          - BYR
+          - BOB
+          - BAM
+          - BRL
+          - CAD
+          - CLP
+          - CNY
+          - COP
+          - CRC
+          - HRK
+          - CZK
+          - DKK
+          - DOP
+          - EGP
+          - EUR
+          - GTQ
+          - HNL
+          - HKD
+          - HUF
+          - ISK
+          - INR
+          - IDR
+          - IQD
+          - ILS
+          - JPY
+          - JOD
+          - KWD
+          - LVL
+          - LBP
+          - LTL
+          - MKD
+          - MYR
+          - MXN
+          - MAD
+          - NZD
+          - NIO
+          - NOK
+          - OMR
+          - PAB
+          - PYG
+          - PEN
+          - PHP
+          - PLN
+          - QAR
+          - RON
+          - RUB
+          - SAR
+          - RSD
+          - SGD
+          - ZAR
+          - SDG
+          - SEK
+          - CHF
+          - SYP
+          - TWD
+          - TND
+          - TRY
+          - UAH
+          - AED
+          - GBP
+          - USD
+          - UYU
+          - VEF
+          - VND
+          - YER
+        lang:
+          type: string
+          enum:
+          - ALB
+          - ARA
+          - BEL
+          - BUL
+          - CAT
+          - CHI
+          - SCR
+          - CZE
+          - DAN
+          - DUT
+          - ENG
+          - FIN
+          - FRE
+          - GER
+          - GRE
+          - HEB
+          - HIN
+          - HUN
+          - IND
+          - GLE
+          - ITA
+          - JPN
+          - LAV
+          - LIT
+          - MAC
+          - MAY
+          - MLT
+          - NOR
+          - POL
+          - POR
+          - RUM
+          - RUS
+          - SCC
+          - SLO
+          - SPA
+          - THA
+          - TUR
+          - UKR
+          - VIE
+        region:
+          type: string
+          enum:
+          - NCSA
+          - EU
+          - EMEA
+          - APJ
+        caProvince:
+          type: string
+          enum:
+          - AB
+          - BC
+          - PE
+          - MB
+          - NB
+          - NS
+          - NU
+          - "ON"
+          - QC
+          - SK
+          - NL
+          - YT
+          - NT
+        caRegion:
+          type: string
+          enum:
+          - QC
+          - HQ
+    OtherAssetsRatioScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        otherAssetsRatio:
+          type: number
+          format: double
+      xml:
+        name: OtherAssetsRatioScoreRequest
+        namespace: http://jaxrs.openl.org
+    CapitalAdequacyScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        capitalAdequacy:
+          type: number
+          format: double
+      xml:
+        name: CapitalAdequacyScoreRequest
+        namespace: http://jaxrs.openl.org
+    IsAdequateMaxCreditRiskScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        countryCode:
+          type: string
+        isAdequateMaxCreditRisk:
+          type: boolean
+      xml:
+        name: IsAdequateMaxCreditRiskScoreRequest
+        namespace: http://jaxrs.openl.org
+    EquityScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        countryCode:
+          type: string
+        equity:
+          type: number
+          format: double
+      xml:
+        name: EquityScoreRequest
+        namespace: http://jaxrs.openl.org
+    DowngradesOfBankRatingScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        downgradesOfBankRating:
+          type: boolean
+      xml:
+        name: DowngradesOfBankRatingScoreRequest
+        namespace: http://jaxrs.openl.org
+    SecuredByPropertyChargesClaimsRatioScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        securedClaimsRatio:
+          type: number
+          format: double
+      xml:
+        name: SecuredByPropertyChargesClaimsRatioScoreRequest
+        namespace: http://jaxrs.openl.org
+    FinancialData:
+      type: object
+      properties:
+        reportDate:
+          type: string
+          format: date-time
+        totalAssets:
+          type: number
+          format: double
+          default: 0.00010
+        claimsOnDemand:
+          type: number
+          format: double
+          default: 0.00010
+        claimsUpTo3Months:
+          type: number
+          format: double
+          default: 0.00010
+        claimsSecuredByPropertyCharges:
+          type: number
+          format: double
+          default: 0
+        claimsOnBanks:
+          type: number
+          format: double
+          default: 0
+        claimsOnCustomers:
+          type: number
+          format: double
+          default: 0.00010
+        loanLossProvisionsForClaimsOnCustomers:
+          type: number
+          format: double
+          default: 0
+        otherAssets:
+          type: number
+          format: double
+          default: 0
+        capital:
+          type: number
+          format: double
+          default: 0.00010
+        equity:
+          type: number
+          format: double
+          default: 0
+        liabilities:
+          type: number
+          format: double
+          default: 0.00010
+        liabilitiesToBanks:
+          type: number
+          format: double
+          default: 0
+        liabilitiesToCustomers:
+          type: number
+          format: double
+          default: 0.00010
+        liabilitiesOnDemand:
+          type: number
+          format: double
+          default: 0.00010
+        liabilitiesToCustomersOnDemand:
+          type: number
+          format: double
+          default: 0
+        consolidatedProfit:
+          type: number
+          format: double
+          default: 0.00010
+      xml:
+        name: FinancialData
+        namespace: http://beans.generated.openl.org
+    SetNonZeroValuesRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        financialData:
+          $ref: '#/components/schemas/FinancialData'
+      xml:
+        name: SetNonZeroValuesRequest
+        namespace: http://jaxrs.openl.org
+    BalanceDynamicIndexCalculationRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        currentFinancialData:
+          $ref: '#/components/schemas/FinancialData'
+        previousFinancialData:
+          $ref: '#/components/schemas/FinancialData'
+      xml:
+        name: BalanceDynamicIndexCalculationRequest
+        namespace: http://jaxrs.openl.org
+    QualityIndicators:
+      type: object
+      properties:
+        reportDate:
+          type: string
+          format: date-time
+        lossesInThisYear:
+          type: boolean
+          default: false
+        negativeHistoryRelations:
+          type: boolean
+          default: false
+        negativeMassMedia:
+          type: boolean
+          default: false
+        negativeInfoShareHoldersOrManagement:
+          type: boolean
+          default: false
+        downgradesOfBankRating:
+          type: boolean
+          default: false
+        isAdequateCoreCapitalRatio:
+          type: boolean
+          default: true
+        isAdequateLiquidityRatio:
+          type: boolean
+          default: true
+        isAdequateMaxCreditRisk:
+          type: boolean
+          default: true
+      xml:
+        name: QualityIndicators
+        namespace: http://beans.generated.openl.org
+    Rating:
+      type: object
+      properties:
+        ratingAgency:
+          type: string
+        rating:
+          type: string
+      xml:
+        name: Rating
+        namespace: http://beans.generated.openl.org
+    NegativeMassMediaScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        negativeMassMedia:
+          type: boolean
+      xml:
+        name: NegativeMassMediaScoreRequest
+        namespace: http://jaxrs.openl.org
+    LossesInThisYearScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        lossesInThisYear:
+          type: boolean
+      xml:
+        name: LossesInThisYearScoreRequest
+        namespace: http://jaxrs.openl.org
+    NetMoneyMarketLiabilitiesScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        netMoneyMarketLiabilities:
+          type: number
+          format: double
+      xml:
+        name: NetMoneyMarketLiabilitiesScoreRequest
+        namespace: http://jaxrs.openl.org
+    Bank:
+      type: object
+      properties:
+        bankID:
+          type: string
+        countryCode:
+          type: string
+          default: DE
+        bankRatings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rating'
+        currentFinancialData:
+          $ref: '#/components/schemas/FinancialData'
+        previousFinancialData:
+          $ref: '#/components/schemas/FinancialData'
+        qualityIndicators:
+          $ref: '#/components/schemas/QualityIndicators'
+      xml:
+        name: Bank
+        namespace: http://beans.generated.openl.org
+    BankLimitIndexRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        bank:
+          $ref: '#/components/schemas/Bank'
+        bankRatingGroup:
+          type: string
+      xml:
+        name: BankLimitIndexRequest
+        namespace: http://jaxrs.openl.org
+    LiquidityDynamicScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        liquidityDynamic:
+          type: number
+          format: double
+      xml:
+        name: LiquidityDynamicScoreRequest
+        namespace: http://jaxrs.openl.org
+    LiabilitiesToCustomersOnDemandRatioScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        liabilitiesToCustOnDemand:
+          type: number
+          format: double
+      xml:
+        name: LiabilitiesToCustomersOnDemandRatioScoreRequest
+        namespace: http://jaxrs.openl.org
+    BalanceQualityIndexCalculation:
+      type: object
+      properties:
+        Description_CapitalAdequacy:
+          type: string
+        Value_CapitalAdequacy:
+          type: number
+          format: double
+        Description_CapitalAdequacyScore:
+          type: string
+        Value_CapitalAdequacyScore:
+          type: number
+          format: double
+        Description_ClaimsOnCustomerRatio:
+          type: string
+        Value_ClaimsOnCustomerRatio:
+          type: number
+          format: double
+        Description_ClaimsOnCustomerRatioScore:
+          type: string
+        Value_ClaimsOnCustomerRatioScore:
+          type: number
+          format: double
+        Description_CreditPortfolioQuality:
+          type: string
+        Value_CreditPortfolioQuality:
+          type: number
+          format: double
+        Description_CreditPortfolioQualityScore:
+          type: string
+        Value_CreditPortfolioQualityScore:
+          type: number
+          format: double
+        Description_SecuredByPropertyChargesClaimsRatio:
+          type: string
+        Value_SecuredByPropertyChargesClaimsRatio:
+          type: number
+          format: double
+        Description_SecuredByPropertyChargesClaimsRatioScore:
+          type: string
+        Value_SecuredByPropertyChargesClaimsRatioScore:
+          type: number
+          format: double
+        Description_QuickRatio:
+          type: string
+        Value_QuickRatio:
+          type: number
+          format: double
+        Description_QuickRatioScore:
+          type: string
+        Value_QuickRatioScore:
+          type: number
+          format: double
+        Description_LiquidityRatio:
+          type: string
+        Value_LiquidityRatio:
+          type: number
+          format: double
+        Description_LiquidityRatioScore:
+          type: string
+        Value_LiquidityRatioScore:
+          type: number
+          format: double
+        Description_HighLiquidityRatio:
+          type: string
+        Value_HighLiquidityRatio:
+          type: number
+          format: double
+        Description_HighLiquidityRatioScore:
+          type: string
+        Value_HighLiquidityRatioScore:
+          type: number
+          format: double
+        Description_NetMoneyMarketLiabilities:
+          type: string
+        Value_NetMoneyMarketLiabilities:
+          type: number
+          format: double
+        Description_NetMoneyMarketLiabilitiesScore:
+          type: string
+        Value_NetMoneyMarketLiabilitiesScore:
+          type: number
+          format: double
+        Description_LiabilitiesToCustomersOnDemandRatio:
+          type: string
+        Value_LiabilitiesToCustomersOnDemandRatio:
+          type: number
+          format: double
+        Description_LiabilitiesToCustomersOnDemandRatioScore:
+          type: string
+        Value_LiabilitiesToCustomersOnDemandRatioScore:
+          type: number
+          format: double
+        Description_OtherAssetsRatio:
+          type: string
+        Value_OtherAssetsRatio:
+          type: number
+          format: double
+        Description_OtherAssetsRatioScore:
+          type: string
+        Value_OtherAssetsRatioScore:
+          type: number
+          format: double
+        Description_BalanceQualityIndex:
+          type: string
+        Value_BalanceQualityIndex:
+          type: number
+          format: double
+      xml:
+        name: BalanceQualityIndexCalculation
+        namespace: http://spreadsheetresults.generated.openl.org
+    BankRatingCalculation:
+      type: object
+      properties:
+        Value_BalanceQualityIndexCalculation:
+          $ref: '#/components/schemas/BalanceQualityIndexCalculation'
+        Description_BalanceDynamicIndexCalculation:
+          type: string
+        Value_BalanceDynamicIndexCalculation:
+          type: number
+          format: double
+        Description_BankQualitativeIndexCalculation:
+          type: string
+        Value_BankQualitativeIndexCalculation:
+          type: number
+          format: double
+        Description_IsAdequateNormativeIndexCalculation:
+          type: string
+        Value_IsAdequateNormativeIndexCalculation:
+          type: number
+          format: double
+        Description_BankRating:
+          type: string
+        Value_BankRating:
+          type: number
+          format: double
+        Description_BankRatingGroup:
+          type: string
+        Value_BankRatingGroup:
+          type: string
+        Description_LimitIndex:
+          type: string
+        Value_LimitIndex:
+          type: number
+          format: double
+        Description_Limit:
+          type: string
+        Value_Limit:
+          type: number
+          format: double
+      xml:
+        name: BankRatingCalculation
+        namespace: http://spreadsheetresults.generated.openl.org
+    BankRatingCalculationRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        bank:
+          $ref: '#/components/schemas/Bank'
+      xml:
+        name: BankRatingCalculationRequest
+        namespace: http://jaxrs.openl.org
+    NegativeInfoShareHoldersOrManagementScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        negativeManagInfo:
+          type: boolean
+      xml:
+        name: NegativeInfoShareHoldersOrManagementScoreRequest
+        namespace: http://jaxrs.openl.org
+    IsAdequateNormativeIndexCalculationRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        bank:
+          $ref: '#/components/schemas/Bank'
+      xml:
+        name: IsAdequateNormativeIndexCalculationRequest
+        namespace: http://jaxrs.openl.org
+    HighLiquidityRatioScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        highLiquidityRatio:
+          type: number
+          format: double
+      xml:
+        name: HighLiquidityRatioScoreRequest
+        namespace: http://jaxrs.openl.org
+    TotalBalanceScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        totalBalance:
+          type: number
+          format: double
+        countryCode:
+          type: string
+      xml:
+        name: TotalBalanceScoreRequest
+        namespace: http://jaxrs.openl.org
+    QuickRatioScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        quickRatio:
+          type: number
+          format: double
+      xml:
+        name: QuickRatioScoreRequest
+        namespace: http://jaxrs.openl.org
+    BankRatingGroupRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        bankRating:
+          type: number
+          format: double
+      xml:
+        name: BankRatingGroupRequest
+        namespace: http://jaxrs.openl.org
+    BankQualitativeIndexCalculationRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        bank:
+          $ref: '#/components/schemas/Bank'
+      xml:
+        name: BankQualitativeIndexCalculationRequest
+        namespace: http://jaxrs.openl.org
+    NegativeHistoryRelationsScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        negativeHistoryRelations:
+          type: boolean
+      xml:
+        name: NegativeHistoryRelationsScoreRequest
+        namespace: http://jaxrs.openl.org
+    LiabilitiesToCustomersDynamicScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        LiabToCustDynamic:
+          type: number
+          format: double
+      xml:
+        name: LiabilitiesToCustomersDynamicScoreRequest
+        namespace: http://jaxrs.openl.org
+    IsAdequateLiquidityRatioScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        isAdequateLiquidityRatio:
+          type: boolean
+      xml:
+        name: IsAdequateLiquidityRatioScoreRequest
+        namespace: http://jaxrs.openl.org
+    BalanceQualityIndexCalculationRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        currentFinancialData:
+          $ref: '#/components/schemas/FinancialData'
+      xml:
+        name: BalanceQualityIndexCalculationRequest
+        namespace: http://jaxrs.openl.org
+    ClaimsOnCustomerRatioScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        claimsOnCustomerRatio:
+          type: number
+          format: double
+      xml:
+        name: ClaimsOnCustomerRatioScoreRequest
+        namespace: http://jaxrs.openl.org
+    ProfitDynamicScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        profitDynamic:
+          type: number
+          format: double
+        profit:
+          type: number
+          format: double
+      xml:
+        name: ProfitDynamicScoreRequest
+        namespace: http://jaxrs.openl.org
+    CapitalDynamicScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        capitalDynamic:
+          type: number
+          format: double
+      xml:
+        name: CapitalDynamicScoreRequest
+        namespace: http://jaxrs.openl.org
+    IsAdequateCoreCapitalRatioScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        isAdequateCoreCapitalRatio:
+          type: boolean
+      xml:
+        name: IsAdequateCoreCapitalRatioScoreRequest
+        namespace: http://jaxrs.openl.org
+    LiquidityRatioScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        liquidityRatio:
+          type: number
+          format: double
+      xml:
+        name: LiquidityRatioScoreRequest
+        namespace: http://jaxrs.openl.org
+    CreditPortfolioQualityScoreRequest:
+      type: object
+      properties:
+        runtimeContext:
+          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+        creditPortfolioQuality:
+          type: number
+          format: double
+      xml:
+        name: CreditPortfolioQualityScoreRequest
+        namespace: http://jaxrs.openl.org

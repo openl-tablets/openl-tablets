@@ -32,16 +32,6 @@
             #center {
                 height: calc(100% - 83px);
             }
-            .simpleView_workspace {
-                width: 100%;
-                overflow: auto;
-                position: absolute;
-                top: 84px;
-                bottom: 36px;
-            }
-            .simpleView_workspace > div {
-                padding: 5px 7px;
-            }
 
             #content .rf-tab-lbl {
                 font-size: 110% !important;
@@ -69,15 +59,28 @@
                 min-height: 280px;
             }
 
+            .tab-panel-vertical .data-container {
+                padding: 15px 25px 15px 105px;
+            }
+
             .tab-panel-vertical ul {
-                position: fixed;
-                top: 85px;
-                left: 0;
-                height: calc(100% - 121px);
+                height: calc(100vh - 83px);
+                min-height: 440px;
+                position: sticky;
+                top: 0;
+                /* alternative, if sticky is not supported so good.
+                position: absolute;
+                top: 48px; */
             }
 
             .tab-panel-vertical ul li {
-                width: 108px;
+                width: 80px;
+                font-family: Arial, Verdana, sans-serif;
+                font-size: 11px;
+            }
+
+            .tab-panel-vertical ul li a {
+                padding: 10px 5px;
             }
 
             .messages {
@@ -173,7 +176,7 @@
                         showSummary="false" tooltip="true" globalOnly="true" />
                 </h:panelGroup>
             </a4j:outputPanel>
-            <div id="content" style="padding-top: 10px">
+            <div id="content">
                 <div>
                     <ui:insert name="content" />
                 </div>
@@ -192,11 +195,5 @@
         <div style="display: none">
             <a4j:status onstart="showLoader()" onstop="hideLoader()" />
          </div>
-
-        <c:if test="#{environment.getProperty('webstudio.analytics') != 'false'}">
-            <ui:include src="/pages/common/analytics.xhtml">
-                <ui:param name="id" value="#{environment.getProperty('webstudio.analytics')}" />
-            </ui:include>
-        </c:if>
     </h:body>
 </html>

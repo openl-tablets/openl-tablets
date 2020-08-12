@@ -57,6 +57,7 @@
                 <ref bean="testDownloadService"/>
                 <ref bean="conflictService"/>
                 <ref bean="diffService"/>
+                <ref bean="notificationService"/>
             </list>
         </property>
         <property name="providers">

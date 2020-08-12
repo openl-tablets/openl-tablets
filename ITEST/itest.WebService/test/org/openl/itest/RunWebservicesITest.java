@@ -119,6 +119,14 @@ public class RunWebservicesITest {
     }
 
     @Test
+    public void EPBDS_9422() {
+        client.get("/REST/EPBDS-9422/EPBDS-9422/swagger.json", "/EPBDS-9422/EPBDS-9422_swagger.resp.json");
+        client.get("/REST/EPBDS-9422/EPBDS-9422/openapi.json", "/EPBDS-9422/EPBDS-9422_openapi.resp.json");
+        client.get("/REST/EPBDS-9422/EPBDS-9422?_wadl", "/EPBDS-9422/EPBDS-9422_wadl.resp.xml");
+        client.get("/EPBDS-9422/EPBDS-9422?wsdl", "/EPBDS-9422/EPBDS-9422_wsdl.resp.xml");
+    }
+
+    @Test
     public void EPBDS_9500() {
         client.post("/REST/EPBDS-9500/EPBDS-9500/myRules",
             "/EPBDS-9500/EPBDS-9500_myRules.req.txt",
@@ -255,5 +263,14 @@ public class RunWebservicesITest {
         client.get("/REST/EPBDS-10118/EPBDS-10118/swagger.json", "/EPBDS-10118/EPBDS-10118_swagger.resp.json");
         client.get("/REST/EPBDS-10118/EPBDS-10118/openapi.json", "/EPBDS-10118/EPBDS-10118_openapi.resp.json");
         client.get("/EPBDS-10118/EPBDS-10118?wsdl", "/EPBDS-10118/EPBDS-10118_wsdl.resp.xml");
+    }
+
+    @Test
+    public void EPBDS_10171() {
+        client.get("/EPBDS-10171/EPBDS-10171/swagger.json", "/EPBDS-10171/EPBDS-10171_swagger.resp.json");
+        client.get("/EPBDS-10171/EPBDS-10171/openapi.json", "/EPBDS-10171/EPBDS-10171_openapi.resp.json");
+        client.post("/EPBDS-10171/EPBDS-10171/homeRule2",
+            "/EPBDS-10171/EPBDS-10171.req.txt",
+            "/EPBDS-10171/EPBDS-10171.resp.json");
     }
 }

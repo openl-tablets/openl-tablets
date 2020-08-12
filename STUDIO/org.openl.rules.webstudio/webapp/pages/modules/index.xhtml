@@ -1027,12 +1027,5 @@
     </div>
 
     <ui:include src="/pages/modules/tooLongDownload.xhtml"/>
-
-    <c:if test="#{environment.getProperty('webstudio.analytics') != 'false'}">
-        <ui:include src="/pages/common/analytics.xhtml">
-            <ui:param name="id" value="#{environment.getProperty('webstudio.analytics')}" />
-        </ui:include>
-    </c:if>
-
 </h:body>
 </html>

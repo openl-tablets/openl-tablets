@@ -1,17 +1,27 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.zip.ZipInputStream;
 
 import org.openl.rules.common.ProjectDescriptor;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
+import org.openl.rules.webstudio.web.repository.deployment.DeploymentManifestBuilder;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
@@ -23,17 +33,20 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
     private final List<ProjectDescriptor> descriptors;
     private final String rulesPath;
     private final String deploymentPath;
+    private final String username;
 
     private InputStream openedStream;
 
     FileChangesToDeploy(Collection<ProjectDescriptor> projectDescriptors,
             DesignTimeRepository designRepo,
-            String rulesPath,
-            String deploymentPath) {
+                        String rulesPath,
+                        String deploymentPath,
+                        String username) {
         this.descriptors = new ArrayList<>(projectDescriptors);
         this.designRepo = designRepo;
         this.rulesPath = rulesPath;
         this.deploymentPath = deploymentPath;
+        this.username = username;
     }
 
     @Override
@@ -57,16 +70,23 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                     Repository repository = designRepo.getRepository(repositoryId);
                     String version = pd.getProjectVersion().getVersionName();
                     String projectName = pd.getProjectName();
-                    projectIterator = getProjectIterator(repository, projectName, version);
+                    DeploymentManifestBuilder manifestBuilder = new DeploymentManifestBuilder()
+                            .setBuiltBy(username)
+                            .setBuildNumber(pd.getProjectVersion().getRevision())
+                            .setImplementationTitle(projectName);
+                    projectIterator = getProjectIterator(repository, projectName, version, manifestBuilder);
                     return projectIterator != null && projectIterator.hasNext();
                 } else {
                     return false;
                 }
             }
 
-            private Iterator<FileItem> getProjectIterator(Repository baseRepo, String projectName, String version) {
+            private Iterator<FileItem> getProjectIterator(Repository baseRepo, String projectName, String version, DeploymentManifestBuilder manifestBuilder) {
                 try {
                     if (baseRepo.supports().folders()) {
+                        if (baseRepo.supports().branches()) {
+                            manifestBuilder.setBranchName(((BranchRepository) designRepo).getBranch());
+                        }
                         // Project in design repository is stored as a folder
                         String srcProjectPath = rulesPath + projectName + "/";
                         FolderRepository repository = RepositoryUtils
@@ -75,7 +95,17 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                         if (files.isEmpty()) {
                             log.warn("Cannot find files in project {}", projectName);
                         }
-                        return new FolderIterator(repository, files);
+                        //find and remove old manifest file from deployment
+                        String srcManFileName = srcProjectPath + JarFile.MANIFEST_NAME;
+                        Iterator<FileData> it = files.iterator();
+                        while (it.hasNext()) {
+                            FileData f = it.next();
+                            if (srcManFileName.equals(f.getName())) {
+                                it.remove();
+                                break;
+                            }
+                        }
+                        return new FolderIterator(repository, files, projectName, manifestBuilder.build());
                     } else {
                         // Project in design repository is stored as a zip file
                         FileItem srcPrj = baseRepo.readHistory(rulesPath + projectName, version);
@@ -84,7 +114,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                                 .format("File '%s' for version %s is not found.", rulesPath + projectName, version));
                         }
                         IOUtils.closeQuietly(openedStream);
-                        ZipInputStream stream = new ZipInputStream(srcPrj.getStream());
+                        ZipInputStream stream = new ZipInputStream(addManifestIntoArchive(srcPrj.getStream(), manifestBuilder.build()));
                         openedStream = stream;
                         return new FileChangesFromZip(stream, deploymentPath + projectName).iterator();
                     }
@@ -106,6 +136,16 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
         };
     }
 
+    private InputStream addManifestIntoArchive(InputStream in, Manifest manifest) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            RepositoryUtils.includeManifestAndRepackArchive(in, out, manifest);
+            return new ByteArrayInputStream(out.toByteArray());
+        } finally {
+            IOUtils.closeQuietly(in);
+        }
+    }
+
     @Override
     public void close() {
         IOUtils.closeQuietly(openedStream);
@@ -116,10 +156,22 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
         private final Repository baseRepo;
         private final List<FileData> files;
         private int fileIndex = 0;
+        private final FileItem manifest;
+        private boolean writeManifest;
 
-        private FolderIterator(Repository baseRepo, List<FileData> files) {
+        private FolderIterator(Repository baseRepo, List<FileData> files, String projectName, Manifest manifest) throws IOException {
             this.baseRepo = baseRepo;
             this.files = files;
+            if (manifest != null) {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                manifest.write(out);
+                this.manifest = new FileItem(deploymentPath + projectName + "/" + JarFile.MANIFEST_NAME,
+                        new ByteArrayInputStream(out.toByteArray()));
+                this.writeManifest = true;
+            } else {
+                this.manifest = null;
+                this.writeManifest = false;
+            }
         }
 
         @Override
@@ -129,6 +181,10 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
 
         @Override
         public FileItem next() {
+            if (fileIndex == 0 && writeManifest) {
+                writeManifest = false;
+                return manifest;
+            }
             FileData file = files.get(fileIndex++);
             String srcFileName = file.getName();
             String fileTo = deploymentPath + srcFileName.substring(rulesPath.length());

@@ -2,10 +2,12 @@ package org.openl.rules.ruleservice.publish.jaxrs.swagger;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.v3.core.converter.ModelConverter;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.jackson.ModelResolver;
 
@@ -27,14 +29,18 @@ public final class OpenApiObjectMapperHack {
 
     @SuppressWarnings("unchecked")
     public void apply(ObjectMapper objectMapper) {
-        List<Object> hackedConverters = new ArrayList<>();
+        List<ModelConverter> hackedConverters = new ArrayList<>();
+        hackedConverters.add(new OpenApiSupportConverter());
         oldConverters = new ArrayList<>();
         for (Object converter : converters) {
             oldConverters.add(converter);
-            hackedConverters.add(converter instanceof ModelResolver ? new ModelResolver(objectMapper) : converter);
+            hackedConverters
+                .add(converter instanceof ModelResolver ? new ModelResolver(objectMapper) : (ModelConverter) converter);
         }
         converters.clear();
-        converters.addAll(hackedConverters);
+        OpenApiInheritanceFixConverter openApiInheritanceFixConverter = new OpenApiInheritanceFixConverter(objectMapper,
+            hackedConverters);
+        converters.addAll(Collections.singleton(openApiInheritanceFixConverter));
     }
 
     @SuppressWarnings("unchecked")

@@ -5,6 +5,42 @@
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
+    <style>
+        #notificationPanel {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 35px;
+            background-color: red;
+            color: white;
+            width: 100%;
+            position: absolute;
+            text-align: center;
+            white-space: pre-wrap;
+        }
+    </style>
+    <div id="notificationPanel" style="display: none;"/>
+    <script>
+        var $jq = jQuery.noConflict();
+        $jq('#notificationPanel').bind('refresh', function (e) {
+            $jq.ajax({
+                url: "#{contextPath}/web/public/notification.txt",
+                datatype: "text" })
+                .done(function (data) {
+                    var box = $jq(e.target);
+                    box.text(data);
+                    if (data) {
+                        box.show();
+                    } else {
+                        box.hide();
+                    }
+                });
+        });
+        if(#{installerPage == null}){
+            $jq('#notificationPanel').trigger('refresh');
+            setInterval(function () {$jq('#notificationPanel').trigger('refresh')}, 15000);//time in milliseconds
+        }
+    </script>
     <div style="text-align: center; padding:11px">
         <c:set var="buildDate" value="#{versionProperties.getBuildDate()}" />
         &#169; #{fn:substring(buildDate, 0, 4)}
@@ -12,7 +48,7 @@
         <span style="margin: 0 10px">|</span>
         <a style="text-decoration: none" href="mailto:openltablets@eisgroup.com?subject=OpenL Tablets Feedback">Report a problem</a>
 
-        <i style="position:absolute;right:13px;">
+        <i style="float: right">
             <c:set var="version" value="#{versionProperties.getVersion()}" />
             <c:set var="commitHash" value="#{versionProperties.getBuildNumber()}" />
             <c:set var="commitHashId" value="#{fn:endsWith(commitHash, '+') ? fn:substringBefore(commitHash, '+') : commitHash}" />
@@ -24,4 +60,17 @@
             </h:panelGroup>
         </i>
     </div>
+
+    <c:if test="#{environment.getProperty('webstudio.analytics') != 'false'}">
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+            ga('create', '#{id}', 'auto');
+            ga('send', 'pageview');
+
+        </script>
+    </c:if>
 </ui:composition>
