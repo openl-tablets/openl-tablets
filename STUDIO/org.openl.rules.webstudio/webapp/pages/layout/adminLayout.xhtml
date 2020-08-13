@@ -14,7 +14,7 @@
 
         <link href="#{contextPath}/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
         <link href="#{contextPath}/css/bootstrap.min.css" rel="stylesheet" />
-        <link href="#{contextPath}/css/common.css?2" rel="stylesheet" />
+        <link href="#{contextPath}/css/common.css?3" rel="stylesheet" />
         <link href="#{contextPath}/css/layout/main.css" rel="stylesheet" />
 
         <script src="#{contextPath}/javascript/vendor/jquery-1.7.2.min.js"></script>
@@ -23,7 +23,7 @@
         <script src="#{contextPath}/javascript/common.js?5"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
         <h:outputScript name="jsf.js" library="javax.faces" />
 
-        <script src="#{contextPath}/javascript/vendor/jquery.easytabs.min.js"></script>
+        <script src="#{contextPath}/javascript/vendor/jquery.easytabs.js"></script>
 
         <style>
             #header {
@@ -59,12 +59,8 @@
                 min-height: 280px;
             }
 
-            .tab-panel-vertical .data-container {
-                padding: 15px 25px 15px 105px;
-            }
-
             .tab-panel-vertical ul {
-                height: calc(100vh - 83px);
+                height: calc(100vh - 84px);
                 min-height: 440px;
                 position: sticky;
                 top: 0;
@@ -73,13 +69,13 @@
                 top: 48px; */
             }
 
-            .tab-panel-vertical ul li {
+            .tab-panel-vertical > ul li {
                 width: 80px;
                 font-family: Arial, Verdana, sans-serif;
                 font-size: 11px;
             }
 
-            .tab-panel-vertical ul li a {
+            .tab-panel-vertical > ul li a {
                 padding: 10px 5px;
             }
 

@@ -7,7 +7,7 @@
     <ui:param name="validators" value="#{settings.validators}" />
 
     <h:panelGroup rendered="#{repoType != 'DEPLOY_CONFIGURATION'}">
-        <p>Folder structure configuration. If flat structure is used, all projects are stored in a given folder.
+        <p class="section-description">Folder structure configuration. If flat structure is used, all projects are stored in a given folder.
         If non-flat structure is used, projects locations are configured in .properties file.</p>
     </h:panelGroup>
     
@@ -28,18 +28,6 @@
                          title="Base path in repository where everything will be saved. Must end with '/'."/>
             <h:outputText value=""/>
             <h:message for="#{prependId}pathInRepository" styleClass="error"/>
-        </h:panelGrid>
-    </h:panelGroup>
-
-    <h:panelGroup id="#{prependId}nestedStructureParameters">
-        <h:panelGrid columns="2" columnClasses="titleColumn" rendered="#{not settings.flatFolderStructure}">
-            <h:outputText value="Folder config file:" styleClass="required" required="true"/>
-            <h:inputText value="#{settings.folderConfigFile}"
-                         id="#{prependId}folderConfigFile"
-                         validator="#{validators.folderConfigFile}"
-                         title="The path for folder configuration file."/>
-            <h:outputText value=""/>
-            <h:message for="#{prependId}folderConfigFile" styleClass="error"/>
         </h:panelGrid>
     </h:panelGroup>
 

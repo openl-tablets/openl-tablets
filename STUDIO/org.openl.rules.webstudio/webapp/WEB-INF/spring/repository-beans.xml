@@ -31,9 +31,16 @@
         <property name="designTimeRepository" ref="designTimeRepository"/>
     </bean>
 
+    <bean id="designRepositoryFactoryProxy"
+          class="org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy" destroy-method="destroy">
+        <constructor-arg name="propertyResolver" ref="environment"/>
+        <constructor-arg name="mode" value="DESIGN"/>
+    </bean>
+
     <bean id="productionRepositoryFactoryProxy"
-          class="org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy" destroy-method="destroy">
-        <constructor-arg ref="environment"/>
+          class="org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy" destroy-method="destroy">
+        <constructor-arg name="propertyResolver" ref="environment"/>
+        <constructor-arg name="mode" value="PRODUCTION"/>
     </bean>
 
     <bean id="deploymentManager" class="org.openl.rules.webstudio.web.repository.DeploymentManager">

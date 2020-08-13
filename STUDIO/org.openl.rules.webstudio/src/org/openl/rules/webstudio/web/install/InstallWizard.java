@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.install;
 
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +39,7 @@ import org.openl.config.ConfigNames;
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryInstatiator;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.security.Group;
@@ -53,11 +56,11 @@ import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.util.WebStudioValidationUtils;
 import org.openl.rules.webstudio.web.admin.ConnectionProductionRepoController;
 import org.openl.rules.webstudio.web.admin.FolderStructureSettings;
-import org.openl.rules.webstudio.web.admin.ProductionRepositoryEditor;
+import org.openl.rules.webstudio.web.admin.RepositoryEditor;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.admin.RepositoryValidationException;
 import org.openl.rules.webstudio.web.admin.RepositoryValidators;
-import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.spring.env.DynamicPropertySource;
@@ -121,8 +124,8 @@ public class InstallWizard implements Serializable {
     private RepositoryConfiguration designRepositoryConfiguration;
     private RepositoryConfiguration deployConfigRepositoryConfiguration;
 
-    private ProductionRepositoryEditor productionRepositoryEditor;
-    private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
+    private RepositoryEditor productionRepositoryEditor;
+    private RepositoryFactoryProxy productionRepositoryFactoryProxy;
 
     // Reuse existing controllers
     private ConnectionProductionRepoController connectionProductionRepoController;
@@ -937,12 +940,12 @@ public class InstallWizard implements Serializable {
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
-        return productionRepositoryEditor.getProductionRepositoryConfigurations();
+        return productionRepositoryEditor.getRepositoryConfigurations();
     }
 
     public void deleteProductionRepository(String configName) {
         try {
-            productionRepositoryEditor.deleteProductionRepository(configName);
+            productionRepositoryEditor.deleteRepository(configName);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             WebStudioUtils.addErrorMessage(e.getMessage());
@@ -973,11 +976,11 @@ public class InstallWizard implements Serializable {
     private void initProductionRepositoryEditor() {
         destroyRepositoryObjects();
 
-        productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy(propertyResolver);
-        productionRepositoryEditor = new ProductionRepositoryEditor(productionRepositoryFactoryProxy, properties);
+        productionRepositoryFactoryProxy = new RepositoryFactoryProxy(propertyResolver, RepositoryMode.PRODUCTION);
+        productionRepositoryEditor = new RepositoryEditor(productionRepositoryFactoryProxy, properties);
 
         connectionProductionRepoController = new ConnectionProductionRepoController();
-        connectionProductionRepoController.setProperties(properties);
+        connectionProductionRepoController.setProperties(properties, PRODUCTION_REPOSITORY_CONFIGS);
         connectionProductionRepoController.setProductionRepositoryFactoryProxy(productionRepositoryFactoryProxy);
         connectionProductionRepoController
             .setProductionRepositoryConfigurations(getProductionRepositoryConfigurations());

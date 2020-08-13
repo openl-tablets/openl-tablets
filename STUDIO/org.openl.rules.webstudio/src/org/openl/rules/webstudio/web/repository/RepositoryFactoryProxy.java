@@ -1,13 +1,21 @@
 package org.openl.rules.webstudio.web.repository;
 
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.DESIGN_REPOSITORY_CONFIGS;
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS;
+
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.DESIGN_REPOSITORY_CONFIGS;
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS;
+
 import java.io.Closeable;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.rules.repository.RepositoryInstatiator;
+import org.openl.rules.repository.RepositoryMode;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.webstudio.web.admin.ProductionRepositoryEditor;
+import org.openl.rules.webstudio.web.admin.RepositoryEditor;
 import org.openl.util.IOUtils;
 import org.springframework.core.env.PropertyResolver;
 
@@ -16,15 +24,31 @@ import org.springframework.core.env.PropertyResolver;
  * <p/>
  * Takes actual factory description from the environment in which the current application is running.
  */
-public class ProductionRepositoryFactoryProxy {
+public class RepositoryFactoryProxy {
 
-    private Map<String, Repository> factories = new HashMap<>();
+    private final Map<String, Repository> factories = new HashMap<>();
 
     private final PropertyResolver propertyResolver;
 
-    public ProductionRepositoryFactoryProxy(PropertyResolver propertyResolver) {
-        this.propertyResolver = ProductionRepositoryEditor.createProductionPropertiesWrapper(propertyResolver);
+    private final String repoListConfig;
+
+    public RepositoryFactoryProxy(PropertyResolver propertyResolver, RepositoryMode mode) {
+        switch (mode) {
+            case DESIGN:
+                repoListConfig = DESIGN_REPOSITORY_CONFIGS;
+                break;
+            case PRODUCTION:
+                repoListConfig = PRODUCTION_REPOSITORY_CONFIGS;
+                break;
+            default:
+                throw new IllegalArgumentException("Repository mode " + mode + " isn't supported");
+        }
+        this.propertyResolver = RepositoryEditor.createPropertiesWrapper(propertyResolver, repoListConfig);
     }
+
+    public String getRepoListConfig() {
+        return repoListConfig;
+     }
 
     public Repository getRepositoryInstance(String configName) throws RRepositoryException {
         if (!factories.containsKey(configName)) {
@@ -72,12 +96,12 @@ public class ProductionRepositoryFactoryProxy {
             .parseBoolean(propertyResolver.getProperty("repository." + configName + ".version-in-deployment-name"));
     }
 
-    public String getDeploymentsPath(String configName) {
+    public String getBasePath(String configName) {
         String key = "repository." + configName + ".base.path";
-        String deployPath = propertyResolver.getProperty(key);
-        if (deployPath == null) {
+        String basePath = propertyResolver.getProperty(key);
+        if (basePath == null) {
             throw new IllegalArgumentException("Property " + key + " is absent");
         }
-        return deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
+        return basePath.isEmpty() || basePath.endsWith("/") ? basePath : basePath + "/";
     }
 }

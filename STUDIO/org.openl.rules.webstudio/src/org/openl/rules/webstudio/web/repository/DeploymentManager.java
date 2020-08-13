@@ -54,7 +54,7 @@ public class DeploymentManager implements InitializingBean {
     private IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
 
     private Set<String> deployers = new HashSet<>();
-    public ProductionRepositoryFactoryProxy repositoryFactoryProxy;
+    public RepositoryFactoryProxy repositoryFactoryProxy;
 
     public void addRepository(String repositoryConfigName) {
         deployers.add(repositoryConfigName);
@@ -85,7 +85,7 @@ public class DeploymentManager implements InitializingBean {
             ProjectVersion projectVersion = project.getVersion();
             boolean includeVersionInDeploymentName = repositoryFactoryProxy
                 .isIncludeVersionInDeploymentName(repositoryConfigName);
-            String deploymentsPath = repositoryFactoryProxy.getDeploymentsPath(repositoryConfigName);
+            String deploymentsPath = repositoryFactoryProxy.getBasePath(repositoryConfigName);
             if (projectVersion != null) {
                 if (includeVersionInDeploymentName) {
                     int version = DeployUtils.getNextDeploymentVersion(deployRepo, project.getName(), deploymentsPath);
@@ -253,7 +253,7 @@ public class DeploymentManager implements InitializingBean {
         return null;
     }
 
-    public void setRepositoryFactoryProxy(ProductionRepositoryFactoryProxy repositoryFactoryProxy) {
+    public void setRepositoryFactoryProxy(RepositoryFactoryProxy repositoryFactoryProxy) {
         this.repositoryFactoryProxy = repositoryFactoryProxy;
     }
 

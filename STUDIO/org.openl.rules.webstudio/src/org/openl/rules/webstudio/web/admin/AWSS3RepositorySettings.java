@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
+import java.util.Optional;
+
 import org.openl.config.PropertiesHolder;
 
 public class AWSS3RepositorySettings extends RepositorySettings {
@@ -31,7 +33,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         regionName = properties.getProperty(REGION_NAME);
         accessKey = properties.getProperty(ACCESS_KEY);
         secretKey = properties.getProperty(SECRET_KEY);
-        listenerTimerPeriod = Integer.parseInt(properties.getProperty(LISTENER_TIMER_PERIOD));
+        listenerTimerPeriod = Integer.parseInt(Optional.ofNullable(properties.getProperty(LISTENER_TIMER_PERIOD)).orElse("0"));
     }
 
     public String getBucketName() {

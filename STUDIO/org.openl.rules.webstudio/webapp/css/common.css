@@ -394,8 +394,8 @@ fieldset {
     min-height: 350px;
 }
 
-.tab-panel-vertical ul {
-    height: 350px;
+.tab-panel-vertical > ul {
+    min-height: 350px;
     list-style: none;
     margin: 0; padding: 0;
     background: #f5f5f5;
@@ -403,19 +403,19 @@ fieldset {
     border-right: 1px solid #ddd;
 }
 
-.tab-panel-vertical ul li {
-    width: 100px;
+.tab-panel-vertical > ul li {
+    min-width: 100px;
     margin: 0;
     padding: 0;
     text-align: center;
     opacity: 0.8;
 }
 
-.tab-panel-vertical ul li:hover {
+.tab-panel-vertical > ul li:hover {
      opacity: 1;
 }
 
-.tab-panel-vertical ul li.selected-tab {
+.tab-panel-vertical > ul li.selected-tab {
     font-weight: bold;
     position: relative;
     left: 1px;
@@ -426,11 +426,11 @@ fieldset {
     opacity: 1;
 }
 
-.tab-panel-vertical ul li:first-child.selected-tab {
+.tab-panel-vertical > ul li:first-child.selected-tab {
     border-top: 0;
 }
 
-.tab-panel-vertical ul li a {
+.tab-panel-vertical > ul li a {
     display: block;
     padding: 20px 5px;
     outline: none;
@@ -438,12 +438,12 @@ fieldset {
     color: #222;
 }
 
-.tab-panel-vertical ul li a span {
+.tab-panel-vertical > ul li a span {
     display: block;
 }
 
 .tab-panel-vertical .data-container {
-    padding: 15px 25px 15px 125px;
+    padding: 1px 25px 15px 105px;
 }
 
 .page {
