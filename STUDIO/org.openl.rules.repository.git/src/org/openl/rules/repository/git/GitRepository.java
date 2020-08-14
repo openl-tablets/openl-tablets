@@ -1365,15 +1365,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private void checkoutForced(String branch) throws GitAPIException, IOException {
-        if (branch.equals(git.getRepository().getBranch())) {
-            // FIXME: It's a workaround because of the bug in jgit. See
-            // GitRepositoryTest.testResetUncommittedChanges() for test scenario. If the bug will be fixed, we can stay
-            // with "checkout forced" only and remove this "if" block.
-            // Keep in mind that extra reset() or checkout() calls can slow down some git operations.
-            reset();
-        } else {
-            git.checkout().setName(branch).setForced(true).call();
-        }
+        git.checkout().setName(branch).setForced(true).call();
     }
 
     private boolean isCommitMerged(String commitId) throws IOException {
