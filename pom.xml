@@ -1234,7 +1234,6 @@
             <dependency>
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit</artifactId>
-                <!-- Check if all workarounds in GitRepository can be removed when upgrade version. -->
                 <version>5.8.1.202007141445-r</version>
                 <exclusions>
                     <exclusion>
