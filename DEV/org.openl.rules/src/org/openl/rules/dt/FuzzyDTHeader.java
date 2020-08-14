@@ -6,11 +6,11 @@ import org.openl.types.IOpenField;
 class FuzzyDTHeader extends DTHeader {
     private static final int[] RETURN_EMPTY_INDEXES = new int[] {};
 
-    private IOpenField[] fieldsChain;
-    private String title;
-    private FuzzyResult fuzzyResult;
-    private int topColumn;
-    private boolean returnDTHeader;
+    private final IOpenField[] fieldsChain;
+    private final String title;
+    private final FuzzyResult fuzzyResult;
+    private final int topColumn;
+    private final boolean returnDTHeader;
 
     FuzzyDTHeader(int methodParameterIndex,
             String statement,
