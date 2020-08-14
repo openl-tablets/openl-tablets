@@ -290,10 +290,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     context.setExpectedPathItem(expectedPathItem);
                     if (expectedPathItem == null) {
                         OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                            String.format(
-                                OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected method '%s' related to path '%s' is found.",
+                            String.format(OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected method '%s'%s is found.",
                                 openMethod == null ? method.getName() : openMethod.getMethod(),
-                                entry.getKey()));
+                                getMethodRelatedPathStringPart(method.getName(), entry.getKey())));
                     }
                 } finally {
                     context.setOpenMethod(null);
@@ -557,9 +556,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         if (isIncompatibleTypes(actualSchema, expectedSchema, returnType)) {
             OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                 String.format(
-                    OPEN_API_VALIDATION_MSG_PREFIX + "Return type for method '%s' related to path '%s' must be compatible with OpenAPI type '%s%s'.",
+                    OPEN_API_VALIDATION_MSG_PREFIX + "Return type for method '%s'%s must be compatible with OpenAPI type '%s%s'.",
                     method.getName(),
-                    context.getPath(),
+                    getMethodRelatedPathStringPart(method.getName(), context.getPath()),
                     type,
                     format != null ? "('" + format + ")" : ""));
         } else {
@@ -570,9 +569,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 } catch (DifferentTypesException e) {
                     OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                         String.format(
-                            OPEN_API_VALIDATION_MSG_PREFIX + "Return type for method '%s' related to path '%s' must be compatible with OpenAPI type '%s%s'.",
+                            OPEN_API_VALIDATION_MSG_PREFIX + "Return type for method '%s'%s must be compatible with OpenAPI type '%s%s'.",
                             method.getName(),
-                            context.getPath(),
+                            getMethodRelatedPathStringPart(method.getName(), context.getPath()),
                             type,
                             format != null ? "('" + format + ")" : ""));
                 }
@@ -580,6 +579,14 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 context.setTypeValidationInProgress(false);
             }
         }
+    }
+
+    private String getMethodRelatedPathStringPart(String methodName, String path) {
+        String pathPart = "";
+        if (!path.equals("/" + methodName)) {
+            pathPart = String.format(" related to path '%s'", path);
+        }
+        return pathPart;
     }
 
     @SuppressWarnings("rawtypes")
@@ -636,10 +643,10 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 if (allPropertiesOfActualSchema.get(entry.getKey()) == null) {
                     OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                         String.format(
-                            OPEN_API_VALIDATION_MSG_PREFIX + "Expected parameter '%s' in method '%s' related to path '%s' is not found.",
+                            OPEN_API_VALIDATION_MSG_PREFIX + "Expected parameter '%s' in method '%s'%s is not found.",
                             entry.getKey(),
                             method.getName(),
-                            context.getPath()));
+                            getMethodRelatedPathStringPart(method.getName(), context.getPath())));
                 }
             }
         } else {
@@ -711,22 +718,21 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             Schema<?> expectedParameterSchema) {
         if (expectedParameterSchema == null) {
             OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                String.format(
-                    OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected parameter '%s' in method '%s' related to path '%s' is found.",
+                String.format(OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected parameter '%s' in method '%s'%s is found.",
                     parameterName,
                     method.getName(),
-                    context.getPath()));
+                    getMethodRelatedPathStringPart(method.getName(), context.getPath())));
         } else {
             String type = resolveType(expectedParameterSchema);
             String format = expectedParameterSchema.getFormat();
             if (isIncompatibleTypes(parameterSchema, expectedParameterSchema, parameterOpenClass)) {
                 OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                     String.format(
-                        OPEN_API_VALIDATION_MSG_PREFIX + "Type '%s' for parameter '%s' in method '%s' related to path '%s' must be compatible with OpenAPI type '%s%s'.",
+                        OPEN_API_VALIDATION_MSG_PREFIX + "Type '%s' for parameter '%s' in method '%s'%s must be compatible with OpenAPI type '%s%s'.",
                         parameterOpenClass.getDisplayName(INamedThing.REGULAR),
                         parameterName,
                         method.getName(),
-                        context.getPath(),
+                        getMethodRelatedPathStringPart(method.getName(), context.getPath()),
                         type,
                         format != null ? "('" + format + ")" : ""));
             } else {
@@ -741,11 +747,11 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     } catch (DifferentTypesException e) {
                         OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                             String.format(
-                                OPEN_API_VALIDATION_MSG_PREFIX + "Type '%s' for parameter '%s' in method '%s' related to path '%s' must be compatible with OpenAPI type '%s%s'.",
+                                OPEN_API_VALIDATION_MSG_PREFIX + "Type '%s' for parameter '%s' in method '%s'%s must be compatible with OpenAPI type '%s%s'.",
                                 parameterOpenClass.getDisplayName(INamedThing.REGULAR),
                                 parameterName,
                                 method.getName(),
-                                context.getPath(),
+                                getMethodRelatedPathStringPart(method.getName(), context.getPath()),
                                 type,
                                 format != null ? "('" + format + ")" : ""));
                     }
