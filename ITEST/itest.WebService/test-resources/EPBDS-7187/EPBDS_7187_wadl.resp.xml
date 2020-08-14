@@ -34,6 +34,13 @@
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="xxx.yyy" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="xxx.yyy" version="1.0">
+            <xs:complexType name="error">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="message" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://beans.generated.openl.org"
                    xmlns:tns="http://jaxrs.openl.org" attributeFormDefault="unqualified"
                    elementFormDefault="unqualified" targetNamespace="http://jaxrs.openl.org" version="1.0">
