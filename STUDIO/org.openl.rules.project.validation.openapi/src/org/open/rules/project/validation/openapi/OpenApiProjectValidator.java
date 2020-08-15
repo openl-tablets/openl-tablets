@@ -298,7 +298,6 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     context.setOpenMethod(null);
                     context.setActualPathItem(null);
                     context.setExpectedPathItem(null);
-                    context.setPath(null);
                     context.setMethod(null);
                 }
             }
@@ -364,10 +363,31 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
     }
 
     private Method findMethodByPath(Class<?> serviceClass, String path) {
+        Path classPathAnnotation = serviceClass.getAnnotation(Path.class);
         for (Method method : serviceClass.getMethods()) {
             Path pathAnnotation = method.getAnnotation(Path.class);
-            if (pathAnnotation != null && Objects.equals(pathAnnotation.value(), path)) {
-                return method;
+            if (pathAnnotation != null) {
+                String methodPath = (classPathAnnotation != null ? classPathAnnotation.value() : "") + pathAnnotation.value();
+                StringBuilder sb = new StringBuilder();
+                boolean f = false;
+                for (char c : methodPath.toCharArray()) {
+                    if (c != '/') {
+                        sb.append(c);
+                        f = false;
+                    } else {
+                        if (!f) {
+                            sb.append(c);
+                            f = true;
+                        }
+                    }
+                }
+                methodPath = sb.toString();
+                if (methodPath.length() == 0 || !methodPath.startsWith("/")) {
+                    methodPath = "/" + methodPath;
+                }
+                if (Objects.equals(methodPath, path)) {
+                    return method;
+                }
             }
         }
         return null;
