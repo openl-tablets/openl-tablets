@@ -367,7 +367,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         for (Method method : serviceClass.getMethods()) {
             Path pathAnnotation = method.getAnnotation(Path.class);
             if (pathAnnotation != null) {
-                String methodPath = (classPathAnnotation != null ? classPathAnnotation.value() : "") + pathAnnotation.value();
+                String methodPath = (classPathAnnotation != null ? classPathAnnotation.value() : "") + pathAnnotation
+                    .value();
                 StringBuilder sb = new StringBuilder();
                 boolean f = false;
                 for (char c : methodPath.toCharArray()) {
@@ -792,10 +793,18 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             .getParameterCount() - 1)) {
             if (context.isProvideRuntimeContext()) {
                 if (index > 0) {
-                    parameterOpenClass = openMethod.getSignature().getParameterType(index - 1);
+                    if (openMethod != null) {
+                        parameterOpenClass = openMethod.getSignature().getParameterType(index - 1);
+                    } else {
+                        parameterOpenClass = JavaOpenClass.getOpenClass(method.getParameterTypes()[index - 1]);
+                    }
                 }
             } else {
-                parameterOpenClass = openMethod.getSignature().getParameterType(index);
+                if (openMethod != null) {
+                    parameterOpenClass = openMethod.getSignature().getParameterType(index);
+                } else {
+                    parameterOpenClass = JavaOpenClass.getOpenClass(method.getParameterTypes()[index]);
+                }
             }
         }
         return parameterOpenClass == null ? JavaOpenClass.getOpenClass(parameterType) : parameterOpenClass;

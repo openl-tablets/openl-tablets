@@ -8,3 +8,4 @@ ERROR: OpenAPI validation: Return type for method 'NegativeMassMediaScore' must 
 ERROR: OpenAPI validation: Unexpected method 'BalanceDynamicIndexCalculation' is found.
 ERROR: OpenAPI validation: Expected method related to path '/CapitalAdequacyScore' is not found.
 ERROR: OpenAPI validation: Unexpected method 'CapitalAdequacyScore' related to path '/CapitalAdequacyScore1' is found.
+ERROR: OpenAPI validation: Unexpected method 'BankRatingGroup' related to path '/BankRatingGroup1' is found.
