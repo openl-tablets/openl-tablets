@@ -33,6 +33,8 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     private final PropertyResolver resolver;
     private final String appName;
 
+    private long lastModifiedPropTime;
+
     public DynamicPropertySource(String appName, PropertyResolver resolver) {
         super(PROPS_NAME);
         this.resolver = resolver;
@@ -43,8 +45,15 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     @Override
     public String[] getPropertyNames() {
         Properties properties = getProperties();
-
         return properties.keySet().toArray(StringUtils.EMPTY_STRING_ARRAY);
+    }
+
+    public boolean isPropWasModified() {
+        boolean isModified = lastModifiedPropTime != 0 && (lastModifiedPropTime != getFile().lastModified());
+        if (isModified) {
+            lastModifiedPropTime = 0;
+        }
+        return isModified;
     }
 
     private Properties getProperties() {
@@ -140,6 +149,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
             properties.store(writer, null);
         }
+        lastModifiedPropTime = file.lastModified();
     }
 
     static String decode(String value) {
@@ -163,4 +173,5 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     private String getCipher() {
         return StringUtils.trimToNull(resolver.getProperty("secret.cipher"));
     }
+
 }

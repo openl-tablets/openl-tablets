@@ -68,6 +68,12 @@ public class ReloadableDelegatingFilter implements Filter {
 
     private Filter delegate;
 
+    private static ServletContext reloadContext = null;
+
+    public static void scheduleReload(ServletContext context) {
+        reloadContext = context;
+    }
+
     /**
      * Schedule configuration reloader to perform reload of configuration
      *
@@ -91,6 +97,7 @@ public class ReloadableDelegatingFilter implements Filter {
             }
 
             SessionListener.getSessionCache(servletContext).invalidateAll();
+            reloadContext = null;
         });
     }
 
@@ -128,6 +135,9 @@ public class ReloadableDelegatingFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException,
                                                                                                     ServletException {
+        if (reloadContext != null) {
+            reloadApplicationContext(reloadContext);
+        }
         read.lock();
         try {
             if (delegate != null) {
