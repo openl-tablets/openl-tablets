@@ -26,7 +26,7 @@
                         <h:panelGrid >
                             <div>
                                 <h:inputText id="workingDir" value="#{installWizard.workingDir}"
-                                             disabled="#{props.isPropertyDisabled('openl.home')}"
+                                             disabled="#{props.isDisabled('openl.home')}"
                                              validator="#{installWizard.workingDirValidator}" size="72"/>
                             </div>
                         <div >

@@ -8,8 +8,9 @@ package org.openl.domain;
  *
  */
 public class IntArrayIterator extends AIntIterator {
-    int current = 0;
-    int[] ary;
+
+    private int current = 0;
+    private final int[] ary;
 
     public IntArrayIterator(int[] ary) {
         this.ary = ary;
