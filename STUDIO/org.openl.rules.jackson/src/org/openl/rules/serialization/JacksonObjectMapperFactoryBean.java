@@ -121,9 +121,6 @@ public class JacksonObjectMapperFactoryBean {
                     subTypeClasses.add(x);
                 }
             }
-            if (subTypeClasses.isEmpty()) {
-                return originalMixInClass;
-            }
             String className = classFor.getName() + "$SubtypeMixIn$" + incrementer.getAndIncrement();
             try {
                 return classLoader.loadClass(className);

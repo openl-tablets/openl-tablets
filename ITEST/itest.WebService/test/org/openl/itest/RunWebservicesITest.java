@@ -516,4 +516,11 @@ public class RunWebservicesITest {
         client.post("/http-statuses-test", "/EPBDS-7757/statuses-nfe.req.xml", 500,
                 "/EPBDS-7757/statuses-nfe.resp.xml");
     }
+
+    @Test
+    public void EPBDS_10212() {
+        client.post("/EPBDS-10212/EPBDS-10212/doSomething",
+                "/EPBDS-10212/doSomething.req.json",
+                "/EPBDS-10212/doSomething.resp.json");
+    }
 }

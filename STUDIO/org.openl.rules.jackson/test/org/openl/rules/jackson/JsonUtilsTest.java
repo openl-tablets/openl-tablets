@@ -68,16 +68,23 @@ public class JsonUtilsTest {
     @Test
     public void toJSONTest() throws JsonProcessingException {
         assertEquals("{\"model\":\"BMW\",\"year\":null}", JsonUtils.toJSON(new Car("BMW", null)));
-        assertEquals("{\"model\":\"BMW\",\"year\":null}", JsonUtils.toJSON(new Car("BMW", null), new Class[]{Car.class}));
-        assertEquals("{\"@class\":\"org.openl.rules.jackson.JsonUtilsTest$Car\",\"model\":\"BMW\",\"year\":null}", JsonUtils.toJSON(new Car("BMW", null), new Class[]{Car.class}, true));
+        assertEquals("{\"model\":\"BMW\",\"year\":null}",
+            JsonUtils.toJSON(new Car("BMW", null), new Class[] { Car.class }));
+        assertEquals("{\"@class\":\"org.openl.rules.jackson.JsonUtilsTest$Car\",\"model\":\"BMW\",\"year\":null}",
+            JsonUtils.toJSON(new Car("BMW", null), new Class[] { Car.class, Track.class }, true));
     }
 
     @Test
     public void fromJSONTest() throws IOException {
         final Car expected = new Car("BMW", null);
         assertEquals(expected, JsonUtils.fromJSON("{\"model\":\"BMW\",\"year\":null}", Car.class));
-        assertEquals(expected, JsonUtils.fromJSON("{\"model\":\"BMW\",\"year\":null}", Car.class, new Class[]{Car.class}));
-        assertEquals(expected, JsonUtils.fromJSON("{\"@class\":\"org.openl.rules.jackson.JsonUtilsTest$Car\",\"model\":\"BMW\",\"year\":null}", Car.class, new Class[]{Car.class}));
+        assertEquals(expected,
+            JsonUtils.fromJSON("{\"model\":\"BMW\",\"year\":null}", Car.class, new Class[] { Car.class }));
+        assertEquals(expected,
+            JsonUtils.fromJSON(
+                "{\"@class\":\"org.openl.rules.jackson.JsonUtilsTest$Car\",\"model\":\"BMW\",\"year\":null}",
+                Car.class,
+                new Class[] { Car.class }));
     }
 
     @Test
@@ -87,6 +94,10 @@ public class JsonUtilsTest {
         assertEquals(2, actual.size());
         assertEquals("{}", actual.get("context"));
         assertEquals("{\"model\":\"BMW\",\"year\":null}", actual.get("car"));
+    }
+
+    public static class Track extends Car {
+
     }
 
     public static class Car {
@@ -120,11 +131,12 @@ public class JsonUtilsTest {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
             Car car = (Car) o;
-            return Objects.equals(model, car.model) &&
-                    Objects.equals(year, car.year);
+            return Objects.equals(model, car.model) && Objects.equals(year, car.year);
         }
 
         @Override

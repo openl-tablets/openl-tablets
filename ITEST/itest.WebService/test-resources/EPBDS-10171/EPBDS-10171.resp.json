@@ -1,5 +1,4 @@
 {
-  "@class": "org.openl.generated.beans.Mansion",
   "rooms": 2,
   "kithen": 3,
   "swimmingpool": 4

@@ -53,6 +53,12 @@ class SubtypeMixInClassWriter extends ClassVisitor {
                 av.visitEnum("use", Type.getDescriptor(JsonTypeInfo.Id.class), JsonTypeInfo.Id.CLASS.name());
                 av.visitEnd();
             }
+        } else {
+            if (!originalMixInClass.isAnnotationPresent(JsonTypeInfo.class)) {
+                AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(JsonTypeInfo.class), true);
+                av.visitEnum("use", Type.getDescriptor(JsonTypeInfo.Id.class), JsonTypeInfo.Id.NONE.name());
+                av.visitEnd();
+            }
         }
     }
 }
