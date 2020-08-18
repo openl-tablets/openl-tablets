@@ -236,7 +236,7 @@
                                                 <h:outputText value="Workspace Directory:"/>
                                                 <h:inputText id="workspace-dir"
                                                              value="#{systemSettingsBean.userWorkspaceHome}"
-                                                             disabled="#{props.isPropertyDisabled('user.workspace.home')}"
+                                                             disabled="#{props.isDisabled('user.workspace.home')}"
                                                              validator="#{validator.workSpaceDirValidator}"/>
                                             </h:panelGrid>
                                             <h:message for="workspace-dir" class="error"/>
@@ -249,7 +249,7 @@
                                                 <h:outputText value="History Directory:"/>
                                                 <h:inputText id="history-dir"
                                                              value="#{systemSettingsBean.projectHistoryHome}"
-                                                             disabled="#{props.isPropertyDisabled('project.history.home')}"
+                                                             disabled="#{props.isDisabled('project.history.home')}"
                                                              validator="#{validator.historyDirValidator}"/>
                                             </h:panelGrid>
                                             <h:message for="history-dir" class="error"/>
@@ -258,7 +258,7 @@
                                                         value="The maximum count of saved changes for each project:"/>
                                                 <h:inputText id="history-count"
                                                              value="#{systemSettingsBean.projectHistoryCount}"
-                                                             disabled="#{props.isPropertyDisabled('project.history.count')}"
+                                                             disabled="#{props.isDisabled('project.history.count')}"
                                                              validator="#{validator.historyCountValidator}"/>
                                             </h:panelGrid>
                                             <h:message for="history-count" class="error"/>
@@ -311,19 +311,19 @@
                                                         value="Update table properties ('createdOn', 'modifiedBy' etc.) on editing: "/>
                                                 <h:selectBooleanCheckbox
                                                         value="#{systemSettingsBean.updateSystemProperties}"
-                                                        disabled="#{props.isPropertyDisabled('update.system.properties')}"/>
+                                                        disabled="#{props.isDisabled('update.system.properties')}"/>
                                             </h:panelGrid>
                                             <h:panelGrid columns="2" columnClasses="titleColumn">
                                                 <h:outputText value="Date Format:"/>
                                                 <h:inputText id="date-format" value="#{systemSettingsBean.datePattern}"
-                                                             disabled="#{props.isPropertyDisabled('data.format.date')}"
+                                                             disabled="#{props.isDisabled('data.format.date')}"
                                                              validator="#{validator.dateFormatValidator}"/>
                                             </h:panelGrid>
                                             <h:message for="date-format" class="error"/>
                                             <h:panelGrid columns="2" columnClasses="titleColumn">
                                                 <h:outputText value="Time Format:"/>
                                                 <h:inputText id="time-format" value="#{systemSettingsBean.timePattern}"
-                                                             disabled="#{props.isPropertyDisabled('data.format.time')}"
+                                                             disabled="#{props.isDisabled('data.format.time')}"
                                                              validator="#{validator.timeFormatValidator}"/>
                                             </h:panelGrid>
                                             <h:message for="time-format" class="error"/>

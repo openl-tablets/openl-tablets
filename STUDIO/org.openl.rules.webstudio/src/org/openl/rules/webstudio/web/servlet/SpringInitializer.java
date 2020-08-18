@@ -13,6 +13,8 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+import org.openl.rules.webstudio.Migrator;
+import org.openl.rules.webstudio.web.Props;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.spring.env.PropertySourcesLoader;
 import org.slf4j.Logger;
@@ -49,9 +51,21 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         applicationContext.setId("OpenL_WebStudio");
         applicationContext.setConfigLocations("/WEB-INF/spring/webstudio.xml");
         new PropertySourcesLoader().initialize(applicationContext, servletContext);
+
+        // Register a WEB context path for easy access from Spring beans
         applicationContext.addBeanFactoryPostProcessor(
             bf -> bf.registerSingleton("servletContextPath", servletContext.getContextPath()));
+
+        // Register Utility 'Props' class
+        Props.setEnvironment(applicationContext.getEnvironment());
+        applicationContext.addBeanFactoryPostProcessor(bf -> bf.registerSingleton("props", new Props()));
+
+        // Do migrate before Spring initialization
+        Migrator.migrate();
+
         applicationContext.refresh();
+
+        // Store Spring context object for accessing from code.
         servletContext.setAttribute(THIS, this);
         servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, applicationContext);
         startTimer();
@@ -88,7 +102,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
     @Override
     public void run() {
         try {
-            if (DynamicPropertySource.get().isPropModified()) {
+            if (DynamicPropertySource.get().reloadIfModified()) {
                 refreshContext();
             }
         } catch (Exception e) {

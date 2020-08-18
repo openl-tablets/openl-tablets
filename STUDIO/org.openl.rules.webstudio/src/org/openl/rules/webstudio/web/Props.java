@@ -5,7 +5,7 @@ import org.openl.util.StringUtils;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 
-public class Props implements EnvironmentAware {
+public class Props {
     private static Environment env;
 
     public static String text(String key) {
@@ -21,12 +21,11 @@ public class Props implements EnvironmentAware {
         return StringUtils.isNotEmpty(text) ? Integer.valueOf(text) : null;
     }
 
-    @Override
-    public void setEnvironment(Environment environment) {
+    public static void setEnvironment(Environment environment) {
         env = environment;
     }
 
-    public boolean isPropertyDisabled(String name) {
+    public static boolean isDisabled(String name) {
         return Props.bool(DisablePropertySource.PROPS_PREFIX + name);
     }
 
