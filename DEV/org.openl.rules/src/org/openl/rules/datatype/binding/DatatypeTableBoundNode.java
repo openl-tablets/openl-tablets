@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -420,12 +421,24 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 } catch (NoSuchFieldException ignored) {
                 }
             }
+            LinkedList<FieldDescription> parentFields = new LinkedList<>();
+            DatatypeTableBoundNode p = parentDatatypeTableBoundNode;
+            while (p != null) {
+                LinkedList<FieldDescription> x = new LinkedList<>();
+                for (FieldDescription fieldDescription : p.getFields().values()) {
+                    x.addFirst(fieldDescription);
+                }
+                for (FieldDescription fieldDescription : x) {
+                    parentFields.addFirst(fieldDescription);
+                }
+                p = p.parentDatatypeTableBoundNode;
+            }
             boolean g = false;
             for (Constructor<?> constructor : datatypeClass.getSuperclass().getConstructors()) {
-                if (constructor.getParameterCount() == parentDatatypeTableBoundNode.getFields().size()) {
+                if (constructor.getParameterCount() == parentFields.size()) {
                     int i = 0;
                     boolean f = true;
-                    for (FieldDescription fieldDescription : parentDatatypeTableBoundNode.getFields().values()) {
+                    for (FieldDescription fieldDescription : parentFields) {
                         if (!constructor.getParameterTypes()[i].getName().equals(fieldDescription.getTypeName())) {
                             f = false;
                             break;
