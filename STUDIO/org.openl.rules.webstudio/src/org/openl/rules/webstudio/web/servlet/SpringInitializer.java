@@ -4,15 +4,19 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
-import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.spring.env.PropertySourcesLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
@@ -20,12 +24,17 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
 @WebListener
 public final class SpringInitializer implements Runnable, ServletContextListener {
 
+    private static final Logger LOG = LoggerFactory.getLogger(SpringInitializer.class);
     private static final String THIS = SpringInitializer.class.getName();
-    public XmlWebApplicationContext applicationContext;
+    private static final int PERIOD = 10;
 
+    private final ReadWriteLock rwl = new ReentrantReadWriteLock();
+    private final Lock read = rwl.readLock();
+    private final Lock write = rwl.writeLock();
+
+    private XmlWebApplicationContext applicationContext;
     private ScheduledExecutorService scheduledPool;
     private ScheduledFuture<?> scheduled;
-    private final int PERIOD = 10;
 
     public static ApplicationContext getApplicationContext(ServletContext sc) {
         return ((SpringInitializer) sc.getAttribute(THIS)).applicationContext;
@@ -45,17 +54,19 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         applicationContext.refresh();
         servletContext.setAttribute(THIS, this);
         servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, applicationContext);
-        startMonitor();
+        startTimer();
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         ServletContext servletContext = sce.getServletContext();
         servletContext.removeAttribute(THIS);
+        servletContext.removeAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
         applicationContext.close();
+        releaseTimer();
     }
 
-    private void startMonitor() {
+    private void startTimer() {
         scheduledPool = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread t = Executors.defaultThreadFactory().newThread(r);
             t.setDaemon(true);
@@ -64,7 +75,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         scheduled = scheduledPool.scheduleWithFixedDelay(this, 1, PERIOD, TimeUnit.SECONDS);
     }
 
-    public synchronized void release() {
+    private void releaseTimer() {
         if (scheduledPool != null) {
             scheduledPool.shutdownNow();
         }
@@ -76,8 +87,35 @@ public final class SpringInitializer implements Runnable, ServletContextListener
 
     @Override
     public void run() {
-        if (DynamicPropertySource.get().isPropWasModified()) {
-            ReloadableDelegatingFilter.scheduleReload(applicationContext.getServletContext());
+        try {
+            if (DynamicPropertySource.get().isPropModified()) {
+                refreshContext();
+            }
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+    }
+
+    public static Lock getLock(ServletContext sc) {
+        return ((SpringInitializer) sc.getAttribute(THIS)).read;
+    }
+
+    // Trigger refresh context in the separate thread
+    public static void refresh(ServletContext sc) {
+        SpringInitializer springInitializer = ((SpringInitializer) sc.getAttribute(THIS));
+        springInitializer.run();
+    }
+
+    private void refreshContext() {
+        write.lock();
+        try {
+            applicationContext.refresh();
+            SessionCache sessionCache = SessionListener.getSessionCache(applicationContext.getServletContext());
+            if (sessionCache != null) {
+                sessionCache.invalidateAll();
+            }
+        } finally {
+            write.unlock();
         }
     }
 }

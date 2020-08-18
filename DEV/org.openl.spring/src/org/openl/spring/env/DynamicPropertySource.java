@@ -12,6 +12,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -33,12 +36,17 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     private final PropertyResolver resolver;
     private final String appName;
 
-    private long lastModifiedPropTime;
+    private Properties currentProps;
+
+    private final ReadWriteLock rwl = new ReentrantReadWriteLock();
+    private final Lock read = rwl.readLock();
+    private final Lock write = rwl.writeLock();
 
     public DynamicPropertySource(String appName, PropertyResolver resolver) {
         super(PROPS_NAME);
         this.resolver = resolver;
         this.appName = appName;
+        currentProps = getProperties();
         ConfigLog.LOG.info("+        Add: '{}'", getFile());
     }
 
@@ -48,30 +56,36 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         return properties.keySet().toArray(StringUtils.EMPTY_STRING_ARRAY);
     }
 
-    public boolean isPropWasModified() {
-        boolean isModified = lastModifiedPropTime != 0 && (lastModifiedPropTime != getFile().lastModified());
-        if (isModified) {
-            lastModifiedPropTime = 0;
-        }
-        return isModified;
+    public boolean isPropModified() {
+        Properties properties = getProperties();
+        boolean equals = !properties.equals(currentProps);
+        currentProps = properties;
+        return equals;
     }
 
     private Properties getProperties() {
         File file = getFile();
         Properties properties = new Properties();
-        if (file.exists()) {
-            try (InputStreamReader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
-                properties.load(reader);
-            } catch (IOException e) {
-                ConfigLog.LOG.error("Failed to load", e);
+        read.lock();
+        try {
+            if (file.exists()) {
+                try (InputStreamReader reader = new InputStreamReader(new FileInputStream(file),
+                    StandardCharsets.UTF_8)) {
+                    properties.load(reader);
+                } catch (IOException e) {
+                    ConfigLog.LOG.error("Failed to load", e);
+                }
             }
+        } finally {
+            read.unlock();
         }
         return properties;
     }
 
     private File getFile() {
         String property = resolver.getProperty(OPENL_HOME_SHARED);
-        return new File(property, appName + ".properties");
+        File file = new File(property, appName + ".properties");
+        return file;
     }
 
     @Override
@@ -131,7 +145,8 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
             }
         }
         File file = getFile();
-        file.delete(); // Delete to 'unconfigure' settings for matching with defaults
+        write.lock();
+        file.delete(); // Delete to 'unconfigure' settings for matching with defaults. to get settings not from a file
 
         Iterator<Map.Entry<Object, Object>> props = properties.entrySet().iterator();
         while (props.hasNext()) { // Do clean up from default values
@@ -148,8 +163,9 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         }
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
             properties.store(writer, null);
+        } finally {
+            write.unlock();
         }
-        lastModifiedPropTime = file.lastModified();
     }
 
     static String decode(String value) {

@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.faces.context.FacesContext;
-import javax.servlet.ServletContext;
 
 import org.openl.config.ConfigNames;
 import org.openl.config.InMemoryProperties;
@@ -14,7 +13,6 @@ import org.openl.config.PropertiesHolder;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.security.AccessManager;
 import org.openl.rules.security.Privileges;
-import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
@@ -57,11 +55,11 @@ public class SystemSettingsBean {
     private SystemSettingsValidator validator;
 
     public SystemSettingsBean(ProductionRepositoriesTreeController productionRepositoriesTreeController,
-        ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy,
-        DeploymentManager deploymentManager,
-        DesignTimeRepository designTimeRepository,
-        RepositoryTreeState repositoryTreeState,
-        PropertyResolver propertyResolver) {
+            ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy,
+            DeploymentManager deploymentManager,
+            DesignTimeRepository designTimeRepository,
+            RepositoryTreeState repositoryTreeState,
+            PropertyResolver propertyResolver) {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
         this.deploymentManager = deploymentManager;
         this.designTimeRepository = designTimeRepository;
@@ -297,8 +295,6 @@ public class SystemSettingsBean {
 
     private void refreshConfig() {
         WebStudioUtils.getWebStudio(true).setNeedRestart(true);
-        ReloadableDelegatingFilter
-            .reloadApplicationContext((ServletContext) WebStudioUtils.getExternalContext().getContext());
     }
 
 }
