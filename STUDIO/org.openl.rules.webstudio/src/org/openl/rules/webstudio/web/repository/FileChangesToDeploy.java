@@ -67,7 +67,8 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                     DeploymentManifestBuilder manifestBuilder = new DeploymentManifestBuilder()
                             .setBuiltBy(username)
                             .setBuildNumber(pd.getProjectVersion().getRevision())
-                            .setImplementationTitle(projectName);
+                            .setImplementationTitle(projectName)
+                            .setImplementationVersion(resolveProjectVersion(projectName, version));
                     projectIterator = getProjectIterator(projectName, version, manifestBuilder);
                     return projectIterator != null && projectIterator.hasNext();
                 } else {
@@ -75,11 +76,20 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                 }
             }
 
+            private String resolveProjectVersion(String projectName, String version) {
+                try {
+                    final FileData historyData = designRepo.checkHistory(rulesPath + projectName, version);
+                    return RepositoryUtils.buildProjectVersion(historyData);
+                } catch (IOException ignored) {
+                    return null;
+                }
+            }
+
             private Iterator<FileItem> getProjectIterator(String projectName, String version, DeploymentManifestBuilder manifestBuilder) {
                 try {
                     if (designRepo.supports().folders()) {
                         if (designRepo.supports().branches()) {
-                            manifestBuilder.setBranchName(((BranchRepository) designRepo).getBranch());
+                            manifestBuilder.setBuildBranch(((BranchRepository) designRepo).getBranch());
                         }
                         // Project in design repository is stored as a folder
                         String srcProjectPath = rulesPath + projectName + "/";

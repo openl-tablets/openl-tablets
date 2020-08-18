@@ -1071,10 +1071,8 @@ public class RepositoryTreeController {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
             AProject forExport = userWorkspace.getDesignTimeRepository()
                 .getProject(selectedProject.getName(), new CommonVersionImpl(version));
-            FileData fileData = forExport.getFileData();
             zipFile = ProjectExportHelper.export(userWorkspace.getUser(), forExport);
-            String modifiedOnStr = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(fileData.getModifiedAt());
-            String suffix = fileData.getAuthor() + "-" + modifiedOnStr;
+            String suffix = RepositoryUtils.buildProjectVersion(forExport.getFileData());
             zipFileName = String.format("%s-%s.zip", selectedProject.getName(), suffix);
         } catch (Exception e) {
             String msg = "Failed to export project version.";
