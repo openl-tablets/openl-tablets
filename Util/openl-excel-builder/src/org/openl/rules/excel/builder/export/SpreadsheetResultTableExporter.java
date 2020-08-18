@@ -36,7 +36,10 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
     }
 
     @Override
-    protected Cursor exportTable(SpreadsheetResultModel model, Cursor startPosition, TableStyle defaultStyle, Sheet sheet) {
+    protected Cursor exportTable(SpreadsheetResultModel model,
+            Cursor startPosition,
+            TableStyle defaultStyle,
+            Sheet sheet) {
         SpreadsheetTableStyleImpl style = (SpreadsheetTableStyleImpl) defaultStyle;
         CellStyle headerStyle = style.getHeaderStyle();
         RichTextString tableHeaderText = style.getHeaderTemplate();
@@ -122,7 +125,7 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
     private static void setValue(StepModel model, Cell stepValueCell) {
         if (model.getType() != null) {
             String type = model.getType();
-            if ("Integer".equals(type)) {
+            if ("Integer".equals(type) || "Long".equals(type)) {
                 stepValueCell.setCellValue(0);
             } else if ("Double".equals(type)) {
                 stepValueCell.setCellValue(0.0d);
