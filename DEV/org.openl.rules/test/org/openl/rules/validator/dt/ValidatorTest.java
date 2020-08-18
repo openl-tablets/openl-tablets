@@ -169,7 +169,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
         domains.put("max", adaptor);
 
         DecisionTableValidationResult dtValidResult = testTable(tableName, domains);
-        assertTrue(!dtValidResult.hasProblems());
+        assertFalse(dtValidResult.hasProblems());
 
         Date newEndDate = null;
         try {
@@ -179,7 +179,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
         }
         dateRangeDomain.setMax(newEndDate);
         dtValidResult = testTable(tableName, domains);
-        assertTrue(dtValidResult.getUncovered().length == 1);
+        assertEquals(1, dtValidResult.getUncovered().length);
     }
 
     @Test
@@ -196,7 +196,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
 
         DecisionTableValidationResult dtValidResult = testTable(tableName, null);
         assertFalse(dtValidResult.hasProblems());
-        assertTrue(dtValidResult.getOverlappings().length == 1);
+        assertEquals(1, dtValidResult.getOverlappings().length);
         DecisionTableOverlapping overlap = dtValidResult.getOverlappings()[0];
         assertEquals("value = V2", overlap.getValues().toString());
     }
@@ -207,7 +207,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
 
         DecisionTableValidationResult dtValidResult = testTable(tableName, null);
         assertTrue(dtValidResult.hasProblems());
-        assertTrue(dtValidResult.getUncovered().length == 1);
+        assertEquals(1, dtValidResult.getUncovered().length);
         DecisionTableUncovered gap = dtValidResult.getUncovered()[0];
         assertEquals("value = V4", gap.getValues().toString());
     }
