@@ -1,13 +1,11 @@
-ERROR: Method 'setA(int)' is not found in the class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
-ERROR: Method 'getaB' is not found in the class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
-ERROR: Field 'Ba' is transient in the class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
-ERROR: Field 'BB' is not found in the class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
-ERROR: Method 'getBB' is not found in the class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
-ERROR: Method 'setBB(int)' is not found in the class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
-ERROR: Field 'xB' is not transient in the class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
-ERROR: Default value for the field 'txt' in class 'org.openl.generated.epbds6830.BeanB' mismatches default value is used in the datatype 'BeanB'. Please, update the class to be compatible with the datatype.
-ERROR: Invalid access modifier is found on the field 'a' in the class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
-ERROR: Invalid access modifier is found on the field 'aa' in the class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
-ERROR: Mandatory constructor with parameters is not found in the class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
-
-
+ERROR: Method 'setA(int)' is not found in class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
+ERROR: Method 'getaB' is not found in class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
+ERROR: Field 'Ba' is transient in class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
+ERROR: Field 'BB' is not found in class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
+ERROR: Method 'getBB' is not found in class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
+ERROR: Method 'setBB(int)' is not found in class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
+ERROR: Field 'xB' is not transient in class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
+ERROR: Default value for field 'txt' in class 'org.openl.generated.epbds6830.BeanB' mismatches default value is used in datatype 'BeanB'. Please, update the class to be compatible with the datatype.
+ERROR: Invalid access modifier is found on field 'a' in class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
+ERROR: Invalid access modifier is found on field 'aa' in class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
+ERROR: Mandatory constructor with parameters is not found in class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.

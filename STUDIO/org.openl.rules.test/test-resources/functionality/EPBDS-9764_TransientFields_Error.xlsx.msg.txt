@@ -1,15 +1,15 @@
-WARN: Field 'field2' is already defined in the parent class 'MyType1SuperType'.
-WARN: Field 'field1' is already defined in the parent class 'MyType2SuperClass'.
-WARN: Field 'field1' is already defined in the parent class 'MyType3SuperClass'.
-ERROR: Field 'field2' is already defined.
-ERROR: Field 'field4' is already defined.
-ERROR: Field 'field2' is already defined.
-ERROR: Field 'field4' is already defined.
-ERROR: Field 'field2' is already defined.
-ERROR: Field 'field1' is already defined.
-ERROR: Field 'field2' is already defined.
-ERROR: Field 'field1' is already defined.
-ERROR: Field 'field1' is already defined.
-ERROR: Field 'field2' is already defined.
-ERROR: Field 'field1' is already defined.
-ERROR: Field 'field2' is already defined.
+WARN: Field 'field2' is already declared in parent class 'MyType1SuperType'.
+WARN: Field 'field1' is already declared in parent class 'MyType2SuperClass'.
+WARN: Field 'field1' is already declared in parent class 'MyType3SuperClass'.
+ERROR: Field 'field2' is already declared.
+ERROR: Field 'field4' is already declared.
+ERROR: Field 'field2' is already declared.
+ERROR: Field 'field4' is already declared.
+ERROR: Field 'field2' is already declared.
+ERROR: Field 'field1' is already declared.
+ERROR: Field 'field2' is already declared.
+ERROR: Field 'field1' is already declared.
+ERROR: Field 'field1' is already declared.
+ERROR: Field 'field2' is already declared.
+ERROR: Field 'field1' is already declared.
+ERROR: Field 'field2' is already declared.
