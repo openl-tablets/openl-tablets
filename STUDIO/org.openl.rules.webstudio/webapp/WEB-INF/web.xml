@@ -153,16 +153,6 @@
     <url-pattern>/reconfigure</url-pattern>
   </filter-mapping>
 
-  <filter>
-    <filter-name>ThreadLocalFilter</filter-name>
-    <filter-class>org.openl.rules.webstudio.filter.ThreadLocalFilter</filter-class>
-  </filter>
-
-  <filter-mapping>
-    <filter-name>ThreadLocalFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
