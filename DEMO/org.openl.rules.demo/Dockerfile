@@ -1,4 +1,4 @@
-FROM openjdk:11.0.5-stretch
+FROM openjdk:11.0.5-slim-buster
 
 ENV TOMCAT_VERSION=9.0.37
 
@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       bash \
       unzip \
       procps \
+      fontconfig \
       && rm -rf /var/lib/apt/lists/*
 
 COPY ./target/*.zip /tmp/
