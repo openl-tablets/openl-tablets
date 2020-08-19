@@ -22,7 +22,6 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
-import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -136,14 +135,16 @@ public class DeploymentManager implements InitializingBean {
                     dest.setAuthor(userName);
                     dest.setComment(project.getFileData().getComment());
 
+                    final FileData historyData = designRepo.checkHistory(rulesPath + projectName, version);
                     DeploymentManifestBuilder manifestBuilder = new DeploymentManifestBuilder()
                             .setBuiltBy(userName)
                             .setBuildNumber(pd.getProjectVersion().getRevision())
-                            .setImplementationTitle(projectName);
+                            .setImplementationTitle(projectName)
+                            .setImplementationVersion(RepositoryUtils.buildProjectVersion(historyData));
 
                     if (designRepo.supports().folders()) {
                         if (designRepo.supports().branches()) {
-                            manifestBuilder.setBranchName(((BranchRepository) designRepo).getBranch());
+                            manifestBuilder.setBuildBranch(historyData.getBranch());
                         }
                         archiveAndSave((FolderRepository) designRepo,
                                 rulesPath,
