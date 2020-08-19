@@ -20,4 +20,13 @@ public final class FileTypeHelper {
         String lcFileName = fileName.toLowerCase();
         return lcFileName.endsWith(".zip");
     }
+
+    public static boolean isOpenAPIFile(String fileName) {
+        if (fileName == null) {
+            return false;
+        }
+        String lcFileName = fileName.toLowerCase();
+        return lcFileName.equals("openapi.json") || lcFileName.equals("openapi.yml") || lcFileName
+            .equals("openapi.yaml");
+    }
 }

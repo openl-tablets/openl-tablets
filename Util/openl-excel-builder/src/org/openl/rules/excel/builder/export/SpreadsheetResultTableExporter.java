@@ -1,7 +1,9 @@
 package org.openl.rules.excel.builder.export;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -24,6 +26,12 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
     public static final String SPREADSHEET_RESULT_SIGNATURE = "\\{spr.signature}";
     public static final String SPREADSHEET_RESULT_STEP_NAME = "\\{spr.field.name}";
     public static final String SPREADSHEET_RESULT_STEP_VALUE = "\\{spr.field.value}";
+
+    private final List<String> spreadsheetNames;
+
+    public SpreadsheetResultTableExporter(List<String> names) {
+        spreadsheetNames = names;
+    }
 
     @Override
     protected void exportTables(Collection<SpreadsheetResultModel> models, Sheet sheet) {
@@ -97,10 +105,10 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
             next = next.moveRight(1);
 
             Cell stepValueCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
-            if (isSimpleType(step.getType())) {
-                setValue(step, stepValueCell);
-            } else {
+            if (spreadsheetNames.contains(step.getType())) {
                 stepValueCell.setCellValue(makeSprCall(step));
+            } else {
+                setValue(step, stepValueCell);
             }
 
             stepValueCell
@@ -133,6 +141,11 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
                 stepValueCell.setCellValue(0.0f);
             } else if ("String".equals(type)) {
                 stepValueCell.setCellValue(DEFAULT_STRING_VALUE);
+            } else if ("Date".equals(type)) {
+                // date-time difference
+                stepValueCell.setCellValue(new Date());
+            } else if ("Boolean".equals(type)) {
+                stepValueCell.setCellValue(false);
             }
         } else {
             stepValueCell.setCellValue("");
