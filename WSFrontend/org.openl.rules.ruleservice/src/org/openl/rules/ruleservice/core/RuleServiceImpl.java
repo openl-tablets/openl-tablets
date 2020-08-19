@@ -1,7 +1,5 @@
 package org.openl.rules.ruleservice.core;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -102,15 +100,6 @@ public class RuleServiceImpl implements RuleService {
         if (!foundServiceWithThisDeployment) {
             ruleServiceInstantiationFactory.clean(serviceDescription);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Collection<OpenLService> getServices() {
-        Collection<OpenLService> services = ruleServiceManager.getServices();
-        return new ArrayList<>(services);
     }
 
     /**

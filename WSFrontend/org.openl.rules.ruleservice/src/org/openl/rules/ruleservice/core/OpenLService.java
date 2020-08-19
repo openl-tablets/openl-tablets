@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.jar.Manifest;
@@ -40,6 +41,7 @@ public final class OpenLService {
     private ClassLoader classLoader;
     private OpenLServiceInitializer initializer;
     private Throwable exception;
+    private Map<String, String> urls = Collections.emptyMap();
     private final Manifest manifest;
 
     /**
@@ -289,6 +291,14 @@ public final class OpenLService {
 
     public void setException(Throwable exception) {
         this.exception = exception;
+    }
+
+    public Map<String, String> getUrls() {
+        return urls;
+    }
+
+    public void setUrls(Map<String, String> urls) {
+        this.urls = urls;
     }
 
     public Manifest getManifest() {
