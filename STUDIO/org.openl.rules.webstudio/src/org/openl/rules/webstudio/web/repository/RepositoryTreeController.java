@@ -1322,7 +1322,11 @@ public class RepositoryTreeController {
     }
 
     public String getProjectFolder() {
-        return projectFolder;
+        String folderToShow = this.projectFolder;
+        if (!folderToShow.startsWith("/")) {
+            folderToShow = "/" + folderToShow;
+        }
+        return folderToShow;
     }
 
     private ProjectVersion getProjectVersion() {
@@ -1586,6 +1590,9 @@ public class RepositoryTreeController {
 
     public void setProjectFolder(String projectFolder) {
         String folder = StringUtils.trimToEmpty(projectFolder).replace('\\', '/');
+        if (folder.startsWith("/")) {
+            folder = folder.substring(1);
+        }
         if (!folder.isEmpty() && !folder.endsWith("/")) {
             folder += '/';
         }
@@ -1955,7 +1962,7 @@ public class RepositoryTreeController {
      * Determine show or not current project content is some page (Open Version dialog or Rules Deploy Configuration
      * tab).
      *
-     * @return false if selected project is changed or true if {@link #selectCurrentProjectForOpen(AjaxBehaviorEvent)}
+     * @return false if selected project is changed or true if {@link #selectCurrentProjectForOpen()}
      *         is invoked
      */
     public boolean isCurrentProjectSelected() {

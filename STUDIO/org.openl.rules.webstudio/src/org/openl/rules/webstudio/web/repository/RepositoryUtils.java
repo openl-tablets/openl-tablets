@@ -47,7 +47,7 @@ public final class RepositoryUtils {
         return getTreeNodeId(repoId, name);
     }
 
-    static String getTreeNodeId(String repoId, String name) {
+    public static String getTreeNodeId(String repoId, String name) {
         return getTreeNodeId(repoId) + "_" + getTreeNodeId(name);
     }
 

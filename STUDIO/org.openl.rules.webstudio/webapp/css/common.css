@@ -171,6 +171,15 @@ a.button-secondary {
 }
 
 
+input[type='text'].with-button-select {
+    width: 322px;
+}
+
+input[type='button'].button-select {
+    height: 23px;
+    padding: 0 5px;
+}
+
 #refreshBtn,
 #designRepoRefresh,
 #productionRepoRefresh {
@@ -937,6 +946,11 @@ table.properties-form.wide .error {
 .rf-tr-nd-exp-nc {
     display: none;
 }
+
+.rf-trn-sel {
+    font-weight: bold;
+}
+
 .param-tree .rf-trn-sel {
     font-weight: normal;
 }

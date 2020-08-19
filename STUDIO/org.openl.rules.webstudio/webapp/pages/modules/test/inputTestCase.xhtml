@@ -43,7 +43,7 @@
                             value="#{helper.getRoot(argumentTreeNode)}" var="item"
                             rowKeyVar="rowKeyVar"
                             nodeType="#{item.nodeType}" binding="#{inputArgsBean.currentTreeNode}"
-                            styleClass="dynamicTree" rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter">
+                            styleClass="dynamicTree param-tree" rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter">
                             <!-- rowKeyConverter is a temporary solution.
                              After migrating to the newer version of RichFaces it can be removed.
                              See: https://issues.jboss.org/browse/RF-11102 for details -->

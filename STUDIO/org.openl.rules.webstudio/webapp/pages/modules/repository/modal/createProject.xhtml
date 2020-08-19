@@ -104,7 +104,10 @@
                                 <h:outputLabel for="projectFolderTemplate" value="Path:" />
                             </td>
                             <td><h:inputText id="projectFolderTemplate" size="35"
+                                    styleClass="with-button-select"
                                     value="#{repositoryTreeController.projectFolder}"/>
+                                <input type="button" value="..." class="button-select"
+                                       onclick="openSelectFolderDialog('#{repositoryTreeController.repositoryId}', 'createProjectFormTempl:projectFolderTemplate')"/>
                             </td>
                         </tr>
                         </ui:fragment>
@@ -167,9 +170,14 @@
 
                         <h:outputLabel for="projectFolderExcel" value="Path:"
                                        rendered="#{repositoryTreeController.supportsMappedFolders}"/>
-                        <h:inputText id="projectFolderExcel" size="35"
-                                     value="#{repositoryTreeController.projectFolder}"
-                                     rendered="#{repositoryTreeController.supportsMappedFolders}"/>
+                        <h:panelGroup rendered="#{repositoryTreeController.supportsMappedFolders}">
+                            <h:inputText id="projectFolderExcel" size="35"
+                                         styleClass="with-button-select"
+                                         value="#{repositoryTreeController.projectFolder}"/>
+
+                            <input type="button" value="..." class="button-select"
+                                   onclick="openSelectFolderDialog('#{repositoryTreeController.repositoryId}', 'createProjectFormFiles:projectFolderExcel')"/>
+                        </h:panelGroup>
 
                         <ui:param name="useCustomComment" value="#{repositoryTreeController.useCustomComment}"/>
 
@@ -223,9 +231,14 @@
 
                     <h:outputLabel for="projectFolderZip" value="Path:"
                                    rendered="#{repositoryTreeController.supportsMappedFolders}"/>
-                    <h:inputText id="projectFolderZip" size="35"
-                                 value="#{repositoryTreeController.projectFolder}"
-                                 rendered="#{repositoryTreeController.supportsMappedFolders}"/>
+                    <h:panelGroup rendered="#{repositoryTreeController.supportsMappedFolders}">
+                        <h:inputText id="projectFolderZip" size="35"
+                                     styleClass="with-button-select"
+                                     value="#{repositoryTreeController.projectFolder}"/>
+
+                        <input type="button" value="..." class="button-select"
+                               onclick="openSelectFolderDialog('#{repositoryTreeController.repositoryId}', 'uploadProjectForm:projectFolderZip')"/>
+                    </h:panelGroup>
 
                     <ui:param name="useCustomComment" value="#{repositoryTreeController.useCustomComment}"/>
 
@@ -294,8 +307,13 @@
                         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                                      rendered="#{repositoryTreeController.supportsMappedFolders}">
                             <h:outputLabel for="projectFolderLocal" value="Path:"/>
-                            <h:inputText id="projectFolderLocal" size="35"
-                                         value="#{localUpload.projectFolder}"/>
+                            <h:panelGroup>
+                                <h:inputText id="projectFolderLocal" size="35"
+                                             styleClass="with-button-select"
+                                             value="#{localUpload.projectFolder}"/>
+                                <input type="button" value="..." class="button-select"
+                                       onclick="openSelectFolderDialog('#{repositoryTreeController.repositoryId}', 'uploadWorkspaceProjectForm:projectFolderLocal')"/>
+                            </h:panelGroup>
                         </h:panelGrid>
                     </div>
                     <p>
@@ -336,8 +354,15 @@
                         </h:selectOneMenu>
 
                         <h:outputLabel for="projectFolderImport" value="Path:"/>
-                        <h:inputText id="projectFolderImport" size="35"
-                                     value="#{repositoryTreeController.projectFolder}"/>
+                        <h:panelGroup>
+                            <h:inputText id="projectFolderImport" size="35"
+                                         styleClass="with-button-select"
+                                         value="#{repositoryTreeController.projectFolder}"/>
+
+                            <input type="button" value="..."
+                                   class="button-select #{empty repositoryTreeController.repositoryId ? 'hidden' : ''}"
+                                   onclick="openSelectFolderDialog('#{repositoryTreeController.repositoryId}', 'importFromRepoForm:projectFolderImport')"/>
+                        </h:panelGroup>
 
                     </h:panelGrid>
 

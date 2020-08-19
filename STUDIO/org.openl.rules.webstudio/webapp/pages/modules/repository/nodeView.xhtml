@@ -192,7 +192,7 @@
                             </h:selectOneMenu>
                             <input type="button" value="..." title="Manage project branches"
                                    onclick="openEditBranchesDialog('#{artefact.repository.id}', '#{node.name}');"
-                                   style="height: 23px;padding: 0px 5px;"/>
+                                   class="button-select"/>
                             <a4j:outputPanel ajaxRendered="true" id="branchSelectorError" style="display: grid;">
                                 <h:message for="branchSelector" styleClass="error" style="padding-top: 10px;"/>
                             </a4j:outputPanel>

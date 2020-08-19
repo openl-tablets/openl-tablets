@@ -1,0 +1,72 @@
+<ui:composition
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <rich:popupPanel id="modalSelectFolder" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Select Folder"/>
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close" onclick="closeSelectFolderDialog();" alt="Close"/>
+        </f:facet>
+
+        <h:form>
+            <div style="height: 30vh; width: 50vh;" class="scrollable">
+                <rich:tree id="folderTree" value="#{selectFolderBean.folderTree}" var="item" nodeType="#{item.type}"
+                           toggleType="client" selectionType="ajax"
+                           render="buttons"
+                           selectionChangeListener="#{selectFolderBean.processSelection}"
+                           selection="#{selectFolderBean.selection}">
+                    <rich:treeNode type="folder" expanded="#{item.expanded}"
+                                   iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.iconLeaf}">
+                        <h:outputText value="#{item.name}"/>
+                    </rich:treeNode>
+                </rich:tree>
+            </div>
+
+            <footer>
+                <h:panelGroup id="buttons">
+                    <input type="button" value="Select" class="button-primary" onclick="applySelectedFolder('#{selectFolderBean.path}')"/>
+                    <input type="button" value="Cancel" onclick="closeSelectFolderDialog();"/>
+                </h:panelGroup>
+            </footer>
+
+            <a4j:jsFunction name="refreshSelectFolderDialog" render="@form" oncomplete="showSelectFolderDialog();">
+                <a4j:param name="repositoryId" assignTo="#{selectFolderBean.repositoryId}"/>
+                <a4j:param name="path" assignTo="#{selectFolderBean.path}"/>
+            </a4j:jsFunction>
+
+        </h:form>
+    </rich:popupPanel>
+
+    <script>
+        //<![CDATA[
+        let $inputElementWithFolder;
+
+        function openSelectFolderDialog(repositoryId, inputId) {
+            $inputElementWithFolder = $j('#' + inputId.replace(':', '\\:'));
+            let chosenFolder = $inputElementWithFolder.val();
+            refreshSelectFolderDialog(repositoryId, chosenFolder);
+        }
+
+        function showSelectFolderDialog() {
+            RichFaces.$('modalSelectFolder').show();
+        }
+
+        function closeSelectFolderDialog() {
+            RichFaces.$('modalSelectFolder').hide();
+        }
+
+        function applySelectedFolder(chosenFolder) {
+            $inputElementWithFolder.val(chosenFolder);
+            $inputElementWithFolder.change();
+            closeSelectFolderDialog();
+        }
+
+        //]]>
+    </script>
+</ui:composition>

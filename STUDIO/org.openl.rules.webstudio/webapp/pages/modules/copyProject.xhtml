@@ -50,7 +50,12 @@
                     </h:selectOneMenu>
 
                     <h:outputLabel id="projectFolderLabel" for="projectFolder" value="Path:" rendered="#{copyBean.supportsMappedFolders}"/>
-                    <h:inputText id="projectFolder" value="#{copyBean.projectFolder}" rendered="#{copyBean.supportsMappedFolders}"/>
+                    <h:panelGroup rendered="#{copyBean.supportsMappedFolders}">
+                        <h:inputText id="projectFolder" value="#{copyBean.projectFolder}"
+                                     styleClass="with-button-select"/>
+                        <input type="button" value="..." class="button-select"
+                               onclick="openSelectFolderDialog('#{copyBean.toRepositoryId}', 'copyProjectForm:projectFolder')"/>
+                    </h:panelGroup>
 
                     <h:outputText value="Comment:"/>
                     <h:inputTextarea id="comment" value="#{copyBean.comment}" type="text" size="35" readonly="false"
