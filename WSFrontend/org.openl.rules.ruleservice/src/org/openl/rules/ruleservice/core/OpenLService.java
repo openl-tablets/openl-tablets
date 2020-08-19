@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.jar.Manifest;
 
 import org.openl.CompiledOpenClass;
 import org.openl.rules.project.model.Module;
@@ -42,7 +41,6 @@ public final class OpenLService {
     private OpenLServiceInitializer initializer;
     private Throwable exception;
     private Map<String, String> urls = Collections.emptyMap();
-    private final Manifest manifest;
 
     /**
      * Returns service classloader
@@ -75,8 +73,7 @@ public final class OpenLService {
             Set<String> publishers,
             Collection<Module> modules,
             ClassLoader classLoader,
-            Class<?> serviceClass,
-            Manifest manifest) {
+            Class<?> serviceClass) {
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.url = url;
         this.servicePath = servicePath;
@@ -98,7 +95,6 @@ public final class OpenLService {
 
         this.classLoader = classLoader;
         this.serviceClass = serviceClass;
-        this.manifest = manifest;
     }
 
     private OpenLService(OpenLServiceBuilder builder, OpenLServiceInitializer initializer) {
@@ -113,8 +109,7 @@ public final class OpenLService {
             builder.publishers,
             builder.modules,
             builder.classLoader,
-            builder.serviceClass,
-            builder.manifest);
+            builder.serviceClass);
         this.initializer = Objects.requireNonNull(initializer, "initializer cannot be null");
     }
 
@@ -301,10 +296,6 @@ public final class OpenLService {
         this.urls = urls;
     }
 
-    public Manifest getManifest() {
-        return manifest;
-    }
-
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
@@ -356,7 +347,6 @@ public final class OpenLService {
         private Collection<Module> modules;
         private Set<String> publishers;
         private ClassLoader classLoader;
-        private Manifest manifest;
 
         public OpenLServiceBuilder setClassLoader(ClassLoader classLoader) {
             this.classLoader = classLoader;
@@ -527,11 +517,6 @@ public final class OpenLService {
 
         public OpenLServiceBuilder setServiceClass(Class<?> serviceClass) {
             this.serviceClass = serviceClass;
-            return this;
-        }
-
-        public OpenLServiceBuilder setManifest(Manifest manifest) {
-            this.manifest = manifest;
             return this;
         }
 

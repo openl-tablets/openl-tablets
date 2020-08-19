@@ -10,21 +10,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.locks.Lock;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
+import org.openl.OpenClassUtil;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
+import org.openl.rules.common.CommonVersion;
 import org.openl.rules.ruleservice.conf.ServiceConfigurer;
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.core.RuleService;
+import org.openl.rules.ruleservice.core.OpenLServiceHolder;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactory;
+import org.openl.rules.ruleservice.core.RuleServiceRedeployLock;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.DataSourceListener;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
+import org.openl.rules.ruleservice.publish.RuleServiceManager;
 import org.openl.rules.ruleservice.servlet.MethodDescriptor;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
@@ -38,13 +44,12 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceManagerImpl implements ServiceManager, DataSourceListener, ServiceInfoProvider {
     private final Logger log = LoggerFactory.getLogger(ServiceManagerImpl.class);
-    private RuleService ruleService;
+    private RuleServiceManager ruleServiceManager;
+    private RuleServiceInstantiationFactory ruleServiceInstantiationFactory;
     private ServiceConfigurer serviceConfigurer;
     private RuleServiceLoader ruleServiceLoader;
     private final Map<String, ServiceDescription> services = new HashMap<>();
     private final Map<String, Date> startDates = new HashMap<>();
-    private final Map<String, ServiceDescription> serviceDescriptions = new HashMap<>();
-    private final Map<String, ServiceDescription> failedServiceDescriptions = new HashMap<>();
 
     public void setRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
         if (this.ruleServiceLoader != null) {
@@ -56,16 +61,13 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         }
     }
 
-    public RuleService getRuleService() {
-        return ruleService;
+    public void setRuleServiceManager(RuleServiceManager ruleServiceManager) {
+        this.ruleServiceManager = Objects.requireNonNull(ruleServiceManager, "ruleServiceManager cannot be null");
     }
 
-    public void setRuleService(RuleService ruleService) {
-        this.ruleService = Objects.requireNonNull(ruleService, "ruleService cannot be null");
-    }
-
-    public ServiceConfigurer getServiceConfigurer() {
-        return serviceConfigurer;
+    public void setRuleServiceInstantiationFactory(RuleServiceInstantiationFactory ruleServiceInstantiationFactory) {
+        this.ruleServiceInstantiationFactory = Objects.requireNonNull(ruleServiceInstantiationFactory,
+            "ruleServiceInstantiationFactory cannot be null");
     }
 
     public void setServiceConfigurer(ServiceConfigurer serviceConfigurer) {
@@ -93,7 +95,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         deployServices(newServices);
     }
 
-    protected Map<String, ServiceDescription> gatherServicesToBeDeployed() {
+    private Map<String, ServiceDescription> gatherServicesToBeDeployed() {
         try {
             Collection<ServiceDescription> servicesToBeDeployed = serviceConfigurer
                 .getServicesToBeDeployed(ruleServiceLoader);
@@ -114,67 +116,115 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         }
     }
 
-    protected void undeployUnnecessary(Map<String, ServiceDescription> newServices) {
-        for (String runningServiceName : services.keySet()) {
-            if (!newServices.containsKey(runningServiceName)) {
+    private void undeployUnnecessary(Map<String, ServiceDescription> newServices) {
+        for (Map.Entry<String, ServiceDescription> svc : services.entrySet()) {
+            String serviceName = svc.getKey();
+            ServiceDescription service = svc.getValue();
+            if (!newServices.containsKey(serviceName)) {
                 try {
-                    undeploy(getServiceByName(runningServiceName));
+                    undeploy(service);
                 } catch (RuleServiceUndeployException e) {
-                    log.error("Failed to undeploy service '{}'.", runningServiceName, e);
-                } finally {
-                    ServiceDescriptionHolder.getInstance().remove();
+                    log.error("Failed to undeploy service '{}'.", serviceName, e);
                 }
             }
         }
     }
 
-    private void undeploy(OpenLService runningService) throws RuleServiceUndeployException {
-        String runningServiceName = runningService.getName();
-        ServiceDescription serviceDescription = serviceDescriptions.get(runningServiceName);
-        ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
-        services.remove(runningServiceName);
-        startDates.remove(runningServiceName);
-        ruleService.undeploy(runningService);
-        serviceDescriptions.remove(runningServiceName);
-        failedServiceDescriptions.remove(runningServiceName);
-    }
-
-    protected void deployServices(Map<String, ServiceDescription> newServices) {
+    private void deployServices(Map<String, ServiceDescription> newServices) {
         for (ServiceDescription serviceDescription : newServices.values()) {
             String serviceName = serviceDescription.getName();
+            ServiceDescription old = services.get(serviceName);
             try {
-                ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
-                if (!services.containsKey(serviceName)) {
-                    ServiceDescription failedServiceDescription = failedServiceDescriptions.get(serviceName);
-                    if (failedServiceDescription != null) {
-                        if (!serviceName.equals(failedServiceDescription.getName())) {
-                            throw new IllegalStateException();
+
+                if (old != null) {
+                    CommonVersion oldVersion = old.getDeployment().getVersion();
+                    if (oldVersion.compareTo(serviceDescription.getDeployment().getVersion()) != 0) {
+                        Lock lock = RuleServiceRedeployLock.getInstance().getWriteLock();
+                        try {
+                            lock.lock();
+                            // Do redeploy
+                            undeploy(old);
+                            deploy(serviceDescription);
+                        } finally {
+                            lock.unlock();
                         }
-                        if (failedServiceDescription.getDeployment()
-                            .getVersion()
-                            .compareTo(serviceDescription.getDeployment().getVersion()) != 0) {
-                            failedServiceDescriptions.remove(serviceName);
-                            ruleService.deploy(serviceDescription);
-                            serviceDescriptions.put(serviceName, serviceDescription);
-                        }
-                    } else {
-                        ruleService.deploy(serviceDescription);
-                        serviceDescriptions.put(serviceName, serviceDescription);
                     }
                 } else {
-                    ruleService.redeploy(serviceDescription);
-                    serviceDescriptions.put(serviceName, serviceDescription);
+                    deploy(serviceDescription);
                 }
             } catch (RuleServiceDeployException e) {
-                failedServiceDescriptions.put(serviceName, serviceDescription);
                 log.error("Failed to deploy service '{}'.", serviceName, e);
             } catch (RuleServiceUndeployException e) {
                 log.error("Failed to undeploy service '{}'.", serviceName, e);
-            } finally {
-                ServiceDescriptionHolder.getInstance().remove();
-                services.put(serviceName, serviceDescription);
-                startDates.put(serviceName, new Date());
             }
+        }
+    }
+
+    private void undeploy(ServiceDescription serviceDescription) throws RuleServiceUndeployException {
+        Objects.requireNonNull(serviceDescription, "service cannot be null");
+        String serviceName = serviceDescription.getName();
+        OpenLService service = getServiceByName(serviceName);
+        try {
+            OpenLServiceHolder.getInstance().setOpenLService(service);
+            ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
+            try {
+                ruleServiceManager.undeploy(serviceName);
+            } finally {
+                cleanDeploymentResources(serviceDescription);
+                ClassLoader classloader = null;
+                try {
+                    classloader = service.getClassLoader();
+                } catch (RuleServiceInstantiationException ignored) {
+                }
+                OpenClassUtil.releaseClassLoader(classloader);
+            }
+            log.info("Service '{}' was undeployed successfully.", serviceName);
+            startDates.remove(serviceName);
+            services.remove(serviceName);
+        } finally {
+            ServiceDescriptionHolder.getInstance().remove();
+            OpenLServiceHolder.getInstance().remove();
+        }
+    }
+
+    private void cleanDeploymentResources(ServiceDescription serviceDescription) {
+        boolean foundServiceWithThisDeployment = false;
+        for (ServiceDescription sd : services.values()) {
+            if (sd.getDeployment().equals(serviceDescription.getDeployment())) {
+                foundServiceWithThisDeployment = true;
+                break;
+            }
+        }
+        if (!foundServiceWithThisDeployment) {
+            ruleServiceInstantiationFactory.clean(serviceDescription);
+        }
+    }
+
+    private void deploy(ServiceDescription serviceDescription) throws RuleServiceDeployException {
+        String serviceName = serviceDescription.getName();
+        OpenLService service = ruleServiceManager.getServiceByName(serviceName);
+        if (service != null) {
+            throw new RuleServiceDeployException(
+                String.format("The service with name '%s' has already been deployed.", serviceName));
+        }
+        // Some singleton caches may not be cleaned by calling undeploy method
+        cleanDeploymentResources(serviceDescription);
+        try {
+            ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
+            OpenLService newService = ruleServiceInstantiationFactory.createService(serviceDescription);
+            OpenLServiceHolder.getInstance().setOpenLService(newService);
+            ruleServiceManager.deploy(newService);
+            log.info("Service '{}' has been deployed successfully.", serviceName);
+        } catch (RuleServiceInstantiationException e) {
+            throw new RuleServiceDeployException("Failed on deploy a service.", e);
+        } finally {
+            cleanDeploymentResources(serviceDescription);
+            ServiceDescriptionHolder.getInstance().remove();
+            OpenLServiceHolder.getInstance().remove();
+
+            // Register a service even it was deployed unsuccessfully.
+            services.put(serviceName, serviceDescription);
+            startDates.put(serviceName, new Date());
         }
     }
 
@@ -209,9 +259,9 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         if (service != null) {
             try {
                 return Arrays.stream(service.getServiceClass().getMethods())
-                        .map(this::toDescriptor)
-                        .sorted(Comparator.comparing(MethodDescriptor::getName, String::compareToIgnoreCase))
-                        .collect(Collectors.toList());
+                    .map(this::toDescriptor)
+                    .sorted(Comparator.comparing(MethodDescriptor::getName, String::compareToIgnoreCase))
+                    .collect(Collectors.toList());
             } catch (RuleServiceInstantiationException ignore) {
                 // Ignore
             }
@@ -220,28 +270,27 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     }
 
     private OpenLService getServiceByName(String serviceName) {
-        return ruleService.getServiceByName(serviceName);
+        return ruleServiceManager.getServiceByName(serviceName);
     }
 
     private MethodDescriptor toDescriptor(Method method) {
         String name = method.getName();
         String returnType = method.getReturnType().getSimpleName();
         List<String> paramTypes = Arrays.stream(method.getParameterTypes())
-                .map(Class::getSimpleName)
-                .collect(Collectors.toList());
+            .map(Class::getSimpleName)
+            .collect(Collectors.toList());
         return new MethodDescriptor(name, returnType, paramTypes);
     }
 
     @Override
     public Collection<ServiceInfo> getServicesInfo() {
-        return services.values()
-                .stream()
-                .map(s -> {
-                    OpenLService serviceByName = getServiceByName(s.getName());
-                    Map<String, String> urls = serviceByName != null ? serviceByName.getUrls() : Collections.emptyMap();
-                    return new ServiceInfo(startDates.get(s.getName()), s.getName(), urls, s.getServicePath(), s.getManifest() != null);
-                })
-                .sorted(Comparator.comparing(ServiceInfo::getName, String.CASE_INSENSITIVE_ORDER))
-                .collect(Collectors.toList());
+        return services.values().stream().map(s -> {
+            OpenLService serviceByName = getServiceByName(s.getName());
+            Map<String, String> urls = serviceByName != null ? serviceByName.getUrls() : Collections.emptyMap();
+            return new ServiceInfo(startDates
+                .get(s.getName()), s.getName(), urls, s.getServicePath(), s.getManifest() != null);
+        })
+            .sorted(Comparator.comparing(ServiceInfo::getName, String.CASE_INSENSITIVE_ORDER))
+            .collect(Collectors.toList());
     }
 }

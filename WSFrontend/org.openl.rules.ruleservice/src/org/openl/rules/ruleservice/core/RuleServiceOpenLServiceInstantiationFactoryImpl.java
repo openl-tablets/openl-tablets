@@ -223,8 +223,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             .setRmiName(serviceDescription.getRmiName())
             .setProvideRuntimeContext(serviceDescription.isProvideRuntimeContext())
             .setProvideVariations(serviceDescription.isProvideVariations())
-            .addModules(modules)
-            .setManifest(serviceDescription.getManifest());
+            .addModules(modules);
 
         for (String publisher : serviceDescription.getPublishers()) {
             builder.addPublisher(publisher);
