@@ -12,19 +12,19 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher;
-import org.openl.rules.ruleservice.publish.RuleServiceManager;
+import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Produces(MediaType.APPLICATION_JSON)
 public class AdminRestController {
 
-    private RuleServiceManager ruleServiceManager;
+    private ServiceInfoProvider serviceManager;
     private JAXRSRuleServicePublisher jaxrsRuleServicePublisher;
     private Map<String, Object> uiConfig;
 
     @Resource
-    public void setRuleServiceManager(RuleServiceManager ruleServiceManager) {
-        this.ruleServiceManager = ruleServiceManager;
+    public void setServiceManager(ServiceInfoProvider serviceManager) {
+        this.serviceManager = serviceManager;
     }
 
     @Resource
@@ -43,7 +43,7 @@ public class AdminRestController {
     @GET
     @Path("/services")
     public Response getServiceInfo() {
-        return Response.ok(ruleServiceManager.getServicesInfo()).build();
+        return Response.ok(serviceManager.getServicesInfo()).build();
     }
 
     /**
@@ -53,7 +53,7 @@ public class AdminRestController {
     @Path("/ui/info")
     public Response getServiceInfoWithSettings() {
         Map<String, Object> info = new HashMap<>(uiConfig);
-        info.put("services", ruleServiceManager.getServicesInfo());
+        info.put("services", serviceManager.getServicesInfo());
         info.put("noWadlServices", jaxrsRuleServicePublisher.listNoWadlServices());
         return Response.ok(info).build();
     }
@@ -64,7 +64,7 @@ public class AdminRestController {
     @GET
     @Path("/services/{serviceName}/methods/")
     public Response getServiceMethodNames(@PathParam("serviceName") final String serviceName) {
-        return okOrNotFound(ruleServiceManager.getServiceMethods(serviceName));
+        return okOrNotFound(serviceManager.getServiceMethods(serviceName));
     }
 
     /**
@@ -73,13 +73,13 @@ public class AdminRestController {
     @GET
     @Path("/services/{serviceName}/errors/")
     public Response getServiceErrors(@PathParam("serviceName") final String serviceName) {
-        return okOrNotFound(ruleServiceManager.getServiceErrors(serviceName));
+        return okOrNotFound(serviceManager.getServiceErrors(serviceName));
     }
 
     @GET
     @Path("/services/{serviceName}/MANIFEST.MF")
     public Response getManifest(@PathParam("serviceName") final String serviceName) {
-        return okOrNotFound(ruleServiceManager.getManifest(serviceName));
+        return okOrNotFound(serviceManager.getManifest(serviceName));
     }
 
     private Response okOrNotFound(Object entity) {

@@ -1,20 +1,12 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.lang.reflect.Method;
 import java.util.*;
-import java.util.jar.Manifest;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessagesUtils;
-import org.openl.message.Severity;
+import org.openl.CompiledOpenClass;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
-import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
-import org.openl.rules.ruleservice.servlet.MethodDescriptor;
-import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +23,6 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
     private Collection<String> defaultRuleServicePublishers = Collections.emptyList();
 
     private final Map<String, OpenLService> services = new HashMap<>();
-    private final Map<String, Date> startDates = new HashMap<>();
 
     private Collection<RuleServicePublisherListener> listeners = Collections.emptyList();
 
@@ -49,18 +40,10 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
         this.defaultRuleServicePublishers = defaultRuleServicePublishers;
     }
 
-    @Override
-    public Collection<ServiceInfo> getServicesInfo() {
-        return services.values()
-            .stream()
-            .map(s -> new ServiceInfo(startDates.get(s.getName()), s.getName(), getUrls(s), s.getServicePath(), s.getManifest() != null))
-            .sorted(Comparator.comparing(ServiceInfo::getName, String.CASE_INSENSITIVE_ORDER))
-            .collect(Collectors.toList());
-    }
-
-    private Map<String, String> getUrls(OpenLService service) {
+    private void setUrls(OpenLService service) {
         HashMap<String, String> result = new HashMap<>();
-        if (service.getException() == null && !service.getCompiledOpenClass().hasErrors()) {
+        CompiledOpenClass compiledOpenClass = service.getCompiledOpenClass();
+        if (compiledOpenClass != null && service.getException() == null && !compiledOpenClass.hasErrors()) {
             supportedPublishers.forEach((id, publisher) -> {
                 if (publisher.getServiceByName(service.getName()) != null) {
                     String url = publisher.getUrl(service);
@@ -68,57 +51,7 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
                 }
             });
         }
-        return result;
-    }
-
-    @Override
-    public Collection<MethodDescriptor> getServiceMethods(String serviceName) {
-        OpenLService service = getServiceByName(serviceName);
-        if (service != null) {
-            try {
-                return Arrays.stream(service.getServiceClass().getMethods())
-                    .map(this::toDescriptor)
-                    .sorted(Comparator.comparing(MethodDescriptor::getName, String::compareToIgnoreCase))
-                    .collect(Collectors.toList());
-            } catch (RuleServiceInstantiationException ignore) {
-                // Ignore
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public List<String> getServiceErrors(String serviceName) {
-        OpenLService service = services.get(serviceName);
-        if (service == null) {
-            return null;
-        }
-        Collection<OpenLMessage> messages = service.getCompiledOpenClass().getMessages();
-        Collection<OpenLMessage> openLMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
-        List<String> errors = openLMessages.stream().map(OpenLMessage::getSummary).collect(Collectors.toList());
-        if (errors.isEmpty()) {
-            Throwable exception = service.getException();
-            errors.add(exception.toString());
-        }
-        return errors;
-    }
-
-    @Override
-    public Manifest getManifest(String serviceName) {
-        OpenLService service = services.get(serviceName);
-        if (service == null) {
-            return null;
-        }
-        return service.getManifest();
-    }
-
-    private MethodDescriptor toDescriptor(Method method) {
-        String name = method.getName();
-        String returnType = method.getReturnType().getSimpleName();
-        List<String> paramTypes = Arrays.stream(method.getParameterTypes())
-            .map(Class::getSimpleName)
-            .collect(Collectors.toList());
-        return new MethodDescriptor(name, returnType, paramTypes);
+        service.setUrls(result);
     }
 
     @Override
@@ -160,7 +93,6 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
                 break;
             }
         }
-        startDates.put(serviceName, new Date());
         services.put(serviceName, service);
         if (e1 != null) {
             for (RuleServicePublisher publisher : deployedPublishers) {
@@ -172,6 +104,7 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
             }
             throw new RuleServiceDeployException("Failed to deploy service.", e1);
         }
+        setUrls(service);
         fireDeployListeners(service);
     }
 
@@ -185,11 +118,6 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
     public OpenLService getServiceByName(String serviceName) {
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
         return services.get(serviceName);
-    }
-
-    @Override
-    public Collection<OpenLService> getServices() {
-        return new ArrayList<>(services.values());
     }
 
     @Override
@@ -209,7 +137,6 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
         }
         if (e1 == null) {
             services.remove(serviceName);
-            startDates.remove(serviceName);
         } else {
             throw new RuleServiceUndeployException("Failed to undeploy a service.", e1);
         }
