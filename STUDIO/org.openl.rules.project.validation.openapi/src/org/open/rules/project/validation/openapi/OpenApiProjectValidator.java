@@ -25,11 +25,13 @@ import javax.ws.rs.QueryParam;
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.model.RulesDeployHelper;
 import org.openl.rules.project.resolving.ProjectResource;
 import org.openl.rules.project.resolving.ProjectResourceLoader;
 import org.openl.rules.project.validation.AbstractServiceInterfaceProjectValidator;
@@ -41,6 +43,7 @@ import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiRulesCacheWorkar
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperConfigurationHelper;
 import org.openl.rules.serialization.DefaultTypingMode;
 import org.openl.rules.serialization.JacksonObjectMapperFactoryBean;
+import org.openl.rules.serialization.JacksonObjectMapperFactoryBeanHelper;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -172,6 +175,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         jacksonObjectMapperFactoryBean.setClassLoader(classLoader);
         Set<Class<?>> rootClassNamesBindingClasses = getRootClassNamesBindingClasses(context.getOpenClass(),
             context.getRulesDeploy(),
+            context.getServiceClass(),
             classLoader);
         jacksonObjectMapperFactoryBean.setSupportVariations(context.isProvideVariations());
         jacksonObjectMapperFactoryBean.setDefaultTypingMode(DefaultTypingMode.DISABLED);
@@ -187,19 +191,19 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
 
     private Set<Class<?>> getRootClassNamesBindingClasses(IOpenClass openClass,
             RulesDeploy rulesDeploy,
+            Class<?> serviceClass,
             ClassLoader classLoader) {
         Set<Class<?>> rootClassNamesBindingClasses = new HashSet<>();
         if (rulesDeploy != null && rulesDeploy.getConfiguration() != null) {
             Object rootClassNamesBinding = rulesDeploy.getConfiguration().get("rootClassNamesBinding");
             if (rootClassNamesBinding instanceof String) {
-                String[] rootClasses = ((String) rootClassNamesBinding).split(",");
-                for (String className : rootClasses) {
-                    if (className != null && className.trim().length() > 0) {
-                        try {
-                            Class<?> cls = classLoader.loadClass(className);
-                            rootClassNamesBindingClasses.add(cls);
-                        } catch (ClassNotFoundException ignored) {
-                        }
+                Set<String> classNames = RulesDeployHelper
+                    .splitRootClassNamesBindingClasses((String) rootClassNamesBinding);
+                for (String className : classNames) {
+                    try {
+                        Class<?> cls = classLoader.loadClass(className);
+                        rootClassNamesBindingClasses.add(cls);
+                    } catch (ClassNotFoundException ignored) {
                     }
                 }
             }
@@ -208,6 +212,10 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             if (type instanceof DatatypeOpenClass) {
                 rootClassNamesBindingClasses.add(type.getInstanceClass());
             }
+        }
+        if (openClass instanceof XlsModuleOpenClass) {
+            rootClassNamesBindingClasses.addAll(JacksonObjectMapperFactoryBeanHelper
+                .extractSpreadsheetResultBeanClasses((XlsModuleOpenClass) openClass, serviceClass));
         }
         return Collections.unmodifiableSet(rootClassNamesBindingClasses);
     }

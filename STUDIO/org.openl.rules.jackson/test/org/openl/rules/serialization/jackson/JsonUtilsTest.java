@@ -1,4 +1,4 @@
-package org.openl.rules.jackson;
+package org.openl.rules.serialization.jackson;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -70,7 +70,7 @@ public class JsonUtilsTest {
         assertEquals("{\"model\":\"BMW\",\"year\":null}", JsonUtils.toJSON(new Car("BMW", null)));
         assertEquals("{\"model\":\"BMW\",\"year\":null}",
             JsonUtils.toJSON(new Car("BMW", null), new Class[] { Car.class }));
-        assertEquals("{\"@class\":\"org.openl.rules.jackson.JsonUtilsTest$Car\",\"model\":\"BMW\",\"year\":null}",
+        assertEquals("{\"@class\":\"org.openl.rules.serialization.jackson.JsonUtilsTest$Car\",\"model\":\"BMW\",\"year\":null}",
             JsonUtils.toJSON(new Car("BMW", null), new Class[] { Car.class, Track.class }, true));
     }
 

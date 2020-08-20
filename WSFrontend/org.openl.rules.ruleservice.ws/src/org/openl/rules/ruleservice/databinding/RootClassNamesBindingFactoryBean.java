@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.openl.rules.project.model.RulesDeployHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
@@ -28,21 +29,15 @@ public class RootClassNamesBindingFactoryBean implements FactoryBean<Set<String>
     }
 
     @Override
-    public Set<String> getObject() throws Exception {
+    public Set<String> getObject() {
         Set<String> ret = new HashSet<>();
         if (rootClassNames == null || rootClassNames.trim().length() == 0) {
             return ret;
         }
-        String[] rootClasses = rootClassNames.split(",");
-        for (String className : rootClasses) {
-            if (className != null && className.trim().length() > 0) {
-                String trimmedClassName = className.trim();
-                ret.add(trimmedClassName);
-                log.info("Class '{}' has been added to the root class names list for WS type binding.",
-                    trimmedClassName);
-            }
+        ret.addAll(RulesDeployHelper.splitRootClassNamesBindingClasses(rootClassNames));
+        for (String clsName : ret) {
+            log.info("Class '{}' has been added to the root class names list for WS type binding.", clsName);
         }
-
         return Collections.unmodifiableSet(ret);
     }
 

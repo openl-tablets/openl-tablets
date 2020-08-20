@@ -1,4 +1,7 @@
-package org.openl.rules.ruleservice.databinding.util;
+package org.openl.rules.serialization;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -8,9 +11,6 @@ import java.util.GregorianCalendar;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class ExtendedStdDateFormatTest {
 

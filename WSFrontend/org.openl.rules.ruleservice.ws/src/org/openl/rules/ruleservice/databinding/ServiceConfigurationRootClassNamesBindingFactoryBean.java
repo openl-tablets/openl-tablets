@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
+import org.openl.rules.project.model.RulesDeployHelper;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.serialization.JacksonObjectMapperFactoryBeanHelper;
@@ -66,22 +67,7 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
         Set<String> ret = new HashSet<>();
         Object value = getValue(ROOT_CLASS_NAMES_BINDING);
         if (value instanceof String) {
-            StringBuilder classes = null;
-            String v = (String) value;
-            String[] rootClasses = v.split(",");
-            for (String className : rootClasses) {
-                if (className != null && className.trim().length() > 0) {
-                    String trimmedClassName = className.trim();
-                    ret.add(trimmedClassName);
-                    if (classes == null) {
-                        classes = new StringBuilder();
-                    } else {
-                        classes.append(", ");
-                    }
-                    classes.append(trimmedClassName);
-                }
-            }
-            return ret;
+            return RulesDeployHelper.splitRootClassNamesBindingClasses((String) value);
         } else {
             if (value != null) {
                 throw new ServiceConfigurationException(

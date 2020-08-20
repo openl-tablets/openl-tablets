@@ -58,4 +58,21 @@ public final class JacksonObjectMapperFactoryBeanHelper {
         }
         return found ? ret : Collections.emptySet();
     }
+
+    public static DefaultTypingMode toDefaultTypingMode(String defaultTypingMode) {
+        if (DefaultTypingMode.DISABLED.name().equalsIgnoreCase(defaultTypingMode.trim())) {
+            return DefaultTypingMode.DISABLED;
+        } else if (DefaultTypingMode.OBJECT_AND_NON_CONCRETE.name().equalsIgnoreCase(defaultTypingMode.trim())) {
+            return DefaultTypingMode.OBJECT_AND_NON_CONCRETE;
+        } else if (DefaultTypingMode.EVERYTHING.name().equalsIgnoreCase(defaultTypingMode.trim())) {
+            return DefaultTypingMode.EVERYTHING;
+        } else if (DefaultTypingMode.NON_CONCRETE_AND_ARRAYS.name().equalsIgnoreCase(defaultTypingMode.trim())) {
+            return DefaultTypingMode.NON_CONCRETE_AND_ARRAYS;
+        } else if (DefaultTypingMode.JAVA_LANG_OBJECT.name().equalsIgnoreCase(defaultTypingMode.trim())) {
+            return DefaultTypingMode.JAVA_LANG_OBJECT;
+        } else if (DefaultTypingMode.NON_FINAL.name().equalsIgnoreCase(defaultTypingMode.trim())) {
+            return DefaultTypingMode.NON_FINAL;
+        }
+        return null;
+    }
 }

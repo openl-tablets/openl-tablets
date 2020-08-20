@@ -1,21 +1,12 @@
 package org.openl.rules.webstudio.web.test;
 
-import static org.openl.types.java.JavaOpenClass.BOOLEAN;
-import static org.openl.types.java.JavaOpenClass.BYTE;
-import static org.openl.types.java.JavaOpenClass.CHAR;
-import static org.openl.types.java.JavaOpenClass.DOUBLE;
-import static org.openl.types.java.JavaOpenClass.FLOAT;
-import static org.openl.types.java.JavaOpenClass.INT;
-import static org.openl.types.java.JavaOpenClass.LONG;
-import static org.openl.types.java.JavaOpenClass.SHORT;
-import static org.openl.types.java.JavaOpenClass.STRING;
+import static org.openl.types.java.JavaOpenClass.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,16 +26,23 @@ import org.openl.meta.FloatValue;
 import org.openl.meta.IntValue;
 import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.model.RulesDeployHelper;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
+import org.openl.rules.serialization.DefaultTypingMode;
+import org.openl.rules.serialization.ExtendedStdDateFormat;
 import org.openl.rules.serialization.JacksonObjectMapperFactoryBean;
+import org.openl.rules.serialization.JacksonObjectMapperFactoryBeanHelper;
 import org.openl.rules.serialization.JsonUtils;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.Message;
@@ -74,8 +72,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class InputArgsBean {
     private final Logger log = LoggerFactory.getLogger(InputArgsBean.class);
 
-    private static final String ROOT_CLASS_NAMES_BINDING = "rootClassNamesBinding";
-    private static final String CASE_INSENSITIVE_PROPERTIES = "jackson.caseInsensitiveProperties";
+    private static final String JACKSON_ROOT_CLASS_NAMES_BINDING = "rootClassNamesBinding";
+    private static final String JACKSON_CASE_INSENSITIVE_PROPERTIES = "jackson.caseInsensitiveProperties";
+    private static final String JACKSON_DEFAULT_DATE_FORMAT = "jackson.defaultDateFormat";
+    private static final String JACKSON_DEFAULT_TYPING_MODE = "jackson.defaultTypingMode";
 
     private String uri;
     private UITree currentTreeNode;
@@ -192,23 +192,67 @@ public class InputArgsBean {
         ClassLoader classLoader = WebStudioUtils.getProjectModel().getCompiledOpenClass().getClassLoader();
         objectMapperFactory.setClassLoader(classLoader);
         objectMapperFactory.setPolymorphicTypeValidation(true);
+        objectMapperFactory.setFailOnUnknownProperties(false);
         if (rulesDeploy != null) {
             Boolean provideVariations = rulesDeploy.isProvideVariations();
             if (provideVariations != null) {
                 objectMapperFactory.setSupportVariations(provideVariations);
+            } else {
+                objectMapperFactory.setSupportVariations(false); // Default value
             }
             Map<String, Object> configuration = rulesDeploy.getConfiguration();
             if (configuration != null) {
-                Object rootClassNamesBinding = configuration.get(ROOT_CLASS_NAMES_BINDING);
-                if (rootClassNamesBinding != null) {
-                    String[] rootClassNamesBindings = rootClassNamesBinding.toString().split(",");
-                    Set<String> set = new HashSet<>(Arrays.asList(rootClassNamesBindings));
-                    objectMapperFactory.setOverrideTypes(set);
+                Object rootClassNamesBinding = configuration.get(JACKSON_ROOT_CLASS_NAMES_BINDING);
+                if (rootClassNamesBinding instanceof String) {
+                    Set<String> rootClassNamesBindingClassNames = RulesDeployHelper
+                        .splitRootClassNamesBindingClasses((String) rootClassNamesBinding);
+                    objectMapperFactory.setOverrideTypes(rootClassNamesBindingClassNames);
                 }
-                Object caseInsensitiveString = configuration.get(CASE_INSENSITIVE_PROPERTIES);
-                if (caseInsensitiveString != null) {
-                    boolean caseInsensitive = Boolean.parseBoolean(caseInsensitiveString.toString());
-                    objectMapperFactory.setCaseInsensitiveProperties(caseInsensitive);
+                Set<Class<?>> rootClassNamesBindingClasses = new HashSet<>();
+                IOpenClass openClass = WebStudioUtils.getWebStudio().getModel().getCompiledOpenClass().getOpenClass();
+                for (IOpenClass type : openClass.getTypes()) {
+                    if (type instanceof DatatypeOpenClass) {
+                        rootClassNamesBindingClasses.add(type.getInstanceClass());
+                    }
+                    if (type instanceof CustomSpreadsheetResultOpenClass) {
+                        rootClassNamesBindingClasses.add(((CustomSpreadsheetResultOpenClass) type).getBeanClass());
+                    }
+                }
+                if (openClass instanceof XlsModuleOpenClass) {
+                    XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
+                    rootClassNamesBindingClasses
+                        .add(xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                            .toCustomSpreadsheetResultOpenClass()
+                            .getBeanClass());
+                }
+                objectMapperFactory.setOverrideClasses(rootClassNamesBindingClasses);
+                Object caseInsensitive = configuration.get(JACKSON_CASE_INSENSITIVE_PROPERTIES);
+                if (caseInsensitive != null) {
+                    if (caseInsensitive instanceof Boolean) {
+                        objectMapperFactory.setCaseInsensitiveProperties((Boolean) caseInsensitive);
+                    } else if (caseInsensitive instanceof String) {
+                        objectMapperFactory
+                            .setCaseInsensitiveProperties(Boolean.parseBoolean((String) caseInsensitive));
+                    }
+                }
+
+                Object defaultDateFormat = configuration.get(JACKSON_DEFAULT_DATE_FORMAT);
+                if (defaultDateFormat instanceof String) {
+                    String defaultDateFormatString = (String) defaultDateFormat;
+                    if (StringUtils.isNotBlank(defaultDateFormatString)) {
+                        objectMapperFactory.setDefaultDateFormat(new ExtendedStdDateFormat(defaultDateFormatString));
+                    }
+                }
+
+                Object defaultTypingMode = configuration.get(JACKSON_DEFAULT_TYPING_MODE);
+                if (defaultTypingMode instanceof DefaultTypingMode) {
+                    objectMapperFactory.setDefaultTypingMode((DefaultTypingMode) defaultTypingMode);
+                } else if (defaultTypingMode instanceof String) {
+                    DefaultTypingMode dtm = JacksonObjectMapperFactoryBeanHelper
+                        .toDefaultTypingMode((String) defaultTypingMode);
+                    if (dtm != null) {
+                        objectMapperFactory.setDefaultTypingMode(dtm);
+                    }
                 }
             }
         }
