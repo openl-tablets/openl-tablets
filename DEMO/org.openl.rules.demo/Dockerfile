@@ -1,4 +1,4 @@
-FROM openjdk:11.0.5-slim-buster
+FROM openjdk:11-slim-buster
 
 ENV TOMCAT_VERSION=9.0.37
 
