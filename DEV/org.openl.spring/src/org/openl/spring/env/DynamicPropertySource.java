@@ -154,7 +154,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
             }
         }
 
-        settings = origin;
+        settings = properties;
         if (!origin.equals(properties)) {
             // Save the difference only
             File settingsFile = getFile();
