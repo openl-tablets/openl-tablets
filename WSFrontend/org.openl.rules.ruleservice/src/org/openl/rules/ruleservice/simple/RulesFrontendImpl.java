@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Marat Kamalov
  */
-public class RulesFrontendImpl extends AbstractRulesFrontend {
+public class RulesFrontendImpl implements RulesFrontend {
     private final Logger log = LoggerFactory.getLogger(RulesFrontendImpl.class);
 
     private final Map<String, OpenLService> runningServices = new ConcurrentHashMap<>();

@@ -4,9 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,6 +33,7 @@ public class DatatypeTableExporterTest {
     public static final int DT_NAME_CELL = 2;
     public static final int DT_DEFAULT_VALUE_CELL = 3;
     public static final String STRING_TYPE = "String";
+    public static final String DATATYPE_TEST_PROJECT_NAME = "datatype_test_project.xlsx";
 
     @Test
     public void testDatatypeExport() throws IOException {
@@ -71,10 +75,10 @@ public class DatatypeTableExporterTest {
         ProjectModel projectModel = new ProjectModel(TEST_PROJECT,
             Arrays.asList(dt, oneMoreModel),
             Collections.emptyList());
-        ExcelFileBuilder.generateExcelFile(projectModel);
+        ExcelFileBuilder.generateProject(projectModel);
 
         try (XSSFWorkbook wb = new XSSFWorkbook(
-            new FileInputStream("../openl-excel-builder/datatype_test_project.xlsx"))) {
+            new FileInputStream("../openl-excel-builder/" + DATATYPE_TEST_PROJECT_NAME))) {
             XSSFSheet dtsSheet = wb.getSheet("Datatypes");
             assertNotNull(dtsSheet);
             XSSFRow headerRow = dtsSheet.getRow(TOP_MARGIN);
@@ -176,13 +180,54 @@ public class DatatypeTableExporterTest {
 
     }
 
+    @Test
+    public void writeDataTypes() throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        DatatypeModel dt = new DatatypeModel("Test");
+
+        FieldModel stringField = new FieldModel.Builder().setName("type")
+            .setType(STRING_TYPE)
+            .setDefaultValue("Hello, World")
+            .build();
+
+        FieldModel doubleField = new FieldModel.Builder().setName("sum")
+            .setType("Double")
+            .setDefaultValue(0.0d)
+            .build();
+
+        Date dateValue = new Date();
+        FieldModel dateField = new FieldModel.Builder().setName("registrationDate")
+            .setType("Date")
+            .setDefaultValue(dateValue)
+            .build();
+
+        FieldModel booleanField = new FieldModel.Builder().setName("isOk")
+            .setType("Boolean")
+            .setDefaultValue(true)
+            .build();
+
+        FieldModel customTypeField = new FieldModel.Builder().setName("driver").setType("Human").build();
+
+        dt.setFields(Arrays.asList(stringField, doubleField, dateField, booleanField, customTypeField));
+        ExcelFileBuilder.generateDataTypes(Collections.singletonList(dt), bos);
+        try (OutputStream fos = new FileOutputStream(DATATYPE_TEST_PROJECT_NAME)) {
+            fos.write(bos.toByteArray());
+        }
+
+        try (XSSFWorkbook wb = new XSSFWorkbook(
+            new FileInputStream("../openl-excel-builder/" + DATATYPE_TEST_PROJECT_NAME))) {
+            XSSFSheet dtsSheet = wb.getSheet("Datatypes");
+            assertNotNull(dtsSheet);
+        }
+    }
+
     @AfterClass
     public static void clean() throws IOException {
         File dir = new File("../openl-excel-builder");
         File[] files = dir.listFiles();
         assertNotNull(files);
         for (File file : files) {
-            if (file.getName().equals("datatype_test_project.xlsx")) {
+            if (file.getName().equals(DATATYPE_TEST_PROJECT_NAME)) {
                 Files.delete(file.toPath());
                 break;
             }

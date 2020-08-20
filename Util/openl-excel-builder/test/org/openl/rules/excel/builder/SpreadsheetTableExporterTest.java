@@ -44,7 +44,7 @@ public class SpreadsheetTableExporterTest {
             Collections.emptyList(),
             Collections.singletonList(resultModel));
 
-        ExcelFileBuilder.generateExcelFile(projectModel);
+        ExcelFileBuilder.generateProject(projectModel);
 
         try (XSSFWorkbook wb = new XSSFWorkbook(new FileInputStream("../openl-excel-builder/spr_test_project.xlsx"))) {
             XSSFSheet dtsSheet = wb.getSheet("SpreadsheetResults");
@@ -87,7 +87,7 @@ public class SpreadsheetTableExporterTest {
             assertEquals("calculateIndex", sprNameCell.getStringCellValue());
             XSSFCell sprCellCall = sprCallStepRow.getCell(2);
             assertNotNull(sprCellCall);
-            assertEquals("=IndexCalculation(null)", sprCellCall.getStringCellValue());
+            assertEquals("", sprCellCall.getStringCellValue());
         }
 
     }

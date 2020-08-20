@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -96,7 +97,7 @@ public class ProjectDescriptorManager {
         // object
         preProcess(descriptor);
         String serializedObject = serializer.serialize(descriptor);
-        dest.write(serializedObject.getBytes("UTF-8"));
+        dest.write(serializedObject.getBytes(StandardCharsets.UTF_8));
     }
 
     public boolean isModuleWithWildcard(Module module) {
