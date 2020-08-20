@@ -31,7 +31,6 @@ import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.model.RulesDeployHelper;
 import org.openl.rules.project.resolving.ProjectResource;
 import org.openl.rules.project.resolving.ProjectResourceLoader;
 import org.openl.rules.project.validation.AbstractServiceInterfaceProjectValidator;
@@ -40,10 +39,9 @@ import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiRulesCacheWorkaround;
+import org.openl.rules.ruleservice.publish.jaxrs.swagger.SchemaJacksonObjectMapperFactoryBean;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperConfigurationHelper;
-import org.openl.rules.serialization.DefaultTypingMode;
-import org.openl.rules.serialization.JacksonObjectMapperFactoryBean;
-import org.openl.rules.serialization.JacksonObjectMapperFactoryBeanHelper;
+import org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperFactory;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -171,53 +169,18 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
 
     private ObjectMapper createObjectMapper(Context context) {
         ClassLoader classLoader = context.getValidatedCompiledOpenClass().getClassLoader();
-        JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
-        jacksonObjectMapperFactoryBean.setClassLoader(classLoader);
-        Set<Class<?>> rootClassNamesBindingClasses = getRootClassNamesBindingClasses(context.getOpenClass(),
-            context.getRulesDeploy(),
-            context.getServiceClass(),
-            classLoader);
-        jacksonObjectMapperFactoryBean.setSupportVariations(context.isProvideVariations());
-        jacksonObjectMapperFactoryBean.setDefaultTypingMode(DefaultTypingMode.DISABLED);
-        jacksonObjectMapperFactoryBean.setGenerateSubtypeAnnotationsForDisabledMode(true);
-        jacksonObjectMapperFactoryBean.setOverrideClasses(rootClassNamesBindingClasses);
+
+        SchemaJacksonObjectMapperFactoryBean objectMapperFactoryBean = new SchemaJacksonObjectMapperFactoryBean();
+        objectMapperFactoryBean.setClassLoader(classLoader);
+        objectMapperFactoryBean.setRulesDeploy(context.getRulesDeploy());
+        objectMapperFactoryBean.setXlsModuleOpenClass((XlsModuleOpenClass) context.getOpenClass());
+        objectMapperFactoryBean.setObjectMapperFactory(new OpenApiObjectMapperFactory());
         try {
-            ObjectMapper objectMapper = jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
+            ObjectMapper objectMapper = objectMapperFactoryBean.createJacksonObjectMapper();
             return OpenApiObjectMapperConfigurationHelper.configure(objectMapper);
         } catch (ClassNotFoundException ignore) { // Never happens
             return Json.mapper();
         }
-    }
-
-    private Set<Class<?>> getRootClassNamesBindingClasses(IOpenClass openClass,
-            RulesDeploy rulesDeploy,
-            Class<?> serviceClass,
-            ClassLoader classLoader) {
-        Set<Class<?>> rootClassNamesBindingClasses = new HashSet<>();
-        if (rulesDeploy != null && rulesDeploy.getConfiguration() != null) {
-            Object rootClassNamesBinding = rulesDeploy.getConfiguration().get("rootClassNamesBinding");
-            if (rootClassNamesBinding instanceof String) {
-                Set<String> classNames = RulesDeployHelper
-                    .splitRootClassNamesBindingClasses((String) rootClassNamesBinding);
-                for (String className : classNames) {
-                    try {
-                        Class<?> cls = classLoader.loadClass(className);
-                        rootClassNamesBindingClasses.add(cls);
-                    } catch (ClassNotFoundException ignored) {
-                    }
-                }
-            }
-        }
-        for (IOpenClass type : openClass.getTypes()) {
-            if (type instanceof DatatypeOpenClass) {
-                rootClassNamesBindingClasses.add(type.getInstanceClass());
-            }
-        }
-        if (openClass instanceof XlsModuleOpenClass) {
-            rootClassNamesBindingClasses.addAll(JacksonObjectMapperFactoryBeanHelper
-                .extractSpreadsheetResultBeanClasses((XlsModuleOpenClass) openClass, serviceClass));
-        }
-        return Collections.unmodifiableSet(rootClassNamesBindingClasses);
     }
 
     private Class<?> enhanceWithJAXRS(Context context,

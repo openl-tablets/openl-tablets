@@ -13,20 +13,15 @@
 
     <!-- Bean helps to read configuration and apply it to override types -->
     <bean id="rootClassNamesBindingFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.RootClassNamesBindingFactoryBean">
+          class="org.openl.rules.ruleservice.databinding.LogGlobalRootClassNamesBinding">
         <property name="rootClassNames" value="${ruleservice.databinding.rootClassNames}"/>
     </bean>
 
-    <bean id="serviceConfigurationRootClassNamesBindingFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.ServiceConfigurationRootClassNamesBindingFactoryBean"
-          scope="prototype">
-        <property name="defaultAdditionalRootClassNames" ref="rootClassNamesBindingFactoryBean"/>
-    </bean>
+    <bean id="serviceXlsModuleOpenClass"
+          class="org.openl.rules.ruleservice.databinding.ServiceXlsModuleOpenClassObjectFactoryBean" scope="prototype"/>
 
-    <bean id="serviceConfigurationSupportVariationsFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.ServiceSupportVariationsFactoryBean"
-          scope="prototype">
-    </bean>
+    <bean id="serviceRulesDeploy" class="org.openl.rules.ruleservice.databinding.ServiceRulesDeployObjectFactoryBean"
+          scope="prototype"/>
 
     <bean id="ruleServiceManager" class="org.openl.rules.ruleservice.publish.RuleServiceManagerImpl">
         <property name="defaultRuleServicePublishers">

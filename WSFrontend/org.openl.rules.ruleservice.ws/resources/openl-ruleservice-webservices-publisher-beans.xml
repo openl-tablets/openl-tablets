@@ -1,6 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:policy="http://cxf.apache.org/policy"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://cxf.apache.org/policy http://cxf.apache.org/schemas/policy.xsd">
 
     <!-- Data binding type in WebServices(set it to the "serverPrototype" bean). -->
     <bean id="jaxwsServiceConfigurationReadXsiTypesFactoryBean"
@@ -21,16 +21,26 @@
         <property name="defaultValue" value="${ruleservice.jaxws.resolveMethodParameterNames:true}"/>
     </bean>
 
+    <bean id="serviceConfigurationSupportVariationsFactoryBean"
+          class="org.openl.rules.ruleservice.databinding.ServiceSupportVariationsFactoryBean"
+          scope="prototype">
+    </bean>
+
     <bean id="jaxwsAegisDatabindingFactoryBean"
           class="org.openl.rules.ruleservice.databinding.AegisDatabindingFactoryBean"
           scope="prototype">
         <property name="readXsiTypes" ref="jaxwsServiceConfigurationReadXsiTypesFactoryBean"/>
         <property name="writeXsiTypes" ref="jaxwsServiceConfigurationWriteXsiTypesFactoryBean"/>
-        <property name="overrideTypes" ref="serviceConfigurationRootClassNamesBindingFactoryBean"/>
+        <property name="overrideTypes">
+            <bean class="org.openl.rules.ruleservice.databinding.ServiceRootClassNamesBindingFactoryBean">
+                <property name="overrideTypesAsString" value="${ruleservice.databinding.rootClassNames}"/>
+            </bean>
+        </property>
         <property name="supportVariations" ref="serviceConfigurationSupportVariationsFactoryBean"/>
     </bean>
 
-    <bean id="jaxwsServiceDataBinding" factory-bean="jaxwsAegisDatabindingFactoryBean" factory-method="createAegisDatabinding"
+    <bean id="jaxwsServiceDataBinding" factory-bean="jaxwsAegisDatabindingFactoryBean"
+          factory-method="createAegisDatabinding"
           scope="prototype"/>
 
     <!-- Main description for the one WebService -->
@@ -54,8 +64,10 @@
     <!-- Initializes OpenL Engine instances according to Rule Services configuration
         description and calls DeploymentAdmin to expose corresponding web service -->
     <!-- Exposes web services. -->
-    <bean id="jaxwsServiceEnhancer" class="org.openl.rules.ruleservice.publish.jaxws.JAXWSOpenLServiceEnhancer" scope="prototype">
-        <property name="resolveMethodParameterNamesEnabled" ref="jaxwsServiceConfigurationResolveMethodParameterNamesFactoryBean"/>
+    <bean id="jaxwsServiceEnhancer" class="org.openl.rules.ruleservice.publish.jaxws.JAXWSOpenLServiceEnhancer"
+          scope="prototype">
+        <property name="resolveMethodParameterNamesEnabled"
+                  ref="jaxwsServiceConfigurationResolveMethodParameterNamesFactoryBean"/>
     </bean>
 
     <bean id="jaxwsServiceRuleServicePublisher"

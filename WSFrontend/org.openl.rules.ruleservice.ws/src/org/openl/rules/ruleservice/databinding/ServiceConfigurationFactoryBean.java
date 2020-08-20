@@ -50,19 +50,4 @@ public abstract class ServiceConfigurationFactoryBean<T> extends AbstractFactory
                                                                   : getServiceDescription().getConfiguration()
                                                                       .get(property);
     }
-
-    protected String getValueAsString(String property) throws Exception {
-        Object value = getValue(property);
-        if (value == null) {
-            return null;
-        }
-        if (value instanceof String) {
-            return ((String) value).trim();
-        }
-        throw new ServiceConfigurationException(
-            String.format("Expected string value for '%s' in the configuration for service '%s'.",
-                property,
-                getServiceDescription().getName()));
-    }
-
 }

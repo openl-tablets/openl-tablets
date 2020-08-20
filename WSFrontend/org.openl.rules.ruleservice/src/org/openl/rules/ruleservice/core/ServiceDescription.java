@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.jar.Manifest;
 
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.RulesDeploy;
 
 /**
  * Class designed for storing service info.
@@ -29,6 +30,7 @@ public final class ServiceDescription {
     private final String[] publishers;
     private final ResourceLoader resourceLoader;
     private final Manifest manifest;
+    private final RulesDeploy rulesDeploy;
 
     /**
      * Main constructor.
@@ -54,7 +56,8 @@ public final class ServiceDescription {
             Map<String, Object> configuration,
             String[] publishers,
             ResourceLoader resourceLoader,
-            Manifest manifest) {
+            Manifest manifest,
+            RulesDeploy rulesDeploy) {
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.resourceLoader = Objects.requireNonNull(resourceLoader, "resourceLoader cannot be null");
         this.url = url;
@@ -65,6 +68,7 @@ public final class ServiceDescription {
         this.rmiName = rmiName;
         this.provideVariations = provideVariations;
         this.annotationTemplateClassName = annotationTemplateClassName;
+        this.rulesDeploy = rulesDeploy;
         if (configuration == null) {
             this.configuration = Collections.emptyMap();
         } else {
@@ -96,7 +100,12 @@ public final class ServiceDescription {
             builder.configuration,
             builder.publishers.toArray(new String[] {}),
             builder.resourceLoader,
-            builder.manifest);
+            builder.manifest,
+            builder.rulesDeploy);
+    }
+
+    public RulesDeploy getRulesDeploy() {
+        return rulesDeploy;
     }
 
     /**
@@ -277,6 +286,7 @@ public final class ServiceDescription {
         private Set<String> publishers = new HashSet<>();
         private ResourceLoader resourceLoader;
         private Manifest manifest;
+        private RulesDeploy rulesDeploy;
 
         public ServiceDescriptionBuilder setResourceLoader(ResourceLoader resourceLoader) {
             this.resourceLoader = Objects.requireNonNull(resourceLoader, "resourceLoader cannot be null");
@@ -286,10 +296,13 @@ public final class ServiceDescription {
         public ServiceDescriptionBuilder setPublishers(String[] publishers) {
             this.publishers = new HashSet<>();
             if (publishers != null) {
-                for (String publisher : publishers) {
-                    this.publishers.add(publisher);
-                }
+                Collections.addAll(this.publishers, publishers);
             }
+            return this;
+        }
+
+        public ServiceDescriptionBuilder setRulesDeploy(RulesDeploy rulesDeploy) {
+            this.rulesDeploy = rulesDeploy;
             return this;
         }
 

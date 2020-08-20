@@ -158,6 +158,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                                 AProjectResource resource = (AProjectResource) artifact;
                                 try (InputStream content = resource.getContent()) {
                                     rulesDeploy = getRulesDeploySerializer().deserialize(content);
+                                    serviceDescriptionBuilder.setRulesDeploy(rulesDeploy);
                                     if (rulesDeploy
                                         .getServiceClass() != null && !rulesDeploy.getServiceClass().trim().isEmpty()) {
                                         serviceDescriptionBuilder

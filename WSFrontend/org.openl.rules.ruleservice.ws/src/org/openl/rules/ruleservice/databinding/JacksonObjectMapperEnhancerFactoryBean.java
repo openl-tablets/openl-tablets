@@ -10,6 +10,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.OpenLServiceHolder;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.databinding.jackson.NonNullMixIn;
+import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
@@ -17,17 +18,18 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public final class OpenLServiceObjectMapperEnhancerFactoryBean extends AbstractFactoryBean<ObjectMapper> {
+public final class JacksonObjectMapperEnhancerFactoryBean extends AbstractFactoryBean<ObjectMapper> {
     private static final AtomicLong incrementer = new AtomicLong();
 
-    private JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean;
+    private ProjectJacksonObjectMapperFactoryBean projectJacksonObjectMapperFactoryBean;
 
-    public JacksonObjectMapperFactoryBean getJacksonObjectMapperFactoryBean() {
-        return jacksonObjectMapperFactoryBean;
+    public ProjectJacksonObjectMapperFactoryBean getProjectJacksonObjectMapperFactoryBean() {
+        return projectJacksonObjectMapperFactoryBean;
     }
 
-    public void setJacksonObjectMapperFactoryBean(JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean) {
-        this.jacksonObjectMapperFactoryBean = jacksonObjectMapperFactoryBean;
+    public void setProjectJacksonObjectMapperFactoryBean(
+            ProjectJacksonObjectMapperFactoryBean projectJacksonObjectMapperFactoryBean) {
+        this.projectJacksonObjectMapperFactoryBean = projectJacksonObjectMapperFactoryBean;
     }
 
     @Override
@@ -43,7 +45,8 @@ public final class OpenLServiceObjectMapperEnhancerFactoryBean extends AbstractF
             } catch (ClassNotFoundException e) {
                 ClassWriter classWriter = new ClassWriter(0);
                 ClassVisitor classVisitor = new SpreadsheetResultBeanClassMixInAnnotationsWriter(classWriter,
-                    className, originalMixInClass);
+                    className,
+                    originalMixInClass);
                 InterfaceTransformer transformer = new InterfaceTransformer(originalMixInClass, className, true);
                 transformer.accept(classVisitor);
                 classWriter.visitEnd();
@@ -60,7 +63,7 @@ public final class OpenLServiceObjectMapperEnhancerFactoryBean extends AbstractF
 
     @Override
     protected ObjectMapper createInstance() throws Exception {
-        ObjectMapper objectMapper = getJacksonObjectMapperFactoryBean().createJacksonObjectMapper();
+        ObjectMapper objectMapper = getProjectJacksonObjectMapperFactoryBean().createJacksonObjectMapper();
         OpenLService openLService = OpenLServiceHolder.getInstance().get();
         if (openLService == null) {
             throw new ServiceConfigurationException("Failed to locate a service.");

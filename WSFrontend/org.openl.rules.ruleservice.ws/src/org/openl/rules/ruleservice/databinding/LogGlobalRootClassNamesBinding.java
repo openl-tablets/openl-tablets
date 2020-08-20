@@ -9,14 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 
-/**
- * Factory bean for adding binding types from properties to data binding context.
- *
- * @author Marat Kamalov
- */
-public class RootClassNamesBindingFactoryBean implements FactoryBean<Set<String>> {
+public class LogGlobalRootClassNamesBinding implements FactoryBean<Set<String>> {
 
-    private final Logger log = LoggerFactory.getLogger(RootClassNamesBindingFactoryBean.class);
+    private final Logger log = LoggerFactory.getLogger(LogGlobalRootClassNamesBinding.class);
 
     private String rootClassNames;
 
@@ -36,7 +31,9 @@ public class RootClassNamesBindingFactoryBean implements FactoryBean<Set<String>
         }
         ret.addAll(RulesDeployHelper.splitRootClassNamesBindingClasses(rootClassNames));
         for (String clsName : ret) {
-            log.info("Class '{}' has been added to the root class names list for WS type binding.", clsName);
+            log.info(
+                "Class name '{}' is added to the root class names list that will be used for each deployed service.",
+                clsName);
         }
         return Collections.unmodifiableSet(ret);
     }

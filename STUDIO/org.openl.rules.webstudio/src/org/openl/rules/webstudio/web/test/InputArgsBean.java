@@ -10,10 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.faces.model.SelectItem;
 
@@ -26,23 +24,17 @@ import org.openl.meta.FloatValue;
 import org.openl.meta.IntValue;
 import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
-import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.model.RulesDeployHelper;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.serialization.DefaultTypingMode;
-import org.openl.rules.serialization.ExtendedStdDateFormat;
-import org.openl.rules.serialization.JacksonObjectMapperFactoryBean;
-import org.openl.rules.serialization.JacksonObjectMapperFactoryBeanHelper;
 import org.openl.rules.serialization.JsonUtils;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.Message;
@@ -64,6 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -71,11 +64,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @ViewScope
 public class InputArgsBean {
     private final Logger log = LoggerFactory.getLogger(InputArgsBean.class);
-
-    private static final String JACKSON_ROOT_CLASS_NAMES_BINDING = "rootClassNamesBinding";
-    private static final String JACKSON_CASE_INSENSITIVE_PROPERTIES = "jackson.caseInsensitiveProperties";
-    private static final String JACKSON_DEFAULT_DATE_FORMAT = "jackson.defaultDateFormat";
-    private static final String JACKSON_DEFAULT_TYPING_MODE = "jackson.defaultTypingMode";
 
     private String uri;
     private UITree currentTreeNode;
@@ -188,74 +176,18 @@ public class InputArgsBean {
 
     private ObjectMapper configureObjectMapper() {
         RulesDeploy rulesDeploy = getCurrentProjectRulesDeploy();
-        JacksonObjectMapperFactoryBean objectMapperFactory = new JacksonObjectMapperFactoryBean();
         ClassLoader classLoader = WebStudioUtils.getProjectModel().getCompiledOpenClass().getClassLoader();
+        WebstudioJacksonObjectMapperFactoryBean objectMapperFactory = new WebstudioJacksonObjectMapperFactoryBean();
+        objectMapperFactory.setRulesDeploy(rulesDeploy);
+        objectMapperFactory.setXlsModuleOpenClass(
+            (XlsModuleOpenClass) WebStudioUtils.getWebStudio().getModel().getCompiledOpenClass().getOpenClass());
         objectMapperFactory.setClassLoader(classLoader);
+        // Default values from webservices. TODO this should be configurable
         objectMapperFactory.setPolymorphicTypeValidation(true);
-        objectMapperFactory.setFailOnUnknownProperties(false);
-        if (rulesDeploy != null) {
-            Boolean provideVariations = rulesDeploy.isProvideVariations();
-            if (provideVariations != null) {
-                objectMapperFactory.setSupportVariations(provideVariations);
-            } else {
-                objectMapperFactory.setSupportVariations(false); // Default value
-            }
-            Map<String, Object> configuration = rulesDeploy.getConfiguration();
-            if (configuration != null) {
-                Object rootClassNamesBinding = configuration.get(JACKSON_ROOT_CLASS_NAMES_BINDING);
-                if (rootClassNamesBinding instanceof String) {
-                    Set<String> rootClassNamesBindingClassNames = RulesDeployHelper
-                        .splitRootClassNamesBindingClasses((String) rootClassNamesBinding);
-                    objectMapperFactory.setOverrideTypes(rootClassNamesBindingClassNames);
-                }
-                Set<Class<?>> rootClassNamesBindingClasses = new HashSet<>();
-                IOpenClass openClass = WebStudioUtils.getWebStudio().getModel().getCompiledOpenClass().getOpenClass();
-                for (IOpenClass type : openClass.getTypes()) {
-                    if (type instanceof DatatypeOpenClass) {
-                        rootClassNamesBindingClasses.add(type.getInstanceClass());
-                    }
-                    if (type instanceof CustomSpreadsheetResultOpenClass) {
-                        rootClassNamesBindingClasses.add(((CustomSpreadsheetResultOpenClass) type).getBeanClass());
-                    }
-                }
-                if (openClass instanceof XlsModuleOpenClass) {
-                    XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
-                    rootClassNamesBindingClasses
-                        .add(xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                            .toCustomSpreadsheetResultOpenClass()
-                            .getBeanClass());
-                }
-                objectMapperFactory.setOverrideClasses(rootClassNamesBindingClasses);
-                Object caseInsensitive = configuration.get(JACKSON_CASE_INSENSITIVE_PROPERTIES);
-                if (caseInsensitive != null) {
-                    if (caseInsensitive instanceof Boolean) {
-                        objectMapperFactory.setCaseInsensitiveProperties((Boolean) caseInsensitive);
-                    } else if (caseInsensitive instanceof String) {
-                        objectMapperFactory
-                            .setCaseInsensitiveProperties(Boolean.parseBoolean((String) caseInsensitive));
-                    }
-                }
-
-                Object defaultDateFormat = configuration.get(JACKSON_DEFAULT_DATE_FORMAT);
-                if (defaultDateFormat instanceof String) {
-                    String defaultDateFormatString = (String) defaultDateFormat;
-                    if (StringUtils.isNotBlank(defaultDateFormatString)) {
-                        objectMapperFactory.setDefaultDateFormat(new ExtendedStdDateFormat(defaultDateFormatString));
-                    }
-                }
-
-                Object defaultTypingMode = configuration.get(JACKSON_DEFAULT_TYPING_MODE);
-                if (defaultTypingMode instanceof DefaultTypingMode) {
-                    objectMapperFactory.setDefaultTypingMode((DefaultTypingMode) defaultTypingMode);
-                } else if (defaultTypingMode instanceof String) {
-                    DefaultTypingMode dtm = JacksonObjectMapperFactoryBeanHelper
-                        .toDefaultTypingMode((String) defaultTypingMode);
-                    if (dtm != null) {
-                        objectMapperFactory.setDefaultTypingMode(dtm);
-                    }
-                }
-            }
-        }
+        objectMapperFactory.setDefaultDateFormatAsString("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        objectMapperFactory.setCaseInsensitiveProperties(false);
+        objectMapperFactory.setDefaultTypingMode(DefaultTypingMode.JAVA_LANG_OBJECT);
+        objectMapperFactory.setSerializationInclusion(JsonInclude.Include.USE_DEFAULTS);
         try {
             return objectMapperFactory.createJacksonObjectMapper();
         } catch (ClassNotFoundException e) {
@@ -384,8 +316,8 @@ public class InputArgsBean {
     }
 
     public void disposeObject() {
-        ParameterDeclarationTreeNode currentnode = getCurrentNode();
-        currentnode.setValueForced(null);
+        ParameterDeclarationTreeNode currentNode = getCurrentNode();
+        currentNode.setValueForced(null);
     }
 
     public void deleteFromCollection() {
@@ -394,8 +326,8 @@ public class InputArgsBean {
     }
 
     public void addToCollection() {
-        ParameterDeclarationTreeNode currentnode = getCurrentNode();
-        currentnode.addChild(currentnode.getChildren().size() + 1, null);
+        ParameterDeclarationTreeNode currentNode = getCurrentNode();
+        currentNode.addChild(currentNode.getChildren().size() + 1, null);
     }
 
     private ParameterWithValueDeclaration[] initArguments() {
