@@ -105,16 +105,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                 .getStrategy(module, true, dependencyManager, classLoader);
         }
         rulesInstantiationStrategy.setServiceClass(LazyRuleServiceDependencyLoaderInterface.class);// Prevent
-        // generation
-        // interface
-        // and
-        // Virtual
-        // module
-        // duplicate
-        // (instantiate
-        // method).
-        // Improve
-        // performance.
+        // generation interface and Virtual module duplicate (instantiate method). Improve performance.
         final Map<String, Object> parameters = ProjectExternalDependenciesHelper
             .getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(), modules);
         rulesInstantiationStrategy.setExternalParameters(parameters);
@@ -125,11 +116,17 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                 dependencyManager.compilationBegin(this);
                 lazyCompiledOpenClass = rulesInstantiationStrategy.compile();
                 if (!isProject() && realCompileRequired) {
-                    compileAfterLazyCompile(lazyCompiledOpenClass,
-                        dependencyManager,
-                        dependencyName,
-                        modules.iterator().next(),
-                        classLoader);
+                    synchronized (lazyCompiledOpenClass) {
+                        CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance()
+                            .get(deployment, dependencyName);
+                        if (compiledOpenClass == null) {
+                            CompiledOpenClassCache.compileToCache(dependencyManager,
+                                dependencyName,
+                                deployment,
+                                modules.iterator().next(),
+                                classLoader);
+                        }
+                    }
                 }
                 dependencyManager.compilationCompleted(this,
                     realCompileRequired ? DependencyCompilationType.UNLOADABLE : DependencyCompilationType.LAZY,
@@ -146,21 +143,6 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
             throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependencyName), ex);
         } finally {
             LazyBinderMethodHandler.setPrebindHandler(prebindHandler);
-        }
-    }
-
-    private void compileAfterLazyCompile(CompiledOpenClass lazyCompiledOpenClass,
-            final RuleServiceDependencyManager dependencyManager,
-            final String dependencyName,
-            final Module module,
-            final ClassLoader classLoader) throws OpenLCompilationException {
-        synchronized (lazyCompiledOpenClass) {
-            CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance()
-                .get(deployment, dependencyName);
-            if (compiledOpenClass != null) {
-                return;
-            }
-            CompiledOpenClassCache.compileToCache(dependencyManager, dependencyName, deployment, module, classLoader);
         }
     }
 
