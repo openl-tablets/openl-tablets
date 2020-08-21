@@ -625,6 +625,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             return null;
         }
 
+        data.addAdditionalData(new FileMappingData(data.getName()));
         data.setName(toExternal(externalToInternal, data.getName()));
         return data;
     }

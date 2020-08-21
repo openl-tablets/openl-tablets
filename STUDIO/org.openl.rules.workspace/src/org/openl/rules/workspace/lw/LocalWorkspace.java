@@ -23,8 +23,6 @@ public interface LocalWorkspace extends ProjectsContainer {
 
     LocalRepository getRepository(String id);
 
-    List<LocalRepository> getRepositories();
-
     /**
      * Returns directory in the filesystem used storage for workspace projects.
      *

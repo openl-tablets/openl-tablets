@@ -50,6 +50,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.LockEngineImpl;
+import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
@@ -89,7 +90,9 @@ import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
 import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.filter.PathFilter;
+import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.spring.env.DynamicPropertySource;
@@ -159,6 +162,9 @@ public class RepositoryTreeController {
 
     @Autowired
     private Utils utils;
+
+    @Autowired
+    private LocalWorkspaceManager localWorkspaceManager;
 
     private String repositoryId;
     private String projectName;
@@ -799,7 +805,8 @@ public class RepositoryTreeController {
                 }
                 File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
                 String branch = ((RulesProject) projectArtefact).getBranch();
-                closeProjectForAllUsers(workspacesRoot, selectedNode.getName(), branch);
+                String repoId = projectArtefact.getRepository().getId();
+                closeProjectForAllUsers(workspacesRoot, repoId, selectedNode.getName(), branch);
             }
             if (projectArtefact instanceof UserWorkspaceProject) {
                 UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
@@ -897,7 +904,8 @@ public class RepositoryTreeController {
             if (projectArtefact instanceof RulesProject) {
                 File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
                 String branch = ((RulesProject) projectArtefact).getBranch();
-                closeProjectForAllUsers(workspacesRoot, projectArtefact.getName(), branch);
+                String repoId = projectArtefact.getRepository().getId();
+                closeProjectForAllUsers(workspacesRoot, repoId, projectArtefact.getName(), branch);
             }
             resetStudioModel();
 
@@ -922,7 +930,7 @@ public class RepositoryTreeController {
             }
             project.unlock();
             File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
-            closeProjectForAllUsers(workspacesRoot, projectName, project.getBranch());
+            closeProjectForAllUsers(workspacesRoot, repositoryId, projectName, project.getBranch());
             resetStudioModel();
         } catch (Exception e) {
             log.error("Cannot unlock rules project '{}'.", projectName, e);
@@ -934,9 +942,7 @@ public class RepositoryTreeController {
     /**
      * Closes unlocked project for all users. All unsaved changes will be lost.
      */
-    private void closeProjectForAllUsers(File workspacesRoot,
-            String projectName,
-            String branch) throws ProjectException {
+    private void closeProjectForAllUsers(File workspacesRoot, String repoId, String projectName, String branch) throws ProjectException {
         // Needed to update UI of current user
         TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(projectName);
         if (projectNode != null) {
@@ -954,17 +960,22 @@ public class RepositoryTreeController {
                     String userName = file.getName();
                     // Check for reserved folder name
                     if (!LockEngineImpl.LOCKS_FOLDER_NAME.equals(userName)) {
-                        // TODO: Use LocalWorkspace through LocalWorkspaceManager instead.
-                        try (LocalRepository repository = new LocalRepository(file)) {
+                        try {
+                            LocalRepository repository = localWorkspaceManager.getWorkspace(new WorkspaceUserImpl(
+                                userName)).getRepository(repoId);
                             repository.initialize();
 
-                            FileData savedData = repository.getProjectState(projectName).getFileData();
+                            ProjectState projectState = repository.getProjectState(projectName);
+                            String savedRepoId = projectState.getRepositoryId();
+                            FileData savedData = projectState.getFileData();
                             String savedBranch = savedData == null ? null : savedData.getBranch();
 
-                            if (branch == null && savedBranch == null || branch != null && branch.equals(savedBranch)) {
-                                FileData fileData = new FileData();
-                                fileData.setName(projectName);
-                                repository.delete(fileData);
+                            if (savedRepoId != null && savedRepoId.equals(repoId)) {
+                                if (branch == null && savedBranch == null || branch != null && branch.equals(savedBranch)) {
+                                    FileData fileData = new FileData();
+                                    fileData.setName(projectName);
+                                    repository.delete(fileData);
+                                }
                             }
                         } catch (Exception e) {
                             // Log exception and skip current user
@@ -1384,7 +1395,18 @@ public class RepositoryTreeController {
 
     public String openProject() {
         try {
-            repositoryTreeState.getSelectedProject().open();
+            UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+            boolean openedOther = userWorkspace.getLocalWorkspace().getProjects()
+                .stream()
+                .anyMatch(p -> project.getName().equals(p.getName()) && (!project.getRepository().getId()
+                    .equals(p.getRepository()
+                        .getId()) || !project.getRealPath().equals(p.getRealPath())));
+            if (openedOther) {
+                String msg = "WebStudio can't open two projects with the same name. Please close another project and open it again.";
+                WebStudioUtils.addErrorMessage(msg);
+                return null;
+            }
+            project.open();
             openDependenciesIfNeeded();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();

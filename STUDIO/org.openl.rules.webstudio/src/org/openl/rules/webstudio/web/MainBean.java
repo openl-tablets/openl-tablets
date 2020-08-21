@@ -107,11 +107,6 @@ public class MainBean {
     }
 
     public void reload() {
-        try {
-            WebStudioUtils.getRulesUserSession().getUserWorkspace().refresh();
-        } catch (CommonException e) {
-            log.error("Error on reloading user's workspace", e);
-        }
         repositoryTreeState.invalidateTree();
         repositoryTreeState.invalidateSelection();
         WebStudioUtils.getWebStudio().resetProjects();

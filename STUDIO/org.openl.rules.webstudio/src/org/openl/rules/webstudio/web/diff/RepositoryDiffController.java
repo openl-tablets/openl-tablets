@@ -144,7 +144,7 @@ public class RepositoryDiffController extends AbstractDiffController {
     }
 
     public String getRepositoryId() {
-        return projectUW == null ? null : projectUW.getRepository().getId();
+        return projectUW == null ? null : projectUW.getDesignRepository().getId();
     }
 
     public String init() {

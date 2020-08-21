@@ -10,6 +10,7 @@ import java.util.Map;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -25,7 +26,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     private final File location;
     private final Map<ProjectKey, AProject> localProjects;
     private final List<LocalWorkspaceListener> listeners = new ArrayList<>();
-    private final List<LocalRepository> repositories;
+    private final LocalRepository localRepository;
     private final DesignTimeRepository designTimeRepository;
 
     LocalWorkspaceImpl(WorkspaceUser user, File location, DesignTimeRepository designTimeRepository) {
@@ -34,39 +35,15 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         this.designTimeRepository = designTimeRepository;
 
         localProjects = new HashMap<>();
-        repositories = new ArrayList<>();
 
-        refreshRepositories();
+        localRepository = new LocalRepository(location);
+        try {
+            localRepository.initialize();
+        } catch (RRepositoryException e) {
+            throw new IllegalStateException(e);
+        }
+
         loadProjects();
-    }
-
-    private void refreshRepositories() {
-        for (LocalRepository localRepository : repositories) {
-            localRepository.close();
-        }
-        repositories.clear();
-
-        File[] folders = location.listFiles();
-        if (folders == null) {
-            throw new IllegalArgumentException("Path " + location.getPath() + " does not denote a directory");
-        }
-        for (File folder : folders) {
-            LocalRepository localRepository = new LocalRepository(folder);
-            try {
-                String id = folder.getName();
-                localRepository.setId(id);
-                if (designTimeRepository != null) {
-                    Repository designRepository = designTimeRepository.getRepository(id);
-                    if (designRepository != null) {
-                        localRepository.setName(designRepository.getName());
-                    }
-                }
-                localRepository.initialize();
-            } catch (RRepositoryException e) {
-                throw new IllegalStateException(e);
-            }
-            repositories.add(localRepository);
-        }
     }
 
     @Override
@@ -76,15 +53,12 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
 
     @Override
     public LocalRepository getRepository(String id) {
-        List<LocalRepository> repositories = getRepositories();
-        for (LocalRepository repository : repositories) {
-            if (id.equals(repository.getId())) {
-                return repository;
-            }
+        if (id == null) {
+            // For backward compatibility.
+            id = "design";
         }
-
-        File repoBase = new File(location, id);
-        LocalRepository repository = new LocalRepository(repoBase);
+        // Create a new instance with id and name.
+        LocalRepository repository = new LocalRepository(localRepository.getRoot());
         repository.setId(id);
         if (designTimeRepository != null) {
             Repository designRepository = designTimeRepository.getRepository(id);
@@ -97,13 +71,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         } catch (RRepositoryException e) {
             throw new IllegalStateException(e.getMessage(), e);
         }
-        repositories.add(repository);
         return repository;
-    }
-
-    @Override
-    public List<LocalRepository> getRepositories() {
-        return repositories;
     }
 
     @Override
@@ -143,25 +111,21 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     private void loadProjects() {
-        for (LocalRepository localRepository : getRepositories()) {
-            // TODO: Use full path instead of project name.
-            // TODO: User rulesLocation instead of ""
-            // TODO: LocalRepository.listFolders() should return the same FileData as
-            //          localRepository.getProjectState(name).getProjectVersion()
-            List<FileData> folders = localRepository.listFolders("");
-            for (FileData folder : folders) {
-                AProject lpi;
-                String name = folder.getName();
-                FileData fileData = localRepository.getProjectState(name).getFileData();
-                if (fileData == null) {
-                    String version = localRepository.getProjectState(name).getProjectVersion();
-                    lpi = new AProject(localRepository, name, version);
-                } else {
-                    lpi = new AProject(localRepository, fileData);
-                }
-                synchronized (localProjects) {
-                    localProjects.put(new ProjectKey(localRepository.getId(), name.toLowerCase()), lpi);
-                }
+        List<FileData> folders = localRepository.listFolders("");
+        for (FileData folder : folders) {
+            AProject lpi;
+            String name = folder.getName();
+            ProjectState projectState = localRepository.getProjectState(name);
+            LocalRepository repository = getRepository(projectState.getRepositoryId());
+            FileData fileData = projectState.getFileData();
+            if (fileData == null) {
+                String version = projectState.getProjectVersion();
+                lpi = new AProject(repository, name, version);
+            } else {
+                lpi = new AProject(repository, fileData);
+            }
+            synchronized (localProjects) {
+                localProjects.put(new ProjectKey(repository.getId(), name.toLowerCase()), lpi);
             }
         }
     }
@@ -171,7 +135,6 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         // check existing
         synchronized (localProjects) {
             localProjects.clear();
-            refreshRepositories();
         }
         loadProjects();
     }
@@ -182,10 +145,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             localProjects.clear();
         }
 
-        for (LocalRepository localRepository : repositories) {
-            localRepository.close();
-        }
-        repositories.clear();
+        localRepository.close();
 
         for (LocalWorkspaceListener lwl : new ArrayList<>(listeners)) {
             lwl.workspaceReleased(this);

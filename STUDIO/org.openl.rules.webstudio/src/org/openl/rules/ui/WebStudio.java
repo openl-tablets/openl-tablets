@@ -27,6 +27,7 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.rules.common.CommonException;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
@@ -501,6 +502,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public void resetProjects() {
         forcedCompile = true;
         projects = null;
+        try {
+            rulesUserSession.getUserWorkspace().refresh();
+        } catch (CommonException e) {
+            log.error("Error on reloading user's workspace", e);
+        }
         model.resetSourceModified();
     }
 
