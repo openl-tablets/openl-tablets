@@ -19,7 +19,7 @@
 
     <div class="page">
 
-        <h1 class="page-header">#{msg['ws.changes.header']}</h1>
+        <h1 class="page-header">#{msg['ws.changes.header']} (#{history.size()>0 ? history.size()-1 : 0})</h1>
 
         <h:panelGroup rendered="#{empty history}">
             <h:panelGrid>
@@ -40,16 +40,10 @@
                     styleClass="table revertTable">
                     <rich:column>
                         <f:facet name="header">
-                            <h:outputText value="#" />
-                        </f:facet>
-                        <h:outputText value="#{row + 1}" />
-                    </rich:column>
-                    <rich:column>
-                        <f:facet name="header">
                             <h:outputText value="#{msg['ws.changes.modifiedon']}" />
                         </f:facet>
-                        <h:outputText value="#{historyItem.disabled ? msg['ws.changes.initial'] : historyItem.modifiedOn}"
-                            style="#{historyItem.disabled ? 'font-weight: bold; color:red;' : ''}" />
+                        <h:outputText value="#{historyItem.disabled ? msg['ws.changes.revision.version'] : historyItem.modifiedOn}"
+                            style="#{historyItem.disabled ? 'font-weight: bold;' : ''}" />
                     </rich:column>
                     <c:forEach items="#{revertProjectChangesBean.sources}" var="source">
                         <rich:column>

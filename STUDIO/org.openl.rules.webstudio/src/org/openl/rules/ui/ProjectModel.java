@@ -6,6 +6,7 @@ import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
 import static org.openl.rules.security.Privileges.EDIT_TABLES;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.*;
 
 import org.open.rules.project.validation.openapi.OpenApiProjectValidator;
@@ -472,6 +473,7 @@ public class ProjectModel {
 
     /**
      * Get all workbooks of all modules
+     * 
      * @return all workbooks
      */
     public WorkbookSyntaxNode[] getAllWorkbookNodes() {
@@ -1162,9 +1164,11 @@ public class ProjectModel {
 
     public SourceHistoryManager<File> getHistoryManager() {
         if (historyManager == null) {
-            String projectHistoryHome = Props.text("project.history.home");
             Integer maxFilesInStorage = Props.integer("project.history.count");
-            String storagePath = projectHistoryHome + File.separator + getProject().getName();
+            File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
+                .getLocalWorkspace()
+                .getLocation();
+            String storagePath = Paths.get(location.getPath(), getProject().getName(), ".history").toString();
             historyManager = new FileBasedProjectHistoryManager(this, storagePath, maxFilesInStorage);
         }
         return historyManager;

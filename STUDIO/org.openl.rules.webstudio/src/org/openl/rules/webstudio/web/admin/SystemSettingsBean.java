@@ -125,14 +125,6 @@ public class SystemSettingsBean {
         properties.setProperty(UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
     }
 
-    public String getProjectHistoryHome() {
-        return properties.getProperty(PROJECT_HISTORY_HOME);
-    }
-
-    public void setProjectHistoryHome(String projectHistoryHome) {
-        properties.setProperty(PROJECT_HISTORY_HOME, projectHistoryHome);
-    }
-
     public String getProjectHistoryCount() {
         return properties.getProperty(PROJECT_HISTORY_COUNT);
     }

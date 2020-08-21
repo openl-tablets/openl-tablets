@@ -65,6 +65,7 @@ import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
+import org.openl.rules.webstudio.web.admin.ProjectsInHistoryController;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
@@ -114,7 +115,6 @@ import com.thoughtworks.xstream.io.StreamException;
 @ViewScope
 public class RepositoryTreeController {
 
-    private static final String PROJECT_HISTORY_HOME = "project.history.home";
     private static final String CUSTOM_TEMPLATE_TYPE = "custom";
 
     private final Logger log = LoggerFactory.getLogger(RepositoryTreeController.class);
@@ -1022,7 +1022,6 @@ public class RepositoryTreeController {
                     }
                 }
             }
-            deleteProjectHistory(project.getName());
             userWorkspace.refresh();
 
             repositoryTreeState.deleteSelectedNodeFromTree();
@@ -1047,22 +1046,6 @@ public class RepositoryTreeController {
 
         Repository mainRepo = userWorkspace.getDesignTimeRepository().getRepository();
         return mainRepo.supports().branches() && !((BranchRepository) mainRepo).getBranch().equals(project.getBranch());
-    }
-
-    public void deleteProjectHistory(String projectName) {
-        try {
-            String projectHistoryPath = propertyResolver
-                .getProperty(PROJECT_HISTORY_HOME) + File.separator + projectName;
-            File dir = new File(projectHistoryPath);
-            // Project can contain no history
-            if (dir.exists()) {
-                FileUtils.delete(dir);
-            }
-        } catch (Exception e) {
-            String msg = "Failed to clean history of project '" + projectName + "'.";
-            log.error(msg, e);
-            WebStudioUtils.addErrorMessage(msg, e.getMessage());
-        }
     }
 
     public String exportProjectVersion() {
@@ -1991,6 +1974,7 @@ public class RepositoryTreeController {
                     selectedProject.close();
                 } else {
                     // Update files
+                    ProjectsInHistoryController.deleteHistory(selectedProject.getName());
                     selectedProject.open();
                 }
             }

@@ -26,6 +26,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.admin.ProjectsInHistoryController;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
@@ -72,7 +73,7 @@ public class CopyBean {
     private String errorMessage;
 
     public CopyBean(@Qualifier("designRepositoryComments") Comments designRepoComments,
-        RepositoryTreeState repositoryTreeState) {
+            RepositoryTreeState repositoryTreeState) {
         this.designRepoComments = designRepoComments;
         this.repositoryTreeState = repositoryTreeState;
     }
@@ -177,8 +178,8 @@ public class CopyBean {
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
             LocalRepository localRepository = userWorkspace.getLocalWorkspace().getRepository();
-
             RulesProject project = userWorkspace.getProject(currentProjectName, false);
+            ProjectsInHistoryController.deleteHistory(project.getName());
             if (isSupportsBranches() && !separateProject) {
                 Repository designRepository = project.getDesignRepository();
                 ((BranchRepository) designRepository).createBranch(currentProjectName, newBranchName);
