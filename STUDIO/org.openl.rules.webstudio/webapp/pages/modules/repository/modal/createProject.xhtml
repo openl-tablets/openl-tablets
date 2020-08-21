@@ -253,12 +253,11 @@
                                          noDuplicate="true"
                                          onclear="onClearFile(event); enableCreateButton(false, #{rich:element('submitOpenAPIFile')})"
                                          ontyperejected="showMessagePopup('Only JSON and YML/YAML files are accepted');"
-                                         onuploadcomplete="checkName(event);"
-                                         render="projectName commentOpenAPI"
+                                         render="openAPIProjectName commentOpenAPI"
                                          acceptedTypes="json, yml, yaml" maxFilesQuantity="1"/>
 
-                        <h:outputLabel for="projectName" styleClass="required" value="Project Name:"/>
-                        <h:inputText id="projectName" size="35"
+                        <h:outputLabel for="openAPIProjectName" styleClass="required" value="Project Name:"/>
+                        <h:inputText id="openAPIProjectName" size="35"
                                      maxlength="70"
                                      value="#{repositoryTreeController.projectName}"
                                      onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('submitOpenAPIFile')});"
@@ -432,7 +431,7 @@
 
             $j("#createProjectFormFiles\\:projectName").val("");
             $j("#uploadProjectForm\\:projectName").val("");
-            $j("#openAPIProjectForm\\:projectName").val("");
+            $j("#openAPIProjectForm\\:openAPIProjectName").val("");
             $j("#createProjectFormTempl\\:commentTemplate").val("");
             $j("#createProjectFormFiles\\:commentExcel").val("");
             $j("#uploadProjectForm\\:commentZip").val("");
@@ -491,7 +490,7 @@
         initTemplates();
         $j("#createProjectFormFiles\\:projectName").val("");
         $j("#uploadProjectForm\\:projectName").val("");
-        $j("#openAPIProjectForm\\:projectName").val("");
+        $j("#openAPIProjectForm\\:openAPIProjectName").val("");
 
         $j("#projectTemplates").on("click", "td", function () {
             selectTemplate($j(this));
@@ -509,10 +508,7 @@
                 showMessagePopup('Only files with name "openapi" and formats JSON, YML/YAML are accepted');
                 clearFiles(fileName);
                 enableCreateButton(false, #{rich:element("submitOpenAPIFile")});
-            } else {
-                enableCreateButton(true, #{rich:element("submitOpenAPIFile")});
             }
-
         }
 
         function onClearFile(event) {

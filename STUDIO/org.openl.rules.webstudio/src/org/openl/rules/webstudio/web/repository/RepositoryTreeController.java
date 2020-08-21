@@ -1420,8 +1420,11 @@ public class RepositoryTreeController {
             setFileName(fileName);
 
             if (fileName.contains(".")) {
-                setProjectName(fileName.substring(0, fileName.lastIndexOf('.')));
-
+                if (!FileTypeHelper.isPossibleOpenAPIFile(fileName)) {
+                    setProjectName(fileName.substring(0, fileName.lastIndexOf('.')));
+                } else {
+                    setProjectName("");
+                }
                 if (FileTypeHelper.isZipFile(fileName)) {
                     Charset charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(file));
 
