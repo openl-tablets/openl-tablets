@@ -19,7 +19,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
     private final Logger log = LoggerFactory.getLogger(FileBasedProjectHistoryManager.class);
 
     private ProjectModel projectModel;
-    private FileStorage storage;
+    private final String storagePath;
 
     FileBasedProjectHistoryManager(ProjectModel projectModel,
             String storagePath,
@@ -30,21 +30,51 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
         if (storagePath == null) {
             throw new IllegalArgumentException();
         }
+        this.storagePath = storagePath;
         this.projectModel = projectModel;
-        this.storage = new FileStorage(storagePath);
         if (maxFilesInStorage != null) {
-            storage.delete(maxFilesInStorage);
+            delete(maxFilesInStorage);
+        }
+    }
+
+    private void delete(int count) {
+        File[] files = new File(storagePath).listFiles();
+        // Initial version must always exist
+        if (files != null && files.length > count) {
+            Arrays.sort(files);
+            for (int i = 0; i < files.length - count; i++) {
+                File file = files[i];
+                try {
+                    FileUtils.deleteDirectory(file);
+                } catch (Exception e) {
+                    log.error("Cannot delete folder {}", file.getName(), e);
+                }
+            }
         }
     }
 
     @Override
-    public void save(File source) {
-        storage.add(source);
+    public synchronized void save(File source) {
+        if (source == null) {
+            throw new IllegalArgumentException();
+        }
+
+        long currentDate = System.currentTimeMillis();
+
+        String destFilePath = currentDate + File.separator + source.getName();
+        File destFile = new File(storagePath, destFilePath);
+
+        try {
+            FileUtils.copyFile(source, destFile);
+            destFile.setLastModified(currentDate);
+        } catch (Exception e) {
+            log.error("Cannot add file {}", source.getName(), e);
+        }
     }
 
     @Override
     public File get(long date) {
-        List<File> files = new ArrayList<>(storage.list(new AgeFileFilter(date)));
+        List<File> files = new ArrayList<>(list(new AgeFileFilter(date)));
         if (!files.isEmpty()) {
             for (File file : files) {
                 if (file.lastModified() == date) {
@@ -63,7 +93,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
         filters.add(new AgeFileFilter(date));
         filters.add(new NameFileFilter(current.getName()));
 
-        List<File> files = new ArrayList<>(storage.list(new AndFileFilter(filters)));
+        List<File> files = new ArrayList<>(list(new AndFileFilter(filters)));
         if (files.size() >= 2) {
             return files.get(files.size() - 2);
         }
@@ -84,9 +114,9 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
     public List<File> get(String... names) {
         Collection<File> files;
         if (names != null && names.length > 0) {
-            files = storage.list(new NameFileFilter(names));
+            files = list(new NameFileFilter(names));
         } else {
-            files = storage.list(TrueFileFilter.TRUE);
+            files = list(TrueFileFilter.TRUE);
         }
         return new ArrayList<>(files);
     }
@@ -96,17 +126,6 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
         File fileToRestore = get(date);
         if (fileToRestore != null) {
             File currentSourceFile = projectModel.getSourceByName(fileToRestore.getName());
-            if (currentSourceFile == null) {
-                // Module compilation error, cannot find source by logical modules.
-                // Check current module's path (most often user restores only current module)
-                String path = projectModel.getModuleInfo().getRulesRootPath().getPath();
-                String[] pathElements = path.replace('\\', '/').split("/");
-                if (fileToRestore.getName().equals(pathElements[pathElements.length - 1])) {
-                    currentSourceFile = new File(path);
-                } else {
-                    throw new IllegalStateException("Can restore only current module");
-                }
-            }
             try {
                 FileUtils.copyFile(fileToRestore, currentSourceFile);
                 save(fileToRestore);
@@ -118,6 +137,14 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
                 throw e;
             }
         }
+    }
+
+    private synchronized Collection<File> list(IOFileFilter fileFilter) {
+        File storageDir = new File(storagePath);
+        if (storageDir.exists()) {
+            return FileUtils.listFiles(storageDir, fileFilter, TrueFileFilter.TRUE);
+        }
+        return Collections.emptyList();
     }
 
 }
