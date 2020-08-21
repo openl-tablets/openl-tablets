@@ -35,6 +35,7 @@ import org.openl.rules.project.resolving.ProjectResource;
 import org.openl.rules.project.resolving.ProjectResourceLoader;
 import org.openl.rules.project.validation.AbstractServiceInterfaceProjectValidator;
 import org.openl.rules.project.validation.base.ValidatedCompiledOpenClass;
+import org.openl.rules.ruleservice.databinding.ServiceJacksonObjectMapperEnhancer;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
@@ -51,7 +52,6 @@ import org.openl.types.java.JavaOpenClass;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.parser.OpenAPIParser;
-import io.swagger.v3.core.util.Json;
 import io.swagger.v3.jaxrs2.Reader;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -127,6 +127,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         context.setExpectedOpenAPIResolver(new OpenAPIResolver(context, expectedOpenAPI));
         context.setValidatedCompiledOpenClass(validatedCompiledOpenClass);
         context.setOpenClass(validatedCompiledOpenClass.getOpenClassWithErrors());
+        ClassLoader serviceClassLoader = resolveServiceClassLoader(rulesInstantiationStrategy);
+        context.setServiceClassLoader(serviceClassLoader);
         Class<?> serviceClass = resolveInterface(projectDescriptor,
             rulesInstantiationStrategy,
             validatedCompiledOpenClass);
@@ -135,7 +137,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             enhancedServiceClass = enhanceWithJAXRS(context,
                 projectDescriptor,
                 validatedCompiledOpenClass,
-                serviceClass);
+                serviceClass,
+                serviceClassLoader);
         } catch (Exception e) {
             validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils
                 .newErrorMessage(OPEN_API_VALIDATION_MSG_PREFIX + "Failed to build an interface for the project."));
@@ -175,18 +178,25 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         objectMapperFactoryBean.setRulesDeploy(context.getRulesDeploy());
         objectMapperFactoryBean.setXlsModuleOpenClass((XlsModuleOpenClass) context.getOpenClass());
         objectMapperFactoryBean.setObjectMapperFactory(new OpenApiObjectMapperFactory());
+
         try {
             ObjectMapper objectMapper = objectMapperFactoryBean.createJacksonObjectMapper();
-            return OpenApiObjectMapperConfigurationHelper.configure(objectMapper);
-        } catch (ClassNotFoundException ignore) { // Never happens
-            return Json.mapper();
+            ServiceJacksonObjectMapperEnhancer serviceJacksonObjectMapperEnhancer = new ServiceJacksonObjectMapperEnhancer(
+                objectMapper,
+                (XlsModuleOpenClass) context.getOpenClass(),
+                context.getServiceClassLoader());
+            return OpenApiObjectMapperConfigurationHelper
+                .configure(serviceJacksonObjectMapperEnhancer.createObjectMapper());
+        } catch (ClassNotFoundException e) { // Never happens
+            throw new IllegalStateException("Failed to create object mapper", e);
         }
     }
 
     private Class<?> enhanceWithJAXRS(Context context,
             ProjectDescriptor projectDescriptor,
             CompiledOpenClass compiledOpenClass,
-            Class<?> originalClass) throws Exception {
+            Class<?> originalClass,
+            ClassLoader classLoader) throws Exception {
         RulesDeploy rulesDeploy = getRulesDeploy(projectDescriptor, compiledOpenClass);
         final boolean provideRuntimeContext = rulesDeploy == null && isProvideRuntimeContext() || rulesDeploy != null && Boolean.TRUE
             .equals(rulesDeploy.isProvideRuntimeContext());
@@ -196,7 +206,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         context.setProvideVariations(provideVariations);
         return JAXRSOpenLServiceEnhancerHelper.enhanceInterface(originalClass,
             compiledOpenClass.getOpenClassWithErrors(),
-            originalClass.getClassLoader(),
+            classLoader,
             "unknown",
             "unknown",
             isResolveMethodParameterNames(),

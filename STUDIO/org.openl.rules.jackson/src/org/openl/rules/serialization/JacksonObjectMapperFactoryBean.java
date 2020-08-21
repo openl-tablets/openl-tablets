@@ -66,7 +66,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
-public class JacksonObjectMapperFactoryBean {
+public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactory {
 
     private static final AtomicLong incrementer = new AtomicLong();
 
@@ -114,34 +114,31 @@ public class JacksonObjectMapperFactoryBean {
         if (originalClass == null) {
             originalClass = SubtypeMixin.class;
         }
-        if (originalClass.isInterface()) {
-            List<Class<?>> subTypeClasses = new ArrayList<>();
-            for (Class<?> x : classes) {
-                if (x.getSuperclass() == classFor) {
-                    subTypeClasses.add(x);
-                }
-            }
-            String className = classFor.getName() + "$SubtypeMixIn$" + incrementer.getAndIncrement();
-            try {
-                return classLoader.loadClass(className);
-            } catch (ClassNotFoundException e) {
-                ClassWriter classWriter = new ClassWriter(0);
-                ClassVisitor classVisitor = new SubtypeMixInClassWriter(classWriter,
-                    className,
-                    originalClass,
-                    subTypeClasses.toArray(new Class<?>[0]));
-                InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className, true);
-                transformer.accept(classVisitor);
-                classWriter.visitEnd();
-                try {
-                    ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
-                    return Class.forName(className, true, classLoader);
-                } catch (Exception e1) {
-                    throw new RuntimeException(e1);
-                }
+        List<Class<?>> subTypeClasses = new ArrayList<>();
+        for (Class<?> x : classes) {
+            if (x.getSuperclass() == classFor) {
+                subTypeClasses.add(x);
             }
         }
-        return originalMixInClass;
+        String className = classFor.getName() + "$SubtypeMixIn$" + incrementer.getAndIncrement();
+        try {
+            return classLoader.loadClass(className);
+        } catch (ClassNotFoundException e) {
+            ClassWriter classWriter = new ClassWriter(0);
+            ClassVisitor classVisitor = new SubtypeMixInClassWriter(classWriter,
+                className,
+                originalClass,
+                subTypeClasses.toArray(new Class<?>[0]));
+            InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className, true);
+            transformer.accept(classVisitor);
+            classWriter.visitEnd();
+            try {
+                ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
+                return Class.forName(className, true, classLoader);
+            } catch (Exception e1) {
+                throw new RuntimeException(e1);
+            }
+        }
     }
 
     public ObjectMapper createJacksonObjectMapper() throws ClassNotFoundException {
@@ -248,7 +245,8 @@ public class JacksonObjectMapperFactoryBean {
             mapper.deactivateDefaultTyping();
         }
 
-        if (!DefaultTypingMode.DISABLED.equals(getDefaultTypingMode()) || isGenerateSubtypeAnnotationsForDisabledMode()) {
+        if (!DefaultTypingMode.DISABLED
+            .equals(getDefaultTypingMode()) || isGenerateSubtypeAnnotationsForDisabledMode()) {
             for (Class<?> clazz : overrideClasses) {
                 Class<?> subtypeMixInCLass = enhanceMixInClassWithSubTypes(clazz,
                     mapper.findMixInClassFor(clazz),

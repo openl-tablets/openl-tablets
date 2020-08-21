@@ -22,6 +22,7 @@ class Context {
     private OpenAPI actualOpenAPI;
     private IOpenClass openClass;
     private Class<?> serviceClass;
+    private ClassLoader serviceClassLoader;
     private Map<Method, Method> methodMap;
     private boolean provideRuntimeContext;
     private boolean provideVariations;
@@ -43,7 +44,7 @@ class Context {
     private final OpenClassPropertiesResolver openClassPropertiesResolver = new OpenClassPropertiesResolver(this);
     private OpenAPIResolver actualOpenAPIResolver;
     private OpenAPIResolver expectedOpenAPIResolver;
-    private SpreadsheetMethodResolver spreadsheetMethodResolver = new SpreadsheetMethodResolver(this);
+    private final SpreadsheetMethodResolver spreadsheetMethodResolver = new SpreadsheetMethodResolver(this);
 
     private boolean typeValidationInProgress;
     private IOpenClass type;
@@ -254,5 +255,13 @@ class Context {
 
     public SpreadsheetMethodResolver getSpreadsheetMethodResolver() {
         return spreadsheetMethodResolver;
+    }
+
+    public ClassLoader getServiceClassLoader() {
+        return serviceClassLoader;
+    }
+
+    public void setServiceClassLoader(ClassLoader serviceClassLoader) {
+        this.serviceClassLoader = serviceClassLoader;
     }
 }

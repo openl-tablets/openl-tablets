@@ -21,18 +21,18 @@
     </bean>
 
 
-    <bean id="serviceKafkaProducerJacksonDatabindingFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperEnhancerFactoryBean" scope="prototype">
-        <property name="projectJacksonObjectMapperFactoryBean">
+    <bean id="kafkaServiceProducerJacksonObjectMapperFactoryBean"
+          class="org.openl.rules.ruleservice.databinding.ServiceJacksonObjectMapperEnhancerFactoryBean" scope="prototype">
+        <property name="jacksonObjectMapperFactory">
             <bean parent="kafkaJacksonDatabindingFactoryBeanParent">
                 <property name="type" value="PRODUCER"/>
             </bean>
         </property>
     </bean>
 
-    <bean id="serviceKafkaConsumerJacksonDatabindingFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperEnhancerFactoryBean" scope="prototype">
-        <property name="projectJacksonObjectMapperFactoryBean">
+    <bean id="kafkaServiceConsumerJacksonObjectMapperFactoryBean"
+          class="org.openl.rules.ruleservice.databinding.ServiceJacksonObjectMapperEnhancerFactoryBean" scope="prototype">
+        <property name="jacksonObjectMapperFactory">
             <bean parent="kafkaJacksonDatabindingFactoryBeanParent">
                 <property name="type" value="CONSUMER"/>
             </bean>

@@ -7,7 +7,13 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.objectweb.asm.*;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.openl.rules.runtime.InterfaceGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,39 +60,41 @@ public class InterfaceTransformer {
      */
     public void accept(ClassVisitor classVisitor) {
         classVisitor.visit(Opcodes.V1_8,
-            InterfaceGenerator.PUBLIC_ABSTRACT_INTERFACE,
+            interfaceToTransform.getModifiers(),
             className.replace('.', '/'),
             null,
-            InterfaceGenerator.JAVA_LANG_OBJECT,
+            interfaceToTransform.getSuperclass() != null
+                                                         ? interfaceToTransform.getSuperclass()
+                                                             .getName()
+                                                             .replace('.', '/')
+                                                         : InterfaceGenerator.JAVA_LANG_OBJECT,
             null);
         for (Annotation annotation : interfaceToTransform.getAnnotations()) {
             AnnotationVisitor av = classVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
             processAnnotation(annotation, av);
         }
 
-        for (Field field : interfaceToTransform.getFields()) {
-            if (isConstantField(field)) {
-                try {
-                    FieldVisitor fieldVisitor = classVisitor.visitField(
-                        Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC + Opcodes.ACC_FINAL,
-                        field.getName(),
-                        Type.getDescriptor(field.getType()),
-                        null,
-                        field.get(null));
-                    if (fieldVisitor != null) {
-                        for (Annotation annotation : field.getAnnotations()) {
-                            AnnotationVisitor av = fieldVisitor
-                                .visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
-                            processAnnotation(annotation, av);
-                        }
+        for (Field field : interfaceToTransform.getDeclaredFields()) {
+            try {
+                field.setAccessible(true);
+                FieldVisitor fieldVisitor = classVisitor.visitField(field.getModifiers(),
+                    field.getName(),
+                    Type.getDescriptor(field.getType()),
+                    null,
+                    isConstantField(field) ? field.get(null) : null);
+                if (fieldVisitor != null) {
+                    for (Annotation annotation : field.getAnnotations()) {
+                        AnnotationVisitor av = fieldVisitor
+                            .visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
+                        processAnnotation(annotation, av);
                     }
-                } catch (Exception e) {
-                    log.error("Failed to process field '{}'.", field.getName(), e);
                 }
+            } catch (Exception e) {
+                log.error("Failed to process field '{}'.", field.getName(), e);
             }
         }
 
-        for (Method method : interfaceToTransform.getMethods()) {
+        for (Method method : interfaceToTransform.getDeclaredMethods()) {
             String ruleName = method.getName();
             MethodVisitor methodVisitor = classVisitor.visitMethod(InterfaceGenerator.PUBLIC_ABSTRACT,
                 ruleName,

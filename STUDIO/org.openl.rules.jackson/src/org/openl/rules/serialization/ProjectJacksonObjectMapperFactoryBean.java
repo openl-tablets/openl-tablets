@@ -26,7 +26,7 @@ import org.openl.util.StringUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class ProjectJacksonObjectMapperFactoryBean {
+public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMapperFactory {
 
     public static final String ROOT_CLASS_NAMES_BINDING = "rootClassNamesBinding";
     public static final String JACKSON_CASE_INSENSITIVE_PROPERTIES = "jackson.caseInsensitiveProperties";

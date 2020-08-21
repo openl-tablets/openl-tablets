@@ -10,5 +10,5 @@ package org.openl.rules.serialization.jackson;
  * #L%
  */
 
-public interface SubtypeMixin {
+public abstract class SubtypeMixin {
 }

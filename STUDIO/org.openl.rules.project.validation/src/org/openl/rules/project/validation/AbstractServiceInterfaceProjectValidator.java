@@ -34,6 +34,7 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
     private final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
 
     private RulesDeploy rulesDeploy;
+    private ClassLoader classLoader;
 
     protected ProjectResource loadProjectResource(ProjectResourceLoader projectResourceLoader,
             ProjectDescriptor projectDescriptor,
@@ -67,14 +68,17 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
         return rulesDeploy;
     }
 
-    private ClassLoader resolveServiceClassLoader(
+    protected ClassLoader resolveServiceClassLoader(
             RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
-        ClassLoader moduleGeneratedClassesClassLoader = ((XlsModuleOpenClass) instantiationStrategy.compile()
-            .getOpenClassWithErrors()).getClassGenerationClassLoader();
-        OpenLBundleClassLoader openLBundleClassLoader = new OpenLBundleClassLoader(null);
-        openLBundleClassLoader.addClassLoader(moduleGeneratedClassesClassLoader);
-        openLBundleClassLoader.addClassLoader(instantiationStrategy.getClassLoader());
-        return openLBundleClassLoader;
+        if (classLoader == null) {
+            ClassLoader moduleGeneratedClassesClassLoader = ((XlsModuleOpenClass) instantiationStrategy.compile()
+                .getOpenClassWithErrors()).getClassGenerationClassLoader();
+            OpenLBundleClassLoader openLBundleClassLoader = new OpenLBundleClassLoader(null);
+            openLBundleClassLoader.addClassLoader(moduleGeneratedClassesClassLoader);
+            openLBundleClassLoader.addClassLoader(instantiationStrategy.getClassLoader());
+            classLoader = openLBundleClassLoader;
+        }
+        return classLoader;
     }
 
     protected Class<?> resolveInterface(ProjectDescriptor projectDescriptor,
@@ -120,8 +124,8 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
                         .decorate(serviceClass, annotationTemplateClass, classLoader);
                 } else {
                     validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                            "Failed to apply annotation template class '%s'. Interface is expected, but class is found.",
-                            annotationTemplateClassName)));
+                        "Failed to apply annotation template class '%s'. Interface is expected, but class is found.",
+                        annotationTemplateClassName)));
                 }
             } catch (Exception | NoClassDefFoundError ignored) {
                 validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils.newWarnMessage(String
