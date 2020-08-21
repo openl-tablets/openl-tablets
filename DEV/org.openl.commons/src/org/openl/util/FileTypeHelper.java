@@ -21,12 +21,12 @@ public final class FileTypeHelper {
         return lcFileName.endsWith(".zip");
     }
 
-    public static boolean isOpenAPIFile(String fileName) {
+    public static boolean isPossibleOpenAPIFile(String fileName) {
         if (fileName == null) {
             return false;
         }
         String lcFileName = fileName.toLowerCase();
-        return lcFileName.equals("openapi.json") || lcFileName.equals("openapi.yml") || lcFileName
-            .equals("openapi.yaml");
+        return lcFileName.endsWith(".json") || lcFileName.endsWith(".yml") || lcFileName
+            .endsWith(".yaml");
     }
 }

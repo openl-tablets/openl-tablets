@@ -25,6 +25,7 @@ import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTool;
+import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,10 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     public static final String SPR_FILE_NAME = "Algorithm.xlsx";
     public static final String RULES_FILE_NAME = "rules.xml";
     public static final String MODULE_NAME = "Main";
+    public static final String OPENAPI_FILE_DEFAULT_NAME = "openapi";
+
     private final Logger log = LoggerFactory.getLogger(OpenAPIProjectCreator.class);
+
     private final File uploadedOpenAPIFile;
     private final String comment;
     private final String fileName;
@@ -46,11 +50,19 @@ public class OpenAPIProjectCreator extends AProjectCreator {
 
     public OpenAPIProjectCreator(String openAPIFileName,
             InputStream uploadedFile,
+            long fileSize,
             String projectName,
             String projectFolder,
             UserWorkspace userWorkspace,
-            String comment) {
+            String comment) throws ProjectException {
         super(projectName, projectFolder, userWorkspace);
+        String filteredName = FileUtils.removeExtension(openAPIFileName);
+        if (!checkFileSize(fileSize)) {
+            throw new ProjectException("Size of the file " + uploadedFile + " is more then 100MB.");
+        }
+        if (!filteredName.equalsIgnoreCase(OPENAPI_FILE_DEFAULT_NAME)) {
+            throw new ProjectException("Only files with name 'openapi' and formats JSON, YML/YAML are accepted.");
+        }
         this.uploadedOpenAPIFile = FileTool.toTempFile(uploadedFile, openAPIFileName);
         this.fileName = openAPIFileName;
         this.comment = comment;
@@ -129,5 +141,9 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    private boolean checkFileSize(long size) {
+        return size <= 1000 * 1024 * 1024;
     }
 }

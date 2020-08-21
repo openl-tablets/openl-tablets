@@ -243,23 +243,26 @@
             </rich:tab>
 
             <rich:tab header="OpenAPI">
-                <h:form id="openAPIProject" style="padding-top: 6px">
+                <h:form id="openAPIProjectForm" style="padding-top: 6px">
                     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                         <h:outputLabel for="file" styleClass="required" value="File:"/>
 
                         <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
-                                         onfilesubmit="showLoader();" oncomplete="hideLoader();"
+                                         onfilesubmit="showLoader(); checkFileName(event);" oncomplete="hideLoader();"
                                          immediateUpload="true"
                                          noDuplicate="true"
-                                         onclear="onClearFile(event);"
+                                         onclear="onClearFile(event); enableCreateButton(false, #{rich:element('submitOpenAPIFile')})"
                                          ontyperejected="showMessagePopup('Only JSON and YML/YAML files are accepted');"
-                                         acceptedTypes="json, yml, yaml"/>
+                                         onuploadcomplete="checkName(event);"
+                                         render="projectName commentOpenAPI"
+                                         acceptedTypes="json, yml, yaml" maxFilesQuantity="1"/>
 
                         <h:outputLabel for="projectName" styleClass="required" value="Project Name:"/>
                         <h:inputText id="projectName" size="35"
                                      maxlength="70"
-                                     value="#{repositoryTreeController.projectName}"/>
-
+                                     value="#{repositoryTreeController.projectName}"
+                                     onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('submitOpenAPIFile')});"
+                                     onchange="createProjectFormOpenAPICommentHandler.generateTemplate(this.value.trim(), #{rich:element('openAPIProjectForm:commentOpenAPI')});"/>
 
                         <h:outputLabel for="projectFolderOpenAPI" value="Path in repository:"
                                        rendered="#{repositoryTreeController.supportsMappedFolders}"/>
@@ -277,7 +280,7 @@
                                          type="text"
                                          size="35"
                                          readonly="false"
-                                         onkeyup="createProjectFormFilesCommentHandler.isEdited = true;"/>
+                                         onkeyup="createProjectFormOpenAPICommentHandler.isEdited = true;"/>
                     </h:panelGrid>
                     <footer>
                         <h:commandButton id="submitOpenAPIFile" value="Create"
@@ -358,7 +361,7 @@
             </rich:tab>
 
             <h:form>
-                <a4j:jsFunction name="clearFiles">
+                <a4j:jsFunction name="clearFiles" render="openAPIProjectForm">
                     <a4j:param name="fileNames" assignTo="#{repositoryTreeController.fileNamesToRemove}"/>
                 </a4j:jsFunction>
             </h:form>
@@ -388,17 +391,23 @@
         let uploadProjectFormCommentHandler = new CommentTemplateHandler();
         let createProjectFormTemplCommentHandler = new CommentTemplateHandler();
         let createProjectFormFilesCommentHandler = new CommentTemplateHandler();
+        let createProjectFormOpenAPICommentHandler = new CommentTemplateHandler();
         //]]>
 
         enableCreateButton(false, #{rich:element("sbtFiles")});
         enableCreateButton(false, #{rich:element("sbtZips")});
         enableCreateButton(false, #{rich:element("sbtWorkspace")});
+        enableCreateButton(false, #{rich:element("submitOpenAPIFile")});
 
         #{rich:element("createProjectFormFiles:projectName")}.onpaste = function () {
             enableCreateButton(true, #{rich:element("sbtFiles")});
         }
             #{rich:element("uploadProjectForm:projectName")}.onpaste = function () {
             enableCreateButton(true, #{rich:element("sbtZips")});
+        }
+
+            #{rich:element("openAPIProjectForm:projectName")}.onpaste = function () {
+            enableCreateButton(true, #{rich:element("submitOpenAPIFile")});
         }
 
         function enableCreateButton(enable, button) {
@@ -417,14 +426,17 @@
             uploadProjectFormCommentHandler.isEdited = false;
             createProjectFormTemplCommentHandler.isEdited = false;
             createProjectFormFilesCommentHandler.isEdited = false;
+            createProjectFormOpenAPICommentHandler.isEdited = false;
             $j("#createProjectFormTempl\\:projectName").val("");
             initTemplates();
 
             $j("#createProjectFormFiles\\:projectName").val("");
             $j("#uploadProjectForm\\:projectName").val("");
+            $j("#openAPIProjectForm\\:projectName").val("");
             $j("#createProjectFormTempl\\:commentTemplate").val("");
             $j("#createProjectFormFiles\\:commentExcel").val("");
             $j("#uploadProjectForm\\:commentZip").val("");
+            $j("#openAPIProjectForm\\:commentOpenAPI").val("");
 
             RichFaces.$("modalNewProject").hide();
         }
@@ -479,10 +491,29 @@
         initTemplates();
         $j("#createProjectFormFiles\\:projectName").val("");
         $j("#uploadProjectForm\\:projectName").val("");
+        $j("#openAPIProjectForm\\:projectName").val("");
 
         $j("#projectTemplates").on("click", "td", function () {
             selectTemplate($j(this));
         });
+
+        function checkFileName(event) {
+            let file = event.rf.data.file;
+            if (!file) {
+                return;
+            }
+            let fileName = file.name;
+            let name = fileName.split('.').slice(0, -1).join('.');
+
+            if (name.toUpperCase() !== 'openapi'.toUpperCase()) {
+                showMessagePopup('Only files with name "openapi" and formats JSON, YML/YAML are accepted');
+                clearFiles(fileName);
+                enableCreateButton(false, #{rich:element("submitOpenAPIFile")});
+            } else {
+                enableCreateButton(true, #{rich:element("submitOpenAPIFile")});
+            }
+
+        }
 
         function onClearFile(event) {
             let files = "";

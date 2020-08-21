@@ -1473,7 +1473,7 @@ public class RepositoryTreeController {
             clearUploadedFiles();
         } else {
             List<String> toRemove = Arrays.asList(fileNames.split("\n"));
-            for (Iterator<ProjectFile> iterator = uploadedFiles.iterator(); iterator.hasNext(); ) {
+            for (Iterator<ProjectFile> iterator = uploadedFiles.iterator(); iterator.hasNext();) {
                 ProjectFile file = iterator.next();
                 if (toRemove.contains(file.getName())) {
                     file.destroy();
@@ -2147,7 +2147,7 @@ public class RepositoryTreeController {
     public String getBusinessVersion(TreeProductProject version) {
         try {
             String businessVersion = projectVersionCacheManager
-                    .getDesignBusinessVersionOfDeployedProject(version.getData().getProject());
+                .getDesignBusinessVersionOfDeployedProject(version.getData().getProject());
             return businessVersion != null ? businessVersion : version.getVersionName();
         } catch (IOException e) {
             log.error("Error during getting project design version", e);

@@ -64,9 +64,10 @@ public class ProjectUploader {
                 // Get the last file
                 ProjectFile file = uploadedFiles.get(uploadedFiles.size() - 1);
                 String fileName = file.getName();
-                if (FileTypeHelper.isOpenAPIFile(fileName)) {
+                if (FileTypeHelper.isPossibleOpenAPIFile(fileName)) {
                     projectCreator = new OpenAPIProjectCreator(fileName,
                         file.getInput(),
+                        file.getSize(),
                         projectName,
                         projectFolder,
                         userWorkspace,
