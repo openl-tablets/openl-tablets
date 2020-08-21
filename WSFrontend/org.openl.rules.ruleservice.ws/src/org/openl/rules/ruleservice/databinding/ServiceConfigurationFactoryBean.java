@@ -45,7 +45,7 @@ public abstract class ServiceConfigurationFactoryBean<T> extends AbstractFactory
         return openLService;
     }
 
-    protected Object getValue(String property) throws Exception {
+    protected Object getValue(String property) {
         return getServiceDescription().getConfiguration() == null ? null
                                                                   : getServiceDescription().getConfiguration()
                                                                       .get(property);

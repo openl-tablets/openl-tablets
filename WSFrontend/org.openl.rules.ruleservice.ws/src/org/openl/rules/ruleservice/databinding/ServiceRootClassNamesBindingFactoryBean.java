@@ -71,20 +71,18 @@ public class ServiceRootClassNamesBindingFactoryBean extends AbstractFactoryBean
         OpenLService openLService = getOpenLService();
         Set<String> ret = new HashSet<>(getRootClassNames());
 
-        if (getServiceDescription().getRulesDeploy() != null) {
-            Map<String, Object> configuration = getServiceDescription().getRulesDeploy().getConfiguration();
-            if (configuration != null) {
-                Object rootClassNamesBinding = configuration
-                    .get(ProjectJacksonObjectMapperFactoryBean.ROOT_CLASS_NAMES_BINDING);
-                if (rootClassNamesBinding instanceof String) {
-                    ret.addAll(RulesDeployHelper.splitRootClassNamesBindingClasses((String) rootClassNamesBinding));
-                } else {
-                    if (rootClassNamesBinding != null) {
-                        throw new ObjectMapperConfigurationParsingException(
-                            String.format("Expected string value for '%s' in the configuration for service '%s'.",
-                                ProjectJacksonObjectMapperFactoryBean.ROOT_CLASS_NAMES_BINDING,
-                                openLService.getName()));
-                    }
+        if (getServiceDescription().getConfiguration() != null) {
+            Map<String, Object> configuration = getServiceDescription().getConfiguration();
+            Object rootClassNamesBinding = configuration
+                .get(ProjectJacksonObjectMapperFactoryBean.ROOT_CLASS_NAMES_BINDING);
+            if (rootClassNamesBinding instanceof String) {
+                ret.addAll(RulesDeployHelper.splitRootClassNamesBindingClasses((String) rootClassNamesBinding));
+            } else {
+                if (rootClassNamesBinding != null) {
+                    throw new ObjectMapperConfigurationParsingException(
+                        String.format("Expected string value for '%s' in the configuration for service '%s'.",
+                            ProjectJacksonObjectMapperFactoryBean.ROOT_CLASS_NAMES_BINDING,
+                            openLService.getName()));
                 }
             }
         }
