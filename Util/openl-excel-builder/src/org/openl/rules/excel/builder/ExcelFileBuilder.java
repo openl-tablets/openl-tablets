@@ -1,11 +1,13 @@
 package org.openl.rules.excel.builder;
 
 import static org.openl.rules.excel.builder.export.DatatypeTableExporter.DATATYPES_SHEET;
+import static org.openl.rules.excel.builder.export.EnvironmentTableExporter.ENV_SHEET;
 import static org.openl.rules.excel.builder.export.SpreadsheetResultTableExporter.SPR_RESULT_SHEET;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -15,12 +17,14 @@ import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.openl.rules.excel.builder.export.DatatypeTableExporter;
+import org.openl.rules.excel.builder.export.EnvironmentTableExporter;
 import org.openl.rules.excel.builder.export.SpreadsheetResultTableExporter;
 import org.openl.rules.excel.builder.template.ExcelTemplateUtils;
 import org.openl.rules.excel.builder.template.TableStyle;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetResultModel;
+import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,6 +87,18 @@ public class ExcelFileBuilder {
     }
 
     /**
+     * Generate spreadsheets with environment.
+     *
+     * @param spreadsheetResultModels - spreadsheet models.
+     * @param outputStream - output stream with models.
+     */
+    public static void generateSpreadsheetsWithEnvironment(List<SpreadsheetResultModel> spreadsheetResultModels,
+            OutputStream outputStream,
+            EnvironmentModel model) {
+        writeSpreadsheetsWithEnvironment(spreadsheetResultModels, outputStream, model);
+    }
+
+    /**
      * Writing models to Excel file with styles from template.
      * 
      * @param datatypeModels
@@ -120,15 +136,8 @@ public class ExcelFileBuilder {
         SXSSFWorkbook tempWorkbook = null;
         try (SXSSFWorkbook workbook = tempWorkbook = new CustomizedSXSSFWorkbook()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
-            SXSSFSheet sprSheet = workbook.createSheet(SPR_RESULT_SHEET);
             TableStyle sprStyles = stylesMap.get(SPR_RESULT_SHEET);
-            List<String> sprNames = spreadsheetResultModels.stream()
-                .map(SpreadsheetResultModel::getName)
-                .collect(Collectors.toList());
-            SpreadsheetResultTableExporter sprTableExporter = new SpreadsheetResultTableExporter(sprNames);
-            sprTableExporter.setTableStyle(sprStyles);
-            sprTableExporter.export(spreadsheetResultModels, sprSheet);
-            sprSheet.validateMergedRegions();
+            writeSpreadsheets(spreadsheetResultModels, workbook, sprStyles);
             autoSizeSheets(workbook);
             workbook.write(outputStream);
         } catch (IOException e) {
@@ -138,6 +147,48 @@ public class ExcelFileBuilder {
                 tempWorkbook.dispose();
             }
         }
+    }
+
+    private static void writeSpreadsheets(List<SpreadsheetResultModel> spreadsheetResultModels,
+            SXSSFWorkbook workbook,
+            TableStyle tableStyle) {
+        SXSSFSheet sprSheet = workbook.createSheet(SPR_RESULT_SHEET);
+        List<String> sprNames = spreadsheetResultModels.stream()
+            .map(SpreadsheetResultModel::getName)
+            .collect(Collectors.toList());
+        SpreadsheetResultTableExporter sprTableExporter = new SpreadsheetResultTableExporter(sprNames);
+        sprTableExporter.setTableStyle(tableStyle);
+        sprTableExporter.export(spreadsheetResultModels, sprSheet);
+        sprSheet.validateMergedRegions();
+    }
+
+    private static void writeSpreadsheetsWithEnvironment(List<SpreadsheetResultModel> spreadsheetResultModels,
+            OutputStream outputStream,
+            EnvironmentModel environmentModel) {
+        SXSSFWorkbook tempWorkbook = null;
+        try (SXSSFWorkbook workbook = tempWorkbook = new CustomizedSXSSFWorkbook()) {
+            Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
+            TableStyle sprStyle = stylesMap.get(SPR_RESULT_SHEET);
+            TableStyle envStyle = stylesMap.get(ENV_SHEET);
+            writeSpreadsheets(spreadsheetResultModels, workbook, sprStyle);
+            writeEnvironment(environmentModel, workbook, envStyle);
+            autoSizeSheets(workbook);
+            workbook.write(outputStream);
+        } catch (IOException e) {
+            logger.error("Error on generating Spreadsheet workbook occurred.", e);
+        } finally {
+            if (tempWorkbook != null) {
+                tempWorkbook.dispose();
+            }
+        }
+    }
+
+    private static void writeEnvironment(EnvironmentModel environmentModel, SXSSFWorkbook workbook, TableStyle style) {
+        SXSSFSheet envSheet = workbook.createSheet(ENV_SHEET);
+        EnvironmentTableExporter environmentTableExporter = new EnvironmentTableExporter();
+        environmentTableExporter.setTableStyle(style);
+        environmentTableExporter.export(Collections.singletonList(environmentModel), envSheet);
+        envSheet.validateMergedRegions();
     }
 
     /**

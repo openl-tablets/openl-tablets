@@ -194,14 +194,6 @@ public class SystemSettingsBean {
         return Boolean.parseBoolean(properties.getProperty(OpenLSystemProperties.DISPATCHING_VALIDATION));
     }
 
-    public boolean isRunTestsInParallel() {
-        return Boolean.parseBoolean(properties.getProperty(RUN_TESTS_IN_PARALLEL));
-    }
-
-    public void setRunTestsInParallel(boolean runTestsInParallel) {
-        properties.setProperty(RUN_TESTS_IN_PARALLEL, runTestsInParallel);
-    }
-
     public String getTestRunThreadCount() {
         return properties.getProperty(TEST_RUN_THREAD_COUNT_PROPERTY);
     }

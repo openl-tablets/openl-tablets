@@ -3,25 +3,24 @@ package org.openl.rules.excel.builder.template;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.openl.rules.excel.builder.CellRangeSettings;
-import org.openl.rules.excel.builder.template.row.RowStyle;
-import org.openl.rules.excel.builder.template.row.SpreadsheetTableRowStyle;
+import org.openl.rules.excel.builder.template.row.NameValueRowStyle;
 
 public class SpreadsheetTableStyleImpl extends DefaultTableStyleImpl implements SpreadsheetTableStyle {
 
-    private RowStyle headerRowStyle;
-    private String stepHeaderText;
-    private String valueHeaderText;
-    private SpreadsheetTableRowStyle rowStyle;
-    private SpreadsheetTableRowStyle lastRowStyle;
+    private final NameValueRowStyle headerRowStyle;
+    private final String stepHeaderText;
+    private final String valueHeaderText;
+    private final NameValueRowStyle rowStyle;
+    private final NameValueRowStyle lastRowStyle;
 
     public SpreadsheetTableStyleImpl(RichTextString headerTextTemplate,
             CellStyle headerStyle,
             CellRangeSettings headerSettings,
-            SpreadsheetTableRowStyle headerRowStyle,
+            NameValueRowStyle headerRowStyle,
             String stepHeaderText,
             String valueHeaderText,
-            SpreadsheetTableRowStyle rowStyle,
-            SpreadsheetTableRowStyle lastRowStyle) {
+            NameValueRowStyle rowStyle,
+            NameValueRowStyle lastRowStyle) {
         super(headerTextTemplate, headerStyle, headerSettings);
         this.headerRowStyle = headerRowStyle;
         this.stepHeaderText = stepHeaderText;
@@ -30,7 +29,7 @@ public class SpreadsheetTableStyleImpl extends DefaultTableStyleImpl implements 
         this.lastRowStyle = lastRowStyle;
     }
 
-    public RowStyle getHeaderRowStyle() {
+    public NameValueRowStyle getHeaderRowStyle() {
         return headerRowStyle;
     }
 
@@ -42,11 +41,11 @@ public class SpreadsheetTableStyleImpl extends DefaultTableStyleImpl implements 
         return valueHeaderText;
     }
 
-    public RowStyle getRowStyle() {
+    public NameValueRowStyle getRowStyle() {
         return rowStyle;
     }
 
-    public SpreadsheetTableRowStyle getLastRowStyle() {
+    public NameValueRowStyle getLastRowStyle() {
         return lastRowStyle;
     }
 }

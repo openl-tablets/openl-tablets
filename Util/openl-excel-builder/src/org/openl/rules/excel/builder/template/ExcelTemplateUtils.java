@@ -1,6 +1,7 @@
 package org.openl.rules.excel.builder.template;
 
 import static org.openl.rules.excel.builder.export.DatatypeTableExporter.DATATYPES_SHEET;
+import static org.openl.rules.excel.builder.export.EnvironmentTableExporter.ENV_SHEET;
 import static org.openl.rules.excel.builder.export.SpreadsheetResultTableExporter.SPR_RESULT_SHEET;
 
 import java.io.IOException;
@@ -22,8 +23,11 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.rules.excel.builder.CellRangeSettings;
-import org.openl.rules.excel.builder.template.row.DataTypeTableRowStyle;
-import org.openl.rules.excel.builder.template.row.SpreadsheetTableRowStyle;
+import org.openl.rules.excel.builder.template.row.DataTypeRowStyle;
+import org.openl.rules.excel.builder.template.row.DataTypeTableRowStyleImpl;
+import org.openl.rules.excel.builder.template.row.NameValueRowStyle;
+import org.openl.rules.excel.builder.template.row.NameValueRowStyleImpl;
+import org.openl.rules.excel.builder.template.row.SpreadsheetTableRowStyleImpl;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +51,7 @@ public class ExcelTemplateUtils {
 
             Sheet dataTypeSheet = wb.getSheet(DATATYPES_SHEET);
             if (dataTypeSheet == null) {
-                logger.info("Datatype sheet wasn't found.");
+                logger.error("Datatype sheet template wasn't found.");
             }
 
             TableStyle dataTypeStyle = extractDatatypeStyle(dataTypeSheet, targetWorkbook);
@@ -55,12 +59,18 @@ public class ExcelTemplateUtils {
 
             Sheet sprResultSheet = wb.getSheet(SPR_RESULT_SHEET);
             if (sprResultSheet == null) {
-                logger.error("SpreadSheetResults sheet wasn't found.");
+                logger.error("SpreadSheetResults sheet template wasn't found.");
             }
 
             TableStyle spreadSheetStyle = extractSpreadSheetResultStyle(sprResultSheet, targetWorkbook);
             templateStyles.put(SPR_RESULT_SHEET, spreadSheetStyle);
 
+            Sheet environmentSheet = wb.getSheet(ENV_SHEET);
+            if (environmentSheet == null) {
+                logger.error("Environment sheet template wasn't found.");
+            }
+            TableStyle envStyle = extractEnvStyle(environmentSheet, targetWorkbook);
+            templateStyles.put(ENV_SHEET, envStyle);
         } catch (InvalidFormatException e) {
             logger.error("Invalid format exception occurred.", e);
         } catch (IOException e) {
@@ -90,8 +100,7 @@ public class ExcelTemplateUtils {
         String stepHeader = sprStepHeader.getStringCellValue();
         String valueHeader = sprValueHeader.getStringCellValue();
 
-        SpreadsheetTableRowStyle headerRowStyle = new SpreadsheetTableRowStyle(targetStepHeaderStyle,
-            targetValueHeaderStyle);
+        NameValueRowStyle headerRowStyle = new SpreadsheetTableRowStyleImpl(targetStepHeaderStyle, targetValueHeaderStyle);
 
         Row sprFieldRow = sprResultSheet.getRow(TOP_MARGIN + 2);
 
@@ -100,7 +109,7 @@ public class ExcelTemplateUtils {
 
         Cell sprFieldValue = sprFieldRow.getCell(LEFT_MARGIN + 1);
         CellStyle targetValueStyle = copyCellStyle(targetWorkbook, sprFieldValue);
-        SpreadsheetTableRowStyle rowStyle = new SpreadsheetTableRowStyle(targetFieldStyle, targetValueStyle);
+        NameValueRowStyle rowStyle = new SpreadsheetTableRowStyleImpl(targetFieldStyle, targetValueStyle);
 
         Row lastSprRow = sprResultSheet.getRow(TOP_MARGIN + 3);
 
@@ -109,8 +118,7 @@ public class ExcelTemplateUtils {
 
         Cell lastFieldValue = lastSprRow.getCell(LEFT_MARGIN + 1);
         CellStyle targetLastValueStyle = copyCellStyle(targetWorkbook, lastFieldValue);
-        SpreadsheetTableRowStyle lastRowStyle = new SpreadsheetTableRowStyle(targetLastFieldStyle,
-            targetLastValueStyle);
+        NameValueRowStyle lastRowStyle = new SpreadsheetTableRowStyleImpl(targetLastFieldStyle, targetLastValueStyle);
 
         return new SpreadsheetTableStyleImpl(sprTableHeaderText,
             targetTableHeaderStyle,
@@ -161,7 +169,7 @@ public class ExcelTemplateUtils {
 
         String datatypeDefaultTemplate = datatypeDefaultValueCell.getStringCellValue();
 
-        DataTypeTableRowStyle rowStyle = new DataTypeTableRowStyle(targetClassStyle,
+        DataTypeRowStyle rowStyle = new DataTypeTableRowStyleImpl(targetClassStyle,
             targetNameStyle,
             targetDefaultValueStyle);
 
@@ -175,7 +183,7 @@ public class ExcelTemplateUtils {
 
         Cell dtLastDefaultValueCell = lastDataTypeRow.getCell(LEFT_MARGIN + 2);
         CellStyle targetLastDefaultValueStyle = copyCellStyle(targetWorkbook, dtLastDefaultValueCell);
-        DataTypeTableRowStyle lastRowStyle = new DataTypeTableRowStyle(targetLastClassStyle,
+        DataTypeRowStyle lastRowStyle = new DataTypeTableRowStyleImpl(targetLastClassStyle,
             targetLastFieldNameStyle,
             targetLastDefaultValueStyle);
 
@@ -187,6 +195,40 @@ public class ExcelTemplateUtils {
             lastRowStyle,
             targetFont);
 
+    }
+
+    private static TableStyle extractEnvStyle(Sheet envSheet, Workbook targetWorkbook) {
+        Cell envHeaderCell = extractTableHeader(envSheet);
+        CellStyle targetTableHeaderStyle = copyCellStyle(targetWorkbook, envHeaderCell);
+
+        RichTextString envHeaderText = envHeaderCell.getRichStringCellValue();
+
+        CellRangeAddress headerRegion = envSheet.getMergedRegion(0);
+        CellRangeSettings headerSettings = new CellRangeSettings(headerRegion);
+
+        Row regularRow = envSheet.getRow(TOP_MARGIN + 1);
+
+        NameValueRowStyle regularRowStyle = extractRowStyle(targetWorkbook, regularRow);
+
+        Row lastRow = envSheet.getRow(TOP_MARGIN + 2);
+
+        NameValueRowStyle lastRowStyle = extractRowStyle(targetWorkbook, lastRow);
+
+        return new EnvironmentTableStyleImpl(envHeaderText,
+            targetTableHeaderStyle,
+            headerSettings,
+            regularRowStyle,
+            lastRowStyle);
+    }
+
+    private static NameValueRowStyle extractRowStyle(Workbook targetWorkbook, Row regularRow) {
+        Cell regularNameCell = regularRow.getCell(LEFT_MARGIN);
+        CellStyle targetNameStyle = copyCellStyle(targetWorkbook, regularNameCell);
+
+        Cell regularValueCell = regularRow.getCell(LEFT_MARGIN + 1);
+        CellStyle targetValueStyle = copyCellStyle(targetWorkbook, regularValueCell);
+
+        return new NameValueRowStyleImpl(targetNameStyle, targetValueStyle);
     }
 
     private static CellStyle copyCellStyle(Workbook targetWorkbook, Cell sourceCell) {

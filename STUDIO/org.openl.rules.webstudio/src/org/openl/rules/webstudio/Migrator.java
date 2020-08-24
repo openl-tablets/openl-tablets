@@ -28,6 +28,7 @@ public class Migrator {
             props.put("project.history.count", ""); // Define unlimited
         }
         props.put("project.history.unlimited", null); // Remove
+        props.put("test.run.parallel", null); // Remove
         props.put("project.history.home", null); // Remove
         props.put(".version", OpenLVersion.getVersion()); // Mark the file version
         try {

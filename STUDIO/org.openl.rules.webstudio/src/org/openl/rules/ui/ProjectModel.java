@@ -815,7 +815,8 @@ public class ProjectModel {
     }
 
     public TestUnitsResults runTest(TestSuite test) {
-        boolean isParallel = Props.bool(AdministrationSettings.RUN_TESTS_IN_PARALLEL);
+        Integer threads = Props.integer(AdministrationSettings.TEST_RUN_THREAD_COUNT_PROPERTY);
+        boolean isParallel = threads != null && threads > 1;
         return runTest(test, isParallel);
     }
 

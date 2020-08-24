@@ -2,6 +2,7 @@ package org.openl.rules.openapi.impl;
 
 import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.getSchemas;
 import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.getSimpleName;
+import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.normalizeName;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -186,7 +187,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Schema<?> schema;
         List<InputParameter> parameters = OpenLOpenAPIUtils
             .extractParameters(jxPathContext, refsToExpand, pathItem, dts, path);
-        spr.setName(OpenLOpenAPIUtils.normalizeName(path));
+        spr.setName(OpenLOpenAPIUtils.normalizeName(path, true));
         spr.setParameters(parameters);
 
         List<StepModel> stepModels = new ArrayList<>();
@@ -201,8 +202,9 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             }
         } else {
             spr.setType(usedSchemaInResponse);
-            String stepName = StringUtils.uncapitalize(path.substring(1));
-            stepModels = Collections.singletonList(new StepModel(stepName, usedSchemaInResponse, "", 0));
+            String normalizedName = normalizeName(path, false);
+            stepModels = Collections
+                .singletonList(new StepModel(StringUtils.uncapitalize(normalizedName), usedSchemaInResponse, "", 0));
         }
         spr.setSteps(stepModels);
 
@@ -260,7 +262,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         String propertyName = property.getKey();
         Schema<?> valueSchema = property.getValue();
         String typeModel = OpenLOpenAPIUtils.extractType(valueSchema);
-        return new StepModel(propertyName, typeModel, "", null);
+        return new StepModel(normalizeName(propertyName,false), typeModel, "", null);
     }
 
 }
