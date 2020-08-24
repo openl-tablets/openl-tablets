@@ -146,14 +146,6 @@
                 }
             }
 
-            function changeRunTestsInParallel(element) {
-                if (element.checked) {
-                    $j("#systemSettingsForm\\:testRunThreadCount").show();
-                } else {
-                    $j("#systemSettingsForm\\:testRunThreadCount").hide();
-                }
-            }
-
             function confirmSave() {
                 return !#{isNotSingleMode} || confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to apply these settings now?');
             }
@@ -703,13 +695,6 @@
                                     <section>
                                         <h3>Testing</h3>
                                         <div>
-                                            <h:panelGrid columns="2" columnClasses="titleColumn">
-                                                <h:outputText value="Run test cases of the test in parallel:"/>
-                                                <h:selectBooleanCheckbox
-                                                        value="#{systemSettingsBean.runTestsInParallel}"
-                                                        title="Turn on/off the &quot;Run test cases of the test in parallel&quot; feature"
-                                                        onclick="changeRunTestsInParallel(this)"/>
-                                            </h:panelGrid>
                                             <h:panelGrid id="testRunThreadCount" columns="2" columnClasses="titleColumn"
                                                          style="#{systemSettingsBean.runTestsInParallel ?'' : 'display:none'}">
                                                 <h:outputText value="Thread number for tests:"/>
