@@ -9,18 +9,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
@@ -43,7 +42,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final LocalWorkspace localWorkspace;
     private final DesignTimeRepository designTimeRepository;
 
-    private final HashMap<String, RulesProject> userRulesProjects;
+    private final HashMap<ProjectKey, RulesProject> userRulesProjects;
     private final HashMap<String, ADeploymentProject> userDProjects;
 
     private boolean projectsRefreshNeeded = true;
@@ -108,15 +107,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
-        String projectName = artefactPath.segment(0);
-        AProject uwp = getProject(projectName);
-
-        ArtefactPath pathInProject = artefactPath.withoutFirstSegment();
-        return uwp.getArtefactByPath(pathInProject);
-    }
-
-    @Override
     public ADeploymentProject getDDProject(String name) throws ProjectException {
         refreshDeploymentProjects();
         ADeploymentProject deploymentProject;
@@ -163,19 +153,19 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public RulesProject getProject(String name) throws ProjectException {
-        return getProject(name, true);
+    public RulesProject getProject(String repositoryId, String name) throws ProjectException {
+        return getProject(repositoryId, name, true);
     }
 
     @Override
-    public RulesProject getProject(String name, boolean refreshBefore) throws ProjectException {
+    public RulesProject getProject(String repositoryId, String name, boolean refreshBefore) throws ProjectException {
         if (refreshBefore || projectsRefreshNeeded) {
             refreshRulesProjects();
         }
 
         RulesProject uwp;
         synchronized (userRulesProjects) {
-            uwp = userRulesProjects.get(name.toLowerCase());
+            uwp = userRulesProjects.get(new ProjectKey(repositoryId, name.toLowerCase()));
         }
 
         if (uwp == null) {
@@ -230,16 +220,16 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public boolean hasProject(String name) {
+    public boolean hasProject(String repositoryId, String name) {
         synchronized (userRulesProjects) {
             if (projectsRefreshNeeded) {
                 refreshRulesProjects();
             }
-            if (userRulesProjects.get(name.toLowerCase()) != null) {
+            if (userRulesProjects.get(new ProjectKey(repositoryId, name.toLowerCase())) != null) {
                 return true;
             }
         }
-        return localWorkspace.hasProject(name) || designTimeRepository.hasProject(name);
+        return localWorkspace.hasProject(repositoryId, name) || designTimeRepository.hasProject(repositoryId, name);
     }
 
     @Override
@@ -327,15 +317,17 @@ public class UserWorkspaceImpl implements UserWorkspace {
         localWorkspace.refresh();
 
         synchronized (userRulesProjects) {
-            final Repository designRepository = designTimeRepository.getRepository();
 
-            Map<String, String> closedProjectBranches = new HashMap<>();
-            boolean supportsBranches = designRepository.supports().branches();
-            if (supportsBranches) {
-                for (RulesProject project : userRulesProjects.values()) {
+            Map<ProjectKey, String> closedProjectBranches = new HashMap<>();
+            for (Map.Entry<ProjectKey, RulesProject> entry : userRulesProjects.entrySet()) {
+                ProjectKey projectKey = entry.getKey();
+                final Repository designRepository = designTimeRepository.getRepository(projectKey.getRepositoryId());
+                boolean supportsBranches = designRepository.supports().branches();
+                if (supportsBranches) {
+                    RulesProject project = entry.getValue();
                     // Deleted projects should be switched to default branch
                     if (!project.isOpened() && !project.isDeleted()) {
-                        closedProjectBranches.put(project.getName(), project.getBranch());
+                        closedProjectBranches.put(projectKey, project.getBranch());
                     }
                 }
             }
@@ -343,14 +335,15 @@ public class UserWorkspaceImpl implements UserWorkspace {
             userRulesProjects.clear();
 
             // add new
-            LocalRepository localRepository = localWorkspace.getRepository();
             for (AProject rp : designTimeRepository.getProjects()) {
+                String repoId = rp.getRepository().getId();
+                LocalRepository localRepository = localWorkspace.getRepository(repoId);
                 String name = rp.getName();
 
                 AProject lp = null;
-                if (localWorkspace.hasProject(name)) {
+                if (localWorkspace.hasProject(repoId, name)) {
                     try {
-                        lp = localWorkspace.getProject(name);
+                        lp = localWorkspace.getProject(repoId, name);
                     } catch (ProjectException e) {
                         // ignore
                         log.error("refreshRulesProjects", e);
@@ -359,13 +352,13 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
                 FileData local = lp == null ? null : lp.getFileData();
 
-                Repository desRepo = designRepository;
+                Repository desRepo = rp.getRepository();
                 FileData designFileData = rp.getFileData();
                 boolean closeProject = false;
 
                 try {
-                    if (supportsBranches) {
-                        BranchRepository branchRepository = (BranchRepository) designRepository;
+                    if (desRepo.supports().branches()) {
+                        BranchRepository branchRepository = (BranchRepository) desRepo;
                         String repoBranch = branchRepository.getBranch();
                         String branch;
                         if (local != null) {
@@ -375,7 +368,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                                     local.getName());
                             }
                         } else {
-                            branch = closedProjectBranches.get(name);
+                            branch = closedProjectBranches.get(new ProjectKey(repoId, name));
                         }
 
                         // If branch is null then keep default branch.
@@ -397,7 +390,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     log.warn("Skip workspace changes for project '{}' because of error: {}",
                         rp.getName(),
                         e.getMessage());
-                    desRepo = designRepository;
+                    desRepo = rp.getRepository();
                     designFileData = rp.getFileData();
                     local = null;
                 }
@@ -431,18 +424,20 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         log.warn("Can't close the project {}", project.getName(), e);
                     }
                 }
-                userRulesProjects.put(name.toLowerCase(), project);
+                userRulesProjects.put(new ProjectKey(repoId, name.toLowerCase()), project);
             }
 
             // LocalProjects that hasn't corresponding project in
             // DesignTimeRepository
             for (AProject lp : localWorkspace.getProjects()) {
+                String repoId = lp.getRepository().getId();
                 String name = lp.getName();
 
-                if (!designTimeRepository.hasProject(name)) {
+                if (!designTimeRepository.hasProject(repoId, name)) {
                     FileData local = lp.getFileData();
-                    userRulesProjects.put(name.toLowerCase(),
-                        new RulesProject(this, localRepository, local, designRepository, null, projectsLockEngine));
+                    LocalRepository repository = (LocalRepository) lp.getRepository();
+                    userRulesProjects.put(new ProjectKey(repoId, name.toLowerCase()),
+                        new RulesProject(this, repository, local, null, null, projectsLockEngine));
                 }
             }
 
@@ -496,16 +491,16 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public void uploadLocalProject(String name, String projectFolder, String comment) throws ProjectException {
+    public void uploadLocalProject(String repositoryId, String name, String projectFolder, String comment) throws ProjectException {
         try {
             String designPath = designTimeRepository.getRulesLocation() + name;
             FileData designData = new FileData();
             designData.setName(designPath);
 
-            AProject createdProject = new AProject(designTimeRepository.getRepository(), designData);
-            AProject project = localWorkspace.getProject(name);
+            AProject createdProject = new AProject(designTimeRepository.getRepository(repositoryId), designData);
+            AProject project = localWorkspace.getProject(repositoryId, name);
             project.refresh();
-            if (designTimeRepository.getRepository().supports().mappedFolders()) {
+            if (designTimeRepository.getRepository(repositoryId).supports().mappedFolders()) {
                 FileData fileData = createdProject.getFileData();
                 fileData.addAdditionalData(new FileMappingData(projectFolder + name));
             }
@@ -513,9 +508,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
             createdProject.update(project, user);
 
             RulesProject rulesProject = new RulesProject(this,
-                localWorkspace.getRepository(),
+                localWorkspace.getRepository(repositoryId),
                 project.getFileData(),
-                designTimeRepository.getRepository(),
+                designTimeRepository.getRepository(repositoryId),
                 designData,
                 projectsLockEngine);
             rulesProject.open();
@@ -523,8 +518,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
             refreshRulesProjects();
         } catch (ProjectException e) {
             try {
-                if (designTimeRepository.hasProject(name)) {
-                    designTimeRepository.getProject(name).erase(user, comment);
+                if (designTimeRepository.hasProject(repositoryId, name)) {
+                    designTimeRepository.getProject(repositoryId, name).erase(user, comment);
                 }
             } catch (ProjectException e1) {
                 log.error(e1.getMessage(), e1);

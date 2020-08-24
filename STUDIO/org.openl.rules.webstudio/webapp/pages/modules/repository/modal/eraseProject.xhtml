@@ -37,6 +37,13 @@
               </h:panelGrid>
             </p>
           </h:panelGroup>
+          <ui:param name="supportsMappedFolders" value="#{utils.supportsMappedFolders(node.data)}" />
+          <h:panelGroup rendered="#{supportsMappedFolders}" layout="block">
+            <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+              <h:outputText value="Also erase it from repository:"/>
+              <h:selectBooleanCheckbox value="#{repositoryTreeController.eraseFromRepository}"/>
+            </h:panelGrid>
+          </h:panelGroup>
         </h:panelGroup>
       </h:panelGroup>
 

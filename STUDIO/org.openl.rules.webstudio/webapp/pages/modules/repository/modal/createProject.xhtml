@@ -108,13 +108,29 @@
                                              onchange="createProjectFormTemplCommentHandler.generateTemplate(this.value.trim(), #{rich:element('createProjectFormTempl:commentTemplate')});"/>
                             </td>
                         </tr>
+                        <tr>
+                            <td class="label" style="width: 100px">
+                                <h:outputLabel for="repositoryTemplate" styleClass="required" value="Repository:" />
+                            </td>
+                            <td>
+                                <h:selectOneMenu id="repositoryTemplate" value="#{repositoryTreeController.repositoryId}">
+                                    <f:ajax event="change" execute="@form" render="@form" onevent="initNewProjectDialogUI"/>
+                                    <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                                    <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                                                   itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
+                                </h:selectOneMenu>
+                            </td>
+                        </tr>
                         <ui:fragment rendered="#{repositoryTreeController.supportsMappedFolders}">
                             <tr>
                                 <td class="label" style="width: 100px">
-                                    <h:outputLabel for="projectFolderTemplate" value="Path in repository:"/>
+                                    <h:outputLabel for="projectFolderTemplate" value="Path:" />
                                 </td>
                                 <td><h:inputText id="projectFolderTemplate" size="35"
+                                    styleClass="with-button-select"
                                                  value="#{repositoryTreeController.projectFolder}"/>
+                                <input type="button" value="..." class="button-select"
+                                       onclick="openSelectFolderDialog('#{repositoryTreeController.repositoryId}', 'createProjectFormTempl:projectFolderTemplate')"/>
                                 </td>
                             </tr>
                         </ui:fragment>
@@ -167,11 +183,24 @@
                                      onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtFiles')});"
                                      onchange="createProjectFormFilesCommentHandler.generateTemplate(this.value.trim(), #{rich:element('createProjectFormFiles:commentExcel')});"/>
 
-                        <h:outputLabel for="projectFolderExcel" value="Path in repository:"
+                        <h:outputLabel for="repositoryExcel" value="Repository:" styleClass="required"/>
+                        <h:selectOneMenu id="repositoryExcel" value="#{repositoryTreeController.repositoryId}">
+                            <f:ajax event="change" execute="@form" render="@form" onevent="initNewProjectDialogUI"/>
+                            <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                            <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                                           itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
+                        </h:selectOneMenu>
+
+                        <h:outputLabel for="projectFolderExcel" value="Path:"
                                        rendered="#{repositoryTreeController.supportsMappedFolders}"/>
-                        <h:inputText id="projectFolderExcel" size="35"
-                                     value="#{repositoryTreeController.projectFolder}"
-                                     rendered="#{repositoryTreeController.supportsMappedFolders}"/>
+                        <h:panelGroup rendered="#{repositoryTreeController.supportsMappedFolders}">
+                            <h:inputText id="projectFolderExcel" size="35"
+                                         styleClass="with-button-select"
+                                         value="#{repositoryTreeController.projectFolder}"/>
+
+                            <input type="button" value="..." class="button-select"
+                                   onclick="openSelectFolderDialog('#{repositoryTreeController.repositoryId}', 'createProjectFormFiles:projectFolderExcel')"/>
+                        </h:panelGroup>
 
                         <ui:param name="useCustomComment" value="#{repositoryTreeController.useCustomComment}"/>
 
@@ -215,11 +244,24 @@
                                      onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtZips')});"
                                      onchange="uploadProjectFormCommentHandler.generateTemplate(this.value.trim(), #{rich:element('uploadProjectForm:commentZip')});"/>
 
-                        <h:outputLabel for="projectFolderZip" value="Path in repository:"
+                    <h:outputLabel for="repositoryZip" value="Repository:" styleClass="required"/>
+                    <h:selectOneMenu id="repositoryZip" value="#{repositoryTreeController.repositoryId}">
+                        <f:ajax event="change" execute="@form" render="@form" onevent="initNewProjectDialogUI"/>
+                        <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                        <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                                       itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
+                    </h:selectOneMenu>
+
+                    <h:outputLabel for="projectFolderZip" value="Path:"
                                        rendered="#{repositoryTreeController.supportsMappedFolders}"/>
+                    <h:panelGroup rendered="#{repositoryTreeController.supportsMappedFolders}">
                         <h:inputText id="projectFolderZip" size="35"
-                                     value="#{repositoryTreeController.projectFolder}"
-                                     rendered="#{repositoryTreeController.supportsMappedFolders}"/>
+                                     styleClass="with-button-select"
+                                     value="#{repositoryTreeController.projectFolder}"/>
+
+                        <input type="button" value="..." class="button-select"
+                               onclick="openSelectFolderDialog('#{repositoryTreeController.repositoryId}', 'uploadProjectForm:projectFolderZip')"/>
+                    </h:panelGroup>
 
                         <ui:param name="useCustomComment" value="#{repositoryTreeController.useCustomComment}"/>
 
@@ -263,11 +305,24 @@
                                      onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('submitOpenAPIFile')});"
                                      onchange="createProjectFormOpenAPICommentHandler.generateTemplate(this.value.trim(), #{rich:element('openAPIProjectForm:commentOpenAPI')});"/>
 
-                        <h:outputLabel for="projectFolderOpenAPI" value="Path in repository:"
+                        <h:outputLabel for="repositoryOpenAPI" value="Repository:" styleClass="required"/>
+                        <h:selectOneMenu id="repositoryOpenAPI" value="#{repositoryTreeController.repositoryId}">
+                            <f:ajax event="change" execute="@form" render="@form" onevent="initNewProjectDialogUI"/>
+                            <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                            <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                                           itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
+                        </h:selectOneMenu>
+
+                        <h:outputLabel for="projectFolderOpenAPI" value="Path:"
                                        rendered="#{repositoryTreeController.supportsMappedFolders}"/>
-                        <h:inputText id="projectFolderOpenAPI" size="35"
-                                     value="#{repositoryTreeController.projectFolder}"
-                                     rendered="#{repositoryTreeController.supportsMappedFolders}"/>
+                        <h:panelGroup rendered="#{repositoryTreeController.supportsMappedFolders}">
+                            <h:inputText id="projectFolderOpenAPI" size="35"
+                                         styleClass="with-button-select"
+                                         value="#{repositoryTreeController.projectFolder}"/>
+
+                            <input type="button" value="..." class="button-select"
+                                   onclick="openSelectFolderDialog('#{repositoryTreeController.repositoryId}', 'openAPIProjectForm:projectFolderOpenAPI')"/>
+                        </h:panelGroup>
 
                         <ui:param name="useCustomComment" value="#{repositoryTreeController.useCustomComment}"/>
 
@@ -324,11 +379,28 @@
                             <h:outputText value="All projects are already in repository"
                                           rendered="#{empty localUpload.projects4Upload}"/>
                         </h:panelGrid>
+
+                        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
+                            rendered="#{not empty localUpload.projects4Upload}">
+                            <h:outputLabel for="repositoryLocal" value="Repository:" styleClass="required"/>
+                            <h:selectOneMenu id="repositoryLocal" value="#{repositoryTreeController.repositoryId}">
+                                <f:ajax event="change" execute="@form" render="@form" onevent="initNewProjectDialogUI"/>
+                                <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                                <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                                               itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
+                            </h:selectOneMenu>
+                        </h:panelGrid>
+
                         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                                      rendered="#{repositoryTreeController.supportsMappedFolders}">
-                            <h:outputLabel for="projectFolderLocal" value="Path in repository:"/>
-                            <h:inputText id="projectFolderLocal" size="35"
-                                         value="#{localUpload.projectFolder}"/>
+                            <h:outputLabel for="projectFolderLocal" value="Path:"/>
+                            <h:panelGroup>
+                                <h:inputText id="projectFolderLocal" size="35"
+                                             styleClass="with-button-select"
+                                             value="#{localUpload.projectFolder}"/>
+                                <input type="button" value="..." class="button-select"
+                                       onclick="openSelectFolderDialog('#{repositoryTreeController.repositoryId}', 'uploadWorkspaceProjectForm:projectFolderLocal')"/>
+                            </h:panelGroup>
                         </h:panelGrid>
                     </div>
                     <p>
@@ -359,8 +431,44 @@
                 </h:form>
             </rich:tab>
 
+            <rich:tab header="Repository" rendered="#{not empty repositoryTreeController.nonFlatRepositories}">
+                <h:form id="importFromRepoForm" style="padding-top: 6px">
+                    <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+                        <h:outputLabel for="repositoryImport" value="Repository:" styleClass="required"/>
+                        <h:selectOneMenu id="repositoryImport" value="#{repositoryTreeController.repositoryId}">
+                            <f:ajax event="change" execute="@form" render="@form" onevent="initNewProjectDialogUI"/>
+                            <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                            <f:selectItems value="#{repositoryTreeController.nonFlatRepositories}" var="repository"
+                                           itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
+                        </h:selectOneMenu>
+
+                        <h:outputLabel for="projectFolderImport" value="Path:"/>
+                        <h:panelGroup>
+                            <h:inputText id="projectFolderImport" size="35"
+                                         styleClass="with-button-select"
+                                         value="#{repositoryTreeController.projectFolder}"/>
+
+                            <input type="button" value="..."
+                                   class="button-select #{empty repositoryTreeController.repositoryId ? 'hidden' : ''}"
+                                   onclick="openSelectFolderDialog('#{repositoryTreeController.repositoryId}', 'importFromRepoForm:projectFolderImport')"/>
+                        </h:panelGroup>
+
+                    </h:panelGrid>
+
+                    <footer>
+                        <h:commandButton id="sbtRepo" value="Import" action="#{repositoryTreeController.importFromRepo}"
+                                         styleClass="button-primary" />
+                        <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
+                    </footer>
+                </h:form>
+            </rich:tab>
+
             <h:form>
-                <a4j:jsFunction name="clearFiles" render="openAPIProjectForm">
+                <a4j:jsFunction name="initNewProjectDialog" action="#{repositoryTreeController.openNewProjectDialog}"
+                                render="createProjectFormTempl createProjectFormFiles uploadProjectForm uploadWorkspaceProjectForm"
+                                oncomplete="showNewProjectDialog()"/>
+
+                <a4j:jsFunction name="clearFiles">
                     <a4j:param name="fileNames" assignTo="#{repositoryTreeController.fileNamesToRemove}"/>
                 </a4j:jsFunction>
             </h:form>
@@ -393,20 +501,31 @@
         let createProjectFormOpenAPICommentHandler = new CommentTemplateHandler();
         //]]>
 
-        enableCreateButton(false, #{rich:element("sbtFiles")});
-        enableCreateButton(false, #{rich:element("sbtZips")});
-        enableCreateButton(false, #{rich:element("sbtWorkspace")});
-        enableCreateButton(false, #{rich:element("submitOpenAPIFile")});
+        function initNewProjectDialogUI() {
+            enableCreateButton(false, #{rich:element("sbtFiles")});
+            enableCreateButton(false, #{rich:element("sbtZips")});
+            enableCreateButton(false, #{rich:element("sbtWorkspace")});
+            enableCreateButton(false, #{rich:element("submitOpenAPIFile")});
 
-        #{rich:element("createProjectFormFiles:projectName")}.onpaste = function () {
-            enableCreateButton(true, #{rich:element("sbtFiles")});
-        }
+            #{rich:element("createProjectFormFiles:projectName")}.onpaste = function () {
+                enableCreateButton(true, #{rich:element("sbtFiles")});
+            }
             #{rich:element("uploadProjectForm:projectName")}.onpaste = function () {
-            enableCreateButton(true, #{rich:element("sbtZips")});
-        }
+                enableCreateButton(true, #{rich:element("sbtZips")});
+            }
 
             #{rich:element("openAPIProjectForm:projectName")}.onpaste = function () {
-            enableCreateButton(true, #{rich:element("submitOpenAPIFile")});
+                enableCreateButton(true, #{rich:element("submitOpenAPIFile")});
+            }
+
+            initTemplates();
+            $j("#createProjectFormFiles\\:projectName").val("");
+            $j("#uploadProjectForm\\:projectName").val("");
+            $j("#openAPIProjectForm\\:openAPIProjectName").val("");
+
+            $j("#projectTemplates").on("click", "td", function() {
+                selectTemplate($j(this));
+            });
         }
 
         function enableCreateButton(enable, button) {
@@ -416,6 +535,12 @@
         }
 
         function openNewProjectDialog() {
+            initNewProjectDialog();
+        }
+
+        function showNewProjectDialog() {
+            initNewProjectDialogUI();
+
             RichFaces.$("projectType").switchToItem("@first");
             RichFaces.$("modalNewProject").show();
             focusElement("createProjectFormTempl:projectName");
@@ -487,15 +612,6 @@
             enableCreateButton(projectNameInput.val().trim().length > 0, #{rich:element('sbtTemplates')});
         }
 
-        initTemplates();
-        $j("#createProjectFormFiles\\:projectName").val("");
-        $j("#uploadProjectForm\\:projectName").val("");
-        $j("#openAPIProjectForm\\:openAPIProjectName").val("");
-
-        $j("#projectTemplates").on("click", "td", function () {
-            selectTemplate($j(this));
-        });
-
         function checkFileName(event) {
             let file = event.rf.data.file;
             if (!file) {
@@ -510,7 +626,6 @@
                 enableCreateButton(false, #{rich:element("submitOpenAPIFile")});
             }
         }
-
         function onClearFile(event) {
             let files = "";
             const data = event.rf.data;

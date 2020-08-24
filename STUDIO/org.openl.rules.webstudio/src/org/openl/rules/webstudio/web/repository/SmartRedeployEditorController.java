@@ -11,11 +11,19 @@ import org.springframework.web.context.annotation.SessionScope;
 @Service
 @SessionScope
 public class SmartRedeployEditorController extends AbstractSmartRedeployController {
+    private String repositoryId;
+
+    public void setRepositoryId(String repositoryId) {
+        this.repositoryId = repositoryId;
+    }
 
     public void setProject(String projectName) {
         try {
+            String repoId = repositoryId;
             reset();
-            currentProject = userWorkspace.getProject(projectName);
+            currentProject = userWorkspace.getProject(repoId, projectName);
+
+            repositoryId = null;
         } catch (ProjectException e) {
             log.warn("Failed to retrieve the project", e);
         }
@@ -24,6 +32,7 @@ public class SmartRedeployEditorController extends AbstractSmartRedeployControll
     public void reset() {
         setRepositoryConfigName(null);
         items = null;
+        repositoryId = null;
         currentProject = null;
     }
 

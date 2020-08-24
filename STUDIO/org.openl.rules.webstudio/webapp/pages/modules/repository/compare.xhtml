@@ -79,7 +79,7 @@
             </td>
             <td class="selection-column">
               <table>
-                <h:panelGroup rendered="#{repositoryTreeController.supportsBranches}">
+                <h:panelGroup rendered="#{repositoryTreeController.isSupportsBranches(repositoryDiffController.repositoryId)}">
                   <tr>
                     <td>
                       <h:outputText value="Branch:" />

@@ -20,15 +20,19 @@ import org.slf4j.LoggerFactory;
 public class FileSystemRepository implements FolderRepository, RRepositoryFactory, Closeable {
     private final Logger log = LoggerFactory.getLogger(FileSystemRepository.class);
 
+    private String uri;
     private File root;
     private int rootPathLength;
     private ChangesMonitor monitor;
+    private String id;
+    private String name;
 
     public void setRoot(File root) {
         this.root = root;
     }
 
     public void setUri(String path) {
+        this.uri = path;
         this.root = new File(path);
     }
 
@@ -49,6 +53,24 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
         String rootPath = root.getCanonicalPath();
         rootPathLength = rootPath.length() + 1;
         monitor = new ChangesMonitor(new FileChangesMonitor(getRoot()), 10);
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override

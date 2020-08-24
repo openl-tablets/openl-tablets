@@ -17,9 +17,10 @@ public class NotFoundBean {
     }
 
     public Type getType() {
+        String repositoryId = WebStudioUtils.getRequestParameter("repositoryId");
         String project = getProject();
         if (project != null) {
-            ProjectDescriptor projectDescriptor = WebStudioUtils.getWebStudio().getProjectByName(project);
+            ProjectDescriptor projectDescriptor = WebStudioUtils.getWebStudio().getProjectByName(repositoryId, project);
             if (projectDescriptor == null) {
                 return Type.PROJECT;
             }

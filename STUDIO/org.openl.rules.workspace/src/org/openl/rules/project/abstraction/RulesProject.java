@@ -1,8 +1,6 @@
 package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,8 +15,10 @@ import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -372,6 +372,10 @@ public class RulesProject extends UserWorkspaceProject {
                     fileData.setSize(repoData.getSize());
                     fileData.setDeleted(repoData.isDeleted());
                     fileData.setUniqueId(repoData.getUniqueId());
+                    FileMappingData mappingData = repoData.getAdditionalData(FileMappingData.class);
+                    if (mappingData != null) {
+                        fileData.addAdditionalData(mappingData);
+                    }
                 }
             } catch (IOException e) {
                 log.error(e.getMessage(), e);
@@ -402,7 +406,7 @@ public class RulesProject extends UserWorkspaceProject {
             fileData.setBranch(((BranchRepository) designRepository).getBranch());
         }
         localRepository.getProjectState(localFolderName).clearModifyStatus();
-        localRepository.getProjectState(localFolderName).saveFileData(fileData);
+        localRepository.getProjectState(localFolderName).saveFileData(designRepository.getId(), fileData);
 
         if (needUpdateUniqueId) {
             updateUniqueId();
@@ -493,5 +497,16 @@ public class RulesProject extends UserWorkspaceProject {
 
     public Repository getLocalRepository() {
         return localRepository;
+    }
+
+    @Override
+    public String getRealPath() {
+        String folderPath = getDesignFolderName();
+        Repository repository = getDesignRepository();
+        if (repository.supports().mappedFolders()) {
+            return ((FolderMapper) repository).getRealPath(folderPath);
+        } else {
+            return folderPath;
+        }
     }
 }

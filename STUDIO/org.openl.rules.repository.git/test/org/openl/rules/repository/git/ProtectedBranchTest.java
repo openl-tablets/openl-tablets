@@ -26,7 +26,9 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
@@ -132,7 +134,9 @@ public class ProtectedBranchTest {
         GitRepository repo = new GitRepository();
         repo.setUri(remoteUri);
         repo.setLocalRepositoryPath(local.getAbsolutePath());
-        repo.setGitSettingsPath(local.getParent() + "/git-settings");
+        FileSystemRepository settingsRepository = new FileSystemRepository();
+        settingsRepository.setUri(local.getParent() + "/git-settings");
+        repo.setRepositorySettings(new RepositorySettings(settingsRepository));
         repo.setCommentTemplate("WebStudio: {commit-type}. {user-message}");
         repo.initialize();
 

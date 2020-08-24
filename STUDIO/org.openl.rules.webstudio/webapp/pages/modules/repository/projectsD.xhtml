@@ -39,6 +39,7 @@
 
               <rich:column>
                 <h:commandLink value="#{prj.name}" action="#{repositoryTreeController.selectDeploymentProject}">
+                  <f:param name="repositoryId" value="#{prj.data.repository.id}" />
                   <f:param name="projectName" value="#{prj.name}" />
                 </h:commandLink>
               </rich:column>

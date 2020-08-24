@@ -31,21 +31,24 @@ import org.slf4j.LoggerFactory;
 
 public class ZipFileProjectCreator extends AProjectCreator {
     private final Logger log = LoggerFactory.getLogger(ZipFileProjectCreator.class);
-    private ZipFile zipFile;
-    private PathFilter zipFilter;
-    private File uploadedFile;
+    private final ZipFile zipFile;
+    private final PathFilter zipFilter;
+    private final File uploadedFile;
     private final Charset charset;
     private final String comment;
+    private final String repositoryId;
 
-    public ZipFileProjectCreator(String uploadedFileName,
-            InputStream uploadedFileStream,
-            String projectName,
-            String projectFolder,
-            UserWorkspace userWorkspace,
-            String comment,
-            PathFilter zipFilter,
-            ZipCharsetDetector zipCharsetDetector) throws IOException {
+    public ZipFileProjectCreator(String repositoryId,
+        String uploadedFileName,
+        InputStream uploadedFileStream,
+        String projectName,
+        String projectFolder,
+        UserWorkspace userWorkspace,
+        String comment,
+        PathFilter zipFilter,
+        ZipCharsetDetector zipCharsetDetector) throws IOException {
         super(projectName, projectFolder, userWorkspace);
+        this.repositoryId = repositoryId;
         this.comment = comment;
 
         uploadedFile = FileTool.toTempFile(uploadedFileStream, uploadedFileName);
@@ -83,8 +86,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
 
     private ZipRulesProjectBuilder getZipProjectBuilder(Set<String> sortedNames, PathFilter zipFilter) {
         RootFolderExtractor folderExtractor = new RootFolderExtractor(sortedNames, zipFilter);
-        return new ZipRulesProjectBuilder(getUserWorkspace(),
-            getProjectName(),
+        return new ZipRulesProjectBuilder(getUserWorkspace(), repositoryId, getProjectName(),
             getProjectFolder(),
             zipFilter,
             folderExtractor,

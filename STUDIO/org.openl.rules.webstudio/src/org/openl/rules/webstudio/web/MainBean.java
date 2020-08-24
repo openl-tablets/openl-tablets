@@ -64,11 +64,12 @@ public class MainBean {
     public void init() {
         WebStudio studio = WebStudioUtils.getWebStudio(true);
 
+        String repositoryId = WebStudioUtils.getRequestParameter("repositoryId");
         String branchName = WebStudioUtils.getRequestParameter("branch");
         String projectName = WebStudioUtils.getRequestParameter("project");
         String moduleName = WebStudioUtils.getRequestParameter("module");
 
-        studio.init(branchName, projectName, moduleName);
+        studio.init(repositoryId, branchName, projectName, moduleName);
     }
 
     public String getVersionComment() {
@@ -106,11 +107,6 @@ public class MainBean {
     }
 
     public void reload() {
-        try {
-            WebStudioUtils.getRulesUserSession().getUserWorkspace().refresh();
-        } catch (CommonException e) {
-            log.error("Error on reloading user's workspace", e);
-        }
         repositoryTreeState.invalidateTree();
         repositoryTreeState.invalidateSelection();
         WebStudioUtils.getWebStudio().resetProjects();

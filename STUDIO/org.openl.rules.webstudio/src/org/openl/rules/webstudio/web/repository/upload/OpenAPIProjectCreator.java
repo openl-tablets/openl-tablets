@@ -46,16 +46,19 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     private final String comment;
     private final String fileName;
     private final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
+    private final String repositoryId;
     private final String projectName;
 
     public OpenAPIProjectCreator(String openAPIFileName,
             InputStream uploadedFile,
             long fileSize,
+            String repositoryId,
             String projectName,
             String projectFolder,
             UserWorkspace userWorkspace,
             String comment) throws ProjectException {
         super(projectName, projectFolder, userWorkspace);
+        this.repositoryId = repositoryId;
         String filteredName = FileUtils.removeExtension(openAPIFileName);
         if (!checkFileSize(fileSize)) {
             throw new ProjectException("Size of the file " + uploadedFile + " is more then 100MB.");
@@ -72,6 +75,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     @Override
     protected RulesProjectBuilder getProjectBuilder() throws ProjectException {
         RulesProjectBuilder projectBuilder = new RulesProjectBuilder(getUserWorkspace(),
+            repositoryId,
             getProjectName(),
             getProjectFolder(),
             comment);

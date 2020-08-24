@@ -10,6 +10,7 @@ import org.openl.rules.project.impl.local.DummyLockEngine;
 import org.openl.rules.project.impl.local.LockEngineImpl;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
@@ -27,21 +28,23 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     private final Logger log = LoggerFactory.getLogger(LocalWorkspaceManagerImpl.class);
 
     private String workspaceHome;
-    private FileFilter localWorkspaceFolderFilter;
     private boolean enableLocks = true;
 
     // User name -> user workspace
-    private Map<String, LocalWorkspaceImpl> localWorkspaces = new HashMap<>();
+    private final Map<String, LocalWorkspaceImpl> localWorkspaces = new HashMap<>();
 
     // Project type (rules/deployment) -> Lock Engine
     private final Map<String, LockEngine> lockEngines = new HashMap<>();
+    private final DesignTimeRepository designTimeRepository;
 
     // for tests
     public LocalWorkspaceManagerImpl() {
+        designTimeRepository = null;
     }
 
-    public LocalWorkspaceManagerImpl(PropertyResolver propertyResolver) {
+    public LocalWorkspaceManagerImpl(PropertyResolver propertyResolver, DesignTimeRepository designTimeRepository) {
         workspaceHome = propertyResolver.getProperty("user.workspace.home");
+        this.designTimeRepository = designTimeRepository;
     }
 
     /**
@@ -68,7 +71,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
                 userWorkspace.getAbsolutePath());
         }
         log.debug("Creating workspace for user ''{}'' at ''{}''", user.getUserId(), userWorkspace.getAbsolutePath());
-        LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(user, userWorkspace, localWorkspaceFolderFilter);
+        LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(user, userWorkspace, designTimeRepository);
         workspace.addWorkspaceListener(this);
         return workspace;
     }
@@ -98,10 +101,6 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
 
             return lockEngine;
         }
-    }
-
-    public void setLocalWorkspaceFolderFilter(FileFilter localWorkspaceFolderFilter) {
-        this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
     }
 
     public void setWorkspaceHome(String workspaceHome) {

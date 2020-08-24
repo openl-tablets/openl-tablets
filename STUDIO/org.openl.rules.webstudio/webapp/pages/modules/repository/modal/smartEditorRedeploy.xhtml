@@ -88,6 +88,7 @@
 
             <a4j:jsFunction name="renderSmartRedeploy" render="smartRedeployEditorForm"
                             oncomplete="openSmartRedeployDialog()">
+                <a4j:param name="repositoryId" assignTo="#{smartRedeployEditorController.repositoryId}"/>
                 <a4j:param name="projectName" assignTo="#{smartRedeployEditorController.project}"/>
             </a4j:jsFunction>
 
@@ -103,8 +104,8 @@
             window._smartRedeployInProgress = false;
         }
 
-        function openSmartRedeployDialogFromEditor(projectName) {
-            renderSmartRedeploy(projectName);
+        function openSmartRedeployDialogFromEditor(repositoryId, projectName) {
+            renderSmartRedeploy(repositoryId, projectName);
             project = projectName;
         }
 

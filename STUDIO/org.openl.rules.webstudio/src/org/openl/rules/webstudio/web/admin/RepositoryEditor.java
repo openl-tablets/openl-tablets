@@ -1,7 +1,5 @@
 package org.openl.rules.webstudio.web.admin;
 
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -9,34 +7,36 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 
-public class ProductionRepositoryEditor {
-    private final ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
+public class RepositoryEditor {
+    private final RepositoryFactoryProxy repositoryFactoryProxy;
+    private final String repoListConfig;
 
-    private List<RepositoryConfiguration> productionRepositoryConfigurations = new ArrayList<>();
-    private List<RepositoryConfiguration> deletedConfigurations = new ArrayList<>();
+    private final List<RepositoryConfiguration> repositoryConfigurations = new ArrayList<>();
+    private final List<RepositoryConfiguration> deletedConfigurations = new ArrayList<>();
 
-    private PropertiesHolder properties;
+    private final PropertiesHolder properties;
 
-    public ProductionRepositoryEditor(ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy,
+    public RepositoryEditor(RepositoryFactoryProxy repositoryFactoryProxy,
             PropertiesHolder properties) {
-        this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
-        this.properties = createProductionPropertiesWrapper(properties);
+        this.repositoryFactoryProxy = repositoryFactoryProxy;
+        this.repoListConfig = repositoryFactoryProxy.getRepoListConfig();
+        this.properties = createPropertiesWrapper(properties, repoListConfig);
     }
 
-    static PropertiesHolder createProductionPropertiesWrapper(PropertiesHolder properties) {
-        String repoConfigName = getFirstConfigName(properties.getProperty(PRODUCTION_REPOSITORY_CONFIGS));
+    static PropertiesHolder createPropertiesWrapper(PropertiesHolder properties, String repoListConfig) {
+        String repoConfigName = getFirstConfigName(properties.getProperty(repoListConfig));
 
         return (PropertiesHolder) Proxy.newProxyInstance(properties.getClass().getClassLoader(),
             new Class[] { PropertiesHolder.class },
             createDefaultValueInvocationHandler(properties, repoConfigName));
     }
 
-    public static PropertyResolver createProductionPropertiesWrapper(PropertyResolver properties) {
-        String repoConfigName = getFirstConfigName(properties.getProperty(PRODUCTION_REPOSITORY_CONFIGS));
+    public static PropertyResolver createPropertiesWrapper(PropertyResolver properties, String repoListConfig) {
+        String repoConfigName = getFirstConfigName(properties.getProperty(repoListConfig));
 
         return (PropertyResolver) Proxy.newProxyInstance(properties.getClass().getClassLoader(),
             new Class[] { PropertyResolver.class },
@@ -45,7 +45,7 @@ public class ProductionRepositoryEditor {
 
     private static String getFirstConfigName(String configNames) {
         if (configNames == null || configNames.isEmpty()) {
-            throw new IllegalArgumentException("Config names for production repositories were not found");
+            throw new IllegalArgumentException("Config names were not found");
         }
         return StringUtils.split(configNames, ',')[0];
     }
@@ -58,8 +58,7 @@ public class ProductionRepositoryEditor {
                 Class<?>[] parameterTypes = method.getParameterTypes();
                 if ("getProperty"
                     .equals(method.getName()) && parameterTypes.length == 1 && parameterTypes[0] == String.class) {
-                    // Not found default value. Production repositories don't have default values. Let's get
-                    // default value from design repository.
+                    // Not found default value. Let's get default value from first repository.
                     String key = (String) args[0];
                     String prefix = "repository.";
                     if (key.startsWith(prefix)) {
@@ -76,31 +75,35 @@ public class ProductionRepositoryEditor {
         };
     }
 
-    public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
-        if (productionRepositoryConfigurations.isEmpty()) {
+    public List<RepositoryConfiguration> getRepositoryConfigurations() {
+        if (repositoryConfigurations.isEmpty()) {
             reload();
         }
 
-        return productionRepositoryConfigurations;
+        return repositoryConfigurations;
     }
 
     public void reload() {
-        productionRepositoryConfigurations.clear();
+        repositoryConfigurations.clear();
 
         String[] repositoryConfigNames = split(
-            properties.getProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS));
+            properties.getProperty(repoListConfig));
         for (String configName : repositoryConfigNames) {
             RepositoryConfiguration config = new RepositoryConfiguration(configName, properties);
-            productionRepositoryConfigurations.add(config);
+            repositoryConfigurations.add(config);
         }
     }
 
-    public void deleteProductionRepository(String configName) {
-        deleteProductionRepository(configName, null);
+    public void addRepository(RepositoryConfiguration configuration) {
+        repositoryConfigurations.add(configuration);
     }
 
-    public void deleteProductionRepository(String configName, Callback callback) {
-        Iterator<RepositoryConfiguration> it = productionRepositoryConfigurations.iterator();
+    public void deleteRepository(String configName) {
+        deleteRepository(configName, null);
+    }
+
+    public void deleteRepository(String configName, Callback callback) {
+        Iterator<RepositoryConfiguration> it = repositoryConfigurations.iterator();
         while (it.hasNext()) {
             RepositoryConfiguration prodConfig = it.next();
             if (prodConfig.getConfigName().equals(configName)) {
@@ -117,9 +120,9 @@ public class ProductionRepositoryEditor {
     }
 
     public void validate() throws RepositoryValidationException {
-        for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
-            RepositoryValidators.validate(prodConfig, productionRepositoryConfigurations);
-            RepositoryValidators.validateConnection(prodConfig, productionRepositoryFactoryProxy);
+        for (RepositoryConfiguration prodConfig : repositoryConfigurations) {
+            RepositoryValidators.validate(prodConfig, repositoryConfigurations);
+            RepositoryValidators.validateConnection(prodConfig, repositoryFactoryProxy);
         }
     }
 
@@ -137,14 +140,14 @@ public class ProductionRepositoryEditor {
 
         deletedConfigurations.clear();
 
-        String[] configNames = new String[productionRepositoryConfigurations.size()];
-        for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
-            RepositoryConfiguration prodConfig = productionRepositoryConfigurations.get(i);
+        String[] configNames = new String[repositoryConfigurations.size()];
+        for (int i = 0; i < repositoryConfigurations.size(); i++) {
+            RepositoryConfiguration prodConfig = repositoryConfigurations.get(i);
             RepositoryConfiguration newProdConfig = saveProductionRepository(prodConfig);
-            productionRepositoryConfigurations.set(i, newProdConfig);
+            repositoryConfigurations.set(i, newProdConfig);
             configNames[i] = newProdConfig.getConfigName();
         }
-        properties.setProperty(PRODUCTION_REPOSITORY_CONFIGS, String.join(",", configNames));
+        properties.setProperty(repoListConfig, String.join(",", configNames));
     }
 
     public void revertChanges() {
@@ -153,12 +156,12 @@ public class ProductionRepositoryEditor {
         }
         deletedConfigurations.clear();
 
-        for (RepositoryConfiguration productionRepositoryConfiguration : productionRepositoryConfigurations) {
+        for (RepositoryConfiguration productionRepositoryConfiguration : repositoryConfigurations) {
             productionRepositoryConfiguration.revert();
         }
-        productionRepositoryConfigurations.clear();
+        repositoryConfigurations.clear();
 
-        properties.revertProperties(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS);
+        properties.revertProperties(repoListConfig);
     }
 
     private RepositoryConfiguration saveProductionRepository(RepositoryConfiguration prodConfig) {

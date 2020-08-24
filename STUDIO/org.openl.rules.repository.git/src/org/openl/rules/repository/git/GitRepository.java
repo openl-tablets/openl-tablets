@@ -10,10 +10,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.jgit.api.*;
@@ -55,17 +57,26 @@ import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.git.branch.BranchDescription;
+import org.openl.rules.repository.git.branch.BranchesData;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.TypeDescription;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.representer.Representer;
 
 public class GitRepository implements FolderRepository, BranchRepository, Closeable, RRepositoryFactory {
     static final String DELETED_MARKER_FILE = ".archived";
 
     private final Logger log = LoggerFactory.getLogger(GitRepository.class);
 
+    private String id;
+    private String name;
     private String uri;
     private String login;
     private String password;
@@ -80,7 +91,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private String commentTemplate;
     private String escapedCommentTemplate;
     private CommitMessageParser commitMessageParser;
-    private String gitSettingsPath;
+    private RepositorySettings repositorySettings;
+    private Date settingsSyncDate = new Date();
     private boolean noVerify;
     private Boolean gcAutoDetach;
 
@@ -91,9 +103,27 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private ReadWriteLock repositoryLock = new ReentrantReadWriteLock();
     private ReentrantLock remoteRepoLock = new ReentrantLock();
 
-    private Map<String, List<String>> branches = new HashMap<>();
+    private BranchesData branches = new BranchesData();
 
     private boolean closed;
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
 
     @Override
     public List<FileData> list(String path) throws IOException {
@@ -752,8 +782,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         this.commitMessageParser = new CommitMessageParser(commentTemplate);
     }
 
-    public void setGitSettingsPath(String gitSettingsPath) {
-        this.gitSettingsPath = gitSettingsPath;
+    public void setRepositorySettings(RepositorySettings repositorySettings) {
+        this.repositorySettings = repositorySettings;
     }
 
     /**
@@ -862,10 +892,25 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
 
             TreeSet<String> availableBranches = getAvailableBranches();
-            for (List<String> projectBranches : branches.values()) {
-                projectBranches.removeIf(branch -> !availableBranches.contains(branch));
+
+            BranchesData branches = getBranches();
+            Set<String> projectBranches = branches.getDescriptions()
+                .stream()
+                .map(BranchDescription::getName)
+                .collect(Collectors.toCollection(HashSet::new));
+            branches.getProjectBranches().values().forEach(projectBranches::addAll);
+
+            AtomicBoolean modified = new AtomicBoolean(false);
+            projectBranches.forEach(projectBranch -> {
+                if (!availableBranches.contains(projectBranch)) {
+                    modified.set(true);
+                    branches.removeBranch(null, projectBranch);
+                }
+            });
+
+            if (modified.get()) {
+                saveBranches();
             }
-            saveBranches();
         } finally {
             writeLock.unlock();
             log.debug("getLastRevision(): unlock write");
@@ -883,6 +928,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             readLock.unlock();
             log.debug("getLastRevision(): unlock");
         }
+    }
+
+    private BranchesData getBranches() throws IOException {
+        if (!repositorySettings.getSyncDate().equals(settingsSyncDate)) {
+            readBranches();
+        }
+        return branches;
     }
 
     /**
@@ -1870,7 +1922,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             reset();
 
             // If newBranch does not exist, create it.
-            boolean branchAbsents = git.getRepository().findRef(newBranch) == null;
+            Ref branchRef = git.getRepository().findRef(newBranch);
+            boolean branchAbsents = branchRef == null;
             if (branchAbsents) {
                 // Checkout existing branch
                 if (isEmpty()) {
@@ -1879,20 +1932,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 checkoutForced(branch);
 
                 // Create new branch
-                git.branchCreate().setName(newBranch).call();
+                branchRef = git.branchCreate().setName(newBranch).call();
                 pushBranch(new RefSpec().setSource(newBranch).setDestination(Constants.R_HEADS + newBranch));
             }
 
-            // Add mapping for projectName and newBranch
-            List<String> projectBranches = branches.get(projectName);
-            if (projectBranches == null) {
-                projectBranches = new ArrayList<>();
-                projectBranches.add(branch); // Add main branch
-                branches.put(projectName, projectBranches);
-            }
-            if (!projectBranches.contains(newBranch)) {
-                projectBranches.add(newBranch);
-            }
+            BranchesData branches = getBranches();
+            branches.addBranch(projectName, branch, null);
+            branches.addBranch(projectName, newBranch, branchRef.getObjectId().getName());
 
             saveBranches();
         } catch (IOException e) {
@@ -1924,12 +1970,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             reset();
 
+            BranchesData branches = getBranches();
             if (projectName == null) {
                 // Remove the branch from all mappings.
-                for (List<String> projectBranches : branches.values()) {
-                    projectBranches.remove(branch);
+                if (branches.removeBranch(null, branch)) {
+                    saveBranches();
                 }
-                saveBranches();
 
                 // Remove the branch from git itself.
                 // Cannot delete checked out branch. So we check out another branch instead.
@@ -1938,9 +1984,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 pushBranch(new RefSpec().setSource(null).setDestination(Constants.R_HEADS + branch));
             } else {
                 // Remove branch mapping for specific project only.
-                List<String> projectBranches = branches.get(projectName);
-                if (projectBranches != null) {
-                    projectBranches.remove(branch);
+                if (branches.removeBranch(projectName, branch)) {
                     saveBranches();
                 }
             }
@@ -1962,19 +2006,20 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("getBranches(): lock");
             readLock.lock();
+            BranchesData branches = getBranches();
             if (projectName == null) {
                 // Return all available branches
                 TreeSet<String> branchNames = getAvailableBranches();
 
                 // Local branches absent in repository may be needed to uncheck them in UI.
-                for (List<String> projectBranches : branches.values()) {
+                for (List<String> projectBranches : branches.getProjectBranches().values()) {
                     branchNames.addAll(projectBranches);
                 }
 
                 return new ArrayList<>(branchNames);
             } else {
                 // Return branches mapped to a specific project
-                List<String> projectBranches = branches.get(projectName);
+                List<String> projectBranches = branches.getProjectBranches().get(projectName);
                 List<String> result;
                 if (projectBranches == null) {
                     result = new ArrayList<>(Collections.singletonList(branch));
@@ -2044,6 +2089,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
         GitRepository repo = new GitRepository();
 
+        repo.setId(id);
+        repo.setName(name);
         repo.setUri(uri);
         repo.setLogin(login);
         repo.setPassword(password);
@@ -2057,7 +2104,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         repo.setListenerTimerPeriod(listenerTimerPeriod);
         repo.setConnectionTimeout(connectionTimeout);
         repo.setCommentTemplate(commentTemplate);
-        repo.setGitSettingsPath(gitSettingsPath);
+        repo.setRepositorySettings(repositorySettings);
         repo.git = git;
         repo.repositoryLock = repositoryLock; // must be common for all instances because git
         // repository is same
@@ -2107,59 +2154,46 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private void readBranches() throws IOException {
-        branches.clear();
-
-        if (StringUtils.isBlank(gitSettingsPath)) {
+        if (repositorySettings == null) {
             return;
         }
 
-        File settings = new File(new File(gitSettingsPath), "branches.properties");
-        if (settings.isFile()) {
-            try (InputStreamReader in = new InputStreamReader(new FileInputStream(settings), StandardCharsets.UTF_8)) {
-                Properties properties = new Properties();
-                properties.load(in);
-                String numStr = properties.getProperty("projects.number");
-                if (numStr == null) {
-                    return;
-                }
-
-                int num = Integer.parseInt(numStr);
-                for (int i = 1; i <= num; i++) {
-                    String name = properties.getProperty("project." + i + ".name");
-                    String branchesStr = properties.getProperty("project." + i + ".branches");
-                    if (StringUtils.isBlank(name) || StringUtils.isBlank(branchesStr)) {
-                        continue;
-                    }
-
-                    branches.put(name, new ArrayList<>(Arrays.asList(branchesStr.split(","))));
-                }
+        settingsSyncDate = repositorySettings.getSyncDate();
+        FileItem fileItem = repositorySettings.getRepository().read(id + "/branches.yaml");
+        if (fileItem != null) {
+            try (InputStreamReader in = new InputStreamReader(fileItem.getStream(), StandardCharsets.UTF_8)) {
+                TypeDescription projectsDescription = new TypeDescription(BranchesData.class);
+                projectsDescription.addPropertyParameters("descriptions", BranchDescription.class);
+                Constructor constructor = new Constructor(BranchesData.class);
+                constructor.addTypeDescription(projectsDescription);
+                Representer representer = new Representer();
+                representer.getPropertyUtils().setSkipMissingProperties(true);
+                Yaml yaml = new Yaml(constructor, representer);
+                branches.copyFrom(yaml.loadAs(in, BranchesData.class));
             }
         }
 
     }
 
     private void saveBranches() throws IOException {
-        if (StringUtils.isBlank(gitSettingsPath)) {
+        if (repositorySettings == null) {
             return;
         }
-        File parent = new File(gitSettingsPath);
-        if (!parent.mkdirs() && !parent.exists()) {
-            throw new FileNotFoundException("Cannot create folder " + gitSettingsPath);
-        }
-        File settings = new File(parent, "branches.properties");
-        try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(settings), StandardCharsets.UTF_8)) {
-            Properties properties = new Properties();
-            properties.setProperty("projects.number", String.valueOf(branches.size()));
+        DumperOptions options = new DumperOptions();
+        options.setPrettyFlow(true);
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        Yaml yaml = new Yaml(options);
 
-            int i = 1;
-            for (Map.Entry<String, List<String>> entry : branches.entrySet()) {
-                properties.setProperty("project." + i + ".name", entry.getKey());
-                properties.setProperty("project." + i + ".branches", String.join(",", entry.getValue()));
-
-                i++;
-            }
-            properties.store(out, null);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try (OutputStreamWriter out = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
+            yaml.dump(branches, out);
         }
+
+        FileData data = new FileData();
+        data.setName(id + "/branches.yaml");
+        data.setAuthor(getClass().getName());
+        data.setComment("Update branches info");
+        repositorySettings.getRepository().save(data, new ByteArrayInputStream(outputStream.toByteArray()));
     }
 
     private void removeAbsentFiles(String baseAbsolutePath,

@@ -35,6 +35,8 @@ public class BranchesBean {
 
     private List<String> branches;
 
+    private String currentRepositoryId;
+
     private String currentBranch;
 
     private String branchToMerge;
@@ -221,6 +223,10 @@ public class BranchesBean {
         }
     }
 
+    public void setCurrentRepositoryId(String currentRepositoryId) {
+        this.currentRepositoryId = currentRepositoryId;
+    }
+
     public void setInitProject(String currentProjectName) {
         try {
             this.currentProjectName = currentProjectName;
@@ -261,7 +267,7 @@ public class BranchesBean {
         }
         if (!found) {
             // Get base branch. It can be different from project.getDesignRepository().getBranch().
-            branchToMerge = ((BranchRepository) getUserWorkspace().getDesignTimeRepository().getRepository())
+            branchToMerge = ((BranchRepository) getUserWorkspace().getDesignTimeRepository().getRepository(currentRepositoryId))
                 .getBranch();
 
             boolean existInCombobox = false;
@@ -341,11 +347,11 @@ public class BranchesBean {
 
         try {
             UserWorkspace userWorkspace = getUserWorkspace();
-            if (!userWorkspace.hasProject(projectName)) {
+            if (!userWorkspace.hasProject(currentRepositoryId, projectName)) {
                 return null;
             }
 
-            return userWorkspace.getProject(projectName, false);
+            return userWorkspace.getProject(currentRepositoryId, projectName, false);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return null;

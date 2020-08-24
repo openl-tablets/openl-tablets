@@ -68,7 +68,7 @@
         </rich:dataTable>
 
         <h:form>
-            <a4j:jsFunction name="openProjectVersion" immediate="true" oncomplete="ws.nav.go('#{utils.toUrl(project.name)}', true)">
+            <a4j:jsFunction name="openProjectVersion" immediate="true" oncomplete="ws.nav.go('#{utils.toUrl(project.repository.id, project.name)}', true)">
                 <a4j:param name="version" assignTo="#{studio.projectVersion}"/>
             </a4j:jsFunction>
         </h:form>

@@ -83,7 +83,11 @@
       function goToNewProject() {
           var hash = $location.getHash(true);
           var index = hash.indexOf('/');
-          var newUrl = '#{utils.encode(artefact.name)}';
+          if (index > 0) {
+            // First '/' is for repository id. We search the second one (url part for module/table)
+            index = hash.indexOf('/', index + 1);
+          }
+          var newUrl = '#{utils.encode(artefact.repository.id)}/#{utils.encode(studio.getLogicalName(artefact))}';
           if (index > 0) {
               newUrl += hash.substring(index);
           }

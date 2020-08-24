@@ -22,7 +22,9 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
@@ -224,7 +226,9 @@ public class LocalGitRepositoryTest {
     private GitRepository createRepository(File local) throws RRepositoryException {
         GitRepository repo = new GitRepository();
         repo.setLocalRepositoryPath(local.getAbsolutePath());
-        repo.setGitSettingsPath(local.getParent() + "/git-settings");
+        FileSystemRepository settingsRepository = new FileSystemRepository();
+        settingsRepository.setUri(local.getParent() + "/git-settings");
+        repo.setRepositorySettings(new RepositorySettings(settingsRepository));
         repo.setCommentTemplate("WebStudio: {commit-type}. {user-message}");
         repo.setGcAutoDetach(false);
         repo.initialize();

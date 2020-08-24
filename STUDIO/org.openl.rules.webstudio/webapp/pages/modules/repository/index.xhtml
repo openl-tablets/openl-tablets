@@ -30,6 +30,7 @@
         <ui:include src="/pages/modules/repository/modal/createDeploymentProject.xhtml" />
         <ui:include src="/pages/modules/repository/modal/uploadFile.xhtml" />
         <ui:include src="/pages/modules/repository/modal/addFolder.xhtml" />
+        <ui:include src="/pages/modules/repository/modal/selectFolder.xhtml" />
         <ui:include src="/pages/modules/repository/modal/createProject.xhtml" />
         <ui:include src="/pages/modules/repository/modal/updateFile.xhtml" />
         <ui:include src="/pages/modules/repository/modal/openProject.xhtml" />
@@ -52,7 +53,7 @@
                 <ui:include src="/pages/modules/repository/modal/addDeploymentItem.xhtml" />
             </h:panelGroup>
         </h:panelGroup>
-        <h:panelGroup rendered="#{repositoryTreeController.supportsBranches}">
+        <h:panelGroup rendered="#{repositoryTreeController.anySupportsBranches}">
             <ui:include src="/pages/modules/repository/modal/editBranches.xhtml" />
             <ui:include src="/pages/modules/repository/modal/mergeBranches.xhtml" />
         </h:panelGroup>

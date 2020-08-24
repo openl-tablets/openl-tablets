@@ -52,6 +52,7 @@
 
             <a4j:jsFunction name="renderEditBranchesForm" render="editBranchesForm"
                             oncomplete="showEditBranchesDialog('#{branchesBean.currentBranch}')">
+                <a4j:param name="repositoryId" assignTo="#{branchesBean.currentRepositoryId}"/>
                 <a4j:param name="projectName" assignTo="#{branchesBean.initProject}"/>
                 <a4j:param name="editorMode" assignTo="#{branchesBean.editorMode}"/>
             </a4j:jsFunction>
@@ -63,8 +64,8 @@
     <script>
         //<![CDATA[
 
-        function openEditBranchesDialog(projectName) {
-            renderEditBranchesForm(projectName, false);
+        function openEditBranchesDialog(repositoryId, projectName) {
+            renderEditBranchesForm(repositoryId, projectName, false);
         }
 
         function showEditBranchesDialog(currentBranchName) {

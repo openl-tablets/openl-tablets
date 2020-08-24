@@ -25,6 +25,7 @@ public final class AdministrationSettings {
     public static final String TIME_PATTERN = "data.format.time";
     public static final String DATETIME_PATTERN = "data.format.datetime";
     public static final String UPDATE_SYSTEM_PROPERTIES = "update.system.properties";
+    public static final String DESIGN_REPOSITORY_CONFIGS = "design-repository-configs";
     public static final String PRODUCTION_REPOSITORY_CONFIGS = "production-repository-configs";
 
     public static final String RUN_TESTS_IN_PARALLEL = "test.run.parallel";
