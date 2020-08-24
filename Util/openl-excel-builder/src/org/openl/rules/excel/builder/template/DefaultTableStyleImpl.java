@@ -6,9 +6,9 @@ import org.openl.rules.excel.builder.CellRangeSettings;
 
 public abstract class DefaultTableStyleImpl implements TableStyle {
 
-    private RichTextString headerTextTemplate;
-    private CellStyle headerStyle;
-    private CellRangeSettings headerSizeSettings;
+    private final RichTextString headerTextTemplate;
+    private final CellStyle headerStyle;
+    private final CellRangeSettings headerSizeSettings;
 
     public DefaultTableStyleImpl(RichTextString headerTextTemplate,
             CellStyle headerStyle,

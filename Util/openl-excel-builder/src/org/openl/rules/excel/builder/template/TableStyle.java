@@ -1,10 +1,9 @@
 package org.openl.rules.excel.builder.template;
 
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.openl.rules.excel.builder.CellRangeSettings;
-import org.openl.rules.excel.builder.template.row.RowStyle;
+import org.openl.rules.excel.builder.template.row.NameValueRowStyle;
 
 public interface TableStyle {
 
@@ -14,7 +13,7 @@ public interface TableStyle {
 
     CellRangeSettings getHeaderSizeSettings();
 
-    RowStyle getRowStyle();
+    NameValueRowStyle getRowStyle();
 
-    RowStyle getLastRowStyle();
+    NameValueRowStyle getLastRowStyle();
 }

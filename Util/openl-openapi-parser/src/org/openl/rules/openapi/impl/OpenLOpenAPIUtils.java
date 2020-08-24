@@ -595,8 +595,10 @@ public class OpenLOpenAPIUtils {
         }
         String schemaType = schema.getType();
         if ("string".equals(schemaType)) {
-            if ("date".equals(schema.getFormat()) || "date-time".equals(schema.getFormat())) {
+            if ("date".equals(schema.getFormat())) {
                 return "Date";
+            } else if ("date-time".equals(schema.getFormat())) {
+                return "OffsetDateTime";
             }
             return "String";
         } else if ("number".equals(schemaType)) {

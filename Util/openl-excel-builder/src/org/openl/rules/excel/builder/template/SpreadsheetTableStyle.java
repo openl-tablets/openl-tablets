@@ -1,6 +1,6 @@
 package org.openl.rules.excel.builder.template;
 
-import org.openl.rules.excel.builder.template.row.RowStyle;
+import org.openl.rules.excel.builder.template.row.NameValueRowStyle;
 
 public interface SpreadsheetTableStyle extends TableStyle {
 
@@ -8,6 +8,6 @@ public interface SpreadsheetTableStyle extends TableStyle {
 
     String getStepHeaderText();
 
-    RowStyle getHeaderRowStyle();
+    NameValueRowStyle getHeaderRowStyle();
 
 }
