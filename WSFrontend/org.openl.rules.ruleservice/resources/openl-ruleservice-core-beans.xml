@@ -34,8 +34,9 @@
 	<bean id="serviceManager" class="org.openl.rules.ruleservice.management.ServiceManagerImpl">
 		<property name="serviceConfigurer" ref="serviceConfigurer"/>
 		<property name="ruleServiceInstantiationFactory" ref="ruleServiceInstantiationFactory"/>
-		<property name="ruleServiceManager" ref="ruleServiceManager"/>
 		<property name="ruleServiceLoader" ref="ruleServiceLoader"/>
+		<property name="supportedPublishers" ref="ruleServicePublishers"/>
+		<property name="defaultRuleServicePublishers" ref="defaultRuleServicePublishers"/>
 	</bean>
 	
 	<bean id="serviceManagerStarter" class="org.openl.rules.ruleservice.conf.ServiceManagerStarterBean" depends-on="serviceManager" lazy-init="false">

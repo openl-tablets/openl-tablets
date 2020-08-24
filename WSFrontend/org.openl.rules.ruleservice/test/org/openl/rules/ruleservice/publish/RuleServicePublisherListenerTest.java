@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -33,7 +34,7 @@ public class RuleServicePublisherListenerTest implements ApplicationContextAware
         assertNotNull(applicationContext);
         ServiceInfoProvider serviceManager = applicationContext.getBean("serviceManager", ServiceInfoProvider.class);
         assertNotNull(serviceManager);
-        RuleServiceManager publisher = applicationContext.getBean("ruleServiceManager", RuleServiceManager.class);
+        ServiceManager publisher = applicationContext.getBean("serviceManager", ServiceManager.class);
 
         Assert.assertFalse(serviceManager.getServicesInfo().isEmpty());
 
