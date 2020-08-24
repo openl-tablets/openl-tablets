@@ -69,7 +69,15 @@ public class ProjectUploader {
                 // Get the last file
                 ProjectFile file = uploadedFiles.get(uploadedFiles.size() - 1);
                 String fileName = file.getName();
-                if (FileTypeHelper.isZipFile(fileName)) {
+                if (FileTypeHelper.isPossibleOpenAPIFile(fileName)) {
+                    projectCreator = new OpenAPIProjectCreator(fileName,
+                        file.getInput(),
+                        file.getSize(),
+                        projectName,
+                        projectFolder,
+                        userWorkspace,
+                        comment);
+                } else if (FileTypeHelper.isZipFile(fileName)) {
                     // Create project creator for the single zip file
                     projectCreator = new ZipFileProjectCreator(repositoryId, fileName,
                         file.getInput(),

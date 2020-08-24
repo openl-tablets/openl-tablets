@@ -36,15 +36,15 @@ public class ServiceConfigurationBooleanFactoryBean extends ServiceConfiguration
                 return Boolean.FALSE;
             }
             throw new ServiceConfigurationException(
-                String.format("Expected true/false value for '%s' in the configuration for service '%s'.",
+                String.format("Expected true/false value for '%s' in the deployment configuration for service '%s'.",
                     getPropertyName().trim(),
                     getServiceDescription().getName()));
         } else {
             if (value != null) {
-                throw new ServiceConfigurationException(
-                    String.format("Expected true/false value for '%s' in the configuration for service '%s'.",
-                        getPropertyName().trim(),
-                        getServiceDescription().getName()));
+                throw new ServiceConfigurationException(String.format(
+                    "Expected true/false value for '%s' in the deployment configuration for service '%s'.",
+                    getPropertyName().trim(),
+                    getServiceDescription().getName()));
             }
         }
         return ret;
@@ -56,8 +56,8 @@ public class ServiceConfigurationBooleanFactoryBean extends ServiceConfiguration
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.propertyName, "propertyName is not set.");
+    public void afterPropertiesSet() {
+        Assert.notNull(this.propertyName, "propertyName cannot be null");
     }
 
 }

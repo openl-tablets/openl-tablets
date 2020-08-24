@@ -48,7 +48,6 @@ import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
-import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.security.KeyStoreUtils;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.GroupManagementServiceWrapper;
@@ -162,8 +161,6 @@ public class InstallWizard implements Serializable {
         HashMap<String, String> props = new HashMap<>();
         props.put("webstudio.configured", "false");
         DynamicPropertySource.get().save(props);
-        ReloadableDelegatingFilter
-            .reloadApplicationContext((ServletContext) WebStudioUtils.getExternalContext().getContext());
         return next();
     }
 
@@ -200,7 +197,8 @@ public class InstallWizard implements Serializable {
                     log.error(designRepositoryConfiguration.getErrorMessage());
                 }
 
-                deployConfigRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DEPLOY_CONFIG, properties);
+                deployConfigRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DEPLOY_CONFIG,
+                    properties);
                 if (deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                     log.error(deployConfigRepositoryConfiguration.getErrorMessage());
                 }
@@ -419,9 +417,6 @@ public class InstallWizard implements Serializable {
 
             destroyRepositoryObjects();
             destroyDbContext();
-
-            ReloadableDelegatingFilter
-                .reloadApplicationContext((ServletContext) WebStudioUtils.getExternalContext().getContext());
 
             FacesContext.getCurrentInstance()
                 .getExternalContext()
@@ -795,7 +790,6 @@ public class InstallWizard implements Serializable {
         // Other configurations depend on this property
         DynamicPropertySource.get().setOpenLHomeDir(this.workingDir);
     }
-
 
     public String getGroupsAreManagedInStudio() {
         return "" + groupsAreManagedInStudio;

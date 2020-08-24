@@ -1,18 +1,20 @@
 <ui:composition
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich"
-    xmlns:ui="http://java.sun.com/jsf/facelets" >
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets">
 
     <style>
         .table-templates {
             width: 100%;
         }
+
         .table-templates th {
             padding: 8px 5px;
             border-bottom: 1px solid #ddd;
         }
+
         .table-templates td {
             padding: 7px 7px 7px 15px;
             border: 1px solid #fff;
@@ -21,11 +23,11 @@
 
     <rich:popupPanel id="modalNewProject" autosized="true" minWidth="580" maxWidth="580">
         <f:facet name="header">
-            <h:outputText value="Create Project from..." />
+            <h:outputText value="Create Project from..."/>
         </f:facet>
 
         <f:facet name="controls">
-            <h:graphicImage value="/images/close.gif" class="close" onclick="hideNewProjectDialog()" alt="Close" />
+            <h:graphicImage value="/images/close.gif" class="close" onclick="hideNewProjectDialog()" alt="Close"/>
         </f:facet>
 
         <rich:tabPanel id="projectType" switchType="client" onitemchange="resizePopupPanel('modalNewProject')">
@@ -34,55 +36,76 @@
                 <h:form id="createProjectFormTempl" style="padding-top: 4px">
                     <table class="formfields" cellspacing="1">
                         <tr>
-                        <td class="label" style="width: 100px">
-                            <h:outputLabel styleClass="required" value="Project Template:" />
-                        </td>
-                        <td>
-                            <div style="height: 243px; overflow: auto; border: 1px solid #ccc; margin-top: 2px">
-                                <table id="projectTemplates" class="table table-over table-templates">
-                                    <ui:repeat var="category" value="#{repositoryTreeController.getCustomProjectCategories()}">
-                                        <tr><th>#{category}</th></tr>
-                                        <ui:repeat var="template" value="#{repositoryTreeController.getCustomProjectTemplates(category)}">
-                                            <tr><td>
-                                                <input type="hidden" value="custom/#{category}/#{template}" />
-                                                <span>#{template}</span>
-                                            </td></tr>
+                            <td class="label" style="width: 100px">
+                                <h:outputLabel styleClass="required" value="Project Template:"/>
+                            </td>
+                            <td>
+                                <div style="height: 243px; overflow: auto; border: 1px solid #ccc; margin-top: 2px">
+                                    <table id="projectTemplates" class="table table-over table-templates">
+                                        <ui:repeat var="category"
+                                                   value="#{repositoryTreeController.getCustomProjectCategories()}">
+                                            <tr>
+                                                <th>#{category}</th>
+                                            </tr>
+                                            <ui:repeat var="template"
+                                                       value="#{repositoryTreeController.getCustomProjectTemplates(category)}">
+                                                <tr>
+                                                    <td>
+                                                        <input type="hidden" value="custom/#{category}/#{template}"/>
+                                                        <span>#{template}</span>
+                                                    </td>
+                                                </tr>
+                                            </ui:repeat>
                                         </ui:repeat>
-                                    </ui:repeat>
-                                    <tr><th>Simple Templates</th></tr>
-                                    <ui:repeat var="template" value="#{repositoryTreeController.getProjectTemplates('templates')}">
-                                        <tr><td>
-                                            <input type="hidden" value="predefined/templates/#{template}" />
-                                            <span>#{template}</span>
-                                        </td></tr>
-                                    </ui:repeat>
-                                    <tr><th>Examples</th></tr>
-                                    <ui:repeat var="template" value="#{repositoryTreeController.getProjectTemplates('examples')}">
-                                        <tr><td>
-                                            <input type="hidden" value="predefined/examples/#{template}" />
-                                            <span>#{template}</span>
-                                        </td></tr>
-                                    </ui:repeat>
-                                    <tr><th>Tutorials</th></tr>
-                                    <ui:repeat var="template" value="#{repositoryTreeController.getProjectTemplates('tutorials')}">
-                                        <tr><td>
-                                            <input type="hidden" value="predefined/tutorials/#{template}" />
-                                            <span>#{template}</span>
-                                        </td></tr>
-                                    </ui:repeat>
-                                </table>
-                            </div>
-                        </td>
+                                        <tr>
+                                            <th>Simple Templates</th>
+                                        </tr>
+                                        <ui:repeat var="template"
+                                                   value="#{repositoryTreeController.getProjectTemplates('templates')}">
+                                            <tr>
+                                                <td>
+                                                    <input type="hidden" value="predefined/templates/#{template}"/>
+                                                    <span>#{template}</span>
+                                                </td>
+                                            </tr>
+                                        </ui:repeat>
+                                        <tr>
+                                            <th>Examples</th>
+                                        </tr>
+                                        <ui:repeat var="template"
+                                                   value="#{repositoryTreeController.getProjectTemplates('examples')}">
+                                            <tr>
+                                                <td>
+                                                    <input type="hidden" value="predefined/examples/#{template}"/>
+                                                    <span>#{template}</span>
+                                                </td>
+                                            </tr>
+                                        </ui:repeat>
+                                        <tr>
+                                            <th>Tutorials</th>
+                                        </tr>
+                                        <ui:repeat var="template"
+                                                   value="#{repositoryTreeController.getProjectTemplates('tutorials')}">
+                                            <tr>
+                                                <td>
+                                                    <input type="hidden" value="predefined/tutorials/#{template}"/>
+                                                    <span>#{template}</span>
+                                                </td>
+                                            </tr>
+                                        </ui:repeat>
+                                    </table>
+                                </div>
+                            </td>
                         </tr>
                         <tr>
-                        <td class="label" style="width: 100px">
-                            <h:outputLabel for="projectName" styleClass="required" value="Project Name:" />
-                        </td>
+                            <td class="label" style="width: 100px">
+                                <h:outputLabel for="projectName" styleClass="required" value="Project Name:"/>
+                            </td>
                             <td><h:inputText id="projectName"
-                                    size="35" maxlength="70"
-                                    value="#{repositoryTreeController.projectName}"
-                                    onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtTemplates')});"
-                                    onchange="createProjectFormTemplCommentHandler.generateTemplate(this.value.trim(), #{rich:element('createProjectFormTempl:commentTemplate')});"/>
+                                             size="35" maxlength="70"
+                                             value="#{repositoryTreeController.projectName}"
+                                             onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtTemplates')});"
+                                             onchange="createProjectFormTemplCommentHandler.generateTemplate(this.value.trim(), #{rich:element('createProjectFormTempl:commentTemplate')});"/>
                             </td>
                         </tr>
                         <tr>
@@ -99,43 +122,43 @@
                             </td>
                         </tr>
                         <ui:fragment rendered="#{repositoryTreeController.supportsMappedFolders}">
-                        <tr>
-                            <td class="label" style="width: 100px">
-                                <h:outputLabel for="projectFolderTemplate" value="Path:" />
-                            </td>
-                            <td><h:inputText id="projectFolderTemplate" size="35"
+                            <tr>
+                                <td class="label" style="width: 100px">
+                                    <h:outputLabel for="projectFolderTemplate" value="Path:" />
+                                </td>
+                                <td><h:inputText id="projectFolderTemplate" size="35"
                                     styleClass="with-button-select"
-                                    value="#{repositoryTreeController.projectFolder}"/>
+                                                 value="#{repositoryTreeController.projectFolder}"/>
                                 <input type="button" value="..." class="button-select"
                                        onclick="openSelectFolderDialog('#{repositoryTreeController.repositoryId}', 'createProjectFormTempl:projectFolderTemplate')"/>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
                         </ui:fragment>
                         <ui:fragment rendered="#{repositoryTreeController.useCustomComment}">
-                        <tr>
-                            <td class="label" style="width: 100px">
-                                <h:outputLabel for="commentTemplate" value="Comment:" />
-                            </td>
-                            <td><h:inputTextarea id="commentTemplate"
-                                         value="#{repositoryTreeController.createProjectComment}"
-                                         title="#{repositoryTreeController.createProjectComment}"
-                                         type="text"
-                                         size="35"
-                                         readonly="false"
-                                         onkeyup="createProjectFormTemplCommentHandler.isEdited = true;"/>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td class="label" style="width: 100px">
+                                    <h:outputLabel for="commentTemplate" value="Comment:"/>
+                                </td>
+                                <td><h:inputTextarea id="commentTemplate"
+                                                     value="#{repositoryTreeController.createProjectComment}"
+                                                     title="#{repositoryTreeController.createProjectComment}"
+                                                     type="text"
+                                                     size="35"
+                                                     readonly="false"
+                                                     onkeyup="createProjectFormTemplCommentHandler.isEdited = true;"/>
+                                </td>
+                            </tr>
                         </ui:fragment>
                     </table>
 
-                    <h:inputHidden id="projectTemplate" value="#{repositoryTreeController.newProjectTemplate}" />
+                    <h:inputHidden id="projectTemplate" value="#{repositoryTreeController.newProjectTemplate}"/>
 
                     <footer>
                         <!-- TODO: Change h:commandButton to a4j:commandButton and show validation errors inside dialog box.
                                 Now errors are shown after dialog is closed. -->
                         <h:commandButton id="sbtTemplates" value="Create" styleClass="button-primary"
-                            action="#{repositoryTreeController.createNewRulesProject}" />
-                        <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
+                                         action="#{repositoryTreeController.createNewRulesProject}"/>
+                        <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
                 </h:form>
             </rich:tab>
@@ -143,22 +166,22 @@
             <rich:tab header="Excel Files">
                 <h:form id="createProjectFormFiles" style="padding-top: 6px">
                     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-                        <h:outputLabel for="file" styleClass="required" value="File:" />
+                        <h:outputLabel for="file" styleClass="required" value="File:"/>
 
                         <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
-                            onfilesubmit="showLoader();" oncomplete="hideLoader();"
-                            immediateUpload="true"
-                            noDuplicate="true"
-                            onclear="onClearFile(event);"
-                            ontyperejected="showMessagePopup('Only xls and xlsx files are accepted');"
-                            acceptedTypes="xls, xlsx, xlsm" />
+                                         onfilesubmit="showLoader();" oncomplete="hideLoader();"
+                                         immediateUpload="true"
+                                         noDuplicate="true"
+                                         onclear="onClearFile(event);"
+                                         ontyperejected="showMessagePopup('Only xls and xlsx files are accepted');"
+                                         acceptedTypes="xls, xlsx, xlsm"/>
 
-                        <h:outputLabel for="projectName" styleClass="required" value="Project Name:" />
+                        <h:outputLabel for="projectName" styleClass="required" value="Project Name:"/>
                         <h:inputText id="projectName" size="35"
-                            maxlength="70"
-                            value="#{repositoryTreeController.projectName}"
-                            onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtFiles')});"
-                            onchange="createProjectFormFilesCommentHandler.generateTemplate(this.value.trim(), #{rich:element('createProjectFormFiles:commentExcel')});"/>
+                                     maxlength="70"
+                                     value="#{repositoryTreeController.projectName}"
+                                     onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtFiles')});"
+                                     onchange="createProjectFormFilesCommentHandler.generateTemplate(this.value.trim(), #{rich:element('createProjectFormFiles:commentExcel')});"/>
 
                         <h:outputLabel for="repositoryExcel" value="Repository:" styleClass="required"/>
                         <h:selectOneMenu id="repositoryExcel" value="#{repositoryTreeController.repositoryId}">
@@ -194,32 +217,32 @@
 
                     <footer>
                         <h:commandButton id="sbtFiles" value="Create" styleClass="button-primary"
-                            action="#{repositoryTreeController.createProjectWithFiles}" />
-                        <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
+                                         action="#{repositoryTreeController.createProjectWithFiles}"/>
+                        <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
                 </h:form>
             </rich:tab>
 
             <rich:tab header="Zip Archive">
                 <h:form id="uploadProjectForm" style="padding-top: 6px">
-                <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-                    <h:outputLabel for="file" styleClass="required" value="File:" />
+                    <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+                        <h:outputLabel for="file" styleClass="required" value="File:"/>
 
-                    <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
-                        onfilesubmit="showLoader();"
-                        oncomplete="uploadProjectFormCommentHandler.isEdited = false; enableCreateButton(#{rich:element('uploadProjectForm:projectName')}.value.trim().length > 0, #{rich:element('sbtZips')});hideLoader();"
-                        onclear="onClearFile(event); enableCreateButton(false, #{rich:element('sbtZips')})"
-                        ontyperejected="showMessagePopup('Only zip files are accepted');"
-                        immediateUpload="true"
-                        render="projectName commentZip"
-                        acceptedTypes="zip" maxFilesQuantity="1" />
+                        <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
+                                         onfilesubmit="showLoader();"
+                                         oncomplete="uploadProjectFormCommentHandler.isEdited = false; enableCreateButton(#{rich:element('uploadProjectForm:projectName')}.value.trim().length > 0, #{rich:element('sbtZips')});hideLoader();"
+                                         onclear="onClearFile(event); enableCreateButton(false, #{rich:element('sbtZips')})"
+                                         ontyperejected="showMessagePopup('Only zip files are accepted');"
+                                         immediateUpload="true"
+                                         render="projectName commentZip"
+                                         acceptedTypes="zip" maxFilesQuantity="1"/>
 
-                    <h:outputLabel for="projectName" styleClass="required" value="Project Name:" />
-                    <h:inputText id="projectName" size="35"
-                            maxlength="70"
-                            value="#{repositoryTreeController.projectName}"
-                            onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtZips')});"
-                            onchange="uploadProjectFormCommentHandler.generateTemplate(this.value.trim(), #{rich:element('uploadProjectForm:commentZip')});"/>
+                        <h:outputLabel for="projectName" styleClass="required" value="Project Name:"/>
+                        <h:inputText id="projectName" size="35"
+                                     maxlength="70"
+                                     value="#{repositoryTreeController.projectName}"
+                                     onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtZips')});"
+                                     onchange="uploadProjectFormCommentHandler.generateTemplate(this.value.trim(), #{rich:element('uploadProjectForm:commentZip')});"/>
 
                     <h:outputLabel for="repositoryZip" value="Repository:" styleClass="required"/>
                     <h:selectOneMenu id="repositoryZip" value="#{repositoryTreeController.repositoryId}">
@@ -230,7 +253,7 @@
                     </h:selectOneMenu>
 
                     <h:outputLabel for="projectFolderZip" value="Path:"
-                                   rendered="#{repositoryTreeController.supportsMappedFolders}"/>
+                                       rendered="#{repositoryTreeController.supportsMappedFolders}"/>
                     <h:panelGroup rendered="#{repositoryTreeController.supportsMappedFolders}">
                         <h:inputText id="projectFolderZip" size="35"
                                      styleClass="with-button-select"
@@ -240,24 +263,72 @@
                                onclick="openSelectFolderDialog('#{repositoryTreeController.repositoryId}', 'uploadProjectForm:projectFolderZip')"/>
                     </h:panelGroup>
 
-                    <ui:param name="useCustomComment" value="#{repositoryTreeController.useCustomComment}"/>
+                        <ui:param name="useCustomComment" value="#{repositoryTreeController.useCustomComment}"/>
 
-                    <h:outputLabel for="commentZip" value="Comment:" rendered="#{useCustomComment}"/>
-                    <h:inputTextarea id="commentZip"
-                                     rendered="#{useCustomComment}"
-                                     value="#{repositoryTreeController.createProjectComment}"
-                                     title="#{repositoryTreeController.createProjectComment}"
-                                     type="text"
-                                     size="35"
-                                     readonly="false"
-                                    onkeyup="uploadProjectFormCommentHandler.isEdited = true;"/>
-                </h:panelGrid>
+                        <h:outputLabel for="commentZip" value="Comment:" rendered="#{useCustomComment}"/>
+                        <h:inputTextarea id="commentZip"
+                                         rendered="#{useCustomComment}"
+                                         value="#{repositoryTreeController.createProjectComment}"
+                                         title="#{repositoryTreeController.createProjectComment}"
+                                         type="text"
+                                         size="35"
+                                         readonly="false"
+                                         onkeyup="uploadProjectFormCommentHandler.isEdited = true;"/>
+                    </h:panelGrid>
 
-                <footer>
-                    <h:commandButton id="sbtZips" value="Create" action="#{repositoryTreeController.upload}"
-                        styleClass="button-primary" />
-                    <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
-                </footer>
+                    <footer>
+                        <h:commandButton id="sbtZips" value="Create" action="#{repositoryTreeController.upload}"
+                                         styleClass="button-primary"/>
+                        <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
+                    </footer>
+                </h:form>
+            </rich:tab>
+
+            <rich:tab header="OpenAPI">
+                <h:form id="openAPIProjectForm" style="padding-top: 6px">
+                    <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+                        <h:outputLabel for="file" styleClass="required" value="File:"/>
+
+                        <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
+                                         onfilesubmit="showLoader(); checkFileName(event);" oncomplete="hideLoader();"
+                                         immediateUpload="true"
+                                         noDuplicate="true"
+                                         onclear="onClearFile(event); enableCreateButton(false, #{rich:element('submitOpenAPIFile')})"
+                                         ontyperejected="showMessagePopup('Only JSON and YML/YAML files are accepted');"
+                                         render="openAPIProjectName commentOpenAPI"
+                                         acceptedTypes="json, yml, yaml" maxFilesQuantity="1"/>
+
+                        <h:outputLabel for="openAPIProjectName" styleClass="required" value="Project Name:"/>
+                        <h:inputText id="openAPIProjectName" size="35"
+                                     maxlength="70"
+                                     value="#{repositoryTreeController.projectName}"
+                                     onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('submitOpenAPIFile')});"
+                                     onchange="createProjectFormOpenAPICommentHandler.generateTemplate(this.value.trim(), #{rich:element('openAPIProjectForm:commentOpenAPI')});"/>
+
+                        <h:outputLabel for="projectFolderOpenAPI" value="Path in repository:"
+                                       rendered="#{repositoryTreeController.supportsMappedFolders}"/>
+                        <h:inputText id="projectFolderOpenAPI" size="35"
+                                     value="#{repositoryTreeController.projectFolder}"
+                                     rendered="#{repositoryTreeController.supportsMappedFolders}"/>
+
+                        <ui:param name="useCustomComment" value="#{repositoryTreeController.useCustomComment}"/>
+
+                        <h:outputLabel for="commentOpenAPI" value="Comment:" rendered="#{useCustomComment}"/>
+                        <h:inputTextarea id="commentOpenAPI"
+                                         rendered="#{useCustomComment}"
+                                         value="#{repositoryTreeController.createProjectComment}"
+                                         title="#{repositoryTreeController.createProjectComment}"
+                                         type="text"
+                                         size="35"
+                                         readonly="false"
+                                         onkeyup="createProjectFormOpenAPICommentHandler.isEdited = true;"/>
+                    </h:panelGrid>
+                    <footer>
+                        <h:commandButton id="submitOpenAPIFile" value="Create"
+                                         action="#{repositoryTreeController.upload}"
+                                         styleClass="button-primary"/>
+                        <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
+                    </footer>
                 </h:form>
             </rich:tab>
 
@@ -266,31 +337,34 @@
                     <div style="max-height: 286px; overflow:auto">
                         <h:panelGrid style="width: 100%" id="uploadPrjFromLocalDiv">
                             <rich:dataTable value="#{localUpload.projects4Upload}"
-                                rendered="#{not empty localUpload.projects4Upload}"
-                                var="item" styleClass="table" id="uploadPrjFromLocalTable" style="width: 98%">
+                                            rendered="#{not empty localUpload.projects4Upload}"
+                                            var="item" styleClass="table" id="uploadPrjFromLocalTable"
+                                            style="width: 98%">
                                 <f:facet name="header">
                                     <rich:columnGroup>
                                         <rich:column>
-                                            <h:selectBooleanCheckbox id="selectAll" title="Select/Deselect All'" value="#{localUpload.selectAll}"
-                                            onclick="changeStatus(this);"/>
+                                            <h:selectBooleanCheckbox id="selectAll" title="Select/Deselect All'"
+                                                                     value="#{localUpload.selectAll}"
+                                                                     onclick="changeStatus(this);"/>
                                         </rich:column>
                                         <rich:column>
-                                            <h:outputText value="Name" />
+                                            <h:outputText value="Name"/>
                                         </rich:column>
                                     </rich:columnGroup>
                                 </f:facet>
 
                                 <rich:column style="text-align: center; width: 20px;">
-                                    <h:selectBooleanCheckbox value="#{item.selected}" onclick="changeAllProjectCheck(this)" />
+                                    <h:selectBooleanCheckbox value="#{item.selected}"
+                                                             onclick="changeAllProjectCheck(this)"/>
                                 </rich:column>
                                 <rich:column>
-                                    <h:outputText value="#{item.projectName}" />
+                                    <h:outputText value="#{item.projectName}"/>
                                 </rich:column>
                             </rich:dataTable>
                         </h:panelGrid>
                         <h:panelGrid id="uploadPrjFromLocalMessageDiv">
                             <h:outputText value="All projects are already in repository"
-                                rendered="#{empty localUpload.projects4Upload}" />
+                                          rendered="#{empty localUpload.projects4Upload}"/>
                         </h:panelGrid>
 
                         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
@@ -331,13 +405,15 @@
                     </p>
 
                     <h:panelGroup id="localUploadButtonPanel">
-                    <footer>
-                        <a4j:commandButton id="sbtWorkspace" action="#{localUpload.upload}" styleClass="button-primary"
-                        rendered="#{not empty localUpload.projects4Upload}" process="@form" value="Create"
-                        oncomplete="hideNewProjectDialog()"
-                        render="uploadWorkspaceProjectForm uploadPrjFromLocalMessageDiv projectTree nodeView"/>
-                        <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
-                    </footer>
+                        <footer>
+                            <a4j:commandButton id="sbtWorkspace" action="#{localUpload.upload}"
+                                               styleClass="button-primary"
+                                               rendered="#{not empty localUpload.projects4Upload}" process="@form"
+                                               value="Create"
+                                               oncomplete="hideNewProjectDialog()"
+                                               render="uploadWorkspaceProjectForm uploadPrjFromLocalMessageDiv projectTree nodeView"/>
+                            <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
+                        </footer>
                     </h:panelGroup>
                 </h:form>
             </rich:tab>
@@ -393,31 +469,41 @@
 
         //<![CDATA[
 
-        var CommentTemplateHandler = function() {
+        let CommentTemplateHandler = function () {
             this.isEdited = false;
             this.createProjectCommentTemplate = "#{repositoryTreeController.retrieveCreateProjectCommentTemplate()}";
 
-            var self = this;
+            let self = this;
 
-            this.generateTemplate = function(projectName, input) {
+            this.generateTemplate = function (projectName, input) {
                 if (self.isEdited === false && projectName.length > 0 && self.createProjectCommentTemplate) {
                     input.value = self.createProjectCommentTemplate.replace(/\{project\-name}/g, projectName);
                 }
             };
         };
 
-        var uploadProjectFormCommentHandler = new CommentTemplateHandler();
-        var createProjectFormTemplCommentHandler = new CommentTemplateHandler();
-        var createProjectFormFilesCommentHandler = new CommentTemplateHandler();
+        let uploadProjectFormCommentHandler = new CommentTemplateHandler();
+        let createProjectFormTemplCommentHandler = new CommentTemplateHandler();
+        let createProjectFormFilesCommentHandler = new CommentTemplateHandler();
+        let createProjectFormOpenAPICommentHandler = new CommentTemplateHandler();
         //]]>
 
         function initNewProjectDialogUI() {
             enableCreateButton(false, #{rich:element("sbtFiles")});
             enableCreateButton(false, #{rich:element("sbtZips")});
             enableCreateButton(false, #{rich:element("sbtWorkspace")});
+        enableCreateButton(false, #{rich:element("submitOpenAPIFile")});
 
-            #{rich:element("createProjectFormFiles:projectName")}.onpaste=function(){enableCreateButton(true, #{rich:element("sbtFiles")});}
-            #{rich:element("uploadProjectForm:projectName")}.onpaste=function(){enableCreateButton(true, #{rich:element("sbtZips")});}
+        #{rich:element("createProjectFormFiles:projectName")}.onpaste = function () {
+            enableCreateButton(true, #{rich:element("sbtFiles")});
+        }
+            #{rich:element("uploadProjectForm:projectName")}.onpaste = function () {
+            enableCreateButton(true, #{rich:element("sbtZips")});
+        }
+
+            #{rich:element("openAPIProjectForm:projectName")}.onpaste = function () {
+            enableCreateButton(true, #{rich:element("submitOpenAPIFile")});
+        }
 
             initTemplates();
             $j("#createProjectFormFiles\\:projectName").val("");
@@ -450,14 +536,17 @@
             uploadProjectFormCommentHandler.isEdited = false;
             createProjectFormTemplCommentHandler.isEdited = false;
             createProjectFormFilesCommentHandler.isEdited = false;
+            createProjectFormOpenAPICommentHandler.isEdited = false;
             $j("#createProjectFormTempl\\:projectName").val("");
             initTemplates();
 
             $j("#createProjectFormFiles\\:projectName").val("");
             $j("#uploadProjectForm\\:projectName").val("");
+            $j("#openAPIProjectForm\\:openAPIProjectName").val("");
             $j("#createProjectFormTempl\\:commentTemplate").val("");
             $j("#createProjectFormFiles\\:commentExcel").val("");
             $j("#uploadProjectForm\\:commentZip").val("");
+            $j("#openAPIProjectForm\\:commentOpenAPI").val("");
 
             RichFaces.$("modalNewProject").hide();
         }
@@ -468,20 +557,20 @@
         }
 
         function changeAllProjectCheck(element) {
-            if($j("#uploadWorkspaceProjectForm INPUT[id='uploadPrjFromLocalTable:selectAll']:checked").val() == "on") {
-                if( !element.checked ) {
+            if ($j("#uploadWorkspaceProjectForm INPUT[id='uploadPrjFromLocalTable:selectAll']:checked").val() === "on") {
+                if (!element.checked) {
                     $j("#uploadWorkspaceProjectForm INPUT[id='uploadPrjFromLocalTable:selectAll']").prop("checked", element.checked);
                 }
             }
 
-            checkedCount = $j("#uploadWorkspaceProjectForm INPUT[type='checkbox']:checked").not("INPUT[id='uploadPrjFromLocalTable:selectAll']").size();
-            allCount = $j("#uploadWorkspaceProjectForm INPUT[type='checkbox']").not("INPUT[id='uploadPrjFromLocalTable:selectAll']").size()
+            let checkedCount = $j("#uploadWorkspaceProjectForm INPUT[type='checkbox']:checked").not("INPUT[id='uploadPrjFromLocalTable:selectAll']").size();
+            let allCount = $j("#uploadWorkspaceProjectForm INPUT[type='checkbox']").not("INPUT[id='uploadPrjFromLocalTable:selectAll']").size();
 
-            if (checkedCount == allCount) {
+            if (checkedCount === allCount) {
                 $j("#uploadWorkspaceProjectForm INPUT[id='uploadPrjFromLocalTable:selectAll']").prop("checked", true);
             }
 
-            enableCreateButton(checkedCount != 0, #{rich:element('sbtWorkspace')});
+            enableCreateButton(checkedCount !== 0, #{rich:element('sbtWorkspace')});
         }
 
         function uncheckSelectAllProject() {
@@ -489,8 +578,8 @@
         }
 
         //<![CDATA[
-        
-        var selectedTemplate;
+
+        let selectedTemplate;
 
         function initTemplates() {
             selectTemplate($j("#projectTemplates").find("td:first"));
@@ -509,6 +598,22 @@
             enableCreateButton(projectNameInput.val().trim().length > 0, #{rich:element('sbtTemplates')});
         }
 
+        $j("#openAPIProjectForm\\:openAPIProjectName").val("");
+
+        function checkFileName(event) {
+            let file = event.rf.data.file;
+            if (!file) {
+                return;
+            }
+            let fileName = file.name;
+            let name = fileName.split('.').slice(0, -1).join('.');
+
+            if (name.toUpperCase() !== 'openapi'.toUpperCase()) {
+                showMessagePopup('Only files with name "openapi" and formats JSON, YML/YAML are accepted');
+                clearFiles(fileName);
+                enableCreateButton(false, #{rich:element("submitOpenAPIFile")});
+            }
+        }
         function onClearFile(event) {
             let files = "";
             const data = event.rf.data;

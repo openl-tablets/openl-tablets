@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.repository;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.List;
 import java.util.jar.JarFile;
@@ -144,5 +145,18 @@ public final class RepositoryUtils {
         } else {
             return folderRepo;
         }
+    }
+
+    /**
+     * Build project version using the following pattern {@code %modifiedBy%-%modifiedAt:yyyy-MM-dd_HH-mm-ss%}
+     * @param fileData project file data
+     * @return project version
+     */
+    public static String buildProjectVersion(FileData fileData) {
+        if (fileData == null) {
+            return null;
+        }
+        String modifiedOnStr = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(fileData.getModifiedAt());
+        return fileData.getAuthor() + "-" + modifiedOnStr;
     }
 }

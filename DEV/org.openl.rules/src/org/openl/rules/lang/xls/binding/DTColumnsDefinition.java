@@ -11,11 +11,11 @@ import org.openl.types.impl.CompositeMethod;
 
 public class DTColumnsDefinition implements IUriMember {
 
-    private Map<String, List<IParameterDeclaration>> localParameters;
-    private IOpenMethodHeader header;
-    private CompositeMethod compositeMethod;
-    private DTColumnsDefinitionType type;
-    private String uri;
+    private final Map<String, List<IParameterDeclaration>> localParameters;
+    private final IOpenMethodHeader header;
+    private final CompositeMethod compositeMethod;
+    private final DTColumnsDefinitionType type;
+    private final String uri;
 
     public DTColumnsDefinition(DTColumnsDefinitionType type,
             Map<String, List<IParameterDeclaration>> localParameters,

@@ -12,7 +12,7 @@ import java.util.Iterator;
  */
 public class DateRangeDomain implements IDomain<Date> {
     private class DateIterator implements Iterator<Date> {
-        private Calendar current;
+        private final Calendar current;
 
         DateIterator() {
             current = (Calendar) min.clone();
@@ -35,8 +35,8 @@ public class DateRangeDomain implements IDomain<Date> {
         }
     }
 
-    private Calendar min = new GregorianCalendar();
-    private Calendar max = new GregorianCalendar();
+    private final Calendar min = new GregorianCalendar();
+    private final Calendar max = new GregorianCalendar();
 
     /**
      * Creates date range inside the specified bounds(including bounds).

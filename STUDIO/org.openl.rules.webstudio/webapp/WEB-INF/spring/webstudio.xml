@@ -6,8 +6,6 @@
        default-autowire="no">
 
     <bean id="versionProperties" class="org.openl.info.OpenLVersion" />
-    <bean id="props" class="org.openl.rules.webstudio.web.Props"/>
-    <bean class="org.openl.rules.webstudio.Migrator" init-method="migrate" depends-on="props"/>
 
     <bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
         <property name="scopes">

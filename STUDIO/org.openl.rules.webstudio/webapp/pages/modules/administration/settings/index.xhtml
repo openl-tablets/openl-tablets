@@ -9,7 +9,6 @@
         xmlns:rich="http://richfaces.org/rich"
         xmlns:fn="http://java.sun.com/jsp/jstl/functions">
     <ui:define name="content">
-        <c:set var="emptyHistoryDir" value="#{fn:length(projectsInHistory.projects) == 0}"/>
         <c:set var="isNotSingleMode" value="#{environment.getProperty('user.mode') != 'single'}"/>
 
         <style>
@@ -105,9 +104,6 @@
                     panelActiveClass: "displayed"
                 });
 
-                if (#{emptyHistoryDir}) {
-                    $j("#cleanHistoryHref").hide();
-                }
 
                 $j('.no-autocomplete').attr('autocomplete', 'new-input-field');
 
@@ -144,32 +140,6 @@
             function changeStatus(element) {
                 $j("#avaliableProjectsInHistory INPUT[type='checkbox']").attr('checked', element.checked);
                 if (element.checked) {
-                    $j("#systemSettingsForm\\:sbtClean").removeAttr('disabled');
-                } else {
-                    $j("#systemSettingsForm\\:sbtClean").attr('disabled', 'disabled');
-                }
-            }
-
-            function showAvailableProjectsInHistory(showHistory) {
-                if (showHistory) {
-                    $j("#avaliableProjectsInHistory").show();
-                    onProjectChecked();
-                } else {
-                    $j("#avaliableProjectsInHistory INPUT[type='checkbox']").attr('checked', false);
-                    $j("#avaliableProjectsInHistory").hide();
-                }
-                if (#{emptyHistoryDir}) {
-                    $j("#cleanHistoryHref").hide();
-                }
-            }
-
-            function onProjectChecked() {
-                var checkedCount = $j("#avaliableProjectsInHistory INPUT[type='checkbox']:checked").not("#systemSettingsForm\\:selectAll").size();
-                var allCount = $j("#avaliableProjectsInHistory INPUT[type='checkbox']").not("#systemSettingsForm\\:selectAll").size();
-
-                $j("#systemSettingsForm\\:selectAll").attr('checked', checkedCount === allCount);
-
-                if (checkedCount > 0) {
                     $j("#systemSettingsForm\\:sbtClean").removeAttr('disabled');
                 } else {
                     $j("#systemSettingsForm\\:sbtClean").attr('disabled', 'disabled');
@@ -266,7 +236,7 @@
                                                 <h:outputText value="Workspace Directory:"/>
                                                 <h:inputText id="workspace-dir"
                                                              value="#{systemSettingsBean.userWorkspaceHome}"
-                                                             disabled="#{props.isPropertyDisabled('user.workspace.home')}"
+                                                             disabled="#{props.isDisabled('user.workspace.home')}"
                                                              validator="#{validator.workSpaceDirValidator}"/>
                                             </h:panelGrid>
                                             <h:message for="workspace-dir" class="error"/>
@@ -275,62 +245,21 @@
                                     <section>
                                         <h3>History</h3>
                                         <div id="history">
-                                            <h:panelGrid columns="2" columnClasses="titleColumn">
-                                                <h:outputText value="History Directory:"/>
-                                                <h:inputText id="history-dir"
-                                                             value="#{systemSettingsBean.projectHistoryHome}"
-                                                             disabled="#{props.isPropertyDisabled('project.history.home')}"
-                                                             validator="#{validator.historyDirValidator}"/>
-                                            </h:panelGrid>
-                                            <h:message for="history-dir" class="error"/>
                                             <h:panelGrid id="maxCountInHistory" columns="2" columnClasses="titleColumn">
                                                 <h:outputText
-                                                        value="The maximum count of saved changes for each project:"/>
+                                                        value="The maximum count of saved changes for each project per user:"/>
                                                 <h:inputText id="history-count"
                                                              value="#{systemSettingsBean.projectHistoryCount}"
-                                                             disabled="#{props.isPropertyDisabled('project.history.count')}"
+                                                             disabled="#{props.isDisabled('project.history.count')}"
                                                              validator="#{validator.historyCountValidator}"/>
                                             </h:panelGrid>
                                             <h:message for="history-count" class="error"/>
-                                            <h:panelGrid rendered="#{!emptyHistoryDir}">
-                                                <a href="javascript:void(0)" id="cleanHistoryHref" title="Clean history"
-                                                   onclick="showAvailableProjectsInHistory(true)">Clean history</a>
-                                            </h:panelGrid>
                                         </div>
-                                        <div id="avaliableProjectsInHistory" class="history" style="display:none">
-                                            <h:panelGroup id="projectsInHistoryPanel" layout="block">
-                                                <div class="historyHeader">
-                                                    <b>Clean projects history</b>
-                                                </div>
-                                                <div class="historyCheckAll">
-                                                    <h:panelGrid columns="2">
-                                                        <h:selectBooleanCheckbox id="selectAll"
-                                                                                 title="Select/Deselect All'"
-                                                                                 onclick="changeStatus(this);"/>
-                                                        <h:outputText value="Name" style="font-weight:bold"/>
-                                                    </h:panelGrid>
-                                                </div>
-                                                <div class="historyChecks">
-                                                    <ui:repeat value="#{projectsInHistory.projects}" var="project">
-                                                        <h:panelGrid columns="2">
-                                                            <h:selectBooleanCheckbox value="#{project.selected}"
-                                                                                     onclick="onProjectChecked()"/>
-                                                            <h:outputText value="#{project.projectName}"/>
-                                                        </h:panelGrid>
-                                                    </ui:repeat>
-                                                </div>
-                                                <div>
-                                                    <h:panelGrid columns="2">
-                                                        <a4j:commandButton id="sbtClean" value="Clean"
-                                                                           title="Clean projects history"
-                                                                           action="#{projectsInHistory.deleteProjects}"
-                                                                           render="commonProps"
-                                                                           oncomplete="showAvailableProjectsInHistory(false)"/>
-                                                        <input type="button" value="Cancel" title="Cancel"
-                                                               onclick="showAvailableProjectsInHistory(false)"/>
-                                                    </h:panelGrid>
-                                                </div>
-                                            </h:panelGroup>
+                                        <div id="avaliableProjectsInHistory" style="margin: 10px">
+                                            <a4j:commandButton id="sbtClean" value="Clear all history"
+                                                               title="Clear all changes between revisions for all users and all projects."
+                                                               action="#{projectsInHistory.deleteAllHistory}"
+                                                               render="commonProps"/>
                                         </div>
                                     </section>
                                     <section>
@@ -341,19 +270,19 @@
                                                         value="Update table properties ('createdOn', 'modifiedBy' etc.) on editing: "/>
                                                 <h:selectBooleanCheckbox
                                                         value="#{systemSettingsBean.updateSystemProperties}"
-                                                        disabled="#{props.isPropertyDisabled('update.system.properties')}"/>
+                                                        disabled="#{props.isDisabled('update.system.properties')}"/>
                                             </h:panelGrid>
                                             <h:panelGrid columns="2" columnClasses="titleColumn">
                                                 <h:outputText value="Date Format:"/>
                                                 <h:inputText id="date-format" value="#{systemSettingsBean.datePattern}"
-                                                             disabled="#{props.isPropertyDisabled('data.format.date')}"
+                                                             disabled="#{props.isDisabled('data.format.date')}"
                                                              validator="#{validator.dateFormatValidator}"/>
                                             </h:panelGrid>
                                             <h:message for="date-format" class="error"/>
                                             <h:panelGrid columns="2" columnClasses="titleColumn">
                                                 <h:outputText value="Time Format:"/>
                                                 <h:inputText id="time-format" value="#{systemSettingsBean.timePattern}"
-                                                             disabled="#{props.isPropertyDisabled('data.format.time')}"
+                                                             disabled="#{props.isDisabled('data.format.time')}"
                                                              validator="#{validator.timeFormatValidator}"/>
                                             </h:panelGrid>
                                             <h:message for="time-format" class="error"/>

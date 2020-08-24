@@ -36,8 +36,8 @@ class SubtypeMixInClassWriter extends ClassVisitor {
     @Override
     public void visit(int arg0, int arg1, String arg2, String arg3, String arg4, String[] arg5) {
         super.visit(arg0, arg1, className.replace('.', '/'), arg3, arg4, arg5);
-        if (!originalMixInClass.isAnnotationPresent(JsonSubTypes.class)) {
-            if (subTypes.length > 0) {
+        if (subTypes.length > 0) {
+            if (!originalMixInClass.isAnnotationPresent(JsonSubTypes.class)) {
                 AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(JsonSubTypes.class), true);
                 AnnotationVisitor av1 = av.visitArray("value");
                 for (Class<?> subTypeClass : subTypes) {
@@ -48,11 +48,17 @@ class SubtypeMixInClassWriter extends ClassVisitor {
                 av1.visitEnd();
                 av.visitEnd();
             }
-        }
-        if (!originalMixInClass.isAnnotationPresent(JsonTypeInfo.class)) {
-            AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(JsonTypeInfo.class), true);
-            av.visitEnum("use", Type.getDescriptor(JsonTypeInfo.Id.class), JsonTypeInfo.Id.CLASS.name());
-            av.visitEnd();
+            if (!originalMixInClass.isAnnotationPresent(JsonTypeInfo.class)) {
+                AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(JsonTypeInfo.class), true);
+                av.visitEnum("use", Type.getDescriptor(JsonTypeInfo.Id.class), JsonTypeInfo.Id.CLASS.name());
+                av.visitEnd();
+            }
+        } else {
+            if (!originalMixInClass.isAnnotationPresent(JsonTypeInfo.class)) {
+                AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(JsonTypeInfo.class), true);
+                av.visitEnum("use", Type.getDescriptor(JsonTypeInfo.Id.class), JsonTypeInfo.Id.NONE.name());
+                av.visitEnd();
+            }
         }
     }
 }

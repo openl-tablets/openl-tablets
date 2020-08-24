@@ -7,12 +7,12 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
-import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.openl.rules.excel.builder.CellRangeSettings;
 import org.openl.rules.excel.builder.template.DataTypeTableStyle;
 import org.openl.rules.excel.builder.template.TableStyle;
@@ -59,7 +59,7 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
         addMergedHeader(sheet, startPosition, headerStyle, headerSettings);
 
         Cell topLeftCell = PoiExcelHelper.getOrCreateCell(startPosition.getColumn(), startPosition.getRow(), sheet);
-        RichTextString dtHeader = new HSSFRichTextString(dtHeaderText);
+        RichTextString dtHeader = new XSSFRichTextString(dtHeaderText);
         dtHeader.applyFont(style.getHeaderFont());
         topLeftCell.setCellValue(dtHeader);
         startPosition = startPosition.moveDown(headerSettings.getHeight());

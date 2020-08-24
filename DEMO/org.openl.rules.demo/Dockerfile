@@ -1,6 +1,6 @@
-FROM openjdk:11.0.5-stretch
+FROM openjdk:11-slim-buster
 
-ENV TOMCAT_VERSION=9.0.30
+ENV TOMCAT_VERSION=9.0.37
 
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=90.0"
 ENV CONTAINER="true"
@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       bash \
       unzip \
       procps \
+      fontconfig \
       && rm -rf /var/lib/apt/lists/*
 
 COPY ./target/*.zip /tmp/

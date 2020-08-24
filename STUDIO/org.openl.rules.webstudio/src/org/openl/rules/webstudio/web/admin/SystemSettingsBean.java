@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.faces.context.FacesContext;
-import javax.servlet.ServletContext;
 
 import org.openl.config.ConfigNames;
 import org.openl.config.InMemoryProperties;
@@ -16,7 +15,6 @@ import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.security.AccessManager;
 import org.openl.rules.security.Privileges;
-import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
@@ -61,10 +59,10 @@ public class SystemSettingsBean {
     public SystemSettingsBean(ProductionRepositoriesTreeController productionRepositoriesTreeController,
         RepositoryFactoryProxy designRepositoryFactoryProxy,
         RepositoryFactoryProxy productionRepositoryFactoryProxy,
-        DeploymentManager deploymentManager,
-        DesignTimeRepository designTimeRepository,
-        RepositoryTreeState repositoryTreeState,
-        PropertyResolver propertyResolver) {
+            DeploymentManager deploymentManager,
+            DesignTimeRepository designTimeRepository,
+            RepositoryTreeState repositoryTreeState,
+            PropertyResolver propertyResolver) {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
         this.deploymentManager = deploymentManager;
         this.designTimeRepository = designTimeRepository;
@@ -130,14 +128,6 @@ public class SystemSettingsBean {
 
     public void setUpdateSystemProperties(boolean updateSystemProperties) {
         properties.setProperty(UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
-    }
-
-    public String getProjectHistoryHome() {
-        return properties.getProperty(PROJECT_HISTORY_HOME);
-    }
-
-    public void setProjectHistoryHome(String projectHistoryHome) {
-        properties.setProperty(PROJECT_HISTORY_HOME, projectHistoryHome);
     }
 
     public String getProjectHistoryCount() {
@@ -373,8 +363,6 @@ public class SystemSettingsBean {
 
     private void refreshConfig() {
         WebStudioUtils.getWebStudio(true).setNeedRestart(true);
-        ReloadableDelegatingFilter
-            .reloadApplicationContext((ServletContext) WebStudioUtils.getExternalContext().getContext());
     }
 
 }

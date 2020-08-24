@@ -14,7 +14,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -70,6 +69,7 @@ import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
+import org.openl.rules.webstudio.web.admin.ProjectsInHistoryController;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
@@ -121,7 +121,6 @@ import com.thoughtworks.xstream.io.StreamException;
 @ViewScope
 public class RepositoryTreeController {
 
-    private static final String PROJECT_HISTORY_HOME = "project.history.home";
     private static final String CUSTOM_TEMPLATE_TYPE = "custom";
 
     private final Logger log = LoggerFactory.getLogger(RepositoryTreeController.class);
@@ -1059,7 +1058,6 @@ public class RepositoryTreeController {
                     }
                 }
             }
-            deleteProjectHistory(project.getName());
             userWorkspace.refresh();
 
             repositoryTreeState.deleteSelectedNodeFromTree();
@@ -1086,22 +1084,6 @@ public class RepositoryTreeController {
         return mainRepo != null && mainRepo.supports().branches() && !((BranchRepository) mainRepo).getBranch().equals(project.getBranch());
     }
 
-    public void deleteProjectHistory(String projectName) {
-        try {
-            String projectHistoryPath = propertyResolver
-                .getProperty(PROJECT_HISTORY_HOME) + File.separator + projectName;
-            File dir = new File(projectHistoryPath);
-            // Project can contain no history
-            if (dir.exists()) {
-                FileUtils.delete(dir);
-            }
-        } catch (Exception e) {
-            String msg = "Failed to clean history of project '" + projectName + "'.";
-            log.error(msg, e);
-            WebStudioUtils.addErrorMessage(msg, e.getMessage());
-        }
-    }
-
     public String exportProjectVersion() {
         File zipFile = null;
         String zipFileName = null;
@@ -1111,10 +1093,8 @@ public class RepositoryTreeController {
                 .getProject(selectedProject.getRepository().getId(),
                     selectedProject.getName(),
                     new CommonVersionImpl(version));
-            FileData fileData = forExport.getFileData();
             zipFile = ProjectExportHelper.export(userWorkspace.getUser(), forExport);
-            String modifiedOnStr = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(fileData.getModifiedAt());
-            String suffix = fileData.getAuthor() + "-" + modifiedOnStr;
+            String suffix = RepositoryUtils.buildProjectVersion(forExport.getFileData());
             zipFileName = String.format("%s-%s.zip", selectedProject.getName(), suffix);
         } catch (Exception e) {
             String msg = "Failed to export project version.";
@@ -1515,8 +1495,11 @@ public class RepositoryTreeController {
             setFileName(fileName);
 
             if (fileName.contains(".")) {
-                setProjectName(fileName.substring(0, fileName.lastIndexOf('.')));
-
+                if (!FileTypeHelper.isPossibleOpenAPIFile(fileName)) {
+                    setProjectName(fileName.substring(0, fileName.lastIndexOf('.')));
+                } else {
+                    setProjectName("");
+                }
                 if (FileTypeHelper.isZipFile(fileName)) {
                     Charset charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(file));
 
@@ -1551,7 +1534,7 @@ public class RepositoryTreeController {
             clearUploadedFiles();
         } else {
             List<String> toRemove = Arrays.asList(fileNames.split("\n"));
-            for (Iterator<ProjectFile> iterator = uploadedFiles.iterator(); iterator.hasNext(); ) {
+            for (Iterator<ProjectFile> iterator = uploadedFiles.iterator(); iterator.hasNext();) {
                 ProjectFile file = iterator.next();
                 if (toRemove.contains(file.getName())) {
                     file.destroy();
@@ -2098,6 +2081,7 @@ public class RepositoryTreeController {
                     selectedProject.close();
                 } else {
                     // Update files
+                    ProjectsInHistoryController.deleteHistory(selectedProject.getName());
                     selectedProject.open();
                 }
             }
@@ -2254,7 +2238,7 @@ public class RepositoryTreeController {
     public String getBusinessVersion(TreeProductProject version) {
         try {
             String businessVersion = projectVersionCacheManager
-                    .getDesignBusinessVersionOfDeployedProject(version.getData().getProject());
+                .getDesignBusinessVersionOfDeployedProject(version.getData().getProject());
             return businessVersion != null ? businessVersion : version.getVersionName();
         } catch (IOException e) {
             log.error("Error during getting project design version", e);

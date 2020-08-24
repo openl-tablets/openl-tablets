@@ -63,6 +63,7 @@ import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
+import org.openl.rules.webstudio.web.admin.ProjectsInHistoryController;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -276,7 +277,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public void saveProject(RulesProject project) throws ProjectException {
         InputStream content = null;
         try {
-            freezeProject(project.getName());
+            String projectName = project.getName();
+            freezeProject(projectName);
             String logicalName = getLogicalName(project);
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
             boolean renameProject = !logicalName.equals(project.getName());
@@ -312,7 +314,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
             userWorkspace.refresh();
             model.resetSourceModified();
-        } catch (WorkspaceException e) {
+            ProjectsInHistoryController.deleteHistory(projectName);
+        } catch (WorkspaceException | IOException e) {
             throw new ProjectException(e.getMessage(), e);
         } finally {
             releaseProject(project.getName());

@@ -24,6 +24,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.rules.excel.builder.CellRangeSettings;
 import org.openl.rules.excel.builder.template.row.DataTypeTableRowStyle;
 import org.openl.rules.excel.builder.template.row.SpreadsheetTableRowStyle;
+import org.openl.rules.table.xls.PoiExcelHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -199,7 +200,7 @@ public class ExcelTemplateUtils {
     }
 
     private static CellStyle copyStyle(Workbook targetWorkbook, CellStyle style) {
-        CellStyle targetFieldStyle = targetWorkbook.createCellStyle();
+        CellStyle targetFieldStyle = PoiExcelHelper.createCellStyle(targetWorkbook);
         targetFieldStyle.cloneStyleFrom(style);
         return targetFieldStyle;
     }

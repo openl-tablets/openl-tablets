@@ -45,7 +45,7 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
         boolean wasFound = false;
         for (OpenLMessage message : getCompiledOpenClass().getMessages()) {
             if (message.getSeverity() == Severity.WARN) {
-                if (message.getSummary().equals("Field 'field1' is already defined in the parent class 'ParentType'.")) {
+                if (message.getSummary().equals("Field 'field1' is already declared in parent class 'ParentType'.")) {
                     wasFound = true;
                 }
             }
@@ -59,7 +59,7 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
         for (OpenLMessage message : getCompiledOpenClass().getMessages()) {
             if (message.getSeverity() == Severity.ERROR) {
                 if (message.getSummary()
-                    .equals("Field 'field1' is already defined in the class 'ParentType' with another type.")) {
+                    .equals("Field 'field1' is already declared in class 'ParentType' with another type.")) {
                     wasFound = true;
                 }
             }

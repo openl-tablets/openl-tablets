@@ -67,6 +67,14 @@
             "type": "boolean",
             "default": false
           },
+          "testInt": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "testLong": {
+            "type": "integer",
+            "format": "int64"
+          },
           "address": {
             "$ref": "Address.json"
           },

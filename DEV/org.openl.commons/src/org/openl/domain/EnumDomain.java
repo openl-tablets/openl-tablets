@@ -17,7 +17,7 @@ public class EnumDomain<T> implements IDomain<T> {
 
     class EnumDomainIterator extends AOpenIterator<T> {
 
-        private BitSetIterator bsi = new BitSetIterator(bits);
+        private final BitSetIterator bsi = new BitSetIterator(bits);
 
         @Override
         public boolean hasNext() {
@@ -32,9 +32,8 @@ public class EnumDomain<T> implements IDomain<T> {
 
     }
 
-    private BitSet bits;
-
-    private Enum<T> enumeration;
+    private final BitSet bits;
+    private final Enum<T> enumeration;
 
     public EnumDomain(Enum<T> enumeration, BitSet bits) {
         this.bits = bits;
@@ -45,8 +44,8 @@ public class EnumDomain<T> implements IDomain<T> {
         bits = new BitSet(enumeration.size());
         this.enumeration = enumeration;
 
-        for (int i = 0; i < objs.length; i++) {
-            int idx = enumeration.getIndex(objs[i]);
+        for (T obj : objs) {
+            int idx = enumeration.getIndex(obj);
             bits.set(idx);
         }
     }

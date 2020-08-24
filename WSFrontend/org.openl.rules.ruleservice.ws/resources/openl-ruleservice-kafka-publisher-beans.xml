@@ -5,124 +5,38 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-    <bean id="kafkaProducerDefaultTypingModeFactoryBean"
-          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationDefaultTypingModeFactoryBean"
-          scope="prototype">
-        <property name="defaultValue" value="${ruleservice.jackson.defaultTypingMode}"/>
-        <property name="type" value="PRODUCER"/>
-    </bean>
-
-    <bean id="kafkaConsumerDefaultTypingModeFactoryBean"
-          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationDefaultTypingModeFactoryBean"
-          scope="prototype">
-        <property name="defaultValue" value="${ruleservice.jackson.defaultTypingMode}"/>
-        <property name="type" value="CONSUMER"/>
-    </bean>
-
-    <bean id="kafkaProducerDefaultDateFormatFactoryBean"
-          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationDefaultDateFormatFactoryBean"
-          scope="prototype">
-        <property name="type" value="PRODUCER"/>
-    </bean>
-
-    <bean id="kafkaConsumerDefaultDateFormatFactoryBean"
-          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationDefaultDateFormatFactoryBean"
-          scope="prototype">
-        <property name="type" value="CONSUMER"/>
-    </bean>
-
-    <bean id="kafkaProducerSerializationInclusionFactoryBean"
-          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationSerializationInclusionFactoryBean"
-          scope="prototype">
-        <property name="type" value="PRODUCER"/>
-        <property name="defaultSerializationInclusion"
-                  value="${ruleservice.jackson.serializationInclusion}"/>
-    </bean>
-
-    <bean id="kafkaConsumerSerializationInclusionFactoryBean"
-          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationSerializationInclusionFactoryBean"
-          scope="prototype">
-        <property name="type" value="CONSUMER"/>
-        <property name="defaultSerializationInclusion"
-                  value="${ruleservice.jackson.serializationInclusion}"/>
-    </bean>
-
-    <bean id="kafkaProducerRootClassNamesBindingFactoryBean"
-          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationRootClassNamesBindingFactoryBean"
-          scope="prototype">
-        <property name="type" value="PRODUCER"/>
-        <property name="defaultAdditionalRootClassNames" ref="rootClassNamesBindingFactoryBean"/>
-    </bean>
-
-    <bean id="kafkaConsumerRootClassNamesBindingFactoryBean"
-          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationRootClassNamesBindingFactoryBean"
-          scope="prototype">
-        <property name="type" value="CONSUMER"/>
-        <property name="defaultAdditionalRootClassNames" ref="rootClassNamesBindingFactoryBean"/>
-    </bean>
-
-    <bean id="kafkaProducerFailOnMissPropertiesFactoryBean"
-          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationBooleanFactoryBean">
-        <property name="type" value="PRODUCER"/>
-        <property name="propertyName" value="jackson.failOnUnknownProperties"/>
-        <property name="defaultValue" value="${ruleservice.jackson.failOnUnknownProperties}"/>
-    </bean>
-
-    <bean id="kafkaConsumerFailOnMissPropertiesFactoryBean"
-          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationBooleanFactoryBean">
-        <property name="type" value="CONSUMER"/>
-        <property name="propertyName" value="jackson.failOnUnknownProperties"/>
-        <property name="defaultValue" value="${ruleservice.jackson.failOnUnknownProperties}"/>
-    </bean>
-
-    <bean id="kafkaProducerCaseInsensitivePropertiesFactoryBean"
-          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationBooleanFactoryBean"
-          scope="prototype">
-        <property name="type" value="PRODUCER"/>
-        <property name="propertyName" value="jackson.caseInsensitiveProperties"/>
-        <property name="defaultValue" value="${ruleservice.jackson.caseInsensitiveProperties}"/>
-    </bean>
-
-    <bean id="kafkaConsumerCaseInsensitivePropertiesFactoryBean"
-          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationBooleanFactoryBean"
-          scope="prototype">
-        <property name="type" value="CONSUMER"/>
-        <property name="propertyName" value="jackson.caseInsensitiveProperties"/>
-        <property name="defaultValue" value="${ruleservice.jackson.caseInsensitiveProperties}"/>
-    </bean>
-
-    <bean id="kafkaProducerJacksonDatabindingFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean" scope="prototype">
-        <property name="defaultTypingMode" ref="kafkaProducerDefaultTypingModeFactoryBean"/>
-        <property name="overrideTypes" ref="kafkaProducerRootClassNamesBindingFactoryBean"/>
-        <property name="supportVariations" ref="serviceConfigurationSupportVariationsFactoryBean"/>
-        <property name="defaultDateFormat" ref="kafkaProducerDefaultDateFormatFactoryBean"/>
-        <property name="serializationInclusion" ref="kafkaProducerSerializationInclusionFactoryBean"/>
-        <property name="failOnUnknownProperties" ref="kafkaProducerFailOnMissPropertiesFactoryBean"/>
-        <property name="caseInsensitiveProperties" ref="kafkaProducerCaseInsensitivePropertiesFactoryBean"/>
+    <bean id="kafkaJacksonDatabindingFactoryBeanParent"
+          class="org.openl.rules.ruleservice.kafka.databinding.KafkaProjectJacksonObjectMapperFactoryBean"
+          abstract="true">
+        <property name="overrideTypesAsString" value="${ruleservice.databinding.rootClassNames}"/>
+        <property name="caseInsensitiveProperties" value="${ruleservice.jackson.caseInsensitiveProperties}"/>
+        <property name="defaultDateFormatAsString" value="${ruleservice.jackson.defaultDateFormat}"/>
+        <property name="failOnUnknownProperties" value="${ruleservice.jackson.failOnUnknownProperties}"/>
+        <property name="defaultTypingMode" value="${ruleservice.jackson.defaultTypingMode}"/>
+        <property name="supportVariations" value="${ruleservice.isSupportVariations}"/>
+        <property name="serializationInclusion" value="${ruleservice.jackson.serializationInclusion}"/>
         <property name="polymorphicTypeValidation" value="true"/>
+        <property name="xlsModuleOpenClass" ref="serviceXlsModuleOpenClass"/>
+        <property name="rulesDeploy" ref="serviceRulesDeploy"/>
     </bean>
+
 
     <bean id="serviceKafkaProducerJacksonDatabindingFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.OpenLServiceObjectMapperEnhancerFactoryBean" scope="prototype">
-        <property name="jacksonObjectMapperFactoryBean" ref="kafkaProducerJacksonDatabindingFactoryBean"/>
-    </bean>
-
-    <bean id="kafkaConsumerJacksonDatabindingFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean" scope="prototype">
-        <property name="defaultTypingMode" ref="kafkaConsumerDefaultTypingModeFactoryBean"/>
-        <property name="overrideTypes" ref="kafkaConsumerRootClassNamesBindingFactoryBean"/>
-        <property name="supportVariations" ref="serviceConfigurationSupportVariationsFactoryBean"/>
-        <property name="defaultDateFormat" ref="kafkaConsumerDefaultDateFormatFactoryBean"/>
-        <property name="serializationInclusion" ref="kafkaConsumerSerializationInclusionFactoryBean"/>
-        <property name="failOnUnknownProperties" ref="kafkaConsumerFailOnMissPropertiesFactoryBean"/>
-        <property name="caseInsensitiveProperties" ref="kafkaConsumerCaseInsensitivePropertiesFactoryBean"/>
-        <property name="polymorphicTypeValidation" value="true"/>
+          class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperEnhancerFactoryBean" scope="prototype">
+        <property name="projectJacksonObjectMapperFactoryBean">
+            <bean parent="kafkaJacksonDatabindingFactoryBeanParent">
+                <property name="type" value="PRODUCER"/>
+            </bean>
+        </property>
     </bean>
 
     <bean id="serviceKafkaConsumerJacksonDatabindingFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.OpenLServiceObjectMapperEnhancerFactoryBean" scope="prototype">
-        <property name="jacksonObjectMapperFactoryBean" ref="kafkaConsumerJacksonDatabindingFactoryBean"/>
+          class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperEnhancerFactoryBean" scope="prototype">
+        <property name="projectJacksonObjectMapperFactoryBean">
+            <bean parent="kafkaJacksonDatabindingFactoryBeanParent">
+                <property name="type" value="CONSUMER"/>
+            </bean>
+        </property>
     </bean>
 
     <!-- Initializes OpenL Engine instances according to Rule Services configuration

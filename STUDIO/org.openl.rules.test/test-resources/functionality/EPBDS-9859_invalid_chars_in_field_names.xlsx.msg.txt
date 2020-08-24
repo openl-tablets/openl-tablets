@@ -17,5 +17,5 @@ ERROR: Property 'массив2' is not found in the context. Available propertie
 ERROR: Bad context property name: '_array :context .0type'.
 ERROR: Bad context property name: '$array :context .type*'.
 ERROR: Bad context property name: 'массив :context .'.
-ERROR: Type mismatch for the context property 'lob'. Cannot convert from 'Массив' to 'java.lang.String'.
+ERROR: Type mismatch for context property 'lob'. Cannot convert from 'Массив' to 'java.lang.String'.
 ERROR: Bad context property name: 'array* :context'.

@@ -60,12 +60,22 @@ public class DeploymentManifestBuilder {
     }
 
     /**
-     * Set {@code Branch-Name} property
-     * @param branchName working branch
+     * Set {@code Build-Branch} property
+     * @param buildBranch working branch
      * @return {@code this}
      */
-    public DeploymentManifestBuilder setBranchName(String branchName) {
-        putValue("Branch-Name", branchName);
+    public DeploymentManifestBuilder setBuildBranch(String buildBranch) {
+        putValue("Build-Branch", buildBranch);
+        return this;
+    }
+
+    /**
+     * Set {@code Build-Branch} property
+     * @param implementationVersion working branch
+     * @return {@code this}
+     */
+    public DeploymentManifestBuilder setImplementationVersion(String implementationVersion) {
+        putValue("Implementation-Version", implementationVersion);
         return this;
     }
 

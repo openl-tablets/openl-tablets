@@ -15,19 +15,6 @@
   <description>OpenL Tablets WebStudio</description>
 
   <context-param>
-    <description>Load default and application properties to the Spring application environment.</description>
-    <param-name>contextInitializerClasses</param-name>
-    <param-value>org.openl.spring.env.PropertySourcesLoader</param-value>
-  </context-param>
-  <context-param>
-    <description>
-      Location of the XML file that defines the root application context, applied by ContextLoaderListener.
-    </description>
-    <param-name>contextConfigLocation</param-name>
-    <param-value>/WEB-INF/spring/webstudio.xml</param-value>
-  </context-param>
-
-  <context-param>
     <description>
       Comma separated list of URIs of (additional) faces config files.
     </description>
@@ -82,17 +69,7 @@
 
   <filter>
       <filter-name>SecurityFilter</filter-name>
-      <filter-class>org.openl.rules.webstudio.filter.ReloadableDelegatingFilter</filter-class>
-      <init-param>
-          <description>Delegate filter class name</description>
-          <param-name>delegateClass</param-name>
-          <param-value>org.openl.rules.webstudio.filter.SecurityFilter</param-value>
-      </init-param>
-      <init-param>
-          <description>SecurityFilter parameter</description>
-          <param-name>targetBeanName</param-name>
-          <param-value>filterChainProxy</param-value>
-      </init-param>
+      <filter-class>org.openl.rules.webstudio.filter.SecurityFilter</filter-class>
   </filter>
   <filter-mapping>
       <filter-name>SecurityFilter</filter-name>
@@ -111,7 +88,7 @@
       <filter-name>CharacterEncodingFilter</filter-name>
       <url-pattern>/*</url-pattern>
   </filter-mapping>
-    
+
   <filter>
     <filter-name>WebResourceFilter</filter-name>
     <filter-class>org.openl.rules.webstudio.filter.WebResourceFilter</filter-class>
@@ -155,18 +132,8 @@
     <url-pattern>/reconfigure</url-pattern>
   </filter-mapping>
 
-  <filter>
-    <filter-name>ThreadLocalFilter</filter-name>
-    <filter-class>org.openl.rules.webstudio.filter.ThreadLocalFilter</filter-class>
-  </filter>
-
-  <filter-mapping>
-    <filter-name>ThreadLocalFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-
   <listener>
-    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    <listener-class>org.openl.rules.webstudio.web.servlet.SpringInitializer</listener-class>
   </listener>
 
   <listener>
@@ -239,7 +206,7 @@
     <error-code>403</error-code>
     <location>/faces/pages/accessDenied.xhtml</location>
   </error-page>
-  
+
   <error-page>
     <error-code>500</error-code>
     <location>/faces/pages/internalError.xhtml</location>

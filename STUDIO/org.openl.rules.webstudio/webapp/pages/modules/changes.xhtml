@@ -1,25 +1,48 @@
 <ui:composition
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich">
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:c="http://java.sun.com/jsp/jstl/core"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich">
 
-    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
-    <c:set var="history" value="#{revertProjectChangesBean.history}" />
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
+    <c:set var="history" value="#{revertProjectChangesBean.history}"/>
 
     <style>
-        .revertTable th,
-        .revertTable td {
+        #changes div:nth-child(2) a {
+            display: none;
+        }
+
+        #changes {
+            display: table;
+        }
+
+        #changes .row {
+            display: table-row;
+            font-family: Arial, Verdana, sans-serif;
+            font-size: 11px;
+        }
+        #changes header {
+            border-bottom: 1px solid #ccc;
+            font-weight: bold;
+
+        }
+
+        .row > div {
             padding: 6px 11px;
             text-align: center;
+            display: table-cell;
+        }
+
+        div.row:hover {
+            background-color: #FAE5C1;
         }
     </style>
 
     <div class="page">
 
-        <h1 class="page-header">#{msg['ws.changes.header']}</h1>
+        <h1 class="page-header">#{msg['ws.changes.header']} (#{history.size()>0 ? history.size()-1 : 0})</h1>
 
         <h:panelGroup rendered="#{empty history}">
             <h:panelGrid>
@@ -30,79 +53,46 @@
         <h:panelGroup rendered="#{not empty history}">
             <h:panelGrid>
                 <h:messages globalOnly="true" errorClass="problem-error" infoClass="problem-info"
-                    style="list-style: none; padding: 0" />
+                            style="list-style: none; padding: 0"/>
             </h:panelGrid>
 
             <h:form id="changesForm">
-
-                <rich:dataTable id="revertTable" value="#{history}" var="historyItem" rowKeyVar="row"
-                    onrowmouseover="rowMouseOver(this)" onrowmouseout="rowMouseOut(this)"
-                    styleClass="table revertTable">
-                    <rich:column>
-                        <f:facet name="header">
-                            <h:outputText value="#" />
-                        </f:facet>
-                        <h:outputText value="#{row + 1}" />
-                    </rich:column>
-                    <rich:column>
-                        <f:facet name="header">
-                            <h:outputText value="#{msg['ws.changes.modifiedon']}" />
-                        </f:facet>
-                        <h:outputText value="#{historyItem.disabled ? msg['ws.changes.initial'] : historyItem.modifiedOn}"
-                            style="#{historyItem.disabled ? 'font-weight: bold; color:red;' : ''}" />
-                    </rich:column>
-                    <c:forEach items="#{revertProjectChangesBean.sources}" var="source">
-                        <rich:column>
-                            <f:facet name="header">
-                                <h:outputText value="#{source}" />
-                            </f:facet>
-                            <h:graphicImage value="#{contextPath}/webresource/images/ok.png"
-                                rendered="#{historyItem.sourceName == source}" />
-                        </rich:column>
+                <section id="changes">
+                    <header class="row">
+                        <div>#{msg['ws.changes.modifiedon']}</div>
+                        <div>#{history[0].sourceName}</div>
+                        <div>#{msg['ws.changes.compare']}</div>
+                        <div>#{msg['ws.changes.action']}</div>
+                    </header>
+                    <c:forEach items="#{history}" var="historyItem">
+                        <div class="row">
+                            <div><span
+                                    style="#{historyItem.disabled ? 'font-weight: bold;' : ''}">#{historyItem.disabled ? msg['ws.changes.revision.version'] : historyItem.modifiedOn}</span>
+                            </div>
+                            <div><img src="#{contextPath}/webresource/images/ok.png"/></div>
+                            <div><input type="checkbox"
+                                        onclick="return checkVersionToCompare(this, '#{historyItem.version}')"/></div>
+                            <div><a href="#"
+                                    onclick="confirmRestore('#{historyItem.version}', '#{historyItem.modifiedOn}'); return false;">
+                                #{msg['ws.changes.action.restore']}
+                            </a></div>
+                        </div>
                     </c:forEach>
-                    <rich:column>
-                        <f:facet name="header">
-                            <h:outputText value="#{msg['ws.changes.compare']}" />
-                        </f:facet>
-                        <h:selectBooleanCheckbox
-                            onclick="return checkVersionToCompare(this, '#{historyItem.version}')" />
-                    </rich:column>
-                    <rich:column>
-                        <f:facet name="header">
-                            <h:outputText value="#{msg['ws.changes.action']}" />
-                        </f:facet>
+                </section>
 
-                        <a4j:commandLink rendered="#{!historyItem.current}" onclick="confirmRestore('#{historyItem.version}', '#{historyItem.modifiedOn}'); return false;">
-                            #{msg['ws.changes.action.restore']}
-                        </a4j:commandLink>
-                        <h:outputText rendered="#{row != 0 and history.size() == row + 1}"/>
-                    </rich:column>
-                </rich:dataTable>
-
-                <br />
-                <input type="hidden" id="versionsToCompare" name="toCompare" value="" />
-                <a4j:commandButton id="compareBtn" value="#{msg['ws.changes.compare']}" action="#{revertProjectChangesBean.compare}"
-                                   oncomplete="window.open('#{contextPath}/faces/pages/modules/compare.xhtml?disableUpload=true','#{msg['ws.changes.compare']}','width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');" />
+                <br/>
+                <input type="hidden" id="versionsToCompare" name="toCompare" value=""/>
+                <a4j:commandButton id="compareBtn" value="#{msg['ws.changes.compare']}"
+                                   action="#{revertProjectChangesBean.compare}"
+                                   oncomplete="window.open('#{contextPath}/faces/pages/modules/compare.xhtml?disableUpload=true','#{msg['ws.changes.compare']}','width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');"/>
             </h:form>
 
             <script>
                 //<![CDATA[
-                var rowHoverColor = "#FAE5C1";
-                var rowDefaultColor = "#{richSkin.tableBackgroundColor}";
-
                 var versionsToCompare = [];
 
                 var $compareBtn = $j('#changesForm\\:compareBtn');
-                $compareBtn.prop( "disabled", true);
-
-                function rowMouseOver(row) {
-                    row.style.cursor = 'pointer';
-                    row.style.backgroundColor = rowHoverColor;
-                }
-
-                function rowMouseOut(row) {
-                    row.style.backgroundColor =  rowDefaultColor;
-                }
+                $compareBtn.prop("disabled", true);
 
                 function checkVersionToCompare(checkbox, version) {
                     // Check
@@ -113,15 +103,18 @@
                         }
                         versionsToCompare.push(version);
 
-                    // Uncheck
+                        // Uncheck
                     } else {
-                        versionsToCompare = $j.grep(versionsToCompare, function (v) { return v != version; });
+                        versionsToCompare = $j.grep(versionsToCompare, function (v) {
+                            return v != version;
+                        });
                     }
 
                     $j("#versionsToCompare").val(versionsToCompare.join());
 
                     $compareBtn.prop("disabled", versionsToCompare.length < 2);
                 }
+
                 //]]>
             </script>
 
@@ -130,11 +123,12 @@
 
     <rich:popupPanel id="confirmRestore" minWidth="530" autosized="true">
         <f:facet name="header">
-            <h:outputText value="Confirm Restore" />
+            <h:outputText value="Confirm Restore"/>
         </f:facet>
 
         <f:facet name="controls">
-            <h:graphicImage value="/images/close.gif" class="close" onclick="RichFaces.$('confirmRestore').hide();" alt="Close" />
+            <h:graphicImage value="/images/close.gif" class="close" onclick="RichFaces.$('confirmRestore').hide();"
+                            alt="Close"/>
         </f:facet>
 
         <h:form id="confirmRestoreForm">
@@ -149,7 +143,7 @@
                                    action="#{revertProjectChangesBean.restore}"
                                    oncomplete="ws.ui.success('#{msg['ws.changes.successful']}'); RichFaces.$('confirmRestore').hide(); ws.nav.reload(true)"/>
 
-                <input type="button" value="Cancel" onclick="RichFaces.$('confirmRestore').hide();" />
+                <input type="button" value="Cancel" onclick="RichFaces.$('confirmRestore').hide();"/>
             </footer>
         </h:form>
 
@@ -160,6 +154,7 @@
                 $j('#changeDate').text(date);
                 RichFaces.$('confirmRestore').show();
             }
+
             //]]>
         </script>
     </rich:popupPanel>

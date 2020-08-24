@@ -375,7 +375,8 @@ public final class DecisionTableHelper {
             firstColumnHeight,
             bindingContext);
 
-        writeConditions(decisionTable,
+        writeConditions(tableSyntaxNode,
+            decisionTable,
             originalTable,
             grid,
             numberOfColumnsUnderTitleCounter,
@@ -1122,7 +1123,8 @@ public final class DecisionTableHelper {
         }
     }
 
-    private static void writeConditions(DecisionTable decisionTable,
+    private static void writeConditions(TableSyntaxNode tableSyntaxNode,
+            DecisionTable decisionTable,
             ILogicalTable originalTable,
             IWritableGrid grid,
             NumberOfColumnsUnderTitleCounter numberOfColumnsUnderTitleCounter,
@@ -1143,7 +1145,7 @@ public final class DecisionTableHelper {
             .mapToInt(e -> e.getColumn() + e.getWidth())
             .max()
             .orElse(0);
-
+        boolean isCollect = isCollect(tableSyntaxNode);
         Map<DTHeader, IOpenClass> hConditionTypes = new HashMap<>();
         for (DTHeader condition : conditions) {
             int column = condition.getColumn();
@@ -1157,12 +1159,13 @@ public final class DecisionTableHelper {
             }
             // write headers
             //
+
             String header;
             if (isVCondition(condition)) {
                 // write vertical condition
                 //
                 numOfVCondition++;
-                if (numOfVCondition == 1 && numberOfHCondition == 0 && conditions.size() < 2) {
+                if (numOfVCondition == 1 && numberOfHCondition == 0 && conditions.size() < 2 && !(isCollect && decisionTable.getType().isArray() && !decisionTable.getType().getComponentClass().isArray())) {
                     header = (DecisionTableColumnHeaders.MERGED_CONDITION.getHeaderKey() + numOfVCondition);
                 } else {
                     header = (DecisionTableColumnHeaders.CONDITION.getHeaderKey() + numOfVCondition);
