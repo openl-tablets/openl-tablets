@@ -31,7 +31,6 @@ public class LocalWorkspaceManagerImplTest {
         // Must return cached version
         LocalWorkspace workspace2 = manager.getWorkspace(user);
         assertSame(workspace1, workspace2);
-        assertSame(workspace1.getRepository(repoId), workspace2.getRepository(repoId));
 
         // Session timeout
         workspace1.release();
