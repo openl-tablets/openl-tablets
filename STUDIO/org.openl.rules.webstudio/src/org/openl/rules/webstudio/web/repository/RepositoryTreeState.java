@@ -241,10 +241,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             branch = ((UserWorkspaceProject) project).getBranch();
         }
 
+        String repoId = artefact.getRepository().getId();
         Iterator<String> it = artefact.getArtefactPath().getSegments().iterator();
         TreeNode currentNode = getRulesRepository();
         while (currentNode != null && it.hasNext()) {
-            String id = RepositoryUtils.getTreeNodeId(it.next());
+            String id = RepositoryUtils.getTreeNodeId(repoId, it.next());
             currentNode = (TreeNode) currentNode.getChild(id);
 
             if (branch != null && currentNode != null) {
@@ -291,7 +292,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public void addDeploymentProjectToTree(ADeploymentProject project) {
         String name = project.getName();
-        String id = RepositoryUtils.getTreeNodeId(name);
+        String id = RepositoryUtils.getTreeNodeId(project);
         if (!project.isDeleted() || !hideDeleted) {
             TreeDProject prj = new TreeDProject(id, name);
             prj.setData(project);
@@ -301,7 +302,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public void addRulesProjectToTree(AProject project) {
         String name = project.getName();
-        String id = RepositoryUtils.getTreeNodeId(name);
+        String id = RepositoryUtils.getTreeNodeId(project);
         if (!project.isDeleted() || !hideDeleted) {
             TreeProject prj = new TreeProject(id, name, filter, projectDescriptorResolver);
             prj.setData(project);
@@ -311,7 +312,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public void addNodeToTree(TreeNode parent, AProjectArtefact childArtefact) {
         String name = childArtefact.getName();
-        String id = RepositoryUtils.getTreeNodeId(name);
+        String id = RepositoryUtils.getTreeNodeId(childArtefact);
         if (childArtefact.isFolder()) {
             TreeFolder treeFolder = new TreeFolder(id, name, filter);
             treeFolder.setData(childArtefact);
@@ -578,7 +579,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public boolean getCanModify() {
         AProjectArtefact selectedArtefact = getSelectedNode().getData();
         String projectName = selectedArtefact.getProject().getName();
-        String projectId = RepositoryUtils.getTreeNodeId(projectName);
+        String projectId = RepositoryUtils.getTreeNodeId(selectedArtefact.getProject());
         RulesProject project = (RulesProject) getRulesRepository().getChild(projectId).getData();
         return project.isOpenedForEditing() && isGranted(EDIT_PROJECTS);
     }

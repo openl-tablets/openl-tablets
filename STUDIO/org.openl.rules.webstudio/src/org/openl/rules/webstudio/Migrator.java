@@ -15,17 +15,23 @@ import org.slf4j.LoggerFactory;
  * @author Yury Molchan
  */
 public class Migrator {
+
+    private Migrator() {
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(Migrator.class);
 
     public static void migrate() {
+        DynamicPropertySource settings = DynamicPropertySource.get();
         HashMap<String, String> props = new HashMap<>();
         if (Props.bool("project.history.unlimited")) {
             props.put("project.history.count", ""); // Define unlimited
         }
         props.put("project.history.unlimited", null); // Remove
+        props.put("test.run.parallel", null); // Remove
+        props.put("project.history.home", null); // Remove
         props.put(".version", OpenLVersion.getVersion()); // Mark the file version
         try {
-            DynamicPropertySource settings = DynamicPropertySource.get();
             settings.save(props);
             settings.reloadIfModified();
         } catch (IOException e) {

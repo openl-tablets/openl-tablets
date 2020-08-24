@@ -47,34 +47,6 @@
     </constructor-arg>
     </bean>
 
-    <bean id="localWorkspaceFolderFilter" class="org.apache.commons.io.filefilter.AndFileFilter">
-    <constructor-arg>
-      <list>
-        <bean class="org.apache.commons.io.filefilter.DirectoryFileFilter" />
-        <bean class="org.apache.commons.io.filefilter.NotFileFilter">
-          <constructor-arg>
-            <bean class="org.apache.commons.io.filefilter.OrFileFilter">
-              <constructor-arg>
-                <list>
-                  <bean class="org.apache.commons.io.filefilter.NameFileFilter">
-                    <constructor-arg ref="excludedFolders" />
-                  </bean>
-                  <bean class="org.apache.commons.io.filefilter.NameFileFilter">
-                    <constructor-arg>
-                      <list>
-                        <value>.studioProps</value>
-                      </list>
-                    </constructor-arg>
-                  </bean>
-                </list>
-              </constructor-arg>
-            </bean>
-          </constructor-arg>
-        </bean>
-      </list>
-    </constructor-arg>
-    </bean>
-
     <bean class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean" init-method="create">
         <property name="address" value=""/>
         <property name="serviceBeans">

@@ -2,19 +2,14 @@ package org.openl.rules.excel.builder.template.row;
 
 import org.apache.poi.ss.usermodel.CellStyle;
 
-public class SpreadsheetTableRowStyle implements RowStyle {
+public class NameValueRowStyleImpl implements NameValueRowStyle {
 
-    private CellStyle nameStyle;
-    private CellStyle valueStyle;
+    private final CellStyle nameStyle;
+    private final CellStyle valueStyle;
 
-    public SpreadsheetTableRowStyle(CellStyle nameStyle, CellStyle valueStyle) {
+    public NameValueRowStyleImpl(CellStyle nameStyle, CellStyle valueStyle) {
         this.nameStyle = nameStyle;
         this.valueStyle = valueStyle;
-    }
-
-    @Override
-    public CellStyle getTypeStyle() {
-        return null;
     }
 
     @Override

@@ -4,6 +4,7 @@ import static org.openl.rules.webstudio.web.admin.AdministrationSettings.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.faces.context.FacesContext;
 
@@ -11,12 +12,13 @@ import org.openl.config.ConfigNames;
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.security.AccessManager;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
-import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -48,14 +50,15 @@ public class SystemSettingsBean {
 
     private final PropertiesHolder properties;
 
-    private RepositoryConfiguration designRepositoryConfiguration;
     private RepositoryConfiguration deployConfigRepositoryConfiguration;
 
-    private ProductionRepositoryEditor productionRepositoryEditor;
+    private RepositoryEditor designRepositoryEditor;
+    private RepositoryEditor productionRepositoryEditor;
     private SystemSettingsValidator validator;
 
     public SystemSettingsBean(ProductionRepositoriesTreeController productionRepositoriesTreeController,
-            ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy,
+        RepositoryFactoryProxy designRepositoryFactoryProxy,
+        RepositoryFactoryProxy productionRepositoryFactoryProxy,
             DeploymentManager deploymentManager,
             DesignTimeRepository designTimeRepository,
             RepositoryTreeState repositoryTreeState,
@@ -68,19 +71,21 @@ public class SystemSettingsBean {
         properties = new InMemoryProperties(propertyResolver);
 
         try {
-            designRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DESIGN_CONFIG, properties);
-            if (designRepositoryConfiguration.getErrorMessage() != null) {
-                log.error(designRepositoryConfiguration.getErrorMessage());
-                WebStudioUtils.addErrorMessage("Incorrect design repository configuration, please fix it.");
-            }
-
             deployConfigRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DEPLOY_CONFIG, properties);
             if (!isUseDesignRepo() && deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                 log.error(deployConfigRepositoryConfiguration.getErrorMessage());
                 WebStudioUtils.addErrorMessage("Incorrect deploy config repository configuration, please fix it.");
             }
 
-            productionRepositoryEditor = new ProductionRepositoryEditor(productionRepositoryFactoryProxy, properties);
+            designRepositoryEditor = new RepositoryEditor(designRepositoryFactoryProxy, properties);
+            productionRepositoryEditor = new RepositoryEditor(productionRepositoryFactoryProxy, properties);
+
+            for (RepositoryConfiguration configuration : designRepositoryEditor.getRepositoryConfigurations()) {
+                if (configuration.getErrorMessage() != null) {
+                    log.error(configuration.getErrorMessage());
+                    WebStudioUtils.addErrorMessage("Incorrect design repository configuration '" + configuration.getName() + "', please fix it.");
+                }
+            }
 
             validator = new SystemSettingsValidator();
         } catch (Exception e) {
@@ -125,14 +130,6 @@ public class SystemSettingsBean {
         properties.setProperty(UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
     }
 
-    public String getProjectHistoryHome() {
-        return properties.getProperty(PROJECT_HISTORY_HOME);
-    }
-
-    public void setProjectHistoryHome(String projectHistoryHome) {
-        properties.setProperty(PROJECT_HISTORY_HOME, projectHistoryHome);
-    }
-
     public String getProjectHistoryCount() {
         return properties.getProperty(PROJECT_HISTORY_COUNT);
     }
@@ -141,8 +138,8 @@ public class SystemSettingsBean {
         properties.setProperty(PROJECT_HISTORY_COUNT, count);
     }
 
-    public RepositoryConfiguration getDesignRepositoryConfiguration() {
-        return designRepositoryConfiguration;
+    public List<RepositoryConfiguration> getDesignRepositoryConfigurations() {
+        return designRepositoryEditor.getRepositoryConfigurations();
     }
 
     public RepositoryConfiguration getDeployConfigRepositoryConfiguration() {
@@ -150,15 +147,31 @@ public class SystemSettingsBean {
     }
 
     public boolean isUseDesignRepo() {
-        return !Boolean.parseBoolean(properties.getProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO));
+        return StringUtils.isNotBlank(getDesignRepoForDeployConfig());
     }
 
     public void setUseDesignRepo(boolean useDesignRepo) {
-        properties.setProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO, !useDesignRepo);
+        if (useDesignRepo) {
+            String repo = getDesignRepoForDeployConfig();
+            if (StringUtils.isBlank(repo)) {
+                String firstRepo = designTimeRepository.getRepositories().get(0).getId();
+                properties.setProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG, firstRepo);
+            }
+        } else {
+            properties.setProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG, "");
+        }
     }
 
-    public FolderStructureSettings getDesignFolderStructure() {
-        return new FolderStructureSettings(designRepositoryConfiguration);
+    public String getDesignRepoForDeployConfig() {
+        return properties.getProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG);
+    }
+
+    public void setDesignRepoForDeployConfig(String repoId) {
+        properties.setProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG, repoId);
+    }
+
+    public FolderStructureSettings getFolderStructure(RepositoryConfiguration config) {
+        return new FolderStructureSettings(config);
     }
 
     public FolderStructureSettings getDeployConfigFolderStructure() {
@@ -166,7 +179,7 @@ public class SystemSettingsBean {
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
-        return productionRepositoryEditor.getProductionRepositoryConfigurations();
+        return productionRepositoryEditor.getRepositoryConfigurations();
     }
 
     public PropertiesHolder getProperties() {
@@ -179,14 +192,6 @@ public class SystemSettingsBean {
 
     public boolean isDispatchingValidationEnabled() {
         return Boolean.parseBoolean(properties.getProperty(OpenLSystemProperties.DISPATCHING_VALIDATION));
-    }
-
-    public boolean isRunTestsInParallel() {
-        return Boolean.parseBoolean(properties.getProperty(RUN_TESTS_IN_PARALLEL));
-    }
-
-    public void setRunTestsInParallel(boolean runTestsInParallel) {
-        properties.setProperty(RUN_TESTS_IN_PARALLEL, runTestsInParallel);
     }
 
     public String getTestRunThreadCount() {
@@ -214,9 +219,8 @@ public class SystemSettingsBean {
             repositoryTreeState.invalidateTree();
             repositoryTreeState.invalidateSelection();
 
-            RepositoryValidators.validate(designRepositoryConfiguration);
-            RepositoryValidators.validateConnectionForDesignRepository(designRepositoryConfiguration,
-                designTimeRepository);
+            designRepositoryEditor.validate();
+            designRepositoryEditor.save();
 
             if (!isUseDesignRepo()) {
                 RepositoryValidators.validate(deployConfigRepositoryConfiguration);
@@ -225,7 +229,7 @@ public class SystemSettingsBean {
             }
 
             productionRepositoryEditor.validate();
-            productionRepositoryEditor.save(new ProductionRepositoryEditor.Callback() {
+            productionRepositoryEditor.save(new RepositoryEditor.Callback() {
                 @Override
                 public void onDelete(String configName) {
                     deploymentManager.removeRepository(configName);
@@ -240,7 +244,6 @@ public class SystemSettingsBean {
     }
 
     private void saveSystemConfig() throws IOException {
-        designRepositoryConfiguration.commit();
         if (!isUseDesignRepo()) {
             deployConfigRepositoryConfiguration.commit();
         }
@@ -252,8 +255,8 @@ public class SystemSettingsBean {
 
     public void restoreDefaults() {
         try {
-            designRepositoryConfiguration.revert();
-            properties.revertProperties(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO);
+            designRepositoryEditor.revertChanges();
+            properties.revertProperties(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG);
             deployConfigRepositoryConfiguration.revert();
 
             productionRepositoryEditor.revertChanges();
@@ -266,17 +269,74 @@ public class SystemSettingsBean {
             saveSystemConfig();
 
             productionRepositoryEditor.reload();
-            designRepositoryConfiguration.reload();
+            designRepositoryEditor.reload();
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             WebStudioUtils.addErrorMessage(e.getMessage());
         }
     }
+    
+    public void addDesignRepository() {
+        designRepositoryEditor.addRepository(createRepositoryConfiguration(RepositoryMode.DESIGN));
+    }
+
+    public void deleteDesignRepository(String configName) {
+        try {
+            designRepositoryEditor.deleteRepository(configName);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            WebStudioUtils.addErrorMessage(e.getMessage());
+        }
+    }
+    
+    public void addProductionRepository() {
+        productionRepositoryEditor.addRepository(createRepositoryConfiguration(RepositoryMode.PRODUCTION));
+    }
+
+    private RepositoryConfiguration createRepositoryConfiguration(RepositoryMode repositoryMode) {
+        List<RepositoryConfiguration> configurations;
+        String configName;
+        String accessType;
+
+        switch (repositoryMode) {
+            case DESIGN:
+                configName = ConfigNames.DESIGN_CONFIG;
+                accessType = RepositoryType.GIT.name().toLowerCase();
+                configurations = getDesignRepositoryConfigurations();
+                break;
+            case PRODUCTION:
+                configName = ConfigNames.PRODUCTION;
+                accessType = RepositoryType.DB.name().toLowerCase();
+                configurations = getProductionRepositoryConfigurations();
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported repository mode " + repositoryMode);
+        }
+
+        RepositoryConfiguration templateConfig = new RepositoryConfiguration(configName, properties);
+        templateConfig.setType(accessType);
+        
+        AtomicInteger max = new AtomicInteger(0);
+        configurations.forEach(rc -> {
+            if (rc.getConfigName().matches(configName + "\\d+")) {
+                String num = rc.getConfigName().substring(configName.length());
+                int i = Integer.parseInt(num);
+                if (i > max.get()) {
+                    max.set(i);
+                }
+            }
+        });
+        String newConfigName = configName + (max.get() + 1);
+        
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, templateConfig);
+        repoConfig.commit();
+        return repoConfig;
+    }
 
     public void deleteProductionRepository(String configName) {
         try {
-            productionRepositoryEditor.deleteProductionRepository(configName,
-                new ProductionRepositoryEditor.Callback() {
+            productionRepositoryEditor.deleteRepository(configName,
+                new RepositoryEditor.Callback() {
                     @Override
                     public void onDelete(String configName) {
                         /* Delete Production repo from tree */

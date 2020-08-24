@@ -11,6 +11,7 @@ import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
@@ -27,12 +28,12 @@ public class DependencyChecker {
      * <p/>
      * value can be <code>null</code> if such project wasn't found in DTR
      */
-    private Map<String, CommonVersion> projectVersions = new HashMap<>();
+    private final Map<String, CommonVersion> projectVersions = new HashMap<>();
 
     /**
      * project name -> dependencies list
      */
-    private Map<String, List<ProjectDependencyDescriptor>> projectDependencies = new HashMap<>();
+    private final Map<String, List<ProjectDependencyDescriptor>> projectDependencies = new HashMap<>();
 
     private final ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver;
 
@@ -51,8 +52,8 @@ public class DependencyChecker {
         }
     }
 
-    public void addProjects(ADeploymentProject deploymentProject) {
-        UserWorkspace workspace = RepositoryUtils.getWorkspace();
+    void addProjects(ADeploymentProject deploymentProject) {
+        UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
         if (workspace == null) {
             return; // must never happen
         }
@@ -63,8 +64,12 @@ public class DependencyChecker {
             CommonVersion projectVersion = descriptor.getProjectVersion();
 
             try {
-                if (designRepository.hasProject(projectName)) {
-                    addProject(designRepository.getProject(projectName, projectVersion));
+                String repositoryId = descriptor.getRepositoryId();
+                if (repositoryId == null) {
+                    repositoryId = designRepository.getRepositories().get(0).getId();
+                }
+                if (designRepository.hasProject(repositoryId, projectName)) {
+                    addProject(designRepository.getProject(repositoryId, projectName, projectVersion));
                 } else {
                     projectVersions.put(projectName, null);
                 }

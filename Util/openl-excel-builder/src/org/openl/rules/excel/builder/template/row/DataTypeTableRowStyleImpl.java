@@ -2,13 +2,13 @@ package org.openl.rules.excel.builder.template.row;
 
 import org.apache.poi.ss.usermodel.CellStyle;
 
-public class DataTypeTableRowStyle implements RowStyle {
+public class DataTypeTableRowStyleImpl implements DataTypeRowStyle {
 
-    private CellStyle typeStyle;
-    private CellStyle nameStyle;
-    private CellStyle defaultValueStyle;
+    private final CellStyle typeStyle;
+    private final CellStyle nameStyle;
+    private final CellStyle defaultValueStyle;
 
-    public DataTypeTableRowStyle(CellStyle typeStyle, CellStyle nameStyle, CellStyle defaultValueStyle) {
+    public DataTypeTableRowStyleImpl(CellStyle typeStyle, CellStyle nameStyle, CellStyle defaultValueStyle) {
         this.typeStyle = typeStyle;
         this.nameStyle = nameStyle;
         this.defaultValueStyle = defaultValueStyle;

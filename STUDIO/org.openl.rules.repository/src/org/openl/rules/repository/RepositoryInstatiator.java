@@ -78,7 +78,7 @@ public class RepositoryInstatiator {
         try {
             // Instantiate a repository
             Class<?> clazz = Class.forName(factory);
-            instance = clazz.newInstance();
+            instance = clazz.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             throw new IllegalStateException("Failed to instantiate a repository: " + factory, e);
         } catch (UnsupportedClassVersionError e) {
@@ -145,6 +145,12 @@ public class RepositoryInstatiator {
         Class<?> clazz = instance.getClass();
         for (Field field : clazz.getDeclaredFields()) {
             String fieldName = field.getName();
+            if ("id".equals(fieldName)) {
+                if (StringUtils.isNotBlank(configName)) {
+                    injectValue(instance, clazz, configName, fieldName);
+                }
+                continue;
+            }
             String propertyName = buildPropertyName(configName, fieldName);
             String propertyValue = propertyResolver.getProperty(propertyName);
             boolean propertyExists = StringUtils.isNotBlank(propertyValue);

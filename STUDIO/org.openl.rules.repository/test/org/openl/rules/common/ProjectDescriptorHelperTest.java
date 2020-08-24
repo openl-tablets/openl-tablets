@@ -14,7 +14,7 @@ import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.util.IOUtils;
 
 public class ProjectDescriptorHelperTest {
-    private static String XML = "<descriptors>\n" + "  <descriptor>\n" + "    <projectName>project1</projectName>\n" + "    <projectVersion>3.5.11</projectVersion>\n" + "  </descriptor>\n" + "  <descriptor>\n" + "    <projectName>project2</projectName>\n" + "    <projectVersion>17</projectVersion>\n" + "  </descriptor>\n" + "  <descriptor>\n" + "    <projectName>project0</projectName>\n" + "    <projectVersion>0</projectVersion>\n" + "  </descriptor>\n" + "</descriptors>";
+    private static final String XML = "<descriptors>\n" + "  <descriptor>\n" + "    <repositoryId>design</repositoryId>\n" + "    <projectName>project1</projectName>\n" + "    <projectVersion>3.5.11</projectVersion>\n" + "  </descriptor>\n" + "  <descriptor>\n" + "    <repositoryId>design2</repositoryId>\n" + "    <projectName>project2</projectName>\n" + "    <projectVersion>17</projectVersion>\n" + "  </descriptor>\n" + "  <descriptor>\n" + "    <projectName>project0</projectName>\n" + "    <projectVersion>0</projectVersion>\n" + "  </descriptor>\n" + "</descriptors>";
 
     @Test
     public void serialize() throws IOException {
@@ -38,9 +38,9 @@ public class ProjectDescriptorHelperTest {
     }
 
     private static List<ProjectDescriptor> makeDescriptors() {
-        ProjectDescriptor prj1 = new ProjectDescriptorImpl("project1", new CommonVersionImpl(3, 5, 11));
-        ProjectDescriptor prj2 = new ProjectDescriptorImpl("project2", new CommonVersionImpl(17));
-        ProjectDescriptor prj3 = new ProjectDescriptorImpl("project0", new CommonVersionImpl(0));
+        ProjectDescriptor prj1 = new ProjectDescriptorImpl("design", "project1", new CommonVersionImpl(3, 5, 11));
+        ProjectDescriptor prj2 = new ProjectDescriptorImpl("design2", "project2", new CommonVersionImpl(17));
+        ProjectDescriptor prj3 = new ProjectDescriptorImpl(null, "project0", new CommonVersionImpl(0));
         return new ArrayList<>(Arrays.asList(prj1, prj2, prj3));
     }
 

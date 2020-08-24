@@ -34,7 +34,7 @@ public class ProductionRepositoriesTreeState {
     private DeploymentManager deploymentManager;
 
     @Autowired
-    private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
+    private RepositoryFactoryProxy productionRepositoryFactoryProxy;
 
     @Autowired
     private PropertyResolver propertyResolver;
@@ -98,7 +98,7 @@ public class ProductionRepositoriesTreeState {
     private List<AProjectFolder> getPRepositoryProjects(RepositoryConfiguration repoConfig) {
         try {
             Repository repository = productionRepositoryFactoryProxy.getRepositoryInstance(repoConfig.getConfigName());
-            String deploymentsPath = productionRepositoryFactoryProxy.getDeploymentsPath(repoConfig.getConfigName());
+            String deploymentsPath = productionRepositoryFactoryProxy.getBasePath(repoConfig.getConfigName());
             return new ArrayList<>(DeployUtils.getLastDeploymentProjects(repository, deploymentsPath));
         } catch (RRepositoryException e) {
             return new ArrayList<>();
@@ -169,11 +169,11 @@ public class ProductionRepositoriesTreeState {
         this.deploymentManager = deploymentManager;
     }
 
-    public ProductionRepositoryFactoryProxy getProductionRepositoryFactoryProxy() {
+    public RepositoryFactoryProxy getProductionRepositoryFactoryProxy() {
         return productionRepositoryFactoryProxy;
     }
 
-    public void setProductionRepositoryFactoryProxy(ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy) {
+    public void setProductionRepositoryFactoryProxy(RepositoryFactoryProxy productionRepositoryFactoryProxy) {
         this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
     }
 

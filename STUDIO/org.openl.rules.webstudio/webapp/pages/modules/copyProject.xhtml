@@ -41,8 +41,21 @@
                     <h:outputText value=""/>
                     <h:message for="newProjectName" styleClass="error"/>
 
-                    <h:outputLabel for="projectFolder" value="Path in repository:" rendered="#{copyBean.supportsMappedFolders}"/>
-                    <h:inputText id="projectFolder" value="#{copyBean.projectFolder}" rendered="#{copyBean.supportsMappedFolders}"/>
+                    <h:outputLabel for="repository" value="Repository:" styleClass="required"/>
+                    <h:selectOneMenu id="repository" value="#{copyBean.toRepositoryId}">
+                        <f:ajax event="change" execute="@form" render="newProject" onevent="updateRevisionsCountState"/>
+                        <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                        <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                                       itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
+                    </h:selectOneMenu>
+
+                    <h:outputLabel id="projectFolderLabel" for="projectFolder" value="Path:" rendered="#{copyBean.supportsMappedFolders}"/>
+                    <h:panelGroup rendered="#{copyBean.supportsMappedFolders}">
+                        <h:inputText id="projectFolder" value="#{copyBean.projectFolder}"
+                                     styleClass="with-button-select"/>
+                        <input type="button" value="..." class="button-select"
+                               onclick="openSelectFolderDialog('#{copyBean.toRepositoryId}', 'copyProjectForm:projectFolder')"/>
+                    </h:panelGroup>
 
                     <h:outputText value="Comment:"/>
                     <h:inputTextarea id="comment" value="#{copyBean.comment}" type="text" size="35" readonly="false"
@@ -52,7 +65,7 @@
 
                     <ui:param name="hasRevisions" value="#{copyBean.maxRevisionsCount > 0}"/>
 
-                    <h:outputText value="Copy old revisions:" rendered="#{hasRevisions}"/>
+                    <h:outputText id="copyOldRevisionsLabel" value="Copy old revisions:" rendered="#{hasRevisions}"/>
                     <h:selectBooleanCheckbox id="copyOldRevisions" value="#{copyBean.copyOldRevisions}"
                                              onclick="updateRevisionsCountState()"
                                              rendered="#{hasRevisions}">
@@ -67,9 +80,9 @@
                     <h:outputText value=""/>
                     <h:message for="revisionsCount" styleClass="error"/>
 
-                    <h:outputText value=""/>
+                    <h:outputText value="" rendered="#{hasRevisions}"/>
                     <h:outputText id="copyCanBeSlowWarning" value="Copying too many revisions can be slow"
-                                  styleClass="warning"/>
+                                  styleClass="warning" rendered="#{hasRevisions}"/>
                 </h:panelGrid>
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                              rendered="#{not empty copyBean.errorMessage}">
@@ -89,6 +102,7 @@
             </footer>
 
             <a4j:jsFunction name="renderCopyProjectForm" render="copyProjectForm" oncomplete="showCopyProjectDialog()">
+                <a4j:param name="repositoryId" assignTo="#{copyBean.repositoryId}"/>
                 <a4j:param name="projectName" assignTo="#{copyBean.initProject}"/>
             </a4j:jsFunction>
 
@@ -104,8 +118,8 @@
             location.reload();
         };
 
-        function openCopyProjectDialog(projectName, refreshPageFunc) {
-            renderCopyProjectForm(projectName);
+        function openCopyProjectDialog(repositoryId, projectName, refreshPageFunc) {
+            renderCopyProjectForm(repositoryId, projectName);
             if (refreshPageFunc) {
                 refreshPage = refreshPageFunc;
             }

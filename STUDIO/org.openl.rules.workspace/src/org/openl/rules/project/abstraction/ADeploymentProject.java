@@ -65,11 +65,11 @@ public class ADeploymentProject extends UserWorkspaceProject {
         lockEngine = null;
     }
 
-    public void addProjectDescriptor(String name, CommonVersion version) {
+    public void addProjectDescriptor(String repositoryId, String name, CommonVersion version) {
         if (hasProjectDescriptor(name)) {
             removeProjectDescriptor(name);
         }
-        getDescriptors().add(new ProjectDescriptorImpl(name, version));
+        getDescriptors().add(new ProjectDescriptorImpl(repositoryId, name, version));
     }
 
     public boolean hasProjectDescriptor(String name) {

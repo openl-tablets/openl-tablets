@@ -13,7 +13,7 @@ import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.install.DelegatedPropertySource;
-import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.util.IOUtils;
@@ -134,10 +134,10 @@ public final class RepositoryValidators {
     }
 
     static void validateConnection(RepositoryConfiguration repoConfig,
-            ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy) throws RepositoryValidationException {
+            RepositoryFactoryProxy repositoryFactoryProxy) throws RepositoryValidationException {
         try {
             /* Close connection to repository before checking connection */
-            productionRepositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
+            repositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
             PropertyResolver propertiesResolver = DelegatedPropertySource
                 .createPropertiesResolver(repoConfig.getPropertiesToValidate());
             Repository repository = RepositoryInstatiator.newRepository(repoConfig.getConfigName(), propertiesResolver);

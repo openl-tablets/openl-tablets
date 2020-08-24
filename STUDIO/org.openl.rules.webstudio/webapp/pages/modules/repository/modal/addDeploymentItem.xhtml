@@ -6,7 +6,7 @@
         xmlns:ui="http://java.sun.com/jsf/facelets"
 >
 
-  <rich:popupPanel id="addDeployEntry" minWidth="580" minHeight="240" autosized="true">
+  <rich:popupPanel id="addDeployEntry" minWidth="580" autosized="true">
     <f:facet name="header">
         <h:outputText value="Add project" />
     </f:facet>
@@ -16,12 +16,26 @@
     <h:form id="addDeployEntryForm">
         <ui:param name="availableProjects" value="#{deploymentController.projects}"/>
 
-        <h:panelGrid columns="2" rendered="#{not empty availableProjects}">
-            <h:outputLabel for="projectName" styleClass="required" value="Name" />
-            <h:selectOneMenu id="projectName" value="#{deploymentController.projectName}" style="width:250px;">
-                <f:selectItems value="#{availableProjects}" />
-                <f:ajax event="change" render="projectVersion" execute="@this" onevent="onProjectNameChange"/>
+        <h:panelGrid columns="2">
+            <h:outputLabel for="repository" value="Repository:" styleClass="required"/>
+            <h:selectOneMenu id="repository" value="#{deploymentController.repositoryId}">
+                <f:ajax event="change" execute="@this" render="@form" onevent="onProjectNameChange"/>
+                <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                               itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
             </h:selectOneMenu>
+
+            <h:outputLabel for="projectName" styleClass="required" value="Name:" rendered="#{not empty availableProjects}"/>
+            <h:selectOneMenu id="projectName" value="#{deploymentController.projectName}" style="width:250px;" rendered="#{not empty availableProjects}">
+                <f:selectItems value="#{availableProjects}" />
+                <f:ajax event="change" render="branchSelector projectVersion" execute="@this" onevent="onProjectNameChange"/>
+            </h:selectOneMenu>
+
+            <h:outputLabel for="branchSelector" value="Branch:" styleClass="required" rendered="#{deploymentController.repoSupportsBranches}"/>
+            <h:selectOneMenu value="#{deploymentController.projectBranch}" id="branchSelector" rendered="#{deploymentController.repoSupportsBranches}">
+                <f:selectItems value="#{deploymentController.projectBranches}"/>
+                <f:ajax event="change" execute="@this" render="projectVersion" onevent="onProjectNameChange"/>
+            </h:selectOneMenu>
+
         </h:panelGrid>
 
         <div style="margin-top: 13px; max-height: 280px; overflow: auto;">
@@ -94,7 +108,8 @@
             <input type="button" value="OK" onclick="#{rich:component('addDeployEntry')}.hide();" />
         </h:panelGroup>
 
-            <a4j:jsFunction name="initAddDeployEntry" oncomplete="afterFormInitialized()" />
+            <a4j:jsFunction name="initAddDeployEntry" action="#{deploymentController.initAddDeployItemDialog}"
+                            render="@form" oncomplete="afterFormInitialized()"/>
         </footer>
    </h:form>
 
@@ -116,6 +131,7 @@
       }
 
       function onProjectNameChange(data) {
+          resizePopupPanel('addDeployEntry');
           if (data.status === 'success') initExpandableLinks();
       }
       //]]>

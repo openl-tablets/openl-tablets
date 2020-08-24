@@ -15,5 +15,5 @@ public class ConfigNames {
     public static final String PRODUCTION = "production";
 
     public static final Set<String> DEFAULT_CONFIGS = Collections
-        .unmodifiableSet(new HashSet<>(Arrays.asList(DEPLOY_CONFIG, DESIGN_CONFIG,PRODUCTION)));
+        .unmodifiableSet(new HashSet<>(Arrays.asList(DEPLOY_CONFIG, DESIGN_CONFIG, PRODUCTION)));
 }

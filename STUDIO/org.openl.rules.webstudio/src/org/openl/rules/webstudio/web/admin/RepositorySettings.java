@@ -178,30 +178,17 @@ public abstract class RepositorySettings {
         propertiesHolder.setProperty(VERSION_IN_DEPLOYMENT_NAME, includeVersionInDeploymentName);
         propertiesHolder.setProperty(BASE_PATH, basePath);
         propertiesHolder.setProperty(USE_CUSTOM_COMMENTS, useCustomComments);
-        if (useCustomComments) {
-            propertiesHolder.setProperty(COMMENT_VALIDATION_PATTERN, commentValidationPattern);
-            propertiesHolder.setProperty(INVALID_COMMENT_MESSAGE, invalidCommentMessage);
+        propertiesHolder.setProperty(COMMENT_VALIDATION_PATTERN, commentValidationPattern);
+        propertiesHolder.setProperty(INVALID_COMMENT_MESSAGE, invalidCommentMessage);
 
-            propertiesHolder.setProperty(COMMENT_TEMPLATE, commentTemplate);
-            propertiesHolder.setProperty(DEFAULT_COMMENT_SAVE, defaultCommentSave);
-            propertiesHolder.setProperty(DEFAULT_COMMENT_CREATE, defaultCommentCreate);
-            propertiesHolder.setProperty(DEFAULT_COMMENT_ARCHIVE, defaultCommentArchive);
-            propertiesHolder.setProperty(DEFAULT_COMMENT_RESTORE, defaultCommentRestore);
-            propertiesHolder.setProperty(DEFAULT_COMMENT_ERASE, defaultCommentErase);
-            propertiesHolder.setProperty(DEFAULT_COMMENT_COPIED_FROM, defaultCommentCopiedFrom);
-            propertiesHolder.setProperty(DEFAULT_COMMENT_RESTORED_FROM, defaultCommentRestoredFrom);
-        } else {
-            propertiesHolder.revertProperties(COMMENT_VALIDATION_PATTERN,
-                INVALID_COMMENT_MESSAGE,
-                COMMENT_TEMPLATE,
-                DEFAULT_COMMENT_SAVE,
-                DEFAULT_COMMENT_CREATE,
-                DEFAULT_COMMENT_ARCHIVE,
-                DEFAULT_COMMENT_RESTORE,
-                DEFAULT_COMMENT_ERASE,
-                DEFAULT_COMMENT_COPIED_FROM,
-                DEFAULT_COMMENT_RESTORED_FROM);
-        }
+        propertiesHolder.setProperty(COMMENT_TEMPLATE, commentTemplate);
+        propertiesHolder.setProperty(DEFAULT_COMMENT_SAVE, defaultCommentSave);
+        propertiesHolder.setProperty(DEFAULT_COMMENT_CREATE, defaultCommentCreate);
+        propertiesHolder.setProperty(DEFAULT_COMMENT_ARCHIVE, defaultCommentArchive);
+        propertiesHolder.setProperty(DEFAULT_COMMENT_RESTORE, defaultCommentRestore);
+        propertiesHolder.setProperty(DEFAULT_COMMENT_ERASE, defaultCommentErase);
+        propertiesHolder.setProperty(DEFAULT_COMMENT_COPIED_FROM, defaultCommentCopiedFrom);
+        propertiesHolder.setProperty(DEFAULT_COMMENT_RESTORED_FROM, defaultCommentRestoredFrom);
     }
 
     protected void revert(PropertiesHolder properties) {
@@ -243,6 +230,7 @@ public abstract class RepositorySettings {
         setIncludeVersionInDeploymentName(other.isIncludeVersionInDeploymentName());
         setUseCustomComments(other.isUseCustomComments());
         setCommentValidationPattern(other.getCommentValidationPattern());
+        setCommentTemplate(other.getCommentTemplate());
         setInvalidCommentMessage(other.getInvalidCommentMessage());
         setDefaultCommentCreate(other.getDefaultCommentCreate());
         setDefaultCommentArchive(other.getDefaultCommentArchive());

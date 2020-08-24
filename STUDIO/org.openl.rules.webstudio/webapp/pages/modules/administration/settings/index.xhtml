@@ -9,7 +9,6 @@
         xmlns:rich="http://richfaces.org/rich"
         xmlns:fn="http://java.sun.com/jsp/jstl/functions">
     <ui:define name="content">
-        <c:set var="emptyHistoryDir" value="#{fn:length(projectsInHistory.projects) == 0}"/>
         <c:set var="isNotSingleMode" value="#{environment.getProperty('user.mode') != 'single'}"/>
 
         <style>
@@ -17,17 +16,6 @@
                 position: fixed;
                 top: 85px;
                 right: 33px;
-            }
-
-            .repositoryConfig > div {
-                display: table;
-                border-bottom: 1px dashed #aaa;
-                margin-bottom: 12px;
-                padding: 0 0 12px;
-            }
-
-            .repositoryConfig > div:last-child {
-                border-bottom: 0;
             }
 
             .repositoryConfigButton {
@@ -65,19 +53,57 @@
                 margin-top: 2px;
             }
 
+            .tab-panel-vertical > ul li.tab-group {
+                padding: 10px 5px;
+            }
+
+            .tab-panel-vertical > ul .sub-repo-item {
+                padding-left: 25px;
+            }
+
+            .tab-panel-vertical .repo-tab > ul li {
+                text-align: left;
+                width: 170px;
+            }
+
+            .tab-panel-vertical .repo-tab > ul li a {
+                padding: 10px 5px;
+            }
+
+            .tab-panel-vertical .repo-tab > ul li > div a,
+            .tab-panel-vertical > ul li > div a span {
+                display: inline;
+            }
+
+            .section-description {
+                max-width: 555px;
+            }
         </style>
 
         <script>
             //<![CDATA[
             $j(function () {
+                initSettingsPage();
+            });
+
+            function switchToRepositoryTab() {
+                location.hash = 'repository';
+            }
+
+            function initSettingsPage() {
                 $j('#tab-container').easytabs({
                     animate: false,
                     tabActiveClass: "selected-tab",
                     panelActiveClass: "displayed"
                 });
-                if (#{emptyHistoryDir}) {
-                    $j("#cleanHistoryHref").hide();
-                }
+                $j('#repo-tab-container').easytabs({
+                    tabs: '.tab-element',
+                    defaultTab: '.default-tab',
+                    animate: false,
+                    tabActiveClass: "selected-tab",
+                    panelActiveClass: "displayed"
+                });
+
 
                 $j('.no-autocomplete').attr('autocomplete', 'new-input-field');
 
@@ -109,7 +135,7 @@
                         });
                 });
 
-            });
+            }
 
             function changeStatus(element) {
                 $j("#avaliableProjectsInHistory INPUT[type='checkbox']").attr('checked', element.checked);
@@ -117,40 +143,6 @@
                     $j("#systemSettingsForm\\:sbtClean").removeAttr('disabled');
                 } else {
                     $j("#systemSettingsForm\\:sbtClean").attr('disabled', 'disabled');
-                }
-            }
-
-            function showAvailableProjectsInHistory(showHistory) {
-                if (showHistory) {
-                    $j("#avaliableProjectsInHistory").show();
-                    onProjectChecked();
-                } else {
-                    $j("#avaliableProjectsInHistory INPUT[type='checkbox']").attr('checked', false);
-                    $j("#avaliableProjectsInHistory").hide();
-                }
-                if (#{emptyHistoryDir}) {
-                    $j("#cleanHistoryHref").hide();
-                }
-            }
-
-            function onProjectChecked() {
-                var checkedCount = $j("#avaliableProjectsInHistory INPUT[type='checkbox']:checked").not("#systemSettingsForm\\:selectAll").size();
-                var allCount = $j("#avaliableProjectsInHistory INPUT[type='checkbox']").not("#systemSettingsForm\\:selectAll").size();
-
-                $j("#systemSettingsForm\\:selectAll").attr('checked', checkedCount === allCount);
-
-                if (checkedCount > 0) {
-                    $j("#systemSettingsForm\\:sbtClean").removeAttr('disabled');
-                } else {
-                    $j("#systemSettingsForm\\:sbtClean").attr('disabled', 'disabled');
-                }
-            }
-
-            function changeRunTestsInParallel(element) {
-                if (element.checked) {
-                    $j("#systemSettingsForm\\:testRunThreadCount").show();
-                } else {
-                    $j("#systemSettingsForm\\:testRunThreadCount").hide();
                 }
             }
 
@@ -176,7 +168,7 @@
                     </h:panelGroup>
                 </h:panelGroup>
 
-                <div id="tab-container" class="tab-panel-vertical">
+                <div id="tab-container" class="tab-panel-vertical outer-tab">
                     <ul>
                         <li>
                             <a href="#common">
@@ -245,62 +237,21 @@
                                     <section>
                                         <h3>History</h3>
                                         <div id="history">
-                                            <h:panelGrid columns="2" columnClasses="titleColumn">
-                                                <h:outputText value="History Directory:"/>
-                                                <h:inputText id="history-dir"
-                                                             value="#{systemSettingsBean.projectHistoryHome}"
-                                                             disabled="#{props.isDisabled('project.history.home')}"
-                                                             validator="#{validator.historyDirValidator}"/>
-                                            </h:panelGrid>
-                                            <h:message for="history-dir" class="error"/>
                                             <h:panelGrid id="maxCountInHistory" columns="2" columnClasses="titleColumn">
                                                 <h:outputText
-                                                        value="The maximum count of saved changes for each project:"/>
+                                                        value="The maximum count of saved changes for each project per user:"/>
                                                 <h:inputText id="history-count"
                                                              value="#{systemSettingsBean.projectHistoryCount}"
                                                              disabled="#{props.isDisabled('project.history.count')}"
                                                              validator="#{validator.historyCountValidator}"/>
                                             </h:panelGrid>
                                             <h:message for="history-count" class="error"/>
-                                            <h:panelGrid rendered="#{!emptyHistoryDir}">
-                                                <a href="javascript:void(0)" id="cleanHistoryHref" title="Clean history"
-                                                   onclick="showAvailableProjectsInHistory(true)">Clean history</a>
-                                            </h:panelGrid>
                                         </div>
-                                        <div id="avaliableProjectsInHistory" class="history" style="display:none">
-                                            <h:panelGroup id="projectsInHistoryPanel" layout="block">
-                                                <div class="historyHeader">
-                                                    <b>Clean projects history</b>
-                                                </div>
-                                                <div class="historyCheckAll">
-                                                    <h:panelGrid columns="2">
-                                                        <h:selectBooleanCheckbox id="selectAll"
-                                                                                 title="Select/Deselect All'"
-                                                                                 onclick="changeStatus(this);"/>
-                                                        <h:outputText value="Name" style="font-weight:bold"/>
-                                                    </h:panelGrid>
-                                                </div>
-                                                <div class="historyChecks">
-                                                    <ui:repeat value="#{projectsInHistory.projects}" var="project">
-                                                        <h:panelGrid columns="2">
-                                                            <h:selectBooleanCheckbox value="#{project.selected}"
-                                                                                     onclick="onProjectChecked()"/>
-                                                            <h:outputText value="#{project.projectName}"/>
-                                                        </h:panelGrid>
-                                                    </ui:repeat>
-                                                </div>
-                                                <div>
-                                                    <h:panelGrid columns="2">
-                                                        <a4j:commandButton id="sbtClean" value="Clean"
-                                                                           title="Clean projects history"
-                                                                           action="#{projectsInHistory.deleteProjects}"
-                                                                           render="commonProps"
-                                                                           oncomplete="showAvailableProjectsInHistory(false)"/>
-                                                        <input type="button" value="Cancel" title="Cancel"
-                                                               onclick="showAvailableProjectsInHistory(false)"/>
-                                                    </h:panelGrid>
-                                                </div>
-                                            </h:panelGroup>
+                                        <div id="avaliableProjectsInHistory" style="margin: 10px">
+                                            <a4j:commandButton id="sbtClean" value="Clear all history"
+                                                               title="Clear all changes between revisions for all users and all projects."
+                                                               action="#{projectsInHistory.deleteAllHistory}"
+                                                               render="commonProps"/>
                                         </div>
                                     </section>
                                     <section>
@@ -345,271 +296,147 @@
                                 </h:panelGroup>
                             </div>
                             <div id="repository">
-                                <h:panelGroup id="repositoryProps" styleClass="fields" layout="block">
-                                    <section>
-                                        <c:set var="designRepository"
-                                               value="#{systemSettingsBean.designRepositoryConfiguration}"/>
-
-                                        <h3>Design Repository</h3>
-                                        <div>
-                                            <table>
-                                                <tr>
-                                                    <td>
-                                                        <h:panelGrid id="designInfoPanel" columns="2"
-                                                                     columnClasses="titleColumn">
-                                                            <h:outputText value="Name:"/>
-                                                            <h:inputText value="#{designRepository.name}"
-                                                                         disabled="true"/>
-                                                            <h:outputText value="Type:"/>
-                                                            <h:selectOneMenu value="#{designRepository.type}">
-                                                                <f:ajax event="change"
-                                                                        render="designParameters deployConfigFolderStructureParams designRepoTypeMessage"/>
-                                                                <f:selectItem itemValue="db"
-                                                                              itemLabel="Database (JDBC)"/>
-                                                                <f:selectItem itemValue="jndi"
-                                                                              itemLabel="Database (JNDI)"/>
-                                                                <f:selectItem itemValue="aws_s3" itemLabel="AWS S3"/>
-                                                                <f:selectItem itemValue="git" itemLabel="Git"/>
-                                                            </h:selectOneMenu>
-                                                            <h:outputText value=""/>
-                                                            <h:panelGroup id="designRepoTypeMessage">
-                                                                <h:outputText value="#{designRepository.errorMessage}"
-                                                                              rendered="#{not empty designRepository.errorMessage}"
-                                                                              styleClass="error"/>
-                                                            </h:panelGroup>
-                                                        </h:panelGrid>
-                                                        <h:panelGroup id="designParameters">
-                                                            <h:panelGroup
-                                                                    rendered="#{designRepository.formType == 'common'}">
-                                                                <ui:include
-                                                                        src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
-                                                                    <ui:param name="prependId" value="design"/>
-                                                                    <ui:param name="repository"
-                                                                              value="#{designRepository}"/>
-                                                                    <ui:param name="repoType" value="DESIGN"/>
-                                                                </ui:include>
-                                                            </h:panelGroup>
-                                                            <h:panelGroup
-                                                                    rendered="#{designRepository.formType == 'aws_s3'}">
-                                                                <ui:include
-                                                                        src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
-                                                                    <ui:param name="prependId" value="design"/>
-                                                                    <ui:param name="repository"
-                                                                              value="#{designRepository}"/>
-                                                                    <ui:param name="repoType" value="DESIGN"/>
-                                                                </ui:include>
-                                                            </h:panelGroup>
-                                                            <h:panelGroup
-                                                                    rendered="#{designRepository.formType == 'git'}">
-                                                                <ui:include
-                                                                        src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
-                                                                    <ui:param name="prependId" value="design"/>
-                                                                    <ui:param name="repository"
-                                                                              value="#{designRepository}"/>
-                                                                    <ui:param name="repoType" value="DESIGN"/>
-                                                                </ui:include>
-                                                            </h:panelGroup>
-
-                                                            <h:panelGroup
-                                                                    rendered="#{designRepository.folderRepository}">
-                                                                <ui:include
-                                                                        src="/pages/modules/administration/settings/folderStructureSettings.xhtml">
-                                                                    <ui:param name="prependId" value="design"/>
-                                                                    <ui:param name="settings"
-                                                                              value="#{systemSettingsBean.designFolderStructure}"/>
-                                                                    <ui:param name="repoType" value="DESIGN"/>
-                                                                </ui:include>
-                                                            </h:panelGroup>
-                                                        </h:panelGroup>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                    </section>
-                                    <section>
-                                        <c:set var="deployConfigRepo"
-                                               value="#{systemSettingsBean.deployConfigRepositoryConfiguration}"/>
-
-                                        <h3>Deploy Configuration Repository</h3>
-                                        <div>
-                                            <table>
-                                                <tr>
-                                                    <td>
-                                                        <h:panelGrid columns="2" columnClasses="titleColumn">
-                                                            <h:outputLabel value="Use Design Repository:"
-                                                                           for="useDesignRepo"/>
-                                                            <h:selectBooleanCheckbox id="useDesignRepo"
-                                                                                     value="#{systemSettingsBean.useDesignRepo}"
-                                                                                     title="Use Design Repository to store Deploy Configurations">
-                                                                <f:ajax event="change" render="deployConfigInfoPanel"/>
-                                                            </h:selectBooleanCheckbox>
-                                                        </h:panelGrid>
-                                                        <h:panelGroup id="deployConfigInfoPanel">
-                                                            <h:panelGrid columns="2" columnClasses="titleColumn">
-                                                                <h:outputText value="Name:"
-                                                                              rendered="#{not systemSettingsBean.useDesignRepo}"/>
-                                                                <h:inputText value="#{deployConfigRepo.name}"
-                                                                             disabled="true"
-                                                                             rendered="#{not systemSettingsBean.useDesignRepo}"/>
-                                                                <h:outputText value="Type:"
-                                                                              rendered="#{not systemSettingsBean.useDesignRepo}"/>
-                                                                <h:selectOneMenu value="#{deployConfigRepo.type}"
-                                                                                 rendered="#{not systemSettingsBean.useDesignRepo}">
-                                                                    <f:ajax event="change"
-                                                                            render="deployConfigParameters deployConfigFolderStructureParams deployConfigRepoTypeMessage"/>
-                                                                    <f:selectItem itemValue="db"
-                                                                                  itemLabel="Database (JDBC)"/>
-                                                                    <f:selectItem itemValue="jndi"
-                                                                                  itemLabel="Database (JNDI)"/>
-                                                                    <f:selectItem itemValue="aws_s3"
-                                                                                  itemLabel="AWS S3"/>
-                                                                    <f:selectItem itemValue="git" itemLabel="Git"/>
-                                                                </h:selectOneMenu>
-                                                                <h:outputText value=""/>
-                                                                <h:panelGroup id="deployConfigRepoTypeMessage">
-                                                                    <h:outputText
-                                                                            value="#{deployConfigRepo.errorMessage}"
-                                                                            rendered="#{not systemSettingsBean.useDesignRepo and not empty deployConfigRepo.errorMessage}"
-                                                                            styleClass="error"/>
-                                                                </h:panelGroup>
-                                                            </h:panelGrid>
-                                                            <h:panelGroup id="deployConfigParameters"
-                                                                          rendered="#{not systemSettingsBean.useDesignRepo}">
-                                                                <h:panelGroup
-                                                                        rendered="#{deployConfigRepo.formType == 'common'}">
-                                                                    <ui:include
-                                                                            src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
-                                                                        <ui:param name="prependId"
-                                                                                  value="deployConfig"/>
-                                                                        <ui:param name="repository"
-                                                                                  value="#{deployConfigRepo}"/>
-                                                                        <ui:param name="repoType"
-                                                                                  value="DEPLOY_CONFIGURATION"/>
-                                                                    </ui:include>
-                                                                </h:panelGroup>
-                                                                <h:panelGroup
-                                                                        rendered="#{deployConfigRepo.formType == 'aws_s3'}">
-                                                                    <ui:include
-                                                                            src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
-                                                                        <ui:param name="prependId"
-                                                                                  value="deployConfig"/>
-                                                                        <ui:param name="repository"
-                                                                                  value="#{deployConfigRepo}"/>
-                                                                        <ui:param name="repoType"
-                                                                                  value="DEPLOY_CONFIGURATION"/>
-                                                                    </ui:include>
-                                                                </h:panelGroup>
-                                                                <h:panelGroup
-                                                                        rendered="#{deployConfigRepo.formType == 'git'}">
-                                                                    <ui:include
-                                                                            src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
-                                                                        <ui:param name="prependId"
-                                                                                  value="deployConfig"/>
-                                                                        <ui:param name="repository"
-                                                                                  value="#{deployConfigRepo}"/>
-                                                                        <ui:param name="repoType"
-                                                                                  value="DEPLOY_CONFIGURATION"/>
-                                                                    </ui:include>
-                                                                </h:panelGroup>
-                                                            </h:panelGroup>
-                                                            <h:panelGroup id="deployConfigFolderStructureParams">
-                                                                <h:panelGroup
-                                                                        rendered="#{systemSettingsBean.useDesignRepo ? designRepository.folderRepository : deployConfigRepo.folderRepository}">
-                                                                    <ui:include
-                                                                            src="/pages/modules/administration/settings/folderStructureSettings.xhtml">
-                                                                        <ui:param name="prependId"
-                                                                                  value="deployConfig"/>
-                                                                        <ui:param name="settings"
-                                                                                  value="#{systemSettingsBean.deployConfigFolderStructure}"/>
-                                                                        <ui:param name="repoType"
-                                                                                  value="DEPLOY_CONFIGURATION"/>
-                                                                    </ui:include>
-                                                                </h:panelGroup>
-                                                            </h:panelGroup>
-                                                        </h:panelGroup>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                    </section>
-                                    <section>
-                                        <h3>Deployment Repositories</h3>
-                                        <div class="repositoryConfig">
-                                            <ui:param name="productionRepos"
-                                                      value="#{systemSettingsBean.productionRepositoryConfigurations}"/>
-                                            <a4j:repeat value="#{productionRepos}" var="repository">
-                                                <div>
+                                <h:panelGroup id="repoSettings" layout="block">
+                                <div id="repo-tab-container" class="tab-panel-vertical repo-tab">
+                                    <ui:param name="designRepos"
+                                              value="#{systemSettingsBean.designRepositoryConfigurations}"/>
+                                    <ui:param name="productionRepos"
+                                              value="#{systemSettingsBean.productionRepositoryConfigurations}"/>
+                                    <ul>
+                                        <li class="tab-group">
+                                            <div>
+                                                <span>Design repositories</span>
+                                                <a4j:commandLink
+                                                        action="#{systemSettingsBean.addDesignRepository()}"
+                                                        title="Add Design Repository Connection"
+                                                        styleClass="toolbarButton menuButton"
+                                                        render="repoSettings"
+                                                        oncomplete="initSettingsPage();"
+                                                        onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
+                                                        onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
+                                                    <img src="#{request.contextPath}/webresource/images/add.png"
+                                                         alt="Add Repository"/>
+                                                </a4j:commandLink>
+                                            </div>
+                                        </li>
+                                        <a4j:repeat value="#{designRepos}" var="repository" rowKeyVar="r">
+                                            <li class="sub-repo-item tab-element #{r == 0 ? 'default-tab' : ''}">
+                                                <a href="#repo-#{repository.id}">
+                                                    <span><h:outputText value="#{repository.name}"/></span>
+                                                </a>
+                                            </li>
+                                        </a4j:repeat>
+                                        <li class="tab-element">
+                                            <a href="#repo-deploy-config">
+                                                <span><h:outputText value="Deploy configuration"/></span>
+                                            </a>
+                                        </li>
+                                        <li class="tab-group">
+                                            <div>
+                                                <span>Deployment repositories</span>
+                                                <a4j:commandLink
+                                                        action="#{systemSettingsBean.addProductionRepository()}"
+                                                        title="Add Deployment Repository Connection"
+                                                        styleClass="toolbarButton menuButton"
+                                                        render="repoSettings"
+                                                        oncomplete="initSettingsPage();"
+                                                        onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
+                                                        onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
+                                                    <img src="#{request.contextPath}/webresource/images/add.png"
+                                                         alt="Add Repository"/>
+                                                </a4j:commandLink>
+                                            </div>
+                                        </li>
+                                        <a4j:repeat value="#{productionRepos}" var="repository">
+                                            <li class="sub-repo-item tab-element">
+                                                <a href="#repo-#{repository.id}">
+                                                    <span><h:outputText value="#{repository.name}"/></span>
+                                                </a>
+                                            </li>
+                                        </a4j:repeat>
+                                    </ul>
+                                    <h:panelGroup id="repositoryProps" layout="block">
+                                        <section>
+                                            <a4j:repeat value="#{designRepos}" var="designRepository">
+                                                <div id="repo-#{designRepository.id}">
                                                     <table>
                                                         <tr>
                                                             <td>
-                                                                <h:panelGrid id="repoInfoPanel" columns="2"
+                                                                <h:panelGrid id="designInfoPanel" columns="2"
                                                                              columnClasses="titleColumn">
                                                                     <h:outputText value="Name:"/>
-                                                                    <h:inputText value="#{repository.name}"
-                                                                                 styleClass="no-autocomplete"/>
+                                                                    <h:inputText value="#{designRepository.name}"/>
                                                                     <h:outputText value="Type:"/>
-                                                                    <h:selectOneMenu value="#{repository.type}">
+                                                                    <h:selectOneMenu value="#{designRepository.type}">
                                                                         <f:ajax event="change"
-                                                                                render="productionParameters"/>
+                                                                                render="designParameters deployConfigFolderStructureParams designRepoTypeMessage"/>
                                                                         <f:selectItem itemValue="db"
                                                                                       itemLabel="Database (JDBC)"/>
                                                                         <f:selectItem itemValue="jndi"
                                                                                       itemLabel="Database (JNDI)"/>
-                                                                        <f:selectItem itemValue="aws_s3"
-                                                                                      itemLabel="AWS S3"/>
+                                                                        <f:selectItem itemValue="aws_s3" itemLabel="AWS S3"/>
                                                                         <f:selectItem itemValue="git" itemLabel="Git"/>
                                                                     </h:selectOneMenu>
+                                                                    <h:outputText value=""/>
+                                                                    <h:panelGroup id="designRepoTypeMessage">
+                                                                        <h:outputText value="#{designRepository.errorMessage}"
+                                                                                      rendered="#{not empty designRepository.errorMessage}"
+                                                                                      styleClass="error"/>
+                                                                    </h:panelGroup>
                                                                 </h:panelGrid>
-                                                                <h:panelGroup id="productionParameters">
+                                                                <h:panelGroup id="designParameters">
                                                                     <h:panelGroup
-                                                                            rendered="#{repository.formType == 'common'}">
+                                                                            rendered="#{designRepository.formType == 'common'}">
                                                                         <ui:include
                                                                                 src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
-                                                                            <ui:param name="prependId"
-                                                                                      value="production"/>
+                                                                            <ui:param name="prependId" value="design"/>
                                                                             <ui:param name="repository"
-                                                                                      value="#{repository}"/>
-                                                                            <ui:param name="repoType"
-                                                                                      value="PRODUCTION"/>
-                                                                            <ui:param name="isEditing" value="true"/>
+                                                                                      value="#{designRepository}"/>
+                                                                            <ui:param name="repoType" value="DESIGN"/>
                                                                         </ui:include>
                                                                     </h:panelGroup>
                                                                     <h:panelGroup
-                                                                            rendered="#{repository.formType == 'aws_s3'}">
+                                                                            rendered="#{designRepository.formType == 'aws_s3'}">
                                                                         <ui:include
                                                                                 src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
-                                                                            <ui:param name="prependId"
-                                                                                      value="production"/>
+                                                                            <ui:param name="prependId" value="design"/>
                                                                             <ui:param name="repository"
-                                                                                      value="#{repository}"/>
-                                                                            <ui:param name="repoType"
-                                                                                      value="PRODUCTION"/>
-                                                                            <ui:param name="isEditing" value="true"/>
+                                                                                      value="#{designRepository}"/>
+                                                                            <ui:param name="repoType" value="DESIGN"/>
                                                                         </ui:include>
                                                                     </h:panelGroup>
                                                                     <h:panelGroup
-                                                                            rendered="#{repository.formType == 'git'}">
+                                                                            rendered="#{designRepository.formType == 'git'}">
                                                                         <ui:include
                                                                                 src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
-                                                                            <ui:param name="prependId"
-                                                                                      value="production"/>
+                                                                            <ui:param name="prependId" value="design"/>
                                                                             <ui:param name="repository"
-                                                                                      value="#{repository}"/>
-                                                                            <ui:param name="repoType"
-                                                                                      value="PRODUCTION"/>
-                                                                            <ui:param name="isEditing" value="true"/>
+                                                                                      value="#{designRepository}"/>
+                                                                            <ui:param name="repoType" value="DESIGN"/>
+                                                                        </ui:include>
+                                                                    </h:panelGroup>
+
+                                                                    <h:panelGroup
+                                                                            rendered="#{designRepository.folderRepository}">
+                                                                        <ui:include
+                                                                                src="/pages/modules/administration/settings/folderStructureSettings.xhtml">
+                                                                            <ui:param name="prependId" value="design"/>
+                                                                            <ui:param name="settings"
+                                                                                      value="#{systemSettingsBean.getFolderStructure(designRepository)}"/>
+                                                                            <ui:param name="repoType" value="DESIGN"/>
                                                                         </ui:include>
                                                                     </h:panelGroup>
                                                                 </h:panelGroup>
                                                             </td>
                                                             <td class="repositoryConfigButton">
                                                                 <a4j:commandLink
-                                                                        action="#{systemSettingsBean.deleteProductionRepository(repository.configName)}"
-                                                                        title="Delete Deployment Repository Connection"
+                                                                        action="#{systemSettingsBean.deleteDesignRepository(designRepository.configName)}"
+                                                                        title="Delete Design Repository Connection"
                                                                         styleClass="toolbarButton menuButton"
-                                                                        render="repositoryProps"
-                                                                        rendered="#{productionRepos.size() > 1}"
+                                                                        render="repoSettings"
+                                                                        rendered="#{designRepos.size() > 1}"
                                                                         onclick="if(!window.confirm('Do you really want to delete repository connection?')) {return false;}"
+                                                                        oncomplete="switchToRepositoryTab();initSettingsPage();"
                                                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
                                                                     <img src="#{request.contextPath}/webresource/images/delete.png"
@@ -620,32 +447,234 @@
                                                     </table>
                                                 </div>
                                             </a4j:repeat>
-                                        </div>
+                                        </section>
+                                        <section>
+                                            <c:set var="deployConfigRepo"
+                                                   value="#{systemSettingsBean.deployConfigRepositoryConfiguration}"/>
 
-                                        <div class="addRepositoryConfig">
-                                            <a4j:commandButton
-                                                    onclick="#{rich:component('modalAddRepoConnection')}.show();return false;"
-                                                    title="Add connection to deployment repository"
-                                                    styleClass="toolbarButton menuButton" render="repositoryProps"
-                                                    value="Connect To Deployment Repository">
-                                            </a4j:commandButton>
-                                        </div>
+                                            <div id="repo-deploy-config">
+                                                <table>
+                                                    <tr>
+                                                        <td>
+                                                            <h:panelGrid columns="2" columnClasses="titleColumn">
+                                                                <h:outputLabel value="Use Design Repository:"
+                                                                               for="useDesignRepo"/>
+                                                                <h:selectBooleanCheckbox id="useDesignRepo"
+                                                                                         value="#{systemSettingsBean.useDesignRepo}"
+                                                                                         title="Use Design Repository to store Deploy Configurations">
+                                                                    <f:ajax event="change" render="deployConfigInfoPanel"/>
+                                                                </h:selectBooleanCheckbox>
+                                                            </h:panelGrid>
+                                                            <h:panelGroup id="deployConfigInfoPanel">
+                                                                <h:panelGrid columns="2" columnClasses="titleColumn">
+                                                                    <h:outputText value="Repository:"
+                                                                                  rendered="#{systemSettingsBean.useDesignRepo}"/>
+                                                                    <h:selectOneMenu
+                                                                            rendered="#{systemSettingsBean.useDesignRepo}"
+                                                                            value="#{systemSettingsBean.designRepoForDeployConfig}">
+                                                                        <f:selectItems
+                                                                                value="#{systemSettingsBean.designRepositoryConfigurations}"
+                                                                                var="repository"
+                                                                                itemValue="#{repository.id}"
+                                                                                itemLabel="#{repository.name}"/>
+                                                                    </h:selectOneMenu>
 
-                                    </section>
+                                                                    <h:outputText value="Name:"
+                                                                                  rendered="#{not systemSettingsBean.useDesignRepo}"/>
+                                                                    <h:inputText value="#{deployConfigRepo.name}"
+                                                                                 disabled="true"
+                                                                                 rendered="#{not systemSettingsBean.useDesignRepo}"/>
+                                                                    <h:outputText value="Type:"
+                                                                                  rendered="#{not systemSettingsBean.useDesignRepo}"/>
+                                                                    <h:selectOneMenu value="#{deployConfigRepo.type}"
+                                                                                     rendered="#{not systemSettingsBean.useDesignRepo}">
+                                                                        <f:ajax event="change"
+                                                                                render="deployConfigParameters deployConfigFolderStructureParams deployConfigRepoTypeMessage"/>
+                                                                        <f:selectItem itemValue="db"
+                                                                                      itemLabel="Database (JDBC)"/>
+                                                                        <f:selectItem itemValue="jndi"
+                                                                                      itemLabel="Database (JNDI)"/>
+                                                                        <f:selectItem itemValue="aws_s3"
+                                                                                      itemLabel="AWS S3"/>
+                                                                        <f:selectItem itemValue="git" itemLabel="Git"/>
+                                                                    </h:selectOneMenu>
+                                                                    <h:outputText value=""/>
+                                                                    <h:panelGroup id="deployConfigRepoTypeMessage">
+                                                                        <h:outputText
+                                                                                value="#{deployConfigRepo.errorMessage}"
+                                                                                rendered="#{not systemSettingsBean.useDesignRepo and not empty deployConfigRepo.errorMessage}"
+                                                                                styleClass="error"/>
+                                                                    </h:panelGroup>
+                                                                </h:panelGrid>
+                                                                <h:panelGroup id="deployConfigParameters"
+                                                                              rendered="#{not systemSettingsBean.useDesignRepo}">
+                                                                    <h:panelGroup
+                                                                            rendered="#{deployConfigRepo.formType == 'common'}">
+                                                                        <ui:include
+                                                                                src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
+                                                                            <ui:param name="prependId"
+                                                                                      value="deployConfig"/>
+                                                                            <ui:param name="repository"
+                                                                                      value="#{deployConfigRepo}"/>
+                                                                            <ui:param name="repoType"
+                                                                                      value="DEPLOY_CONFIGURATION"/>
+                                                                        </ui:include>
+                                                                    </h:panelGroup>
+                                                                    <h:panelGroup
+                                                                            rendered="#{deployConfigRepo.formType == 'aws_s3'}">
+                                                                        <ui:include
+                                                                                src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
+                                                                            <ui:param name="prependId"
+                                                                                      value="deployConfig"/>
+                                                                            <ui:param name="repository"
+                                                                                      value="#{deployConfigRepo}"/>
+                                                                            <ui:param name="repoType"
+                                                                                      value="DEPLOY_CONFIGURATION"/>
+                                                                        </ui:include>
+                                                                    </h:panelGroup>
+                                                                    <h:panelGroup
+                                                                            rendered="#{deployConfigRepo.formType == 'git'}">
+                                                                        <ui:include
+                                                                                src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
+                                                                            <ui:param name="prependId"
+                                                                                      value="deployConfig"/>
+                                                                            <ui:param name="repository"
+                                                                                      value="#{deployConfigRepo}"/>
+                                                                            <ui:param name="repoType"
+                                                                                      value="DEPLOY_CONFIGURATION"/>
+                                                                        </ui:include>
+                                                                    </h:panelGroup>
+                                                                </h:panelGroup>
+                                                                <h:panelGroup id="deployConfigFolderStructureParams">
+                                                                    <h:panelGroup
+                                                                            rendered="#{systemSettingsBean.useDesignRepo ? designRepository.folderRepository : deployConfigRepo.folderRepository}">
+                                                                        <ui:include
+                                                                                src="/pages/modules/administration/settings/folderStructureSettings.xhtml">
+                                                                            <ui:param name="prependId"
+                                                                                      value="deployConfig"/>
+                                                                            <ui:param name="settings"
+                                                                                      value="#{systemSettingsBean.deployConfigFolderStructure}"/>
+                                                                            <ui:param name="repoType"
+                                                                                      value="DEPLOY_CONFIGURATION"/>
+                                                                        </ui:include>
+                                                                    </h:panelGroup>
+                                                                </h:panelGroup>
+                                                            </h:panelGroup>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </section>
+                                        <section>
+                                            <div class="repositoryConfig">
+                                                <ui:param name="productionRepos"
+                                                          value="#{systemSettingsBean.productionRepositoryConfigurations}"/>
+                                                <a4j:repeat value="#{productionRepos}" var="repository">
+                                                    <div id="repo-#{repository.id}">
+                                                        <table>
+                                                            <tr>
+                                                                <td>
+                                                                    <h:panelGrid id="repoInfoPanel" columns="2"
+                                                                                 columnClasses="titleColumn">
+                                                                        <h:outputText value="Name:"/>
+                                                                        <h:inputText value="#{repository.name}"
+                                                                                     styleClass="no-autocomplete"/>
+                                                                        <h:outputText value="Type:"/>
+                                                                        <h:selectOneMenu value="#{repository.type}">
+                                                                            <f:ajax event="change"
+                                                                                    render="productionParameters"/>
+                                                                            <f:selectItem itemValue="db"
+                                                                                          itemLabel="Database (JDBC)"/>
+                                                                            <f:selectItem itemValue="jndi"
+                                                                                          itemLabel="Database (JNDI)"/>
+                                                                            <f:selectItem itemValue="aws_s3"
+                                                                                          itemLabel="AWS S3"/>
+                                                                            <f:selectItem itemValue="git" itemLabel="Git"/>
+                                                                        </h:selectOneMenu>
+                                                                    </h:panelGrid>
+                                                                    <h:panelGroup id="productionParameters">
+                                                                        <h:panelGroup
+                                                                                rendered="#{repository.formType == 'common'}">
+                                                                            <ui:include
+                                                                                    src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
+                                                                                <ui:param name="prependId"
+                                                                                          value="production"/>
+                                                                                <ui:param name="repository"
+                                                                                          value="#{repository}"/>
+                                                                                <ui:param name="repoType"
+                                                                                          value="PRODUCTION"/>
+                                                                                <ui:param name="isEditing" value="true"/>
+                                                                            </ui:include>
+                                                                        </h:panelGroup>
+                                                                        <h:panelGroup
+                                                                                rendered="#{repository.formType == 'aws_s3'}">
+                                                                            <ui:include
+                                                                                    src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
+                                                                                <ui:param name="prependId"
+                                                                                          value="production"/>
+                                                                                <ui:param name="repository"
+                                                                                          value="#{repository}"/>
+                                                                                <ui:param name="repoType"
+                                                                                          value="PRODUCTION"/>
+                                                                                <ui:param name="isEditing" value="true"/>
+                                                                            </ui:include>
+                                                                        </h:panelGroup>
+                                                                        <h:panelGroup
+                                                                                rendered="#{repository.formType == 'git'}">
+                                                                            <ui:include
+                                                                                    src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
+                                                                                <ui:param name="prependId"
+                                                                                          value="production"/>
+                                                                                <ui:param name="repository"
+                                                                                          value="#{repository}"/>
+                                                                                <ui:param name="repoType"
+                                                                                          value="PRODUCTION"/>
+                                                                                <ui:param name="isEditing" value="true"/>
+                                                                            </ui:include>
+                                                                        </h:panelGroup>
+                                                                    </h:panelGroup>
+                                                                </td>
+                                                                <td class="repositoryConfigButton">
+                                                                    <a4j:commandLink
+                                                                            action="#{systemSettingsBean.deleteProductionRepository(repository.configName)}"
+                                                                            title="Delete Deployment Repository Connection"
+                                                                            styleClass="toolbarButton menuButton"
+                                                                            render="repoSettings"
+                                                                            rendered="#{productionRepos.size() > 1}"
+                                                                            onclick="if(!window.confirm('Do you really want to delete repository connection?')) {return false;}"
+                                                                            oncomplete="switchToRepositoryTab();initSettingsPage();"
+                                                                            onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
+                                                                            onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
+                                                                        <img src="#{request.contextPath}/webresource/images/delete.png"
+                                                                             alt="Delete Repository"/>
+                                                                    </a4j:commandLink>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </a4j:repeat>
+                                            </div>
+
+                                        </section>
+                                    </h:panelGroup>
+                                </div>
                                 </h:panelGroup>
                                 <h:panelGroup style="margin-bottom: 15px">
                                     <a4j:commandButton value="Restore Defaults"
                                                        action="#{systemSettingsBean.restoreDefaults}"
                                                        execute="@this"
-                                                       render="commonProps repositoryProps javaProps restartMessage"
+                                                       render="commonProps repoSettings javaProps restartMessage"
                                                        onclick="return confirmSave();"
+                                                       oncomplete="initSettingsPage();"
                                                        title="Restore the default settings"/>
                                     <h:outputText value=" "/>
                                     <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}"
-                                                       render="commonProps repositoryProps javaProps restartMessage"
+                                                       render="commonProps repoSettings javaProps restartMessage"
                                                        onclick="return confirmSave();"
+                                                       oncomplete="initSettingsPage();"
                                                        styleClass="button-primary" title="Apply changes"/>
                                 </h:panelGroup>
+
                             </div>
                             <div id="system">
                                 <h:panelGroup id="javaProps" styleClass="fields" layout="block">
@@ -666,15 +695,7 @@
                                     <section>
                                         <h3>Testing</h3>
                                         <div>
-                                            <h:panelGrid columns="2" columnClasses="titleColumn">
-                                                <h:outputText value="Run test cases of the test in parallel:"/>
-                                                <h:selectBooleanCheckbox
-                                                        value="#{systemSettingsBean.runTestsInParallel}"
-                                                        title="Turn on/off the &quot;Run test cases of the test in parallel&quot; feature"
-                                                        onclick="changeRunTestsInParallel(this)"/>
-                                            </h:panelGrid>
-                                            <h:panelGrid id="testRunThreadCount" columns="2" columnClasses="titleColumn"
-                                                         style="#{systemSettingsBean.runTestsInParallel ?'' : 'display:none'}">
+                                            <h:panelGrid id="testRunThreadCount" columns="2" columnClasses="titleColumn">
                                                 <h:outputText value="Thread number for tests:"/>
                                                 <h:inputText id="test-nThreads"
                                                              value="#{systemSettingsBean.testRunThreadCount}"

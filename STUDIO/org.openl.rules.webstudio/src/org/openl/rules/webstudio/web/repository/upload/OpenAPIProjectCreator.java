@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.openl.rules.common.ProjectException;
@@ -15,6 +16,7 @@ import org.openl.rules.excel.builder.ExcelFileBuilder;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetResultModel;
+import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 import org.openl.rules.project.ProjectDescriptorManager;
@@ -25,6 +27,7 @@ import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTool;
+import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,24 +36,39 @@ import org.slf4j.LoggerFactory;
  */
 public class OpenAPIProjectCreator extends AProjectCreator {
     public static final String PATH = "rules/";
-    public static final String MODELS_FILE_NAME = "Model.xlsx";
+    public static final String MODELS_NAME = "Model";
+    public static final String MODELS_FILE_NAME = MODELS_NAME + ".xlsx";
     public static final String SPR_FILE_NAME = "Algorithm.xlsx";
     public static final String RULES_FILE_NAME = "rules.xml";
     public static final String MODULE_NAME = "Main";
+    public static final String OPENAPI_FILE_DEFAULT_NAME = "openapi";
+
     private final Logger log = LoggerFactory.getLogger(OpenAPIProjectCreator.class);
+
     private final File uploadedOpenAPIFile;
     private final String comment;
     private final String fileName;
     private final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
+    private final String repositoryId;
     private final String projectName;
 
     public OpenAPIProjectCreator(String openAPIFileName,
             InputStream uploadedFile,
+            long fileSize,
+            String repositoryId,
             String projectName,
             String projectFolder,
             UserWorkspace userWorkspace,
-            String comment) {
+            String comment) throws ProjectException {
         super(projectName, projectFolder, userWorkspace);
+        this.repositoryId = repositoryId;
+        String filteredName = FileUtils.removeExtension(openAPIFileName);
+        if (!checkFileSize(fileSize)) {
+            throw new ProjectException("Size of the file " + uploadedFile + " is more then 100MB.");
+        }
+        if (!filteredName.equalsIgnoreCase(OPENAPI_FILE_DEFAULT_NAME)) {
+            throw new ProjectException("Only files with name 'openapi' and formats JSON, YML/YAML are accepted.");
+        }
         this.uploadedOpenAPIFile = FileTool.toTempFile(uploadedFile, openAPIFileName);
         this.fileName = openAPIFileName;
         this.comment = comment;
@@ -60,6 +78,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     @Override
     protected RulesProjectBuilder getProjectBuilder() throws ProjectException {
         RulesProjectBuilder projectBuilder = new RulesProjectBuilder(getUserWorkspace(),
+            repositoryId,
             getProjectName(),
             getProjectFolder(),
             comment);
@@ -69,6 +88,8 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             ProjectModel projectModel = converter.extractProjectModel(uploadedOpenAPIFile.getAbsolutePath());
             List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
             List<SpreadsheetResultModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
+            EnvironmentModel environmentModel = new EnvironmentModel();
+            environmentModel.setDependencies(Collections.singletonList(MODELS_NAME));
 
             boolean dataTypesAreEmpty = CollectionUtils.isEmpty(datatypeModels);
             boolean sprsAreEmpty = CollectionUtils.isEmpty(spreadsheetResultModels);
@@ -86,7 +107,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             }
             if (!sprsAreEmpty) {
                 ByteArrayOutputStream sos = new ByteArrayOutputStream();
-                ExcelFileBuilder.generateSpreadsheets(spreadsheetResultModels, sos);
+                ExcelFileBuilder.generateSpreadsheetsWithEnvironment(spreadsheetResultModels, sos, environmentModel);
                 byte[] sprBytes = sos.toByteArray();
                 InputStream spris = new ByteArrayInputStream(sprBytes);
                 projectBuilder.addFile(PATH + SPR_FILE_NAME, spris);
@@ -129,5 +150,9 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    private boolean checkFileSize(long size) {
+        return size <= 1000 * 1024 * 1024;
     }
 }

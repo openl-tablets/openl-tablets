@@ -33,8 +33,28 @@ import org.slf4j.LoggerFactory;
 public abstract class DBRepository implements Repository, Closeable, RRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(DBRepository.class);
 
+    private String id;
+    private String name;
     private Settings settings;
     private ChangesMonitor monitor;
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
 
     @Override
     public List<FileData> list(String path) throws IOException {

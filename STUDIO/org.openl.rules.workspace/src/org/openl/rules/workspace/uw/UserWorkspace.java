@@ -42,14 +42,14 @@ public interface UserWorkspace extends ProjectsContainer {
 
     void removeWorkspaceListener(UserWorkspaceListener listener);
 
-    void uploadLocalProject(String name, String projectFolder, String comment) throws ProjectException;
+    void uploadLocalProject(String repositoryId, String name, String projectFolder, String comment) throws ProjectException;
 
     WorkspaceUser getUser();
 
     @Override
-    RulesProject getProject(String name) throws ProjectException;
+    RulesProject getProject(String repositoryId, String name) throws ProjectException;
 
-    RulesProject getProject(String name, boolean refreshBefore) throws ProjectException;
+    RulesProject getProject(String repositoryId, String name, boolean refreshBefore) throws ProjectException;
 
     @Override
     Collection<RulesProject> getProjects();

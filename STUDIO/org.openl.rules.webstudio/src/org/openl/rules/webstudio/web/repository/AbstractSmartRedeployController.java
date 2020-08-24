@@ -123,13 +123,13 @@ public abstract class AbstractSmartRedeployController {
 
         if (deployRepo.supports().folders()) {
             folderStructure = !((FolderRepository) deployRepo)
-                .listFolders(deploymentManager.repositoryFactoryProxy.getDeploymentsPath(repositoryConfigName) + "/")
+                .listFolders(deploymentManager.repositoryFactoryProxy.getBasePath(repositoryConfigName) + "/")
                 .isEmpty();
         } else {
             folderStructure = false;
         }
         Deployment deployment = new Deployment(deployRepo,
-            deploymentManager.repositoryFactoryProxy.getDeploymentsPath(repositoryConfigName) + deployConfigName,
+            deploymentManager.repositoryFactoryProxy.getBasePath(repositoryConfigName) + deployConfigName,
             wsProject.getName(),
             null,
             folderStructure);
@@ -253,8 +253,12 @@ public abstract class AbstractSmartRedeployController {
                                     "Can be updated to " + to + " and then deployed. Deployed version is being defined");
                             }
                         } else {
+                            String repositoryId = projectDescriptor.getRepositoryId();
+                            if (repositoryId == null) {
+                                repositoryId = userWorkspace.getDesignTimeRepository().getRepositories().get(0).getId();
+                            }
                             ProjectVersion version = userWorkspace.getDesignTimeRepository()
-                                .getProject(projectDescriptor.getProjectName(),
+                                .getProject(repositoryId, projectDescriptor.getProjectName(),
                                     new CommonVersionImpl(lastDeployedVersion))
                                 .getVersion();
 
@@ -433,7 +437,7 @@ public abstract class AbstractSmartRedeployController {
             } else {
                 deployConfiguration.open();
                 // rewrite project->version
-                deployConfiguration.addProjectDescriptor(project.getName(), project.getVersion());
+                deployConfiguration.addProjectDescriptor(project.getRepository().getId(), project.getName(), project.getVersion());
 
                 String comment;
                 if (create) {
@@ -531,7 +535,13 @@ public abstract class AbstractSmartRedeployController {
      */
     public boolean isSupportsBranches() {
         try {
-            return userWorkspace.getDesignTimeRepository().getRepository().supports().branches();
+            if (currentProject == null) {
+                return false;
+            }
+            return userWorkspace.getDesignTimeRepository()
+                .getRepository(currentProject.getRepository().getId())
+                .supports()
+                .branches();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

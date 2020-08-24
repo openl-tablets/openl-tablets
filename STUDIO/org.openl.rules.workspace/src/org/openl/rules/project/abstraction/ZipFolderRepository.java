@@ -26,6 +26,16 @@ class ZipFolderRepository implements Repository {
     }
 
     @Override
+    public String getId() {
+        return delegate.getId();
+    }
+
+    @Override
+    public String getName() {
+        return delegate.getName();
+    }
+
+    @Override
     public List<FileData> list(String path) throws IOException {
         String artefactPath = path.substring(zipPath.length() + 1);
 
