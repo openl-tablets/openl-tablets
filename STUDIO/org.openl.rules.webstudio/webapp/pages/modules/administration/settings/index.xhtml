@@ -695,8 +695,7 @@
                                     <section>
                                         <h3>Testing</h3>
                                         <div>
-                                            <h:panelGrid id="testRunThreadCount" columns="2" columnClasses="titleColumn"
-                                                         style="#{systemSettingsBean.runTestsInParallel ?'' : 'display:none'}">
+                                            <h:panelGrid id="testRunThreadCount" columns="2" columnClasses="titleColumn">
                                                 <h:outputText value="Thread number for tests:"/>
                                                 <h:inputText id="test-nThreads"
                                                              value="#{systemSettingsBean.testRunThreadCount}"
