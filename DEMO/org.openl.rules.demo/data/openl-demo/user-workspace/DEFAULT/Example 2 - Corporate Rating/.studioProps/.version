@@ -4,6 +4,7 @@ version=9d50a411d9382ca42dcc48f74d8a721565aa8b2b
 size=-1
 branch=master
 author=DEFAULT
+repository-id=design
 modified-at-long=1594051795000
 modified-at=2020-07-06
 comment=Project Example 2 - Corporate Rating is created.\n

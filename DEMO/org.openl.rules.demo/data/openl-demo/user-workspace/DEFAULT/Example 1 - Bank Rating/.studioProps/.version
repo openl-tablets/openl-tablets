@@ -4,6 +4,7 @@ version=94ae044e35da2fce1ef67ff9dc20481e51cb6df1
 size=-1
 branch=master
 author=DEFAULT
+repository-id=design
 modified-at-long=1594051765000
 modified-at=2020-07-06
 comment=Project Example 1 - Bank Rating is created.\n

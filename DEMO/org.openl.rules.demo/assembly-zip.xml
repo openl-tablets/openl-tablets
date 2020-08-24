@@ -31,13 +31,13 @@
             <directory>data</directory>
             <outputDirectory>${tomcat.root}</outputDirectory>
             <excludes>
-                <exclude>openl-demo/design-repository/.git-rename/</exclude>
+                <exclude>openl-demo/repositories/design/.git-rename/</exclude>
             </excludes>
         </fileSet>
         <!-- .git folder is ignored by VCS and by maven-assembly-plugin. -->
         <fileSet>
-            <directory>data/openl-demo/design-repository/.git-rename</directory>
-            <outputDirectory>${tomcat.root}/openl-demo/design-repository/.git</outputDirectory>
+            <directory>data/openl-demo/repositories/design/.git-rename</directory>
+            <outputDirectory>${tomcat.root}/openl-demo/repositories/design/.git</outputDirectory>
         </fileSet>
     </fileSets>
     <dependencySets>
