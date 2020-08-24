@@ -20,7 +20,7 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.deployer.RulesDeployInputException;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
-import org.openl.rules.ruleservice.publish.RuleServiceManager;
+import org.openl.rules.ruleservice.management.ServiceManager;
 
 /**
  * REST endpoint to deploy OpenL rules to the Web Service
@@ -31,11 +31,11 @@ import org.openl.rules.ruleservice.publish.RuleServiceManager;
 public class RulesDeployerRestController {
 
     private RulesDeployerService rulesDeployerService;
-    private RuleServiceManager ruleServiceManager;
+    private ServiceManager serviceManager;
 
     @Resource
-    public void setRuleServiceManager(RuleServiceManager ruleServiceManager) {
-        this.ruleServiceManager = ruleServiceManager;
+    public void setServiceManager(ServiceManager serviceManager) {
+        this.serviceManager = serviceManager;
     }
 
     @Resource
@@ -83,7 +83,7 @@ public class RulesDeployerRestController {
     @Path("/read/{serviceName}")
     @Produces("application/zip")
     public Response read(@PathParam("serviceName") final String serviceName) throws Exception {
-        OpenLService service = ruleServiceManager.getServiceByName(serviceName);
+        OpenLService service = serviceManager.getServiceByName(serviceName);
         if (service == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -101,7 +101,7 @@ public class RulesDeployerRestController {
     @DELETE
     @Path("/delete/{serviceName}")
     public Response delete(@PathParam("serviceName") final String serviceName) throws Exception {
-        OpenLService service = ruleServiceManager.getServiceByName(serviceName);
+        OpenLService service = serviceManager.getServiceByName(serviceName);
         if (service == null) {
             return Response.status(Status.NOT_FOUND).build();
         }

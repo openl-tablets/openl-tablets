@@ -70,7 +70,7 @@ public class RulesPublisherTest implements ApplicationContextAware {
         ServiceInfoProvider serviceManager = applicationContext.getBean("serviceManager", ServiceInfoProvider.class);
         assertNotNull(serviceManager);
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
-        RuleServiceManager publisher = applicationContext.getBean("ruleServiceManager", RuleServiceManager.class);
+        ServiceManager publisher = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertEquals(2, serviceManager.getServicesInfo().size());
         assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE, DATA1)));
         assertEquals(2, Array.getLength(frontend.getValue(TUTORIAL4, COVERAGE)));
@@ -89,16 +89,15 @@ public class RulesPublisherTest implements ApplicationContextAware {
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
-        RuleServiceManager publisher = applicationContext.getBean("ruleServiceManager", RuleServiceManager.class);
         Collection<String> serviceNames = frontend.getServiceNames();
         assertEquals(2, serviceNames.size());
         for (String sn : serviceNames) {
-            OpenLService service = publisher.getServiceByName(sn);
+            OpenLService service = serviceManager.getServiceByName(sn);
             assertNull("OpenLService must be not compiled for java publisher if not used before.", service.getCompiledOpenClass());
         }
     }
 
-    private int getCount(RuleServiceManager publisher) throws Exception {
+    private int getCount(ServiceManager publisher) throws Exception {
         Class<?> counter = publisher.getServiceByName(TUTORIAL4)
             .getServiceBean()
             .getClass()
@@ -113,15 +112,14 @@ public class RulesPublisherTest implements ApplicationContextAware {
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
-        RuleServiceManager publisher = applicationContext.getBean("ruleServiceManager", RuleServiceManager.class);
-        int count = getCount(publisher);
+        int count = getCount(serviceManager);
         final int executedTimes = 10;
         for (int i = 0; i < executedTimes; i++) {
             assertEquals(2, Array.getLength(frontend.getValue(TUTORIAL4, COVERAGE)));
         }
-        int c = getCount(publisher);
+        int c = getCount(serviceManager);
         assertEquals(executedTimes, c - count);
-        Object driver = publisher.getServiceByName(TUTORIAL4)
+        Object driver = serviceManager.getServiceByName(TUTORIAL4)
             .getServiceClass()
             .getClassLoader()
             .loadClass(DRIVER)
@@ -135,8 +133,7 @@ public class RulesPublisherTest implements ApplicationContextAware {
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
-        RuleServiceManager publisher = applicationContext.getBean("ruleServiceManager", RuleServiceManager.class);
-        Object driver = publisher.getServiceByName(TUTORIAL4)
+        Object driver = serviceManager.getServiceByName(TUTORIAL4)
             .getServiceClass()
             .getClassLoader()
             .loadClass(DRIVER)
@@ -154,13 +151,12 @@ public class RulesPublisherTest implements ApplicationContextAware {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        RuleServiceManager publisher = applicationContext.getBean("ruleServiceManager", RuleServiceManager.class);
 
-        Class<?> tutorial4ServiceClass = publisher.getServiceByName(TUTORIAL4).getServiceClass();
+        Class<?> tutorial4ServiceClass = serviceManager.getServiceByName(TUTORIAL4).getServiceClass();
         assertTrue(tutorial4ServiceClass.isInterface());
         assertEquals(TUTORIAL4_INTERFACE, tutorial4ServiceClass.getName());
 
-        Class<?> multiModuleServiceClass = publisher.getServiceByName(MULTI_MODULE).getServiceClass();
+        Class<?> multiModuleServiceClass = serviceManager.getServiceByName(MULTI_MODULE).getServiceClass();
         assertNotNull(multiModuleServiceClass);
 
     }

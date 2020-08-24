@@ -37,7 +37,7 @@ public interface RuleServicePublisher {
     OpenLService getServiceByName(String name);
 
     /**
-     * Returns a url for the given service.
+     * Returns a url for the given service, if it is published, otherwise returns null.
      */
     String getUrl(OpenLService service);
 }

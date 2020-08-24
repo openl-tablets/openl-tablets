@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+                           http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
 
     <import resource="classpath:openl-ruleservice-cxf-configuration.xml"/>
     <import resource="classpath:openl-ruleservice-webservices-publisher-beans.xml"/>
@@ -28,20 +28,15 @@
           scope="prototype">
     </bean>
 
-    <bean id="ruleServiceManager" class="org.openl.rules.ruleservice.publish.RuleServiceManagerImpl">
-        <property name="defaultRuleServicePublishers">
-            <list>
-                <value>WEBSERVICE</value>
-                <value>RESTFUL</value>
-            </list>
-        </property>
-        <property name="supportedPublishers">
-            <map>
-                <entry key="WEBSERVICE" value-ref="jaxwsServiceRuleServicePublisher"/>
-                <entry key="RESTFUL" value-ref="jaxrsServicesRuleServicePublisher"/>
-                <entry key="RMI" value-ref="rmiServicesRuleServicePublisher"/>
-                <entry key="KAFKA" value-ref="kafkaServicesRuleServicePublisher"/>
-            </map>
-        </property>
-    </bean>
+    <util:map id="ruleServicePublishers">
+        <entry key="WEBSERVICE" value-ref="jaxwsServiceRuleServicePublisher"/>
+        <entry key="RESTFUL" value-ref="jaxrsServicesRuleServicePublisher"/>
+        <entry key="RMI" value-ref="rmiServicesRuleServicePublisher"/>
+        <entry key="KAFKA" value-ref="kafkaServicesRuleServicePublisher"/>
+    </util:map>
+
+    <util:list id="defaultRuleServicePublishers">
+        <value>WEBSERVICE</value>
+        <value>RESTFUL</value>
+    </util:list>
 </beans>

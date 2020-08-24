@@ -1,19 +1,13 @@
 package org.openl.rules.ruleservice.management;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -30,26 +24,35 @@ import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.DataSourceListener;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
-import org.openl.rules.ruleservice.publish.RuleServiceManager;
+import org.openl.rules.ruleservice.publish.RuleServicePublisher;
+import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
 import org.openl.rules.ruleservice.servlet.MethodDescriptor;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
+import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanInitializationException;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Handles data source modifications and controls all services.
  *
  * @author PUdalau
  */
-public class ServiceManagerImpl implements ServiceManager, DataSourceListener, ServiceInfoProvider {
+public class ServiceManagerImpl implements ServiceManager, DataSourceListener, ServiceInfoProvider, InitializingBean {
     private final Logger log = LoggerFactory.getLogger(ServiceManagerImpl.class);
-    private RuleServiceManager ruleServiceManager;
     private RuleServiceInstantiationFactory ruleServiceInstantiationFactory;
     private ServiceConfigurer serviceConfigurer;
     private RuleServiceLoader ruleServiceLoader;
     private final Map<String, ServiceDescription> services = new HashMap<>();
+    private final Map<String, OpenLService> services2 = new HashMap<>();
     private final Map<String, Date> startDates = new HashMap<>();
+
+    private Map<String, RuleServicePublisher> supportedPublishers;
+    private Collection<String> defaultRuleServicePublishers = Collections.emptyList();
+    private Collection<RuleServicePublisherListener> listeners = Collections.emptyList();
 
     public void setRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
         if (this.ruleServiceLoader != null) {
@@ -61,10 +64,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         }
     }
 
-    public void setRuleServiceManager(RuleServiceManager ruleServiceManager) {
-        this.ruleServiceManager = Objects.requireNonNull(ruleServiceManager, "ruleServiceManager cannot be null");
-    }
-
     public void setRuleServiceInstantiationFactory(RuleServiceInstantiationFactory ruleServiceInstantiationFactory) {
         this.ruleServiceInstantiationFactory = Objects.requireNonNull(ruleServiceInstantiationFactory,
             "ruleServiceInstantiationFactory cannot be null");
@@ -72,6 +71,21 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 
     public void setServiceConfigurer(ServiceConfigurer serviceConfigurer) {
         this.serviceConfigurer = Objects.requireNonNull(serviceConfigurer, "serviceConfigurer cannot be null");
+    }
+
+
+    @Autowired(required = false)
+    public void setListeners(Collection<RuleServicePublisherListener> listeners) {
+        this.listeners = listeners;
+    }
+
+    public void setSupportedPublishers(Map<String, RuleServicePublisher> supportedPublishers) {
+        this.supportedPublishers = new TreeMap<>(String::compareToIgnoreCase);
+        this.supportedPublishers.putAll(supportedPublishers);
+    }
+
+    public void setDefaultRuleServicePublishers(Collection<String> defaultRuleServicePublishers) {
+        this.defaultRuleServicePublishers = defaultRuleServicePublishers;
     }
 
     /**
@@ -168,7 +182,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             OpenLServiceHolder.getInstance().setOpenLService(service);
             ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
             try {
-                ruleServiceManager.undeploy(serviceName);
+                undeploy(serviceName);
             } finally {
                 cleanDeploymentResources(serviceDescription);
                 ClassLoader classloader = null;
@@ -202,7 +216,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 
     private void deploy(ServiceDescription serviceDescription) throws RuleServiceDeployException {
         String serviceName = serviceDescription.getName();
-        OpenLService service = ruleServiceManager.getServiceByName(serviceName);
+        OpenLService service = getServiceByName(serviceName);
         if (service != null) {
             throw new RuleServiceDeployException(
                 String.format("The service with name '%s' has already been deployed.", serviceName));
@@ -213,7 +227,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
             OpenLService newService = ruleServiceInstantiationFactory.createService(serviceDescription);
             OpenLServiceHolder.getInstance().setOpenLService(newService);
-            ruleServiceManager.deploy(newService);
+            deploy(newService);
             log.info("Service '{}' has been deployed successfully.", serviceName);
         } catch (RuleServiceInstantiationException e) {
             throw new RuleServiceDeployException("Failed on deploy a service.", e);
@@ -269,10 +283,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         return null;
     }
 
-    private OpenLService getServiceByName(String serviceName) {
-        return ruleServiceManager.getServiceByName(serviceName);
-    }
-
     private MethodDescriptor toDescriptor(Method method) {
         String name = method.getName();
         String returnType = method.getReturnType().getSimpleName();
@@ -292,5 +302,129 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         })
             .sorted(Comparator.comparing(ServiceInfo::getName, String.CASE_INSENSITIVE_ORDER))
             .collect(Collectors.toList());
+    }
+
+    private void setUrls(OpenLService service) {
+        HashMap<String, String> result = new HashMap<>();
+        CompiledOpenClass compiledOpenClass = service.getCompiledOpenClass();
+        if (compiledOpenClass != null && service.getException() == null && !compiledOpenClass.hasErrors()) {
+            supportedPublishers.forEach((id, publisher) -> {
+                if (publisher.getServiceByName(service.getName()) != null) {
+                    String url = publisher.getUrl(service);
+                    result.put(id, url);
+                }
+            });
+        }
+        service.setUrls(result);
+    }
+
+    @Override
+    public void deploy(OpenLService service) throws RuleServiceDeployException {
+        Objects.requireNonNull(service, "service cannot be null");
+        final String serviceName = service.getName();
+        Collection<String> sp = service.getPublishers();
+        if (CollectionUtils.isEmpty(sp)) {
+            sp = defaultRuleServicePublishers;
+        }
+        Collection<RuleServicePublisher> publishers = new ArrayList<>();
+        if (supportedPublishers.size() > 1) {
+            for (String p : sp) {
+                RuleServicePublisher ruleServicePublisher = supportedPublishers.get(p);
+                if (ruleServicePublisher != null) {
+                    publishers.add(ruleServicePublisher);
+                } else {
+                    log.warn("Publisher for '{}' is registered. Please, validate your configuration for service '{}'.",
+                        p,
+                        service.getName());
+                }
+            }
+            if (publishers.isEmpty()) {
+                publishers.addAll(supportedPublishers.values());
+            }
+        } else {
+            publishers.addAll(supportedPublishers.values());
+        }
+        RuleServiceDeployException e1 = null;
+        List<RuleServicePublisher> deployedPublishers = new ArrayList<>();
+        for (RuleServicePublisher publisher : publishers) {
+            try {
+                publisher.deploy(service);
+                deployedPublishers.add(publisher);
+            } catch (RuleServiceDeployException e) {
+                Throwable rootCause = ExceptionUtils.getRootCause(e);
+                service.setException(rootCause);
+                e1 = e;
+                break;
+            }
+        }
+        services2.put(serviceName, service);
+        if (e1 != null) {
+            for (RuleServicePublisher publisher : deployedPublishers) {
+                try {
+                    publisher.undeploy(service);
+                } catch (RuleServiceUndeployException e) {
+                    log.error("Failed to undeploy service '{}'.", serviceName, e);
+                }
+            }
+            throw new RuleServiceDeployException("Failed to deploy service.", e1);
+        }
+        setUrls(service);
+        fireDeployListeners(service);
+    }
+
+    private void fireDeployListeners(OpenLService service) {
+        for (RuleServicePublisherListener listener : listeners) {
+            listener.onDeploy(service);
+        }
+    }
+
+    @Override
+    public OpenLService getServiceByName(String serviceName) {
+        Objects.requireNonNull(serviceName, "serviceName cannot be null");
+        return services2.get(serviceName);
+    }
+
+    @Override
+    public void undeploy(String serviceName) throws RuleServiceUndeployException {
+        Objects.requireNonNull(serviceName, "serviceName cannot be null");
+        OpenLService undeployService = services2.get(serviceName);
+        Objects.requireNonNull(undeployService, "service '" + serviceName + "' has not been found");
+        RuleServiceUndeployException e1 = null;
+        for (RuleServicePublisher publisher : supportedPublishers.values()) {
+            if (publisher.getServiceByName(serviceName) != null) {
+                try {
+                    publisher.undeploy(undeployService);
+                } catch (RuleServiceUndeployException e) {
+                    e1 = e;
+                }
+            }
+        }
+        if (e1 == null) {
+            services2.remove(serviceName);
+        } else {
+            throw new RuleServiceUndeployException("Failed to undeploy a service.", e1);
+        }
+        fireUndeployListeners(serviceName);
+    }
+
+    private void fireUndeployListeners(String serviceName) {
+        for (RuleServicePublisherListener listener : listeners) {
+            listener.onUndeploy(serviceName);
+        }
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        if (CollectionUtils.isEmpty(supportedPublishers)) {
+            throw new BeanInitializationException("You must define at least one supported publisher.");
+        }
+
+        for (String defPublisher : defaultRuleServicePublishers) {
+            if (!supportedPublishers.containsKey(defPublisher)) {
+                throw new BeanInitializationException(
+                    String.format("Default publisher with id=%s is not found in the map of supported publishers",
+                        defPublisher));
+            }
+        }
     }
 }
