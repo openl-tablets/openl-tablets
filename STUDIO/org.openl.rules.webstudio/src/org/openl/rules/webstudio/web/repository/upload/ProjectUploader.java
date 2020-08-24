@@ -73,6 +73,7 @@ public class ProjectUploader {
                     projectCreator = new OpenAPIProjectCreator(fileName,
                         file.getInput(),
                         file.getSize(),
+                        repositoryId,
                         projectName,
                         projectFolder,
                         userWorkspace,

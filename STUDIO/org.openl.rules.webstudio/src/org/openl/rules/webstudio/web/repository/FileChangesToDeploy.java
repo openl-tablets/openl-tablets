@@ -74,7 +74,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                             .setBuiltBy(username)
                             .setBuildNumber(pd.getProjectVersion().getRevision())
                             .setImplementationTitle(projectName)
-                            .setImplementationVersion(resolveProjectVersion(projectName, version));
+                            .setImplementationVersion(resolveProjectVersion(repositoryId, projectName, version));
                     projectIterator = getProjectIterator(repository, projectName, version, manifestBuilder);
                     return projectIterator != null && projectIterator.hasNext();
                 } else {
@@ -82,9 +82,9 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                 }
             }
 
-            private String resolveProjectVersion(String projectName, String version) {
+            private String resolveProjectVersion(String repositoryId, String projectName, String version) {
                 try {
-                    final FileData historyData = designRepo.checkHistory(rulesPath + projectName, version);
+                    final FileData historyData = designRepo.getRepository(repositoryId).checkHistory(rulesPath + projectName, version);
                     return RepositoryUtils.buildProjectVersion(historyData);
                 } catch (IOException ignored) {
                     return null;

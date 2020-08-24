@@ -305,11 +305,24 @@
                                      onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('submitOpenAPIFile')});"
                                      onchange="createProjectFormOpenAPICommentHandler.generateTemplate(this.value.trim(), #{rich:element('openAPIProjectForm:commentOpenAPI')});"/>
 
-                        <h:outputLabel for="projectFolderOpenAPI" value="Path in repository:"
+                        <h:outputLabel for="repositoryOpenAPI" value="Repository:" styleClass="required"/>
+                        <h:selectOneMenu id="repositoryOpenAPI" value="#{repositoryTreeController.repositoryId}">
+                            <f:ajax event="change" execute="@form" render="@form" onevent="initNewProjectDialogUI"/>
+                            <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                            <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                                           itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
+                        </h:selectOneMenu>
+
+                        <h:outputLabel for="projectFolderOpenAPI" value="Path:"
                                        rendered="#{repositoryTreeController.supportsMappedFolders}"/>
-                        <h:inputText id="projectFolderOpenAPI" size="35"
-                                     value="#{repositoryTreeController.projectFolder}"
-                                     rendered="#{repositoryTreeController.supportsMappedFolders}"/>
+                        <h:panelGroup rendered="#{repositoryTreeController.supportsMappedFolders}">
+                            <h:inputText id="projectFolderOpenAPI" size="35"
+                                         styleClass="with-button-select"
+                                         value="#{repositoryTreeController.projectFolder}"/>
+
+                            <input type="button" value="..." class="button-select"
+                                   onclick="openSelectFolderDialog('#{repositoryTreeController.repositoryId}', 'openAPIProjectForm:projectFolderOpenAPI')"/>
+                        </h:panelGroup>
 
                         <ui:param name="useCustomComment" value="#{repositoryTreeController.useCustomComment}"/>
 
@@ -492,22 +505,23 @@
             enableCreateButton(false, #{rich:element("sbtFiles")});
             enableCreateButton(false, #{rich:element("sbtZips")});
             enableCreateButton(false, #{rich:element("sbtWorkspace")});
-        enableCreateButton(false, #{rich:element("submitOpenAPIFile")});
+            enableCreateButton(false, #{rich:element("submitOpenAPIFile")});
 
-        #{rich:element("createProjectFormFiles:projectName")}.onpaste = function () {
-            enableCreateButton(true, #{rich:element("sbtFiles")});
-        }
+            #{rich:element("createProjectFormFiles:projectName")}.onpaste = function () {
+                enableCreateButton(true, #{rich:element("sbtFiles")});
+            }
             #{rich:element("uploadProjectForm:projectName")}.onpaste = function () {
-            enableCreateButton(true, #{rich:element("sbtZips")});
-        }
+                enableCreateButton(true, #{rich:element("sbtZips")});
+            }
 
             #{rich:element("openAPIProjectForm:projectName")}.onpaste = function () {
-            enableCreateButton(true, #{rich:element("submitOpenAPIFile")});
-        }
+                enableCreateButton(true, #{rich:element("submitOpenAPIFile")});
+            }
 
             initTemplates();
             $j("#createProjectFormFiles\\:projectName").val("");
             $j("#uploadProjectForm\\:projectName").val("");
+            $j("#openAPIProjectForm\\:openAPIProjectName").val("");
 
             $j("#projectTemplates").on("click", "td", function() {
                 selectTemplate($j(this));
@@ -597,8 +611,6 @@
 
             enableCreateButton(projectNameInput.val().trim().length > 0, #{rich:element('sbtTemplates')});
         }
-
-        $j("#openAPIProjectForm\\:openAPIProjectName").val("");
 
         function checkFileName(event) {
             let file = event.rf.data.file;
