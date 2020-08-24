@@ -36,8 +36,13 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
         }
 
         super.finalizeBind(bindingContext);
-        new DecisionTableLoader()
-            .loadAndBind(getTableSyntaxNode(), getDecisionTable(), getOpenl(), getModule(), bindingContext);
+        if (getDecisionTable() != null) {
+            new DecisionTableLoader().loadAndBind(getTableSyntaxNode(),
+                    getDecisionTable(),
+                    getOpenl(),
+                    getModule(),
+                    bindingContext);
+        }
     }
 
     public final DecisionTable getDecisionTable() {

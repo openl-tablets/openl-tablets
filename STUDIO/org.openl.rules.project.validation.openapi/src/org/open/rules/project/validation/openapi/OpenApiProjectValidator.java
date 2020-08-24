@@ -128,45 +128,52 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         context.setOpenClass(validatedCompiledOpenClass.getOpenClassWithErrors());
         ClassLoader serviceClassLoader = resolveServiceClassLoader(rulesInstantiationStrategy);
         context.setServiceClassLoader(serviceClassLoader);
-        Class<?> serviceClass = resolveInterface(projectDescriptor,
-            rulesInstantiationStrategy,
-            validatedCompiledOpenClass);
-        Class<?> enhancedServiceClass;
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            enhancedServiceClass = enhanceWithJAXRS(context,
-                projectDescriptor,
-                validatedCompiledOpenClass,
-                serviceClass,
-                serviceClassLoader);
-        } catch (Exception e) {
-            validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils
-                .newErrorMessage(OPEN_API_VALIDATION_MSG_PREFIX + "Failed to build an interface for the project."));
+            Thread.currentThread().setContextClassLoader(serviceClassLoader);
+            Class<?> serviceClass = resolveInterface(projectDescriptor,
+                rulesInstantiationStrategy,
+                validatedCompiledOpenClass);
+            Class<?> enhancedServiceClass;
+            try {
+                enhancedServiceClass = enhanceWithJAXRS(context,
+                    projectDescriptor,
+                    validatedCompiledOpenClass,
+                    serviceClass,
+                    serviceClassLoader);
+            } catch (Exception e) {
+                validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils
+                    .newErrorMessage(OPEN_API_VALIDATION_MSG_PREFIX + "Failed to build an interface for the project."));
+                return validatedCompiledOpenClass;
+            }
+            context.setServiceClass(enhancedServiceClass);
+            try {
+                context
+                    .setMethodMap(JAXRSOpenLServiceEnhancerHelper.buildMethodMap(serviceClass, enhancedServiceClass));
+            } catch (Exception e) {
+                validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils
+                    .newErrorMessage(OPEN_API_VALIDATION_MSG_PREFIX + "Failed to build an interface for the project."));
+                return validatedCompiledOpenClass;
+            }
+            OpenAPI actualOpenAPI;
+            RulesDeploy rulesDeploy = getRulesDeploy(projectDescriptor, compiledOpenClass);
+            context.setRulesDeploy(rulesDeploy);
+            ObjectMapper objectMapper = createObjectMapper(context);
+            context.setObjectMapper(objectMapper);
+            synchronized (OpenApiRulesCacheWorkaround.class) {
+                OpenApiRulesCacheWorkaround.reset();
+                OpenApiObjectMapperHack openApiObjectMapperHack = new OpenApiObjectMapperHack();
+                openApiObjectMapperHack.apply(objectMapper);
+                actualOpenAPI = reader.read(enhancedServiceClass);
+                openApiObjectMapperHack.revert();
+            }
+            context.setActualOpenAPI(actualOpenAPI);
+            context.setActualOpenAPIResolver(new OpenAPIResolver(context, actualOpenAPI));
+            validateOpenAPI(context);
             return validatedCompiledOpenClass;
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
-        context.setServiceClass(enhancedServiceClass);
-        try {
-            context.setMethodMap(JAXRSOpenLServiceEnhancerHelper.buildMethodMap(serviceClass, enhancedServiceClass));
-        } catch (Exception e) {
-            validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils
-                .newErrorMessage(OPEN_API_VALIDATION_MSG_PREFIX + "Failed to build an interface for the project."));
-            return validatedCompiledOpenClass;
-        }
-        OpenAPI actualOpenAPI;
-        RulesDeploy rulesDeploy = getRulesDeploy(projectDescriptor, compiledOpenClass);
-        context.setRulesDeploy(rulesDeploy);
-        ObjectMapper objectMapper = createObjectMapper(context);
-        context.setObjectMapper(objectMapper);
-        synchronized (OpenApiRulesCacheWorkaround.class) {
-            OpenApiRulesCacheWorkaround.reset();
-            OpenApiObjectMapperHack openApiObjectMapperHack = new OpenApiObjectMapperHack();
-            openApiObjectMapperHack.apply(objectMapper);
-            actualOpenAPI = reader.read(enhancedServiceClass);
-            openApiObjectMapperHack.revert();
-        }
-        context.setActualOpenAPI(actualOpenAPI);
-        context.setActualOpenAPIResolver(new OpenAPIResolver(context, actualOpenAPI));
-        validateOpenAPI(context);
-        return validatedCompiledOpenClass;
     }
 
     private ObjectMapper createObjectMapper(Context context) {

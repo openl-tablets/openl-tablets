@@ -2,8 +2,10 @@ package org.openl.rules.runtime;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -14,6 +16,7 @@ import org.openl.binding.impl.component.ComponentOpenClass.GetOpenClass;
 import org.openl.binding.impl.component.ComponentOpenClass.ThisField;
 import org.openl.rules.data.DataOpenField;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -89,9 +92,11 @@ public class InterfaceGenerator {
 
         Set<MethodKey> methodsInClass = new HashSet<>();
 
+        Map<IOpenClass, Boolean> validationMap = new HashMap<>();
+
         final Collection<IOpenMethod> methods = openClass.getMethods();
         for (IOpenMethod method : methods) {
-            if (!isIgnoredMember(method)) {
+            if (!isIgnoredMember(method, validationMap)) {
                 RuleInfo ruleInfo = getRuleInfoForMethod(method);
                 boolean isMember = isMember(ruleInfo, includes, excludes);
                 if (isMember) {
@@ -102,7 +107,7 @@ public class InterfaceGenerator {
         }
 
         for (IOpenField field : openClass.getFields()) {
-            if (!isIgnoredMember(field) && field.isReadable()) {
+            if (!isIgnoredMember(field, validationMap) && field.isReadable()) {
                 RuleInfo ruleInfo = getRuleInfoForField(field);
                 boolean isMember = isMember(ruleInfo, includes, excludes);
                 if (isMember) {
@@ -216,14 +221,46 @@ public class InterfaceGenerator {
      * @return <code>true</code> - if member should be ignored (will be skipped due interface generation phase),
      *         <code>false</code> - otherwise
      */
-    private static boolean isIgnoredMember(IOpenMember member) {
+    private static boolean isIgnoredMember(IOpenMember member, Map<IOpenClass, Boolean> validationMap) {
         if (member instanceof DataOpenField) {
             DataOpenField dataOpenField = (DataOpenField) member;
             if (XlsNodeTypes.XLS_TEST_METHOD.equals(dataOpenField.getNodeType())) {
                 return true;
             }
         }
+        if (isInvalidType(member.getType(), validationMap)) {
+            return true;
+        }
+        if (member instanceof IOpenMethod) {
+            IOpenMethod openMethod = (IOpenMethod) member;
+            for (IOpenClass openClass : openMethod.getSignature().getParameterTypes()) {
+                if (isInvalidType(openClass, validationMap)) {
+                    return true;
+                }
+            }
+        }
         return member instanceof JavaOpenConstructor || member instanceof ThisField || member instanceof GetOpenClass || member instanceof TestSuiteMethod;
+    }
+
+    private static boolean isInvalidType(IOpenClass openClass, Map<IOpenClass, Boolean> validationMap) {
+        Boolean v = validationMap.get(openClass);
+        if (v != null) {
+            return v;
+        }
+        if (openClass instanceof DatatypeOpenClass) {
+            if (openClass.getInstanceClass() == null) {
+                validationMap.put(openClass, Boolean.TRUE);
+                return true;
+            }
+            for (IOpenField openField : openClass.getFields()) {
+                if (isInvalidType(openField.getType(), validationMap)) {
+                    validationMap.put(openClass, Boolean.TRUE);
+                    return true;
+                }
+            }
+        }
+        validationMap.put(openClass, Boolean.FALSE);
+        return false;
     }
 
     /**
