@@ -288,6 +288,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return columnTitles.clone();
     }
 
+    public Map<String, Point> getFieldsCoordinates() {
+        return fieldsCoordinates;
+    }
+
     @Override
     public void updateWithType(IOpenClass openClass) {
         if (beanClassByteCode != null) {

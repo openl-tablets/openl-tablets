@@ -1,0 +1,11 @@
+<rules-deploy>
+    <isProvideRuntimeContext>true</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>EPBDS-10026</serviceName>
+    <configuration>
+        <entry>
+            <string>jackson.spreadsheetResultFieldNameResolver</string>
+            <string>org.openl.rules.serialization.UncapitalizeSpreadsheetResultFieldNameResolver</string>
+        </entry>
+    </configuration>
+</rules-deploy>

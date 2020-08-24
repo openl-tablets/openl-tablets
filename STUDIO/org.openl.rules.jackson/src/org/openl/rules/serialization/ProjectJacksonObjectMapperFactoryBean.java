@@ -14,19 +14,27 @@ import java.text.DateFormat;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.RulesDeployHelper;
+import org.openl.rules.serialization.jackson.NonNullMixIn;
 import org.openl.types.IOpenClass;
+import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
+import org.openl.util.generation.InterfaceTransformer;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMapperFactory {
+
+    private static final AtomicLong incrementer = new AtomicLong();
 
     public static final String ROOT_CLASS_NAMES_BINDING = "rootClassNamesBinding";
     public static final String JACKSON_CASE_INSENSITIVE_PROPERTIES = "jackson.caseInsensitiveProperties";
@@ -34,15 +42,13 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     public static final String JACKSON_DEFAULT_TYPING_MODE = "jackson.defaultTypingMode";
     public static final String JACKSON_SERIALIZATION_INCLUSION = "jackson.serializationInclusion";
     public static final String JACKSON_FAIL_ON_UNKNOWN_PROPERTIES = "jackson.failOnUnknownProperties";
+    public static final String JACKSON_SPREADSHEETRESULT_FIELD_NAME_RESOLVER = "jackson.spreadsheetResultFieldNameResolver";
 
     private final JacksonObjectMapperFactoryBean delegate = new JacksonObjectMapperFactoryBean();
 
     private XlsModuleOpenClass xlsModuleOpenClass;
 
     private RulesDeploy rulesDeploy;
-
-    public ProjectJacksonObjectMapperFactoryBean() {
-    }
 
     public RulesDeploy getRulesDeploy() {
         return rulesDeploy;
@@ -99,6 +105,33 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                                                                           ? rulesDeploy.getConfiguration()
                                                                               .get(ROOT_CLASS_NAMES_BINDING)
                                                                           : null);
+        processXlsModuleOpenClassRelatedSettings();
+    }
+
+    private void processXlsModuleOpenClassRelatedSettings() {
+        if (xlsModuleOpenClass != null) {
+            Set<Class<?>> rootClassNamesBindingClasses = delegate.getOverrideClasses();
+            if (rootClassNamesBindingClasses == null) {
+                rootClassNamesBindingClasses = new HashSet<>();
+            } else {
+                rootClassNamesBindingClasses = new HashSet<>(rootClassNamesBindingClasses);
+            }
+            for (IOpenClass type : xlsModuleOpenClass.getTypes()) {
+                if (type instanceof DatatypeOpenClass) {
+                    rootClassNamesBindingClasses.add(type.getInstanceClass());
+                }
+                if (type instanceof CustomSpreadsheetResultOpenClass) {
+                    rootClassNamesBindingClasses.add(((CustomSpreadsheetResultOpenClass) type).getBeanClass());
+                }
+            }
+            if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
+                rootClassNamesBindingClasses
+                    .add(xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                        .toCustomSpreadsheetResultOpenClass()
+                        .getBeanClass());
+            }
+            delegate.setOverrideClasses(rootClassNamesBindingClasses);
+        }
     }
 
     protected void processFailOnUnknownPropertiesSetting(Object failOnUnknownProperties) {
@@ -155,27 +188,6 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                         ROOT_CLASS_NAMES_BINDING,
                         rulesDeploy.getServiceName()));
             }
-        }
-
-        if (xlsModuleOpenClass != null) {
-            Set<Class<?>> rootClassNamesBindingClasses = delegate.getOverrideClasses();
-            if (rootClassNamesBindingClasses == null) {
-                rootClassNamesBindingClasses = new HashSet<>();
-            } else {
-                rootClassNamesBindingClasses = new HashSet<>(rootClassNamesBindingClasses);
-            }
-            for (IOpenClass type : xlsModuleOpenClass.getTypes()) {
-                if (type instanceof DatatypeOpenClass) {
-                    rootClassNamesBindingClasses.add(type.getInstanceClass());
-                }
-                if (type instanceof CustomSpreadsheetResultOpenClass) {
-                    rootClassNamesBindingClasses.add(((CustomSpreadsheetResultOpenClass) type).getBeanClass());
-                }
-            }
-            rootClassNamesBindingClasses.add(xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                .toCustomSpreadsheetResultOpenClass()
-                .getBeanClass());
-            delegate.setOverrideClasses(rootClassNamesBindingClasses);
         }
     }
 
@@ -239,7 +251,111 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         applyBeforeProjectConfiguration();
         applyProjectConfiguration();
         applyAfterProjectConfiguration();
-        return delegate.createJacksonObjectMapper();
+        return enhanceObjectMapper(delegate.createJacksonObjectMapper());
+    }
+
+    protected ObjectMapper enhanceObjectMapper(ObjectMapper objectMapper) {
+        if (xlsModuleOpenClass != null) {
+            SpreadsheetResultFieldNameResolver spreadsheetResultBeansFieldNameResolver = null;
+            if (rulesDeploy != null) {
+                if (rulesDeploy.getConfiguration() != null) {
+                    Object spreadsheetResultFieldNameResolver = rulesDeploy.getConfiguration()
+                        .get(JACKSON_SPREADSHEETRESULT_FIELD_NAME_RESOLVER);
+                    if (spreadsheetResultFieldNameResolver != null) {
+                        if (spreadsheetResultFieldNameResolver instanceof String) {
+                            String spreadsheetResultFieldNameResolverClassName = (String) spreadsheetResultFieldNameResolver;
+                            try {
+                                Class<?> spreadsheetResultFieldNameResolverClass = getClassLoader()
+                                    .loadClass(spreadsheetResultFieldNameResolverClassName);
+                                if (!SpreadsheetResultFieldNameResolver.class
+                                    .isAssignableFrom(spreadsheetResultFieldNameResolverClass)) {
+                                    throw new ObjectMapperConfigurationParsingException(String.format(
+                                        "Failed to load spreadsheet result field name resolver class '%s' for service '%s'. The class must be an implementation of interface '%s'.",
+                                        JACKSON_SPREADSHEETRESULT_FIELD_NAME_RESOLVER,
+                                        rulesDeploy.getServiceName(),
+                                        SpreadsheetResultFieldNameResolver.class.getTypeName()));
+                                }
+                                try {
+                                    spreadsheetResultBeansFieldNameResolver = (SpreadsheetResultFieldNameResolver) spreadsheetResultFieldNameResolverClass
+                                        .newInstance();
+                                } catch (InstantiationException | IllegalAccessException e) {
+                                    throw new ObjectMapperConfigurationParsingException(String.format(
+                                        "Failed to instantiate spreadsheet result field name resolver class '%s' for service '%s'.",
+                                        JACKSON_SPREADSHEETRESULT_FIELD_NAME_RESOLVER,
+                                        rulesDeploy.getServiceName()), e);
+                                }
+                            } catch (ClassNotFoundException e) {
+                                throw new ObjectMapperConfigurationParsingException(String.format(
+                                    "Failed to load spreadsheet result field name resolver class '%s' for service '%s'.",
+                                    JACKSON_SPREADSHEETRESULT_FIELD_NAME_RESOLVER,
+                                    rulesDeploy.getServiceName()), e);
+                            }
+                        } else {
+                            throw new ObjectMapperConfigurationParsingException(
+                                String.format("Expected string value for '%s' in the configuration for service '%s'.",
+                                    JACKSON_SPREADSHEETRESULT_FIELD_NAME_RESOLVER,
+                                    rulesDeploy.getServiceName()));
+                        }
+                    }
+                }
+            }
+            for (IOpenClass type : xlsModuleOpenClass.getTypes()) {
+                if (type instanceof CustomSpreadsheetResultOpenClass) {
+                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = ((CustomSpreadsheetResultOpenClass) type);
+                    addMixInAnnotationsToSprBeanClass(objectMapper,
+                        customSpreadsheetResultOpenClass,
+                        spreadsheetResultBeansFieldNameResolver);
+                }
+            }
+            if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
+                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = xlsModuleOpenClass
+                    .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                    .toCustomSpreadsheetResultOpenClass();
+                addMixInAnnotationsToSprBeanClass(objectMapper,
+                    customSpreadsheetResultOpenClass,
+                    spreadsheetResultBeansFieldNameResolver);
+            }
+        }
+        return objectMapper;
+    }
+
+    private void addMixInAnnotationsToSprBeanClass(ObjectMapper objectMapper,
+            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
+            SpreadsheetResultFieldNameResolver spreadsheetResultFieldNameResolver) {
+        Class<?> sprBeanClass = customSpreadsheetResultOpenClass.getBeanClass();
+        Class<?> originalMixInClass = objectMapper.findMixInClassFor(sprBeanClass);
+        Class<?> mixInClass = enhanceMixInClassForSprBeanClass(
+            originalMixInClass != null ? originalMixInClass : NonNullMixIn.class,
+            customSpreadsheetResultOpenClass,
+            spreadsheetResultFieldNameResolver,
+            getClassLoader());
+        objectMapper.addMixIn(sprBeanClass, mixInClass);
+    }
+
+    private Class<?> enhanceMixInClassForSprBeanClass(Class<?> originalMixInClass,
+            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
+            SpreadsheetResultFieldNameResolver spreadsheetResultFieldNameResolver,
+            ClassLoader classLoader) {
+        String className = originalMixInClass.getName() + "$Enhanced$" + incrementer.getAndIncrement();
+        try {
+            return classLoader.loadClass(className);
+        } catch (ClassNotFoundException e) {
+            ClassWriter classWriter = new ClassWriter(0);
+            ClassVisitor classVisitor = new SpreadsheetResultBeanClassMixInAnnotationsWriter(classWriter,
+                className,
+                originalMixInClass,
+                customSpreadsheetResultOpenClass,
+                spreadsheetResultFieldNameResolver);
+            InterfaceTransformer transformer = new InterfaceTransformer(originalMixInClass, className, true);
+            transformer.accept(classVisitor);
+            classWriter.visitEnd();
+            try {
+                ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
+                return Class.forName(className, true, classLoader);
+            } catch (Exception e1) {
+                throw new RuntimeException(e1);
+            }
+        }
     }
 
     protected void applyBeforeProjectConfiguration() {

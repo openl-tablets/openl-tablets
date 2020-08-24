@@ -5,7 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-    <bean id="kafkaJacksonDatabindingFactoryBeanParent"
+    <bean id="kafkaJacksonObjectMapperFactoryBeanParent"
           class="org.openl.rules.ruleservice.kafka.databinding.KafkaProjectJacksonObjectMapperFactoryBean"
           abstract="true">
         <property name="overrideTypesAsString" value="${ruleservice.databinding.rootClassNames}"/>
@@ -20,23 +20,14 @@
         <property name="rulesDeploy" ref="serviceRulesDeploy"/>
     </bean>
 
-
-    <bean id="kafkaServiceProducerJacksonObjectMapperFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.ServiceJacksonObjectMapperEnhancerFactoryBean" scope="prototype">
-        <property name="jacksonObjectMapperFactory">
-            <bean parent="kafkaJacksonDatabindingFactoryBeanParent">
-                <property name="type" value="PRODUCER"/>
-            </bean>
-        </property>
+    <bean id="kafkaServiceProducerJacksonObjectMapperFactoryBean" parent="kafkaJacksonObjectMapperFactoryBeanParent"
+          scope="prototype">
+        <property name="type" value="PRODUCER"/>
     </bean>
 
-    <bean id="kafkaServiceConsumerJacksonObjectMapperFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.ServiceJacksonObjectMapperEnhancerFactoryBean" scope="prototype">
-        <property name="jacksonObjectMapperFactory">
-            <bean parent="kafkaJacksonDatabindingFactoryBeanParent">
-                <property name="type" value="CONSUMER"/>
-            </bean>
-        </property>
+    <bean id="kafkaServiceConsumerJacksonObjectMapperFactoryBean" parent="kafkaJacksonObjectMapperFactoryBeanParent"
+          scope="prototype">
+        <property name="type" value="CONSUMER"/>
     </bean>
 
     <!-- Initializes OpenL Engine instances according to Rule Services configuration

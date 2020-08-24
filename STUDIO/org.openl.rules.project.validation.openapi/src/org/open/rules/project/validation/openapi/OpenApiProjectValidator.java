@@ -35,7 +35,6 @@ import org.openl.rules.project.resolving.ProjectResource;
 import org.openl.rules.project.resolving.ProjectResourceLoader;
 import org.openl.rules.project.validation.AbstractServiceInterfaceProjectValidator;
 import org.openl.rules.project.validation.base.ValidatedCompiledOpenClass;
-import org.openl.rules.ruleservice.databinding.ServiceJacksonObjectMapperEnhancer;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
@@ -178,15 +177,10 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         objectMapperFactoryBean.setRulesDeploy(context.getRulesDeploy());
         objectMapperFactoryBean.setXlsModuleOpenClass((XlsModuleOpenClass) context.getOpenClass());
         objectMapperFactoryBean.setObjectMapperFactory(new OpenApiObjectMapperFactory());
-
+        objectMapperFactoryBean.setClassLoader(context.getServiceClassLoader());
         try {
             ObjectMapper objectMapper = objectMapperFactoryBean.createJacksonObjectMapper();
-            ServiceJacksonObjectMapperEnhancer serviceJacksonObjectMapperEnhancer = new ServiceJacksonObjectMapperEnhancer(
-                objectMapper,
-                (XlsModuleOpenClass) context.getOpenClass(),
-                context.getServiceClassLoader());
-            return OpenApiObjectMapperConfigurationHelper
-                .configure(serviceJacksonObjectMapperEnhancer.createObjectMapper());
+            return OpenApiObjectMapperConfigurationHelper.configure(objectMapper);
         } catch (ClassNotFoundException e) { // Never happens
             throw new IllegalStateException("Failed to create object mapper", e);
         }

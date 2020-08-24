@@ -20,6 +20,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.databinding.annotation.JacksonBindingConfigurationUtils;
+import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer;
 import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiHackContainerRequestFilter;
@@ -36,6 +37,7 @@ import org.openl.rules.ruleservice.storelogdata.CollectOperationResourceInfoInte
 import org.openl.rules.ruleservice.storelogdata.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataFeature;
+import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
@@ -212,6 +214,12 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             extraClassesField.setAccessible(true);
             List<Class<?>> extraClasses = (List<Class<?>>) extraClassesField.get(wadlGenerator);
             boolean noWadl = extraClasses.stream().anyMatch(JacksonBindingConfigurationUtils::isConfiguration);
+            if (!noWadl) {
+                Map<String, Object> configuration = ServiceDescriptionHolder.getInstance().get().getConfiguration();
+                if (configuration != null && configuration.get(ProjectJacksonObjectMapperFactoryBean.JACKSON_SPREADSHEETRESULT_FIELD_NAME_RESOLVER) != null) {
+                    noWadl = true;
+                }
+            }
             if (noWadl) {
                 svrFactory.getInInterceptors().add(new DisableWADLInterceptor());
                 svrFactory.getInFaultInterceptors().add(new DisableWADLInterceptor());

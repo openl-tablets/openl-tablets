@@ -29,12 +29,6 @@
         <property name="rulesDeploy" ref="serviceRulesDeploy"/>
     </bean>
 
-    <bean id="jaxrsJacksonObjectMapper"
-          class="org.openl.rules.ruleservice.databinding.ServiceJacksonObjectMapperEnhancerFactoryBean"
-          scope="prototype">
-        <property name="jacksonObjectMapperFactory" ref="jaxrsProjectJacksonObjectMapperFactoryBean"/>
-    </bean>
-
     <bean id="jaxrsServiceConfigurationResolveMethodParameterNamesFactoryBean"
           class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean" scope="prototype">
         <property name="propertyName" value="jaxrs.resolveMethodParameterNames"/>
@@ -44,14 +38,10 @@
     <bean id="jaxrsSwaggerObjectMapper"
           class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.SwaggerObjectMapperConfigurationFactoryBean"
           scope="prototype">
-        <property name="objectMapper">
-            <bean class="org.openl.rules.ruleservice.databinding.ServiceJacksonObjectMapperEnhancerFactoryBean">
-                <property name="jacksonObjectMapperFactory">
-                    <bean parent="jaxrsSwaggerAndOpenApiObjectMapperParent">
-                        <property name="objectMapperFactory">
-                            <bean class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.SwaggerObjectMapperFactory"/>
-                        </property>
-                    </bean>
+        <property name="jacksonObjectMapperFactory">
+            <bean parent="jaxrsSwaggerAndOpenApiObjectMapperParent">
+                <property name="objectMapperFactory">
+                    <bean class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.SwaggerObjectMapperFactory"/>
                 </property>
             </bean>
         </property>
@@ -60,14 +50,10 @@
     <bean id="jaxrsOpenApiObjectMapper"
           class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperConfigurationFactoryBean"
           scope="prototype">
-        <property name="objectMapper">
-            <bean class="org.openl.rules.ruleservice.databinding.ServiceJacksonObjectMapperEnhancerFactoryBean">
-                <property name="jacksonObjectMapperFactory">
-                    <bean parent="jaxrsSwaggerAndOpenApiObjectMapperParent">
-                        <property name="objectMapperFactory">
-                            <bean class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperFactory"/>
-                        </property>
-                    </bean>
+        <property name="jacksonObjectMapperFactory">
+            <bean parent="jaxrsSwaggerAndOpenApiObjectMapperParent">
+                <property name="objectMapperFactory">
+                    <bean class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperFactory"/>
                 </property>
             </bean>
         </property>
@@ -77,7 +63,9 @@
           class="org.openl.rules.ruleservice.databinding.TextPlainDateMessageBodyWriter"/>
 
     <bean id="jaxrsJSONProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider" scope="prototype">
-        <constructor-arg ref="jaxrsJacksonObjectMapper"/>
+        <constructor-arg>
+            <bean factory-bean="jaxrsProjectJacksonObjectMapperFactoryBean" factory-method="createJacksonObjectMapper"/>
+        </constructor-arg>
     </bean>
 
     <bean id="jaxrsWebApplicationExceptionMapper" class="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper">

@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson;
 
+import org.openl.rules.serialization.JacksonObjectMapperFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,14 +10,14 @@ import io.swagger.models.properties.Property;
 
 public final class SwaggerObjectMapperConfigurationFactoryBean extends AbstractFactoryBean<ObjectMapper> {
 
-    private ObjectMapper objectMapper;
+    private JacksonObjectMapperFactory jacksonObjectMapperFactory;
 
-    public ObjectMapper getObjectMapper() {
-        return objectMapper;
+    public JacksonObjectMapperFactory getJacksonObjectMapperFactory() {
+        return jacksonObjectMapperFactory;
     }
 
-    public void setObjectMapper(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+    public void setJacksonObjectMapperFactory(JacksonObjectMapperFactory jacksonObjectMapperFactory) {
+        this.jacksonObjectMapperFactory = jacksonObjectMapperFactory;
     }
 
     @Override
@@ -25,8 +26,8 @@ public final class SwaggerObjectMapperConfigurationFactoryBean extends AbstractF
     }
 
     @Override
-    protected ObjectMapper createInstance() {
-        ObjectMapper objectMapper = getObjectMapper();
+    protected ObjectMapper createInstance() throws Exception {
+        ObjectMapper objectMapper = getJacksonObjectMapperFactory().createJacksonObjectMapper();
         objectMapper.addMixIn(ModelImpl.class, SwaggerXmlIgnoreMixIn.class);
         objectMapper.addMixIn(Property.class, SwaggerXmlIgnoreMixIn.class);
         return objectMapper;

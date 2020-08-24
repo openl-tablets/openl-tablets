@@ -60,6 +60,13 @@ public class RunWebservicesITest {
     }
 
     @Test
+    public void EPBDS_10026() {
+        client.get("/REST/EPBDS-10026/EPBDS-10026/swagger.json", "/EPBDS-10026/EPBDS-10026_swagger.resp.json");
+        client.get("/REST/EPBDS-10026/EPBDS-10026/openapi.json", "/EPBDS-10026/EPBDS-10026_openapi.resp.json");
+        client.get("/REST/EPBDS-10026/EPBDS-10026?_wadl", 404);
+    }
+
+    @Test
     public void testWADLSchemaSimple3() {
         client.get("/REST/deployment3/simple3?_wadl", "/simple3_wadl.resp.xml");
     }
@@ -281,46 +288,61 @@ public class RunWebservicesITest {
 
     @Test
     public void EPBDS_6555() {
-        client.post("/REST/EPBDS-6555/Greeting", "/EPBDS-6555/EPBDS-6555_Greeting.req.json",
-                "/EPBDS-6555/EPBDS-6555_Greeting.resp.txt");
-        client.post("/REST/EPBDS-6555/Calc", "/EPBDS-6555/EPBDS-6555_Calc.req.json",
-                "/EPBDS-6555/EPBDS-6555_Calc.resp.txt");
-        client.post("/EPBDS-6555/Greeting", "/EPBDS-6555/EPBDS-6555_Greeting.req.xml",
-                "/EPBDS-6555/EPBDS-6555_Greeting.resp.xml");
-        client.post("/EPBDS-6555/Calc", "/EPBDS-6555/EPBDS-6555_Calc.req.xml",
-                "/EPBDS-6555/EPBDS-6555_Calc.resp.xml");
+        client.post("/REST/EPBDS-6555/Greeting",
+            "/EPBDS-6555/EPBDS-6555_Greeting.req.json",
+            "/EPBDS-6555/EPBDS-6555_Greeting.resp.txt");
+        client.post("/REST/EPBDS-6555/Calc",
+            "/EPBDS-6555/EPBDS-6555_Calc.req.json",
+            "/EPBDS-6555/EPBDS-6555_Calc.resp.txt");
+        client.post("/EPBDS-6555/Greeting",
+            "/EPBDS-6555/EPBDS-6555_Greeting.req.xml",
+            "/EPBDS-6555/EPBDS-6555_Greeting.resp.xml");
+        client.post("/EPBDS-6555/Calc", "/EPBDS-6555/EPBDS-6555_Calc.req.xml", "/EPBDS-6555/EPBDS-6555_Calc.resp.xml");
     }
 
     @Test
     public void EPBDS_7187() {
-        client.post("/upcs/lowCase", "/EPBDS-7187/EPBDS_7187_low-case.req.json",
-                "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
-        client.post("/upcs/UPCase", "/EPBDS-7187/EPBDS_7187_upper-case.req.json",
-                "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
-        client.post("/upcs/MixedCase", "/EPBDS-7187/EPBDS_7187_mixed-case.req.json",
-                "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
-        client.post("/upcs/eDGECase", "/EPBDS-7187/EPBDS_7187_edge-case.req.json",
-                "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
+        client.post("/upcs/lowCase",
+            "/EPBDS-7187/EPBDS_7187_low-case.req.json",
+            "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
+        client.post("/upcs/UPCase",
+            "/EPBDS-7187/EPBDS_7187_upper-case.req.json",
+            "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
+        client.post("/upcs/MixedCase",
+            "/EPBDS-7187/EPBDS_7187_mixed-case.req.json",
+            "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
+        client.post("/upcs/eDGECase",
+            "/EPBDS-7187/EPBDS_7187_edge-case.req.json",
+            "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
         client.get("/upcs/overload", "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
         client.get("/upcs/overload2/1", "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
-        client.post("/upcs/overload4", "/EPBDS-7187/EPBDS_7187_overload-4.req.json",
-                "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
-        client.post("/upcs/overload3", "/EPBDS-7187/EPBDS_7187_overload-3.req.json",
-                "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
-        client.post("/upcs/overload1", "/EPBDS-7187/EPBDS_7187_overload-1.req.json",
-                "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
-        client.post("/upcs/mixes", "/EPBDS-7187/EPBDS_7187_empty.req.json",
-                "/EPBDS-7187/EPBDS_7187_mixes1-default.resp.json");
-        client.post("/upcs/mixes", "/EPBDS-7187/EPBDS_7187_mixes1-filled-nulls.json",
-                "/EPBDS-7187/EPBDS_7187_mixes1-filled-nulls.json");
-        client.post("/upcs/mixes", "/EPBDS-7187/EPBDS_7187_mixes1-filled.json",
-                "/EPBDS-7187/EPBDS_7187_mixes1-filled.json");
-        client.post("/upcs/mixes2", "/EPBDS-7187/EPBDS_7187_empty.req.json",
-                "/EPBDS-7187/EPBDS_7187_mixes2-empty.resp.json");
-        client.post("/upcs/mixes2", "/EPBDS-7187/EPBDS_7187_mixes2-default.req.json",
-                "/EPBDS-7187/EPBDS_7187_mixes2-default.resp.json");
-        client.post("/upcs/mixes2", "/EPBDS-7187/EPBDS_7187_mixes2-filled.req.json",
-                "/EPBDS-7187/EPBDS_7187_mixes2-filled.resp.json");
+        client.post("/upcs/overload4",
+            "/EPBDS-7187/EPBDS_7187_overload-4.req.json",
+            "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
+        client.post("/upcs/overload3",
+            "/EPBDS-7187/EPBDS_7187_overload-3.req.json",
+            "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
+        client.post("/upcs/overload1",
+            "/EPBDS-7187/EPBDS_7187_overload-1.req.json",
+            "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
+        client.post("/upcs/mixes",
+            "/EPBDS-7187/EPBDS_7187_empty.req.json",
+            "/EPBDS-7187/EPBDS_7187_mixes1-default.resp.json");
+        client.post("/upcs/mixes",
+            "/EPBDS-7187/EPBDS_7187_mixes1-filled-nulls.json",
+            "/EPBDS-7187/EPBDS_7187_mixes1-filled-nulls.json");
+        client.post("/upcs/mixes",
+            "/EPBDS-7187/EPBDS_7187_mixes1-filled.json",
+            "/EPBDS-7187/EPBDS_7187_mixes1-filled.json");
+        client.post("/upcs/mixes2",
+            "/EPBDS-7187/EPBDS_7187_empty.req.json",
+            "/EPBDS-7187/EPBDS_7187_mixes2-empty.resp.json");
+        client.post("/upcs/mixes2",
+            "/EPBDS-7187/EPBDS_7187_mixes2-default.req.json",
+            "/EPBDS-7187/EPBDS_7187_mixes2-default.resp.json");
+        client.post("/upcs/mixes2",
+            "/EPBDS-7187/EPBDS_7187_mixes2-filled.req.json",
+            "/EPBDS-7187/EPBDS_7187_mixes2-filled.resp.json");
         client.get("/upcs?_wadl", "/EPBDS-7187/EPBDS_7187_wadl.resp.xml");
         client.get("/upcs/swagger.json", "/EPBDS-7187/EPBDS_7187_swagger.resp.json");
         client.get("/upcs/openapi.json", "/EPBDS-7187/EPBDS_7187_openapi.resp.json");
@@ -328,18 +350,21 @@ public class RunWebservicesITest {
 
     @Test
     public void EPBDS_7654() {
-        client.post("/REST/EPBDS-7654/getDayDiff", "/EPBDS-7654/EPBDS-7654_dayDiff.req.txt",
-                "/EPBDS-7654/EPBDS-7654_dayDiff.resp.txt");
-        client.post("/EPBDS-7654", "/EPBDS-7654/EPBDS-7654_dayDiff.req.xml",
-                "/EPBDS-7654/EPBDS-7654_dayDiff.resp.xml");
-        client.post("/EPBDS-7654", "/EPBDS-7654/EPBDS-7654_dayDiff-wrong.req.xml", 500,
-                "/EPBDS-7654/EPBDS-7654_dayDiff-wrong.resp.xml");
+        client.post("/REST/EPBDS-7654/getDayDiff",
+            "/EPBDS-7654/EPBDS-7654_dayDiff.req.txt",
+            "/EPBDS-7654/EPBDS-7654_dayDiff.resp.txt");
+        client.post("/EPBDS-7654", "/EPBDS-7654/EPBDS-7654_dayDiff.req.xml", "/EPBDS-7654/EPBDS-7654_dayDiff.resp.xml");
+        client.post("/EPBDS-7654",
+            "/EPBDS-7654/EPBDS-7654_dayDiff-wrong.req.xml",
+            500,
+            "/EPBDS-7654/EPBDS-7654_dayDiff-wrong.resp.xml");
     }
 
     @Test
     public void EPBDS_7787() {
-        client.post("/EPBDS-7787-project1/calculation", "/EPBDS-7787/EPBDS-7787_calc.req.json",
-                "/EPBDS-7787/EPBDS-7787_calc.resp.json");
+        client.post("/EPBDS-7787-project1/calculation",
+            "/EPBDS-7787/EPBDS-7787_calc.req.json",
+            "/EPBDS-7787/EPBDS-7787_calc.resp.json");
         client.get("/EPBDS-7787-project1/getProject2FirstPolicy", "/EPBDS-7787/EPBDS-7787_proj2.resp.json");
         client.get("/EPBDS-7787-project1/getProject1FirstPolicy", "/EPBDS-7787/EPBDS-7787_proj1.resp.json");
     }
@@ -347,119 +372,121 @@ public class RunWebservicesITest {
     @Test
     public void EPBDS_7947_test_validation_shouldBeOK() {
         client.post("/REST/parent-datatype-validation/checkValidation",
-                "/EPBDS-7947/validation_policy.req.json",
-                "/EPBDS-7947/validation_shouldBeOK_OK.resp.txt");
+            "/EPBDS-7947/validation_policy.req.json",
+            "/EPBDS-7947/validation_shouldBeOK_OK.resp.txt");
         client.post("/REST/parent-datatype-validation/checkArrayValidation",
-                "/EPBDS-7947/validation_shouldBeOK_policies.req.json",
-                "/EPBDS-7947/validation_shouldBeOK_OK.resp.txt");
+            "/EPBDS-7947/validation_shouldBeOK_policies.req.json",
+            "/EPBDS-7947/validation_shouldBeOK_OK.resp.txt");
         client.post("/REST/parent-datatype-validation/checkArrayValidationFromParent",
-                "/EPBDS-7947/validation_shouldBeOK_policies.req.json",
-                "/EPBDS-7947/validation_shouldBeOK_OK.resp.txt");
+            "/EPBDS-7947/validation_shouldBeOK_policies.req.json",
+            "/EPBDS-7947/validation_shouldBeOK_OK.resp.txt");
         client.post("/REST/parent-datatype-validation/getGender",
-                "/EPBDS-7947/validation_shouldBeOK_gender.req.txt",
-                "/EPBDS-7947/validation_shouldBeOK_gender.resp.txt");
+            "/EPBDS-7947/validation_shouldBeOK_gender.req.txt",
+            "/EPBDS-7947/validation_shouldBeOK_gender.resp.txt");
 
-        client.post("/parent-datatype-validation", "/EPBDS-7947/validation_policy.req.xml", "/EPBDS-7947/validation_policy.resp.xml");
         client.post("/parent-datatype-validation",
-                "/EPBDS-7947/validation_shouldBeOK_policies.req.xml",
-                "/EPBDS-7947/validation_shouldBeOK_policies.resp.xml");
+            "/EPBDS-7947/validation_policy.req.xml",
+            "/EPBDS-7947/validation_policy.resp.xml");
         client.post("/parent-datatype-validation",
-                "/EPBDS-7947/validation_shouldBeOK_gender.req.xml",
-                "/EPBDS-7947/validation_shouldBeOK_gender.resp.xml");
+            "/EPBDS-7947/validation_shouldBeOK_policies.req.xml",
+            "/EPBDS-7947/validation_shouldBeOK_policies.resp.xml");
+        client.post("/parent-datatype-validation",
+            "/EPBDS-7947/validation_shouldBeOK_gender.req.xml",
+            "/EPBDS-7947/validation_shouldBeOK_gender.resp.xml");
     }
 
     @Test
     public void EPBDS_7947_test_validation_onPolicy_shouldBeFailed() {
         client.post("/REST/parent-datatype-validation/checkValidation",
-                "/EPBDS-7947/validation_onPolicy_shouldBeFailed.req.json",
-                422,
-                "/EPBDS-7947/validation_onPolicy_shouldBeFailed.resp.json");
+            "/EPBDS-7947/validation_onPolicy_shouldBeFailed.req.json",
+            422,
+            "/EPBDS-7947/validation_onPolicy_shouldBeFailed.resp.json");
 
         client.post("/parent-datatype-validation",
-                "/EPBDS-7947/validation_onPolicy_shouldBeFailed.req.xml",
-                500,
-                "/EPBDS-7947/validation_onPolicy_shouldBeFailed.resp.xml");
+            "/EPBDS-7947/validation_onPolicy_shouldBeFailed.req.xml",
+            500,
+            "/EPBDS-7947/validation_onPolicy_shouldBeFailed.resp.xml");
     }
 
     @Test
     public void EPBDS_7947_test_validation_onDriver_shouldBeFailed() {
         client.post("/REST/parent-datatype-validation/checkValidation",
-                "/EPBDS-7947/validation_onDriver_shouldBeFailed.req.json",
-                422,
-                "/EPBDS-7947/validation_onDriver_shouldBeFailed.resp.json");
+            "/EPBDS-7947/validation_onDriver_shouldBeFailed.req.json",
+            422,
+            "/EPBDS-7947/validation_onDriver_shouldBeFailed.resp.json");
     }
 
     @Test
     public void EPBDS_7947_test_validation_onCoverage_shouldBeFailed() {
         client.post("/REST/parent-datatype-validation/checkValidation",
-                "/EPBDS-7947/validation_onCoverage_shouldBeFailed.req.json",
-                422,
-                "/EPBDS-7947/validation_onCoverage_shouldBeFailed.resp.json");
+            "/EPBDS-7947/validation_onCoverage_shouldBeFailed.req.json",
+            422,
+            "/EPBDS-7947/validation_onCoverage_shouldBeFailed.resp.json");
 
         client.post("/parent-datatype-validation",
-                "/EPBDS-7947/validation_onCoverage_shouldBeFailed.req.xml",
-                500,
-                "/EPBDS-7947/validation_onCoverage_shouldBeFailed.resp.xml");
+            "/EPBDS-7947/validation_onCoverage_shouldBeFailed.req.xml",
+            500,
+            "/EPBDS-7947/validation_onCoverage_shouldBeFailed.resp.xml");
     }
 
     @Test
     public void EPBDS_7947_test_validation_onBrandCode_shouldBeFailed() {
         client.post("/REST/parent-datatype-validation/checkValidation",
-                "/EPBDS-7947/validation_onBrandCode_shouldBeFailed.req.json",
-                422,
-                "/EPBDS-7947/validation_onBrandCode_shouldBeFailed.resp.json");
+            "/EPBDS-7947/validation_onBrandCode_shouldBeFailed.req.json",
+            422,
+            "/EPBDS-7947/validation_onBrandCode_shouldBeFailed.resp.json");
 
         client.post("/parent-datatype-validation",
-                "/EPBDS-7947/validation_onBrandCode_shouldBeFailed.req.xml",
-                500,
-                "/EPBDS-7947/validation_onBrandCode_shouldBeFailed.resp.xml");
+            "/EPBDS-7947/validation_onBrandCode_shouldBeFailed.req.xml",
+            500,
+            "/EPBDS-7947/validation_onBrandCode_shouldBeFailed.resp.xml");
     }
 
     @Test
     public void EPBDS_7947_test_validation_getGender_shouldBeFailed() {
         client.post("/REST/parent-datatype-validation/getGender",
-                "/EPBDS-7947/validation_getGender_shouldBeFailed.req.txt",
-                422,
-                "/EPBDS-7947/validation_getGender_shouldBeFailed.resp.json");
+            "/EPBDS-7947/validation_getGender_shouldBeFailed.req.txt",
+            422,
+            "/EPBDS-7947/validation_getGender_shouldBeFailed.resp.json");
         client.post("/parent-datatype-validation",
-                "/EPBDS-7947/validation_getGender_shouldBeFailed.req.xml",
-                500,
-                "/EPBDS-7947/validation_getGender_shouldBeFailed.resp.xml");
+            "/EPBDS-7947/validation_getGender_shouldBeFailed.req.xml",
+            500,
+            "/EPBDS-7947/validation_getGender_shouldBeFailed.resp.xml");
     }
 
     @Test
     public void EPBDS_7947_test_validation_onArrays_shouldBeFailed() {
         client.post("/REST/parent-datatype-validation/checkArrayValidation",
-                "/EPBDS-7947/validation_onArrays_shouldBeFailed.req.json",
-                422,
-                "/EPBDS-7947/validation_onArrays_shouldBeFailed.resp.json");
+            "/EPBDS-7947/validation_onArrays_shouldBeFailed.req.json",
+            422,
+            "/EPBDS-7947/validation_onArrays_shouldBeFailed.resp.json");
         client.post("/REST/parent-datatype-validation/checkArrayValidationFromParent",
-                "/EPBDS-7947/validation_onArrays_shouldBeFailed.req.json",
-                422,
-                "/EPBDS-7947/validation_onArrays_shouldBeFailed.resp.json");
+            "/EPBDS-7947/validation_onArrays_shouldBeFailed.req.json",
+            422,
+            "/EPBDS-7947/validation_onArrays_shouldBeFailed.resp.json");
 
         client.post("/parent-datatype-validation",
-                "/EPBDS-7947/validation_onArrays_shouldBeFailed.req.xml",
-                500,
-                "/EPBDS-7947/validation_onArrays_shouldBeFailed.resp.xml");
+            "/EPBDS-7947/validation_onArrays_shouldBeFailed.req.xml",
+            500,
+            "/EPBDS-7947/validation_onArrays_shouldBeFailed.resp.xml");
 
         client.post("/parent-datatype-validation",
-                "/EPBDS-7947/validation_onArraysFromParent_shouldBeFailed.req.xml",
-                500,
-                "/EPBDS-7947/validation_onArrays_shouldBeFailed.resp.xml");
+            "/EPBDS-7947/validation_onArraysFromParent_shouldBeFailed.req.xml",
+            500,
+            "/EPBDS-7947/validation_onArrays_shouldBeFailed.resp.xml");
     }
 
     @Test
     public void EPBDS_7947_test_validation_onPaymentMatrix_shouldBeFailed() {
         client.post("/REST/parent-datatype-validation/checkArrayValidationFromParent",
-                "/EPBDS-7947/validation_onPaymentMatrix_shouldBeFailed.req.json",
-                400,
-                "/EPBDS-7947/validation_onPaymentMatrix_shouldBeFailed.resp.json");
+            "/EPBDS-7947/validation_onPaymentMatrix_shouldBeFailed.req.json",
+            400,
+            "/EPBDS-7947/validation_onPaymentMatrix_shouldBeFailed.resp.json");
 
         client.post("/parent-datatype-validation",
-                "/EPBDS-7947/validation_onPaymentMatrix_shouldBeFailed.req.xml",
-                500,
-                "/EPBDS-7947/validation_onPaymentMatrix_shouldBeFailed.resp.xml");
+            "/EPBDS-7947/validation_onPaymentMatrix_shouldBeFailed.req.xml",
+            500,
+            "/EPBDS-7947/validation_onPaymentMatrix_shouldBeFailed.resp.xml");
     }
 
     @Test
@@ -480,47 +507,64 @@ public class RunWebservicesITest {
 
     @Test
     public void EPBDS_7757_testHttpStatuses() {
-        client.get("/REST/http-statuses-test/throwUserException", 422,
-                "/EPBDS-7757/rest_USER_ERROR_response.json");
-        client.get("/REST/http-statuses-test/throwOpenLException", 500,
-                "/EPBDS-7757/rest_RULES_RUNTIME_response.json");
+        client.get("/REST/http-statuses-test/throwUserException", 422, "/EPBDS-7757/rest_USER_ERROR_response.json");
+        client.get("/REST/http-statuses-test/throwOpenLException", 500, "/EPBDS-7757/rest_RULES_RUNTIME_response.json");
         client.post("/REST/http-statuses-lazycompilation-test/throwCompilationError",
-                "EPBDS-7757/rest_COMPULATION_request.json", 500,
-                "/EPBDS-7757/rest_COMPULATION_response.json");
-        client.get("/REST/http-statuses-test/throwValidationException", 422,
-                "/EPBDS-7757/rest_RULES_RUNTIME_validation_exception_response.json");
+            "EPBDS-7757/rest_COMPULATION_request.json",
+            500,
+            "/EPBDS-7757/rest_COMPULATION_response.json");
+        client.get("/REST/http-statuses-test/throwValidationException",
+            422,
+            "/EPBDS-7757/rest_RULES_RUNTIME_validation_exception_response.json");
         client.post("/REST/http-statuses-test/hello",
-                "/EPBDS-7757/rest_JSON_EXCEPTION_request.json", 400,
-                "/EPBDS-7757/rest_JSON_EXCEPTION_response.json");
-        client.post("/REST/http-statuses-test/hello", "/EPBDS-7757/statuses-415.resp.txt", 415,
-                "/EPBDS-7757/statuses-415.resp.txt");
-        client.post("/REST/http-statuses-test/hello", "/EPBDS-7757/statuses-empty.req.json", 200,
-                "/EPBDS-7757/statuses-empty-request.resp.txt");
-        client.post("/REST/http-statuses-test/throwNFE", "/EPBDS-7757/statuses-405.resp.txt", 405,
-                "/EPBDS-7757/statuses-405.resp.txt");
+            "/EPBDS-7757/rest_JSON_EXCEPTION_request.json",
+            400,
+            "/EPBDS-7757/rest_JSON_EXCEPTION_response.json");
+        client.post("/REST/http-statuses-test/hello",
+            "/EPBDS-7757/statuses-415.resp.txt",
+            415,
+            "/EPBDS-7757/statuses-415.resp.txt");
+        client.post("/REST/http-statuses-test/hello",
+            "/EPBDS-7757/statuses-empty.req.json",
+            200,
+            "/EPBDS-7757/statuses-empty-request.resp.txt");
+        client.post("/REST/http-statuses-test/throwNFE",
+            "/EPBDS-7757/statuses-405.resp.txt",
+            405,
+            "/EPBDS-7757/statuses-405.resp.txt");
         client.get("/REST/http-statuses-test/throwNPE", 500, "/EPBDS-7757/rest_NPE_response.json");
         client.get("/REST/http-statuses-test/throwNFE", 500, "/EPBDS-7757/rest_NFE_response.json");
         client.get("/REST/http-statuses-test/hKllo", 404, "/EPBDS-7757/statuses-404.resp.txt");
-        client.post("/http-statuses-test", "/EPBDS-7757/statuses-userError.req.xml", 500,
-                "/EPBDS-7757/statuses-userError.resp.xml");
-        client.post("/http-statuses-test", "/EPBDS-7757/statuses-validation.req.xml", 500,
-                "/EPBDS-7757/statuses-validation.resp.xml");
-        client.post("/http-statuses-test", "/EPBDS-7757/statuses-rulesRuntime.req.xml", 500,
-                "/EPBDS-7757/statuses-rulesRuntime.resp.xml");
-        client.post("/http-statuses-test", "/EPBDS-7757/statuses-validation.req.xml", 500,
-                "/EPBDS-7757/statuses-validation.resp.xml");
-        client.post("/http-statuses-lazycompilation-test", "/EPBDS-7757/statuses-lazycompilation.req.xml",
-                500, "/EPBDS-7757/statuses-lazycompilation.resp.xml");
-        client.post("/http-statuses-test", "/EPBDS-7757/statuses-npe.req.xml", 500,
-                "/EPBDS-7757/statuses-npe.resp.xml");
-        client.post("/http-statuses-test", "/EPBDS-7757/statuses-nfe.req.xml", 500,
-                "/EPBDS-7757/statuses-nfe.resp.xml");
+        client.post("/http-statuses-test",
+            "/EPBDS-7757/statuses-userError.req.xml",
+            500,
+            "/EPBDS-7757/statuses-userError.resp.xml");
+        client.post("/http-statuses-test",
+            "/EPBDS-7757/statuses-validation.req.xml",
+            500,
+            "/EPBDS-7757/statuses-validation.resp.xml");
+        client.post("/http-statuses-test",
+            "/EPBDS-7757/statuses-rulesRuntime.req.xml",
+            500,
+            "/EPBDS-7757/statuses-rulesRuntime.resp.xml");
+        client.post("/http-statuses-test",
+            "/EPBDS-7757/statuses-validation.req.xml",
+            500,
+            "/EPBDS-7757/statuses-validation.resp.xml");
+        client.post("/http-statuses-lazycompilation-test",
+            "/EPBDS-7757/statuses-lazycompilation.req.xml",
+            500,
+            "/EPBDS-7757/statuses-lazycompilation.resp.xml");
+        client
+            .post("/http-statuses-test", "/EPBDS-7757/statuses-npe.req.xml", 500, "/EPBDS-7757/statuses-npe.resp.xml");
+        client
+            .post("/http-statuses-test", "/EPBDS-7757/statuses-nfe.req.xml", 500, "/EPBDS-7757/statuses-nfe.resp.xml");
     }
 
     @Test
     public void EPBDS_10212() {
         client.post("/EPBDS-10212/EPBDS-10212/doSomething",
-                "/EPBDS-10212/doSomething.req.json",
-                "/EPBDS-10212/doSomething.resp.json");
+            "/EPBDS-10212/doSomething.req.json",
+            "/EPBDS-10212/doSomething.resp.json");
     }
 }

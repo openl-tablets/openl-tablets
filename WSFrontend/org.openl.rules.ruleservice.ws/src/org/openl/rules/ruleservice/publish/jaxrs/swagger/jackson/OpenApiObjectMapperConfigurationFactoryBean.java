@@ -1,19 +1,20 @@
 package org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson;
 
+import org.openl.rules.serialization.JacksonObjectMapperFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public final class OpenApiObjectMapperConfigurationFactoryBean extends AbstractFactoryBean<ObjectMapper> {
 
-    private ObjectMapper objectMapper;
+    private JacksonObjectMapperFactory jacksonObjectMapperFactory;
 
-    public ObjectMapper getObjectMapper() {
-        return objectMapper;
+    public JacksonObjectMapperFactory getJacksonObjectMapperFactory() {
+        return jacksonObjectMapperFactory;
     }
 
-    public void setObjectMapper(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+    public void setJacksonObjectMapperFactory(JacksonObjectMapperFactory jacksonObjectMapperFactory) {
+        this.jacksonObjectMapperFactory = jacksonObjectMapperFactory;
     }
 
     @Override
@@ -22,8 +23,8 @@ public final class OpenApiObjectMapperConfigurationFactoryBean extends AbstractF
     }
 
     @Override
-    protected ObjectMapper createInstance() {
-        ObjectMapper objectMapper = getObjectMapper();
+    protected ObjectMapper createInstance() throws Exception {
+        ObjectMapper objectMapper = getJacksonObjectMapperFactory().createJacksonObjectMapper();
         return OpenApiObjectMapperConfigurationHelper.configure(objectMapper);
     }
 }
