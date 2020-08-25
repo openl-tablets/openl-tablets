@@ -812,6 +812,93 @@ public class GitRepositoryTest {
     }
 
     @Test
+    public void mergeConflictInFolderWithFileDeleting() throws RRepositoryException, IOException {
+        // Prepare the test: clone master branch
+        File remote = new File(root, "remote");
+        File local1 = new File(root, "temp1");
+        File local2 = new File(root, "temp2");
+
+        String baseCommit = null;
+        String theirCommit = null;
+
+        final String folderPath = "rules/project1";
+
+        final String conflictedFile = "rules/project1/file2";
+        try (GitRepository repository1 = createRepository(remote, local1);
+            GitRepository repository2 = createRepository(remote, local2)) {
+            try {
+                baseCommit = repository1.check(folderPath).getVersion();
+                // First user commit
+                String text1 = "foo\nbar";
+                List<FileItem> changes1 = Arrays.asList(
+                    new FileItem("rules/project1/file1", IOUtils.toInputStream("Modified")),
+                    new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
+                    new FileItem(conflictedFile, IOUtils.toInputStream(text1)));
+
+                FileData folderData1 = new FileData();
+                folderData1.setName("rules/project1");
+                folderData1.setAuthor("John Smith");
+                folderData1.setComment("Bulk change by John");
+
+                FileData save1 = repository1.save(folderData1, changes1, ChangesetType.DIFF);
+                theirCommit = save1.getVersion();
+
+                // Second user commit (our). Will merge with first user's change (their).
+                List<FileItem> changes2 = Arrays.asList(
+                    new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
+                    new FileItem(conflictedFile, null));
+
+                FileData folderData2 = new FileData();
+                folderData2.setName("rules/project1");
+                folderData2.setAuthor("Jane Smith");
+                folderData2.setComment("Bulk change by Jane");
+                repository2.save(folderData2, changes2, ChangesetType.DIFF);
+
+                fail("MergeConflictException is expected");
+            } catch (MergeConflictException e) {
+                Collection<String> conflictedFiles = e.getConflictedFiles();
+
+                assertEquals(1, conflictedFiles.size());
+                assertEquals(conflictedFile, conflictedFiles.iterator().next());
+
+                assertEquals(baseCommit, e.getBaseCommit());
+                assertEquals(theirCommit, e.getTheirCommit());
+                assertNotNull(e.getYourCommit());
+
+                // Check that their changes are still present in repository.
+                assertEquals("Their changes were reverted in local repository",
+                    theirCommit,
+                    repository2.check(conflictedFile).getVersion());
+
+                assertNotEquals("Our conflicted commit must be reverted but it exists.",
+                    e.getYourCommit(),
+                    repository2.check(conflictedFile).getVersion());
+
+                String mergeMessage = "Merge with " + theirCommit;
+
+                List<FileItem> changes2 = Arrays.asList(
+                    new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
+                    new FileItem(conflictedFile, null));
+
+                List<FileItem> resolveConflicts = Collections
+                    .singletonList(new FileItem(conflictedFile, null));
+
+                FileData folderData2 = new FileData();
+                folderData2.setName("rules/project1");
+                folderData2.setAuthor("Jane Smith");
+                folderData2.setComment("Bulk change by Jane");
+                folderData2.setVersion(baseCommit);
+                folderData2
+                    .addAdditionalData(new ConflictResolveData(e.getTheirCommit(), resolveConflicts, mergeMessage));
+                repository2.save(folderData2, changes2, ChangesetType.DIFF);
+
+                FileItem remoteItem = repository2.read(conflictedFile);
+                assertNull(remoteItem);
+            }
+        }
+    }
+
+    @Test
     public void mergeConflictInFolderMultipleProjects() throws RRepositoryException, IOException {
         // Prepare the test: clone master branch
         File remote = new File(root, "remote");

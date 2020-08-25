@@ -1416,7 +1416,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private void checkoutForced(String branch) throws GitAPIException, IOException {
+    private void checkoutForced(String branch) throws GitAPIException {
         git.checkout().setName(branch).setForced(true).call();
     }
 
@@ -1758,7 +1758,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             // Remove absent files
             String basePath = new File(localRepositoryPath).getAbsolutePath();
             File folder = new File(localRepositoryPath, relativeFolder);
-            removeAbsentFiles(basePath, folder, savedFiles, changedFiles);
+            removeAbsentFiles(basePath, folder, savedFiles);
         }
 
         CommitCommand commitCommand = git.commit()
@@ -1767,7 +1767,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             .setCommitter(userDisplayName != null ? userDisplayName : folderData.getAuthor(),
                 userEmail != null ? userEmail : "");
 
-        return commitChangedFiles(commitCommand, changedFiles);
+        return commitChangedFiles(commitCommand);
     }
 
     private void applyChangeInWorkspace(FileItem change, Collection<String> changedFiles) throws IOException,
@@ -1790,8 +1790,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private RevCommit commitChangedFiles(CommitCommand commitCommand,
-            Collection<String> changedFiles) throws GitAPIException {
+    private RevCommit commitChangedFiles(CommitCommand commitCommand) throws GitAPIException {
         RevCommit commit;
         if (git.status().call().getUncommittedChanges().isEmpty()) {
             // For the cases:
@@ -1803,9 +1802,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             // webservices redeployment without actually changing projects.
             commit = commitCommand.setAllowEmpty(true).call();
         } else {
-            for (String fileName : changedFiles) {
-                commitCommand.setOnly(fileName);
-            }
             commit = commitCommand.call();
         }
         return commit;
@@ -1886,7 +1882,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
         }
 
-        return commitChangedFiles(conflictResolveCommit, changedFiles);
+        return commitChangedFiles(conflictResolveCommit);
     }
 
     private ObjectId getCommitByVersion(String version) throws IOException {
@@ -2198,14 +2194,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private void removeAbsentFiles(String baseAbsolutePath,
             File directory,
-            Collection<File> toSave,
-            List<String> changedFiles) throws GitAPIException {
+            Collection<File> toSave) throws GitAPIException {
         File[] found = directory.listFiles();
 
         if (found != null) {
             for (File file : found) {
                 if (file.isDirectory()) {
-                    removeAbsentFiles(baseAbsolutePath, file, toSave, changedFiles);
+                    removeAbsentFiles(baseAbsolutePath, file, toSave);
                 } else {
                     if (!toSave.contains(file)) {
                         String relativePath = file.getAbsolutePath()
@@ -2215,7 +2210,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                             relativePath = relativePath.substring(1);
                         }
                         git.rm().addFilepattern(relativePath).call();
-                        changedFiles.add(relativePath);
                     }
                 }
             }
