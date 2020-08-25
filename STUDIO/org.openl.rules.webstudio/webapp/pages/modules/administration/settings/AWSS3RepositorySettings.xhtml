@@ -40,10 +40,6 @@
         </h:inputText>
         <h:outputText value=""/>
         <h:message for="#{prependId}listenerTimerPeriod" styleClass="error"/>
-
-        <h:outputLabel value="Version in deployment name:" rendered="#{isProductionRepo}" for="#{prependId}s3IncludeVersionInDeploymentName"/>
-        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProductionRepo}" disabled="#{isEditing}" id="#{prependId}s3IncludeVersionInDeploymentName"/>
-        <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProductionRepo and isEditing}"/>
     </h:panelGrid>
     
     <h:panelGroup rendered="#{isDesignRepo}">
