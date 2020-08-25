@@ -1,0 +1,130 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "API V1",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/Todo": {
+      "post": {
+        "summary": "TodoSmth",
+        "description": "test",
+        "operationId": "TodoSmth",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/Bla": {
+      "post": {
+        "summary": "TodoSmth",
+        "description": "test",
+        "operationId": "TodoSmthBla",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnotherDatatype"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ToDoItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "someStep": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DriverRisk": {
+        "type": "object",
+        "properties": {
+          "numDUI": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "numAccidents": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            }
+          },
+          "numMovingViolations": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AnotherDatatype": {
+        "type": "object",
+        "properties": {
+          "numAccidents": {
+            "type": "boolean"
+          },
+          "numAccidentsOne": {
+            "type": "string",
+            "format": "date"
+          },
+          "numAccidentsTwo": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "numAccidentsThree": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      }
+    }
+  }
+}

@@ -61,7 +61,6 @@
     <bean id="productionRepositoryDataSource" class="org.openl.rules.ruleservice.loader.ProductionRepositoryDataSource"
           depends-on="deployClasspathJarsBean">
         <property name="repository" ref="repository"/>
-        <property name="includeVersionInDeploymentName" value="${version-in-deployment-name}"/>
         <property name="deployPath" value="${production-repository.base.path}"/>
     </bean>
 

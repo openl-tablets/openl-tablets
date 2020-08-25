@@ -82,18 +82,11 @@ public class DeploymentManager implements InitializingBean {
             Repository deployRepo = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
             StringBuilder sb = new StringBuilder(project.getName());
             ProjectVersion projectVersion = project.getVersion();
-            boolean includeVersionInDeploymentName = repositoryFactoryProxy
-                .isIncludeVersionInDeploymentName(repositoryConfigName);
             String deploymentsPath = repositoryFactoryProxy.getBasePath(repositoryConfigName);
             if (projectVersion != null) {
-                if (includeVersionInDeploymentName) {
-                    int version = DeployUtils.getNextDeploymentVersion(deployRepo, project.getName(), deploymentsPath);
-                    sb.append(DeployUtils.SEPARATOR).append(version);
-                } else {
-                    String apiVersion = getApiVersion(project);
-                    if (apiVersion != null) {
-                        sb.append(DeployUtils.API_VERSION_SEPARATOR).append(apiVersion);
-                    }
+                String apiVersion = getApiVersion(project);
+                if (apiVersion != null) {
+                    sb.append(DeployUtils.API_VERSION_SEPARATOR).append(apiVersion);
                 }
             }
             DeployID id = new DeployID(sb.toString());

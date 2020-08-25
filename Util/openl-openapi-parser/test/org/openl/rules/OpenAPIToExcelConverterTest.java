@@ -12,9 +12,11 @@ import java.util.Optional;
 
 import org.junit.Test;
 import org.openl.rules.model.scaffolding.DatatypeModel;
+import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetResultModel;
+import org.openl.rules.model.scaffolding.StepModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 
@@ -260,5 +262,81 @@ public class OpenAPIToExcelConverterTest {
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(104, datatypeModels.size());
         assertEquals(9, spreadsheetResultModels.size());
+    }
+
+    @Test
+    public void testSprDefaultDateTimeValueInSpr() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/spreadsheets/default_values_check.json");
+        List<SpreadsheetResultModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
+        Optional<SpreadsheetResultModel> apiBla = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("apiBla"))
+            .findFirst();
+        assertTrue(apiBla.isPresent());
+        List<StepModel> steps = apiBla.get().getSteps();
+        assertEquals(4, steps.size());
+        Optional<StepModel> numAccidentsTwo = steps.stream()
+            .filter(x -> x.getName().equals("numAccidentsTwo"))
+            .findFirst();
+        assertTrue(numAccidentsTwo.isPresent());
+        assertEquals("OffsetDateTime", numAccidentsTwo.get().getType());
+    }
+
+    @Test
+    public void testBraces() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/path_with_braces/braced_with_text.json");
+        List<SpreadsheetResultModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
+        assertFalse(spreadsheetResultModels.isEmpty());
+        Optional<SpreadsheetResultModel> bracedSprName = spreadsheetResultModels.stream().findFirst();
+        String name = bracedSprName.get().getName();
+        assertEquals("myRulexyz", name);
+
+        ProjectModel pM = converter.extractProjectModel("test.converter/path_with_braces/braced_simple.json");
+        List<SpreadsheetResultModel> sprModels = pM.getSpreadsheetResultModels();
+        assertFalse(sprModels.isEmpty());
+        Optional<SpreadsheetResultModel> model = sprModels.stream().findFirst();
+        String formattedName = model.get().getName();
+        assertEquals("myRule", formattedName);
+    }
+
+    @Test
+    public void testNestingProblem() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/nesting.json");
+        List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
+        assertFalse(datatypeModels.isEmpty());
+        Optional<DatatypeModel> anotherDatatype = datatypeModels.stream()
+            .filter(x -> x.getName().equals("AnotherDatatype"))
+            .findFirst();
+        assertTrue(anotherDatatype.isPresent());
+        DatatypeModel datatypeModel = anotherDatatype.get();
+        assertEquals("DriverRisk", datatypeModel.getParent());
+        List<FieldModel> fields = datatypeModel.getFields();
+        assertFalse(fields.isEmpty());
+        FieldModel f = fields.stream().findFirst().get();
+        assertEquals("category", f.getName());
+    }
+
+    @Test
+    public void testArrayInSpr() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/spreadsheets/spr_array_instance.json");
+        List<SpreadsheetResultModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
+        assertFalse(spreadsheetResultModels.isEmpty());
+        Optional<SpreadsheetResultModel> helloKitty = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("HelloKitty"))
+            .findFirst();
+        assertTrue(helloKitty.isPresent());
+        SpreadsheetResultModel spreadsheetResultModel = helloKitty.get();
+        assertEquals(1, spreadsheetResultModel.getSteps().size());
+        Optional<StepModel> first = spreadsheetResultModel.getSteps().stream().findFirst();
+        assertTrue(first.isPresent());
+        StepModel stepModel = first.get();
+        assertEquals("Double[]", stepModel.getType());
+        assertEquals("HelloKitty", stepModel.getName());
     }
 }

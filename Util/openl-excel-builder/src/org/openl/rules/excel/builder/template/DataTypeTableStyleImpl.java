@@ -10,6 +10,7 @@ public class DataTypeTableStyleImpl extends DefaultTableStyleImpl implements Dat
 
     private final DataTypeRowStyle dataTypeRowStyle;
     private final CellStyle dateFieldStyle;
+    private final CellStyle dateTimeFieldStyle;
     private final DataTypeRowStyle lastRowStyle;
     private final Font datatypeFont;
 
@@ -18,6 +19,7 @@ public class DataTypeTableStyleImpl extends DefaultTableStyleImpl implements Dat
             CellRangeSettings headerSizeSettings,
             DataTypeRowStyle rowStyle,
             CellStyle dateFieldStyle,
+            CellStyle dateTimeFieldStyle,
             DataTypeRowStyle lastRowStyle,
             Font datatypeFont) {
         super(headerTextTemplate, headerStyle, headerSizeSettings);
@@ -25,6 +27,7 @@ public class DataTypeTableStyleImpl extends DefaultTableStyleImpl implements Dat
         this.dateFieldStyle = dateFieldStyle;
         this.lastRowStyle = lastRowStyle;
         this.datatypeFont = datatypeFont;
+        this.dateTimeFieldStyle = dateTimeFieldStyle;
     }
 
     @Override
@@ -33,7 +36,7 @@ public class DataTypeTableStyleImpl extends DefaultTableStyleImpl implements Dat
     }
 
     @Override
-    public CellStyle getDateFieldStyle() {
+    public CellStyle getDateStyle() {
         return dateFieldStyle;
     }
 
@@ -45,5 +48,10 @@ public class DataTypeTableStyleImpl extends DefaultTableStyleImpl implements Dat
     @Override
     public DataTypeRowStyle getLastRowStyle() {
         return lastRowStyle;
+    }
+
+    @Override
+    public CellStyle getDateTimeStyle() {
+        return dateTimeFieldStyle;
     }
 }

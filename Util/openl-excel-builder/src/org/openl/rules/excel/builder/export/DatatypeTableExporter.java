@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
-import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.RichTextString;
@@ -19,7 +18,6 @@ import org.openl.rules.excel.builder.template.TableStyle;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.table.xls.PoiExcelHelper;
-import org.openl.rules.table.xls.formatters.FormatConstants;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +47,8 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
         CellRangeSettings headerSettings = style.getHeaderSizeSettings();
         CellStyle headerStyle = style.getHeaderStyle();
 
-        CellStyle fieldDateStyle = style.getDateFieldStyle();
+        CellStyle dateStyle = style.getDateStyle();
+        CellStyle dateTimeStyle = style.getDateTimeStyle();
 
         String dtHeaderText = headerTemplate.getString().replaceAll(DATATYPE_NAME, model.getName());
         if (StringUtils.isNotBlank(model.getParent())) {
@@ -75,7 +74,12 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
             }
             Cursor next = endPosition.moveDown(1);
             Cell typeCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
-            typeCell.setCellValue(field.getType());
+            String type = field.getType();
+            if (type.equals("OffsetDateTime")) {
+                typeCell.setCellValue("Date");
+            } else {
+                typeCell.setCellValue(type);
+            }
             typeCell
                 .setCellStyle(lastRow ? style.getLastRowStyle().getTypeStyle() : style.getRowStyle().getTypeStyle());
             next = next.moveRight(1);
@@ -87,14 +91,9 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
             next = next.moveRight(1);
 
             Cell valueCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
-            writeDefaultValueToCell(model, field, valueCell);
-
+            writeDefaultValueToCell(model, field, valueCell, dateStyle, dateTimeStyle);
             CellStyle styleAfterWrite = valueCell.getCellStyle();
-            if (styleAfterWrite.getDataFormat() > 0) {
-                // workaround for date cells
-                fieldDateStyle.setDataFormat(styleAfterWrite.getDataFormat());
-                valueCell.setCellStyle(fieldDateStyle);
-            } else {
+            if (styleAfterWrite.getDataFormat() == 0) {
                 valueCell.setCellStyle(
                     lastRow ? style.getLastRowStyle().getValueStyle() : style.getRowStyle().getValueStyle());
             }
@@ -105,12 +104,16 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
         return new Cursor(endPosition.getColumn(), endPosition.getRow());
     }
 
-    private void writeDefaultValueToCell(DatatypeModel model, FieldModel field, Cell valueCell) {
+    private void writeDefaultValueToCell(DatatypeModel model,
+            FieldModel field,
+            Cell valueCell,
+            CellStyle dateStyle,
+            CellStyle dateTimeStyle) {
         if (field.getDefaultValue() == null) {
             valueCell.setCellValue("");
         } else {
             try {
-                setDefaultValue(field, valueCell);
+                setDefaultValue(field, valueCell, dateStyle, dateTimeStyle);
             } catch (ParseException e) {
                 logger
                     .error("Error is occurred on writing field: {}, model: {} .", field.getName(), model.getName(), e);
@@ -123,7 +126,10 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
         return DATATYPES_SHEET;
     }
 
-    private static void setDefaultValue(FieldModel model, Cell valueCell) throws ParseException {
+    private static void setDefaultValue(FieldModel model,
+            Cell valueCell,
+            CellStyle dateStyle,
+            CellStyle dateTimeStyle) throws ParseException {
         Object defaultValue = model.getDefaultValue();
         String valueAsString = defaultValue.toString();
         switch (model.getType()) {
@@ -155,17 +161,14 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
                 valueCell.setCellValue(Boolean.parseBoolean(valueAsString));
                 break;
             case "Date":
-                if (defaultValue instanceof Date) {
-                    Date dateValue = (Date) defaultValue;
-                    valueCell.setCellValue(dateValue);
-                    valueCell.getCellStyle()
-                        .setDataFormat(
-                            (short) BuiltinFormats.getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
-                } else if (defaultValue instanceof OffsetDateTime) {
-                    OffsetDateTime dateValue = (OffsetDateTime) defaultValue;
-                    valueCell.setCellValue(new Date((dateValue).toInstant().toEpochMilli()));
-                    // valueCell.getCellStyle().setDataFormat((short) BuiltinFormats.getBuiltinFormat("m/d/yy h:mm"));
-                }
+                Date dateValue = (Date) defaultValue;
+                valueCell.setCellValue(dateValue);
+                valueCell.setCellStyle(dateStyle);
+                break;
+            case "OffsetDateTime":
+                OffsetDateTime dateTimeValue = (OffsetDateTime) defaultValue;
+                valueCell.setCellValue(new Date((dateTimeValue).toInstant().toEpochMilli()));
+                valueCell.setCellStyle(dateTimeStyle);
                 break;
             default:
                 valueCell.setCellValue("");

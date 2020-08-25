@@ -11,10 +11,10 @@ public class EnvironmentTableStyleImpl extends DefaultTableStyleImpl implements 
     private final NameValueRowStyle lastRowStyle;
 
     public EnvironmentTableStyleImpl(RichTextString headerTextTemplate,
-                                     CellStyle headerStyle,
-                                     CellRangeSettings headerSizeSettings,
-                                     NameValueRowStyle rowStyle,
-                                     NameValueRowStyle lastRowStyle) {
+            CellStyle headerStyle,
+            CellRangeSettings headerSizeSettings,
+            NameValueRowStyle rowStyle,
+            NameValueRowStyle lastRowStyle) {
         super(headerTextTemplate, headerStyle, headerSizeSettings);
         this.rowStyle = rowStyle;
         this.lastRowStyle = lastRowStyle;
@@ -28,5 +28,15 @@ public class EnvironmentTableStyleImpl extends DefaultTableStyleImpl implements 
     @Override
     public NameValueRowStyle getLastRowStyle() {
         return lastRowStyle;
+    }
+
+    @Override
+    public CellStyle getDateStyle() {
+        return getHeaderStyle();
+    }
+
+    @Override
+    public CellStyle getDateTimeStyle() {
+        return getHeaderStyle();
     }
 }

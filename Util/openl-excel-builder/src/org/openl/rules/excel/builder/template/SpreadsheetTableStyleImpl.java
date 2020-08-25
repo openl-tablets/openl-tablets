@@ -12,6 +12,8 @@ public class SpreadsheetTableStyleImpl extends DefaultTableStyleImpl implements 
     private final String valueHeaderText;
     private final NameValueRowStyle rowStyle;
     private final NameValueRowStyle lastRowStyle;
+    private final CellStyle dateFieldStyle;
+    private final CellStyle dateTimeFieldStyle;
 
     public SpreadsheetTableStyleImpl(RichTextString headerTextTemplate,
             CellStyle headerStyle,
@@ -20,13 +22,17 @@ public class SpreadsheetTableStyleImpl extends DefaultTableStyleImpl implements 
             String stepHeaderText,
             String valueHeaderText,
             NameValueRowStyle rowStyle,
-            NameValueRowStyle lastRowStyle) {
+            NameValueRowStyle lastRowStyle,
+            CellStyle dateFieldStyle,
+            CellStyle dateTimeFieldStyle) {
         super(headerTextTemplate, headerStyle, headerSettings);
         this.headerRowStyle = headerRowStyle;
         this.stepHeaderText = stepHeaderText;
         this.valueHeaderText = valueHeaderText;
         this.rowStyle = rowStyle;
         this.lastRowStyle = lastRowStyle;
+        this.dateFieldStyle = dateFieldStyle;
+        this.dateTimeFieldStyle = dateTimeFieldStyle;
     }
 
     public NameValueRowStyle getHeaderRowStyle() {
@@ -47,5 +53,13 @@ public class SpreadsheetTableStyleImpl extends DefaultTableStyleImpl implements 
 
     public NameValueRowStyle getLastRowStyle() {
         return lastRowStyle;
+    }
+
+    public CellStyle getDateStyle() {
+        return dateFieldStyle;
+    }
+
+    public CellStyle getDateTimeStyle() {
+        return dateTimeFieldStyle;
     }
 }

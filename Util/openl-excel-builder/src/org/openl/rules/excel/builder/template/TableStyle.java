@@ -16,4 +16,8 @@ public interface TableStyle {
     NameValueRowStyle getRowStyle();
 
     NameValueRowStyle getLastRowStyle();
+
+    CellStyle getDateStyle();
+
+    CellStyle getDateTimeStyle();
 }

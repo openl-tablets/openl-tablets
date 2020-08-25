@@ -22,16 +22,19 @@
         "allOf": [
           {
             "$ref": "#/components/schemas/Animal"
-          }
-        ],
-        "properties": {
-          "weight": {
-            "type": "string"
           },
-          "tail": {
-            "type": "string"
+          {
+            "type": "object",
+            "properties": {
+              "weight": {
+                "type": "string"
+              },
+              "tail": {
+                "type": "string"
+              }
+            }
           }
-        }
+        ]
       }
     }
   },

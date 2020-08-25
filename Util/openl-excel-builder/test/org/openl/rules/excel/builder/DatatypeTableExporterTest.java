@@ -11,6 +11,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -55,6 +57,12 @@ public class DatatypeTableExporterTest {
             .setDefaultValue(dateValue)
             .build();
 
+        OffsetDateTime dateTimeValue = OffsetDateTime.now(ZoneId.systemDefault());
+        FieldModel dateTimeField = new FieldModel.Builder().setName("registrationDateTime")
+            .setType("OffsetDateTime")
+            .setDefaultValue(dateTimeValue)
+            .build();
+
         FieldModel booleanField = new FieldModel.Builder().setName("isOk")
             .setType("Boolean")
             .setDefaultValue(true)
@@ -62,7 +70,7 @@ public class DatatypeTableExporterTest {
 
         FieldModel customTypeField = new FieldModel.Builder().setName("driver").setType("Human").build();
 
-        dt.setFields(Arrays.asList(stringField, doubleField, dateField, booleanField, customTypeField));
+        dt.setFields(Arrays.asList(stringField, doubleField, dateField, booleanField, customTypeField, dateTimeField));
 
         DatatypeModel oneMoreModel = new DatatypeModel("NextModel");
         FieldModel nextModelField = new FieldModel.Builder().setName("color")
@@ -161,12 +169,29 @@ public class DatatypeTableExporterTest {
             assertEquals("driver", customCellName);
             assertEquals("", customCellValue);
 
-            XSSFRow nextModelHeaderRow = dtsSheet.getRow(TOP_MARGIN + 8);
+            XSSFRow dateTimeRow = dtsSheet.getRow(TOP_MARGIN + 6);
+            assertNotNull(dateTimeRow);
+            XSSFCell dateTimeCell = dateTimeRow.getCell(DT_TYPE_CELL);
+            assertNotNull(dateTimeCell);
+            String dateTimeCellType = dateTimeCell.getStringCellValue();
+            XSSFCell dateTimeNameCell = dateTimeRow.getCell(DT_NAME_CELL);
+            assertNotNull(dateTimeNameCell);
+            String dateTimeCellName = dateTimeNameCell.getStringCellValue();
+            XSSFCell dateTimeDefaultValueCell = dateTimeRow.getCell(DT_DEFAULT_VALUE_CELL);
+            assertNotNull(dateTimeDefaultValueCell);
+            OffsetDateTime offsetDateTime = dateTimeDefaultValueCell.getLocalDateTimeCellValue()
+                .atZone(ZoneId.systemDefault())
+                .toOffsetDateTime();
+            assertEquals("Date", dateTimeCellType);
+            assertEquals("registrationDateTime", dateTimeCellName);
+            assertNotNull(offsetDateTime);
+
+            XSSFRow nextModelHeaderRow = dtsSheet.getRow(TOP_MARGIN + 9);
             assertNotNull(nextModelHeaderRow);
             XSSFCell nextModelHeaderCell = nextModelHeaderRow.getCell(1);
             assertNotNull(nextModelHeaderCell);
             assertEquals("Datatype NextModel extends Test", nextModelHeaderCell.getStringCellValue());
-            XSSFRow nextModelRow = dtsSheet.getRow(TOP_MARGIN + 9);
+            XSSFRow nextModelRow = dtsSheet.getRow(TOP_MARGIN + 10);
             XSSFCell nextModelDtCell = nextModelRow.getCell(DT_TYPE_CELL);
             assertNotNull(nextModelDtCell);
             XSSFCell nextModelNameCell = nextModelRow.getCell(DT_NAME_CELL);

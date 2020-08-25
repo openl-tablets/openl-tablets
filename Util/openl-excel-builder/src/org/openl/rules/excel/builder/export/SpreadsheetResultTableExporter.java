@@ -53,6 +53,9 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
         RichTextString tableHeaderText = style.getHeaderTemplate();
         CellRangeSettings headerSettings = style.getHeaderSizeSettings();
 
+        CellStyle dateStyle = style.getDateStyle();
+        CellStyle dateTimeStyle = style.getDateTimeStyle();
+
         CellStyle stepHeaderStyle = style.getHeaderRowStyle().getNameStyle();
         String stepHeaderText = style.getStepHeaderText();
 
@@ -105,10 +108,14 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
             next = next.moveRight(1);
 
             Cell stepValueCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
-            if (spreadsheetNames.contains(step.getType())) {
+            String type = step.getType();
+            boolean isArray = type.endsWith("[]");
+            if (spreadsheetNames.contains(type)) {
                 stepValueCell.setCellValue(makeSprCall(step));
+            } else if (!isSimpleType(type)) {
+                stepValueCell.setCellValue(createNewInstance(type, isArray));
             } else {
-                setValue(step, stepValueCell);
+                setValue(step, stepValueCell, dateStyle, dateTimeStyle);
             }
 
             stepValueCell
@@ -121,6 +128,16 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
         return new Cursor(endPosition.getColumn(), endPosition.getRow());
     }
 
+    private String createNewInstance(String type, boolean isArray) {
+        StringBuilder result = new StringBuilder().append("=").append("new ").append(type);
+        if (isArray) {
+            result.append("{}");
+        } else {
+            result.append("()");
+        }
+        return result.toString();
+    }
+
     private String makeSprCall(StepModel step) {
         return "=" + step.getType() + "(" + step.getValue() + ")";
     }
@@ -130,7 +147,7 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
         return SPR_RESULT_SHEET;
     }
 
-    private static void setValue(StepModel model, Cell stepValueCell) {
+    private static void setValue(StepModel model, Cell stepValueCell, CellStyle dateStyle, CellStyle dateTimeStyle) {
         if (model.getType() != null) {
             String type = model.getType();
             if ("Integer".equals(type) || "Long".equals(type)) {
@@ -142,8 +159,11 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
             } else if ("String".equals(type)) {
                 stepValueCell.setCellValue(DEFAULT_STRING_VALUE);
             } else if ("Date".equals(type)) {
-                // date-time difference
                 stepValueCell.setCellValue(new Date());
+                stepValueCell.setCellStyle(dateStyle);
+            } else if ("OffsetDateTime".equals(type)) {
+                stepValueCell.setCellValue(new Date());
+                stepValueCell.setCellStyle(dateTimeStyle);
             } else if ("Boolean".equals(type)) {
                 stepValueCell.setCellValue(false);
             }
@@ -154,6 +174,7 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
 
     private boolean isSimpleType(String type) {
         return "String".equals(type) || "Float".equals(type) || "Double".equals(type) || "Integer"
-            .equals(type) || "Long".equals(type) || "Boolean".equals(type) || "Date".equals(type);
+            .equals(type) || "Long"
+                .equals(type) || "Boolean".equals(type) || "Date".equals(type) || "OffsetDateTime".equals(type);
     }
 }
