@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:util="http://www.springframework.org/schema/util"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	                       http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
 
 	<!-- Provide information about modules that can be used as dependencies. -->
 	<!-- <bean id="dependencyManager" class="org.openl.rules.project.dependencies.RulesProjectDependencyManager"/> -->
@@ -14,12 +16,10 @@
 	<bean id="javaClassRuleServicePublisher" class="org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher">
 		<property name="frontend" ref="frontend"/>
 	</bean>
-	
-	<bean id="ruleServiceManager" class="org.openl.rules.ruleservice.publish.RuleServiceManagerImpl">
-		<property name="supportedPublishers">
-			<map>
-				<entry key="JAVA" value-ref="javaClassRuleServicePublisher"/>
-			</map>
-		</property>
-	</bean>
+
+	<util:map id="ruleServicePublishers">
+		<entry key="JAVA" value-ref="javaClassRuleServicePublisher"/>
+	</util:map>
+
+	<util:list id="defaultRuleServicePublishers"/>
 </beans>

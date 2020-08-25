@@ -3,7 +3,6 @@ package org.openl.rules.rest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -14,8 +13,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.openl.rules.webstudio.web.Props;
 import org.openl.util.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,7 +22,8 @@ import org.springframework.stereotype.Service;
 @Consumes(MediaType.TEXT_PLAIN)
 public class NotificationService {
 
-    private final java.nio.file.Path NOTIFICATION_FILE = Paths.get(Props.text("admin.notification-file"));
+    @Value("${admin.notification-file}")
+    private java.nio.file.Path NOTIFICATION_FILE;
 
     @GET
     @Path("/public/notification.txt")

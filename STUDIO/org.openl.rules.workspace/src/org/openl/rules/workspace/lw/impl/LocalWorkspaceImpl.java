@@ -3,6 +3,7 @@ package org.openl.rules.workspace.lw.impl;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,8 @@ import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 
 public class LocalWorkspaceImpl implements LocalWorkspace {
+    private static final Comparator<AProject> PROJECTS_COMPARATOR = (o1, o2) -> o1.getName()
+        .compareToIgnoreCase(o2.getName());
 
     private final WorkspaceUser user;
     private final File location;
@@ -95,7 +98,9 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     @Override
     public Collection<AProject> getProjects() {
         synchronized (localProjects) {
-            return new ArrayList<>(localProjects.values());
+            ArrayList<AProject> projects = new ArrayList<>(localProjects.values());
+            projects.sort(PROJECTS_COMPARATOR);
+            return projects;
         }
     }
 

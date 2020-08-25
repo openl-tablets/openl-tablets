@@ -697,22 +697,18 @@ public class OpenLOpenAPIUtils {
     }
 
     private static String getDataTypeName(String path) {
-        return normalizeName(path, true) + "Request";
+        return normalizeName(path) + "Request";
     }
 
-    public static String normalizeName(String originalName, boolean capitalized) {
+    public static String normalizeName(String originalName) {
         StringBuilder resultName = new StringBuilder();
         char[] chars = originalName.toCharArray();
         if (Character.isJavaIdentifierStart(chars[0])) {
-            resultName.append(capitalized ? Character.toUpperCase(chars[0]) : Character.toLowerCase(chars[0]));
+            resultName.append(chars[0]);
         }
         for (int i = 1; i < chars.length; i++) {
             if (Character.isJavaIdentifierPart(chars[i])) {
-                if (resultName.length() == 0) {
-                    resultName.append(capitalized ? Character.toUpperCase(chars[i]) : Character.toLowerCase(chars[i]));
-                } else {
-                    resultName.append(chars[i]);
-                }
+                resultName.append(chars[i]);
             }
         }
         return resultName.toString();

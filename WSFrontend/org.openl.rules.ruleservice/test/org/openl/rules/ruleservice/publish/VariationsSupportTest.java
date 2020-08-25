@@ -44,12 +44,8 @@ public class VariationsSupportTest implements ApplicationContextAware {
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
 
-        RuleServiceManager ruleServicePublisher = applicationContext.getBean("ruleServiceManager",
-            RuleServiceManager.class);
-        assertNotNull(ruleServicePublisher);
-
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
-        Object driver = ruleServicePublisher.getServiceByName("org.openl.rules.tutorial4.Tutorial4WithVariations")
+        Object driver = serviceManager.getServiceByName("org.openl.rules.tutorial4.Tutorial4WithVariations")
             .getServiceClass()
             .getClassLoader()
             .loadClass("org.openl.generated.beans.publisher.test.Driver")

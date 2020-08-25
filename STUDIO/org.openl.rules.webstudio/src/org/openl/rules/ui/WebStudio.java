@@ -933,20 +933,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public AProject getProjectByName(final String name) {
         try {
-            List<ProjectDescriptor> allProjects = getAllProjects();
-            Optional<ProjectDescriptor> descriptor = allProjects.stream().filter(p -> p.getName().equals(name)).findFirst();
-            if (!descriptor.isPresent()) {
-                return null;
-            }
-            ProjectDescriptor projectDescriptor = descriptor.get();
-
             LocalWorkspace localWorkspace = rulesUserSession.getUserWorkspace().getLocalWorkspace();
 
-            for (AProject project : localWorkspace.getProjects()) {
-                File repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
-                File folder = new File(repoRoot, project.getFolderPath());
-                if (folder.equals(projectDescriptor.getProjectFolder())) {
-                    return project;
+            for (AProject workspaceProject : localWorkspace.getProjects()) {
+                if (workspaceProject.getName().equals(name)) {
+                    return workspaceProject;
                 }
             }
 

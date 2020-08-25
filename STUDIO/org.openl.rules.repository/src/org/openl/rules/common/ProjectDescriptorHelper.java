@@ -45,6 +45,9 @@ public class ProjectDescriptorHelper {
     public static List<ProjectDescriptor> deserialize(InputStream source) {
         List<ProjectDescriptor> result = null;
         XMLInputFactory factory = XMLInputFactory.newInstance();
+        // disable external entities
+        factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+        factory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
         try {
             if (source.available() == 0) {
                 return result;
