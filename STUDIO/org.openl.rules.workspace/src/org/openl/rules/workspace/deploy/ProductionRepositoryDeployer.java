@@ -50,7 +50,6 @@ import org.yaml.snakeyaml.Yaml;
  */
 public class ProductionRepositoryDeployer {
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoryDeployer.class);
-    public static final String VERSION_IN_DEPLOYMENT_NAME = ".version-in-deployment-name";
     private static final String DEPLOYMENT_DESCRIPTOR_FILE_NAME = "deployment";
     private PropertyResolver environment;
     private String prefix;
@@ -88,7 +87,6 @@ public class ProductionRepositoryDeployer {
         try {
             // Initialize repo
             deployRepo = RepositoryInstatiator.newRepository(prefix, environment);
-            String includeVersion = environment.getProperty("repository." + prefix + VERSION_IN_DEPLOYMENT_NAME);
             String deployPath = environment.getProperty("repository." + prefix + ".base.path");
             if (deployPath == null) {
                 deployPath = "deploy/"; // Workaround for backward compatibility.
@@ -96,7 +94,7 @@ public class ProductionRepositoryDeployer {
                 deployPath += "/";
             }
 
-            deployInternal(zipFile, deployRepo, skipExist, Boolean.parseBoolean(includeVersion), deployPath);
+            deployInternal(zipFile, deployRepo, skipExist, deployPath);
         } finally {
             // Close repo
             if (deployRepo != null) {
@@ -153,7 +151,6 @@ public class ProductionRepositoryDeployer {
     public void deployInternal(File zipFile,
             Repository deployRepo,
             boolean skipExist,
-            boolean includeVersionInDeploymentName,
             String deployPath) throws Exception {
 
         // Temp folders
@@ -170,7 +167,6 @@ public class ProductionRepositoryDeployer {
             if (deploymentName == null) {
                 FileData fileData = createFileData(deployRepo,
                     skipExist,
-                    includeVersionInDeploymentName,
                     deployPath,
                     zipFolder,
                     name,
@@ -186,7 +182,6 @@ public class ProductionRepositoryDeployer {
                 for (File f : rulesConfigs) {
                     FileData fileData = createFileData(deployRepo,
                         skipExist,
-                        includeVersionInDeploymentName,
                         deployPath,
                         f,
                         name,
@@ -229,7 +224,6 @@ public class ProductionRepositoryDeployer {
 
     private FileData createFileData(Repository deployRepo,
             boolean skipExist,
-            boolean includeVersionInDeploymentName,
             String deployPath,
             File rulesFolder,
             String defaultName,
@@ -244,32 +238,19 @@ public class ProductionRepositoryDeployer {
             }
         }
 
-        int version = 0;
         StringBuilder fileNameBuilder = new StringBuilder(deployPath);
         fileNameBuilder.append(deploymentName == null ? name : deploymentName);
-        if (includeVersionInDeploymentName) {
-            version = DeployUtils.getNextDeploymentVersion(deployRepo, name, deployPath);
-            fileNameBuilder.append(DeployUtils.SEPARATOR).append(version);
-        } else {
-            File rulesDeploy = new File(rulesFolder, "rules-deploy.xml");
-            if (rulesDeploy.exists()) {
-                String apiVersion = getApiVersion(rulesDeploy);
-                if (apiVersion != null && !apiVersion.isEmpty()) {
-                    fileNameBuilder.append(DeployUtils.API_VERSION_SEPARATOR).append(apiVersion);
-                }
+        File rulesDeploy = new File(rulesFolder, "rules-deploy.xml");
+        if (rulesDeploy.exists()) {
+            String apiVersion = getApiVersion(rulesDeploy);
+            if (apiVersion != null && !apiVersion.isEmpty()) {
+                fileNameBuilder.append(DeployUtils.API_VERSION_SEPARATOR).append(apiVersion);
             }
         }
         fileNameBuilder.append('/');
         if (skipExist) {
-            if (includeVersionInDeploymentName) {
-                if (version > 1) {
-                    log.info("Project [{}] exists. It has been skipped to deploy.", name);
-                    return null;
-                }
-            } else {
-                if (!deployRepo.list(fileNameBuilder.toString()).isEmpty()) {
-                    return null;
-                }
+            if (!deployRepo.list(fileNameBuilder.toString()).isEmpty()) {
+                return null;
             }
         }
         fileNameBuilder.append(name);

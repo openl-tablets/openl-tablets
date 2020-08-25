@@ -4,7 +4,6 @@ import org.openl.config.ConfigNames;
 import org.openl.config.PropertiesHolder;
 
 public abstract class RepositorySettings {
-    private final String VERSION_IN_DEPLOYMENT_NAME;
     private final String USE_CUSTOM_COMMENTS;
     private final String COMMENT_VALIDATION_PATTERN;
     private final String INVALID_COMMENT_MESSAGE;
@@ -18,7 +17,6 @@ public abstract class RepositorySettings {
     private final String DEFAULT_COMMENT_RESTORED_FROM;
     private final String BASE_PATH;
 
-    private boolean includeVersionInDeploymentName;
     private String commentValidationPattern;
     private String invalidCommentMessage;
     private String commentTemplate;
@@ -35,7 +33,6 @@ public abstract class RepositorySettings {
     private boolean useCustomComments;
 
     RepositorySettings(PropertiesHolder propertyResolver, String configPrefix) {
-        VERSION_IN_DEPLOYMENT_NAME = configPrefix + ".version-in-deployment-name";
         USE_CUSTOM_COMMENTS = configPrefix + ".comment-template.use-custom-comments";
         COMMENT_VALIDATION_PATTERN = configPrefix + ".comment-validation-pattern";
         INVALID_COMMENT_MESSAGE = configPrefix + ".invalid-comment-message";
@@ -50,14 +47,6 @@ public abstract class RepositorySettings {
         BASE_PATH = configPrefix + ".base.path";
 
         load(propertyResolver);
-    }
-
-    public boolean isIncludeVersionInDeploymentName() {
-        return includeVersionInDeploymentName;
-    }
-
-    public void setIncludeVersionInDeploymentName(boolean includeVersionInDeploymentName) {
-        this.includeVersionInDeploymentName = includeVersionInDeploymentName;
     }
 
     public String getCommentValidationPattern() {
@@ -157,8 +146,6 @@ public abstract class RepositorySettings {
     }
 
     private void load(PropertiesHolder properties) {
-        includeVersionInDeploymentName = Boolean.parseBoolean(properties.getProperty(VERSION_IN_DEPLOYMENT_NAME));
-
         useCustomComments = Boolean.parseBoolean(properties.getProperty(USE_CUSTOM_COMMENTS));
         commentValidationPattern = properties.getProperty(COMMENT_VALIDATION_PATTERN);
         invalidCommentMessage = properties.getProperty(INVALID_COMMENT_MESSAGE);
@@ -175,7 +162,6 @@ public abstract class RepositorySettings {
     }
 
     protected void store(PropertiesHolder propertiesHolder) {
-        propertiesHolder.setProperty(VERSION_IN_DEPLOYMENT_NAME, includeVersionInDeploymentName);
         propertiesHolder.setProperty(BASE_PATH, basePath);
         propertiesHolder.setProperty(USE_CUSTOM_COMMENTS, useCustomComments);
         if (useCustomComments) {
@@ -205,7 +191,7 @@ public abstract class RepositorySettings {
     }
 
     protected void revert(PropertiesHolder properties) {
-        properties.revertProperties(VERSION_IN_DEPLOYMENT_NAME,
+        properties.revertProperties(
             USE_CUSTOM_COMMENTS,
             COMMENT_VALIDATION_PATTERN,
             INVALID_COMMENT_MESSAGE,
@@ -240,7 +226,6 @@ public abstract class RepositorySettings {
     }
 
     public void copyContent(RepositorySettings other) {
-        setIncludeVersionInDeploymentName(other.isIncludeVersionInDeploymentName());
         setUseCustomComments(other.isUseCustomComments());
         setCommentValidationPattern(other.getCommentValidationPattern());
         setInvalidCommentMessage(other.getInvalidCommentMessage());

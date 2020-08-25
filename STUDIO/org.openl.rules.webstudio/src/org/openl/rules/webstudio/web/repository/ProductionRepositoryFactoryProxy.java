@@ -67,11 +67,6 @@ public class ProductionRepositoryFactoryProxy {
         return RepositoryInstatiator.newRepository(configName, propertyResolver);
     }
 
-    public boolean isIncludeVersionInDeploymentName(String configName) {
-        return Boolean
-            .parseBoolean(propertyResolver.getProperty("repository." + configName + ".version-in-deployment-name"));
-    }
-
     public String getDeploymentsPath(String configName) {
         String key = "repository." + configName + ".base.path";
         String deployPath = propertyResolver.getProperty(key);
