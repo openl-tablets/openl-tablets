@@ -95,7 +95,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             boolean sprsAreEmpty = CollectionUtils.isEmpty(spreadsheetResultModels);
 
             if (dataTypesAreEmpty && sprsAreEmpty) {
-                throw new ProjectException("There are no data types and spreadsheets are found.");
+                throw new ProjectException("Error creating the project, uploaded file has invalid structure.");
             }
             if (!dataTypesAreEmpty) {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
