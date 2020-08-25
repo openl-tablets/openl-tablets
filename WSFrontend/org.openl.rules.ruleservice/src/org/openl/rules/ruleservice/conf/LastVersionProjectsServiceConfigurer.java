@@ -2,12 +2,9 @@ package org.openl.rules.ruleservice.conf;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.jar.JarFile;
@@ -46,74 +43,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
     private boolean provideRuntimeContext = false;
     private boolean supportVariations = false;
     private String supportedGroups = null;
-    private boolean filterDeployments = false;
     private DeploymentNameMatcher deploymentMatcher = DeploymentNameMatcher.DEFAULT;
-
-    private Collection<Deployment> filterDeployments(Collection<Deployment> deployments) {
-        if (!filterDeployments) {
-            return deployments;
-        }
-
-        Map<String, Map<String, Deployment>> latestDeployments = new HashMap<>();
-        for (Deployment deployment : deployments) {
-            if (deployment.getCommonVersion() == null) {
-                throw new IllegalArgumentException(
-                    "Cannot detect deployment version. Please, check 'version in deployment name' parameter in the configuration.");
-            }
-            String deploymentName = deployment.getDeploymentName();
-            Map<String, Deployment> internalMap = latestDeployments.computeIfAbsent(deploymentName,
-                k -> new HashMap<>());
-            boolean hasRulesDeployXML = false;
-            for (AProject project : deployment.getProjects()) {
-                try {
-                    AProjectArtefact artifact = project.getArtefact(RULES_DEPLOY_XML);
-                    if (artifact instanceof AProjectResource) {
-                        AProjectResource resource = (AProjectResource) artifact;
-                        try (InputStream content = resource.getContent()) {
-                            RulesDeploy rulesDeploy = getRulesDeploySerializer().deserialize(content);
-                            hasRulesDeployXML = true;
-                            String version = null;
-                            if (StringUtils.isNotEmpty(rulesDeploy.getVersion())) {
-                                version = rulesDeploy.getVersion();
-                            }
-
-                            if (internalMap.containsKey(version)) {
-                                if (internalMap.get(version)
-                                    .getCommonVersion()
-                                    .compareTo(deployment.getCommonVersion()) < 0) {
-                                    internalMap.put(version, deployment);
-                                }
-                            } else {
-                                internalMap.put(version, deployment);
-                            }
-                        }
-                    }
-                } catch (ProjectException ignored) {
-                } catch (Exception e) {
-                    log.error(
-                        "Failed to load a project from the repository. Project '{}' in deployment '{}' has been skipped.",
-                        project.getName(),
-                        deployment.getDeploymentName(),
-                        e);
-                }
-            }
-            if (!hasRulesDeployXML) {
-                if (internalMap.containsKey(null)) {
-                    if (internalMap.get(null).getCommonVersion().compareTo(deployment.getCommonVersion()) < 0) {
-                        internalMap.put(null, deployment);
-                    }
-                } else {
-                    internalMap.put(null, deployment);
-                }
-            }
-        }
-
-        Collection<Deployment> ret = new ArrayList<>();
-        for (String key : latestDeployments.keySet()) {
-            ret.addAll(latestDeployments.get(key).values());
-        }
-        return ret;
-    }
 
     /**
      * {@inheritDoc}
@@ -122,8 +52,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
     public final Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader ruleServiceLoader) {
         log.debug("Calculate services to be deployed...");
 
-        Collection<Deployment> allDeployments = ruleServiceLoader.getDeployments();
-        Collection<Deployment> deployments = filterDeployments(allDeployments);
+        Collection<Deployment> deployments = ruleServiceLoader.getDeployments();
 
         Collection<ServiceDescription> serviceDescriptions = new HashSet<>();
         Set<String> serviceURLs = new HashSet<>();
@@ -357,10 +286,6 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
 
     public String getSupportedGroups() {
         return supportedGroups;
-    }
-
-    public void setFilterDeployments(boolean filterDeployments) {
-        this.filterDeployments = filterDeployments;
     }
 
     public void setDatasourceDeploymentPatterns(String deploymentPatterns) {
