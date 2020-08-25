@@ -19,63 +19,78 @@
         "allOf": [
           {
             "$ref": "#/components/schemas/Animal"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "speed": {
+                "type": "string"
+              }
+            }
           }
-        ],
-        "properties": {
-          "speed": {
-            "type": "string"
-          }
-        }
+        ]
       },
       "Bird": {
         "allOf": [
           {
             "$ref": "#/components/schemas/Animal"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "span": {
+                "type": "string"
+              }
+            }
           }
-        ],
-        "properties": {
-          "span": {
-            "type": "string"
-          }
-        }
+        ]
       },
       "Crucian": {
         "allOf": [
           {
             "$ref": "#/components/schemas/Fish"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "color": {
+                "type": "number",
+                "format": "int32"
+              }
+            }
           }
-        ],
-        "properties": {
-          "color": {
-            "type": "number",
-            "format": "int32"
-          }
-        }
+        ]
       },
       "Eagle": {
         "allOf": [
           {
             "$ref": "#/components/schemas/Bird"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "noseSize": {
+                "type": "number",
+                "format": "int64"
+              }
+            }
           }
-        ],
-        "properties": {
-          "noseSize": {
-            "type": "number",
-            "format": "int64"
-          }
-        }
+        ]
       },
       "DesertEagle": {
         "allOf": [
           {
             "$ref": "#/components/schemas/Eagle"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "country": {
+                "type": "string"
+              }
+            }
           }
-        ],
-        "properties": {
-          "country": {
-            "type": "string"
-          }
-        }
+        ]
       }
     }
   },

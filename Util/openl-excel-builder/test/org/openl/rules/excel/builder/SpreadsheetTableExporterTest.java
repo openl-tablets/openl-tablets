@@ -87,7 +87,7 @@ public class SpreadsheetTableExporterTest {
             assertEquals("calculateIndex", sprNameCell.getStringCellValue());
             XSSFCell sprCellCall = sprCallStepRow.getCell(2);
             assertNotNull(sprCellCall);
-            assertEquals("", sprCellCall.getStringCellValue());
+            assertEquals("=new IndexCalculation()", sprCellCall.getStringCellValue());
         }
 
     }

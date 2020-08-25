@@ -21,7 +21,6 @@ import org.openl.rules.model.scaffolding.SpreadsheetResultModel;
 import org.openl.rules.model.scaffolding.StepModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.util.CollectionUtils;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -184,15 +183,21 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             List<DatatypeModel> dts) {
         SpreadsheetResultModel spr = new SpreadsheetResultModel();
         String usedSchemaInResponse = OpenLOpenAPIUtils.getUsedSchemaInResponse(jxPathContext, pathItem);
+        boolean isArray = usedSchemaInResponse.endsWith("[]");
         Schema<?> schema;
         List<InputParameter> parameters = OpenLOpenAPIUtils
             .extractParameters(jxPathContext, refsToExpand, pathItem, dts, path);
-        spr.setName(OpenLOpenAPIUtils.normalizeName(path));
+        String normalizedPath = replaceBrackets(path);
+        spr.setName(OpenLOpenAPIUtils.normalizeName(normalizedPath));
         spr.setParameters(parameters);
 
         List<StepModel> stepModels = new ArrayList<>();
         if (!isSimplePath) {
-            schema = getSchemas(openAPI).get(usedSchemaInResponse);
+            String sName = usedSchemaInResponse;
+            if (isArray) {
+                sName = usedSchemaInResponse.substring(0, usedSchemaInResponse.length() - 2);
+            }
+            schema = getSchemas(openAPI).get(sName);
             spr.setType(SPREADSHEET_RESULT);
             if (schema != null) {
                 Map<String, Schema> properties = schema.getProperties();
@@ -203,12 +208,15 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         } else {
             spr.setType(usedSchemaInResponse);
             String normalizedName = normalizeName(path);
-            stepModels = Collections
-                .singletonList(new StepModel(StringUtils.uncapitalize(normalizedName), usedSchemaInResponse, "", 0));
+            stepModels = Collections.singletonList(new StepModel(normalizedName, usedSchemaInResponse, "", 0));
         }
         spr.setSteps(stepModels);
 
         return spr;
+    }
+
+    private String replaceBrackets(String path) {
+        return path.replaceAll("\\{.*?}", "");
     }
 
     private List<DatatypeModel> extractDataTypeModels(OpenAPI openAPI,
@@ -233,12 +241,15 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
     private DatatypeModel createModel(OpenAPI openAPI, String schemaName, Schema<?> schema) {
         DatatypeModel dm = new DatatypeModel(normalizeName(schemaName));
+        Map<String, Schema> properties;
+        List<FieldModel> fields = new ArrayList<>();
         if (schema instanceof ComposedSchema) {
             String parentName = OpenLOpenAPIUtils.getParentName((ComposedSchema) schema, openAPI);
+            properties = OpenLOpenAPIUtils.getFieldsOfChild((ComposedSchema) schema);
             dm.setParent(parentName);
+        } else {
+            properties = schema.getProperties();
         }
-        List<FieldModel> fields = new ArrayList<>();
-        Map<String, Schema> properties = schema.getProperties();
         if (properties != null) {
             for (Map.Entry<String, Schema> property : properties.entrySet()) {
                 fields.add(extractField(property));

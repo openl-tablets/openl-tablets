@@ -11,6 +11,7 @@ import java.util.Objects;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -29,6 +30,7 @@ import org.openl.rules.excel.builder.template.row.NameValueRowStyle;
 import org.openl.rules.excel.builder.template.row.NameValueRowStyleImpl;
 import org.openl.rules.excel.builder.template.row.SpreadsheetTableRowStyleImpl;
 import org.openl.rules.table.xls.PoiExcelHelper;
+import org.openl.rules.table.xls.formatters.FormatConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +40,9 @@ public class ExcelTemplateUtils {
     public static final byte LEFT_MARGIN = 1;
     public static final byte TOP_MARGIN = 2;
     public static final String DATATYPE_DEFINITON = "{datatype.name}";
+    public static final short DATE_TIME_FORMAT = (short) BuiltinFormats.getBuiltinFormat("m/d/yy h:mm");
+    public static final short DATE_FORMAT = (short) BuiltinFormats
+        .getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT);
 
     private ExcelTemplateUtils() {
     }
@@ -100,12 +105,19 @@ public class ExcelTemplateUtils {
         String stepHeader = sprStepHeader.getStringCellValue();
         String valueHeader = sprValueHeader.getStringCellValue();
 
-        NameValueRowStyle headerRowStyle = new SpreadsheetTableRowStyleImpl(targetStepHeaderStyle, targetValueHeaderStyle);
+        NameValueRowStyle headerRowStyle = new SpreadsheetTableRowStyleImpl(targetStepHeaderStyle,
+            targetValueHeaderStyle);
 
         Row sprFieldRow = sprResultSheet.getRow(TOP_MARGIN + 2);
 
         Cell sprFieldName = sprFieldRow.getCell(LEFT_MARGIN);
         CellStyle targetFieldStyle = copyCellStyle(targetWorkbook, sprFieldName);
+
+        CellStyle dateStyle = copyCellStyle(targetWorkbook, sprFieldName);
+        dateStyle.setDataFormat(DATE_FORMAT);
+
+        CellStyle dateTimeStyle = copyCellStyle(targetWorkbook, sprFieldName);
+        dateTimeStyle.setDataFormat(DATE_TIME_FORMAT);
 
         Cell sprFieldValue = sprFieldRow.getCell(LEFT_MARGIN + 1);
         CellStyle targetValueStyle = copyCellStyle(targetWorkbook, sprFieldValue);
@@ -127,7 +139,9 @@ public class ExcelTemplateUtils {
             stepHeader,
             valueHeader,
             rowStyle,
-            lastRowStyle);
+            lastRowStyle,
+            dateStyle,
+            dateTimeStyle);
     }
 
     private static TableStyle extractDatatypeStyle(Sheet dataTypeSheet, Workbook targetWorkbook) {
@@ -166,6 +180,10 @@ public class ExcelTemplateUtils {
         CellStyle dvStyle = datatypeDefaultValueCell.getCellStyle();
         CellStyle targetDefaultValueStyle = copyStyle(targetWorkbook, dvStyle);
         CellStyle dateStyle = copyStyle(targetWorkbook, dvStyle);
+        dateStyle.setDataFormat(DATE_FORMAT);
+
+        CellStyle dateTimeStyle = copyStyle(targetWorkbook, dvStyle);
+        dateTimeStyle.setDataFormat(DATE_TIME_FORMAT);
 
         String datatypeDefaultTemplate = datatypeDefaultValueCell.getStringCellValue();
 
@@ -192,6 +210,7 @@ public class ExcelTemplateUtils {
             headerSettings,
             rowStyle,
             dateStyle,
+            dateTimeStyle,
             lastRowStyle,
             targetFont);
 

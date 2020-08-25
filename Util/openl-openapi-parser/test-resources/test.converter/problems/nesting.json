@@ -1,0 +1,126 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "API V1",
+    "version": "v1"
+  },
+  "paths": {
+    "/HelloKitty": {
+      "post": {
+        "summary": "TodoSmth",
+        "description": "test",
+        "operationId": "TodoSmth",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DriverRisk"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "format": "double"
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/Bla": {
+      "post": {
+        "summary": "TodoSmth",
+        "description": "test",
+        "operationId": "TodoSmthBla",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "toDoItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "someStep": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DriverRisk": {
+        "type": "object",
+        "properties": {
+          "numDUI": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "numAccidents": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            }
+          },
+          "numMovingViolations": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AnotherDatatype": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DriverRisk"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "category": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

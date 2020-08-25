@@ -494,6 +494,19 @@ public class OpenLOpenAPIUtils {
         return schema instanceof ComposedSchema;
     }
 
+    public static Map<String, Schema> getFieldsOfChild(ComposedSchema cs) {
+        Map<String, Schema> propMap = new HashMap<>();
+        List<Schema> interfaces = getInterfaces(cs);
+        if (CollectionUtils.isNotEmpty(interfaces)) {
+            for (Schema<?> sc : interfaces) {
+                if (StringUtils.isEmpty(sc.get$ref()) && CollectionUtils.isNotEmpty(sc.getProperties())) {
+                    propMap.putAll(sc.getProperties());
+                }
+            }
+        }
+        return propMap;
+    }
+
     public static String getParentName(ComposedSchema composedSchema, OpenAPI openAPI) {
         Map<String, Schema> allSchemas = getSchemas(openAPI);
         List<Schema> interfaces = getInterfaces(composedSchema);
@@ -501,7 +514,7 @@ public class OpenLOpenAPIUtils {
         boolean hasAmbiguousParents = false;
         List<String> refedWithoutDiscriminator = new ArrayList<>();
 
-        if (interfaces != null && !interfaces.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(interfaces)) {
             for (Schema<?> schema : interfaces) {
                 // get the actual schema
                 if (StringUtils.isNotEmpty(schema.get$ref())) {
