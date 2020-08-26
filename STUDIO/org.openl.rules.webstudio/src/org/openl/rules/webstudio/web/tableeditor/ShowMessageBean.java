@@ -31,6 +31,10 @@ public class ShowMessageBean {
             .findFirst()
             .orElse(null);
 
+        if (openLMessage == null) {
+            return Collections.emptyList();
+        }
+
         Severity severity;
         if (StringUtils.isNotBlank(type)) {
             severity = Severity.valueOf(type);
