@@ -16,10 +16,6 @@ public interface SourceHistoryManager<T> {
 
     T get(long version);
 
-    T getPrev(long version);
-
-    List<T> get(long... versions);
-
-    List<T> get(String... names);
+    void init();
 
 }

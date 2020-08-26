@@ -1,13 +1,16 @@
 package org.openl.rules.ui;
 
 import java.io.File;
+import java.io.FilenameFilter;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.*;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.source.SourceHistoryManager;
+import org.openl.util.CollectionUtils;
+import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,9 +24,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
     private ProjectModel projectModel;
     private final String storagePath;
 
-    FileBasedProjectHistoryManager(ProjectModel projectModel,
-            String storagePath,
-            Integer maxFilesInStorage) {
+    FileBasedProjectHistoryManager(ProjectModel projectModel, String storagePath, Integer maxFilesInStorage) {
         if (projectModel == null) {
             throw new IllegalArgumentException();
         }
@@ -45,7 +46,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
             for (int i = 0; i < files.length - count; i++) {
                 File file = files[i];
                 try {
-                    FileUtils.deleteDirectory(file);
+                    FileUtils.delete(file);
                 } catch (Exception e) {
                     log.error("Cannot delete folder {}", file.getName(), e);
                 }
@@ -58,77 +59,54 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
         if (source == null) {
             throw new IllegalArgumentException();
         }
-
         long currentDate = System.currentTimeMillis();
-
-        String destFilePath = currentDate + File.separator + source.getName();
-        File destFile = new File(storagePath, destFilePath);
-
+        String name = projectModel.getModuleInfo().getName();
+        String destFilePath = Paths.get(storagePath, String.valueOf(currentDate)).toString();
+        File destFile = new File(destFilePath, name + "." + org.openl.util.FileUtils.getExtension(source.getName()));
         try {
-            FileUtils.copyFile(source, destFile);
+            FileUtils.copy(source, destFile);
             destFile.setLastModified(currentDate);
         } catch (Exception e) {
-            log.error("Cannot add file {}", source.getName(), e);
+            log.error("Cannot add file {}", name, e);
         }
     }
 
     @Override
     public File get(long date) {
-        List<File> files = new ArrayList<>(list(new AgeFileFilter(date)));
-        if (!files.isEmpty()) {
-            for (File file : files) {
-                if (file.lastModified() == date) {
-                    return file;
+        File[] commit = new File(storagePath, String.valueOf(date)).listFiles();
+        return commit != null && commit.length == 1 ? commit[0] : null;
+    }
+
+    @Override
+    public void init() {
+        File source = projectModel.getCurrentModuleWorkbook().getSourceFile();
+        synchronized (this) {
+            String projectName = projectModel.getModuleInfo().getName();
+            File storageDir = new File(storagePath);
+            File[] files = storageDir.listFiles();
+            for (File changeDir : files) {
+                File[] names = changeDir.listFiles(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return projectName.equals(FileUtils.getBaseName(name));
+                    }
+                });
+                if (CollectionUtils.isNotEmpty(names)) {
+                    return;
                 }
+
             }
         }
-        return null;
-    }
-
-    @Override
-    public File getPrev(long date) {
-        File current = get(date);
-
-        List<IOFileFilter> filters = new ArrayList<>();
-        filters.add(new AgeFileFilter(date));
-        filters.add(new NameFileFilter(current.getName()));
-
-        List<File> files = new ArrayList<>(list(new AndFileFilter(filters)));
-        if (files.size() >= 2) {
-            return files.get(files.size() - 2);
-        }
-
-        return null;
-    }
-
-    @Override
-    public List<File> get(long... dates) {
-        List<File> sources = new ArrayList<>();
-        for (long date : dates) {
-            sources.add(get(date));
-        }
-        return sources;
-    }
-
-    @Override
-    public List<File> get(String... names) {
-        Collection<File> files;
-        if (names != null && names.length > 0) {
-            files = list(new NameFileFilter(names));
-        } else {
-            files = list(TrueFileFilter.TRUE);
-        }
-        return new ArrayList<>(files);
+        save(source);
     }
 
     @Override
     public void restore(long date) throws Exception {
         File fileToRestore = get(date);
         if (fileToRestore != null) {
-            File currentSourceFile = projectModel.getSourceByName(fileToRestore.getName());
+            File currentSourceFile = projectModel.getCurrentModuleWorkbook().getSourceFile();
             try {
-                FileUtils.copyFile(fileToRestore, currentSourceFile);
-                save(fileToRestore);
+                FileUtils.copy(fileToRestore, currentSourceFile);
                 projectModel.reset(ReloadType.FORCED);
                 projectModel.buildProjectTree();
                 log.info("Project was restored successfully");
@@ -137,14 +115,6 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
                 throw e;
             }
         }
-    }
-
-    private synchronized Collection<File> list(IOFileFilter fileFilter) {
-        File storageDir = new File(storagePath);
-        if (storageDir.exists()) {
-            return FileUtils.listFiles(storageDir, fileFilter, TrueFileFilter.TRUE);
-        }
-        return Collections.emptyList();
     }
 
 }

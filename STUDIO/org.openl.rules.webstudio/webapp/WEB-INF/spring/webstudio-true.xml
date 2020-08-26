@@ -17,13 +17,13 @@
     <bean id="currentUserInfo" class="org.openl.rules.webstudio.security.CurrentUserInfo" />
 
     <bean id="excludedFolders" class="java.util.LinkedHashSet">
-    <constructor-arg>
-      <list>
-        <value>.svn</value>
-        <value>CVS</value>
-        <value>.studioProps</value>
-      </list>
-    </constructor-arg>
+        <constructor-arg>
+            <list>
+                <value>.svn</value>
+                <value>CVS</value>
+                <value>.studioProps</value>
+            </list>
+        </constructor-arg>
     </bean>
 
     <bean id="excludedFiles" class="java.util.LinkedHashSet">
@@ -58,6 +58,7 @@
                 <ref bean="conflictService"/>
                 <ref bean="diffService"/>
                 <ref bean="notificationService"/>
+                <ref bean="projectHistoryService"/>
             </list>
         </property>
         <property name="providers">
