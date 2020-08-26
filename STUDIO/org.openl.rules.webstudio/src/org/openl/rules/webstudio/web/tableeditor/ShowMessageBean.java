@@ -16,6 +16,10 @@ import org.openl.util.StringUtils;
 @RequestScoped
 public class ShowMessageBean {
 
+    public boolean isMessageOutdated() {
+        return getMessage().isEmpty();
+    }
+
     public List<OpenLMessage> getMessage() {
         String type = WebStudioUtils.getRequestParameter("type");
         String value = WebStudioUtils.getRequestParameter("summary");
