@@ -7,5 +7,5 @@ ERROR: OpenAPI validation: Unexpected parameter 'equity' is found in method 'Equ
 ERROR: OpenAPI validation: Expected parameter 'extraHighLiquidityRatio' is not found in method 'HighLiquidityRatioScore'.
 ERROR: OpenAPI validation: Return type of method 'NegativeMassMediaScore' must be compatible with OpenAPI type 'string'.
 ERROR: OpenAPI validation: Unexpected method 'CapitalAdequacyScore' is found for path '/CapitalAdequacyScore1'.
-ERROR: OpenAPI validation: Unexpected method 'BalanceDynamicIndexCalculation' is found.
+ERROR: OpenAPI validation: Unexpected method 'BalanceDynamicIndexCalculation' is found for path '/BalanceDynamicIndexCalculation'.
 ERROR: OpenAPI validation: Unexpected method 'BankRatingGroup' is found for path '/BankRatingGroup1'.

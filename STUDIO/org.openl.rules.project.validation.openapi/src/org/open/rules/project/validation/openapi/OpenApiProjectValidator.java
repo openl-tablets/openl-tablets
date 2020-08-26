@@ -189,7 +189,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             ObjectMapper objectMapper = objectMapperFactoryBean.createJacksonObjectMapper();
             return OpenApiObjectMapperConfigurationHelper.configure(objectMapper);
         } catch (ClassNotFoundException e) { // Never happens
-            throw new IllegalStateException("Failed to create object mapper", e);
+            throw new IllegalStateException("Failed to create an object mapper", e);
         }
     }
 
@@ -272,9 +272,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     context.setExpectedPathItem(expectedPathItem);
                     if (expectedPathItem == null) {
                         OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                            String.format(OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected method '%s' is found%s.",
+                            String.format(OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected method '%s' is found for path '%s'.",
                                 openMethod == null ? method.getName() : openMethod.getMethod(),
-                                getMethodForPathStringPart(method.getName(), entry.getKey())));
+                                entry.getKey()));
                     }
                 } finally {
                     context.setOpenMethod(null);
