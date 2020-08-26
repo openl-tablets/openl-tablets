@@ -84,17 +84,18 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
             String projectName = projectModel.getModuleInfo().getName();
             File storageDir = new File(storagePath);
             File[] files = storageDir.listFiles();
-            for (File changeDir : files) {
-                File[] names = changeDir.listFiles(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        return projectName.equals(FileUtils.getBaseName(name));
+            if (files != null) {
+                for (File changeDir : files) {
+                    File[] names = changeDir.listFiles(new FilenameFilter() {
+                        @Override
+                        public boolean accept(File dir, String name) {
+                            return projectName.equals(FileUtils.getBaseName(name));
+                        }
+                    });
+                    if (CollectionUtils.isNotEmpty(names)) {
+                        return;
                     }
-                });
-                if (CollectionUtils.isNotEmpty(names)) {
-                    return;
                 }
-
             }
         }
         save(source);
