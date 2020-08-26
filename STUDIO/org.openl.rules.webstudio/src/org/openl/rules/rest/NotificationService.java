@@ -1,5 +1,6 @@
 package org.openl.rules.rest;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -23,15 +24,15 @@ import org.springframework.stereotype.Service;
 public class NotificationService {
 
     @Value("${admin.notification-file}")
-    private java.nio.file.Path NOTIFICATION_FILE;
+    private File NOTIFICATION_FILE;
 
     @GET
     @Path("/public/notification.txt")
     public String getNotification() throws IOException {
-        if (!Files.exists(NOTIFICATION_FILE)) {
+        if (!Files.exists(NOTIFICATION_FILE.toPath())) {
             return null;
         }
-        try (Stream<String> lines = Files.lines(NOTIFICATION_FILE)) {
+        try (Stream<String> lines = Files.lines(NOTIFICATION_FILE.toPath())) {
             return lines.collect(Collectors.joining("\r\n"));
         }
     }
@@ -40,9 +41,9 @@ public class NotificationService {
     @Path("/admin/notification.txt")
     public void postNotification(String notification) throws IOException {
         if (StringUtils.isBlank(notification)) {
-            Files.deleteIfExists(NOTIFICATION_FILE);
+            Files.deleteIfExists(NOTIFICATION_FILE.toPath());
         } else {
-            Files.write(NOTIFICATION_FILE, notification.getBytes(StandardCharsets.UTF_8));
+            Files.write(NOTIFICATION_FILE.toPath(), notification.getBytes(StandardCharsets.UTF_8));
         }
     }
 }
