@@ -38,7 +38,10 @@ public class SpreadsheetTableExporterTest {
         StepModel doubleStep = new StepModel("simpleCalculation", "Double");
         StepModel stringStep = new StepModel("calculateName", "String");
         StepModel sprStep = new StepModel("calculateIndex", "IndexCalculation");
-        resultModel.setSteps(Arrays.asList(doubleStep, stringStep, sprStep));
+        StepModel booleanStep = new StepModel("booleanStep", "Boolean");
+        StepModel dateStep = new StepModel("dateStep", "Date");
+        StepModel dateTimeStep = new StepModel("dateTimeStep", "OffsetDateTime");
+        resultModel.setSteps(Arrays.asList(doubleStep, stringStep, sprStep, booleanStep, dateStep, dateTimeStep));
 
         ProjectModel projectModel = new ProjectModel(TEST_PROJECT,
             Collections.emptyList(),
@@ -69,7 +72,7 @@ public class SpreadsheetTableExporterTest {
             assertEquals("simpleCalculation", nameCell.getStringCellValue());
             XSSFCell valueCell = firstStepRow.getCell(2);
             assertNotNull(valueCell);
-            assertEquals(0.0d, valueCell.getNumericCellValue(), 1e-8);
+            assertEquals("=0.0d", valueCell.getStringCellValue());
 
             XSSFRow secondStepRow = dtsSheet.getRow(TOP_MARGIN + 3);
             assertNotNull(secondStepRow);
@@ -78,7 +81,7 @@ public class SpreadsheetTableExporterTest {
             assertEquals("calculateName", secondNameCell.getStringCellValue());
             XSSFCell secondValueCell = secondStepRow.getCell(2);
             assertNotNull(secondValueCell);
-            assertEquals("_DEFAULT_", secondValueCell.getStringCellValue());
+            assertEquals("=_DEFAULT_", secondValueCell.getStringCellValue());
 
             XSSFRow sprCallStepRow = dtsSheet.getRow(TOP_MARGIN + 4);
             assertNotNull(sprCallStepRow);
@@ -88,6 +91,31 @@ public class SpreadsheetTableExporterTest {
             XSSFCell sprCellCall = sprCallStepRow.getCell(2);
             assertNotNull(sprCellCall);
             assertEquals("=new IndexCalculation()", sprCellCall.getStringCellValue());
+
+            XSSFRow booleanRow = dtsSheet.getRow(TOP_MARGIN + 5);
+            assertNotNull(booleanRow);
+            XSSFCell boolCell = booleanRow.getCell(1);
+            assertNotNull(boolCell);
+            assertEquals("booleanStep", boolCell.getStringCellValue());
+            XSSFCell boolValueCell = booleanRow.getCell(2);
+            assertNotNull(boolValueCell);
+            assertEquals("=false", boolValueCell.getStringCellValue());
+
+            XSSFRow dateRow = dtsSheet.getRow(TOP_MARGIN + 6);
+            assertNotNull(dateRow);
+            XSSFCell dateNameCell = dateRow.getCell(1);
+            assertNotNull(dateNameCell);
+            assertEquals("dateStep", dateNameCell.getStringCellValue());
+            XSSFCell dateValueCell = dateRow.getCell(2);
+            assertEquals("=new Date()", dateValueCell.getStringCellValue());
+
+            XSSFRow dateTimeRow = dtsSheet.getRow(TOP_MARGIN + 7);
+            assertNotNull(dateTimeRow);
+            XSSFCell dateTimeNameCell = dateTimeRow.getCell(1);
+            assertNotNull(dateTimeNameCell);
+            assertEquals("dateTimeStep", dateTimeNameCell.getStringCellValue());
+            XSSFCell dateTimeValueCell = dateTimeRow.getCell(2);
+            assertEquals("=java.time.OffsetDateTime.now()", dateTimeValueCell.getStringCellValue());
         }
 
     }

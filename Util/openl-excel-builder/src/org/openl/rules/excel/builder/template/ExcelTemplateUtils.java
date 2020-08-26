@@ -113,15 +113,15 @@ public class ExcelTemplateUtils {
         Cell sprFieldName = sprFieldRow.getCell(LEFT_MARGIN);
         CellStyle targetFieldStyle = copyCellStyle(targetWorkbook, sprFieldName);
 
-        CellStyle dateStyle = copyCellStyle(targetWorkbook, sprFieldName);
-        dateStyle.setDataFormat(DATE_FORMAT);
-
-        CellStyle dateTimeStyle = copyCellStyle(targetWorkbook, sprFieldName);
-        dateTimeStyle.setDataFormat(DATE_TIME_FORMAT);
-
         Cell sprFieldValue = sprFieldRow.getCell(LEFT_MARGIN + 1);
         CellStyle targetValueStyle = copyCellStyle(targetWorkbook, sprFieldValue);
         NameValueRowStyle rowStyle = new SpreadsheetTableRowStyleImpl(targetFieldStyle, targetValueStyle);
+
+        CellStyle dateStyle = copyCellStyle(targetWorkbook, sprFieldValue);
+        dateStyle.setDataFormat(DATE_FORMAT);
+
+        CellStyle dateTimeStyle = copyCellStyle(targetWorkbook, sprFieldValue);
+        dateTimeStyle.setDataFormat(DATE_TIME_FORMAT);
 
         Row lastSprRow = sprResultSheet.getRow(TOP_MARGIN + 3);
 

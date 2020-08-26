@@ -127,7 +127,7 @@ public class OpenAPIToExcelConverterTest {
         List<InputParameter> parameters = sprResult.getParameters();
         assertEquals(1, parameters.size());
         InputParameter param = parameters.iterator().next();
-        assertEquals("Long", param.getType());
+        assertEquals("Integer", param.getType());
     }
 
     @Test
@@ -275,12 +275,18 @@ public class OpenAPIToExcelConverterTest {
             .findFirst();
         assertTrue(apiBla.isPresent());
         List<StepModel> steps = apiBla.get().getSteps();
-        assertEquals(4, steps.size());
+        assertEquals(5, steps.size());
         Optional<StepModel> numAccidentsTwo = steps.stream()
             .filter(x -> x.getName().equals("numAccidentsTwo"))
             .findFirst();
         assertTrue(numAccidentsTwo.isPresent());
         assertEquals("OffsetDateTime", numAccidentsTwo.get().getType());
+
+        Optional<StepModel> numAccidentsFour = steps.stream()
+            .filter(x -> x.getName().equals("numAccidentsFour"))
+            .findFirst();
+        assertTrue(numAccidentsFour.isPresent());
+        assertEquals("Integer", numAccidentsFour.get().getType());
     }
 
     @Test

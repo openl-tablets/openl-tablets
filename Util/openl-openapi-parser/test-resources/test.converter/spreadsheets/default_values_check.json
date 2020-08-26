@@ -122,6 +122,9 @@
           "numAccidentsThree": {
             "type": "number",
             "format": "float"
+          },
+          "numAccidentsFour": {
+            "type": "integer"
           }
         }
       }

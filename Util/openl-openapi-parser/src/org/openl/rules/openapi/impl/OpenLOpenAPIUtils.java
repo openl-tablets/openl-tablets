@@ -623,12 +623,10 @@ public class OpenLOpenAPIUtils {
                 return "Double";
             }
         } else if ("integer".equals(schemaType)) {
-            if ("int32".equals(schema.getFormat())) {
-                return "Integer";
-            } else if ("int64".equals(schema.getFormat())) {
+            if ("int64".equals(schema.getFormat())) {
                 return "Long";
             } else {
-                return "Long";
+                return "Integer";
             }
         } else if ("boolean".equals(schemaType)) {
             return "Boolean";

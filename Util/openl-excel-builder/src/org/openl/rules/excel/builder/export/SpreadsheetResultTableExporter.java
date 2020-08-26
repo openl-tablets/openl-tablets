@@ -1,7 +1,6 @@
 package org.openl.rules.excel.builder.export;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,9 +51,6 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
         CellStyle headerStyle = style.getHeaderStyle();
         RichTextString tableHeaderText = style.getHeaderTemplate();
         CellRangeSettings headerSettings = style.getHeaderSizeSettings();
-
-        CellStyle dateStyle = style.getDateStyle();
-        CellStyle dateTimeStyle = style.getDateTimeStyle();
 
         CellStyle stepHeaderStyle = style.getHeaderRowStyle().getNameStyle();
         String stepHeaderText = style.getStepHeaderText();
@@ -110,16 +106,15 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
             Cell stepValueCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
             String type = step.getType();
             boolean isArray = type.endsWith("[]");
+            stepValueCell
+                .setCellStyle(lastRow ? style.getLastRowStyle().getValueStyle() : style.getRowStyle().getValueStyle());
             if (spreadsheetNames.contains(type)) {
                 stepValueCell.setCellValue(makeSprCall(step));
             } else if (!isSimpleType(type)) {
                 stepValueCell.setCellValue(createNewInstance(type, isArray));
             } else {
-                setValue(step, stepValueCell, dateStyle, dateTimeStyle);
+                setValue(step, stepValueCell);
             }
-
-            stepValueCell
-                .setCellStyle(lastRow ? style.getLastRowStyle().getValueStyle() : style.getRowStyle().getValueStyle());
 
             endPosition = next.moveLeft(1);
 
@@ -147,25 +142,23 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
         return SPR_RESULT_SHEET;
     }
 
-    private static void setValue(StepModel model, Cell stepValueCell, CellStyle dateStyle, CellStyle dateTimeStyle) {
+    private static void setValue(StepModel model, Cell stepValueCell) {
         if (model.getType() != null) {
             String type = model.getType();
             if ("Integer".equals(type) || "Long".equals(type)) {
-                stepValueCell.setCellValue(0);
+                stepValueCell.setCellValue("=0");
             } else if ("Double".equals(type)) {
-                stepValueCell.setCellValue(0.0d);
+                stepValueCell.setCellValue("=0.0d");
             } else if ("Float".equals(type)) {
-                stepValueCell.setCellValue(0.0f);
+                stepValueCell.setCellValue("=0.0f");
             } else if ("String".equals(type)) {
-                stepValueCell.setCellValue(DEFAULT_STRING_VALUE);
+                stepValueCell.setCellValue("=" + DEFAULT_STRING_VALUE);
             } else if ("Date".equals(type)) {
-                stepValueCell.setCellValue(new Date());
-                stepValueCell.setCellStyle(dateStyle);
+                stepValueCell.setCellValue("=new Date()");
             } else if ("OffsetDateTime".equals(type)) {
-                stepValueCell.setCellValue(new Date());
-                stepValueCell.setCellStyle(dateTimeStyle);
+                stepValueCell.setCellValue("=java.time.OffsetDateTime.now()");
             } else if ("Boolean".equals(type)) {
-                stepValueCell.setCellValue(false);
+                stepValueCell.setCellValue("=false");
             }
         } else {
             stepValueCell.setCellValue("");
