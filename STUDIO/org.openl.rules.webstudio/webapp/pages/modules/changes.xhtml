@@ -1,16 +1,17 @@
 <ui:composition
         xmlns:f="http://java.sun.com/jsf/core"
-        xmlns:h="http://java.sun.com/jsf/html"
         xmlns:c="http://java.sun.com/jsp/jstl/core"
         xmlns:ui="http://java.sun.com/jsf/facelets"
-        xmlns:a4j="http://richfaces.org/a4j"
         xmlns:rich="http://richfaces.org/rich">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
-    <c:set var="history" value="#{revertProjectChangesBean.history}"/>
 
     <style>
-        #changes div:nth-child(2) a {
+        #changes > div:nth-child(3) a {
+            display: none;
+        }
+
+        #changes > div:nth-child(2) {
             display: none;
         }
 
@@ -23,10 +24,15 @@
             font-family: Arial, Verdana, sans-serif;
             font-size: 11px;
         }
+
         #changes header {
             border-bottom: 1px solid #ccc;
             font-weight: bold;
 
+        }
+
+        #changes > .row:last-child .modifiedOn {
+            font-weight: bold;
         }
 
         .row > div {
@@ -39,124 +45,135 @@
             background-color: #FAE5C1;
         }
     </style>
-
     <div class="page">
 
-        <h1 class="page-header">#{msg['ws.changes.header']} (#{history.size()>0 ? history.size()-1 : 0})</h1>
+        <h1 class="page-header">Changes (<span>0</span>)</h1>
 
-        <h:panelGroup rendered="#{empty history}">
-            <h:panelGrid>
-                <p class="problem-info">#{msg['ws.changes.no']}</p>
-            </h:panelGrid>
-        </h:panelGroup>
+        <span class="problem-info noChanges" style="display: none">No changes in history</span>
 
-        <h:panelGroup rendered="#{not empty history}">
-            <h:panelGrid>
-                <h:messages globalOnly="true" errorClass="problem-error" infoClass="problem-info"
-                            style="list-style: none; padding: 0"/>
-            </h:panelGrid>
+        <div class="historyTable" style="display: none">
+            <section id="changes">
+                <header class="row">
+                    <div>Compare</div>
+                    <div>Modified On</div>
+                    <div>Action</div>
+                </header>
+                <div class="row">
+                    <div><input type="checkbox" value="{version}"/></div>
+                    <div class="modifiedOn">{modifiedOn}</div>
+                    <div><a href="#">Restore</a></div>
+                </div>
+            </section>
 
-            <h:form id="changesForm">
-                <section id="changes">
-                    <header class="row">
-                        <div>#{msg['ws.changes.modifiedon']}</div>
-                        <div>#{history[0].sourceName}</div>
-                        <div>#{msg['ws.changes.compare']}</div>
-                        <div>#{msg['ws.changes.action']}</div>
-                    </header>
-                    <c:forEach items="#{history}" var="historyItem">
-                        <div class="row">
-                            <div><span
-                                    style="#{historyItem.disabled ? 'font-weight: bold;' : ''}">#{historyItem.disabled ? msg['ws.changes.revision.version'] : historyItem.modifiedOn}</span>
-                            </div>
-                            <div><img src="#{contextPath}/webresource/images/ok.png"/></div>
-                            <div><input type="checkbox"
-                                        onclick="return checkVersionToCompare(this, '#{historyItem.version}')"/></div>
-                            <div><a href="#"
-                                    onclick="confirmRestore('#{historyItem.version}', '#{historyItem.modifiedOn}'); return false;">
-                                #{msg['ws.changes.action.restore']}
-                            </a></div>
-                        </div>
-                    </c:forEach>
-                </section>
+            <br/>
+            <input type="button" id="compareBtn" value="Compare" onclick="compare();"/>
+        </div>
 
-                <br/>
-                <input type="hidden" id="versionsToCompare" name="toCompare" value=""/>
-                <a4j:commandButton id="compareBtn" value="#{msg['ws.changes.compare']}"
-                                   action="#{revertProjectChangesBean.compare}"
-                                   oncomplete="window.open('#{contextPath}/faces/pages/modules/compare.xhtml?disableUpload=true','#{msg['ws.changes.compare']}','width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');"/>
-            </h:form>
-
-            <script>
-                //<![CDATA[
-                var versionsToCompare = [];
-
-                var $compareBtn = $j('#changesForm\\:compareBtn');
-                $compareBtn.prop("disabled", true);
-
-                function checkVersionToCompare(checkbox, version) {
-                    // Check
-                    if (checkbox.checked) {
-                        if (versionsToCompare.length >= 2) {
-                            ws.ui.info("#{msg['ws.changes.compare.max']}");
-                            return false;
-                        }
-                        versionsToCompare.push(version);
-
-                        // Uncheck
-                    } else {
-                        versionsToCompare = $j.grep(versionsToCompare, function (v) {
-                            return v != version;
-                        });
-                    }
-
-                    $j("#versionsToCompare").val(versionsToCompare.join());
-
-                    $compareBtn.prop("disabled", versionsToCompare.length < 2);
-                }
-
-                //]]>
-            </script>
-
-        </h:panelGroup>
     </div>
 
     <rich:popupPanel id="confirmRestore" minWidth="530" autosized="true">
-        <f:facet name="header">
-            <h:outputText value="Confirm Restore"/>
-        </f:facet>
+        <f:facet name="header">Confirm Restore</f:facet>
 
         <f:facet name="controls">
-            <h:graphicImage value="/images/close.gif" class="close" onclick="RichFaces.$('confirmRestore').hide();"
-                            alt="Close"/>
+            <img src="#{contextPath}/images/close.gif" class="close" onclick="RichFaces.$('confirmRestore').hide();"
+                 alt="Close"/>
         </f:facet>
-
-        <h:form id="confirmRestoreForm">
-            <h:panelGroup id="confirmRestoreData">
+        <div>
+            <div>
                 Do you really want to restore version modified on <span id="changeDate"/>?
-
                 <input type="hidden" id="versionToRestore" name="toRestore" value=""/>
-            </h:panelGroup>
+            </div>
 
             <footer>
-                <a4j:commandButton value="#{msg['ws.changes.action.restore']}"
-                                   action="#{revertProjectChangesBean.restore}"
-                                   oncomplete="ws.ui.success('#{msg['ws.changes.successful']}'); RichFaces.$('confirmRestore').hide(); ws.nav.reload(true)"/>
-
+                <input type="button" value="Restore" onclick="restore();"/>
                 <input type="button" value="Cancel" onclick="RichFaces.$('confirmRestore').hide();"/>
             </footer>
-        </h:form>
-
-        <script>
-            //<![CDATA[
-            function confirmRestore(version, date) {
-                $j('#versionToRestore').val(version);
-                $j('#changeDate').text(date);
-                RichFaces.$('confirmRestore').show();
-            }
-
-            //]]>
-        </script>
+        </div>
     </rich:popupPanel>
+
+    <script>
+        //<![CDATA[
+        var $jq = jQuery.noConflict();
+
+        var checkbox1;
+        var checkbox2;
+
+        var $compareBtn = $jq('#compareBtn');
+        $compareBtn.prop("disabled", true);
+
+        $jq('#changes').on("change", "input[type='checkbox']", function () {
+            if ($jq(this).is(":checked")) {
+                $jq(checkbox2).prop("checked", false);
+                checkbox2 = checkbox1;
+                checkbox1 = this;
+            } else {
+                if (!$jq(checkbox1).is(":checked")) {
+                    checkbox1 = checkbox2;
+                }
+                checkbox2 = null;
+            }
+            $compareBtn.prop("disabled", checkbox2 == null);
+        });
+
+        $jq('#changes').on("click", "a", function (e) {
+            e.preventDefault();
+            var row = $jq(this).closest(".row");
+            $j('#versionToRestore').val($jq(row).find("input[type='checkbox']").val());
+            $j('#changeDate').text($jq(row).find(".modifiedOn").text());
+            RichFaces.$('confirmRestore').show();
+        });
+
+        function compare() {
+            var url = '#{contextPath}/faces/pages/modules/compare.xhtml?disableUpload=true';
+            url += "&version1=" + $jq(checkbox1).val();
+            url += "&version2=" + $jq(checkbox2).val();
+            window.open(url, 'Compare', 'width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');
+        }
+
+        function restore() {
+            $jq.ajax({
+                type: "POST",
+                contentType: 'text/plain',
+                url: "#{contextPath}/web/history/restore",
+                data: jQuery("#versionToRestore").val(),
+                datatype: "json"
+            }).done(function () {
+                $jq('#changes').trigger('refresh');
+                ws.ui.success("Restoring changes was successful!");
+                ws.nav.reloadPanel('left');
+            }).fail(function () {
+                ws.ui.error("Restoring changes was failed!");
+            });
+            RichFaces.$('confirmRestore').hide();
+        }
+
+        $jq('#changes').bind('refresh', function () {
+            $jq.ajax({
+                url: "#{contextPath}/web/history/project",
+                datatype: "json"
+            })
+                .done(function (data) {
+                    if (data.length > 0) {
+                        $jq('.page .noChanges').hide();
+                        var rowTemplate = $jq('#changes>div:nth-child(2)');
+                        var htmlTemplate = $jq('<div/>').append(rowTemplate).html();
+                        var history = htmlTemplate;
+                        $jq('#changes div.row').remove();
+
+                        data.forEach(function (item) {
+                            history += htmlTemplate.replace(/{version}/g, item.version).replace(/{modifiedOn}/g, item.modifiedOn);
+                        });
+                        $jq('#changes').append(history);
+                        $jq('.page .page-header span').text(data.length);
+                        $jq('.page .historyTable').show();
+                    } else {
+                        $jq('.page .historyTable').hide();
+                        $jq('.page .noChanges').show();
+                    }
+                });
+        });
+        $jq('#changes').trigger('refresh');
+        //]]>
+    </script>
 
 </ui:composition>

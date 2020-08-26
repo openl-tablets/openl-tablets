@@ -4,7 +4,8 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
-    template="/pages/layout/simpleLayout.xhtml">
+    template="/pages/layout/simpleLayout.xhtml"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <ui:define name="title">#{msg['ws.compare.header']}</ui:define>
 
@@ -22,7 +23,9 @@
         </style>
 
         <h:messages styleClass="error" globalOnly="true" />
-
+        <c:if test="#{param.disableUpload}">
+            #{uploadExcelDiffController.compareVersions(param.version1, param.version2)};
+        </c:if>
         <h:form id="diffForm" rendered="#{!param.disableUpload}">
             <div id="diffFormPanel">
                 <h:panelGrid columns="2">

@@ -27,10 +27,7 @@ public class XlsWorkbookSourceHistoryListener implements XlsWorkbookListener {
     }
 
     public void beforeSave(File sourceFile) {
-        List<File> sources = historyManager.get(sourceFile.getName());
-        if (sources.isEmpty() && sourceFile.exists()) {
-            historyManager.save(sourceFile);
-        }
+        historyManager.init();
     }
 
     @Override

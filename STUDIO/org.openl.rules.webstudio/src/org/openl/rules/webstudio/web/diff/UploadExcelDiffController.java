@@ -10,8 +10,11 @@ import java.util.List;
 import javax.annotation.PreDestroy;
 import javax.faces.context.FacesContext;
 
+import org.openl.rules.ui.Message;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.source.SourceHistoryManager;
 import org.openl.util.FileTool;
 import org.richfaces.component.UITree;
 import org.richfaces.event.FileUploadEvent;
@@ -49,7 +52,7 @@ public class UploadExcelDiffController extends ExcelDiffController {
             clearUploadedFiles();
         } else {
             List<String> toRemove = Arrays.asList(fileNames.split("\n"));
-            for (Iterator<ProjectFile> iterator = uploadedFiles.iterator(); iterator.hasNext(); ) {
+            for (Iterator<ProjectFile> iterator = uploadedFiles.iterator(); iterator.hasNext();) {
                 ProjectFile file = iterator.next();
                 if (toRemove.contains(file.getName())) {
                     file.destroy();
@@ -75,7 +78,8 @@ public class UploadExcelDiffController extends ExcelDiffController {
                 for (ProjectFile uploadedFile : uploadedFiles) {
                     File fileToCompare = FileTool.toTempFile(uploadedFile.getInput(), uploadedFile.getName());
                     filesToCompare.add(fileToCompare);
-                    // Files can be reloaded lazily later. We cannot delete them immediately. Instead delete them when Bean
+                    // Files can be reloaded lazily later. We cannot delete them immediately. Instead delete them when
+                    // Bean
                     // is destroyed (on session timeout) or before next comparison.
                     addTempFile(fileToCompare);
                 }
@@ -89,6 +93,24 @@ public class UploadExcelDiffController extends ExcelDiffController {
             WebStudioUtils.addErrorMessage(e.getMessage());
             deleteTempFiles();
             clearUploadedFiles();
+        }
+
+        return null;
+    }
+
+    public String compareVersions(long version1, long version2) {
+        try {
+            ProjectModel model = WebStudioUtils.getProjectModel();
+            SourceHistoryManager<File> historyManager = model.getHistoryManager();
+            File file1ToCompare = historyManager.get(version1);
+            File file2ToCompare = historyManager.get(version2);
+
+            UploadExcelDiffController diffController = (UploadExcelDiffController) WebStudioUtils
+                .getBackingBean("uploadExcelDiffController");
+            diffController.compare(Arrays.asList(file1ToCompare, file2ToCompare));
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new Message("Error when comparing projects");
         }
 
         return null;
