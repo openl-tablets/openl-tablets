@@ -28,6 +28,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProjectHelper;
+import org.codehaus.plexus.util.DirectoryScanner;
 import org.openl.info.OpenLVersion;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
@@ -49,6 +50,8 @@ public final class PackageMojo extends BaseOpenLMojo {
 
     private static final String DEPLOYMENT_YAML = "deployment.yaml";
     private static final String DEPLOYMENT_CLASSIFIER = "deployment";
+    private static final String[] DEFAULT_EXCLUDES = {"pom.xml"};
+    private static final String[] DEFAULT_INCLUDES = {"**"};
 
     @Parameter(defaultValue = "${project.packaging}", readonly = true)
     private String packaging;
@@ -131,6 +134,15 @@ public final class PackageMojo extends BaseOpenLMojo {
     @Parameter(defaultValue = "${user.name}", readonly = true, required = true)
     private String userName;
 
+    @Parameter
+    private String[] includes;
+
+    @Parameter
+    private String[] excludes;
+
+    @Parameter(defaultValue = "${basedir}", readonly = true, required = true)
+    private String projectBaseDir;
+
     @Override
     void execute(String sourcePath, boolean hasDependencies) throws Exception {
 
@@ -173,6 +185,13 @@ public final class PackageMojo extends BaseOpenLMojo {
             JarArchiver.archive(classesDirectory, dependencyLib);
         }
 
+        DirectoryScanner dirScan = new DirectoryScanner();
+        dirScan.setBasedir(openLSourceDir);
+        dirScan.setExcludes(getExcludes());
+        dirScan.setIncludes(getIncludes());
+        dirScan.scan();
+        final String[] includedFiles = dirScan.getIncludedFiles();
+
         for (String type : types) {
             File outputFile = getOutputFile(outputDirectory, finalName, classifier, type);
 
@@ -184,7 +203,7 @@ public final class PackageMojo extends BaseOpenLMojo {
                     arch.addFile(new ByteArrayInputStream(baos.toByteArray()), JarFile.MANIFEST_NAME);
                 }
 
-                ProjectPackager.addOpenLProject(openLSourceDir, arch);
+                ProjectPackager.addOpenLProject(openLSourceDir, includedFiles, arch);
 
                 if (dependencyLib != null && dependencyLib.isFile()) {
                     arch.addFile(dependencyLib, classpathFolder + finalName + ".jar");
@@ -381,4 +400,28 @@ public final class PackageMojo extends BaseOpenLMojo {
         }
         return manifest;
     }
+
+    private String[] getIncludes() {
+        if (includes == null || includes.length == 0) {
+            return DEFAULT_INCLUDES;
+        }
+        return includes;
+    }
+
+    private String[] getExcludes() {
+        int excludesCnt = DEFAULT_EXCLUDES.length + 1;
+        final boolean hasExcludes = excludes != null && excludes.length != 0;
+        if (hasExcludes) {
+            excludesCnt += excludes.length;
+        }
+        String[] newExcludes = new String[excludesCnt];
+        System.arraycopy(DEFAULT_EXCLUDES, 0, newExcludes, 0, DEFAULT_EXCLUDES.length);
+        final String targetDir = outputDirectory.getAbsolutePath().substring(projectBaseDir.length() + 1);
+        newExcludes[DEFAULT_EXCLUDES.length] = targetDir + "/**";
+        if (hasExcludes) {
+            System.arraycopy(excludes, 0, newExcludes, DEFAULT_EXCLUDES.length + 1, excludes.length);
+        }
+        return newExcludes;
+    }
+
 }
