@@ -10,7 +10,6 @@ import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.project.validation.base.ValidatedCompiledOpenClass;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
 final class OpenApiProjectValidatorMessagesUtils {
@@ -20,12 +19,12 @@ final class OpenApiProjectValidatorMessagesUtils {
 
     public static void addError(Context context, String summary) {
         ValidatedCompiledOpenClass validatedCompiledOpenClass = context.getValidatedCompiledOpenClass();
-        if (isNotExistingError(summary, validatedCompiledOpenClass)) {
+        if (isNotExistingError(validatedCompiledOpenClass, summary)) {
             validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils.newErrorMessage(summary));
         }
     }
 
-    private static boolean isNotExistingError(String summary, ValidatedCompiledOpenClass validatedCompiledOpenClass) {
+    private static boolean isNotExistingError(ValidatedCompiledOpenClass validatedCompiledOpenClass, String summary) {
         for (OpenLMessage openLMessage : validatedCompiledOpenClass.getMessages()) {
             if (openLMessage.isError() && Objects.equals(openLMessage.getSummary(), summary)) {
                 return false;
@@ -60,6 +59,8 @@ final class OpenApiProjectValidatorMessagesUtils {
             SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary, tableSyntaxNode);
             if (isNotExistingError(tableSyntaxNode, summary)) {
                 tableSyntaxNode.addError(syntaxNodeException);
+            }
+            if (isNotExistingError(context.getValidatedCompiledOpenClass(), summary)) {
                 OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
                 context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
             }
@@ -81,12 +82,14 @@ final class OpenApiProjectValidatorMessagesUtils {
         if (context.getType() instanceof DatatypeOpenClass) {
             DatatypeOpenClass datatypeOpenClass = (DatatypeOpenClass) context.getType();
             if (datatypeOpenClass.getTableSyntaxNode() != null) {
+                SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary,
+                    datatypeOpenClass.getTableSyntaxNode());
                 if (isNotExistingError(datatypeOpenClass.getTableSyntaxNode(), summary)) {
-                    SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary,
-                        datatypeOpenClass.getTableSyntaxNode());
+                    datatypeOpenClass.getTableSyntaxNode().addError(syntaxNodeException);
+                }
+                if (isNotExistingError(context.getValidatedCompiledOpenClass(), summary)) {
                     OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
                     context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
-                    datatypeOpenClass.getTableSyntaxNode().addError(syntaxNodeException);
                 }
             }
         } else {
@@ -109,24 +112,9 @@ final class OpenApiProjectValidatorMessagesUtils {
 
     public static void addMethodWarning(Context context, String summary) {
         TableSyntaxNode tableSyntaxNode = extractTableSyntaxNode(context.getOpenMethod());
-        if (tableSyntaxNode != null && isNotExistingError(tableSyntaxNode, summary)) {
+        if (tableSyntaxNode != null && isNotExistingError(context.getValidatedCompiledOpenClass(), summary)) {
             OpenLMessage openLMessage = OpenLMessagesUtils.newWarnMessage(summary, tableSyntaxNode);
             context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
-        } else {
-            addWarning(context, summary);
-        }
-    }
-
-    public static void addTypeWarning(Context context, IOpenClass openClass, String summary) {
-        if (openClass instanceof DatatypeOpenClass) {
-            DatatypeOpenClass datatypeOpenClass = (DatatypeOpenClass) openClass;
-            if (datatypeOpenClass.getTableSyntaxNode() != null && isNotExistingError(
-                datatypeOpenClass.getTableSyntaxNode(),
-                summary)) {
-                OpenLMessage openLMessage = OpenLMessagesUtils.newWarnMessage(summary,
-                    datatypeOpenClass.getTableSyntaxNode());
-                context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
-            }
         } else {
             addWarning(context, summary);
         }

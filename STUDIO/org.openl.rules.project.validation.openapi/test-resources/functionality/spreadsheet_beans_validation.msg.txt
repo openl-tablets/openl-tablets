@@ -1,3 +1,2 @@
 ERROR: OpenAPI validation: Type of field 'valueCapitalAdequacy' in type 'BalanceQualityIndexCalculation' must be compatible with OpenAPI type 'string'.
 ERROR: OpenAPI validation: Expected non transient field 'Description_QuickRatioScore_Renamed' is not found in type 'BalanceQualityIndexCalculation'.
-ERROR: OpenAPI validation: Type of field 'valueCapitalAdequacy' in type 'BalanceQualityIndexCalculation' must be compatible with OpenAPI type 'string'.
