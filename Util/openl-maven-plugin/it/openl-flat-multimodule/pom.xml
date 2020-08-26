@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.openl.internal</groupId>
+    <artifactId>openl-flat-multimodulet</artifactId>
+    <version>0.0.0</version>
+    <packaging>pom</packaging>
+    <name>OpenL Plugin: Flat Multimodule Project</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <org.openl.version>@project.version@</org.openl.version>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.openl.rules</groupId>
+                    <artifactId>openl-maven-plugin</artifactId>
+                    <version>${org.openl.version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <dependenciesThreshold>0</dependenciesThreshold>
+                        <sourceDirectory>./</sourceDirectory>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    
+    <modules>
+        <module>openl-child-dependency</module>
+        <module>openl-parent-project</module>
+    </modules>
+</project>
