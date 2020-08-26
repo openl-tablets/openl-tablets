@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -181,10 +182,17 @@ public class AProjectFolder extends AProjectArtefact {
                     if (fromRepository.supports().versions()) {
                         if (from.isHistoric()) {
                             fromProjectVersion = from.getHistoryVersion();
+                            fromList = fromRepository.listFiles(fromFilePath, fromProjectVersion);
                         } else {
-                            fromProjectVersion = fromRepository.check(from.getFolderPath()).getVersion();
+                            FileData fileData = fromRepository.check(from.getFolderPath());
+                            if (fileData == null) {
+                                fromProjectVersion = null;
+                                fromList = Collections.emptyList();
+                            } else {
+                                fromProjectVersion = fileData.getVersion();
+                                fromList = fromRepository.listFiles(fromFilePath, fromProjectVersion);
+                            }
                         }
-                        fromList = fromRepository.listFiles(fromFilePath, fromProjectVersion);
                     } else {
                         fromProjectVersion = null;
                         fromList = fromRepository.list(fromFilePath);

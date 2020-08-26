@@ -383,8 +383,8 @@
                         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                             rendered="#{not empty localUpload.projects4Upload}">
                             <h:outputLabel for="repositoryLocal" value="Repository:" styleClass="required"/>
-                            <h:selectOneMenu id="repositoryLocal" value="#{repositoryTreeController.repositoryId}">
-                                <f:ajax event="change" execute="@form" render="@form" onevent="initNewProjectDialogUI"/>
+                            <h:selectOneMenu id="repositoryLocal" value="#{localUpload.repositoryId}">
+                                <f:ajax event="change" execute="@form" render="@form" onevent="initNewProjectDialogUIWorkspace"/>
                                 <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
                                 <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
                                                itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
@@ -392,19 +392,19 @@
                         </h:panelGrid>
 
                         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
-                                     rendered="#{repositoryTreeController.supportsMappedFolders}">
+                                     rendered="#{localUpload.supportsMappedFolders and not empty localUpload.projects4Upload}">
                             <h:outputLabel for="projectFolderLocal" value="Path:"/>
                             <h:panelGroup>
                                 <h:inputText id="projectFolderLocal" size="35"
                                              styleClass="with-button-select"
                                              value="#{localUpload.projectFolder}"/>
                                 <input type="button" value="..." class="button-select"
-                                       onclick="openSelectFolderDialog('#{repositoryTreeController.repositoryId}', 'uploadWorkspaceProjectForm:projectFolderLocal')"/>
+                                       onclick="openSelectFolderDialog('#{localUpload.repositoryId}', 'projectFolderLocal')"/>
                             </h:panelGroup>
                         </h:panelGrid>
                     </div>
                     <p>
-                        <ui:param name="useCustomComment" value="#{repositoryTreeController.useCustomComment}"/>
+                        <ui:param name="useCustomComment" value="#{repositoryTreeController.useCustomComment and not empty localUpload.projects4Upload}}"/>
                         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                                      rendered="#{useCustomComment}">
                             <h:outputLabel for="commentLocal" value="Comment:"/>
@@ -500,6 +500,12 @@
         let createProjectFormFilesCommentHandler = new CommentTemplateHandler();
         let createProjectFormOpenAPICommentHandler = new CommentTemplateHandler();
         //]]>
+
+        function initNewProjectDialogUIWorkspace() {
+            initNewProjectDialogUI();
+            let checkedCount = $j("#uploadWorkspaceProjectForm INPUT[type='checkbox']:checked").not("INPUT[id='uploadPrjFromLocalTable:selectAll']").size();
+            enableCreateButton(checkedCount !== 0, #{rich:element('sbtWorkspace')});
+        }
 
         function initNewProjectDialogUI() {
             enableCreateButton(false, #{rich:element("sbtFiles")});

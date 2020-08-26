@@ -13,6 +13,7 @@ import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
@@ -24,24 +25,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.RequestScope;
 
 @Service("localUpload")
-@RequestScope
+@ViewScope
 public class LocalUploadController {
     public static class UploadBean {
-        private final String repositoryId;
         private final String projectName;
 
         private boolean selected;
 
-        UploadBean(String repositoryId, String projectName) {
-            this.repositoryId = repositoryId;
+        UploadBean(String projectName) {
             this.projectName = projectName;
-        }
-
-        public String getRepositoryId() {
-            return repositoryId;
         }
 
         public String getProjectName() {
@@ -60,6 +54,8 @@ public class LocalUploadController {
     private final Logger log = LoggerFactory.getLogger(LocalUploadController.class);
 
     private List<UploadBean> uploadBeans;
+
+    private String repositoryId;
 
     private String projectFolder = "";
 
@@ -105,11 +101,10 @@ public class LocalUploadController {
                 for (AProject project : localProjects) {
                     try {
                         String repoId = project.getRepository().getId();
-                        File projectFolder = new File(new File(localWorkspace.getLocation(), repoId),
-                            project.getFolderPath());
+                        File projectFolder = new File(localWorkspace.getLocation(), project.getFolderPath());
                         ResolvingStrategy strategy = projectResolver.isRulesProject(projectFolder);
                         if (strategy != null && !dtr.hasProject(repoId, project.getName())) {
-                            uploadBeans.add(new UploadBean(repoId, project.getName()));
+                            uploadBeans.add(new UploadBean(project.getName()));
                         }
                     } catch (Exception e) {
                         log.error("Failed to list projects for upload.", e);
@@ -121,12 +116,27 @@ public class LocalUploadController {
         return uploadBeans;
     }
 
+    public String getRepositoryId() {
+        return repositoryId;
+    }
+
+    public void setRepositoryId(String repositoryId) {
+        this.repositoryId = repositoryId;
+    }
+
     public String getProjectFolder() {
-        return projectFolder;
+        String folderToShow = this.projectFolder;
+        if (!folderToShow.startsWith("/")) {
+            folderToShow = "/" + folderToShow;
+        }
+        return folderToShow;
     }
 
     public void setProjectFolder(String projectFolder) {
         String folder = StringUtils.trimToEmpty(projectFolder).replace('\\', '/');
+        if (folder.startsWith("/")) {
+            folder = folder.substring(1);
+        }
         if (!folder.isEmpty() && !folder.endsWith("/")) {
             folder += '/';
         }
@@ -140,6 +150,11 @@ public class LocalUploadController {
     };
 
     public String upload() {
+        if (StringUtils.isBlank(repositoryId)) {
+            WebStudioUtils.addErrorMessage("Repository must be selected.");
+            return null;
+        }
+
         String workspacePath = WebStudioUtils.getWebStudio().getWorkspacePath();
         RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
 
@@ -154,7 +169,7 @@ public class LocalUploadController {
                             bean.getProjectName());
 
                         createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession, comment,
-                            bean.getRepositoryId());
+                            repositoryId);
                         WebStudioUtils.addInfoMessage("Project " + bean.getProjectName() + " was created successfully");
                     } catch (Exception e) {
                         String msg;
@@ -197,5 +212,19 @@ public class LocalUploadController {
     }
 
     public void setSelectAll(boolean selectAll) {
+    }
+
+    public boolean isSupportsMappedFolders() {
+        if (StringUtils.isBlank(repositoryId)) {
+            return false;
+        }
+
+        try {
+            UserWorkspace userWorkspace = WebStudioUtils.getRulesUserSession().getUserWorkspace();
+            return userWorkspace.getDesignTimeRepository().getRepository(repositoryId).supports().mappedFolders();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
     }
 }

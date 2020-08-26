@@ -86,7 +86,15 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     public AProject getProject(String repositoryId, String name) throws ProjectException {
         AProject lp;
         synchronized (localProjects) {
-            lp = localProjects.get(new ProjectKey(repositoryId, name.toLowerCase()));
+            if (repositoryId == null) {
+                lp = localProjects.values()
+                    .stream()
+                    .filter(p -> p.getName().toLowerCase().equals(name.toLowerCase()))
+                    .findFirst()
+                    .orElse(null);
+            } else {
+                lp = localProjects.get(new ProjectKey(repositoryId, name.toLowerCase()));
+            }
         }
         if (lp == null) {
             throw new ProjectException("Cannot find project ''{0}''.", null, name);

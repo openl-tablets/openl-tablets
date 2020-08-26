@@ -498,7 +498,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             designData.setName(designPath);
 
             AProject createdProject = new AProject(designTimeRepository.getRepository(repositoryId), designData);
-            AProject project = localWorkspace.getProject(repositoryId, name);
+            AProject project = localWorkspace.getProject(null, name);
             project.refresh();
             if (designTimeRepository.getRepository(repositoryId).supports().mappedFolders()) {
                 FileData fileData = createdProject.getFileData();
