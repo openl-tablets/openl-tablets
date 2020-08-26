@@ -1,0 +1,8 @@
+<project>
+    <name>openl-child-dependency</name>
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+        </module>
+    </modules>
+</project>
