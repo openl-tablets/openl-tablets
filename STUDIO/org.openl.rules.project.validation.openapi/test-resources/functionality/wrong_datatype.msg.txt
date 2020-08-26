@@ -8,7 +8,7 @@ ERROR: Type 'FinancialData' is defined with errors.
 ERROR: Type 'FinancialData' is defined with errors.
 ERROR: Cannot load type 'org.openl.generated.beans.FinancialData'.
 ERROR: Table 'BankLimitIndex' is not found.
-ERROR: java.lang.Object cannot be cast to org.openl.rules.calc.SpreadsheetResult
+ERROR: Class 'java.lang.Object' cannot be cast to class 'org.openl.rules.calc.SpreadsheetResult'.
 ERROR: Foreign table 'bankData' has errors.
 ERROR: Table 'bankFinancialData' is not found.
 ERROR: Table 'bankFinancialData' is not found.

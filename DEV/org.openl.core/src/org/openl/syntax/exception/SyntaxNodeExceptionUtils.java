@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.exception.formatter.ClassCastExceptionFormatter;
 import org.openl.syntax.exception.formatter.ExceptionMessageFormatter;
 import org.openl.syntax.exception.formatter.IndexOutOfBoundsExceptionFormatter;
 import org.openl.syntax.exception.formatter.NoClassDefFoundErrorFormatter;
@@ -21,6 +22,7 @@ public class SyntaxNodeExceptionUtils {
         formatters.put(ArrayIndexOutOfBoundsException.class, new IndexOutOfBoundsExceptionFormatter());
         formatters.put(NoClassDefFoundError.class, new NoClassDefFoundErrorFormatter());
         formatters.put(NullPointerException.class, new NullPointerExceptionFormatter());
+        formatters.put(ClassCastException.class, new ClassCastExceptionFormatter());
     }
 
     private SyntaxNodeExceptionUtils() {
