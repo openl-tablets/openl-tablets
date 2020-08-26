@@ -41,11 +41,16 @@ public class EnvironmentTableExporter extends AbstractOpenlTableExporter<Environ
         Iterator<String> dpdIterator = model.getDependencies().iterator();
         Iterator<String> importIterator = model.getImports().iterator();
         endPosition = writeData(sheet, style, endPosition, dpdIterator, DEPENDENCY);
+        endPosition = endPosition.moveRight(1);
         endPosition = writeData(sheet, style, endPosition, importIterator, IMPORT);
         return new Cursor(endPosition.getColumn(), endPosition.getRow());
     }
 
-    private Cursor writeData(Sheet sheet, EnvironmentTableStyleImpl style, Cursor endPosition, Iterator<String> importIterator, String anImport) {
+    private Cursor writeData(Sheet sheet,
+            EnvironmentTableStyleImpl style,
+            Cursor endPosition,
+            Iterator<String> importIterator,
+            String anImport) {
         while (importIterator.hasNext()) {
             boolean lastRow = false;
             String dpd = importIterator.next();
