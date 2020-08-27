@@ -1460,7 +1460,9 @@ public class RepositoryTreeController {
     }
 
     public String selectDeploymentProject() {
+        String repositoryId = WebStudioUtils.getRequestParameter("repositoryId");
         String projectName = WebStudioUtils.getRequestParameter("projectName");
+        setRepositoryId(repositoryId);
         selectProject(projectName, repositoryTreeState.getDeploymentRepository());
         return null;
     }
@@ -2018,7 +2020,8 @@ public class RepositoryTreeController {
 
     public boolean isSupportsBranches(String repositoryId) {
         try {
-            return userWorkspace.getDesignTimeRepository().getRepository(repositoryId).supports().branches();
+            Repository repository = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
+            return repository != null && repository.supports().branches();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -2037,7 +2040,8 @@ public class RepositoryTreeController {
 
     public boolean isSupportsMappedFolders(String repositoryId) {
         try {
-            return userWorkspace.getDesignTimeRepository().getRepository(repositoryId).supports().mappedFolders();
+            Repository repository = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
+            return repository != null && repository.supports().mappedFolders();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
