@@ -96,7 +96,7 @@ public final class PackageMojo extends BaseOpenLMojo {
      * Allowed quantity of dependencies which can be included into the ZIP archive. Usually OpenL Tablets rules require
      * a few dependencies, such as domain models, that is, Java beans, or some utils, for example, JSON parsing.
      * Typically, the quantity of required dependencies does not exceed 3. If transitive dependencies are declared
-     * incorrectly, the size of the ZIP package increases dramatically. This parameter allows to prevent such situation
+     * incorrectly, the size of the ZIP package increases dramatically. This parameter allows preventing such situation
      * by failing packaging.
      */
     @Parameter(defaultValue = "3", required = true)
@@ -156,7 +156,7 @@ public final class PackageMojo extends BaseOpenLMojo {
      *
      * If it is not defined, then no files will be excluded.
      *
-     * Note: pom.xml file and target directory are excluded always independently on this parameter.
+     * Note: 'pom.xml' file and 'target' directory are excluded always independently on this parameter.
      *
      * @since 5.23.6
      */

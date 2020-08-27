@@ -83,6 +83,13 @@
                 <!-- generate MOJOs documents -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
+                <configuration>
+                    <requirements>
+                        <maven>3.6</maven>
+                        <jdk>8</jdk>
+                        <memory>64m</memory>
+                    </requirements>
+                </configuration>
             </plugin>
             <plugin>
                 <!-- Do not generate project reports -->
