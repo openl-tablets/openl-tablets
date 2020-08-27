@@ -1,6 +1,7 @@
 package org.openl.rules.rest;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -15,10 +16,9 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.ProjectHistoryItem;
 import org.openl.rules.webstudio.web.admin.ProjectsInHistoryController;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.google.common.io.Files;
 
 @Service
 @Path("/history/")
@@ -33,11 +33,13 @@ public class ProjectHistoryService {
     public List<ProjectHistoryItem> getProjectHistory() throws IOException {
         WebStudio webStudio = WebStudioUtils.getWebStudio(httpSession);
         ProjectModel model = webStudio.getModel();
-        String sourceName = model.getCurrentModuleWorkbook().getSourceFile().getName();
-        String fileName = model.getModuleInfo().getName() + "." + Files.getFileExtension(sourceName);
-        String workspacePath = webStudio.getWorkspacePath();
-        String projectName = model.getProject().getFolderPath();
-        return ProjectsInHistoryController.getProjectHistory(workspacePath, projectName, fileName);
+        String projectHistoryPath = Paths
+            .get(webStudio.getWorkspacePath(),
+                model.getProject().getFolderPath(),
+                FolderHelper.HISTORY_FOLDER,
+                model.getModuleInfo().getName())
+            .toString();
+        return ProjectsInHistoryController.getProjectHistory(projectHistoryPath);
     }
 
     @POST

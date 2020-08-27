@@ -7,10 +7,6 @@
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
 
     <style>
-        #changes > div:nth-child(3) a {
-            display: none;
-        }
-
         #changes > div:nth-child(2) {
             display: none;
         }
@@ -160,11 +156,17 @@
                         var history = htmlTemplate;
                         $jq('#changes div.row').remove();
 
-                        data.forEach(function (item) {
-                            history += htmlTemplate.replace(/{version}/g, item.version).replace(/{modifiedOn}/g, item.modifiedOn);
+                        data.forEach(function (item, index) {
+                            var template;
+                            if (index === (data.length - 1)) {
+                                template = htmlTemplate.replace(/{version}/g, 0).replace(/{modifiedOn}/g, "Revision Version");
+                            } else {
+                                template = htmlTemplate.replace(/{version}/g, item.version).replace(/{modifiedOn}/g, item.modifiedOn);
+                            }
+                            history += template;
                         });
                         $jq('#changes').append(history);
-                        $jq('.page .page-header span').text(data.length);
+                        $jq('.page .page-header span').text(data.length - 1);
                         $jq('.page .historyTable').show();
                     } else {
                         $jq('.page .historyTable').hide();

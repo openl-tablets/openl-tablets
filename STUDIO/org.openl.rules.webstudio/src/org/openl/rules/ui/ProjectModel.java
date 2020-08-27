@@ -1169,7 +1169,9 @@ public class ProjectModel {
             File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
                 .getLocalWorkspace()
                 .getLocation();
-            String storagePath = Paths.get(location.getPath(), getProject().getName(), ".history").toString();
+            String storagePath = Paths
+                .get(location.getPath(), getProject().getName(), ".history", getModuleInfo().getName())
+                .toString();
             historyManager = new FileBasedProjectHistoryManager(this, storagePath, maxFilesInStorage);
         }
         return historyManager;

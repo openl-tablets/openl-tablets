@@ -30,10 +30,7 @@ public class ProjectsInHistoryController {
     private ProjectsInHistoryController() {
     }
 
-    public static List<ProjectHistoryItem> getProjectHistory(String workspacePath,
-            String projectName,
-            String fileName) throws IOException {
-        String projectHistoryPath = Paths.get(workspacePath, projectName, FolderHelper.HISTORY_FOLDER).toString();
+    public static List<ProjectHistoryItem> getProjectHistory(String projectHistoryPath) throws IOException {
         File dir = new File(projectHistoryPath);
         List<File> historyListFiles = new ArrayList<>();
         if (dir.exists()) {
@@ -42,18 +39,14 @@ public class ProjectsInHistoryController {
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     FileVisitResult fileVisitResult = super.visitFile(file, attrs);
                     File f = file.toFile();
-                    if (f.isFile() && f.getName().equals(fileName)) {
-                        historyListFiles.add(f);
-                    }
+                    historyListFiles.add(f);
                     return fileVisitResult;
                 }
             });
         }
         SimpleDateFormat formatter = new SimpleDateFormat(WebStudioFormats.getInstance().dateTime());
         return historyListFiles.stream()
-            .map(f -> new ProjectHistoryItem(f.lastModified(),
-                formatter.format(new Date(f.lastModified()))
-            ))
+            .map(f -> new ProjectHistoryItem(f.lastModified(), formatter.format(new Date(f.lastModified()))))
             .sorted(Comparator.comparingLong(ProjectHistoryItem::getVersion).reversed())
             .collect(Collectors.toList());
     }
