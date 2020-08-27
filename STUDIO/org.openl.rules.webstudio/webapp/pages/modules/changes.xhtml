@@ -156,14 +156,8 @@
                         var history = htmlTemplate;
                         $jq('#changes div.row').remove();
 
-                        data.forEach(function (item, index) {
-                            var template;
-                            if (index === (data.length - 1)) {
-                                template = htmlTemplate.replace(/{version}/g, 0).replace(/{modifiedOn}/g, "Revision Version");
-                            } else {
-                                template = htmlTemplate.replace(/{version}/g, item.version).replace(/{modifiedOn}/g, item.modifiedOn);
-                            }
-                            history += template;
+                        data.forEach(function (item) {
+                            history += htmlTemplate.replace(/{version}/g, item.version).replace(/{modifiedOn}/g, item.modifiedOn);
                         });
                         $jq('#changes').append(history);
                         $jq('.page .page-header span').text(data.length - 1);

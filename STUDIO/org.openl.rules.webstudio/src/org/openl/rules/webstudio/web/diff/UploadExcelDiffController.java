@@ -98,7 +98,7 @@ public class UploadExcelDiffController extends ExcelDiffController {
         return null;
     }
 
-    public String compareVersions(long version1, long version2) {
+    public String compareVersions(String version1, String version2) {
         try {
             ProjectModel model = WebStudioUtils.getProjectModel();
             SourceHistoryManager<File> historyManager = model.getHistoryManager();

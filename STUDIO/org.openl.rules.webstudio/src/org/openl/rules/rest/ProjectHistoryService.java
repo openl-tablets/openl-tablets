@@ -44,7 +44,7 @@ public class ProjectHistoryService {
 
     @POST
     @Path("restore")
-    public void restore(long versionToRestore) throws Exception {
+    public void restore(String versionToRestore) throws Exception {
         ProjectModel model = WebStudioUtils.getWebStudio(httpSession).getModel();
         if (model != null) {
             model.getHistoryManager().restore(versionToRestore);

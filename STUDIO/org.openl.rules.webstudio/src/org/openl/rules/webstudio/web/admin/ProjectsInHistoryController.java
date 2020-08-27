@@ -8,15 +8,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.ProjectHistoryItem;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -30,25 +28,19 @@ public class ProjectsInHistoryController {
     private ProjectsInHistoryController() {
     }
 
-    public static List<ProjectHistoryItem> getProjectHistory(String projectHistoryPath) throws IOException {
+    public static List<ProjectHistoryItem> getProjectHistory(String projectHistoryPath)  {
         File dir = new File(projectHistoryPath);
-        List<File> historyListFiles = new ArrayList<>();
-        if (dir.exists()) {
-            Files.walkFileTree(dir.toPath(), new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    FileVisitResult fileVisitResult = super.visitFile(file, attrs);
-                    File f = file.toFile();
-                    historyListFiles.add(f);
-                    return fileVisitResult;
-                }
-            });
+        String[] historyListFiles = dir.list();
+        if (historyListFiles == null) {
+            return Collections.emptyList();
         }
-        SimpleDateFormat formatter = new SimpleDateFormat(WebStudioFormats.getInstance().dateTime());
-        return historyListFiles.stream()
-            .map(f -> new ProjectHistoryItem(f.lastModified(), formatter.format(new Date(f.lastModified()))))
-            .sorted(Comparator.comparingLong(ProjectHistoryItem::getVersion).reversed())
-            .collect(Collectors.toList());
+        Arrays.sort(historyListFiles, Comparator.reverseOrder());
+        List<ProjectHistoryItem> collect = Arrays.stream(historyListFiles)
+                .map(ProjectHistoryItem::new)
+                .collect(Collectors.toList());
+        ProjectHistoryItem revisionVersion = collect.remove(0);
+        collect.add(revisionVersion);
+        return collect;
     }
 
     public static void deleteHistory(String projectName) throws IOException {

@@ -1,5 +1,6 @@
 package org.openl.source;
 
+import java.io.File;
 import java.util.List;
 import java.util.SortedMap;
 
@@ -12,10 +13,10 @@ public interface SourceHistoryManager<T> {
 
     void save(T source);
 
-    void restore(long version) throws Exception;
+    void restore(String version) throws Exception;
 
-    T get(long version);
+    T get(String version);
 
-    void init();
+    void init(File sourceFile);
 
 }
