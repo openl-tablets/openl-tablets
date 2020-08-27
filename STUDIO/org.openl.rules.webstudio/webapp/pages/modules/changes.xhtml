@@ -7,10 +7,6 @@
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
 
     <style>
-        #changes > div:nth-child(3) a {
-            display: none;
-        }
-
         #changes > div:nth-child(2) {
             display: none;
         }
@@ -164,7 +160,7 @@
                             history += htmlTemplate.replace(/{version}/g, item.version).replace(/{modifiedOn}/g, item.modifiedOn);
                         });
                         $jq('#changes').append(history);
-                        $jq('.page .page-header span').text(data.length);
+                        $jq('.page .page-header span').text(data.length - 1);
                         $jq('.page .historyTable').show();
                     } else {
                         $jq('.page .historyTable').hide();

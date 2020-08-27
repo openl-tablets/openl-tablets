@@ -27,7 +27,7 @@ public class XlsWorkbookSourceHistoryListener implements XlsWorkbookListener {
     }
 
     public void beforeSave(File sourceFile) {
-        historyManager.init();
+        historyManager.init(sourceFile);
     }
 
     @Override

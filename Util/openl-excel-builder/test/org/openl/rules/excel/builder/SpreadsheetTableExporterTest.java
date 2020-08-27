@@ -81,7 +81,7 @@ public class SpreadsheetTableExporterTest {
             assertEquals("calculateName", secondNameCell.getStringCellValue());
             XSSFCell secondValueCell = secondStepRow.getCell(2);
             assertNotNull(secondValueCell);
-            assertEquals("=_DEFAULT_", secondValueCell.getStringCellValue());
+            assertEquals("=\"\"", secondValueCell.getStringCellValue());
 
             XSSFRow sprCallStepRow = dtsSheet.getRow(TOP_MARGIN + 4);
             assertNotNull(sprCallStepRow);

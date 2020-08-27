@@ -152,7 +152,7 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
             } else if ("Float".equals(type)) {
                 stepValueCell.setCellValue("=0.0f");
             } else if ("String".equals(type)) {
-                stepValueCell.setCellValue("=" + DEFAULT_STRING_VALUE);
+                stepValueCell.setCellValue("=" + "\"\"");
             } else if ("Date".equals(type)) {
                 stepValueCell.setCellValue("=new Date()");
             } else if ("OffsetDateTime".equals(type)) {

@@ -34,8 +34,16 @@ fi
 
 memory=$(free -g | awk '/Mem:/{print $2}')
 if [[ "$CONTAINER" != "true" ]]; then
-  if [[ ${memory} -ge 12 ]]; then
-    _JAVA_MEMORY="-Xms8g -Xmx10g"
+  if [[ ${memory} -ge 48 ]]; then
+    _JAVA_MEMORY="-Xms4g -Xmx42g"
+  elif [[ ${memory} -ge 32 ]]; then
+    _JAVA_MEMORY="-Xms4g -Xmx28g"
+  elif [[ ${memory} -ge 24 ]]; then
+    _JAVA_MEMORY="-Xms4g -Xmx20g"
+  elif [[ ${memory} -ge 16 ]]; then
+    _JAVA_MEMORY="-Xms4g -Xmx12g"
+  elif [[ ${memory} -ge 12 ]]; then
+    _JAVA_MEMORY="-Xms4g -Xmx10g"
   elif [[ ${memory} -ge 8 ]]; then
     _JAVA_MEMORY="-Xms4g -Xmx7g"
   elif [[ _memory -ge 6 ]]; then

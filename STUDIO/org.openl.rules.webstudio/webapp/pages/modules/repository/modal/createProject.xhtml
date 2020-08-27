@@ -468,7 +468,7 @@
                                 render="createProjectFormTempl createProjectFormFiles uploadProjectForm uploadWorkspaceProjectForm"
                                 oncomplete="showNewProjectDialog()"/>
 
-                <a4j:jsFunction name="clearFiles">
+                <a4j:jsFunction name="clearFiles" render="openAPIProjectForm">
                     <a4j:param name="fileNames" assignTo="#{repositoryTreeController.fileNamesToRemove}"/>
                 </a4j:jsFunction>
             </h:form>

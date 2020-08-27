@@ -36,6 +36,30 @@
                     complete: hideLoader
                 });
             });
+            var ws = {
+                ui: {
+                    success: function(content) {
+                        message(content, 4000, true, "success");
+                    },
+                    error: function(content) {
+                        message(content, -1, true, "error");
+                    },
+                    info: function(content) {
+                        message(content, 8000, true);
+                    },
+                    showLoader: function () {
+                        if (loadingPanel.is(":hidden")) {
+                            showAnimatedPanel(loadingPanel);
+                        }
+                    },
+                    hideLoader: function () {
+                        if (loadingPanel.is(":visible")) {
+                            loadingPanel.hide();
+                        }
+                    }
+
+                }
+            };
             //]]>
         </script>
     </h:head>
