@@ -45,7 +45,7 @@ public class ConflictService {
     @GET
     @Path("repository")
     @Produces("application/octet-stream")
-    public Response repository(@QueryParam(Constants.REQUEST_PARAM_NAME) final String repoId,
+    public Response repository(@QueryParam(Constants.REQUEST_PARAM_REPO_ID) final String repoId,
             @QueryParam(Constants.REQUEST_PARAM_NAME) final String name,
             @QueryParam(Constants.REQUEST_PARAM_VERSION) final String version,
             @QueryParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
@@ -80,7 +80,7 @@ public class ConflictService {
     @GET
     @Path("local")
     @Produces("application/octet-stream")
-    public Response local(@QueryParam(Constants.REQUEST_PARAM_NAME) final String repoId,
+    public Response local(@QueryParam(Constants.REQUEST_PARAM_REPO_ID) final String repoId,
             @QueryParam(Constants.REQUEST_PARAM_NAME) final String name,
             @QueryParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
             @Context HttpServletRequest request) {

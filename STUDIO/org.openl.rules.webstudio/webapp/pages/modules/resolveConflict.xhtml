@@ -109,11 +109,11 @@
                 <ui:param name="hasYourFile" value="#{mergeConflictBean.hasYourFile(conflict)}"/>
                 <div>
                   <h:panelGroup rendered="#{hasYourFile and not isMerging}">
-                    <a href="#{contextPath}/web/conflict/local?repoId=#{repoId}&amp;name=#{conflict}"
+                    <a href="#{contextPath}/web/conflict/local?repo-id=#{repoId}&amp;name=#{conflict}"
                        title="Download your version">Download Yours</a>
                   </h:panelGroup>
                   <h:panelGroup rendered="#{hasYourFile and isMerging}">
-                    <a href="#{contextPath}/web/conflict/repository?repoId=#{repoId}&amp;name=#{conflict}&amp;version=#{mergeConflictBean.yourCommit}"
+                    <a href="#{contextPath}/web/conflict/repository?repo-id=#{repoId}&amp;name=#{conflict}&amp;version=#{mergeConflictBean.yourCommit}"
                        title="Download your version">Download Yours</a>
                   </h:panelGroup>
                   <h:panelGroup rendered="#{not hasYourFile}">
@@ -123,7 +123,7 @@
                 <ui:param name="hasTheirFile" value="#{mergeConflictBean.hasTheirFile(conflict)}"/>
                 <div>
                   <h:panelGroup rendered="#{hasTheirFile}">
-                    <a href="#{contextPath}/web/conflict/repository?repoId=#{repoId}&amp;name=#{conflict}&amp;version=#{mergeConflictBean.theirCommit}"
+                    <a href="#{contextPath}/web/conflict/repository?repo-id=#{repoId}&amp;name=#{conflict}&amp;version=#{mergeConflictBean.theirCommit}"
                        title="Download their version">Download Theirs</a>
                   </h:panelGroup>
                   <h:panelGroup rendered="#{not hasTheirFile}">
@@ -133,7 +133,7 @@
                 <ui:param name="hasBaseFile" value="#{mergeConflictBean.hasBaseFile(conflict)}"/>
                 <div>
                   <h:panelGroup rendered="#{hasBaseFile}">
-                    <a href="#{contextPath}/web/conflict/repository?repoId=#{repoId}&amp;name=#{conflict}&amp;version=#{mergeConflictBean.baseCommit}"
+                    <a href="#{contextPath}/web/conflict/repository?repo-id=#{repoId}&amp;name=#{conflict}&amp;version=#{mergeConflictBean.baseCommit}"
                        title="Download base version">Download Base</a>
                   </h:panelGroup>
                   <h:panelGroup rendered="#{not hasBaseFile}">
