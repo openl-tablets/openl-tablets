@@ -1,7 +1,6 @@
 package org.openl.rules.maven;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileVisitResult;
@@ -48,8 +47,7 @@ final class JarArchiver extends SimpleFileVisitor<Path> {
         Manifest man = new Manifest();
         man.getMainAttributes().putValue("Manifest-Version", "1.0");
         man.getMainAttributes().putValue("Created-By", "OpenL Maven Plugin v" + OpenLVersion.getVersion());
-        file.createNewFile();
-        try (JarOutputStream zos = new JarOutputStream(new FileOutputStream(file), man)) {
+        try (JarOutputStream zos = new JarOutputStream(Files.newOutputStream(file.toPath()), man)) {
             Files.walkFileTree(path, new JarArchiver(path, zos));
         }
     }

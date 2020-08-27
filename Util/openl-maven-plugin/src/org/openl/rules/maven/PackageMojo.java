@@ -5,9 +5,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -50,8 +53,6 @@ public final class PackageMojo extends BaseOpenLMojo {
 
     private static final String DEPLOYMENT_YAML = "deployment.yaml";
     private static final String DEPLOYMENT_CLASSIFIER = "deployment";
-    private static final String[] DEFAULT_EXCLUDES = {"pom.xml"};
-    private static final String[] DEFAULT_INCLUDES = {"**"};
 
     @Parameter(defaultValue = "${project.packaging}", readonly = true)
     private String packaging;
@@ -134,11 +135,33 @@ public final class PackageMojo extends BaseOpenLMojo {
     @Parameter(defaultValue = "${user.name}", readonly = true, required = true)
     private String userName;
 
+    /**
+     * Sets the list of include patterns to use. All '/' and '\' characters are replaced by
+     * <code>File.separatorChar</code>, so the separator used need not match <code>File.separatorChar</code>.
+     * <p/>
+     * When a pattern ends with a '/' or '\', "**" is appended.
+     *
+     * If it is not defined, then all files will be included.
+     *
+     * @since 5.23.6
+     */
     @Parameter
     private String[] includes;
 
+    /**
+     * Sets the list of exclude patterns to use. All '/' and '\' characters are replaced by
+     * <code>File.separatorChar</code>, so the separator used need not match <code>File.separatorChar</code>.
+     * <p/>
+     * When a pattern ends with a '/' or '\', "**" is appended.
+     *
+     * If it is not defined, then no files will be excluded.
+     *
+     * Note: pom.xml file and target directory are excluded always independently on this parameter.
+     *
+     * @since 5.23.6
+     */
     @Parameter
-    private String[] excludes;
+    private String[] excludes = StringUtils.EMPTY_STRING_ARRAY;
 
     @Parameter(defaultValue = "${basedir}", readonly = true, required = true)
     private String projectBaseDir;
@@ -188,7 +211,7 @@ public final class PackageMojo extends BaseOpenLMojo {
         DirectoryScanner dirScan = new DirectoryScanner();
         dirScan.setBasedir(openLSourceDir);
         dirScan.setExcludes(getExcludes());
-        dirScan.setIncludes(getIncludes());
+        dirScan.setIncludes(includes);
         dirScan.scan();
         final String[] includedFiles = dirScan.getIncludedFiles();
 
@@ -382,7 +405,7 @@ public final class PackageMojo extends BaseOpenLMojo {
             attributes.putValue("Build-Date", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
             attributes.putValue("Built-By", userName);
             attributes.put(Attributes.Name.IMPLEMENTATION_TITLE,
-                    String.format("%s:%s", project.getGroupId(), project.getArtifactId()));
+                String.format("%s:%s", project.getGroupId(), project.getArtifactId()));
             attributes.put(Attributes.Name.IMPLEMENTATION_VERSION, project.getVersion());
             if (project.getOrganization() != null) {
                 attributes.put(Attributes.Name.IMPLEMENTATION_VENDOR, project.getOrganization().getName());
@@ -401,27 +424,14 @@ public final class PackageMojo extends BaseOpenLMojo {
         return manifest;
     }
 
-    private String[] getIncludes() {
-        if (includes == null || includes.length == 0) {
-            return DEFAULT_INCLUDES;
-        }
-        return includes;
-    }
-
     private String[] getExcludes() {
-        int excludesCnt = DEFAULT_EXCLUDES.length + 1;
-        final boolean hasExcludes = excludes != null && excludes.length != 0;
-        if (hasExcludes) {
-            excludesCnt += excludes.length;
-        }
-        String[] newExcludes = new String[excludesCnt];
-        System.arraycopy(DEFAULT_EXCLUDES, 0, newExcludes, 0, DEFAULT_EXCLUDES.length);
-        final String targetDir = outputDirectory.getAbsolutePath().substring(projectBaseDir.length() + 1);
-        newExcludes[DEFAULT_EXCLUDES.length] = targetDir + "/**";
-        if (hasExcludes) {
-            System.arraycopy(excludes, 0, newExcludes, DEFAULT_EXCLUDES.length + 1, excludes.length);
-        }
-        return newExcludes;
+        ArrayList<String> strings = new ArrayList<>(excludes.length + 2);
+        Collections.addAll(strings, excludes);
+
+        final String targetDir = Paths.get(projectBaseDir).relativize(outputDirectory.toPath()) + "/**";
+        strings.add(targetDir);
+        strings.add("pom.xml");
+        return strings.toArray(StringUtils.EMPTY_STRING_ARRAY);
     }
 
 }
