@@ -22,6 +22,7 @@
                 <value>.svn</value>
                 <value>CVS</value>
                 <value>.studioProps</value>
+                <value>.history</value>
             </list>
         </constructor-arg>
     </bean>

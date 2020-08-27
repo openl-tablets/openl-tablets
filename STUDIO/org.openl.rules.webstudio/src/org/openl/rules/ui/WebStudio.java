@@ -621,7 +621,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 model.getHistoryManager());
             Module module = getCurrentModule();
             File sourceFile = new File(module.getRulesRootPath().getPath());
-            historyListener.beforeSave(sourceFile);
 
             LocalRepository repository = rulesUserSession.getUserWorkspace().getLocalWorkspace().getRepository(currentRepositoryId);
 
@@ -630,8 +629,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
             FileData data = new FileData();
             data.setName(projectFolder.getName() + "/" + relativePath);
             repository.save(data, stream);
-
-            historyListener.afterSave(sourceFile);
         } catch (Exception e) {
             log.error("Error updating file in user workspace.", e);
             throw new IllegalStateException("Error while updating the module.", e);
@@ -710,15 +707,12 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 @Override
                 public boolean execute(String filePath, InputStream inputStream) throws IOException {
                     File outputFile = new File(projectFolder, filePath);
-                    historyListener.beforeSave(outputFile);
 
                     FileData data = new FileData();
                     data.setAuthor(userName);
                     data.setComment("Uploaded from external source");
                     data.setName(projectPath + "/" + filePath);
                     repository.save(data, inputStream);
-
-                    historyListener.afterSave(outputFile);
 
                     return true;
                 }
