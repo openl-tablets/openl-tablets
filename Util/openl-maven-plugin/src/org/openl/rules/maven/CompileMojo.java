@@ -19,7 +19,7 @@ import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.types.IOpenClass;
 
 /**
- * Compiles and validates an OpenL project.
+ * Compiles and validates an OpenL Tablets project.
  *
  * @author Yury Molchan
  */
