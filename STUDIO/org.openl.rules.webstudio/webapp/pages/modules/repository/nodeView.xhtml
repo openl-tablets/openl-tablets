@@ -252,7 +252,7 @@
                             </c:choose>
                         </td>
                     </tr>
-                    <ui:fragment rendered="#{not repositoryTreeState.localOnly }">
+                    <ui:fragment rendered="#{node.type == 'project' and not repositoryTreeState.localOnly }">
                     <tr>
                         <td class="label">
                             <h:outputText value="Repository:"/>
