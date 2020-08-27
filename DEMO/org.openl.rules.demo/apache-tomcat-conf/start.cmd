@@ -150,6 +150,15 @@ set _MEMORY=%_MEMORY:~0,-9%
 @rem 16GiB
 @if %_MEMORY% GEQ 16 set _JAVA_MEMORY=-Xms4g -Xmx12g
 
+@rem 24GiB
+@if %_MEMORY% GEQ 24 set _JAVA_MEMORY=-Xms4g -Xmx20g
+
+@rem 32GiB
+@if %_MEMORY% GEQ 32 set _JAVA_MEMORY=-Xms4g -Xmx28g
+
+@rem 48GiB
+@if %_MEMORY% GEQ 48 set _JAVA_MEMORY=-Xms4g -Xmx42g
+
 @rem reset to safe settings for 32bit
 @pushd "%_JRE_HOME%"
 @if %_MEMORY% GEQ 4 bin\java.exe -version 2>&1 | find "64-Bit" >nul || (
