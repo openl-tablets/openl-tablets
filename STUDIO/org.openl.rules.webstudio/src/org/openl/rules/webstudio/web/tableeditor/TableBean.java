@@ -64,7 +64,7 @@ import org.springframework.web.context.annotation.RequestScope;
 @Service
 @RequestScope
 public class TableBean {
-    private static final String REQUEST_ID_FORMAT = "request-id:(%s);project-name:(%s)";
+    private static final String REQUEST_ID_FORMAT = "request-id:%s;project-name:%s";
     private static final Pattern REQUEST_ID_PATTERN = Pattern.compile("request-id:(.+);project-name:(.+)");
     private static final int MAX_PROBLEMS = 100;
     private final Logger log = LoggerFactory.getLogger(TableBean.class);
