@@ -27,7 +27,7 @@ public class PredefinedTemplatesResolverTest extends TemplatesResolverTest {
         assertEquals(2, templates.size());
         assertTrue(templates.containsAll(Arrays.asList("Empty Project", "Sample Project")));
         assertEquals(3, templatesResolver.getTemplates("examples").size());
-        assertEquals(7, templatesResolver.getTemplates("tutorials").size());
+        assertEquals(8, templatesResolver.getTemplates("tutorials").size());
     }
 
     @Test
