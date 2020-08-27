@@ -291,16 +291,6 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-pdf-plugin</artifactId>
-                    <version>1.4</version>
-                    <configuration>
-                        <siteDirectory>${basedir}/site</siteDirectory>
-                        <docDescriptor>${basedir}/site/pdf.xml</docDescriptor>
-                        <includeReports>false</includeReports>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
                     <version>3.1.0</version>
                 </plugin>
