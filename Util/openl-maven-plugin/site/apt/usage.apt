@@ -19,24 +19,24 @@ Usage
 |  |  |
 |  |  |- main/
 |  |  |  |
-|  |  |  |- java/                    Contains java sources
+|  |  |  |- java/                    Java sources
 |  |  |  |
-|  |  |  |- resources/               Contains java resources
+|  |  |  |- resources/               Java resources
 |  |  |  |
-|  |  |  |- openl/                   Contains all OpenL-related resources (rules, xml etc.)
+|  |  |  |- openl/                   OpenL Tablets project that contains resources such as rules and configurations
 |  |  |  |  |
-|  |  |  |  |- rules.xml             OpenL project descriptor
+|  |  |  |  |- rules.xml             OpenL Tablets project descriptor
 |  |  |  |  |- rules/
 |  |  |  |  |  |- MyRules.xlsx       File with rules
 |  |  |
 |  |  |
-|  |  |- test/                       Contains tests run upon build generation
+|  |  |- test/                       Tests run upon build generation
 |  |  |  |
-|  |  |  |- openl/                   OpenL project for testing the rules
+|  |  |  |- openl/                   OpenL Tablets project for testing rules
 |  |  |  |  |
-|  |  |  |  |- rules.xml             OpenL project descriptor, contains dependency on the tested OpenL project
+|  |  |  |  |- rules.xml             Descriptor that contains dependency on the tested OpenL Tablets project
 |  |  |  |  |- rules/
-|  |  |  |  |  |- MyTest.xlsx        File with OpenL tests
+|  |  |  |  |  |- MyTest.xlsx        File with OpenL Tablets tests
 +-------------------------------
 
   Note that OpenL Tablets-related resources are located in the <<<src/main/openl>>> directory.
@@ -71,7 +71,7 @@ Usage
 </build>
 +--------------------------------------
 
-  In this case, the OpenL project is processed through Maven lifecycle as follows:
+  In this case, the OpenL project is processed through the Maven lifecycle as follows:
 
       * Java compilation happens at the 'compile' phase.
 
@@ -83,7 +83,7 @@ Usage
 
 * Configuring Interface and Generating Domain Classes
 
-  The simplest way to generate interface for rules defined in the TemplateRules.xls file:
+  The simplest way to generate interface for rules defined in the TemplateRules.xls file is as follows:
 
 +--------------------------------------
 <build>

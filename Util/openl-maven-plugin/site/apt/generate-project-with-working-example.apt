@@ -10,9 +10,9 @@ Creating a Project with a Working Example of OpenL Maven Plugin Usage
   of OpenL Maven plugin usage.
 
 
-* OpenL rules project archetype
+* OpenL Tablets Rules Project Archetype
 
-  Current project is ready to deploy to OpenL Rule Services and shows an example of pure OpenL rules project with separated main and test modules.
+  The current project is ready to deploy to OpenL Rule Services and provides an example of a pure OpenL Tablets rules project with separated main and test modules.
 
   [[1]] Execute the following command in the command line:
 
@@ -20,17 +20,17 @@ Creating a Project with a Working Example of OpenL Maven Plugin Usage
   mvn archetype:generate
 ------------------------
 
-  [[2]] Select the <<<openl-project-archetype>>> menu item then follow the wizard instructions to complete project creation.
+  [[2]] Select the <<<openl-project-archetype>>> menu item and follow the wizard instructions to complete project creation.
 
-  When the new Maven-based project is created, it appears in the file system:
+  When a new Maven-based project is created, it appears in the file system:
 
-    * The main OpenL project are located in <<src/main/openl>> directory.
+    * The main OpenL Tablets project is located in the <<src/main/openl>> directory.
 
-    * The test OpenL project are located in <<src/test/openl>> directory.
+    * The test OpenL Tablets project is located in the <<src/test/openl>> directory.
 
     []
 
-  Directory structure is described {{{./usage.html}here}}.
+  The directory structure is described {{{./usage.html}here}}.
 
   [[3]] To compile the project, in the command line, execute the following command from the root of the project folder:
 
@@ -42,17 +42,17 @@ Creating a Project with a Working Example of OpenL Maven Plugin Usage
 
   After that, the following objects can be found the <<<target>>> folder:
 
-  * ZIP file with <<$\{project.artifactId\}-$\{project.version\}.zip>> name.
+  * A ZIP file with the <<$\{project.artifactId\}-$\{project.version\}.zip>> name.
 
-  This archive contains only main project from <<src/main/openl>> directory and can be deployed to the OpenL Rules Services.
+  This archive contains only the main project from the <<src/main/openl>> directory and can be deployed to the OpenL Tablets Rule Services.
 
-  For more information, see [Rule Services Usage and Customization Guide].
+  For more information, see [OpenL Tablets Rule Services Usage and Customization Guide].
 
-  All test tables from the test project are executed on Maven <<test>> goal aren't included to the final ZIP archive.
+  All test tables from the test project executed on the Maven <<test>> goal are not included to the final ZIP archive.
 
-* Simple OpenL project archetype
+* Simple OpenL Tablets Project Archetype
 
-  Current project uses OpenL dynamic wrapper to show how OpenL rules can be used in java application.
+  The current project uses OpenL Tablets engine to demonstrate how OpenL Tablets rules usage in a Java application.
 
   [[1]] Execute the following command in the command line:
 
@@ -66,7 +66,7 @@ Creating a Project with a Working Example of OpenL Maven Plugin Usage
 
   [[3]] Follow the wizard instructions to complete project creation.
 
-  When the new Maven-based project is created, it appears in the file system.
+  When a new Maven-based project is created, it appears in the file system.
   It is an OpenL Tablets rules project which has one module with simple rules.
 
   [[4]] To compile the project, in the command line, execute the following command from the root of the project folder:
