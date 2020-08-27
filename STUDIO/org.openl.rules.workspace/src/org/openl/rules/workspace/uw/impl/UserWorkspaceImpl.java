@@ -322,12 +322,14 @@ public class UserWorkspaceImpl implements UserWorkspace {
             for (Map.Entry<ProjectKey, RulesProject> entry : userRulesProjects.entrySet()) {
                 ProjectKey projectKey = entry.getKey();
                 final Repository designRepository = designTimeRepository.getRepository(projectKey.getRepositoryId());
-                boolean supportsBranches = designRepository.supports().branches();
-                if (supportsBranches) {
-                    RulesProject project = entry.getValue();
-                    // Deleted projects should be switched to default branch
-                    if (!project.isOpened() && !project.isDeleted()) {
-                        closedProjectBranches.put(projectKey, project.getBranch());
+                if (designRepository != null) {
+                    boolean supportsBranches = designRepository.supports().branches();
+                    if (supportsBranches) {
+                        RulesProject project = entry.getValue();
+                        // Deleted projects should be switched to default branch
+                        if (!project.isOpened() && !project.isDeleted()) {
+                            closedProjectBranches.put(projectKey, project.getBranch());
+                        }
                     }
                 }
             }
