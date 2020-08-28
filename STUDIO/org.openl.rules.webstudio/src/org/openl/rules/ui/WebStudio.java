@@ -125,7 +125,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private String workspacePath;
     private String tableUri;
     private final ProjectModel model;
-    private ProjectResolver projectResolver;
+    private final ProjectResolver projectResolver;
     private Map<String, List<ProjectDescriptor>> projects = null;
 
     private RulesTreeView treeView;
@@ -149,17 +149,17 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private boolean forcedCompile = true;
     private boolean needCompile = true;
     private boolean manualCompile = false;
-    private Map<String, Object> externalProperties;
+    private final Map<String, Object> externalProperties;
 
-    private List<ProjectFile> uploadedFiles = new ArrayList<>();
+    private final List<ProjectFile> uploadedFiles = new ArrayList<>();
 
-    private RulesUserSession rulesUserSession;
+    private final RulesUserSession rulesUserSession;
 
     /**
      * Projects that are currently processed, for example saved. Projects's state can be in intermediate state, and it
      * can affect their modified status.
      */
-    private Set<String> frozenProjects = new HashSet<>();
+    private final Set<String> frozenProjects = new HashSet<>();
 
     public WebStudio(HttpSession session) {
         model = new ProjectModel(this, WebStudioUtils.getBean(TestSuiteExecutor.class));
@@ -488,6 +488,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                         File folder = new File(repoRoot, project.getFolderPath());
                         ProjectDescriptor resolvedDescriptor = projectResolver.resolve(folder);
                         if (resolvedDescriptor != null) {
+                            resolvedDescriptor.getModules().sort(MODULES_COMPARATOR);
                             projectDescriptors.add(resolvedDescriptor);
                         }
                     } catch (Exception e) {
