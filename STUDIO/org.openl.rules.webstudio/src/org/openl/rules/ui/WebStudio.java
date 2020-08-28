@@ -720,6 +720,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     return true;
                 }
             });
+
+            resetProjects();
         } catch (ValidationException e) {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
             throw e;
@@ -930,19 +932,43 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public AProject getProjectByName(final String name) {
         try {
-            LocalWorkspace localWorkspace = rulesUserSession.getUserWorkspace().getLocalWorkspace();
+            AProject project = getProjectFromWorkspace(name);
+            if (project != null) {
+                return project;
+            }
 
-            for (AProject workspaceProject : localWorkspace.getProjects()) {
-                if (workspaceProject.getName().equals(name)) {
-                    return workspaceProject;
+            // Probably a project was renamed in local workspace
+            for (List<ProjectDescriptor> descriptors : getProjects().values()) {
+                Optional<ProjectDescriptor> descriptor = descriptors.stream()
+                    .filter(p -> p.getName().equals(name))
+                    .findFirst();
+                if (descriptor.isPresent()) {
+                    String folderName = descriptor.get().getProjectFolder().getName();
+                    project = getProjectFromWorkspace(folderName);
+                    if (project != null) {
+                        break;
+                    }
                 }
             }
 
-            log.warn("Projects descriptor is found but the project isn't found.");
+            if (project == null) {
+                log.warn("Projects descriptor is found but the project isn't found.");
+            }
+            return project;
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             return null;
         }
+    }
 
+    private AProject getProjectFromWorkspace(String name) throws WorkspaceException {
+        LocalWorkspace localWorkspace = rulesUserSession.getUserWorkspace().getLocalWorkspace();
+
+        for (AProject workspaceProject : localWorkspace.getProjects()) {
+            if (workspaceProject.getName().equals(name)) {
+                return workspaceProject;
+            }
+        }
         return null;
     }
 
