@@ -1,5 +1,6 @@
 package org.openl.rules.excel.builder.export;
 
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
@@ -148,7 +149,7 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
                 valueCell.setCellValue(Double.parseDouble(valueAsString));
                 break;
             case "Float":
-                valueCell.setCellValue(Float.parseFloat(valueAsString));
+                valueCell.setCellValue(new BigDecimal(valueAsString).doubleValue());
                 break;
             case "String":
                 if (StringUtils.isBlank(valueAsString)) {
