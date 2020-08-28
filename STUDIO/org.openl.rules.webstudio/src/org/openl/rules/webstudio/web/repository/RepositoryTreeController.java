@@ -165,6 +165,9 @@ public class RepositoryTreeController {
     @Autowired
     private LocalWorkspaceManager localWorkspaceManager;
 
+    @Autowired
+    private LocalUploadController localUploadController;
+
     private String repositoryId;
     private String projectName;
     private String projectFolder = "";
@@ -2305,6 +2308,7 @@ public class RepositoryTreeController {
         } else {
             repositoryId = null;
         }
+        localUploadController.setRepositoryId(repositoryId);
 
         projectName = null;
         projectFolder = "";
