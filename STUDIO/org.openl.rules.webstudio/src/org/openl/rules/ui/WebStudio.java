@@ -706,8 +706,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
 
             // Update/create other files in project
-            final XlsWorkbookSourceHistoryListener historyListener = new XlsWorkbookSourceHistoryListener(
-                model.getHistoryManager());
             zipWalker.iterateEntries(new DefaultZipEntryCommand() {
                 @Override
                 public boolean execute(String filePath, InputStream inputStream) throws IOException {
