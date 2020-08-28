@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.openl.rules.model.scaffolding.DatatypeModel;
@@ -75,6 +76,15 @@ public class OpenAPIToExcelConverterTest {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/datatype/datatype_with_parent.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(2, datatypeModels.size());
+        List<FieldModel> fields = datatypeModels.stream()
+            .flatMap(x -> x.getFields().stream())
+            .collect(Collectors.toList());
+        assertFalse(fields.isEmpty());
+        assertEquals(4, fields.size());
+        Optional<DatatypeModel> animal = datatypeModels.stream().filter(x -> x.getName().equals("Animal")).findFirst();
+        assertTrue(animal.isPresent());
+        DatatypeModel datatypeModel = animal.get();
+        assertEquals(2, datatypeModel.getFields().size());
     }
 
     @Test
@@ -84,6 +94,11 @@ public class OpenAPIToExcelConverterTest {
             .extractProjectModel("test.converter/datatype/datatypes_multiple_nesting.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(6, datatypeModels.size());
+        List<FieldModel> collect = datatypeModels.stream()
+            .flatMap(x -> x.getFields().stream())
+            .collect(Collectors.toList());
+        assertFalse(collect.isEmpty());
+        assertEquals(6, collect.size());
         Optional<DatatypeModel> crucian = datatypeModels.stream()
             .filter(x -> x.getName().equals("Crucian"))
             .findFirst();
