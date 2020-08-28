@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -359,5 +360,61 @@ public class OpenAPIToExcelConverterTest {
         StepModel stepModel = first.get();
         assertEquals("Double[]", stepModel.getType());
         assertEquals("HelloKitty", stepModel.getName());
+    }
+
+    @Test
+    public void testNamesInSpreadsheets() throws IOException {
+        List<String> expectedStepsForBla = Arrays.asList("NumAccidents",
+            "ПолеТип",
+            "полеТип",
+            "$afzZF",
+            "numAccidentsOne",
+            "numAccRidentsTwo",
+            "numAccidentsThree");
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/spreadsheets/spr_cases_and_symbols.json");
+        List<SpreadsheetResultModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
+        assertFalse(spreadsheetResultModels.isEmpty());
+        Optional<SpreadsheetResultModel> bla = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("bla"))
+            .findFirst();
+        assertTrue(bla.isPresent());
+        SpreadsheetResultModel firstModel = bla.get();
+        List<StepModel> steps = firstModel.getSteps();
+        List<String> stepsNames = steps.stream().map(StepModel::getName).collect(Collectors.toList());
+        assertEquals(expectedStepsForBla, stepsNames);
+
+        Optional<SpreadsheetResultModel> helloKitty = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("$H1ello$Kitty"))
+            .findFirst();
+        assertTrue(helloKitty.isPresent());
+        SpreadsheetResultModel helloKittyModel = helloKitty.get();
+        List<InputParameter> parameters = helloKittyModel.getParameters();
+        assertFalse(parameters.isEmpty());
+        InputParameter next = parameters.iterator().next();
+        assertEquals("Integer", next.getType());
+        assertEquals("integer", next.getName());
+        assertFalse(helloKittyModel.getSteps().isEmpty());
+        StepModel kittyStep = helloKittyModel.getSteps().iterator().next();
+        assertEquals("$H1ello$Kitty", kittyStep.getName());
+
+        Optional<SpreadsheetResultModel> bla112 = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("bla112"))
+            .findFirst();
+        assertTrue(bla112.isPresent());
+        SpreadsheetResultModel bla112Model = bla112.get();
+        List<InputParameter> bla112Params = bla112Model.getParameters();
+        assertFalse(bla112Params.isEmpty());
+        assertEquals(2, bla112Params.size());
+        Optional<InputParameter> firstParam = bla112Params.stream()
+            .filter(x -> x.getName().equals("__32$12HI"))
+            .findFirst();
+        assertTrue(firstParam.isPresent());
+
+        Optional<InputParameter> secondParam = bla112Params.stream()
+            .filter(x -> x.getName().equals("byeparam"))
+            .findFirst();
+        assertTrue(secondParam.isPresent());
     }
 }

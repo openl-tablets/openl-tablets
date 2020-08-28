@@ -657,7 +657,8 @@ public class OpenLOpenAPIUtils {
             for (Parameter pathParameter : pathParameters) {
                 Parameter p = resolve(jxPathContext, pathParameter, Parameter::get$ref);
                 if (p != null) {
-                    parameterModels.add(new ParameterModel(OpenLOpenAPIUtils.extractType(p.getSchema()), p.getName()));
+                    parameterModels.add(
+                        new ParameterModel(OpenLOpenAPIUtils.extractType(p.getSchema()), normalizeName(p.getName())));
                 }
             }
         }
@@ -668,8 +669,8 @@ public class OpenLOpenAPIUtils {
                 for (Parameter parameter : parameters) {
                     Parameter p = resolve(jxPathContext, parameter, Parameter::get$ref);
                     if (p != null) {
-                        parameterModels
-                            .add(new ParameterModel(OpenLOpenAPIUtils.extractType(p.getSchema()), p.getName()));
+                        parameterModels.add(new ParameterModel(OpenLOpenAPIUtils.extractType(p.getSchema()),
+                            normalizeName(p.getName())));
                     }
                 }
             } else {
@@ -714,12 +715,15 @@ public class OpenLOpenAPIUtils {
     public static String normalizeName(String originalName) {
         StringBuilder resultName = new StringBuilder();
         char[] chars = originalName.toCharArray();
-        if (Character.isJavaIdentifierStart(chars[0])) {
-            resultName.append(chars[0]);
-        }
-        for (int i = 1; i < chars.length; i++) {
-            if (Character.isJavaIdentifierPart(chars[i])) {
-                resultName.append(chars[i]);
+        for (char curChar : chars) {
+            if (resultName.length() == 0) {
+                if (Character.isJavaIdentifierStart(curChar)) {
+                    resultName.append(curChar);
+                }
+            } else {
+                if (Character.isJavaIdentifierPart(curChar)) {
+                    resultName.append(curChar);
+                }
             }
         }
         return resultName.toString();
@@ -775,7 +779,7 @@ public class OpenLOpenAPIUtils {
         String propertyName = property.getKey();
         Schema<?> valueSchema = property.getValue();
         String typeModel = OpenLOpenAPIUtils.extractType(valueSchema);
-        return new ParameterModel(typeModel, propertyName);
+        return new ParameterModel(typeModel, normalizeName(propertyName));
     }
 
 }
