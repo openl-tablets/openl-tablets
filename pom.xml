@@ -104,8 +104,8 @@
         <maven.plugin.version>3.6.0</maven.plugin.version>
         <jetty.server.version>9.4.31.v20200723</jetty.server.version>
         <awaitility.version>3.1.6</awaitility.version>
-        <elasticsearch-cluster-runner.version>6.8.1.0</elasticsearch-cluster-runner.version>
-        <elasticsearch.version>6.8.8</elasticsearch.version>
+        <elasticsearch-cluster-runner.version>6.8.9.0</elasticsearch-cluster-runner.version>
+        <elasticsearch.version>6.8.12</elasticsearch.version>
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
         <!-- 48MB Should be enough to don't fall in OutOfMemoryError. It equals to MaxNonGCSize=30MB + ~50%-->
