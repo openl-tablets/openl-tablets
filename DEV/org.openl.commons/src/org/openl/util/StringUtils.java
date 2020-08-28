@@ -3,6 +3,7 @@ package org.openl.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -43,12 +44,7 @@ public class StringUtils {
      * @return an array of parsed Strings, {@code null} if null String input
      */
     public static String[] split(final String str, final char separator) {
-        return splitWorker(str, new Predicate() {
-            @Override
-            public boolean evaluate(char ch) {
-                return ch == separator;
-            }
-        }, true);
+        return splitWorker(str, ch -> ch == separator, true);
     }
 
     /**
@@ -83,7 +79,7 @@ public class StringUtils {
         return splitWorker(str, Character::isWhitespace, false);
     }
 
-    private static String[] splitWorker(final String str, final Predicate tester, boolean trim) {
+    private static String[] splitWorker(final String str, final Predicate<Character> tester, boolean trim) {
         if (str == null) {
             return null;
         }
@@ -96,7 +92,7 @@ public class StringUtils {
         boolean match = false;
         while (i < len) {
             char ch = str.charAt(i++);
-            if (tester.evaluate(ch)) {
+            if (tester.test(ch)) {
                 if (match) {
                     list.add(str.substring(start, end));
                     match = false;
@@ -456,22 +452,4 @@ public class StringUtils {
         return Character.toLowerCase(firstChar) + str.substring(1);
     }
 
-    /**
-     * Defines a functor interface implemented by classes that perform a predicate test on a character.
-     * <p>
-     * A <code>Predicate</code> is the object equivalent of an <code>if</code> statement. It uses the input object to
-     * return a true or false value, and is often used in validation or filtering.
-     * <p>
-     */
-    private interface Predicate {
-
-        /**
-         * Use the specified parameter to perform a test that returns true or false.
-         *
-         * @param ch the character to evaluate
-         * @return true or false
-         */
-        boolean evaluate(char ch);
-
-    }
 }
