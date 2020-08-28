@@ -15,7 +15,7 @@ public class SampleFileNameProcessor implements PropertiesFileNameProcessor {
     private final Pattern PATTERN = Pattern.compile("hello-([A-Z]{2})");
 
     @Override
-    public ITableProperties process(Module module, String fileNamePattern) throws
+    public ITableProperties process(Module module, String... fileNamePatterns) throws
                                                                            NoMatchFileNameException,
                                                                            InvalidFileNamePatternException {
         Matcher matcher = PATTERN.matcher(module.getName());

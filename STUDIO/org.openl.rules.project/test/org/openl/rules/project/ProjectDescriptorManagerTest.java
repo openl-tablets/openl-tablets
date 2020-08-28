@@ -1,9 +1,6 @@
 package org.openl.rules.project;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -34,7 +31,7 @@ public class ProjectDescriptorManagerTest {
         assertEquals("Project name", descriptor.getName());
         assertEquals("comment", descriptor.getComment());
         assertEquals(2, descriptor.getModules().size());
-        assertEquals("%lob%", descriptor.getPropertiesFileNamePattern());
+        assertArrayEquals(new String[] {"%lob%"}, descriptor.getPropertiesFileNamePatterns());
         assertEquals("default.DefaultPropertiesFileNameProcessor", descriptor.getPropertiesFileNameProcessor());
         Module module1 = descriptor.getModules().get(0);
         assertEquals("MyModule1", module1.getName());
@@ -113,7 +110,7 @@ public class ProjectDescriptorManagerTest {
         descriptor.setId("id1"); // As far as id was deprecated, it should not be saved to xml.
         descriptor.setName("name1");
         descriptor.setComment("comment1");
-        descriptor.setPropertiesFileNamePattern("{lob}");
+        descriptor.setPropertiesFileNamePatterns(new String[]{"{lob}"});
         descriptor.setPropertiesFileNameProcessor("default.DefaultPropertiesFileNameProcessor");
 
         List<ProjectDependencyDescriptor> dependencies = new ArrayList<>();

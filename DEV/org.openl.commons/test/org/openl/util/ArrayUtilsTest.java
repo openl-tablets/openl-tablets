@@ -2,6 +2,7 @@ package org.openl.util;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Array;
@@ -124,7 +125,7 @@ public class ArrayUtilsTest {
     }
 
     @Test
-    public void test5DArray(){
+    public void test5DArray() {
         Object o = ArrayUtils.repackArray(array5D, A[][][][][].class);
         assertArrayEquals((Object[][][]) o, resultArray5D);
         Class<?> resultType = o.getClass();
@@ -140,6 +141,20 @@ public class ArrayUtilsTest {
         assertTrue(o.getClass().isArray());
         Object[] o1 = (Object[]) o;
         assertEquals(0, o1.length);
+    }
+
+    @Test
+    public void isEmptyTest() {
+        assertTrue(ArrayUtils.isEmpty(null));
+        assertTrue(ArrayUtils.isEmpty(new Integer[0]));
+        assertFalse(ArrayUtils.isEmpty(new Integer[5]));
+    }
+
+    @Test
+    public void isNotEmptyTest() {
+        assertFalse(ArrayUtils.isNotEmpty(null));
+        assertFalse(ArrayUtils.isNotEmpty(new Integer[0]));
+        assertTrue(ArrayUtils.isNotEmpty(new Integer[5]));
     }
 }
 

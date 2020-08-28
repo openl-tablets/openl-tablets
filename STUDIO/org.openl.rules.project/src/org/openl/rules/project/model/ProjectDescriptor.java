@@ -21,15 +21,26 @@ public class ProjectDescriptor {
     private List<Property> properties;
 
     private List<ProjectDependencyDescriptor> dependencies;
-    private String propertiesFileNamePattern;
+    private String[] propertiesFileNamePatterns;
     private String propertiesFileNameProcessor;
 
-    public String getPropertiesFileNamePattern() {
-        return propertiesFileNamePattern;
+    public String[] getPropertiesFileNamePatterns() {
+        return propertiesFileNamePatterns;
     }
 
+    public void setPropertiesFileNamePatterns(String[] propertiesFileNamePatterns) {
+        this.propertiesFileNamePatterns = propertiesFileNamePatterns;
+    }
+
+    @Deprecated
+    public String getPropertiesFileNamePattern() {
+        String[] patterns = getPropertiesFileNamePatterns();
+        return patterns == null || patterns.length == 0 ? null : patterns[0];
+    }
+
+    @Deprecated
     public void setPropertiesFileNamePattern(String propertiesFileNamePattern) {
-        this.propertiesFileNamePattern = propertiesFileNamePattern;
+        setPropertiesFileNamePatterns(new String[]{propertiesFileNamePattern});
     }
 
     public String getPropertiesFileNameProcessor() {

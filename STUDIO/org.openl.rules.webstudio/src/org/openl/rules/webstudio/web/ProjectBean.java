@@ -51,6 +51,7 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.ArrayUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -181,7 +182,7 @@ public class ProjectBean {
             try {
                 ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
                 projectDescriptor.setPropertiesFileNameProcessor((String) propertiesFileNameProcessorInput.getValue());
-                projectDescriptor.setPropertiesFileNamePattern(pattern);
+                projectDescriptor.setPropertiesFileNamePatterns(new String[]{pattern});
                 processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
                 if (processor instanceof FileNamePatternValidator) {
                     ((FileNamePatternValidator) processor).validate(pattern);
@@ -585,8 +586,8 @@ public class ProjectBean {
             descriptor.setClasspath(null);
         }
 
-        if (StringUtils.isBlank(descriptor.getPropertiesFileNamePattern())) {
-            descriptor.setPropertiesFileNamePattern(null);
+        if (ArrayUtils.isEmpty(descriptor.getPropertiesFileNamePatterns())) {
+            descriptor.setPropertiesFileNamePatterns(null);
         }
 
         if (StringUtils.isBlank(descriptor.getPropertiesFileNameProcessor())) {
@@ -838,9 +839,9 @@ public class ProjectBean {
 
         Boolean fileNameMatched = null;
         try {
-            String pattern = projectDescriptor.getPropertiesFileNamePattern();
-            if (pattern != null) {
-                builder.build(projectDescriptor).process(module, pattern);
+            String[] patterns = projectDescriptor.getPropertiesFileNamePatterns();
+            if (patterns != null) {
+                builder.build(projectDescriptor).process(module, patterns);
                 fileNameMatched = true;
             }
         } catch (InvalidFileNameProcessorException ignored) {
@@ -919,7 +920,8 @@ public class ProjectBean {
     }
 
     public String getPropertiesFileNamePattern() {
-        return studio.getCurrentProjectDescriptor().getPropertiesFileNamePattern();
+        String[] patterns = studio.getCurrentProjectDescriptor().getPropertiesFileNamePatterns();
+        return ArrayUtils.isEmpty(patterns) ? null : patterns[0];
     }
 
     public String getCurrentPropertiesFileNameProcessor() {

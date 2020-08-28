@@ -11,6 +11,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesLoader;
+import org.openl.util.ArrayUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                     globalErrorMessages.add(message);
                 }
             } else {
-                if (StringUtils.isNotBlank(projectDescriptor.getPropertiesFileNamePattern())) {
+                if (ArrayUtils.isNotEmpty(projectDescriptor.getPropertiesFileNamePatterns())) {
                     processor = propertiesFileNameProcessorBuilder.buildDefaultProcessor(projectDescriptor);
                 }
             }
@@ -68,14 +69,21 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                     Map<String, Object> params = new HashMap<>();
                     try {
                         ITableProperties tableProperties = processor.process(module,
-                            projectDescriptor.getPropertiesFileNamePattern());
+                            projectDescriptor.getPropertiesFileNamePatterns());
                         params.put(PropertiesLoader.EXTERNAL_MODULE_PROPERTIES_KEY, tableProperties);
                     } catch (NoMatchFileNameException e) {
                         String moduleFileName = FilenameExtractorUtil.extractFileNameFromModule(module);
                         String defaultMessage;
-                        if (projectDescriptor.getPropertiesFileNamePattern() != null) {
-                            defaultMessage = "Module file name '" + moduleFileName + "' does not match file name pattern! File name pattern is: " + projectDescriptor
-                                .getPropertiesFileNamePattern();
+                        if (ArrayUtils.isNotEmpty(projectDescriptor.getPropertiesFileNamePatterns())) {
+                            if (projectDescriptor.getPropertiesFileNamePatterns().length == 1) {
+                                defaultMessage = String.format("Module file name '%s' does not match file name pattern! File name pattern is: %s",
+                                        moduleFileName,
+                                        projectDescriptor.getPropertiesFileNamePatterns()[0]);
+                            } else {
+                                defaultMessage = String.format("Module file name '%s' does not match file name pattern! File name patterns are: %s",
+                                        moduleFileName,
+                                        Arrays.toString(projectDescriptor.getPropertiesFileNamePatterns()));
+                            }
                         } else {
                             defaultMessage = "Module file name '" + moduleFileName + "' does not match file name pattern.";
                         }

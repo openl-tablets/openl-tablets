@@ -118,11 +118,58 @@ public class DefaultPropertyFileNameProcessorTest {
         assertEquals(dateFormat.parse("01012016"), properties.getStartRequestDate());
     }
 
-    private static <T> void assertArrayEquals(T[] expectedArray, T[] actualArray) {
-        assertNotNull(actualArray);
-        assertEquals(expectedArray.length, actualArray.length);
-        for (int i = 0; i < expectedArray.length; i++) {
-            assertEquals(expectedArray[i], actualArray[i]);
+    @Test
+    public void testMultiPatterns0() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
+        ITableProperties properties = processor.process(mockModule("AUTO-CW-20160101"),
+                "%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
+
+        assertArrayEquals(new String[] { "AUTO" }, properties.getLob());
+        assertArrayEquals( UsStatesEnum.values(), properties.getState());
+
+        assertEquals(dateFormat.parse("01012016"), properties.getStartRequestDate());
+    }
+
+    @Test
+    public void testMultiPatterns() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
+        ITableProperties properties = processor.process(mockModule("AUTO-Any-20160101"),
+                "%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
+
+        assertArrayEquals(new String[] { "AUTO" }, properties.getLob());
+        assertArrayEquals( UsStatesEnum.values(), properties.getState());
+
+        assertEquals(dateFormat.parse("01012016"), properties.getStartRequestDate());
+    }
+
+    @Test
+    public void testMultiPatterns1() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
+        ITableProperties properties = processor.process(mockModule("AUTO-FL,ME-20160101"),
+                "%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
+
+        assertArrayEquals(new String[] { "AUTO" }, properties.getLob());
+        assertArrayEquals(new UsStatesEnum[] { UsStatesEnum.FL, UsStatesEnum.ME }, properties.getState());
+
+        assertEquals(dateFormat.parse("01012016"), properties.getStartRequestDate());
+    }
+
+    @Test
+    public void testMultiPatterns2() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
+        ITableProperties properties = processor.process(mockModule("AUTO-PMT-20160101"),
+                "%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
+
+        assertArrayEquals(new String[] { "PMT" }, properties.getLob());
+        assertArrayEquals(null, properties.getState());
+
+        assertEquals(dateFormat.parse("01012016"), properties.getStartRequestDate());
+    }
+
+    @Test
+    public void testMultiPatterns3() throws InvalidFileNamePatternException {
+        try {
+            processor.process(mockModule("Tests"),
+                    "%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
+            fail("Ooops...");
+        } catch (NoMatchFileNameException e) {
+            assertEquals("Module 'Tests' does not match any file name pattern: '[%lob%-%state%-%startRequestDate%, AUTO-%lob%-%startRequestDate%]'.", e.getMessage());
         }
     }
 
