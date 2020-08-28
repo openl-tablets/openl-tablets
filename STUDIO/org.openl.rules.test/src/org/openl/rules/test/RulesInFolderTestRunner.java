@@ -60,6 +60,7 @@ public class RulesInFolderTestRunner {
             return false;
         }
         File[] files = testsDir.listFiles();
+        //files = new File[] {new File("test-resources\\functionality\\EPBDS-8713_multi_filename_patterns")};
         if (files == null) {
             log.warn("Test folder is not found.");
             return false;

@@ -4,7 +4,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.table.properties.ITableProperties;
 
 public interface PropertiesFileNameProcessor {
-    ITableProperties process(Module module, String fileNamePattern) throws NoMatchFileNameException,
+    ITableProperties process(Module module, String... fileNamePatterns) throws NoMatchFileNameException,
                                                                     InvalidFileNamePatternException;
 
 }

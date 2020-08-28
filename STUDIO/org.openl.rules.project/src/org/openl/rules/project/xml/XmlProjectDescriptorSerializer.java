@@ -79,7 +79,7 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         xstream.aliasType(DEPENDENCY_TAG, ProjectDependencyDescriptor.class);
         xstream.aliasType(PATH_TAG, PathEntry.class);
         xstream.aliasType(PROPERTY_TAG, Property.class);
-        xstream.aliasField(PROPERTIES_FILE_NAME_PATTERN, ProjectDescriptor.class, "propertiesFileNamePattern");
+        xstream.addImplicitArray(ProjectDescriptor.class, "propertiesFileNamePatterns", PROPERTIES_FILE_NAME_PATTERN);
         xstream.aliasField(PROPERTIES_FILE_NAME_PROCESSOR, ProjectDescriptor.class, "propertiesFileNameProcessor");
         xstream.addDefaultImplementation(HashSet.class, Collection.class);
         xstream.alias("value", String.class);
