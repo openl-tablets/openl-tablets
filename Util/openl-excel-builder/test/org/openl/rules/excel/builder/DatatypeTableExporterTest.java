@@ -51,6 +51,11 @@ public class DatatypeTableExporterTest {
             .setDefaultValue(0.0d)
             .build();
 
+        FieldModel floatField = new FieldModel.Builder().setName("weight")
+            .setType("Float")
+            .setDefaultValue(1.3124124f)
+            .build();
+
         Date dateValue = new Date();
         FieldModel dateField = new FieldModel.Builder().setName("registrationDate")
             .setType("Date")
@@ -70,7 +75,8 @@ public class DatatypeTableExporterTest {
 
         FieldModel customTypeField = new FieldModel.Builder().setName("driver").setType("Human").build();
 
-        dt.setFields(Arrays.asList(stringField, doubleField, dateField, booleanField, customTypeField, dateTimeField));
+        dt.setFields(Arrays
+            .asList(stringField, doubleField, dateField, booleanField, customTypeField, dateTimeField, floatField));
 
         DatatypeModel oneMoreModel = new DatatypeModel("NextModel");
         FieldModel nextModelField = new FieldModel.Builder().setName("color")
@@ -186,12 +192,27 @@ public class DatatypeTableExporterTest {
             assertEquals("registrationDateTime", dateTimeCellName);
             assertNotNull(offsetDateTime);
 
-            XSSFRow nextModelHeaderRow = dtsSheet.getRow(TOP_MARGIN + 9);
+            XSSFRow floatFieldRow = dtsSheet.getRow(TOP_MARGIN + 7);
+            assertNotNull(floatFieldRow);
+            XSSFCell floatTypeCell = floatFieldRow.getCell(DT_TYPE_CELL);
+            assertNotNull(floatTypeCell);
+            String floatTypeCellValue = floatTypeCell.getStringCellValue();
+            XSSFCell floatNameCell = floatFieldRow.getCell(DT_NAME_CELL);
+            assertNotNull(floatNameCell);
+            String floatNameCellValue = floatNameCell.getStringCellValue();
+            XSSFCell floatDefaultValueCell = floatFieldRow.getCell(DT_DEFAULT_VALUE_CELL);
+            assertNotNull(floatDefaultValueCell);
+            double floatDefaultCell = floatDefaultValueCell.getNumericCellValue();
+            assertEquals("Float", floatTypeCellValue);
+            assertEquals("weight", floatNameCellValue);
+            assertEquals(1.3124124, floatDefaultCell, 1e-8);
+
+            XSSFRow nextModelHeaderRow = dtsSheet.getRow(TOP_MARGIN + 10);
             assertNotNull(nextModelHeaderRow);
             XSSFCell nextModelHeaderCell = nextModelHeaderRow.getCell(1);
             assertNotNull(nextModelHeaderCell);
             assertEquals("Datatype NextModel extends Test", nextModelHeaderCell.getStringCellValue());
-            XSSFRow nextModelRow = dtsSheet.getRow(TOP_MARGIN + 10);
+            XSSFRow nextModelRow = dtsSheet.getRow(TOP_MARGIN + 11);
             XSSFCell nextModelDtCell = nextModelRow.getCell(DT_TYPE_CELL);
             assertNotNull(nextModelDtCell);
             XSSFCell nextModelNameCell = nextModelRow.getCell(DT_NAME_CELL);
