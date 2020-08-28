@@ -65,7 +65,7 @@
         }
       }
     },
-    "/bla112": {
+    "/Bla112": {
       "post": {
         "summary": "TodoSmth",
         "description": "test",
@@ -179,10 +179,10 @@
           "NumAccidents": {
             "type": "boolean"
           },
-          "ПолеТип": {
+          "#!#!@FIeLd": {
             "type": "string"
           },
-          "полеТип": {
+          "f$$%^ieLD": {
             "type": "string"
           },
           "$af@zZF": {

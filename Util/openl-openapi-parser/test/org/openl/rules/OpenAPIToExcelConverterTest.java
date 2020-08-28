@@ -365,8 +365,8 @@ public class OpenAPIToExcelConverterTest {
     @Test
     public void testNamesInSpreadsheets() throws IOException {
         List<String> expectedStepsForBla = Arrays.asList("NumAccidents",
-            "ПолеТип",
-            "полеТип",
+            "FIeLd",
+            "f$$ieLD",
             "$afzZF",
             "numAccidentsOne",
             "numAccRidentsTwo",
@@ -400,7 +400,7 @@ public class OpenAPIToExcelConverterTest {
         assertEquals("$H1ello$Kitty", kittyStep.getName());
 
         Optional<SpreadsheetResultModel> bla112 = spreadsheetResultModels.stream()
-            .filter(x -> x.getName().equals("bla112"))
+            .filter(x -> x.getName().equals("Bla112"))
             .findFirst();
         assertTrue(bla112.isPresent());
         SpreadsheetResultModel bla112Model = bla112.get();

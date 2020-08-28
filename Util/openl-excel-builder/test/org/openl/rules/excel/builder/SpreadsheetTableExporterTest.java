@@ -41,7 +41,10 @@ public class SpreadsheetTableExporterTest {
         StepModel booleanStep = new StepModel("booleanStep", "Boolean");
         StepModel dateStep = new StepModel("dateStep", "Date");
         StepModel dateTimeStep = new StepModel("dateTimeStep", "OffsetDateTime");
-        resultModel.setSteps(Arrays.asList(doubleStep, stringStep, sprStep, booleanStep, dateStep, dateTimeStep));
+        StepModel integerStep = new StepModel("integerStep", "Integer");
+        StepModel longStep = new StepModel("longStep", "Long");
+        resultModel.setSteps(
+            Arrays.asList(doubleStep, stringStep, sprStep, booleanStep, dateStep, dateTimeStep, integerStep, longStep));
 
         ProjectModel projectModel = new ProjectModel(TEST_PROJECT,
             Collections.emptyList(),
@@ -116,6 +119,22 @@ public class SpreadsheetTableExporterTest {
             assertEquals("dateTimeStep", dateTimeNameCell.getStringCellValue());
             XSSFCell dateTimeValueCell = dateTimeRow.getCell(2);
             assertEquals("=java.time.OffsetDateTime.now()", dateTimeValueCell.getStringCellValue());
+
+            XSSFRow integerStepRow = dtsSheet.getRow(TOP_MARGIN + 8);
+            assertNotNull(integerStepRow);
+            XSSFCell integerNameCell = integerStepRow.getCell(1);
+            assertNotNull(integerNameCell);
+            assertEquals("integerStep", integerNameCell.getStringCellValue());
+            XSSFCell integerValueCell = integerStepRow.getCell(2);
+            assertEquals("=0", integerValueCell.getStringCellValue());
+
+            XSSFRow longStepRow = dtsSheet.getRow(TOP_MARGIN + 9);
+            assertNotNull(longStepRow);
+            XSSFCell longNameCell = longStepRow.getCell(1);
+            assertNotNull(longNameCell);
+            assertEquals("longStep", longNameCell.getStringCellValue());
+            XSSFCell longValueCell = longStepRow.getCell(2);
+            assertEquals("=0L", longValueCell.getStringCellValue());
         }
 
     }

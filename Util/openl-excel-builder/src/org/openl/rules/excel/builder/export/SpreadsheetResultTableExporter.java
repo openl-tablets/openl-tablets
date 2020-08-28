@@ -145,8 +145,10 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
     private static void setValue(StepModel model, Cell stepValueCell) {
         if (model.getType() != null) {
             String type = model.getType();
-            if ("Integer".equals(type) || "Long".equals(type)) {
+            if ("Integer".equals(type)) {
                 stepValueCell.setCellValue("=0");
+            } else if ("Long".equals(type)) {
+                stepValueCell.setCellValue("=0L");
             } else if ("Double".equals(type)) {
                 stepValueCell.setCellValue("=0.0d");
             } else if ("Float".equals(type)) {
