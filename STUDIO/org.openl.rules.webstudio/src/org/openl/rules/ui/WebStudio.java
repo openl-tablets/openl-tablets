@@ -480,19 +480,24 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 LocalWorkspace localWorkspace = rulesUserSession.getUserWorkspace().getLocalWorkspace();
 
                 for (AProject project : localWorkspace.getProjects()) {
-                    String repoId = project.getRepository().getId();
-                    List<ProjectDescriptor> projectDescriptors = projects.computeIfAbsent(repoId,
-                        k -> new ArrayList<>());
-                    File repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
-                    File folder = new File(repoRoot, project.getFolderPath());
-                    ProjectDescriptor resolvedDescriptor = projectResolver.resolve(folder);
-                    if (resolvedDescriptor != null) {
-                        projectDescriptors.add(resolvedDescriptor);
+                    try {
+                        String repoId = project.getRepository().getId();
+                        List<ProjectDescriptor> projectDescriptors = projects.computeIfAbsent(repoId,
+                            k -> new ArrayList<>());
+                        File repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
+                        File folder = new File(repoRoot, project.getFolderPath());
+                        ProjectDescriptor resolvedDescriptor = projectResolver.resolve(folder);
+                        if (resolvedDescriptor != null) {
+                            projectDescriptors.add(resolvedDescriptor);
+                        }
+                    } catch (Exception e) {
+                        log.warn(e.getMessage(), e);
                     }
                 }
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 projects = null;
+                return Collections.emptyMap();
             }
         }
         return projects;
