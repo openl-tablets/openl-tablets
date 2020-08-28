@@ -2,7 +2,12 @@ package org.openl.rules.project.resolving;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.openl.engine.OpenLCompileManager;
 import org.openl.rules.project.ProjectDescriptorManager;
@@ -11,7 +16,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesLoader;
-import org.openl.util.ArrayUtils;
+import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +59,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                     globalErrorMessages.add(message);
                 }
             } else {
-                if (ArrayUtils.isNotEmpty(projectDescriptor.getPropertiesFileNamePatterns())) {
+                if (CollectionUtils.isNotEmpty(projectDescriptor.getPropertiesFileNamePatterns())) {
                     processor = propertiesFileNameProcessorBuilder.buildDefaultProcessor(projectDescriptor);
                 }
             }
@@ -74,7 +79,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                     } catch (NoMatchFileNameException e) {
                         String moduleFileName = FilenameExtractorUtil.extractFileNameFromModule(module);
                         String defaultMessage;
-                        if (ArrayUtils.isNotEmpty(projectDescriptor.getPropertiesFileNamePatterns())) {
+                        if (CollectionUtils.isNotEmpty(projectDescriptor.getPropertiesFileNamePatterns())) {
                             if (projectDescriptor.getPropertiesFileNamePatterns().length == 1) {
                                 defaultMessage = String.format("Module file name '%s' does not match file name pattern! File name pattern is: %s",
                                         moduleFileName,
