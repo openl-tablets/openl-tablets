@@ -10,7 +10,6 @@ import org.openl.rules.project.model.v5_12.ProjectDependencyDescriptor_v5_12;
 import org.openl.rules.project.model.v5_12.converter.ProjectDependencyDescriptorVersionConverter;
 import org.openl.rules.project.model.v5_16.Module_v5_16;
 import org.openl.rules.project.model.v5_16.ProjectDescriptor_v5_16;
-import org.openl.util.ArrayUtils;
 import org.openl.util.CollectionUtils;
 
 /**
@@ -71,7 +70,7 @@ public class ProjectDescriptorVersionConverter implements ObjectVersionConverter
         }
 
         String[] patterns = currentVersion.getPropertiesFileNamePatterns();
-        if (ArrayUtils.isNotEmpty(patterns)) {
+        if (CollectionUtils.isNotEmpty(patterns)) {
             descriptor.setPropertiesFileNamePattern(patterns[0]);
         }
         descriptor.setPropertiesFileNameProcessor(currentVersion.getPropertiesFileNameProcessor());

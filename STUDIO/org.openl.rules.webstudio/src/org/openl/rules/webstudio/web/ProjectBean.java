@@ -51,7 +51,6 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.ArrayUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -586,7 +585,7 @@ public class ProjectBean {
             descriptor.setClasspath(null);
         }
 
-        if (ArrayUtils.isEmpty(descriptor.getPropertiesFileNamePatterns())) {
+        if (CollectionUtils.isEmpty(descriptor.getPropertiesFileNamePatterns())) {
             descriptor.setPropertiesFileNamePatterns(null);
         }
 
@@ -921,7 +920,7 @@ public class ProjectBean {
 
     public String getPropertiesFileNamePattern() {
         String[] patterns = studio.getCurrentProjectDescriptor().getPropertiesFileNamePatterns();
-        return ArrayUtils.isEmpty(patterns) ? null : patterns[0];
+        return CollectionUtils.isEmpty(patterns) ? null : patterns[0];
     }
 
     public String getCurrentPropertiesFileNameProcessor() {
