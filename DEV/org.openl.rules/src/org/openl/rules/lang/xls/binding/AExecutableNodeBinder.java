@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
@@ -137,7 +137,7 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
         }
         Object first = iterator.next();
         if (!iterator.hasNext()) {
-            return ObjectUtils.toString(first);
+            return Objects.toString(first);
         }
 
         // two or more elements

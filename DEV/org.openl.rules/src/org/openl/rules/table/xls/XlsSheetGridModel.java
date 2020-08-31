@@ -279,7 +279,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             cellWriter.setValueToWrite(value);
             cellWriter.writeCellValue();
         } else {
-            poiCell.setCellType(CellType.BLANK);
+            poiCell.setBlank();
         }
     }
 

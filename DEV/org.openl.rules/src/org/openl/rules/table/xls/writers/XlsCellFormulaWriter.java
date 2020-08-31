@@ -24,7 +24,6 @@ public class XlsCellFormulaWriter extends AXlsCellWriter {
             // OpenL formula
             // TODO make separate writers and editors for OpenL and Excel
             // Formulas
-            cellToWrite.setCellType(CellType.STRING);
             cellToWrite.setCellValue(formula);
         }
     }
