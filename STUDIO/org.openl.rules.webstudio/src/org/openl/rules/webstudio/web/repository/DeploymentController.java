@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.repository;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,7 +20,6 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
@@ -97,7 +95,7 @@ public class DeploymentController {
     public synchronized String addItem() {
         ADeploymentProject project = getSelectedProject();
 
-        ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(repositoryId, projectName, new CommonVersionImpl(version));
+        ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(repositoryId, projectName, projectBranch, new CommonVersionImpl(version));
         List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName, newItem);
 
         try {
@@ -114,7 +112,7 @@ public class DeploymentController {
         this.version = version;
         ADeploymentProject project = getSelectedProject();
 
-        ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(repositoryId, projectName, new CommonVersionImpl(version));
+        ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(repositoryId, projectName, projectBranch, new CommonVersionImpl(version));
         List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName, newItem);
 
         try {

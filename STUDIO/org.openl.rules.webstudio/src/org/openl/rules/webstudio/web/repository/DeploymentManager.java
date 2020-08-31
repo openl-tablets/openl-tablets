@@ -137,11 +137,11 @@ public class DeploymentManager implements InitializingBean {
                             .setBuildNumber(pd.getProjectVersion().getRevision())
                             .setImplementationTitle(projectName)
                             .setImplementationVersion(RepositoryUtils.buildProjectVersion(historyData));
+                    if (pd.getBranch() != null) {
+                        manifestBuilder.setBuildBranch(pd.getBranch());
+                    }
 
                     if (designRepo.supports().folders()) {
-                        if (designRepo.supports().branches()) {
-                            manifestBuilder.setBuildBranch(historyData.getBranch());
-                        }
                         archiveAndSave((FolderRepository) designRepo,
                                 rulesPath,
                                 projectName,

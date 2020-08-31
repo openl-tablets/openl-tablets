@@ -20,6 +20,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.Deployment;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.FolderRepository;
@@ -437,7 +438,11 @@ public abstract class AbstractSmartRedeployController {
             } else {
                 deployConfiguration.open();
                 // rewrite project->version
-                deployConfiguration.addProjectDescriptor(project.getRepository().getId(), project.getName(), project.getVersion());
+                String branch = project instanceof RulesProject ? ((RulesProject) project).getBranch() : null;
+                deployConfiguration.addProjectDescriptor(project.getRepository().getId(),
+                    project.getName(),
+                    branch,
+                    project.getVersion());
 
                 String comment;
                 if (create) {

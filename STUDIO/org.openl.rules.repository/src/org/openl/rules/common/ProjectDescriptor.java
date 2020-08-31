@@ -6,6 +6,8 @@ public interface ProjectDescriptor<T extends CommonVersion> {
 
     String getProjectName();
 
+    String getBranch();
+
     T getProjectVersion();
 
 }

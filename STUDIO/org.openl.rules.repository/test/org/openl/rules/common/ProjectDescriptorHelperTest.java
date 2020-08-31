@@ -38,9 +38,9 @@ public class ProjectDescriptorHelperTest {
     }
 
     private static List<ProjectDescriptor> makeDescriptors() {
-        ProjectDescriptor prj1 = new ProjectDescriptorImpl("design", "project1", new CommonVersionImpl(3, 5, 11));
-        ProjectDescriptor prj2 = new ProjectDescriptorImpl("design2", "project2", new CommonVersionImpl(17));
-        ProjectDescriptor prj3 = new ProjectDescriptorImpl(null, "project0", new CommonVersionImpl(0));
+        ProjectDescriptor prj1 = new ProjectDescriptorImpl("design", "project1", null, new CommonVersionImpl(3, 5, 11));
+        ProjectDescriptor prj2 = new ProjectDescriptorImpl("design2", "project2", null, new CommonVersionImpl(17));
+        ProjectDescriptor prj3 = new ProjectDescriptorImpl(null, "project0", null, new CommonVersionImpl(0));
         return new ArrayList<>(Arrays.asList(prj1, prj2, prj3));
     }
 
