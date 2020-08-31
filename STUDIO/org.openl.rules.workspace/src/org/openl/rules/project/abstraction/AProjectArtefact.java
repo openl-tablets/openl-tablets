@@ -9,13 +9,12 @@ import java.util.List;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
-import org.openl.rules.common.LockInfo;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
-import org.openl.rules.project.impl.local.SimpleLockInfo;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -166,15 +165,15 @@ public class AProjectArtefact {
 
     protected boolean isLockedByUser(LockInfo lockInfo, CommonUser user) {
         if (lockInfo.isLocked()) {
-            CommonUser lockedBy = lockInfo.getLockedBy();
-            return lockedBy.getUserName().equals(user.getUserName()) || isLockedByDefaultUser(lockedBy, user);
+            String lockedBy = lockInfo.getLockedBy();
+            return lockedBy.equals(user.getUserName()) || isLockedByDefaultUser(lockedBy, user);
 
         }
         return false;
     }
 
     public LockInfo getLockInfo() {
-        return SimpleLockInfo.NO_LOCK;
+        return LockInfo.NO_LOCK;
     }
 
     public boolean isModified() {
@@ -190,8 +189,8 @@ public class AProjectArtefact {
      * @param currentUser - current user trying to unlock
      * @return true if owner of the lock is "LOCAL" and current user is "DEFAULT"
      */
-    private boolean isLockedByDefaultUser(CommonUser lockedUser, CommonUser currentUser) {
-        return "LOCAL".equals(lockedUser.getUserName()) && "DEFAULT".equals(currentUser.getUserName());
+    private boolean isLockedByDefaultUser(String lockedUser, CommonUser currentUser) {
+        return "LOCAL".equals(lockedUser) && "DEFAULT".equals(currentUser.getUserName());
     }
 
     public boolean isHistoric() {

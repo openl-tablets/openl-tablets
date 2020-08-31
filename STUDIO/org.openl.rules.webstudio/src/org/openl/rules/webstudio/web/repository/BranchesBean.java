@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.faces.model.SelectItem;
 
-import org.openl.rules.common.LockInfo;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;

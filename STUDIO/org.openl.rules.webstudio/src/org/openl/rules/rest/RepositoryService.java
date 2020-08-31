@@ -35,7 +35,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
-import org.openl.rules.common.LockInfo;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
@@ -311,7 +311,7 @@ public class RepositoryService {
                 }
                 RulesProject project = userWorkspace.getProject(repositoryId, name);
                 if (!project.tryLock()) {
-                    String lockedBy = project.getLockInfo().getLockedBy().getUserName();
+                    String lockedBy = project.getLockInfo().getLockedBy();
                     return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
                 }
             } else {
@@ -394,7 +394,7 @@ public class RepositoryService {
         }
         RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(getDefaultRepositoryId(), name);
         if (!project.tryLock()) {
-            String lockedBy = project.getLockInfo().getLockedBy().getUserName();
+            String lockedBy = project.getLockInfo().getLockedBy();
             return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
         }
         return Response.ok().build();
@@ -418,7 +418,7 @@ public class RepositoryService {
         if (!project.isLocked()) {
             return Response.status(Status.FORBIDDEN).entity("The project is not locked.").build();
         } else if (!project.isLockedByMe()) {
-            String lockedBy = project.getLockInfo().getLockedBy().getUserName();
+            String lockedBy = project.getLockInfo().getLockedBy();
             return Response.status(Status.FORBIDDEN).entity("Locked by '" + lockedBy + "'").build();
         }
         project.unlock();
@@ -451,7 +451,7 @@ public class RepositoryService {
         description.setLocked(locked);
         if (locked) {
             LockInfo lockInfo = project.getLockInfo();
-            description.setLockedBy(lockInfo.getLockedBy().getUserName());
+            description.setLockedBy(lockInfo.getLockedBy());
             description.setLockedAt(lockInfo.getLockedAt());
         }
         return description;

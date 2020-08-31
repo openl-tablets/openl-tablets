@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.rules.common.LockInfo;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.LockException;
 import org.openl.util.FileUtils;
 
@@ -47,7 +47,7 @@ public class IndependentLocksTest {
         boolean user1Lock = IndependentLocks.finishLockCreating(tempDirectoryPath, PROJECT, user1PrepareLock, USER1);
         assertTrue(user1Lock);
         LockInfo lockInfo = IndependentLocks.getLockInfo(tempDirectoryPath, PROJECT);
-        assertEquals(USER1, lockInfo.getLockedBy().getUserName());
+        assertEquals(USER1, lockInfo.getLockedBy());
         IndependentLocks.unlock(tempDirectoryPath, PROJECT);
         lockInfo = IndependentLocks.getLockInfo(tempDirectoryPath, PROJECT);
         assertFalse(lockInfo.isLocked());
@@ -67,7 +67,7 @@ public class IndependentLocksTest {
         boolean user2Lock = IndependentLocks.finishLockCreating(tempDirectoryPath, PROJECT, user2PrepareLock, USER2);
         assertTrue(user2Lock);
         LockInfo lockInfo = IndependentLocks.getLockInfo(tempDirectoryPath, PROJECT);
-        assertEquals(USER2, lockInfo.getLockedBy().getUserName());
+        assertEquals(USER2, lockInfo.getLockedBy());
         IndependentLocks.unlock(tempDirectoryPath, PROJECT);
         lockInfo = IndependentLocks.getLockInfo(tempDirectoryPath, PROJECT);
         assertFalse(lockInfo.isLocked());

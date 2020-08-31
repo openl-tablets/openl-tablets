@@ -11,7 +11,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.openl.rules.common.LockInfo;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.LockException;
 
 public class IndependentLocks {
@@ -49,14 +49,14 @@ public class IndependentLocks {
     public static LockInfo getLockInfo(String folder, String projectName) {
         File file = getProjectLock(folder, projectName);
         if (file == null || !file.isFile()) {
-            return SimpleLockInfo.NO_LOCK;
+            return LockInfo.NO_LOCK;
         }
         Properties properties = new Properties();
         try (FileInputStream is = new FileInputStream(file)) {
             properties.load(is);
             String userName = properties.getProperty(USER_NAME);
             Date date = new Date(Long.parseLong(properties.getProperty(DATE)));
-            return new SimpleLockInfo(true, date, userName);
+            return new LockInfo(true, date, userName);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

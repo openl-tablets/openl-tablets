@@ -35,7 +35,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
-import org.openl.rules.common.LockInfo;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
@@ -410,7 +410,7 @@ public class BetaRepositoryService {
                 }
                 RulesProject project = userWorkspace.getProject(repositoryId, name);
                 if (!project.tryLock()) {
-                    String lockedBy = project.getLockInfo().getLockedBy().getUserName();
+                    String lockedBy = project.getLockInfo().getLockedBy();
                     return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
                 }
             } else {
@@ -517,7 +517,7 @@ public class BetaRepositoryService {
         LockEngine lockEngine = workspaceManager.getUserWorkspace(getUser()).getProjectsLockEngine();
         LockInfo lockInfo = lockEngine.getLockInfo(branch, name);
         if (lockInfo.isLocked()) {
-            String lockedBy = lockInfo.getLockedBy().getUserName();
+            String lockedBy = lockInfo.getLockedBy();
             return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
         }
         lockEngine.tryLock(branch, name, getUserName());
@@ -555,8 +555,8 @@ public class BetaRepositoryService {
 
         if (!lockInfo.isLocked()) {
             return Response.status(Status.FORBIDDEN).entity("The project is not locked.").build();
-        } else if (!getUserName().equals(lockInfo.getLockedBy().getUserName())) {
-            String lockedBy = lockInfo.getLockedBy().getUserName();
+        } else if (!getUserName().equals(lockInfo.getLockedBy())) {
+            String lockedBy = lockInfo.getLockedBy();
             return Response.status(Status.FORBIDDEN).entity("Locked by '" + lockedBy + "'").build();
         }
         lockEngine.unlock(branch, name);
@@ -590,7 +590,7 @@ public class BetaRepositoryService {
         description.setLocked(locked);
         if (locked) {
             LockInfo lockInfo = project.getLockInfo();
-            description.setLockedBy(lockInfo.getLockedBy().getUserName());
+            description.setLockedBy(lockInfo.getLockedBy());
             description.setLockedAt(lockInfo.getLockedAt());
         }
         return description;

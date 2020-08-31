@@ -14,14 +14,13 @@ import java.util.zip.ZipOutputStream;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.LockInfo;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectDescriptorHelper;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
-import org.openl.rules.project.impl.local.SimpleLockInfo;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
@@ -213,7 +212,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
     @Override
     public LockInfo getLockInfo() {
         if (lockEngine == null) {
-            return SimpleLockInfo.NO_LOCK;
+            return LockInfo.NO_LOCK;
         }
         return lockEngine.getLockInfo(getBranch(), getName());
     }

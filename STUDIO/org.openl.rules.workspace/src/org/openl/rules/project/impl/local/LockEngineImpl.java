@@ -2,7 +2,7 @@ package org.openl.rules.project.impl.local;
 
 import java.io.File;
 
-import org.openl.rules.common.LockInfo;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.LockException;
 
@@ -32,7 +32,7 @@ public class LockEngineImpl implements LockEngine {
         File branchFolder = getBranchFolder(branch, projectName);
         LockInfo lockInfo = IndependentLocks.getLockInfo(branchFolder.getAbsolutePath(), projectName);
         if (lockInfo.isLocked()) {
-            return userName.equals(lockInfo.getLockedBy().getUserName());
+            return userName.equals(lockInfo.getLockedBy());
         }
         return IndependentLocks.createLock(branchFolder.getAbsolutePath(), projectName, userName);
     }

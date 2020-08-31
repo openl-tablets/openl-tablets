@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
-import org.openl.rules.common.LockInfo;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
@@ -248,7 +248,7 @@ public class RulesProject extends UserWorkspaceProject {
 
     public String getLockedUserName() {
         LockInfo lockInfo = getLockInfo();
-        return lockInfo.isLocked() ? lockInfo.getLockedBy().getUserName() : "";
+        return lockInfo.isLocked() ? lockInfo.getLockedBy() : "";
     }
 
     @Override
