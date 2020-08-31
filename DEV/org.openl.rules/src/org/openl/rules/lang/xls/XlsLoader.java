@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls;
 
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,8 +26,6 @@ import org.openl.syntax.code.impl.ParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.util.PathTool;
-import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.slf4j.Logger;
@@ -186,8 +185,7 @@ public class XlsLoader {
                     }
                 } else {
                     try {
-                        String newURL = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(),
-                            StringTool.encodeURL(include));
+                        String newURL = Paths.get(sheetSource.getWorkbookSource().getUri()).getParent().resolve(include).normalize().toString();
                         src = new URLSourceCodeModule(new URL(newURL));
                     } catch (Exception t) {
                         registerIncludeError(tableSyntaxNode, table, i, include, t);
