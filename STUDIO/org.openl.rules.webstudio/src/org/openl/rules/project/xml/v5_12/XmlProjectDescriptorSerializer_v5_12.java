@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.openl.rules.project.model.PathEntry;
-import org.openl.rules.project.model.Property;
 import org.openl.rules.project.model.v5_11.Module_v5_11;
 import org.openl.rules.project.model.v5_12.ProjectDependencyDescriptor_v5_12;
 import org.openl.rules.project.model.v5_12.ProjectDescriptor_v5_12;
@@ -48,7 +47,6 @@ public class XmlProjectDescriptorSerializer_v5_12 extends BaseProjectDescriptorS
         xstream.aliasType(MODULE_TAG, Module_v5_11.class);
         xstream.aliasType(DEPENDENCY_TAG, ProjectDependencyDescriptor_v5_12.class);
         xstream.aliasType(PATH_TAG, PathEntry.class);
-        xstream.aliasType(PROPERTY_TAG, Property.class);
         xstream.aliasField(PROPERTIES_FILE_NAME_PATTERN, ProjectDescriptor_v5_12.class, "propertiesFileNamePattern");
         xstream
             .aliasField(PROPERTIES_FILE_NAME_PROCESSOR, ProjectDescriptor_v5_12.class, "propertiesFileNameProcessor");

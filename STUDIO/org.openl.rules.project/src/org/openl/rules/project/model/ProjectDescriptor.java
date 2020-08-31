@@ -18,7 +18,6 @@ public class ProjectDescriptor {
     private File projectFolder;
     private List<Module> modules = Collections.emptyList();
     private List<PathEntry> classpath;
-    private List<Property> properties;
 
     private List<ProjectDependencyDescriptor> dependencies;
     private String[] propertiesFileNamePatterns;
@@ -191,13 +190,5 @@ public class ProjectDescriptor {
                 }
             }
         }
-    }
-
-    public List<Property> getProperties() {
-        return properties;
-    }
-
-    public void setProperties(List<Property> properties) {
-        this.properties = properties;
     }
 }

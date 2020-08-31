@@ -10,7 +10,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.model.Property;
 import org.openl.util.CollectionUtils;
 
 import com.thoughtworks.xstream.XStream;
@@ -30,7 +29,6 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
     private static final String PROJECT_DESCRIPTOR_TAG = "project";
     private static final String MODULE_TAG = "module";
     private static final String PATH_TAG = "entry";
-    private static final String PROPERTY_TAG = "property";
     private static final String METHOD_FILTER_TAG = "method-filter";
     private static final String DEPENDENCY_TAG = "dependency";
     private static final String PROPERTIES_FILE_NAME_PATTERN = "properties-file-name-pattern";
@@ -59,7 +57,6 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         xstream.allowTypeHierarchy(ProjectDescriptor.class);
         xstream.allowTypeHierarchy(ProjectDependencyDescriptor.class);
         xstream.allowTypeHierarchy(PathEntry.class);
-        xstream.allowTypeHierarchy(Property.class);
         xstream.allowTypeHierarchy(String.class);
 
         xstream.ignoreUnknownElements();
@@ -78,7 +75,6 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         xstream.aliasType(MODULE_TAG, Module.class);
         xstream.aliasType(DEPENDENCY_TAG, ProjectDependencyDescriptor.class);
         xstream.aliasType(PATH_TAG, PathEntry.class);
-        xstream.aliasType(PROPERTY_TAG, Property.class);
         xstream.addImplicitArray(ProjectDescriptor.class, "propertiesFileNamePatterns", PROPERTIES_FILE_NAME_PATTERN);
         xstream.aliasField(PROPERTIES_FILE_NAME_PROCESSOR, ProjectDescriptor.class, "propertiesFileNameProcessor");
         xstream.addDefaultImplementation(HashSet.class, Collection.class);

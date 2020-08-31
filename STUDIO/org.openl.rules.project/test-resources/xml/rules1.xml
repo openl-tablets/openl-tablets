@@ -12,15 +12,4 @@
     <properties-file-name-pattern>properties-file-name-pattern</properties-file-name-pattern>
     <properties-file-name-processor>properties-file-name-processor</properties-file-name-processor>
 
-	<properties>
-		<property>
-			<name>name1</name>
-			<value>value1</value>
-		</property>
-		<property>
-			<name>name2</name>
-			<value>value2</value>
-		</property>
-	</properties>
-
 </project>
