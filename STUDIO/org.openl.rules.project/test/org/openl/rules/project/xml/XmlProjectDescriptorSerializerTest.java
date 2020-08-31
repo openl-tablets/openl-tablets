@@ -11,7 +11,6 @@ import java.util.List;
 import org.junit.Test;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.model.Property;
 import org.openl.util.IOUtils;
 
 public class XmlProjectDescriptorSerializerTest {
@@ -24,9 +23,6 @@ public class XmlProjectDescriptorSerializerTest {
         String newRulesXML = new XmlProjectDescriptorSerializer().serialize(pd);
         ProjectDescriptor pd1 = new XmlProjectDescriptorSerializer().deserialize(IOUtils.toInputStream(newRulesXML));
 
-        assertEquals(2, pd1.getProperties().size());
-        assertEquals("name1", pd1.getProperties().get(0).getName());
-        assertEquals("value2", pd1.getProperties().get(1).getValue());
         assertArrayEquals(new String[] {"properties-file-name-pattern"}, pd1.getPropertiesFileNamePatterns());
         assertEquals("properties-file-name-processor", pd1.getPropertiesFileNameProcessor());
     }
@@ -36,10 +32,6 @@ public class XmlProjectDescriptorSerializerTest {
         ProjectDescriptor pd = new XmlProjectDescriptorSerializer()
             .deserialize(new FileInputStream("test-resources/xml/rules1.xml"));
 
-        assertEquals(2, pd.getProperties().size());
-        Property p = pd.getProperties().get(0);
-        assertEquals("name1", p.getName());
-        assertEquals("value2", pd.getProperties().get(1).getValue());
         assertArrayEquals(new String[] {"properties-file-name-pattern"}, pd.getPropertiesFileNamePatterns());
         assertEquals("properties-file-name-processor", pd.getPropertiesFileNameProcessor());
     }
