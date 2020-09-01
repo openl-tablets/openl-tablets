@@ -298,6 +298,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
                 resetProjects();
             }
+            ProjectsInHistoryController.deleteHistory(projectName);
             project.save();
             if (renameProject) {
                 if (project.getDesignRepository().supports().mappedFolders()) {
@@ -314,7 +315,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
             userWorkspace.refresh();
             model.resetSourceModified();
-            ProjectsInHistoryController.deleteHistory(projectName);
         } catch (WorkspaceException | IOException e) {
             throw new ProjectException(e.getMessage(), e);
         } finally {
@@ -547,7 +547,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public synchronized void init(String repositoryId, String branchName, String projectName, String moduleName) {
         try {
-            log.debug("Repository id='{}' Branch='{}'  Project='{}'  Module='{}'", repositoryId, branchName, projectName, moduleName);
+            log.debug("Repository id='{}' Branch='{}'  Project='{}'  Module='{}'",
+                repositoryId,
+                branchName,
+                projectName,
+                moduleName);
             currentRepositoryId = repositoryId;
             ProjectDescriptor project = getProjectByName(currentRepositoryId, projectName);
             if (StringUtils.isNotBlank(projectName) && project == null) {
@@ -628,7 +632,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
             Module module = getCurrentModule();
             File sourceFile = new File(module.getRulesRootPath().getPath());
 
-            LocalRepository repository = rulesUserSession.getUserWorkspace().getLocalWorkspace().getRepository(currentRepositoryId);
+            LocalRepository repository = rulesUserSession.getUserWorkspace()
+                .getLocalWorkspace()
+                .getRepository(currentRepositoryId);
 
             File projectFolder = getCurrentProjectDescriptor().getProjectFolder();
             String relativePath = getRelativePath(projectFolder, sourceFile);
@@ -1220,7 +1226,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
         if (StringUtils.isBlank(moduleName)) {
             return "#" + StringTool.encodeURL(currentRepositoryId) + "/" + StringTool.encodeURL(projectName);
         }
-        String moduleUrl = "#" + StringTool.encodeURL(currentRepositoryId) + "/" + StringTool.encodeURL(projectName) + "/" + StringTool.encodeURL(moduleName);
+        String moduleUrl = "#" + StringTool.encodeURL(currentRepositoryId) + "/" + StringTool
+            .encodeURL(projectName) + "/" + StringTool.encodeURL(moduleName);
         if (StringUtils.isBlank(pageUrl)) {
             return moduleUrl;
         }
