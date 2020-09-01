@@ -1,6 +1,6 @@
 package org.openl.rules.lock;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Lock description.
@@ -12,10 +12,10 @@ public class LockInfo {
 
     public static final LockInfo NO_LOCK = new LockInfo(null, null);
 
-    private final Date date;
+    private final Instant date;
     private final String userName;
 
-    public LockInfo(Date date, String userName) {
+    public LockInfo(Instant date, String userName) {
         this.date = date;
         this.userName = userName;
     }
@@ -25,7 +25,7 @@ public class LockInfo {
      *
      * @return date when the lock was set
      */
-    public Date getLockedAt() {
+    public Instant getLockedAt() {
         return date;
     }
 

@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.zip.ZipInputStream;
 
@@ -452,7 +453,7 @@ public class RepositoryService {
         if (locked) {
             LockInfo lockInfo = project.getLockInfo();
             description.setLockedBy(lockInfo.getLockedBy());
-            description.setLockedAt(lockInfo.getLockedAt());
+            description.setLockedAt(new Date(lockInfo.getLockedAt().toEpochMilli()));
         }
         return description;
     }

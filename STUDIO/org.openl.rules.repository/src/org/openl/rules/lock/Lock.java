@@ -4,11 +4,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -106,7 +106,19 @@ public class Lock {
         try (InputStream is = Files.newInputStream(lock)) {
             properties.load(is);
             String userName = properties.getProperty(USER_NAME);
-            Date date = new Date(Long.parseLong(properties.getProperty(DATE)));
+            String stringDate = properties.getProperty(DATE);
+            Instant date;
+            try {
+                date = Instant.parse(stringDate);
+            } catch (Exception ignored) {
+                try {
+                    // Fallback to the old approach when date was stored in milliseconds
+                    date = Instant.ofEpochMilli(Long.parseLong(stringDate));
+                } catch (Exception ignored2) {
+                    date = Instant.ofEpochMilli(0);
+                    LOG.warn("Impossible to parse date {}", stringDate, ignored);
+                }
+            }
             return new LockInfo(date, userName);
         } catch (IOException e) {
             throw new IllegalStateException(e);
@@ -114,14 +126,13 @@ public class Lock {
     }
 
     Path createLockFile(String userName) throws IOException {
-        Properties properties = new Properties();
-        properties.setProperty(USER_NAME, userName);
-        properties.setProperty(DATE, String.valueOf(System.currentTimeMillis()));
         String userNameHash = Integer.toString(userName.hashCode(), 24);
         Files.createDirectories(lockPath);
         Path lock = lockPath.resolve(userNameHash + ".lock");
-        try (OutputStream os = Files.newOutputStream(lock)) {
-            properties.store(os, "Lock info");
+        try (Writer os = Files.newBufferedWriter(lock)) {
+            os.write("#Lock info\n");
+            os.append("user=").append(userName).write('\n');
+            os.append("date=").append(Instant.now().toString()).write('\n');
         }
         return lock;
     }
