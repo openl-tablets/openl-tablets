@@ -191,11 +191,11 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
         List<StepModel> stepModels = new ArrayList<>();
         if (!isSimplePath) {
-            String sName = usedSchemaInResponse;
+            String nameOfSchema = usedSchemaInResponse;
             if (isArray) {
-                sName = usedSchemaInResponse.substring(0, usedSchemaInResponse.length() - 2);
+                nameOfSchema = usedSchemaInResponse.replaceAll("[\\[\\]]", "");
             }
-            schema = getSchemas(openAPI).get(sName);
+            schema = getSchemas(openAPI).get(nameOfSchema);
             spr.setType(SPREADSHEET_RESULT);
             if (schema != null) {
                 Map<String, Schema> properties = schema.getProperties();

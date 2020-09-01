@@ -360,6 +360,24 @@ public class OpenAPIToExcelConverterTest {
         StepModel stepModel = first.get();
         assertEquals("Double[]", stepModel.getType());
         assertEquals("HelloKitty", stepModel.getName());
+
+        Optional<SpreadsheetResultModel> secondModel = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("BlaArray"))
+            .findFirst();
+        assertTrue(secondModel.isPresent());
+        SpreadsheetResultModel blaArrayModel = secondModel.get();
+        assertEquals(4, blaArrayModel.getSteps().size());
+
+        Optional<SpreadsheetResultModel> thirdModel = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("HelloWorld"))
+            .findFirst();
+        assertTrue(thirdModel.isPresent());
+        SpreadsheetResultModel helloWorldModel = thirdModel.get();
+        assertEquals("Double[][][][]", helloWorldModel.getType());
+        List<StepModel> steps = helloWorldModel.getSteps();
+        assertEquals(1, steps.size());
+        StepModel step = steps.iterator().next();
+        assertEquals("Double[][][][]", step.getType());
     }
 
     @Test
