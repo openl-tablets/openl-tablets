@@ -4,17 +4,14 @@ public class StepModel {
     private String name;
     private String type;
     private String description;
-    private Object value;
-
-    public StepModel() {
-    }
+    private String value;
 
     public StepModel(String name, String type) {
         this.name = name;
         this.type = type;
     }
 
-    public StepModel(String name, String type, String description, Object value) {
+    public StepModel(String name, String type, String description, String value) {
         this.name = name;
         this.type = type;
         this.description = description;
@@ -45,11 +42,11 @@ public class StepModel {
         this.description = description;
     }
 
-    public Object getValue() {
+    public String getValue() {
         return value;
     }
 
-    public void setValue(Object value) {
+    public void setValue(String value) {
         this.value = value;
     }
 }

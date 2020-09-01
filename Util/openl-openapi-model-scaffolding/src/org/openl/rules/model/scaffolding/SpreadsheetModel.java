@@ -4,24 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class SpreadsheetResultModel implements Model {
+public class SpreadsheetModel implements Model {
 
     private String name;
     private List<InputParameter> parameters;
     private String type;
     private List<StepModel> steps = new ArrayList<>();
 
-    public SpreadsheetResultModel() {
-    }
-
-    public SpreadsheetResultModel(String name,
-            List<InputParameter> parameterModels,
-            String type,
-            List<StepModel> steps) {
-        this.name = name;
-        this.parameters = parameterModels;
-        this.type = type;
-        this.steps = steps;
+    public SpreadsheetModel() {
     }
 
     public String getName() {
@@ -65,7 +55,7 @@ public class SpreadsheetResultModel implements Model {
             return false;
         }
 
-        SpreadsheetResultModel that = (SpreadsheetResultModel) o;
+        SpreadsheetModel that = (SpreadsheetModel) o;
 
         if (!Objects.equals(name, that.name)) {
             return false;

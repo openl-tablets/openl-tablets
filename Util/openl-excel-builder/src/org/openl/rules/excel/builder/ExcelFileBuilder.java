@@ -10,7 +10,6 @@ import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.poi.xssf.streaming.CustomizedSXSSFWorkbook;
 import org.apache.poi.xssf.streaming.SXSSFRow;
@@ -23,7 +22,7 @@ import org.openl.rules.excel.builder.template.ExcelTemplateUtils;
 import org.openl.rules.excel.builder.template.TableStyle;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
-import org.openl.rules.model.scaffolding.SpreadsheetResultModel;
+import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,7 @@ public class ExcelFileBuilder {
      * @param projectModel - model of the project.
      */
     public static void generateProject(ProjectModel projectModel) {
-        List<SpreadsheetResultModel> sprs = projectModel.getSpreadsheetResultModels();
+        List<SpreadsheetModel> sprs = projectModel.getSpreadsheetResultModels();
         List<DatatypeModel> dts = projectModel.getDatatypeModels();
         String projectName = projectModel.getName();
         String fileName = projectName + ".xlsx";
@@ -78,24 +77,23 @@ public class ExcelFileBuilder {
     /**
      * Generate spreadsheets to the output stream.
      * 
-     * @param spreadsheetResultModels - spreadsheet models.
+     * @param spreadsheetModels - spreadsheet models.
      * @param outputStream - output stream with models.
      */
-    public static void generateSpreadsheets(List<SpreadsheetResultModel> spreadsheetResultModels,
-            OutputStream outputStream) {
-        writeSpreadsheets(spreadsheetResultModels, outputStream);
+    public static void generateSpreadsheets(List<SpreadsheetModel> spreadsheetModels, OutputStream outputStream) {
+        writeSpreadsheets(spreadsheetModels, outputStream);
     }
 
     /**
      * Generate spreadsheets with environment.
      *
-     * @param spreadsheetResultModels - spreadsheet models.
+     * @param spreadsheetModels - spreadsheet models.
      * @param outputStream - output stream with models.
      */
-    public static void generateSpreadsheetsWithEnvironment(List<SpreadsheetResultModel> spreadsheetResultModels,
+    public static void generateSpreadsheetsWithEnvironment(List<SpreadsheetModel> spreadsheetModels,
             OutputStream outputStream,
             EnvironmentModel model) {
-        writeSpreadsheetsWithEnvironment(spreadsheetResultModels, outputStream, model);
+        writeSpreadsheetsWithEnvironment(spreadsheetModels, outputStream, model);
     }
 
     /**
@@ -128,16 +126,15 @@ public class ExcelFileBuilder {
     /**
      * Writing spreadsheets to Excel file with styles from template.
      * 
-     * @param spreadsheetResultModels
+     * @param spreadsheetModels
      * @param outputStream
      */
-    private static void writeSpreadsheets(List<SpreadsheetResultModel> spreadsheetResultModels,
-            OutputStream outputStream) {
+    private static void writeSpreadsheets(List<SpreadsheetModel> spreadsheetModels, OutputStream outputStream) {
         SXSSFWorkbook tempWorkbook = null;
         try (SXSSFWorkbook workbook = tempWorkbook = new CustomizedSXSSFWorkbook()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
             TableStyle sprStyles = stylesMap.get(SPR_RESULT_SHEET);
-            writeSpreadsheets(spreadsheetResultModels, workbook, sprStyles);
+            writeSpreadsheets(spreadsheetModels, workbook, sprStyles);
             autoSizeSheets(workbook);
             workbook.write(outputStream);
         } catch (IOException e) {
@@ -149,20 +146,17 @@ public class ExcelFileBuilder {
         }
     }
 
-    private static void writeSpreadsheets(List<SpreadsheetResultModel> spreadsheetResultModels,
+    private static void writeSpreadsheets(List<SpreadsheetModel> spreadsheetModels,
             SXSSFWorkbook workbook,
             TableStyle tableStyle) {
         SXSSFSheet sprSheet = workbook.createSheet(SPR_RESULT_SHEET);
-        List<String> sprNames = spreadsheetResultModels.stream()
-            .map(SpreadsheetResultModel::getName)
-            .collect(Collectors.toList());
-        SpreadsheetResultTableExporter sprTableExporter = new SpreadsheetResultTableExporter(sprNames);
+        SpreadsheetResultTableExporter sprTableExporter = new SpreadsheetResultTableExporter();
         sprTableExporter.setTableStyle(tableStyle);
-        sprTableExporter.export(spreadsheetResultModels, sprSheet);
+        sprTableExporter.export(spreadsheetModels, sprSheet);
         sprSheet.validateMergedRegions();
     }
 
-    private static void writeSpreadsheetsWithEnvironment(List<SpreadsheetResultModel> spreadsheetResultModels,
+    private static void writeSpreadsheetsWithEnvironment(List<SpreadsheetModel> spreadsheetModels,
             OutputStream outputStream,
             EnvironmentModel environmentModel) {
         SXSSFWorkbook tempWorkbook = null;
@@ -170,7 +164,7 @@ public class ExcelFileBuilder {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
             TableStyle sprStyle = stylesMap.get(SPR_RESULT_SHEET);
             TableStyle envStyle = stylesMap.get(ENV_SHEET);
-            writeSpreadsheets(spreadsheetResultModels, workbook, sprStyle);
+            writeSpreadsheets(spreadsheetModels, workbook, sprStyle);
             writeEnvironment(environmentModel, workbook, envStyle);
             autoSizeSheets(workbook);
             workbook.write(outputStream);
@@ -198,7 +192,7 @@ public class ExcelFileBuilder {
      * @param dts - data types.
      * @param fos - output stream.
      */
-    private static void writeProject(List<SpreadsheetResultModel> sprs, List<DatatypeModel> dts, OutputStream fos) {
+    private static void writeProject(List<SpreadsheetModel> sprs, List<DatatypeModel> dts, OutputStream fos) {
         SXSSFWorkbook tempWorkbook = null;
         try (SXSSFWorkbook workbook = tempWorkbook = new CustomizedSXSSFWorkbook()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
@@ -212,8 +206,7 @@ public class ExcelFileBuilder {
             DatatypeTableExporter datatypeTableExporter = new DatatypeTableExporter();
             datatypeTableExporter.setTableStyle(datatypeStyles);
 
-            List<String> sprNames = sprs.stream().map(SpreadsheetResultModel::getName).collect(Collectors.toList());
-            SpreadsheetResultTableExporter sprTableExporter = new SpreadsheetResultTableExporter(sprNames);
+            SpreadsheetResultTableExporter sprTableExporter = new SpreadsheetResultTableExporter();
             sprTableExporter.setTableStyle(sprStyles);
 
             datatypeTableExporter.export(dts, dtSheet);

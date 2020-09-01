@@ -19,7 +19,7 @@ import org.junit.Test;
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.ParameterModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
-import org.openl.rules.model.scaffolding.SpreadsheetResultModel;
+import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.StepModel;
 
 public class SpreadsheetTableExporterTest {
@@ -29,20 +29,20 @@ public class SpreadsheetTableExporterTest {
 
     @Test
     public void testSpreadsheetExport() throws IOException {
-        SpreadsheetResultModel resultModel = new SpreadsheetResultModel();
+        SpreadsheetModel resultModel = new SpreadsheetModel();
         resultModel.setType("Double");
         resultModel.setName("TestDoubleSpr");
 
         InputParameter inputParameter = new ParameterModel("String", "name");
         resultModel.setParameters(Collections.singletonList(inputParameter));
-        StepModel doubleStep = new StepModel("simpleCalculation", "Double");
-        StepModel stringStep = new StepModel("calculateName", "String");
-        StepModel sprStep = new StepModel("calculateIndex", "IndexCalculation");
-        StepModel booleanStep = new StepModel("booleanStep", "Boolean");
-        StepModel dateStep = new StepModel("dateStep", "Date");
-        StepModel dateTimeStep = new StepModel("dateTimeStep", "OffsetDateTime");
-        StepModel integerStep = new StepModel("integerStep", "Integer");
-        StepModel longStep = new StepModel("longStep", "Long");
+        StepModel doubleStep = new StepModel("simpleCalculation", "Double", "", "=0.0d");
+        StepModel stringStep = new StepModel("calculateName", "String", "", "=" + "\"\"");
+        StepModel sprStep = new StepModel("calculateIndex", "IndexCalculation", "", "=new IndexCalculation()");
+        StepModel booleanStep = new StepModel("booleanStep", "Boolean", "", "=false");
+        StepModel dateStep = new StepModel("dateStep", "Date", "", "=new Date()");
+        StepModel dateTimeStep = new StepModel("dateTimeStep", "OffsetDateTime", "", "=java.time.OffsetDateTime.now()");
+        StepModel integerStep = new StepModel("integerStep", "Integer", "", "=0");
+        StepModel longStep = new StepModel("longStep", "Long", "", "=0L");
         resultModel.setSteps(
             Arrays.asList(doubleStep, stringStep, sprStep, booleanStep, dateStep, dateTimeStep, integerStep, longStep));
 

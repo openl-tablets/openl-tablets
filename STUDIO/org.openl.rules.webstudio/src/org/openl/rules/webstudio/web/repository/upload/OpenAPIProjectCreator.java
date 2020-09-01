@@ -15,7 +15,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.excel.builder.ExcelFileBuilder;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
-import org.openl.rules.model.scaffolding.SpreadsheetResultModel;
+import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
@@ -87,12 +87,12 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         try {
             ProjectModel projectModel = converter.extractProjectModel(uploadedOpenAPIFile.getAbsolutePath());
             List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
-            List<SpreadsheetResultModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
+            List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
             EnvironmentModel environmentModel = new EnvironmentModel();
             environmentModel.setDependencies(Collections.singletonList(MODELS_NAME));
 
             boolean dataTypesAreEmpty = CollectionUtils.isEmpty(datatypeModels);
-            boolean sprsAreEmpty = CollectionUtils.isEmpty(spreadsheetResultModels);
+            boolean sprsAreEmpty = CollectionUtils.isEmpty(spreadsheetModels);
 
             if (dataTypesAreEmpty && sprsAreEmpty) {
                 throw new ProjectException("Error creating the project, uploaded file has invalid structure.");
@@ -107,7 +107,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             }
             if (!sprsAreEmpty) {
                 ByteArrayOutputStream sos = new ByteArrayOutputStream();
-                ExcelFileBuilder.generateSpreadsheetsWithEnvironment(spreadsheetResultModels, sos, environmentModel);
+                ExcelFileBuilder.generateSpreadsheetsWithEnvironment(spreadsheetModels, sos, environmentModel);
                 byte[] sprBytes = sos.toByteArray();
                 InputStream spris = new ByteArrayInputStream(sprBytes);
                 projectBuilder.addFile(PATH + SPR_FILE_NAME, spris);

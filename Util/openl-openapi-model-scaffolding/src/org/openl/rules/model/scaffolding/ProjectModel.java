@@ -8,17 +8,17 @@ public class ProjectModel {
 
     private String name;
     private List<DatatypeModel> datatypeModels = new ArrayList<>();
-    private List<SpreadsheetResultModel> spreadsheetResultModels = new ArrayList<>();
+    private List<SpreadsheetModel> spreadsheetModels = new ArrayList<>();
 
     public ProjectModel() {
     }
 
     public ProjectModel(String name,
             List<DatatypeModel> datatypeModels,
-            List<SpreadsheetResultModel> spreadsheetResultModels) {
+            List<SpreadsheetModel> spreadsheetModels) {
         this.name = name;
         this.datatypeModels = datatypeModels;
-        this.spreadsheetResultModels = spreadsheetResultModels;
+        this.spreadsheetModels = spreadsheetModels;
     }
 
     public String getName() {
@@ -33,8 +33,8 @@ public class ProjectModel {
         return datatypeModels;
     }
 
-    public List<SpreadsheetResultModel> getSpreadsheetResultModels() {
-        return spreadsheetResultModels;
+    public List<SpreadsheetModel> getSpreadsheetResultModels() {
+        return spreadsheetModels;
     }
 
     @Override
@@ -54,14 +54,14 @@ public class ProjectModel {
         if (!Objects.equals(datatypeModels, that.datatypeModels)) {
             return false;
         }
-        return Objects.equals(spreadsheetResultModels, that.spreadsheetResultModels);
+        return Objects.equals(spreadsheetModels, that.spreadsheetModels);
     }
 
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (datatypeModels != null ? datatypeModels.hashCode() : 0);
-        result = 31 * result + (spreadsheetResultModels != null ? spreadsheetResultModels.hashCode() : 0);
+        result = 31 * result + (spreadsheetModels != null ? spreadsheetModels.hashCode() : 0);
         return result;
     }
 }

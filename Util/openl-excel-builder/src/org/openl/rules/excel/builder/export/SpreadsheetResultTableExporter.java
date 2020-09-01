@@ -2,7 +2,6 @@ package org.openl.rules.excel.builder.export;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -12,11 +11,11 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.rules.excel.builder.CellRangeSettings;
 import org.openl.rules.excel.builder.template.SpreadsheetTableStyleImpl;
 import org.openl.rules.excel.builder.template.TableStyle;
-import org.openl.rules.model.scaffolding.SpreadsheetResultModel;
+import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.StepModel;
 import org.openl.rules.table.xls.PoiExcelHelper;
 
-public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<SpreadsheetResultModel> {
+public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<SpreadsheetModel> {
 
     public static final String SPR_RESULT_SHEET = "SpreadsheetResults";
 
@@ -26,27 +25,21 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
     public static final String SPREADSHEET_RESULT_STEP_NAME = "\\{spr.field.name}";
     public static final String SPREADSHEET_RESULT_STEP_VALUE = "\\{spr.field.value}";
 
-    private final List<String> spreadsheetNames;
-
-    public SpreadsheetResultTableExporter(List<String> names) {
-        spreadsheetNames = names;
+    public SpreadsheetResultTableExporter() {
     }
 
     @Override
-    protected void exportTables(Collection<SpreadsheetResultModel> models, Sheet sheet) {
+    protected void exportTables(Collection<SpreadsheetModel> models, Sheet sheet) {
         Cursor endPosition = null;
         TableStyle style = getTableStyle();
-        for (SpreadsheetResultModel model : models) {
+        for (SpreadsheetModel model : models) {
             Cursor startPosition = nextFreePosition(endPosition);
             endPosition = exportTable(model, startPosition, style, sheet);
         }
     }
 
     @Override
-    protected Cursor exportTable(SpreadsheetResultModel model,
-            Cursor startPosition,
-            TableStyle defaultStyle,
-            Sheet sheet) {
+    protected Cursor exportTable(SpreadsheetModel model, Cursor startPosition, TableStyle defaultStyle, Sheet sheet) {
         SpreadsheetTableStyleImpl style = (SpreadsheetTableStyleImpl) defaultStyle;
         CellStyle headerStyle = style.getHeaderStyle();
         RichTextString tableHeaderText = style.getHeaderTemplate();
@@ -104,17 +97,10 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
             next = next.moveRight(1);
 
             Cell stepValueCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
-            String type = step.getType();
-            boolean isArray = type.endsWith("[]");
             stepValueCell
                 .setCellStyle(lastRow ? style.getLastRowStyle().getValueStyle() : style.getRowStyle().getValueStyle());
-            if (spreadsheetNames.contains(type)) {
-                stepValueCell.setCellValue(makeSprCall(step));
-            } else if (!isSimpleType(type)) {
-                stepValueCell.setCellValue(createNewInstance(type, isArray));
-            } else {
-                setValue(step, stepValueCell);
-            }
+
+            stepValueCell.setCellValue(step.getValue());
 
             endPosition = next.moveLeft(1);
 
@@ -123,53 +109,8 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
         return new Cursor(endPosition.getColumn(), endPosition.getRow());
     }
 
-    private String createNewInstance(String type, boolean isArray) {
-        StringBuilder result = new StringBuilder().append("=").append("new ").append(type);
-        if (isArray) {
-            result.append("{}");
-        } else {
-            result.append("()");
-        }
-        return result.toString();
-    }
-
-    private String makeSprCall(StepModel step) {
-        return "=" + step.getType() + "(" + step.getValue() + ")";
-    }
-
     @Override
     protected String getExcelSheetName() {
         return SPR_RESULT_SHEET;
-    }
-
-    private static void setValue(StepModel model, Cell stepValueCell) {
-        if (model.getType() != null) {
-            String type = model.getType();
-            if ("Integer".equals(type)) {
-                stepValueCell.setCellValue("=0");
-            } else if ("Long".equals(type)) {
-                stepValueCell.setCellValue("=0L");
-            } else if ("Double".equals(type)) {
-                stepValueCell.setCellValue("=0.0d");
-            } else if ("Float".equals(type)) {
-                stepValueCell.setCellValue("=0.0f");
-            } else if ("String".equals(type)) {
-                stepValueCell.setCellValue("=" + "\"\"");
-            } else if ("Date".equals(type)) {
-                stepValueCell.setCellValue("=new Date()");
-            } else if ("OffsetDateTime".equals(type)) {
-                stepValueCell.setCellValue("=java.time.OffsetDateTime.now()");
-            } else if ("Boolean".equals(type)) {
-                stepValueCell.setCellValue("=false");
-            }
-        } else {
-            stepValueCell.setCellValue("");
-        }
-    }
-
-    private boolean isSimpleType(String type) {
-        return "String".equals(type) || "Float".equals(type) || "Double".equals(type) || "Integer"
-            .equals(type) || "Long"
-                .equals(type) || "Boolean".equals(type) || "Date".equals(type) || "OffsetDateTime".equals(type);
     }
 }

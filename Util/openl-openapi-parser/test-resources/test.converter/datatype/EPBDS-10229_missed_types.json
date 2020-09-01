@@ -55,7 +55,7 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/AnotherDatatype"
+                  "$ref": "#/components/schemas/DriverRisk"
                 }
               }
             },
@@ -67,15 +67,6 @@
   },
   "components": {
     "schemas": {
-      "XItem": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
       "ToDoItem": {
         "type": "object",
         "properties": {
@@ -91,7 +82,7 @@
             "type": "boolean"
           },
           "someStep": {
-            "type": "boolean"
+            "$ref": "#/components/schemas/DriverRisk"
           }
         },
         "additionalProperties": false
@@ -106,7 +97,7 @@
           "numAccidents": {
             "type": "array",
             "items": {
-              "type": "boolean"
+              "$ref": "#/components/schemas/AnotherDatatype"
             }
           },
           "numMovingViolations": {
@@ -117,61 +108,30 @@
       "AnotherDatatype": {
         "type": "object",
         "properties": {
+          "numDUI": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DriverRisk"
+            }
+          },
           "numAccidents": {
-            "type": "boolean"
+            "type": "number",
+            "format": "float"
           },
           "numAccidentsOne": {
-            "type": "string",
-            "format": "date"
+            "type": "number",
+            "format": "float"
           },
           "numAccidentsTwo": {
-            "type": "string",
-            "format": "date-time"
+            "type": "number",
+            "format": "float"
           },
           "numAccidentsThree": {
             "type": "number",
             "format": "float"
           },
-          "numAccidentsFour": {
-            "type": "integer"
-          },
-          "numAccidentsFive": {
-            "type": "object"
-          },
-          "numAccidentsSix": {
-            "$ref": "#/components/schemas/XItem"
-          },
-          "numAccidentsSeven": {
-            "type": "number",
-            "format": "double"
-          },
-          "numAccidentsEight": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "numAccidentsNine": {
-            "type": "array",
-            "items": {
-              "type": "boolean"
-            }
-          },
-          "numAccidentsTen": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "array",
-                "items": {
-                  "type": "array",
-                  "items": {
-                    "type": "array",
-                    "items": {
-                      "type": "integer"
-                    }
-                  }
-                }
-              }
-            }
+          "numMovingViolations": {
+            "type": "boolean"
           }
         }
       }

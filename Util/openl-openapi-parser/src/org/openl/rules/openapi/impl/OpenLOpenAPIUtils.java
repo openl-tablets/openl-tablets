@@ -494,6 +494,24 @@ public class OpenLOpenAPIUtils {
         return schema instanceof ComposedSchema;
     }
 
+    public static Map<String, Schema> getAllFields(OpenAPI openAPI, ComposedSchema cs) {
+        Map<String, Schema> propMap = new HashMap<>();
+        List<Schema> interfaces = getInterfaces(cs);
+        if (CollectionUtils.isNotEmpty(interfaces)) {
+            for (Schema<?> sc : interfaces) {
+                if (StringUtils.isEmpty(sc.get$ref()) && CollectionUtils.isNotEmpty(sc.getProperties())) {
+                    propMap.putAll(sc.getProperties());
+                } else if (!StringUtils.isEmpty(sc.get$ref())) {
+                    Schema<?> s = getSchemas(openAPI).get(getSimpleName(sc.get$ref()));
+                    if (s != null && CollectionUtils.isNotEmpty(s.getProperties())) {
+                        propMap.putAll(s.getProperties());
+                    }
+                }
+            }
+        }
+        return propMap;
+    }
+
     public static Map<String, Schema> getFieldsOfChild(ComposedSchema cs) {
         Map<String, Schema> propMap = new HashMap<>();
         List<Schema> interfaces = getInterfaces(cs);
@@ -505,6 +523,24 @@ public class OpenLOpenAPIUtils {
             }
         }
         return propMap;
+    }
+
+    public static Set<String> getRefsUsedInTypes(OpenAPI openAPI) {
+        Set<String> refs = new HashSet<>();
+        Map<String, Schema> schemas = getSchemas(openAPI);
+        if (CollectionUtils.isNotEmpty(schemas)) {
+            for (Schema<?> schema : schemas.values()) {
+                Map<String, Schema> properties = schema.getProperties();
+                if (CollectionUtils.isNotEmpty(properties)) {
+                    for (Schema<?> propSchema : properties.values()) {
+                        if (propSchema.get$ref() != null) {
+                            refs.add(propSchema.get$ref());
+                        }
+                    }
+                }
+            }
+        }
+        return refs;
     }
 
     public static String getParentName(ComposedSchema composedSchema, OpenAPI openAPI) {
@@ -553,9 +589,7 @@ public class OpenLOpenAPIUtils {
         if (refedWithoutDiscriminator.size() == 1) {
             if (hasAmbiguousParents) {
                 LOGGER.warn(
-                    "[deprecated] inheritance without use of 'discriminator.propertyName' is deprecated "
-                            + "and will be removed in a future release. " +
-                            "Generating model for composed schema name: {}. Title: {}",
+                    "[deprecated] inheritance without use of 'discriminator.propertyName' is deprecated " + "and will be removed in a future release. " + "Generating model for composed schema name: {}. Title: {}",
                     composedSchema.getName(),
                     composedSchema.getTitle());
             }
@@ -637,18 +671,20 @@ public class OpenLOpenAPIUtils {
             String type = extractType(arraySchema.getItems());
             return type != null ? type + "[]" : "";
         }
-        return "";
+        return "Object";
     }
 
     public static List<InputParameter> extractParameters(JXPathContext jxPathContext,
+            OpenAPI openAPI,
             Set<String> refsToExpand,
             PathItem pathItem,
             List<DatatypeModel> dts,
             String path) {
-        return visitPathItemForParametersOfRequest(jxPathContext, pathItem, refsToExpand, dts, path);
+        return visitPathItemForParametersOfRequest(jxPathContext, openAPI, pathItem, refsToExpand, dts, path);
     }
 
     private static List<InputParameter> visitPathItemForParametersOfRequest(JXPathContext jxPathContext,
+            OpenAPI openAPI,
             PathItem pathItem,
             Set<String> refsToExpand,
             List<DatatypeModel> dts,
@@ -684,6 +720,7 @@ public class OpenLOpenAPIUtils {
                     if (mediaType != null) {
                         Schema<?> resSchema = resolve(jxPathContext, mediaType.getSchema(), Schema::get$ref);
                         parameterModels = collectInputParams(jxPathContext,
+                            openAPI,
                             refsToExpand,
                             parameterModels,
                             mediaType,
@@ -732,6 +769,7 @@ public class OpenLOpenAPIUtils {
     }
 
     private static List<InputParameter> collectInputParams(JXPathContext jxPathContext,
+            OpenAPI openAPI,
             Set<String> refsToExpand,
             List<InputParameter> parameterModels,
             MediaType mediaType,
@@ -749,7 +787,13 @@ public class OpenLOpenAPIUtils {
             String ref = mediaType.getSchema().get$ref();
             // only root schema is expandable
             if (ref != null && refsToExpand.contains(ref)) {
-                Map<String, Schema> properties = resSchema.getProperties();
+                Map<String, Schema> properties;
+                if (resSchema instanceof ComposedSchema) {
+                    ComposedSchema cs = (ComposedSchema) resSchema;
+                    properties = getAllFields(openAPI, cs);
+                } else {
+                    properties = resSchema.getProperties();
+                }
                 if (CollectionUtils.isNotEmpty(properties)) {
                     if (properties.size() > MAX_PARAMETERS_COUNT) {
                         String name = getSimpleName(ref);
