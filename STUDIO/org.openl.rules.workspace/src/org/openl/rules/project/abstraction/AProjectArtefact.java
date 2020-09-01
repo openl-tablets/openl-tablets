@@ -134,9 +134,8 @@ public class AProjectArtefact {
      * Try to lock the project if it's not locked already. Does not overwrite lock info if the user was locked already.
      *
      * @return false if the project was locked by other user. true if project wasn't locked before or was locked by me.
-     * @throws ProjectException if cannot lock the project.
      */
-    public boolean tryLock() throws ProjectException {
+    public boolean tryLock() {
         // Default implementation does nothing and returns true to indicate that invocation was successful.
         return true;
     }

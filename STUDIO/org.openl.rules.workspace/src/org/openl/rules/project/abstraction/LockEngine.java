@@ -3,7 +3,7 @@ package org.openl.rules.project.abstraction;
 import org.openl.rules.lock.LockInfo;
 
 public interface LockEngine {
-    boolean tryLock(String branch, String projectName, String userName) throws LockException;
+    boolean tryLock(String branch, String projectName, String userName);
 
     void unlock(String branch, String projectName);
 

@@ -3,12 +3,12 @@ package org.openl.rules.project.impl.local;
 import java.io.File;
 
 import org.openl.rules.lock.LockInfo;
+import org.openl.rules.lock.LockManager;
 import org.openl.rules.project.abstraction.LockEngine;
-import org.openl.rules.project.abstraction.LockException;
 
 public class LockEngineImpl implements LockEngine {
     public static final String LOCKS_FOLDER_NAME = ".locks";
-    private final File locksRoot;
+    private final LockManager lockManager;
 
     /**
      * Create Lock Engine
@@ -24,34 +24,25 @@ public class LockEngineImpl implements LockEngine {
     }
 
     private LockEngineImpl(File locksRoot) {
-        this.locksRoot = locksRoot;
+        this.lockManager = new LockManager(locksRoot.toPath());
     }
 
     @Override
-    public synchronized boolean tryLock(String branch, String projectName, String userName) throws LockException {
-        File branchFolder = getBranchFolder(branch, projectName);
-        LockInfo lockInfo = IndependentLocks.getLockInfo(branchFolder.getAbsolutePath(), projectName);
-        if (lockInfo.isLocked()) {
-            return userName.equals(lockInfo.getLockedBy());
-        }
-        return IndependentLocks.createLock(branchFolder.getAbsolutePath(), projectName, userName);
+    public synchronized boolean tryLock(String branch, String projectName, String userName) {
+        String lockId = getId("", branch, projectName);
+        return lockManager.getLock(lockId).tryLock(userName);
     }
 
     @Override
     public synchronized void unlock(String branch, String projectName) {
-        File branchFolder = getBranchFolder(branch, projectName);
-        try {
-            IndependentLocks.unlock(branchFolder.getAbsolutePath() , projectName);
-        } catch (LockException e) {
-            e.printStackTrace();
-        }
+        String lockId = getId("", branch, projectName);
+        lockManager.getLock(lockId).unlock();
     }
 
     @Override
     public synchronized LockInfo getLockInfo(String branch, String projectName) {
-        File branchFolder = getBranchFolder(branch, projectName);
-        LockInfo lockInfo = IndependentLocks.getLockInfo(branchFolder.getAbsolutePath(), projectName);
-        return lockInfo;
+        String lockId = getId("", branch, projectName);
+        return lockManager.getLock(lockId).info();
     }
 
     /**
@@ -62,30 +53,24 @@ public class LockEngineImpl implements LockEngine {
      * @param projectName project name
      * @return the folder where lock file is stored
      */
-    private File getBranchFolder(String branch, String projectName) {
-        if (branch == null) {
-            return new File(locksRoot, "no-branch");
-        } else {
-            // To avoid conflict between branch and project names, branch folder will be:
-            // .locks/branches/<project-name>/<branch-name>/
-            // and inside that folder a file with the name <project-name> will be stored.
-            // So full path for a file will be: .locks/branches/<project-name>/<branch-name>/<project-name>
-            // Note: branch name can contain '/' symbol
-            // Example:
-            // project1 name: "test", branch1: "WebStudio/test/user1"
-            // project2 name: "user1", branch2: "WebStudio/test"
-            // Then full paths for both lock files will be:
-            // .locks/branches/test/WebStudio/test/user1/test
-            // .locks/branches/user1/WebStudio/test/user1
-            // If we don't include project name before branch name, there will be conflict:
-            // locks/branches/WebStudio/test/user1 will be treated both as a folder and a file. So we must include it.
-            //
-            // In this method we return only folder without locks filename.
 
-            File branchesRoot = new File(locksRoot, "branches");
-            File projectParent = new File(branchesRoot, projectName);
-            return new File(projectParent, branch);
-        }
-
+    private String getId(String repo, String branch, String projectName) {
+        // To avoid conflict between branch and project names, branch folder will be:
+        // .locks/branches/<project-name>/<branch-name>/
+        // and inside that folder a file with the name <project-name> will be stored.
+        // So full path for a file will be: .locks/branches/<project-name>/<branch-name>/<project-name>
+        // Note: branch name can contain '/' symbol
+        // Example:
+        // project1 name: "test", branch1: "WebStudio/test/user1"
+        // project2 name: "user1", branch2: "WebStudio/test"
+        // Then full paths for both lock files will be:
+        // .locks/branches/test/WebStudio/test/user1/test
+        // .locks/branches/user1/WebStudio/test/user1
+        // If we don't include project name before branch name, there will be conflict:
+        // locks/branches/WebStudio/test/user1 will be treated both as a folder and a file. So we must include it.
+        //
+        // In this method we return only folder without locks filename.
+        String branchId = branch == null ? "no-branch" : ("branch/" + branch.replace("[/\\\\]", "_"));
+        return projectName + "/" + branchId;
     }
 }

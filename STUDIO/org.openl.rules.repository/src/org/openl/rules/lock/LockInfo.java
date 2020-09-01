@@ -10,14 +10,12 @@ import java.util.Date;
  */
 public class LockInfo {
 
-    public static final LockInfo NO_LOCK = new LockInfo(false, null, null);
+    public static final LockInfo NO_LOCK = new LockInfo(null, null);
 
-    private final boolean locked;
     private final Date date;
     private final String userName;
 
-    public LockInfo(boolean locked, Date date, String userName) {
-        this.locked = locked;
+    public LockInfo(Date date, String userName) {
         this.date = date;
         this.userName = userName;
     }
@@ -31,11 +29,14 @@ public class LockInfo {
         return date;
     }
 
+    /**
+     * Returns an identification who or what sets the lock.
+     */
     public String getLockedBy() {
         return userName;
     }
 
     public boolean isLocked() {
-        return locked;
+        return date != null;
     }
 }

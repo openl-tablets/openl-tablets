@@ -1,7 +1,6 @@
 package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.HashMap;
 import java.util.Map;
 

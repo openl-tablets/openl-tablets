@@ -509,7 +509,7 @@ public class BetaRepositoryService {
     @POST
     @Path("lockProject/{name}/{branch}")
     public Response lockProject(@PathParam("name") String name,
-            @PathParam("branch") String branch) throws WorkspaceException, ProjectException {
+            @PathParam("branch") String branch) throws WorkspaceException {
         // When locking the project only EDIT_PROJECTS privilege is needed because we modify the project's state.
         if (!isGranted(Privileges.EDIT_PROJECTS)) {
             return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();

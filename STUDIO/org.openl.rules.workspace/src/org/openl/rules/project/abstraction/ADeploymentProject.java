@@ -218,7 +218,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
     }
 
     @Override
-    public boolean tryLock() throws ProjectException {
+    public boolean tryLock() {
         if (lockEngine != null) {
             return lockEngine.tryLock(getBranch(), getName(), getUser().getUserName());
         }

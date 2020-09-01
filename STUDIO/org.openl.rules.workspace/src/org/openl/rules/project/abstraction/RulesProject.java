@@ -235,10 +235,9 @@ public class RulesProject extends UserWorkspaceProject {
      * Try to lock the project if it's not locked already. Does not overwrite lock info if the user was locked already.
      *
      * @return false if the project was locked by other user. true if project wasn't locked before or was locked by me.
-     * @throws ProjectException if cannot lock the project.
      */
     @Override
-    public boolean tryLock() throws ProjectException {
+    public boolean tryLock() {
         if (isLocalOnly()) {
             // No need to lock local only projects. Other users don't see it.
             return true;

@@ -16,7 +16,6 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.ProjectDescriptorManager;
@@ -89,8 +88,8 @@ public class ProjectBean {
     private IRulesDeploySerializer rulesDeploySerializer;
 
     public ProjectBean(RepositoryTreeState repositoryTreeState,
-        ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory,
-        RulesDeploySerializerFactory rulesDeploySerializerFactory) {
+            ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory,
+            RulesDeploySerializerFactory rulesDeploySerializerFactory) {
         this.repositoryTreeState = repositoryTreeState;
         this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
         this.rulesDeploySerializerFactory = rulesDeploySerializerFactory;
@@ -196,7 +195,7 @@ public class ProjectBean {
             try {
                 ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
                 projectDescriptor.setPropertiesFileNameProcessor((String) propertiesFileNameProcessorInput.getValue());
-                projectDescriptor.setPropertiesFileNamePatterns(new String[]{pattern});
+                projectDescriptor.setPropertiesFileNamePatterns(new String[] { pattern });
                 processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
                 if (processor instanceof FileNamePatternValidator) {
                     ((FileNamePatternValidator) processor).validate(pattern);
@@ -527,13 +526,8 @@ public class ProjectBean {
 
     private void tryLockProject() {
         RulesProject currentProject = studio.getCurrentProject();
-        try {
-            if (!currentProject.tryLock()) {
-                throw new Message("Project is locked by other user");
-            }
-        } catch (ProjectException e) {
-            log.error(e.getMessage(), e);
-            throw new Message("Error while project locking");
+        if (!currentProject.tryLock()) {
+            throw new Message("Project is locked by other user");
         }
     }
 
