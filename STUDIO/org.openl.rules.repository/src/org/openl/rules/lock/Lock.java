@@ -64,7 +64,18 @@ public class Lock {
     }
 
     public boolean tryLock(String lockedBy, long time, TimeUnit unit) {
-        return tryLock(lockedBy);
+        long millisTimeout = unit.toMillis(time);
+        long deadline = System.currentTimeMillis() + millisTimeout;
+        boolean result = tryLock(lockedBy);
+        while (!result && deadline > System.currentTimeMillis()) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(millisTimeout / 10);
+                result = tryLock(lockedBy);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        return result;
     }
 
     public void unlock() {
@@ -125,11 +136,11 @@ public class Lock {
         Path lockName = lock.getFileName();
         FileTime current = Files.getLastModifiedTime(lock);
         for (File file : files) {
-            Path anotheName = file.toPath().getFileName();
+            Path anotherName = file.toPath().getFileName();
             FileTime another = Files.getLastModifiedTime(file.toPath());
 
             if (current
-                .compareTo(another) > 0 || (current.compareTo(another) == 0 && lockName.compareTo(anotheName) > 0)) {
+                .compareTo(another) > 0 || (current.compareTo(another) == 0 && lockName.compareTo(anotherName) > 0)) {
                 return false;
             }
         }

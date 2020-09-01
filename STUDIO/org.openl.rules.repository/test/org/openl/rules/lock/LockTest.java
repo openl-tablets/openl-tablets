@@ -14,7 +14,7 @@ import org.junit.Test;
 
 public class LockTest {
 
-    private  Lock lock;
+    private Lock lock;
 
     @Before
     public void setUp() throws IOException {
@@ -25,6 +25,8 @@ public class LockTest {
     @Test
     public void testSimpleLock() {
         boolean lock1 = lock.tryLock("user1");
+        assertTrue(lock1);
+        lock1 = lock.tryLock("user1");
         assertTrue(lock1);
         boolean lock2 = lock.tryLock("user2");
         assertFalse(lock2);
@@ -65,6 +67,20 @@ public class LockTest {
         assertEquals("user5", lockInfo.getLockedBy());
         lock.unlock();
         lockInfo = lock.info();
+        assertFalse(lockInfo.isLocked());
+    }
+
+    @Test
+    public void testTryLockWithTimeout() throws IOException {
+        boolean lock1 = lock.tryLock("user1");
+        assertTrue(lock1);
+        boolean lock2 = lock.tryLock("user2", 1, TimeUnit.SECONDS);
+        assertFalse(lock2);
+        lock.unlock();
+        lock2 = lock.tryLock("user2");
+        assertTrue(lock2);
+        lock.unlock();
+        LockInfo lockInfo = lock.info();
         assertFalse(lockInfo.isLocked());
     }
 
