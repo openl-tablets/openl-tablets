@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.openl.binding.BindingDependencies;
-import org.openl.binding.IBindingContext;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.MatchNode;
 import org.openl.rules.cmatch.TableColumn;
@@ -226,10 +225,12 @@ public abstract class AbstractColumnMatchWrapper extends ColumnMatch {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         AbstractColumnMatchWrapper that = (AbstractColumnMatchWrapper) o;
         return delegate.equals(that.delegate);
     }

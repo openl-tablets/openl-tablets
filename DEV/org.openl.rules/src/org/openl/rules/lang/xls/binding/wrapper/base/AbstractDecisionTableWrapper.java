@@ -266,10 +266,12 @@ public abstract class AbstractDecisionTableWrapper extends DecisionTable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         AbstractDecisionTableWrapper that = (AbstractDecisionTableWrapper) o;
         return delegate.equals(that.delegate);
     }

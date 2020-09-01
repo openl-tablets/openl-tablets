@@ -104,10 +104,11 @@ public final class OpenLRulesHelper {
 
                 RulesDeploy rulesDeploy = ResourceUtils.readRulesDeploy(openlProjectFolder);
 
-                SimpleProjectEngineFactoryBuilder simpleProjectEngineFactoryBuilder = new SimpleProjectEngineFactoryBuilder()
-                    .setExecutionMode(true)
-                    .setProject(openlProjectFolder.getCanonicalPath())
-                    .setWorkspace(openlProjectFolder.getCanonicalPath());
+                SimpleProjectEngineFactoryBuilder simpleProjectEngineFactoryBuilder =
+                        new SimpleProjectEngineFactoryBuilder()
+                            .setExecutionMode(true)
+                            .setProject(openlProjectFolder.getCanonicalPath())
+                            .setWorkspace(openlProjectFolder.getCanonicalPath());
                 if (rulesDeploy != null) {
                     simpleProjectEngineFactoryBuilder.setProvideRuntimeContext(rulesDeploy.isProvideRuntimeContext());
                     if (rulesDeploy.getServiceClass() != null) {

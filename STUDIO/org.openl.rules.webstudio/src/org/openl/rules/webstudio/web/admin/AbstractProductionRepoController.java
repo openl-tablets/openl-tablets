@@ -11,6 +11,8 @@ import org.openl.config.ConfigNames;
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -18,9 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  */
 public abstract class AbstractProductionRepoController {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractProductionRepoController.class);
+
     private RepositoryConfiguration repositoryConfiguration;
 
-    private boolean checked = false;
+    private boolean checked;
     private String errorMessage = "";
 
     @Autowired
@@ -103,6 +107,7 @@ public abstract class AbstractProductionRepoController {
 
             return false;
         } catch (RepositoryValidationException e) {
+            LOG.debug("Error occurred:", e);
             this.errorMessage = e.getMessage();
             return true;
         }

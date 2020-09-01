@@ -41,7 +41,7 @@ public class CompositeMethod extends ExecutableMethod {
     }
 
     public boolean isInvokable() {
-        return invokable != null ? invokable : methodBodyBoundNode != null;
+        return invokable != null ? invokable : (methodBodyBoundNode != null);
     }
 
     @Override

@@ -11,6 +11,7 @@ public class DummyLockEngine implements LockEngine {
 
     @Override
     public void unlock(String branch, String projectName) {
+        //nothing to do
     }
 
     @Override

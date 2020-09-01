@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * @author Yury Molchan
  */
 public class FileSystemRepository implements FolderRepository, RRepositoryFactory, Closeable {
-    private final Logger log = LoggerFactory.getLogger(FileSystemRepository.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FileSystemRepository.class);
 
     private String uri;
     private File root;
@@ -103,8 +103,8 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
 
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
-        String name = data.getName();
-        File file = new File(root, name);
+        String dataName = data.getName();
+        File file = new File(root, dataName);
         file.getParentFile().mkdirs();
 
         // Close only output stream. This class is not responsible for input stream: stream must be closed in the
@@ -114,7 +114,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
         }
         if (data.getModifiedAt() != null) {
             if (!file.setLastModified(data.getModifiedAt().getTime())) {
-                log.warn("Cannot set modified time to file {}", name);
+                LOG.warn("Cannot set modified time to file {}", dataName);
             }
         }
 
@@ -169,7 +169,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
                 return Collections.singletonList(data);
             }
         } catch (Exception ex) {
-            log.warn("The file cannot be resolved: [{}]", file, ex);
+            LOG.warn("The file cannot be resolved: [{}]", file, ex);
         }
         return Collections.emptyList();
     }
@@ -220,7 +220,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
                         FileData data = getFileData(file);
                         files.add(data);
                     } catch (Exception ex) {
-                        log.warn("The file cannot be resolved in the directory {}.", directory, ex);
+                        LOG.warn("The file cannot be resolved in the directory {}.", directory, ex);
                     }
                 }
             }
@@ -288,7 +288,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
                         data.setModifiedAt(new Date(file.lastModified()));
                         files.add(data);
                     } catch (Exception ex) {
-                        log.warn("Folder cannot be resolved in the directory {}.", directory, ex);
+                        LOG.warn("Folder cannot be resolved in the directory {}.", directory, ex);
                     }
                 }
             }
@@ -324,7 +324,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
                 }
                 if (data.getModifiedAt() != null) {
                     if (!file.setLastModified(data.getModifiedAt().getTime())) {
-                        log.warn("Cannot set modified time to file {}", data.getName());
+                        LOG.warn("Cannot set modified time to file {}", data.getName());
                     }
                 }
             } else {

@@ -53,7 +53,7 @@ import org.springframework.web.jsf.FacesContextUtils;
 @Service
 @SessionScope
 public class CopyBean {
-    private final Logger log = LoggerFactory.getLogger(CopyBean.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CopyBean.class);
 
     private final Comments designRepoComments;
 
@@ -67,7 +67,7 @@ public class CopyBean {
     private String currentProjectName;
     private String newProjectName;
     private String projectFolder;
-    private boolean separateProject = false;
+    private boolean separateProject;
     private String newBranchName;
     private String comment;
     private Boolean copyOldRevisions = Boolean.FALSE;
@@ -239,7 +239,7 @@ public class CopyBean {
 
             switchToNewBranch();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             errorMessage = "Cannot copy the project: " + e.getMessage();
         }
     }
@@ -268,7 +268,7 @@ public class CopyBean {
             repositoryTreeState.refreshNode(node);
             studio.reset();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
     }
 
@@ -286,7 +286,7 @@ public class CopyBean {
             WebStudioUtils.validate(!userWorkspace.hasProject(toRepositoryId, newProjectName),
                 "Project with such name already exists.");
         } catch (WorkspaceException e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             WebStudioUtils.throwValidationError("Error during validation.");
         }
     }
@@ -371,7 +371,7 @@ public class CopyBean {
                 newBranchName = MessageFormat.format(pattern, simplifiedProjectName, userName, date);
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
     }
 
@@ -392,7 +392,7 @@ public class CopyBean {
             Repository designRepository = designTimeRepository.getRepository(toRepositoryId);
             return designRepository.supports().mappedFolders();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             return false;
         }
     }
@@ -411,7 +411,7 @@ public class CopyBean {
 
             return userWorkspace.getProject(repositoryId, currentProjectName, false);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             return null;
         }
     }

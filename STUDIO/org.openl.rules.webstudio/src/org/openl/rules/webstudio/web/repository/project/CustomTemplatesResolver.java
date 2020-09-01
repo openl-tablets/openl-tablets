@@ -18,8 +18,8 @@ import org.springframework.core.io.support.ResourcePatternResolver;
  */
 public class CustomTemplatesResolver extends TemplatesResolver {
     public static final String PROJECT_TEMPLATES_FOLDER = "project-templates";
+    private static final Logger LOG = LoggerFactory.getLogger(CustomTemplatesResolver.class);
 
-    private final Logger log = LoggerFactory.getLogger(CustomTemplatesResolver.class);
     private final String templatesPath;
     private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver(
         new TemplateResourceLoader());
@@ -51,11 +51,11 @@ public class CustomTemplatesResolver extends TemplatesResolver {
         List<ProjectFile> templateFiles = new ArrayList<>();
 
         try {
-            String locationPattern = folder.isEmpty() ? baseUrl + "/*" : baseUrl + "/" + folder + "/*";
+            String locationPattern = folder.isEmpty() ? (baseUrl + "/*") : (baseUrl + "/" + folder + "/*");
             Resource[] resources = resourcePatternResolver.getResources(locationPattern);
             for (Resource resource : resources) {
                 String filename = resource.getFilename();
-                String relativePath = folder.isEmpty() ? filename : folder + "/" + filename;
+                String relativePath = folder.isEmpty() ? filename : (folder + "/" + filename);
                 if (resource.getFile().isDirectory()) {
                     templateFiles.addAll(getProjectFilesRecursively(baseUrl, relativePath));
                 } else {
@@ -63,7 +63,7 @@ public class CustomTemplatesResolver extends TemplatesResolver {
                 }
             }
         } catch (Exception e) {
-            log.error("Failed to get project template: {}", baseUrl, e);
+            LOG.error("Failed to get project template: {}", baseUrl, e);
         }
         return templateFiles;
     }
@@ -77,7 +77,7 @@ public class CustomTemplatesResolver extends TemplatesResolver {
                 }
             }
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
 
         return folderNames;

@@ -20,8 +20,8 @@ final class SpreadsheetMethodResolver {
         cache = new HashMap<>();
         for (IOpenMethod method : context.getOpenClass().getMethods()) {
             if (method.getType() instanceof CustomSpreadsheetResultOpenClass) {
-                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) method
-                    .getType();
+                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass =
+                        (CustomSpreadsheetResultOpenClass) method.getType();
                 cache.put(customSpreadsheetResultOpenClass.getBeanClass(), method);
             }
         }

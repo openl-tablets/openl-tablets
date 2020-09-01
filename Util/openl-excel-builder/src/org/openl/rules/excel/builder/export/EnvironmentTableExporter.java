@@ -47,10 +47,10 @@ public class EnvironmentTableExporter extends AbstractOpenlTableExporter<Environ
     }
 
     private Cursor writeData(Sheet sheet,
-            EnvironmentTableStyleImpl style,
-            Cursor endPosition,
-            Iterator<String> importIterator,
-            String anImport) {
+                             EnvironmentTableStyleImpl style,
+                             Cursor endPosition,
+                             Iterator<String> importIterator,
+                             String anImport) {
         while (importIterator.hasNext()) {
             boolean lastRow = false;
             String dpd = importIterator.next();

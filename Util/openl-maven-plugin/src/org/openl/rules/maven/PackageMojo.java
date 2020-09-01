@@ -48,7 +48,9 @@ import org.yaml.snakeyaml.Yaml;
  * @author Yury Molchan
  * @since 5.19.1
  */
-@Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.RUNTIME, requiresDependencyCollection = ResolutionScope.RUNTIME)
+@Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true,
+        requiresDependencyResolution = ResolutionScope.RUNTIME,
+        requiresDependencyCollection = ResolutionScope.RUNTIME)
 public final class PackageMojo extends BaseOpenLMojo {
 
     private static final String DEPLOYMENT_YAML = "deployment.yaml";
@@ -185,7 +187,9 @@ public final class PackageMojo extends BaseOpenLMojo {
         if (mainArtifactExists && StringUtils.isBlank(classifier) && Arrays.asList(types).contains(packaging)) {
             error("The main artifact have been attached already.");
             error(
-                "You have to use classifier to attach supplemental artifacts to the project instead of replacing them.");
+        "You have to use classifier to attach supplemental artifacts " +
+                "to the project instead of replacing them."
+            );
             throw new MojoFailureException("It is not possible to replace the main artifact.");
         }
         Set<Artifact> dependencies = getDependencies();

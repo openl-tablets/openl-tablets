@@ -2,6 +2,8 @@ package org.openl.rules.webstudio.web.repository;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
@@ -11,6 +13,7 @@ import org.springframework.web.context.annotation.SessionScope;
 @Service
 @SessionScope
 public class SmartRedeployEditorController extends AbstractSmartRedeployController {
+    private static final Logger LOG = LoggerFactory.getLogger(SmartRedeployEditorController.class);
     private String repositoryId;
 
     public void setRepositoryId(String repositoryId) {
@@ -25,7 +28,7 @@ public class SmartRedeployEditorController extends AbstractSmartRedeployControll
 
             repositoryId = null;
         } catch (ProjectException e) {
-            log.warn("Failed to retrieve the project", e);
+            LOG.warn("Failed to retrieve the project", e);
         }
     }
 

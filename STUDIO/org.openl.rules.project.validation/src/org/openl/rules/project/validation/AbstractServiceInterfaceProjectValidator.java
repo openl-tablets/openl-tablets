@@ -24,12 +24,16 @@ import org.openl.rules.project.validation.base.ValidatedCompiledOpenClass;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractServiceInterfaceProjectValidator implements ProjectValidator {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractServiceInterfaceProjectValidator.class);
+
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
     private boolean provideRuntimeContext = true;
-    private boolean provideVariations = false;
+    private boolean provideVariations;
 
     private final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
 
@@ -54,7 +58,8 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
         if (projectResource != null) {
             try {
                 return rulesDeploySerializer.deserialize(new FileInputStream(new File(projectResource.getFile())));
-            } catch (FileNotFoundException e) {
+            } catch (FileNotFoundException ignored) {
+                LOG.debug("Ignored error: ", ignored);
                 return null;
             }
         }
@@ -84,56 +89,58 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
     protected Class<?> resolveInterface(ProjectDescriptor projectDescriptor,
             RulesInstantiationStrategy rulesInstantiationStrategy,
             ValidatedCompiledOpenClass validatedCompiledOpenClass) throws RulesInstantiationException {
-        RulesDeploy rulesDeploy = getRulesDeploy(projectDescriptor, validatedCompiledOpenClass);
-        if (rulesDeploy != null && rulesDeploy.getServiceName() != null) {
-            final String serviceClassName = rulesDeploy.getServiceName().trim();
+        RulesDeploy rulesDeployValue = getRulesDeploy(projectDescriptor, validatedCompiledOpenClass);
+        if (rulesDeployValue != null && rulesDeployValue.getServiceName() != null) {
+            final String serviceClassName = rulesDeployValue.getServiceName().trim();
             if (!StringUtils.isEmpty(serviceClassName)) {
                 try {
                     return validatedCompiledOpenClass.getClassLoader().loadClass(serviceClassName);
-                } catch (ClassNotFoundException | NoClassDefFoundError e) {
+                } catch (ClassNotFoundException | NoClassDefFoundError ignored) {
+                    LOG.debug("Ignored error: ", ignored);
                     validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils
                         .newWarnMessage(String.format("Failed to load a service class '%s'.", serviceClassName)));
                 }
             }
         }
-        final boolean provideRuntimeContext = rulesDeploy == null && isProvideRuntimeContext() || rulesDeploy != null && Boolean.TRUE
-            .equals(rulesDeploy.isProvideRuntimeContext());
-        final boolean provideVariations = rulesDeploy == null && isProvideVariations() || rulesDeploy != null && Boolean.TRUE
-            .equals(rulesDeploy.isProvideVariations());
-        if (provideVariations) {
+        final boolean hasContext = (rulesDeployValue == null && isProvideRuntimeContext())
+                || (rulesDeployValue != null && Boolean.TRUE.equals(rulesDeployValue.isProvideRuntimeContext()));
+        final boolean hasVariations = (rulesDeployValue == null && isProvideVariations())
+                || (rulesDeployValue != null && Boolean.TRUE.equals(rulesDeployValue.isProvideVariations()));
+        if (hasVariations) {
             rulesInstantiationStrategy = new VariationInstantiationStrategyEnhancer(rulesInstantiationStrategy);
         }
-        if (provideRuntimeContext) {
+        if (hasContext) {
             rulesInstantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(rulesInstantiationStrategy);
         }
         String annotationTemplateClassName = null;
-        if (rulesDeploy != null) {
-            annotationTemplateClassName = rulesDeploy.getAnnotationTemplateClassName() != null ? rulesDeploy
-                .getAnnotationTemplateClassName() : rulesDeploy.getInterceptingTemplateClassName();
+        if (rulesDeployValue != null) {
+            annotationTemplateClassName = rulesDeployValue.getAnnotationTemplateClassName() != null ? rulesDeployValue
+                .getAnnotationTemplateClassName() : rulesDeployValue.getInterceptingTemplateClassName();
             if (annotationTemplateClassName != null) {
                 annotationTemplateClassName = annotationTemplateClassName.trim();
             }
         }
         Class<?> serviceClass = rulesInstantiationStrategy.getInstanceClass();
-        ClassLoader classLoader = resolveServiceClassLoader(rulesInstantiationStrategy);
+        ClassLoader resolveServiceClassLoader = resolveServiceClassLoader(rulesInstantiationStrategy);
         if (!StringUtils.isEmpty(annotationTemplateClassName)) {
             try {
-                Class<?> annotationTemplateClass = classLoader.loadClass(annotationTemplateClassName);
+                Class<?> annotationTemplateClass = resolveServiceClassLoader.loadClass(annotationTemplateClassName);
                 if (annotationTemplateClass.isInterface()) {
                     serviceClass = DynamicInterfaceAnnotationEnhancerHelper
-                        .decorate(serviceClass, annotationTemplateClass, classLoader);
+                        .decorate(serviceClass, annotationTemplateClass, resolveServiceClassLoader);
                 } else {
                     validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils.newWarnMessage(String.format(
                         "Failed to apply annotation template class '%s'. Interface is expected, but class is found.",
                         annotationTemplateClassName)));
                 }
             } catch (Exception | NoClassDefFoundError ignored) {
+                LOG.debug("Ignored error: ", ignored);
                 validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils.newWarnMessage(String
                     .format("Failed to load or apply annotation template class '%s'.", annotationTemplateClassName)));
             }
         }
         return RuleServiceInstantiationFactoryHelper.buildInterfaceForService(rulesInstantiationStrategy.compile()
-            .getOpenClassWithErrors(), serviceClass, classLoader, provideRuntimeContext, provideVariations);
+            .getOpenClassWithErrors(), serviceClass, resolveServiceClassLoader, hasContext, hasVariations);
     }
 
     public boolean isProvideRuntimeContext() {

@@ -2,8 +2,6 @@ package org.openl.rules.activiti.spring.result;
 
 public class ResultValueConvertException extends RuntimeException {
 
-    private static final long serialVersionUID = -5594867331268598823L;
-
     public ResultValueConvertException() {
         super();
     }

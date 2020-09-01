@@ -93,12 +93,10 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
 
     @Override
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
-        if (cxt.isExecutionMode()) {
-            if (header instanceof OpenMethodHeader) {
-                OpenMethodHeader tableHeader = (OpenMethodHeader) header;
-                tableHeader.setTypeLocation(null);
-                tableHeader.setParamTypeLocations(null);
-            }
+        if (cxt.isExecutionMode() && header instanceof OpenMethodHeader) {
+            OpenMethodHeader tableHeader = (OpenMethodHeader) header;
+            tableHeader.setTypeLocation(null);
+            tableHeader.setParamTypeLocations(null);
         }
     }
 
@@ -119,7 +117,8 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
             // Input parameters
             ILocation[] paramTypeLocations = tableHeader.getParamTypeLocations();
             for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
-                IOpenClass parameterType = OpenClassUtils.getRootComponentClass(header.getSignature().getParameterType(i));
+                IOpenClass parameterType =
+                        OpenClassUtils.getRootComponentClass(header.getSignature().getParameterType(i));
 
                 ILocation sourceLocation = paramTypeLocations == null ? null : paramTypeLocations[i];
                 if (parameterType.getInstanceClass() == null) {

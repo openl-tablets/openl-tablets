@@ -47,7 +47,7 @@ public class CharRange extends IntRange {
     }
 
     private String printChar(long ch) {
-        return isPrintable(ch) ? String.valueOf((char) ch) : "'u" + Integer.toHexString((char) ch) + "'";
+        return isPrintable(ch) ? String.valueOf((char) ch) : ("'u" + Integer.toHexString((char) ch) + "'");
     }
 
     private boolean isPrintable(long ch) {

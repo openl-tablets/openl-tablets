@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class XlsLoader {
 
-    private final Logger log = LoggerFactory.getLogger(XlsLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(XlsLoader.class);
 
     private Collection<String> imports = new HashSet<>();
 
@@ -109,7 +109,7 @@ public class XlsLoader {
                 preprocessImportTable(row.getSource());
             } else if (ParserUtils.isBlankOrCommented(value)) {
                 // ignore comment
-                log.debug("Comment: {}", value);
+                LOG.debug("Comment: {}", value);
             } else {
                 String message = String.format("Error in Environment table: unrecognized keyword '%s'", value);
                 messages.add(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));

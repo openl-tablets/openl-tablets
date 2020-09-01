@@ -12,7 +12,8 @@ import org.openl.util.tree.ITreeElement;
  *
  * @param <T> type that extends {@link ExplanationNumberValue}
  */
-public interface ExplanationForNumber<T extends ExplanationNumberValue<T>> extends IMetaHolder, INamedThing, ITreeElement<T> {
+public interface ExplanationForNumber<T extends ExplanationNumberValue<T>>
+        extends IMetaHolder, INamedThing, ITreeElement<T> {
 
     String printValue();
 

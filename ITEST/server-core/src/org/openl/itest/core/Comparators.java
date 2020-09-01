@@ -19,7 +19,10 @@ import org.xmlunit.diff.DifferenceEvaluator;
 import org.xmlunit.diff.DifferenceEvaluators;
 import org.xmlunit.diff.ElementSelectors;
 
-class Comparators {
+final class Comparators {
+
+    private Comparators() {
+    }
 
     static void txt(String message, byte[] expected, byte[] actual) {
         String regExp = getRegExp(new String(expected, StandardCharsets.UTF_8));
@@ -56,9 +59,7 @@ class Comparators {
                     if (controlValue != null && testValue != null) {
                         String regExp = getRegExp(controlValue);
                         String noSpaces = trimExtraSpaces(testValue);
-                        boolean matches = noSpaces
-                            .equals(regExp) || Pattern.compile(regExp).matcher(noSpaces).matches();
-                        if (matches) {
+                        if (noSpaces.equals(regExp) || Pattern.compile(regExp).matcher(noSpaces).matches()) {
                             return ComparisonResult.SIMILAR;
                         }
                     }

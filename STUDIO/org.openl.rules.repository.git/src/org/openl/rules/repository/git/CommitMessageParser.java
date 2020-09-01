@@ -1,5 +1,8 @@
 package org.openl.rules.repository.git;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -7,19 +10,21 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Parses {@code {commit-type}}, {@code {user-message}} and {@code {username}} from git commit messages by given template
+ * Parses {@code {commit-type}}, {@code {user-message}}
+ * and {@code {username}} from git commit messages by given template
  *
  * @author Vladyslav Pikus
  */
 class CommitMessageParser {
+    private static final Logger LOG = LoggerFactory.getLogger(CommitMessageParser.class);
 
     private static final String COMMIT_TYPE_TOKEN = "{commit-type}";
     private static final String USER_MESSAGE_TOKEN = "{user-message}";
     private static final String USERNAME_TOKEN = "{username}";
     private static final String[] TOKENS = {COMMIT_TYPE_TOKEN, USER_MESSAGE_TOKEN, USERNAME_TOKEN};
     private static final String COMMIT_TYPES = Stream.of(CommitType.values())
-            .map(Enum::name)
-            .collect(Collectors.joining("|"));
+                                                .map(Enum::name)
+                                                .collect(Collectors.joining("|"));
 
     private final Pattern pattern;
 
@@ -32,11 +37,12 @@ class CommitMessageParser {
         }
     }
 
-    private String buildPattern(String template) {
+    private static String buildPattern(String template) {
         StringBuilder builder = new StringBuilder();
         final int len = template.length();
         final int[] tokenCounter = new int[TOKENS.length];
-        int start = 0, pos = 0;
+        int start = 0;
+        int pos = 0;
         while (pos < len) {
             int end = pos;
             for (int tokenIdx = 0; tokenIdx < TOKENS.length; tokenIdx++) {
@@ -116,7 +122,7 @@ class CommitMessageParser {
         return new CommitMessage(matcher);
     }
 
-    static class CommitMessage {
+    static final class CommitMessage {
 
         private final Matcher matcher;
 
@@ -141,6 +147,7 @@ class CommitMessageParser {
             try {
                 return matcher.group(groupName);
             } catch (IllegalArgumentException | IllegalStateException ignored) {
+                LOG.debug("Error occurred: ", ignored);
             }
             return null;
         }

@@ -11,7 +11,7 @@ import java.util.GregorianCalendar;
  */
 final class CalendarWrapper {
 
-    private static final long MILLS_IN_HOUR = 1000 * 60 * 60;
+    private static final long MILLS_IN_HOUR = 1000L * 60 * 60;
     private static final long MILLS_IN_DAY = MILLS_IN_HOUR * 24;
 
     static final int DAYS_IN_WEEK = 7;
@@ -131,7 +131,7 @@ final class CalendarWrapper {
      * @return {@code true} if was complete, otherwise {@code false}
      */
     private boolean isCompleteLastYear(CalendarWrapper start) {
-        return month > start.month || month == start.month && day >= start.day;
+        return month > start.month || (month == start.month && day >= start.day);
     }
 
     /**

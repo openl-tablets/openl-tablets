@@ -12,6 +12,8 @@ import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.io.CachedOutputStreamCallback;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * CXF interceptor for collecting response data for logging to external source feature.
@@ -21,6 +23,7 @@ import org.apache.cxf.phase.Phase;
  */
 @NoJSR250Annotations
 public class CollectResponseMessageOutInterceptor extends AbstractProcessLoggingMessageInterceptor {
+    private static final Logger LOG = LoggerFactory.getLogger(CollectResponseMessageOutInterceptor.class);
 
     private StoreLogDataManager storeLoggingManager;
 
@@ -174,8 +177,8 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
             String ct = (String) message.get(Message.CONTENT_TYPE);
             try {
                 writePayload(buffer.getPayload(), w2, ct);
-            } catch (Exception ex) {
-                // ignore
+            } catch (Exception ignored) {
+                LOG.debug("Ignored error: ", ignored);
             }
             String id = (String) message.getExchange().get(LoggingMessage.ID_KEY);
             LoggingMessage loggingMessage = new LoggingMessage(null, id);
@@ -217,7 +220,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
 
         @Override
         public void onFlush(CachedOutputStream cos) {
-
+            //nothing to do
         }
 
         @Override
@@ -246,8 +249,8 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
             try {
                 String encoding = (String) message.get(Message.ENCODING);
                 writePayload(buffer.getPayload(), cos, encoding, ct);
-            } catch (Exception ex) {
-                // ignore
+            } catch (Exception ignored) {
+                LOG.debug("Error occurred: ", ignored);
             }
 
             handleMessage(buffer);
@@ -255,8 +258,8 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
                 // empty out the cache
                 cos.lockOutputStream();
                 cos.resetOut(null, false);
-            } catch (Exception ex) {
-                // ignore
+            } catch (Exception ignored) {
+                LOG.debug("Ignored error: ", ignored);
             }
             message.setContent(OutputStream.class, origStream);
         }

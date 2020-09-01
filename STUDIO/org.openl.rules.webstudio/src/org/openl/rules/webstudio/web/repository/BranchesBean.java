@@ -29,7 +29,7 @@ import org.springframework.web.context.annotation.SessionScope;
 @Service
 @SessionScope
 public class BranchesBean {
-    private final Logger log = LoggerFactory.getLogger(BranchesBean.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BranchesBean.class);
 
     private String currentProjectName;
 
@@ -67,7 +67,7 @@ public class BranchesBean {
                 try {
                     return new ArrayList<>(((BranchRepository) repository).getBranches(null));
                 } catch (IOException e) {
-                    log.error(e.getMessage(), e);
+                    LOG.error(e.getMessage(), e);
                 }
             }
         }
@@ -90,7 +90,7 @@ public class BranchesBean {
                     }
                     return projectBranchesList;
                 } catch (IOException e) {
-                    log.error(e.getMessage(), e);
+                    LOG.error(e.getMessage(), e);
                     return Collections.emptyList();
                 }
             }
@@ -149,13 +149,13 @@ public class BranchesBean {
                 branchToMergeTo,
                 currentBranch);
             ConflictUtils.saveMergeConflict(info);
-            log.debug("Failed to save the project because of merge conflict.", e);
+            LOG.debug("Failed to save the project because of merge conflict.", e);
         } catch (Exception e) {
             String msg = e.getMessage();
             if (StringUtils.isBlank(msg)) {
                 msg = "Error during merge operation.";
             }
-            log.error(msg, e);
+            LOG.error(msg, e);
             showErrorMessage(msg);
         }
     }
@@ -171,7 +171,7 @@ public class BranchesBean {
             LockInfo lockInfo = projectsLockEngine.getLockInfo(branchToMergeTo, currentProjectName);
             return lockInfo.isLocked();
         } catch (WorkspaceException e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
         return false;
     }
@@ -218,7 +218,7 @@ public class BranchesBean {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             showErrorMessage("Cannot save the branches: " + e.getMessage());
         }
     }
@@ -244,7 +244,7 @@ public class BranchesBean {
                 currentBranch = null;
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
     }
 
@@ -267,8 +267,8 @@ public class BranchesBean {
         }
         if (!found) {
             // Get base branch. It can be different from project.getDesignRepository().getBranch().
-            branchToMerge = ((BranchRepository) getUserWorkspace().getDesignTimeRepository().getRepository(currentRepositoryId))
-                .getBranch();
+            branchToMerge = ((BranchRepository) getUserWorkspace().getDesignTimeRepository()
+                    .getRepository(currentRepositoryId)).getBranch();
 
             boolean existInCombobox = false;
             List<SelectItem> branchesToMerge = getBranchesToMerge();
@@ -280,11 +280,9 @@ public class BranchesBean {
                 }
             }
 
-            if (!existInCombobox) {
+            if (!existInCombobox && !branchesToMerge.isEmpty()) {
                 // Base branch can't be selected. Use a first available branch.
-                if (!branchesToMerge.isEmpty()) {
-                    branchToMerge = (String) (branchesToMerge.get(0).getValue());
-                }
+                branchToMerge = (String) (branchesToMerge.get(0).getValue());
             }
         }
     }
@@ -307,7 +305,7 @@ public class BranchesBean {
                 }
             }
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             showErrorMessage("Cannot determine if the branches are merged: " + e.getMessage());
         }
 
@@ -333,7 +331,7 @@ public class BranchesBean {
             try {
                 return new ArrayList<>(((BranchRepository) repository).getBranches(projectName));
             } catch (IOException e) {
-                log.error(e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
             }
         }
 
@@ -353,7 +351,7 @@ public class BranchesBean {
 
             return userWorkspace.getProject(currentRepositoryId, projectName, false);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             return null;
         }
     }

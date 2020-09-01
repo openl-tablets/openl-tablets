@@ -245,7 +245,8 @@ public class Condition extends FunctionalRow implements ICondition {
         }
         if (conditionCasts.isCastToConditionTypeExists()) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                "PERFORMANCE: Condition '%s' uses additional type casting from '%s' to '%s' in calculation time for each table row.",
+                "PERFORMANCE: Condition '%s' uses additional type casting " +
+                        "from '%s' to '%s' in calculation time for each table row.",
                 getName(),
                 methodType.getName(),
                 param.getType().getComponentClass().getName()), tableSyntaxNode));
@@ -255,7 +256,8 @@ public class Condition extends FunctionalRow implements ICondition {
                 source.getCode());
         } else if (conditionCasts.isCastToInputTypeExists()) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                "PERFORMANCE: Condition '%s' uses additional type casting from '%s' to '%s' in calculation time for each table row.",
+                "PERFORMANCE: Condition '%s' uses additional type casting " +
+                        "from '%s' to '%s' in calculation time for each table row.",
                 getName(),
                 param.getType().getComponentClass().getInstanceClass().getTypeName(),
                 methodType.getName()), tableSyntaxNode));
@@ -276,7 +278,8 @@ public class Condition extends FunctionalRow implements ICondition {
             IBindingContext bindingContext) {
         if (isIntRangeType(param.getType()) && NumberUtils.isFloatPointType(methodType.getInstanceClass())) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                "PERFORMANCE: Condition '%s' uses additional type casting from '%s' to '%s' in calculation time for each table row.",
+                "PERFORMANCE: Condition '%s' uses additional type casting " +
+                        "from '%s' to '%s' in calculation time for each table row.",
                 getName(),
                 param.getType().getName(),
                 DoubleRange.class.getTypeName()), tableSyntaxNode));

@@ -43,7 +43,7 @@ import org.springframework.stereotype.Service;
 @Service
 @ViewScope
 public class DeploymentController {
-    private final Logger log = LoggerFactory.getLogger(DeploymentController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DeploymentController.class);
     private List<DeploymentDescriptorItem> items;
     private String repositoryId;
     private String projectName;
@@ -95,13 +95,18 @@ public class DeploymentController {
     public synchronized String addItem() {
         ADeploymentProject project = getSelectedProject();
 
-        ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(repositoryId, projectName, projectBranch, new CommonVersionImpl(version));
+        ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(
+                repositoryId,
+                projectName,
+                projectBranch,
+                new CommonVersionImpl(version)
+        );
         List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName, newItem);
 
         try {
             project.setProjectDescriptors(newDescriptors);
         } catch (ProjectException e) {
-            log.error("Failed to add project descriptor.", e);
+            LOG.error("Failed to add project descriptor.", e);
             WebStudioUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
         }
 
@@ -112,13 +117,18 @@ public class DeploymentController {
         this.version = version;
         ADeploymentProject project = getSelectedProject();
 
-        ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(repositoryId, projectName, projectBranch, new CommonVersionImpl(version));
+        ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(
+                repositoryId,
+                projectName,
+                projectBranch,
+                new CommonVersionImpl(version)
+        );
         List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName, newItem);
 
         try {
             project.setProjectDescriptors(newDescriptors);
         } catch (ProjectException e) {
-            log.error("Failed to add project descriptor.", e);
+            LOG.error("Failed to add project descriptor.", e);
             WebStudioUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
         }
 
@@ -153,7 +163,7 @@ public class DeploymentController {
             selectedProject.save();
             items = null;
         } catch (ProjectException e) {
-            log.error("Failed to save changes", e);
+            LOG.error("Failed to save changes", e);
             WebStudioUtils.addErrorMessage("Failed to save changes", e.getMessage());
         }
 
@@ -165,7 +175,7 @@ public class DeploymentController {
             getSelectedProject().open();
             items = null;
         } catch (ProjectException e) {
-            log.error("Failed to open", e);
+            LOG.error("Failed to open", e);
             WebStudioUtils.addErrorMessage("Failed to open", e.getMessage());
         }
 
@@ -177,7 +187,7 @@ public class DeploymentController {
             getSelectedProject().close();
             items = null;
         } catch (ProjectException e) {
-            log.error("Failed to close.", e);
+            LOG.error("Failed to close.", e);
             WebStudioUtils.addErrorMessage("failed to close deployment project", e.getMessage());
         }
 
@@ -191,7 +201,7 @@ public class DeploymentController {
         try {
             project.setProjectDescriptors(replaceDescriptor(project, projectName, null));
         } catch (ProjectException e) {
-            log.error("Failed to delete project descriptor.", e);
+            LOG.error("Failed to delete project descriptor.", e);
             WebStudioUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
         }
         return null;
@@ -215,7 +225,7 @@ public class DeploymentController {
             } catch (Exception e) {
                 String msg = String
                     .format("Failed to deploy '%s' to repository '%s'", project.getName(), repo.getName());
-                log.error(msg, e);
+                LOG.error(msg, e);
                 WebStudioUtils.addErrorMessage(msg, e.getMessage());
             }
         }
@@ -238,8 +248,11 @@ public class DeploymentController {
         items = new ArrayList<>();
 
         for (ProjectDescriptor descriptor : descriptors) {
-            DeploymentDescriptorItem item = new DeploymentDescriptorItem(descriptor.getRepositoryId(), descriptor.getProjectName(),
-                descriptor.getProjectVersion());
+            DeploymentDescriptorItem item = new DeploymentDescriptorItem(
+                    descriptor.getRepositoryId(),
+                    descriptor.getProjectName(),
+                    descriptor.getProjectVersion()
+            );
             items.add(item);
         }
 
@@ -313,7 +326,7 @@ public class DeploymentController {
 
                 return versions;
             } catch (Exception e) {
-                log.error("Failed to get project versions.", e);
+                LOG.error("Failed to get project versions.", e);
             }
         }
 
@@ -345,7 +358,7 @@ public class DeploymentController {
                     repositoryTreeState.refreshNode(
                         repositoryTreeState.getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(project)));
                 } catch (Exception e) {
-                    log.error("Failed to open project '{}'.", projectName, e);
+                    LOG.error("Failed to open project '{}'.", projectName, e);
                     WebStudioUtils.addErrorMessage("Failed to open project '" + projectName + "': " + e.getMessage());
                 }
             }
@@ -498,7 +511,7 @@ public class DeploymentController {
 
             return branches;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             return Collections.emptyList();
         }
     }

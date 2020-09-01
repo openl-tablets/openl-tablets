@@ -248,7 +248,14 @@ public class AlgorithmCompiler {
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
 
-        return OpenLManager.makeMethodWithUnknownType(openl, src, "cell_" + fieldContent.getValue(), signature, thisTargetClass, getAlgorithmBindingContext())
+        return OpenLManager.makeMethodWithUnknownType(
+                openl,
+                src,
+                "cell_" + fieldContent.getValue(),
+                signature,
+                thisTargetClass,
+                getAlgorithmBindingContext()
+            )
             .getMethod()
             .getType();
     }
@@ -285,10 +292,10 @@ public class AlgorithmCompiler {
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
         // create method header for newly created method
-        OpenMethodHeader header = new OpenMethodHeader(methodName, returnType, signature, thisTargetClass);
+        OpenMethodHeader openMethodHeader = new OpenMethodHeader(methodName, returnType, signature, thisTargetClass);
 
         IBindingContext cxt = getAlgorithmBindingContext();
-        return OpenLManager.makeMethod(openl, src, header, cxt);
+        return OpenLManager.makeMethod(openl, src, openMethodHeader, cxt);
 
     }
 
@@ -322,9 +329,7 @@ public class AlgorithmCompiler {
         for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
             linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToProcess, i);
 
-            List<AlgorithmTreeNode> nodesToCompile = nodesToProcess.subList(i, i + linkedNodesGroupSize);
-
-            precompileLinkedNodesGroup(nodesToCompile);
+            precompileLinkedNodesGroup(nodesToProcess.subList(i, i + linkedNodesGroupSize));
         }
     }
 

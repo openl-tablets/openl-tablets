@@ -11,7 +11,7 @@ public class CellMetaInfo {
     private static final int RETURN_CELL = 1 << 1;
 
     private IOpenClass domain;
-    private int flags = 0;
+    private int flags;
     private List<? extends NodeUsage> usedNodes;
 
     public CellMetaInfo(IOpenClass domain, boolean multiValue) {

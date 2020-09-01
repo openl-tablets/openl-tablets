@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.trace.node;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.StubSpreadSheetResult;
 import org.openl.rules.table.OpenLCloner;
@@ -26,7 +25,7 @@ import com.rits.cloning.IFastCloner;
  * and show them to the user later. In this case we can safely reuse already cloned object in other method invocation if
  * it's not changed since that.
  */
-public class CachingArgumentsCloner extends OpenLCloner {
+public final class CachingArgumentsCloner extends OpenLCloner {
     private static final ThreadLocal<CachingArgumentsCloner> instance = new ThreadLocal<>();
 
     private final Map<Object, Object> cache = new HashMap<>();

@@ -1,6 +1,5 @@
 package org.openl.rules.openapi.impl;
 
-import io.swagger.v3.oas.models.media.Schema;
 
 import java.util.Objects;
 
@@ -31,12 +30,18 @@ public class ParameterParsingModel {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ParameterParsingModel that = (ParameterParsingModel) o;
 
-        if (!Objects.equals(name, that.name)) return false;
+        if (!Objects.equals(name, that.name)) {
+            return false;
+        }
         return Objects.equals(type, that.type);
     }
 

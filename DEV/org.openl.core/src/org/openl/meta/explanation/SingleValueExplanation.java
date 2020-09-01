@@ -35,7 +35,7 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
             return printValue();
         } else {
             String name = metaInfo == null ? null : getMetaInfo().getDisplayName(mode);
-            return name == null ? printValue() : name + "(" + printValue() + ")";
+            return name == null ? printValue() : (name + "(" + printValue() + ")");
         }
     }
 

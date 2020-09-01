@@ -27,8 +27,8 @@ public final class ColumnMatchWrapper extends AbstractColumnMatchWrapper impleme
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = contextPropertiesInjector;
         if (delegate.getType() instanceof ModuleSpecificType) {
-            IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
-            this.type = type != null ? type : delegate.getType();
+            IOpenClass openClassType = xlsModuleOpenClass.findType(delegate.getType().getName());
+            this.type = openClassType != null ? openClassType : delegate.getType();
         } else {
             this.type = delegate.getType();
         }
@@ -72,10 +72,12 @@ public final class ColumnMatchWrapper extends AbstractColumnMatchWrapper impleme
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         ColumnMatchWrapper that = (ColumnMatchWrapper) o;
         return delegate.equals(that.delegate);
     }

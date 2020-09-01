@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AProject extends AProjectFolder {
-    private final Logger log = LoggerFactory.getLogger(AProject.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AProject.class);
 
     /**
      * true if the project has a folder structure and false if the project is stored as a zip
@@ -118,13 +118,13 @@ public class AProject extends AProjectFolder {
                     return fileData.getVersion();
                 }
             } catch (IOException e) {
-                log.error(e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
             }
         }
         return null;
     }
 
-    final protected void setLastHistoryVersion(String lastHistoryVersion) {
+    protected final void setLastHistoryVersion(String lastHistoryVersion) {
         this.lastHistoryVersion = lastHistoryVersion;
     }
 
@@ -133,8 +133,8 @@ public class AProject extends AProjectFolder {
         if (historyVersion == null) {
             return true;
         }
-        String lastHistoryVersion = getLastHistoryVersion();
-        return lastHistoryVersion == null || historyVersion.equals(lastHistoryVersion);
+        String lastVersion = getLastHistoryVersion();
+        return lastVersion == null || historyVersion.equals(lastVersion);
     }
 
     @Override
@@ -163,7 +163,7 @@ public class AProject extends AProjectFolder {
                     historyFileDatas = Collections.emptyList();
                 }
             } catch (IOException ex) {
-                log.error(ex.getMessage(), ex);
+                LOG.error(ex.getMessage(), ex);
                 return Collections.emptyList();
             }
         }
@@ -242,7 +242,7 @@ public class AProject extends AProjectFolder {
             FileData fileData = getFileData();
             return fileData == null || fileData.isDeleted();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             return false;
         }
     }
@@ -310,7 +310,8 @@ public class AProject extends AProjectFolder {
         if (fileItem == null) {
             return internalArtefacts;
         }
-        try (InputStream stream = fileItem.getStream(); ZipInputStream zipInputStream = new ZipInputStream(stream);) {
+        try (InputStream stream = fileItem.getStream();
+             ZipInputStream zipInputStream = new ZipInputStream(stream)) {
             ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
@@ -463,7 +464,6 @@ public class AProject extends AProjectFolder {
             ResourceTransformer transformer = getResourceTransformer();
             try (InputStream content = transformer != null ? transformer.transform(resource) : resource.getContent()) {
                 IOUtils.copy(content, zipOutputStream);
-                content.close();
                 zipOutputStream.closeEntry();
             }
         } else {
@@ -495,7 +495,7 @@ public class AProject extends AProjectFolder {
 
     @Override
     public boolean hasArtefacts() {
-        return isFolder() ? super.hasArtefacts() : getFileData().getSize() != 0;
+        return isFolder() ? super.hasArtefacts() : (getFileData().getSize() != 0);
     }
 
 }

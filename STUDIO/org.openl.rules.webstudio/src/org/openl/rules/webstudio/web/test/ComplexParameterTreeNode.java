@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
-    private final Logger log = LoggerFactory.getLogger(ComplexParameterTreeNode.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ComplexParameterTreeNode.class);
     private static final String COMPLEX_TYPE = "complex";
     private final String valueKey;
     private IOpenClass typeToCreate;
@@ -46,7 +46,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     @Override
     public String getDisplayedValue() {
         String typeName = getType().getDisplayName(INamedThing.SHORT);
-        return valueKey == null ? typeName : typeName + " (" + valueKey + ")";
+        return valueKey == null ? typeName : (typeName + " (" + valueKey + ")");
     }
 
     @Override
@@ -66,7 +66,8 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                 for (IOpenField field : getType().getFields()) {
                     fieldMap.put(NumericComparableString.valueOf(field.getName()), field);
                 }
-            } catch (LinkageError e) {
+            } catch (LinkageError ignored) {
+                LOG.debug("Ignored error: ", ignored);
                 return fields;
             }
 
@@ -83,7 +84,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                         // Usually this can happen only in cases when TestResult is a OpenLRuntimeException.
                         // So this field usually does not have any useful information.
                         // For example, it can be NotSupportedOperationException in not implemented getters.
-                        log.debug("Exception while trying to get a value of a field:", e);
+                        LOG.debug("Exception while trying to get a value of a field:", e);
                         fieldType = JavaOpenClass.getOpenClass(String.class);
                         fieldValue = "Exception while trying to get a value of a field: " + e;
                     }
@@ -151,7 +152,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                         field.set(value, fieldEntry.getValue().getValueForced(), env);
                     } catch (Exception e) {
                         // Can throw UnsupportedOperationException for example or does not accept nulls.
-                        log.debug("Exception while trying to set a value of a field:", e);
+                        LOG.debug("Exception while trying to set a value of a field:", e);
                     }
                 }
             }
@@ -169,7 +170,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                 field.set(getValue(), newNode.getValue(), new SimpleVM().getRuntimeEnv());
             } catch (Exception e) {
                 // Can throw NotSupportedOperationException for example.
-                log.debug("Exception while trying to set a value of a field:", e);
+                LOG.debug("Exception while trying to set a value of a field:", e);
             }
         }
     }

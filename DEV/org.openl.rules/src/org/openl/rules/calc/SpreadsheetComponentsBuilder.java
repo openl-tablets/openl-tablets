@@ -50,6 +50,8 @@ import org.openl.util.text.ILocation;
 import org.openl.util.text.IPosition;
 import org.openl.util.text.TextInfo;
 import org.openl.util.text.TextInterval;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -58,6 +60,7 @@ import org.openl.util.text.TextInterval;
  *
  */
 public class SpreadsheetComponentsBuilder {
+    private static final Logger LOG = LoggerFactory.getLogger(SpreadsheetComponentsBuilder.class);
 
     /** tableSyntaxNode of the spreadsheet **/
     private final TableSyntaxNode tableSyntaxNode;
@@ -295,6 +298,7 @@ public class SpreadsheetComponentsBuilder {
         try {
             nodes = Tokenizer.tokenize(source, SpreadsheetSymbols.TYPE_DELIMETER.toString());
         } catch (OpenLCompilationException e) {
+            LOG.debug("Error occured: ", e);
             throw SyntaxNodeExceptionUtils.createError("Cannot parse header.", source);
         }
 
@@ -410,6 +414,7 @@ public class SpreadsheetComponentsBuilder {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Cannot parse header.",
                 typeIdentifierNode);
             addError(error);
+            LOG.debug("Error occurred: ", e);
         }
 
         return null;

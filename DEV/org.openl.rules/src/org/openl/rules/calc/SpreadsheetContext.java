@@ -93,7 +93,10 @@ public class SpreadsheetContext extends ComponentBindingContext {
                     int columnInRange = field.getCell().getColumnIndex() - startColumn;
                     int rowInRange = field.getCell().getRowIndex() - startRow;
 
-                    if (columnInRange >= 0 && columnInRange < columnsInRange && rowInRange >= 0 && rowInRange < rowsInRange) {
+                    if (columnInRange >= 0
+                            && columnInRange < columnsInRange
+                            && rowInRange >= 0
+                            && rowInRange < rowsInRange) {
                         collector.collect(columnInRange, rowInRange, field);
                     }
                 }
@@ -111,10 +114,10 @@ public class SpreadsheetContext extends ComponentBindingContext {
         void collect(int columnInRange, int rowInRange, SpreadsheetCellField field);
     }
 
-    private class CastsCollector implements SpreadsheetFieldCollector {
+    private final class CastsCollector implements SpreadsheetFieldCollector {
         private final IOpenClass rangeType;
         private final IOpenCast[][] casts;
-        private boolean implicitCastNotSupported = false;
+        private boolean implicitCastNotSupported;
 
         private CastsCollector(IOpenClass rangeType, int columnsInRange, int rowsInRange) {
             this.rangeType = rangeType;
@@ -143,7 +146,7 @@ public class SpreadsheetContext extends ComponentBindingContext {
         }
     }
 
-    private class RangeTypeCollector implements SpreadsheetFieldCollector {
+    private final class RangeTypeCollector implements SpreadsheetFieldCollector {
         private IOpenClass rangeType;
 
         private RangeTypeCollector(IOpenClass initialRangeType) {

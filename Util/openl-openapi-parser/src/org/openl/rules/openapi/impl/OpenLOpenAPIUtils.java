@@ -40,7 +40,7 @@ import io.swagger.v3.parser.core.models.ParseOptions;
 
 public class OpenLOpenAPIUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenLOpenAPIUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenLOpenAPIUtils.class);
     public static final String SCHEMAS_LINK = "#/components/schemas/";
     public static final String APPLICATION_JSON = "application/json";
     public static final String TEXT_PLAIN = "text/plain";
@@ -152,7 +152,7 @@ public class OpenLOpenAPIUtils {
         if (ref.startsWith("#/components/")) {
             ref = ref.substring(ref.lastIndexOf('/') + 1);
         } else {
-            logger.warn("Failed to get the schema name: {}", ref);
+            LOGGER.warn("Failed to get the schema name: {}", ref);
             return null;
         }
         return ref;
@@ -226,9 +226,9 @@ public class OpenLOpenAPIUtils {
 
         if (paths != null) {
             for (PathItem path : paths.values()) {
-                if (target.equals(PathTarget.ALL))
+                if (target.equals(PathTarget.ALL)) {
                     visitPathItem(path, jxPathContext, visitor, visitedSchemas);
-                else if (target.equals(PathTarget.REQUESTS)) {
+                } else if (target.equals(PathTarget.REQUESTS)) {
                     visitPathItemRequests(path, jxPathContext, visitor, visitedSchemas);
                 }
             }
@@ -333,7 +333,7 @@ public class OpenLOpenAPIUtils {
                     }
                     visitContent(jxPathContext, parameter.getContent(), visitor, visitedSchemas, visitInterfaces);
                 } else {
-                    logger.warn("An unreferenced parameter(s) found.");
+                    LOGGER.warn("An unreferenced parameter(s) found.");
                 }
             }
         }
@@ -521,7 +521,7 @@ public class OpenLOpenAPIUtils {
                     String parentName = getSimpleName(schema.get$ref());
                     Schema<?> s = allSchemas.get(parentName);
                     if (s == null) {
-                        logger.error("Failed to obtain schema from {}", parentName);
+                        LOGGER.error("Failed to obtain schema from {}", parentName);
                         return "UNKNOWN_PARENT_NAME";
                     } else if (hasOrInheritsDiscriminator(s, allSchemas)) {
                         // discriminator.propertyName is used
@@ -552,8 +552,10 @@ public class OpenLOpenAPIUtils {
         // parent name only makes sense when there is a single obvious parent
         if (refedWithoutDiscriminator.size() == 1) {
             if (hasAmbiguousParents) {
-                logger.warn(
-                    "[deprecated] inheritance without use of 'discriminator.propertyName' is deprecated " + "and will be removed in a future release. Generating model for composed schema name: {}. Title: {}",
+                LOGGER.warn(
+                    "[deprecated] inheritance without use of 'discriminator.propertyName' is deprecated "
+                            + "and will be removed in a future release. " +
+                            "Generating model for composed schema name: {}. Title: {}",
                     composedSchema.getName(),
                     composedSchema.getTitle());
             }
@@ -584,7 +586,7 @@ public class OpenLOpenAPIUtils {
             if (s != null) {
                 return hasOrInheritsDiscriminator(s, allSchemas);
             } else {
-                logger.error("Failed to obtain schema from {}", parentName);
+                LOGGER.error("Failed to obtain schema from {}", parentName);
             }
         } else if (schema instanceof ComposedSchema) {
             final ComposedSchema composed = (ComposedSchema) schema;

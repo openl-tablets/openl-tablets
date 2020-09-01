@@ -200,8 +200,9 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                         if (StringUtils.isBlank(fName)) {
                             fName = "_";
                         }
-                        String key = fName.length() > 1 ? Character.toLowerCase(fName.charAt(0)) + fName.substring(1)
-                                                        : fName.toLowerCase();
+                        String key = fName.length() > 1
+                                ? (Character.toLowerCase(fName.charAt(0)) + fName.substring(1))
+                                : fName.toLowerCase();
                         String v = fNames.put(key, refName);
                         if (v != null) {
                             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(

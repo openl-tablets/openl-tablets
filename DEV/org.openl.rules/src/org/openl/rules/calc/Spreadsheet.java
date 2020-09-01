@@ -225,7 +225,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
         this.invoker = invoker;
     }
 
-    volatile Map<String, Point> fieldsCoordinates = null;
+    volatile Map<String, Point> fieldsCoordinates;
 
     public Map<String, Point> getFieldsCoordinates() {
         if (fieldsCoordinates == null) {

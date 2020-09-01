@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DependencyChecker {
 
-    private final Logger log = LoggerFactory.getLogger(DependencyChecker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DependencyChecker.class);
     /**
      * project-name -> project-version
      * <p/>
@@ -47,7 +47,7 @@ public class DependencyChecker {
             projectDependencies.put(projectName, projectDescriptorArtefactResolver.getDependencies(project));
             projectVersions.put(projectName, project.getVersion());
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             projectVersions.put(projectName, null);
         }
     }
@@ -74,7 +74,7 @@ public class DependencyChecker {
                     projectVersions.put(projectName, null);
                 }
             } catch (Exception e) {
-                log.error("Cannot get project '{}' version {}.", projectName, projectVersion.getVersionName(), e);
+                LOG.error("Cannot get project '{}' version {}.", projectName, projectVersion.getVersionName(), e);
 
                 // WARNING: trick
                 projectVersions.put(projectName, null);

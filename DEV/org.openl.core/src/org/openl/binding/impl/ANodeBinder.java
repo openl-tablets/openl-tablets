@@ -1,23 +1,17 @@
 package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBoundCode;
-import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethodHeader;
 import org.openl.types.NullOpenClass;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.util.MessageUtils;
-import org.openl.util.StringUtils;
 
 /**
  * A base node binder with a bunch of utility methods.
@@ -165,7 +159,7 @@ public abstract class ANodeBinder implements INodeBinder {
 
     private static IBoundNode convertType(IBoundNode node,
             IBindingContext bindingContext,
-            IOpenClass type) throws Exception {
+            IOpenClass type) throws TypeCastException {
 
         IOpenCast cast = getCast(node, type, bindingContext);
 
@@ -198,10 +192,8 @@ public abstract class ANodeBinder implements INodeBinder {
 
         IOpenCast cast = bindingContext.getCast(from, to);
 
-        if (cast == null || implicitOnly && !cast.isImplicit()) {
-            if (!NullOpenClass.isAnyNull(from, to)) {
-                throw new TypeCastException(node.getSyntaxNode(), from, to);
-            }
+        if ((cast == null || (implicitOnly && !cast.isImplicit())) && !NullOpenClass.isAnyNull(from, to)) {
+            throw new TypeCastException(node.getSyntaxNode(), from, to);
         }
 
         return cast;
@@ -232,7 +224,7 @@ public abstract class ANodeBinder implements INodeBinder {
 
     protected static IOpenClass getType(ISyntaxNode node,
             IBindingContext bindingContext) throws ClassNotFoundException {
-        if (node.getType().equals("type.name")) {
+        if ("type.name".equals(node.getType())) {
             String typeName = node.getText();
             IOpenClass varType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
             if (varType == null) {

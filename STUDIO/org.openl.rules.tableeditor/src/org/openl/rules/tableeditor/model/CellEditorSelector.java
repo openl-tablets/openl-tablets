@@ -101,10 +101,12 @@ public class CellEditorSelector {
                 }
 
                 // Date
-            } else if (ClassUtils.isAssignable(instanceClass, Date.class) || ClassUtils.isAssignable(instanceClass,
-                LocalDate.class) || ClassUtils.isAssignable(instanceClass, LocalDateTime.class) || ClassUtils
-                    .isAssignable(instanceClass, LocalTime.class) || ClassUtils.isAssignable(instanceClass,
-                        ZonedDateTime.class) || ClassUtils.isAssignable(instanceClass, Instant.class)) {
+            } else if (ClassUtils.isAssignable(instanceClass, Date.class)
+                        || ClassUtils.isAssignable(instanceClass, LocalDate.class)
+                        || ClassUtils.isAssignable(instanceClass, LocalDateTime.class)
+                        || ClassUtils.isAssignable(instanceClass, LocalTime.class)
+                        || ClassUtils.isAssignable(instanceClass, ZonedDateTime.class)
+                        || ClassUtils.isAssignable(instanceClass, Instant.class)) {
                 result = factory.makeDateEditor();
 
                 // Boolean

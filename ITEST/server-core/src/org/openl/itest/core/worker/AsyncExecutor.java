@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 public class AsyncExecutor {
 
     public static final int MAX_THREADS = Runtime.getRuntime().availableProcessors() * 2;
+    public static final int STOP_TIMEOUT = 15;
 
     private final ExecutorService executor;
     private final List<Wrapper> workers;
@@ -61,7 +62,7 @@ public class AsyncExecutor {
      * @return all errors which were caught while commands execution
      */
     public List<Throwable> stop() {
-        return stop(15, TimeUnit.SECONDS);
+        return stop(STOP_TIMEOUT, TimeUnit.SECONDS);
     }
 
     public List<Throwable> stop(int timeout, TimeUnit unit) {
@@ -86,7 +87,6 @@ public class AsyncExecutor {
 
         private List<Throwable> errors = new ArrayList<>();
         private final Runnable delegate;
-        private int invokedTimes = 0;
         private volatile boolean run = true;
 
         Wrapper(Runnable delegate) {
@@ -104,8 +104,6 @@ public class AsyncExecutor {
                     delegate.run();
                 } catch (Throwable error) {
                     errors.add(error);
-                } finally {
-                    invokedTimes++;
                 }
             }
         }

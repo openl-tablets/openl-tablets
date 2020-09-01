@@ -51,7 +51,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
 
     private final int value;
 
-    private static DoubleValue[] toDoubleValues(org.openl.meta.IntValue[] values) {
+    private static DoubleValue[] toDoubleValues(IntValue[] values) {
         if (values == null) {
             return null;
         }
@@ -98,13 +98,13 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @param name of new variable
      * @return the new org.openl.meta.IntValue variable with name <b>name</b> and value <b>value</b>
      */
-    public static org.openl.meta.IntValue copy(org.openl.meta.IntValue value, String name) {
+    public static IntValue copy(IntValue value, String name) {
         if (value.getName() == null) {
             value.setName(name);
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.IntValue result = new org.openl.meta.IntValue(value, NumberOperations.COPY, value);
+            IntValue result = new IntValue(value, NumberOperations.COPY, value);
             result.setName(name);
 
             return result;
@@ -120,14 +120,14 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @param value2 org.openl.meta.IntValue
      * @return remainder from division value1 by value2
      */
-    public static org.openl.meta.IntValue rem(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+    public static IntValue rem(IntValue value1, IntValue value2) {
         // Commented to support operations with nulls. See also MathUtils.mod()
         // validate(value1, value2, Formulas.REM.toString());
         if (value1 == null || value2 == null) {
             return ZERO;
         }
 
-        return new org.openl.meta.IntValue(value1,
+        return new IntValue(value1,
             value2,
             Operators.rem(value1.getValue(), value2.getValue()),
             Formulas.REM);
@@ -140,7 +140,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @param value2 org.openl.meta.IntValue
      * @return the result of addition operation
      */
-    public static org.openl.meta.IntValue add(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+    public static IntValue add(IntValue value1, IntValue value2) {
         if (value1 == null) {
             return value2;
         }
@@ -149,7 +149,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
             return value1;
         }
 
-        return new org.openl.meta.IntValue(value1,
+        return new IntValue(value1,
             value2,
             Operators.add(value1.getValue(), value2.getValue()),
             Formulas.ADD);
@@ -163,12 +163,12 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @param value2 org.openl.meta.IntValue
      * @return the result of multiplication operation
      */
-    public static org.openl.meta.IntValue multiply(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+    public static IntValue multiply(IntValue value1, IntValue value2) {
         if (value1 == null || value2 == null) {
             return null;
         }
 
-        return new org.openl.meta.IntValue(value1,
+        return new IntValue(value1,
             value2,
             Operators.multiply(value1.getValue(), value2.getValue()),
             Formulas.MULTIPLY);
@@ -182,7 +182,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @param value2 org.openl.meta.IntValue
      * @return the result of subtraction operation
      */
-    public static org.openl.meta.IntValue subtract(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+    public static IntValue subtract(IntValue value1, IntValue value2) {
         if (value1 == null) {
             return negative(value2);
         }
@@ -191,7 +191,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
             return value1;
         }
 
-        return new org.openl.meta.IntValue(value1,
+        return new IntValue(value1,
             value2,
             Operators.subtract(value1.getValue(), value2.getValue()),
             Formulas.SUBTRACT);
@@ -205,7 +205,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @param value2 org.openl.meta.IntValue
      * @return the result of division operation
      */
-    public static org.openl.meta.DoubleValue divide(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+    public static org.openl.meta.DoubleValue divide(IntValue value1, IntValue value2) {
         if (value1 == null || value2 == null) {
             return null;
         }
@@ -229,7 +229,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @param divisor org.openl.meta.IntValue
      * @return LongValue the result of division operation
      */
-    public static LongValue quotient(org.openl.meta.IntValue number, org.openl.meta.IntValue divisor) {
+    public static LongValue quotient(IntValue number, IntValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
             return new LongValue(result, NumberOperations.QUOTIENT, null);
@@ -244,11 +244,11 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign
      *         as the devisor.
      */
-    public static org.openl.meta.IntValue mod(org.openl.meta.IntValue number, org.openl.meta.IntValue divisor) {
+    public static IntValue mod(IntValue number, IntValue divisor) {
         if (number != null && divisor != null) {
-            org.openl.meta.IntValue result = new org.openl.meta.IntValue(
+            IntValue result = new IntValue(
                 MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new org.openl.meta.IntValue(result, NumberOperations.MOD, number, divisor);
+            return new IntValue(result, NumberOperations.MOD, number, divisor);
         }
         return null;
     }
@@ -283,18 +283,18 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @param value2
      * @return the result of value1 raised to the power of value2
      */
-    public static org.openl.meta.IntValue pow(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+    public static IntValue pow(IntValue value1, IntValue value2) {
         // Commented to support operations with nulls
         // "null" means that data does not exist
         //
         // validate(value1, value2, NumberOperations.POW);
         if (value1 == null) {
-            return value2 == null ? null : new org.openl.meta.IntValue(0);
+            return value2 == null ? null : new IntValue(0);
         } else if (value2 == null) {
             return value1;
         }
 
-        return new org.openl.meta.IntValue(new org.openl.meta.IntValue(
+        return new IntValue(new IntValue(
             Operators.pow(value1.getValue(), value2.getValue())), NumberOperations.POW, value1, value2);
     }
 
@@ -303,16 +303,16 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @param value
      * @return the absolute value (module) of the value <b>value </b>
      */
-    public static org.openl.meta.IntValue abs(org.openl.meta.IntValue value) {
+    public static IntValue abs(IntValue value) {
         // Commented to support operations with nulls.
         // validate(value, NumberOperations.ABS);
         if (value == null) {
             return null;
         }
         // evaluate result
-        org.openl.meta.IntValue result = new org.openl.meta.IntValue(Math.abs(value.getValue()));
+        IntValue result = new IntValue(Math.abs(value.getValue()));
         // create instance with information about last operation
-        return new org.openl.meta.IntValue(result, NumberOperations.ABS, value);
+        return new IntValue(result, NumberOperations.ABS, value);
     }
 
     /**
@@ -320,7 +320,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @param value
      * @return the negative value of the <b>value</b>
      */
-    public static org.openl.meta.IntValue negative(org.openl.meta.IntValue value) {
+    public static IntValue negative(IntValue value) {
         if (value == null) {
             return null;
         }
@@ -332,7 +332,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @param value
      * @return the <b>value</b> increased by 1
      */
-    public static org.openl.meta.IntValue inc(org.openl.meta.IntValue value) {
+    public static IntValue inc(IntValue value) {
         return add(value, ONE);
     }
 
@@ -341,7 +341,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @param value
      * @return the <b>value</b>
      */
-    public static org.openl.meta.IntValue positive(org.openl.meta.IntValue value) {
+    public static IntValue positive(IntValue value) {
         return value;
     }
 
@@ -350,7 +350,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @param value
      * @return the <b>value </b> decreased by 1
      */
-    public static org.openl.meta.IntValue dec(org.openl.meta.IntValue value) {
+    public static IntValue dec(IntValue value) {
         return subtract(value, ONE);
     }
 
@@ -363,8 +363,8 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.IntValue
      */
-    public static org.openl.meta.IntValue autocast(byte x, org.openl.meta.IntValue y) {
-        return new org.openl.meta.IntValue(x);
+    public static IntValue autocast(byte x, IntValue y) {
+        return new IntValue(x);
     }
 
     /**
@@ -374,8 +374,8 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.IntValue
      */
-    public static org.openl.meta.IntValue autocast(short x, org.openl.meta.IntValue y) {
-        return new org.openl.meta.IntValue(x);
+    public static IntValue autocast(short x, IntValue y) {
+        return new IntValue(x);
     }
 
     /**
@@ -385,8 +385,8 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.IntValue
      */
-    public static org.openl.meta.IntValue autocast(int x, org.openl.meta.IntValue y) {
-        return new org.openl.meta.IntValue(x);
+    public static IntValue autocast(int x, IntValue y) {
+        return new IntValue(x);
     }
 
     /**
@@ -396,8 +396,8 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.IntValue
      */
-    public static org.openl.meta.IntValue autocast(char x, org.openl.meta.IntValue y) {
-        return new org.openl.meta.IntValue(x);
+    public static IntValue autocast(char x, IntValue y) {
+        return new IntValue(x);
     }
 
     // Constructors
@@ -406,7 +406,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     }
 
     /** Formula constructor **/
-    public IntValue(org.openl.meta.IntValue lv1, org.openl.meta.IntValue lv2, int value, Formulas operand) {
+    public IntValue(IntValue lv1, IntValue lv2, int value, Formulas operand) {
         super(lv1, lv2, operand);
         this.value = value;
     }
@@ -421,7 +421,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * Copy the current value with new name <b>name</b>
      */
     @Override
-    public org.openl.meta.IntValue copy(String name) {
+    public IntValue copy(String name) {
         return copy(this, name);
     }
 
@@ -456,11 +456,11 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @param values an array for sorting
      * @return the sorted array
      */
-    public static org.openl.meta.IntValue[] sort(org.openl.meta.IntValue[] values) {
-        org.openl.meta.IntValue[] sortedArray = null;
+    public static IntValue[] sort(IntValue[] values) {
+        IntValue[] sortedArray = null;
         if (values != null) {
-            sortedArray = new org.openl.meta.IntValue[values.length];
-            org.openl.meta.IntValue[] notNullArray = ArrayTool.removeNulls(values);
+            sortedArray = new IntValue[values.length];
+            IntValue[] notNullArray = ArrayTool.removeNulls(values);
 
             Arrays.sort(notNullArray);
 

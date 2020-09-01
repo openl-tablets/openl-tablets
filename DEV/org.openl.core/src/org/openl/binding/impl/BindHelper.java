@@ -127,7 +127,8 @@ public final class BindHelper {
             }
         } else if (field instanceof ArrayLengthOpenField) {
             processWarn(
-                "DEPRECATED 'length' field for arrays will be removed in the next version. Use length() function instead.",
+                "DEPRECATED 'length' field for arrays will be removed in the next version. " +
+                    "Use length() function instead.",
                 node,
                 context);
         }
@@ -168,7 +169,7 @@ public final class BindHelper {
         } else if (left instanceof LiteralBoundNode && right instanceof LiteralBoundNode) {
             Object leftValue = ((LiteralBoundNode) left).getValue();
             Object rightValue = ((LiteralBoundNode) right).getValue();
-            if (leftValue == rightValue || leftValue != null && leftValue.equals(rightValue)) {
+            if (leftValue == rightValue || (leftValue != null && leftValue.equals(rightValue))) {
                 return true;
             }
         }

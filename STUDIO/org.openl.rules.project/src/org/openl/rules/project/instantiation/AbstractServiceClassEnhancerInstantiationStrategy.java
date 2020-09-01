@@ -67,16 +67,19 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
                     getOriginalInstantiationStrategy().setServiceClass(clazz);
                 } catch (Exception e) {
                     throw new OpenlNotCheckedException(
-                        "Failed to set service class to instantiation strategy enhancer. Failed to get undecorated class.",
+                        "Failed to set service class to instantiation strategy enhancer. " +
+                                "Failed to get undecorated class.",
                         e);
                 }
             } else {
                 throw new OpenlNotCheckedException(
-                    "Failed to set service class to instantiation strategy enhancer. Service class is not supported by this strategy.");
+                    "Failed to set service class to instantiation strategy enhancer. " +
+                            "Service class is not supported by this strategy.");
             }
         } catch (ValidationServiceClassException e) {
             throw new OpenlNotCheckedException(
-                "Failed to set service class to instantiation strategy enhancer. Service class is not supported by this strategy.",
+                "Failed to set service class to instantiation strategy enhancer. " +
+                        "Service class is not supported by this strategy.",
                 e);
         }
     }
@@ -111,7 +114,11 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
     public final Object instantiate() throws RulesInstantiationException {
         try {
             Object originalInstance = getOriginalInstantiationStrategy().instantiate();
-            return ASMProxyFactory.newProxyInstance(getClassLoader(), makeMethodHandler(originalInstance), getProxyInterfaces(originalInstance));
+            return ASMProxyFactory.newProxyInstance(
+                    getClassLoader(),
+                    makeMethodHandler(originalInstance),
+                    getProxyInterfaces(originalInstance)
+            );
         } catch (Exception e) {
             throw new RulesInstantiationException(e.getMessage(), e);
         }

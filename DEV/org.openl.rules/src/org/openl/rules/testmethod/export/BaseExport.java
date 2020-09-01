@@ -53,7 +53,7 @@ public abstract class BaseExport {
         Object simpleValue = getSimpleValue(value);
         if (simpleValue instanceof Map) {
             // Remove HashMap<..., ...>
-            simpleValue = simpleValue.toString().substring(simpleValue.toString().indexOf("{"));
+            simpleValue = simpleValue.toString().substring(simpleValue.toString().indexOf('{'));
         }
         if (simpleValue != null) {
 

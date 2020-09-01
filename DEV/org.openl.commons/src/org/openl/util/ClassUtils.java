@@ -3,6 +3,7 @@ package org.openl.util;
 import static java.util.Locale.ENGLISH;
 
 import java.beans.Introspector;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.security.AccessController;
@@ -78,10 +79,14 @@ public class ClassUtils {
         THROWABLE = ex;
     }
 
+    private ClassUtils() {
+    }
+
     /**
      * Loads bytecode and run static initializes.
      */
-    public static Class<?> defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
+    public static Class<?> defineClass(String className, byte[] b, ClassLoader loader)
+            throws InvocationTargetException, IllegalAccessException, ClassNotFoundException {
         Class<?> clazz;
         if (DEFINE_CLASS != null && DEFINE_PACKAGE != null) {
             Object[] args = new Object[] { className, b, 0, b.length, PROTECTION_DOMAIN };
@@ -221,7 +226,7 @@ public class ClassUtils {
         }
 
         int arrayIndex = className.indexOf("[L"); // array encoding
-        int start = arrayIndex == -1 ? 0 : arrayIndex + 2;
+        int start = arrayIndex == -1 ? 0 : (arrayIndex + 2);
 
         return className.substring(start, lastDot);
     }

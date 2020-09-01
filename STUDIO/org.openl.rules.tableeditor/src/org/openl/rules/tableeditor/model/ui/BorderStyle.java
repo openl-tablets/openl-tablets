@@ -7,7 +7,7 @@ public class BorderStyle {
 
     public static final BorderStyle NONE = new BorderStyle(1, "solid", new short[] { 0xBB, 0xBB, 0xDD });
 
-    private int width = 0;
+    private int width;
 
     private String style = "none";
 

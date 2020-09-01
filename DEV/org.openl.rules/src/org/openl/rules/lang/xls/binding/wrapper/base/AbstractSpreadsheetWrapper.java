@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.openl.binding.BindingDependencies;
-import org.openl.binding.IBindingContext;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetBoundNode;
@@ -282,10 +281,12 @@ public class AbstractSpreadsheetWrapper extends Spreadsheet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         AbstractSpreadsheetWrapper that = (AbstractSpreadsheetWrapper) o;
         return delegate.equals(that.delegate);
     }

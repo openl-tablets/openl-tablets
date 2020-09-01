@@ -58,19 +58,24 @@ public class SpreadsheetResultModel implements Model {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
         SpreadsheetResultModel that = (SpreadsheetResultModel) o;
 
-        if (!Objects.equals(name, that.name))
+        if (!Objects.equals(name, that.name)) {
             return false;
-        if (!Objects.equals(parameters, that.parameters))
+        }
+        if (!Objects.equals(parameters, that.parameters)) {
             return false;
-        if (!Objects.equals(type, that.type))
+        }
+        if (!Objects.equals(type, that.type)) {
             return false;
+        }
         return Objects.equals(steps, that.steps);
     }
 

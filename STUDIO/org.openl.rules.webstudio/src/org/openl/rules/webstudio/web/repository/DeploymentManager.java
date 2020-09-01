@@ -46,7 +46,7 @@ import org.springframework.beans.factory.InitializingBean;
  * @author Andrey Naumenko
  */
 public class DeploymentManager implements InitializingBean {
-    private final Logger log = LoggerFactory.getLogger(DeploymentManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DeploymentManager.class);
 
     private String[] initialProductionRepositoryConfigNames;
     private DesignTimeRepository designRepository;
@@ -151,7 +151,12 @@ public class DeploymentManager implements InitializingBean {
                                 manifestBuilder.build());
                     } else {
                         FileItem srcPrj = designRepo.readHistory(rulesPath + projectName, version);
-                        includeManifestIntoArchiveAndSave(deployRepo, dest, srcPrj.getStream(), manifestBuilder.build());
+                        includeManifestIntoArchiveAndSave(
+                                deployRepo,
+                                dest,
+                                srcPrj.getStream(),
+                                manifestBuilder.build()
+                        );
                     }
                 }
             }
@@ -164,7 +169,10 @@ public class DeploymentManager implements InitializingBean {
         }
     }
 
-    private void includeManifestIntoArchiveAndSave(Repository deployRepo, FileData dest, InputStream in, Manifest manifest) throws ProjectException {
+    private void includeManifestIntoArchiveAndSave(Repository deployRepo,
+                                                   FileData dest,
+                                                   InputStream in,
+                                                   Manifest manifest) throws ProjectException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             RepositoryUtils.includeManifestAndRepackArchive(in, out, manifest);
@@ -201,7 +209,7 @@ public class DeploymentManager implements InitializingBean {
         for (ProjectDescriptor projectToDeploy : projectsToDeploy) {
             for (Iterator<FileData> it = projectsToDelete.iterator(); it.hasNext();) {
                 String folderPath = it.next().getName();
-                String projectName = folderPath.substring(folderPath.lastIndexOf("/") + 1);
+                String projectName = folderPath.substring(folderPath.lastIndexOf('/') + 1);
                 if (projectName.equals(projectToDeploy.getProjectName())) {
                     // This project will be replaced with a new version. No need to delete it
                     it.remove();
@@ -220,7 +228,11 @@ public class DeploymentManager implements InitializingBean {
                     if (repositoryId == null) {
                         repositoryId = designRepository.getRepositories().get(0).getId();
                     }
-                    AProject project = designRepository.getProject(repositoryId, pd.getProjectName(), pd.getProjectVersion());
+                    AProject project = designRepository.getProject(
+                            repositoryId,
+                            pd.getProjectName(),
+                            pd.getProjectVersion()
+                    );
 
                     AProjectArtefact artifact = project.getArtefact(DeployUtils.RULES_DEPLOY_XML);
                     if (artifact instanceof AProjectResource) {
@@ -236,8 +248,9 @@ public class DeploymentManager implements InitializingBean {
                 } catch (ProjectException ignored) {
                 }
             } catch (Throwable e) {
-                log.error(
-                    "Project loading from repository was failed! Project with name '{}' in deploy configuration '{}' has been skipped.",
+                LOG.error(
+                    "Project loading from repository was failed! " +
+                            "Project with name '{}' in deploy configuration '{}' has been skipped.",
                     pd.getProjectName(),
                     deploymentConfiguration.getName(),
                     e);

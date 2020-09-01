@@ -25,7 +25,7 @@ public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertion
 
     @Override
     protected UserDetails loadUserDetails(Assertion assertion) {
-        final List<Privilege> grantedAuthorities = new ArrayList<Privilege>();
+        final List<Privilege> grantedAuthorities = new ArrayList<>();
         String firstName = null;
         String lastName = null;
 

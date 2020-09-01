@@ -27,10 +27,12 @@ import org.slf4j.LoggerFactory;
  * Serializable bean that handles result of spreadsheet calculation.
  */
 @XmlRootElement
-@CustomJavaOpenClass(type = SpreadsheetResultOpenClass.class, variableInContextFinder = SpreadsheetResultRootDictionaryContext.class)
+@CustomJavaOpenClass(
+        type = SpreadsheetResultOpenClass.class,
+        variableInContextFinder = SpreadsheetResultRootDictionaryContext.class
+)
 public class SpreadsheetResult implements Serializable {
 
-    private static final long serialVersionUID = 8704762477153429384L;
     private static final int MAX_WIDTH = 4;
     private static final int MAX_HEIGHT = 10;
     private static final int MAX_DEPTH = 2;

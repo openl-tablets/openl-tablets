@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 public class ExcelDiffController extends AbstractDiffController {
     private static final String FORMATTING_OR_METADATA = "Content of excel file hasn't been changed, possibly differences are name, formatting or metadata.";
-    private final Logger log = LoggerFactory.getLogger(ExcelDiffController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ExcelDiffController.class);
 
     /**
      * Max files count to compare.
@@ -47,7 +47,7 @@ public class ExcelDiffController extends AbstractDiffController {
                 setDiffTree(diffTree);
                 defineChangesStatus(diffTree);
             } catch (Exception e) {
-                log.warn(e.getMessage(), e);
+                LOG.warn(e.getMessage(), e);
                 WebStudioUtils.addErrorMessage(e.getMessage());
             }
 

@@ -3,8 +3,8 @@ package org.openl.rules.repository.api;
 public class FeaturesBuilder {
     private final Repository repository;
     private boolean versions = true;
-    private boolean mappedFolders = false;
-    private boolean uniqueFileId = false;
+    private boolean mappedFolders;
+    private boolean uniqueFileId;
 
     public FeaturesBuilder(Repository repository) {
         this.repository = repository;

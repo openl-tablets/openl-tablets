@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AOpenLBuilder extends BaseOpenLBuilder {
 
-    private final Logger log = LoggerFactory.getLogger(AOpenLBuilder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AOpenLBuilder.class);
 
     protected SimpleVM createVM() {
         return new SimpleVM();
@@ -63,7 +63,7 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
                     is.close();
                 }
             } catch (Exception t) {
-                log.error("Failed to close an input stream.", t);
+                LOG.error("Failed to close an input stream.", t);
             }
         }
 

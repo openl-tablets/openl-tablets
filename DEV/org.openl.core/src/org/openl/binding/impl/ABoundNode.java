@@ -26,8 +26,9 @@ public abstract class ABoundNode implements IBoundNode {
 
     protected ABoundNode(ISyntaxNode syntaxNode, IBoundNode... children) {
         this.syntaxNode = syntaxNode;
-        this.children = children != null && (children.length == 0 || children.length == 1 && children[0] == null) ? IBoundNode.EMPTY
-                                                                                                                  : children;
+        this.children = children != null && (children.length == 0 || (children.length == 1 && children[0] == null))
+                ? IBoundNode.EMPTY
+                : children;
     }
 
     @Override

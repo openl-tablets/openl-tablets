@@ -9,7 +9,9 @@ import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public final class AlgorithmSubroutineMethodLazyWrapper extends AbstractAlgorithmSubroutineMethodWrapper implements ILazyMethod {
+public final class AlgorithmSubroutineMethodLazyWrapper
+        extends AbstractAlgorithmSubroutineMethodWrapper
+        implements ILazyMethod {
     private final LazyMember<IOpenMethod> lazyMethod;
 
     AlgorithmSubroutineMethodLazyWrapper(LazyMember<IOpenMethod> lazyMethod, AlgorithmSubroutineMethod delegate) {
@@ -29,10 +31,12 @@ public final class AlgorithmSubroutineMethodLazyWrapper extends AbstractAlgorith
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         AlgorithmSubroutineMethodLazyWrapper that = (AlgorithmSubroutineMethodLazyWrapper) o;
         return delegate.equals(that.delegate);
     }

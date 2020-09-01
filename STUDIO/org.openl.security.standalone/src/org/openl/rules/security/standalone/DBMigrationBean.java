@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -17,11 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DBMigrationBean {
-    private final Logger log = LoggerFactory.getLogger(DBMigrationBean.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DBMigrationBean.class);
 
     private DataSource dataSource;
 
-    public void init() throws Exception {
+    public void init() throws SQLException, IOException {
 
         String databaseCode;
         try (Connection connection = dataSource.getConnection()) {
@@ -31,7 +32,7 @@ public class DBMigrationBean {
 
         String[] locations = { "/db/flyway/common", "/db/flyway/" + databaseCode };
 
-        TreeMap<String, String> placeholders = new TreeMap<String, String>();
+        TreeMap<String, String> placeholders = new TreeMap<>();
         for (String location : locations) {
             fillQueries(placeholders, location + "/placeholders.properties");
         }
@@ -53,10 +54,10 @@ public class DBMigrationBean {
     private void fillQueries(Map<String, String> queries, String propertiesFileName) throws IOException {
         URL resource = getClass().getResource(propertiesFileName);
         if (resource == null) {
-            log.info("File '{}' is not found.", propertiesFileName);
+            LOG.info("File '{}' is not found.", propertiesFileName);
             return;
         }
-        log.info("Load properties from '{}'.", resource);
+        LOG.info("Load properties from '{}'.", resource);
         InputStream is = resource.openStream();
         try {
             Properties properties = new Properties();

@@ -50,7 +50,7 @@ public class XlsModuleSyntaxNode extends NaryNode {
         return (WorkbookSyntaxNode[]) getNodes();
     }
 
-    private TableSyntaxNode[] tableSyntaxNodes = null;
+    private TableSyntaxNode[] tableSyntaxNodes;
 
     public TableSyntaxNode[] getXlsTableSyntaxNodes() {
         if (tableSyntaxNodes == null) {

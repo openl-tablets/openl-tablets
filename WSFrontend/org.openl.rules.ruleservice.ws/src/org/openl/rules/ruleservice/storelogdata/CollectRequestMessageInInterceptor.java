@@ -138,7 +138,7 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
     }
 
     @Override
-    protected void handleMessage(LoggingMessage message) throws Fault {
+    protected void handleMessage(LoggingMessage message) {
         StoreLogData storeLogData = StoreLogDataHolder.get();
         storeLogData.setRequestMessage(message);
         storeLogData.setIncomingMessageTime(ZonedDateTime.now());

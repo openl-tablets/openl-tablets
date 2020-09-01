@@ -27,7 +27,7 @@ public class BaseTestUnit implements ITestUnit {
     private final long executionTime;
     // must be increased only through addComparisonResult method
     private final List<ComparedResult> comparisonResults = new ArrayList<>();
-    private int numberOfFailedTests = 0;
+    private int numberOfFailedTests;
 
     BaseTestUnit(TestDescription test, Object res, Throwable error, long executionTime) {
         this.test = test;
@@ -228,7 +228,7 @@ public class BaseTestUnit implements ITestUnit {
         throw new UnsupportedOperationException();
     }
 
-    public static class Builder implements ITestResultBuilder {
+    public static final class Builder implements ITestResultBuilder {
 
         private static Builder instance = new Builder();
 

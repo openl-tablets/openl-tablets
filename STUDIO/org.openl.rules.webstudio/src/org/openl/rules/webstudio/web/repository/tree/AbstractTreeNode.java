@@ -338,7 +338,7 @@ public abstract class AbstractTreeNode implements TreeNode {
 
     @Override
     public boolean isLeaf() {
-        return isLeafOnly || getData() instanceof AProjectFolder && !((AProjectFolder) getData()).hasArtefacts();
+        return isLeafOnly || (getData() instanceof AProjectFolder && !((AProjectFolder) getData()).hasArtefacts());
     }
 
     @Override

@@ -4,7 +4,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 
-public class BooleanAdaptorFactory {
+public final class BooleanAdaptorFactory {
 
     private BooleanAdaptorFactory() {
     }

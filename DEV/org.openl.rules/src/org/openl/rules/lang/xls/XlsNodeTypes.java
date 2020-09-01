@@ -42,7 +42,7 @@ public enum XlsNodeTypes {
 
     private final String value;
 
-    private XlsNodeTypes(String name) {
+    XlsNodeTypes(String name) {
         this.value = name;
     }
 

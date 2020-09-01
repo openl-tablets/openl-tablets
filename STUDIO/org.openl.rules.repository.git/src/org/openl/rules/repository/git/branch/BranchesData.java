@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class BranchesData {
     private Map<String, List<String>> projectBranches = new HashMap<>();
@@ -38,10 +39,8 @@ public class BranchesData {
             projectBranches.add(branch);
         }
 
-        if (commit != null) {
-            if (descriptions.stream().noneMatch(b -> b.getName().equals(branch))) {
-                descriptions.add(new BranchDescription(branch, commit));
-            }
+        if (commit != null && descriptions.stream().noneMatch(b -> b.getName().equals(branch))) {
+            descriptions.add(new BranchDescription(branch, commit));
         }
     }
 
@@ -50,8 +49,8 @@ public class BranchesData {
         if (projectName == null) {
             // Remove the branch from all mappings.
             boolean removed = false;
-            for (List<String> projectBranches : branches.values()) {
-                removed |= projectBranches.remove(branch);
+            for (List<String> projectBranchesList : branches.values()) {
+                removed |= projectBranchesList.remove(branch);
             }
 
             descriptions.removeIf(b -> b.getName().equals(branch));
@@ -59,9 +58,9 @@ public class BranchesData {
             return removed;
         } else {
             // Remove branch mapping for specific project only.
-            List<String> projectBranches = branches.get(projectName);
-            if (projectBranches != null) {
-                return projectBranches.remove(branch);
+            List<String> projectBranchesList = branches.get(projectName);
+            if (projectBranchesList != null) {
+                return projectBranchesList.remove(branch);
             } else {
                 return false;
             }

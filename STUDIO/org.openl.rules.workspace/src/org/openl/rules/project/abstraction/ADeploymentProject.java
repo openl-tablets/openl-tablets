@@ -36,12 +36,12 @@ import org.slf4j.LoggerFactory;
  * This class stores only deploy configuration, not deployed projects! For the latter see {@link Deployment} class.
  */
 public class ADeploymentProject extends UserWorkspaceProject {
-    private final Logger log = LoggerFactory.getLogger(ADeploymentProject.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ADeploymentProject.class);
 
     private List<ProjectDescriptor> descriptors;
     private ADeploymentProject openedVersion;
     /* this button is used for rendering the save button (only for deploy configuration) */
-    private boolean modifiedDescriptors = false;
+    private boolean modifiedDescriptors;
 
     private final LockEngine lockEngine;
 
@@ -253,7 +253,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
                         descriptors = newDescriptors;
                     }
                 } catch (Exception e) {
-                    log.error(e.getMessage(), e);
+                    LOG.error(e.getMessage(), e);
                 } finally {
                     IOUtils.closeQuietly(content);
                 }

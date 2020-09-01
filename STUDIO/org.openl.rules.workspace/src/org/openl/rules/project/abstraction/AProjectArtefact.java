@@ -54,9 +54,9 @@ public class AProjectArtefact {
     }
 
     public void delete() throws ProjectException {
-        FileData fileData = getFileData();
+        FileData data = getFileData();
         try {
-            getRepository().delete(fileData);
+            getRepository().delete(data);
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
         }
@@ -73,7 +73,7 @@ public class AProjectArtefact {
 
     public String getName() {
         String name = getFileData().getName();
-        return name.substring(name.lastIndexOf("/") + 1);
+        return name.substring(name.lastIndexOf('/') + 1);
     }
 
     public boolean isFolder() {
@@ -128,6 +128,7 @@ public class AProjectArtefact {
     }
 
     public void refresh() {
+        //nothing to do
     }
 
     /**
@@ -141,7 +142,8 @@ public class AProjectArtefact {
     }
 
     /**
-     * Try to lock the project if it's not locked already. If the project was locked by other user, throws ProjectException.
+     * Try to lock the project if it's not locked already.
+     * If the project was locked by other user, throws ProjectException.
      * @throws ProjectException if cannot lock the project, or the project was locked by other user.
      */
     public final void tryLockOrThrow() throws ProjectException {
@@ -176,8 +178,8 @@ public class AProjectArtefact {
     }
 
     public boolean isModified() {
-        FileData fileData = getFileData();
-        return fileData != null && (modifiedTime == null || !modifiedTime.equals(fileData.getModifiedAt()));
+        FileData data = getFileData();
+        return data != null && (modifiedTime == null || !modifiedTime.equals(data.getModifiedAt()));
     }
 
     /**

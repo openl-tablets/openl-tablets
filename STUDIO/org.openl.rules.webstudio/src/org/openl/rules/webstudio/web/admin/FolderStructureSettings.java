@@ -18,7 +18,7 @@ public class FolderStructureSettings {
     }
 
     public void setBasePath(String basePath) {
-        String value = basePath.isEmpty() || basePath.endsWith("/") ? basePath : basePath + "/";
+        String value = basePath.isEmpty() || basePath.endsWith("/") ? basePath : (basePath + "/");
         configuration.getSettings().setBasePath(value);
     }
 

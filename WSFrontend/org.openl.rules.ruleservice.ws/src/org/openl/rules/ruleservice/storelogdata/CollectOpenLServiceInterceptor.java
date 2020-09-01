@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.storelogdata;
 
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -17,7 +16,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class CollectOpenLServiceInterceptor extends AbstractPhaseInterceptor<Message> {
-    private final Logger log = LoggerFactory.getLogger(CollectOpenLServiceInterceptor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CollectOpenLServiceInterceptor.class);
 
     private OpenLService service;
 
@@ -32,7 +31,7 @@ public class CollectOpenLServiceInterceptor extends AbstractPhaseInterceptor<Mes
     }
 
     @Override
-    public void handleMessage(Message message) throws Fault {
+    public void handleMessage(Message message) {
         injectServiceName(message);
     }
 
@@ -47,7 +46,7 @@ public class CollectOpenLServiceInterceptor extends AbstractPhaseInterceptor<Mes
         try {
             storeLogData.setServiceClass(service.getServiceClass());
         } catch (RuleServiceInstantiationException e) {
-            log.error("Unexpected exception.", e);
+            LOG.error("Unexpected exception.", e);
         }
     }
 }

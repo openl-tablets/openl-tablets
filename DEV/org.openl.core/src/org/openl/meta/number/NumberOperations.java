@@ -31,7 +31,7 @@ public enum NumberOperations {
 
     private String description;
 
-    private NumberOperations(String description) {
+    NumberOperations(String description) {
         this.description = description;
     }
 

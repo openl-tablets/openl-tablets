@@ -5,8 +5,11 @@ import org.openl.rules.activiti.spring.result.ResultValue;
 import org.openl.rules.activiti.util.IRulesRuntimeContextUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.lang.reflect.InvocationTargetException;
 
 public class OpenLEngine {
     private ServiceManager serviceManager;
@@ -20,7 +23,8 @@ public class OpenLEngine {
         return IRulesRuntimeContextUtils.buildRuntimeContext(execution);
     }
 
-    public ResultValue execute(String serviceName, String methodName, Object... args) throws Exception {
+    public ResultValue execute(String serviceName, String methodName, Object... args)
+            throws InvocationTargetException, IllegalAccessException, RuleServiceInstantiationException {
         OpenLService openLService = serviceManager.getServiceByName(serviceName);
         if (openLService == null) {
             throw new OpenLServiceNotFoundException(String.format("OpenL service '%s' is not found.", serviceName));

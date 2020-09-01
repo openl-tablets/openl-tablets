@@ -26,7 +26,8 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
  */
 public class ExtendedStdDateFormat extends StdDateFormat {
 
-    private static final String PARSE_ERROR_MSG = "Cannot parse date \"%s\": not compatible with any of standard forms (%s)";
+    private static final String PARSE_ERROR_MSG =
+            "Cannot parse date \"%s\": not compatible with any of standard forms (%s)";
 
     private final String pattern;
     private final SimpleDateFormat dateFormat;

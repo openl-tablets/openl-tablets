@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements MetaInfoReader {
     protected static final CellMetaInfo NOT_FOUND = new CellMetaInfo(null, false);
 
-    private final Logger log = LoggerFactory.getLogger(BaseMetaInfoReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BaseMetaInfoReader.class);
     private final Map<CellKey, List<NodeUsage>> constantsMap = new HashMap<>();
 
     private T boundNode;
@@ -68,7 +68,7 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
 
             return getBodyMetaInfo(row, col);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             return null;
         }
     }

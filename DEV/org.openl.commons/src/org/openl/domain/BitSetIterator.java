@@ -11,13 +11,13 @@ import java.util.BitSet;
  * @author snshor
  */
 public class BitSetIterator extends AIntIterator {
-    int min = 0;
+    int min;
 
     BitSet bits;
 
     int nextBit = -1;
 
-    boolean isNextReady = false;
+    boolean isNextReady;
 
     public BitSetIterator(BitSet bits) {
         this.bits = bits;

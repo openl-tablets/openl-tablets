@@ -39,17 +39,21 @@ public class ProjectModel {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
         ProjectModel that = (ProjectModel) o;
 
-        if (!Objects.equals(name, that.name))
+        if (!Objects.equals(name, that.name)) {
             return false;
-        if (!Objects.equals(datatypeModels, that.datatypeModels))
+        }
+        if (!Objects.equals(datatypeModels, that.datatypeModels)) {
             return false;
+        }
         return Objects.equals(spreadsheetResultModels, that.spreadsheetResultModels);
     }
 

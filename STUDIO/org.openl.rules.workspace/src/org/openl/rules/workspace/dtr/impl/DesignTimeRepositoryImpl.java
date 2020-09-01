@@ -41,7 +41,7 @@ import org.springframework.core.env.PropertyResolver;
  * @author Aleh Bykhavets
  */
 public class DesignTimeRepositoryImpl implements DesignTimeRepository {
-    private final Logger log = LoggerFactory.getLogger(DesignTimeRepositoryImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DesignTimeRepositoryImpl.class);
 
     private static final String DESIGN_REPOSITORIES = "design-repository-configs";
     public static final String USE_REPOSITORY_FOR_DEPLOY_CONFIG = "repository.deploy-config.use-repository";
@@ -89,9 +89,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 rulesLocation += "/";
             }
 
-            String[] designRepositories = Objects.requireNonNull(propertyResolver.getProperty(DESIGN_REPOSITORIES)).split("\\s*,\\s*");
+            String[] designRepositories =
+                    Objects.requireNonNull(propertyResolver.getProperty(DESIGN_REPOSITORIES)).split("\\s*,\\s*");
             for (String designRepositoryId : designRepositories) {
-                boolean flatProjects = Boolean.parseBoolean(propertyResolver.getProperty(String.format(PROJECTS_FLAT_FOLDER_STRUCTURE, designRepositoryId)));
+                boolean flatProjects = Boolean.parseBoolean(
+                        propertyResolver.getProperty(String.format(PROJECTS_FLAT_FOLDER_STRUCTURE, designRepositoryId))
+                );
 
                 Repository repository = createRepo(designRepositoryId, flatProjects, rulesLocation);
 
@@ -142,7 +145,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     Method setMethod = repo.getClass().getMethod(setter, RepositorySettings.class);
                     setMethod.invoke(repo, repositorySettings);
                 } catch (NoSuchMethodException e) {
-                    log.debug(e.getMessage(), e);
+                    LOG.debug(e.getMessage(), e);
                 }
             }
 
@@ -163,7 +166,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
             return repo;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             if (rootCause == null) {
                 rootCause = e;
@@ -264,12 +267,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                         }
 
                         if (project == null) {
-                            log.warn("Project '{}' with version '{}' is not found.", name, repoVersion);
+                            LOG.warn("Project '{}' with version '{}' is not found.", name, repoVersion);
                             project = new AProject(repository, projectPath, repoVersion);
                         }
                     }
                 } catch (IOException e) {
-                    log.error(e.getMessage(), e);
+                    LOG.error(e.getMessage(), e);
                     project = new AProject(repository, projectPath, repoVersion);
                 }
             } else {
@@ -316,7 +319,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     fileDatas = repository.list(path);
                 }
             } catch (IOException ex) {
-                log.error(ex.getMessage(), ex);
+                LOG.error(ex.getMessage(), ex);
                 fileDatas = Collections.emptyList();
             }
             for (FileData fileData : fileDatas) {

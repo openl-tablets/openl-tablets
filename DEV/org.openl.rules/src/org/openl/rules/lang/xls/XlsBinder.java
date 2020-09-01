@@ -91,7 +91,7 @@ public class XlsBinder implements IOpenBinder {
 
     public static final String DISABLED_CLEAN_UP = "XLS_OPEN_CLASS_DISABLED_CLEANUP";
 
-    private final Logger log = LoggerFactory.getLogger(XlsBinder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(XlsBinder.class);
 
     private static class BinderFactoryHolder {
         private static final Map<String, AXlsTableBinder> INSTANCE;
@@ -477,7 +477,7 @@ public class XlsBinder implements IOpenBinder {
         AXlsTableBinder binder = findBinder(tableSyntaxNodeType);
 
         if (binder == null) {
-            log.debug("Unknown table type '{}'", tableSyntaxNodeType);
+            LOG.debug("Unknown table type '{}'", tableSyntaxNodeType);
             return null;
         }
 
@@ -540,16 +540,20 @@ public class XlsBinder implements IOpenBinder {
                     final String sprResTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + TableSyntaxNodeHelper
                         .getTableName(tableSyntaxNode);
                     if (rulesModuleBindingContext.getModule().findType(sprResTypeName) == null) {
-                        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
-                            sprResTypeName,
-                            rulesModuleBindingContext.getModule(),
-                            rulesModuleBindingContext.isExecutionMode() ? null : tableSyntaxNode.getTableBody());
+                        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass =
+                                new CustomSpreadsheetResultOpenClass(
+                                        sprResTypeName,
+                                        rulesModuleBindingContext.getModule(),
+                                        rulesModuleBindingContext.isExecutionMode()
+                                                ? null
+                                                : tableSyntaxNode.getTableBody()
+                                );
                         customSpreadsheetResultOpenClasses.add(customSpreadsheetResultOpenClass);
                     }
                 }
             }
-            for (CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass : customSpreadsheetResultOpenClasses) {
-                rulesModuleBindingContext.getModule().addType(customSpreadsheetResultOpenClass);
+            for (CustomSpreadsheetResultOpenClass customClasses : customSpreadsheetResultOpenClasses) {
+                rulesModuleBindingContext.getModule().addType(customClasses);
             }
         }
     }
@@ -632,7 +636,8 @@ public class XlsBinder implements IOpenBinder {
             }
             for (IOpenClass openClass : module.getTypes()) {
                 if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
+                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass =
+                            (CustomSpreadsheetResultOpenClass) openClass;
                     if (!skip.contains(customSpreadsheetResultOpenClass)) {
                         customSpreadsheetResultOpenClass.getFields().forEach(IOpenField::getType);
                         skip.add(customSpreadsheetResultOpenClass);

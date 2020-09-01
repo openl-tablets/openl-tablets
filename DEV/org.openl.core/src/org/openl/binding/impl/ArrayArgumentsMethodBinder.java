@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 //
 public class ArrayArgumentsMethodBinder extends ANodeBinder {
 
-    private final Logger log = LoggerFactory.getLogger(ArrayArgumentsMethodBinder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ArrayArgumentsMethodBinder.class);
 
     private final String methodName;
     private final IOpenClass[] argumentsTypes;
@@ -66,6 +66,7 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             for (IOpenMethod openMethod : e.getMatchingMethods()) {
                 candidates.put(new MethodKey(openMethod), openMethod);
             }
+            LOG.debug("Error occurred: ", e);
             return;
         }
 
@@ -225,7 +226,7 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             }
             return best.getValue();
         } else {
-            log.debug("There is no any array argument in signature for method '{}'", methodName);
+            LOG.debug("There is no any array argument in signature for method '{}'", methodName);
         }
         return null;
     }

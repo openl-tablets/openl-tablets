@@ -114,7 +114,7 @@ public class CellStyleGridFilter extends AGridFilter {
             return new CellStyleGridFilter(this);
         }
 
-        private BorderStyle[] createBorderStyle(BorderStyle style) {
+        private static BorderStyle[] createBorderStyle(BorderStyle style) {
             BorderStyle[] colors = new BorderStyle[BORDER_SIDES_COUNT];
             for (int i = 0; i < colors.length; i++) {
                 colors[i] = style;

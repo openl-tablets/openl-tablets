@@ -22,7 +22,7 @@ public class ActionInvoker implements Invokable {
         this.actions = actions;
     }
 
-    private Object addReturnValues(Collection<Object> returnValue, Object returnValues, boolean[] f) {
+    private static Object addReturnValues(Collection<Object> returnValue, Object returnValues, boolean[] f) {
         int returnValuesLength = Array.getLength(returnValues);
         for (int i = 0; i < returnValuesLength; i++) {
             if (f[i] && Array.get(returnValues, i) != null) {
@@ -61,7 +61,6 @@ public class ActionInvoker implements Invokable {
                 for (int i = 0; i < returnValuesLength; i++) {
                     if (Array.get(returnValues, i) != null) {
                         retLength++;
-                        ;
                     }
                 }
                 ret = Array.newInstance(type.getComponentClass().getInstanceClass(), retLength);

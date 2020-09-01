@@ -46,7 +46,8 @@ import net.sf.cglib.core.Predicate;
 /**
  * Generates OpenL Tablets interface, domain classes, project descriptor, and unit tests.
  */
-@Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE)
+@Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES,
+        requiresDependencyResolution = ResolutionScope.COMPILE)
 public final class GenerateMojo extends BaseOpenLMojo {
 
     @Parameter(defaultValue = "${project.compileClasspathElements}", readonly = true, required = true)
@@ -130,7 +131,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
         try {
             classLoader = composeClassLoader();
 
-            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder =
+                    new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
             if (hasDependencies) {
                 builder.setWorkspace(workspaceFolder.getPath());
             }
@@ -234,7 +236,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
             for (IOpenClass openClass : types) {
                 // Skip java code generation for other types
                 if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
+                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass =
+                            (CustomSpreadsheetResultOpenClass) openClass;
                     Class<?> cls = customSpreadsheetResultOpenClass.getBeanClass();
                     info("Java Bean for Spreadsheet Result: " + cls.getName());
                     Path filePath = Paths.get(classesDirectory, cls.getName().replace('.', '/') + ".class");

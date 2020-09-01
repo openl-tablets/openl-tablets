@@ -73,7 +73,8 @@ import org.springframework.stereotype.Service;
 import org.xml.sax.InputSource;
 
 /*
- GET /projects                                       list of (Project Name, Last Version, Last Modified Date, Last Modified By, Status, Editor)
+ GET /projects                                       list of (Project Name, Last Version, Last Modified Date,
+                                                     Last Modified By, Status, Editor)
  GET /project/{Project Name}/[{version}]             (Project_Name.zip)
  POST /project/{Project Name}                        (Some_Project.zip, comments)
  POST /project                                       (Some_Project.zip, comments)
@@ -166,6 +167,7 @@ public class BetaRepositoryService {
 
             return getProject(name, fileData.getVersion());
         } catch (IOException ex) {
+            LOG.debug("Error occurred on getting last project: ", ex);
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
         }
     }
@@ -215,7 +217,14 @@ public class BetaRepositoryService {
 
                 final String rulesPath = getDesignTimeRepository().getRulesLocation();
 
-                entity = (StreamingOutput) out -> RepositoryUtils.archive((FolderRepository) repository, rulesPath, name, version, out, null);
+                entity = (StreamingOutput) out -> RepositoryUtils.archive(
+                        (FolderRepository) repository,
+                        rulesPath,
+                        name,
+                        version,
+                        out,
+                        null
+                );
             } else {
                 final String projectPath = getFileName(name);
                 FileItem fileItem = repository.readHistory(projectPath, version);
@@ -231,6 +240,7 @@ public class BetaRepositoryService {
                 .header("Content-Disposition", "attachment;filename=\"" + zipFileName + "\"")
                 .build();
         } catch (IOException ex) {
+            LOG.debug("Error occurred during getting project: ", ex);
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
         }
     }
@@ -297,6 +307,7 @@ public class BetaRepositoryService {
 
             return addProject(uriInfo.getPath(false), name, branch, modifiedZipStream, modifiedZip.length(), comment);
         } catch (IOException ex) {
+            LOG.debug("Error occurred while adding project: ", ex);
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } finally {
             FileUtils.deleteQuietly(originalZipFolder);
@@ -361,6 +372,7 @@ public class BetaRepositoryService {
                 zipFile.length(),
                 comment);
         } catch (IOException ex) {
+            LOG.debug("Error occurred during getting project: ", ex);
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } finally {
             /* Clean up */
@@ -466,8 +478,10 @@ public class BetaRepositoryService {
             userWorkspace.getProject(getDefaultRepositoryId(), name).unlock();
             return Response.created(new URI(uri + "/" + StringTool.encodeURL(save.getVersion()))).build();
         } catch (IOException | URISyntaxException | RuntimeException ex) {
+            LOG.debug("Error occurred: ", ex);
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } catch (ProjectException ex) {
+            LOG.debug("Error occurred: ", ex);
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
         } finally {
             IOUtils.closeQuietly(zipFile);
@@ -481,7 +495,8 @@ public class BetaRepositoryService {
             XPath xPath = factory.newXPath();
             XPathExpression xPathExpression = xPath.compile("/project/name");
             return StringUtils.trimToNull(xPathExpression.evaluate(inputSource));
-        } catch (FileNotFoundException | XPathExpressionException e) {
+        } catch (FileNotFoundException | XPathExpressionException ignored) {
+            LOG.debug("Error occurred on getting project name: ", ignored);
             return null;
         }
     }
@@ -610,7 +625,7 @@ public class BetaRepositoryService {
         return new WorkspaceUserImpl(name);
     }
 
-    private String getUserName() {
+    private static String getUserName() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return auth.getName();
     }

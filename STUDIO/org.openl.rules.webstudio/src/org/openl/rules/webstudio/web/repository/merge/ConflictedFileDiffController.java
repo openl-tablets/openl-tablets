@@ -30,7 +30,7 @@ import org.springframework.web.context.annotation.SessionScope;
 @Service
 @SessionScope
 public class ConflictedFileDiffController extends ExcelDiffController {
-    private final Logger log = LoggerFactory.getLogger(ConflictedFileDiffController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConflictedFileDiffController.class);
 
     private final MultiUserWorkspaceManager workspaceManager;
     private String conflictedFile;
@@ -91,7 +91,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                 compare(Arrays.asList(theirFile, ourFile));
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             throw new ValidationException(e.getMessage(), e);
         }
     }

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FileBasedProjectHistoryManager implements SourceHistoryManager<File> {
 
-    private final Logger log = LoggerFactory.getLogger(FileBasedProjectHistoryManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FileBasedProjectHistoryManager.class);
 
     private ProjectModel projectModel;
     private final String storagePath;
@@ -49,7 +49,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
                 FileUtils.delete(file);
             }
         } catch (Exception e) {
-            log.error("Cannot delete history", e);
+            LOG.error("Cannot delete history", e);
         }
     }
 
@@ -60,7 +60,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
         try {
             FileUtils.copy(source, destFile);
         } catch (Exception e) {
-            log.error("Cannot add file", e);
+            LOG.error("Cannot add file", e);
         }
     }
 
@@ -78,7 +78,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
         try {
             FileUtils.copy(source, destFile);
         } catch (Exception e) {
-            log.error("Cannot add file", e);
+            LOG.error("Cannot add file", e);
         }
     }
 
@@ -91,9 +91,9 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
                 FileUtils.copy(fileToRestore, currentSourceFile);
                 projectModel.reset(ReloadType.FORCED);
                 projectModel.buildProjectTree();
-                log.info("Project was restored successfully");
+                LOG.info("Project was restored successfully");
             } catch (Exception e) {
-                log.error("Cannot restore project at {}", version);
+                LOG.error("Cannot restore project at {}", version);
                 throw e;
             }
         }

@@ -6,7 +6,10 @@ package org.openl.util;
  *
  * @author Yury Molchan
  */
-public class BooleanUtils {
+public final class BooleanUtils {
+
+    private BooleanUtils() {
+    }
 
     /**
      * Converts an Object to a boolean. For String value 'true', 'on', 'yes', 'y' or 't' (case insensitive) will return
@@ -146,7 +149,10 @@ public class BooleanUtils {
                 final char ch1 = str.charAt(1);
                 final char ch2 = str.charAt(2);
                 final char ch3 = str.charAt(3);
-                if ((ch0 == 't' || ch0 == 'T') && (ch1 == 'r' || ch1 == 'R') && (ch2 == 'u' || ch2 == 'U') && (ch3 == 'e' || ch3 == 'E')) {
+                if ((ch0 == 't' || ch0 == 'T')
+                        && (ch1 == 'r' || ch1 == 'R')
+                        && (ch2 == 'u' || ch2 == 'U')
+                        && (ch3 == 'e' || ch3 == 'E')) {
                     return Boolean.TRUE;
                 }
                 break;
@@ -157,7 +163,11 @@ public class BooleanUtils {
                 final char ch2 = str.charAt(2);
                 final char ch3 = str.charAt(3);
                 final char ch4 = str.charAt(4);
-                if ((ch0 == 'f' || ch0 == 'F') && (ch1 == 'a' || ch1 == 'A') && (ch2 == 'l' || ch2 == 'L') && (ch3 == 's' || ch3 == 'S') && (ch4 == 'e' || ch4 == 'E')) {
+                if ((ch0 == 'f' || ch0 == 'F')
+                        && (ch1 == 'a' || ch1 == 'A')
+                        && (ch2 == 'l' || ch2 == 'L')
+                        && (ch3 == 's' || ch3 == 'S')
+                        && (ch4 == 'e' || ch4 == 'E')) {
                     return Boolean.FALSE;
                 }
                 break;

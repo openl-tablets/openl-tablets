@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WorkbookListener implements HSSFListener {
-    private final Logger log = LoggerFactory.getLogger(WorkbookListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WorkbookListener.class);
 
     private final List<EventSheetDescriptor> sheets = new ArrayList<>();
     private final ParserDateUtil parserDateUtil = new ParserDateUtil();
@@ -83,7 +83,7 @@ public class WorkbookListener implements HSSFListener {
 
                 int rowsCount = dr.getLastRow() - dr.getFirstRow();
                 int colsCount = dr.getLastCol() - dr.getFirstCol();
-                log.debug("Array size: {}:{}", rowsCount, colsCount);
+                LOG.debug("Array size: {}:{}", rowsCount, colsCount);
                 Object[][] cells = new Object[rowsCount][colsCount];
                 cellsMap.put(getSheet().getName(), cells);
                 break;
@@ -262,7 +262,7 @@ public class WorkbookListener implements HSSFListener {
 
         if (maxRows > cells.length || maxCols > columnCount) {
             // Can occur when merged region is greater than last row and column
-            log.debug("Extend cells array. Current: {}:{}, new: {}:{}", cells.length, columnCount, maxRows, maxCols);
+            LOG.debug("Extend cells array. Current: {}:{}, new: {}:{}", cells.length, columnCount, maxRows, maxCols);
             Object[][] copy = new Object[maxRows][maxCols];
 
             arrayCopy(cells, copy);

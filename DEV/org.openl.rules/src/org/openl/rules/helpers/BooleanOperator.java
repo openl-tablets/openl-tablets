@@ -11,17 +11,17 @@ package org.openl.rules.helpers;
 public class BooleanOperator {
 
     public BooleanOperator(String s) {
-        if (s.equals("<")) {
+        if ("<".equals(s)) {
             operator = LT;
-        } else if (s.equals("<=")) {
+        } else if ("<=".equals(s)) {
             operator = LE;
-        } else if (s.equals("==")) {
+        } else if ("==".equals(s)) {
             operator = EQ;
-        } else if (s.equals("!=")) {
+        } else if ("!=".equals(s)) {
             operator = NE;
-        } else if (s.equals(">")) {
+        } else if (">".equals(s)) {
             operator = GT;
-        } else if (s.equals(">=")) {
+        } else if (">=".equals(s)) {
             operator = GE;
         } else {
             throw new RuntimeException(String.format("Operator %s is not defined.", s));

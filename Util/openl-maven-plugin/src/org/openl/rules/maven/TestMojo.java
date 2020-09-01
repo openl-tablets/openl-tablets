@@ -163,15 +163,17 @@ public final class TestMojo extends BaseOpenLMojo {
                                 : executeAllAtOnce(testSourcePath, mainSourcePath, hasDependencies);
     }
 
-    private Summary executeAllAtOnce(String testSourcePath, String mainSourcePath, boolean hasDependencies) throws MalformedURLException,
-                                                                                 RulesInstantiationException,
-                                                                                 ProjectResolvingException {
+    private Summary executeAllAtOnce(String testSourcePath,
+                                     String mainSourcePath,
+                                     boolean hasDependencies)
+            throws MalformedURLException, RulesInstantiationException, ProjectResolvingException {
         URL[] urls = toURLs(classpath);
         ClassLoader classLoader = null;
         try {
             classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
 
-            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder =
+                    new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
             if (hasDependencies) {
                 builder.setWorkspace(workspaceFolder.getPath());
             }
@@ -191,9 +193,10 @@ public final class TestMojo extends BaseOpenLMojo {
         }
     }
 
-    private Summary executeModuleByModule(String testSourcePath, String mainSourcePath, boolean hasDependencies) throws MalformedURLException,
-                                                                                      RulesInstantiationException,
-                                                                                      ProjectResolvingException {
+    private Summary executeModuleByModule(String testSourcePath,
+                                          String mainSourcePath,
+                                          boolean hasDependencies)
+            throws MalformedURLException, RulesInstantiationException, ProjectResolvingException {
         ProjectDescriptor pd = ProjectResolver.getInstance().resolve(new File(testSourcePath));
         if (pd == null) {
             throw new ProjectResolvingException("Failed to resolve project. Defined location is not an OpenL project.");
@@ -227,7 +230,8 @@ public final class TestMojo extends BaseOpenLMojo {
             try {
                 classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
 
-                SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+                SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder =
+                        new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
                 if (mainSourcePath != null) {
                     builder.setProjectDependencies(mainSourcePath);
                 }
@@ -271,7 +275,7 @@ public final class TestMojo extends BaseOpenLMojo {
                 .filterMessagesBySeverity(openLRules.getMessages(), Severity.ERROR);
             int i = 0;
             for (OpenLMessage message : errorMessages) {
-                String location = message.getSourceLocation() == null ? "" : " at " + message.getSourceLocation();
+                String location = message.getSourceLocation() == null ? "" : (" at " + message.getSourceLocation());
                 error(i + 1 + ". '", message.getSummary(), "'", location);
                 i++;
             }
@@ -391,7 +395,7 @@ public final class TestMojo extends BaseOpenLMojo {
 
                 info("  Test case: #",
                     num,
-                    ITestUnit.DEFAULT_DESCRIPTION.equals(description) ? "" : " (" + description + ")",
+                    ITestUnit.DEFAULT_DESCRIPTION.equals(description) ? "" : (" (" + description + ")"),
                     ". Time elapsed: ",
                     formatTime(testUnit.getExecutionTime()),
                     " sec. ",

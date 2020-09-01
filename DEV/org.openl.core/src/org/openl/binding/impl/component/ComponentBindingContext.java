@@ -31,7 +31,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
 
     private ComponentOpenClass componentOpenClass;
 
-    private Map<String, IOpenClass> internalTypes = null;
+    private Map<String, IOpenClass> internalTypes;
 
     public ComponentBindingContext(IBindingContext delegate, ComponentOpenClass componentOpenClass) {
         super(delegate);
@@ -45,7 +45,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
      * @param typeName
      * @return namespace::typeName
      */
-    private String buildTypeName(String namespace, String typeName) {
+    private static String buildTypeName(String namespace, String typeName) {
         final StringBuilder builder = new StringBuilder(64);
         return builder.append(namespace).append("::").append(typeName).toString();
     }

@@ -34,7 +34,9 @@ public class DeploymentDescriptorItem extends AbstractItem {
 
         DeploymentDescriptorItem that = (DeploymentDescriptorItem) o;
 
-        return repositoryId.equals(that.repositoryId) && getName().equals(that.getName()) && version.equals(that.version);
+        return repositoryId.equals(that.repositoryId)
+                && getName().equals(that.getName())
+                && version.equals(that.version);
     }
 
     public String getRepositoryId() {

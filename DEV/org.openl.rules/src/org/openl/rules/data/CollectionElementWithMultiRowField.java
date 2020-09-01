@@ -13,7 +13,7 @@ import org.openl.vm.IRuntimeEnv;
 public class CollectionElementWithMultiRowField extends AOpenField {
     private IOpenField field;
     private String fieldPathFromRoot;
-    private boolean pkField = false;
+    private boolean pkField;
     private CollectionType collectionType;
     private IOpenClass arrayType;
 

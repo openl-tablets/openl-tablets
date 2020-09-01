@@ -6,8 +6,11 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ArgumentCachingStorage {
+    private static final Logger LOG = LoggerFactory.getLogger(ArgumentCachingStorage.class);
 
     private List<CalculationStep> originalCalculationSteps;
     private Iterator<CalculationStep> step;
@@ -49,6 +52,7 @@ public class ArgumentCachingStorage {
                 }
             }
             data.add(new InvocationData(clonedParams, result));
+            LOG.debug("Error occurred: ", e);
         }
     }
 
@@ -169,7 +173,7 @@ public class ArgumentCachingStorage {
     static final class InvocationData {
         private Object[] params;
         private int paramsHashCode;
-        private boolean paramsHashCodeCalculated = false;
+        private boolean paramsHashCodeCalculated;
         private Object result;
 
         public InvocationData(Object[] params, Object result) {
@@ -198,17 +202,16 @@ public class ArgumentCachingStorage {
         private static final int MAX_DATA_LENGTH = 1000;
 
         InvocationData[] invocationDatas = new InvocationData[MAX_DATA_LENGTH];
-        int size = 0;
+        int size;
 
         public Object get(Object[] params) throws ResultNotFoundException {
             int hashCode = Arrays.deepHashCode(params);
 
             for (int i = 0; i < size; i++) {
                 InvocationData invocationData = invocationDatas[i];
-                if (hashCode == invocationData.getParamsHashCode()) {
-                    if (Arrays.deepEquals(invocationData.getParams(), params)) {
-                        return invocationData.getResult();
-                    }
+                if (hashCode == invocationData.getParamsHashCode()
+                        && Arrays.deepEquals(invocationData.getParams(), params)) {
+                    return invocationData.getResult();
                 }
             }
             throw new ResultNotFoundException();

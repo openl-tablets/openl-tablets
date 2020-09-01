@@ -48,7 +48,12 @@ public class ExplainTreeBuilder extends TreeBuilder {
     }
 
     private String getUrlToElement(ITreeElement<?> element, String url) {
-        return WebStudioUtils.getExternalContext().getRequestContextPath() + SHOW_TABLE_PAGE + Constants.REQUEST_PARAM_URI + "=" + StringTool
-            .encodeURL("" + url) + "&text=" + StringTool.encodeURL(getDisplayName(element, INamedThing.REGULAR));
+        return WebStudioUtils.getExternalContext().getRequestContextPath()
+                + SHOW_TABLE_PAGE
+                + Constants.REQUEST_PARAM_URI
+                + "="
+                + StringTool.encodeURL("" + url)
+                + "&text="
+                + StringTool.encodeURL(getDisplayName(element, INamedThing.REGULAR));
     }
 }

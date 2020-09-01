@@ -60,15 +60,13 @@ public abstract class ADynamicClass extends AOpenClass {
             methodMap = new HashMap<>(4);
         }
 
-        if (instanceClass != null && !DynamicObject.class.isAssignableFrom(instanceClass)) {
+        if (instanceClass != null && !DynamicObject.class.isAssignableFrom(instanceClass) && isPublic(instanceClass)) {
             Method[] mm = instanceClass.getDeclaredMethods();
-            if (isPublic(instanceClass)) {
-                for (Method method : mm) {
-                    if (isPublic(method)) {
-                        JavaOpenMethod om = new JavaOpenMethod(method);
-                        MethodKey kom = new MethodKey(om);
-                        methodMap.put(kom, om);
-                    }
+            for (Method method : mm) {
+                if (isPublic(method)) {
+                    JavaOpenMethod om = new JavaOpenMethod(method);
+                    MethodKey kom = new MethodKey(om);
+                    methodMap.put(kom, om);
                 }
             }
         }

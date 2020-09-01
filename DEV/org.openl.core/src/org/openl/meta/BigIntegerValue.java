@@ -52,7 +52,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
         }
     }
 
-    private static BigDecimalValue[] toBigDecimalValueValues(org.openl.meta.BigIntegerValue[] values) {
+    private static BigDecimalValue[] toBigDecimalValueValues(BigIntegerValue[] values) {
         if (values == null) {
             return null;
         }
@@ -106,13 +106,13 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param name of new variable
      * @return the new org.openl.meta.BigIntegerValue variable with name <b>name</b> and value <b>value</b>
      */
-    public static org.openl.meta.BigIntegerValue copy(org.openl.meta.BigIntegerValue value, String name) {
+    public static BigIntegerValue copy(BigIntegerValue value, String name) {
         if (value.getName() == null) {
             value.setName(name);
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.BigIntegerValue result = new org.openl.meta.BigIntegerValue(value,
+            BigIntegerValue result = new BigIntegerValue(value,
                 NumberOperations.COPY,
                 value);
             result.setName(name);
@@ -130,15 +130,14 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param value2 org.openl.meta.BigIntegerValue
      * @return remainder from division value1 by value2
      */
-    public static org.openl.meta.BigIntegerValue rem(org.openl.meta.BigIntegerValue value1,
-            org.openl.meta.BigIntegerValue value2) {
+    public static BigIntegerValue rem(BigIntegerValue value1, BigIntegerValue value2) {
         // Commented to support operations with nulls. See also MathUtils.mod()
         // validate(value1, value2, Formulas.REM.toString());
         if (value1 == null || value2 == null) {
             return ZERO;
         }
 
-        return new org.openl.meta.BigIntegerValue(value1,
+        return new BigIntegerValue(value1,
             value2,
             Operators.rem(value1.getValue(), value2.getValue()),
             Formulas.REM);
@@ -151,8 +150,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param value2 org.openl.meta.BigIntegerValue
      * @return the result of addition operation
      */
-    public static org.openl.meta.BigIntegerValue add(org.openl.meta.BigIntegerValue value1,
-            org.openl.meta.BigIntegerValue value2) {
+    public static BigIntegerValue add(BigIntegerValue value1, BigIntegerValue value2) {
 
         if (value1 == null) {
             return value2;
@@ -162,7 +160,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
             return value1;
         }
 
-        return new org.openl.meta.BigIntegerValue(value1,
+        return new BigIntegerValue(value1,
             value2,
             Operators.add(value1.getValue(), value2.getValue()),
             Formulas.ADD);
@@ -176,13 +174,12 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param value2 org.openl.meta.BigIntegerValue
      * @return the result of multiplication operation
      */
-    public static org.openl.meta.BigIntegerValue multiply(org.openl.meta.BigIntegerValue value1,
-            org.openl.meta.BigIntegerValue value2) {
+    public static BigIntegerValue multiply(BigIntegerValue value1, BigIntegerValue value2) {
         if (value1 == null || value2 == null) {
             return null;
         }
 
-        return new org.openl.meta.BigIntegerValue(value1,
+        return new BigIntegerValue(value1,
             value2,
             Operators.multiply(value1.getValue(), value2.getValue()),
             Formulas.MULTIPLY);
@@ -196,8 +193,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param value2 org.openl.meta.BigIntegerValue
      * @return the result of subtraction operation
      */
-    public static org.openl.meta.BigIntegerValue subtract(org.openl.meta.BigIntegerValue value1,
-            org.openl.meta.BigIntegerValue value2) {
+    public static BigIntegerValue subtract(BigIntegerValue value1, BigIntegerValue value2) {
         if (value1 == null && value2 == null) {
             return null;
         }
@@ -210,7 +206,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
             return value1;
         }
 
-        return new org.openl.meta.BigIntegerValue(value1,
+        return new BigIntegerValue(value1,
             value2,
             Operators.subtract(value1.getValue(), value2.getValue()),
             Formulas.SUBTRACT);
@@ -224,8 +220,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param value2 org.openl.meta.BigIntegerValue
      * @return the result of division operation
      */
-    public static org.openl.meta.BigDecimalValue divide(org.openl.meta.BigIntegerValue value1,
-            org.openl.meta.BigIntegerValue value2) {
+    public static org.openl.meta.BigDecimalValue divide(BigIntegerValue value1, BigIntegerValue value2) {
         if (value1 == null || value2 == null) {
             return null;
         }
@@ -248,7 +243,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param divisor org.openl.meta.BigIntegerValue
      * @return LongValue the result of division operation
      */
-    public static LongValue quotient(org.openl.meta.BigIntegerValue number, org.openl.meta.BigIntegerValue divisor) {
+    public static LongValue quotient(BigIntegerValue number, BigIntegerValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
             return new LongValue(result, NumberOperations.QUOTIENT, null);
@@ -263,12 +258,12 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign
      *         as the devisor.
      */
-    public static org.openl.meta.BigIntegerValue mod(org.openl.meta.BigIntegerValue number,
-            org.openl.meta.BigIntegerValue divisor) {
+    public static BigIntegerValue mod(BigIntegerValue number,
+            BigIntegerValue divisor) {
         if (number != null && divisor != null) {
-            org.openl.meta.BigIntegerValue result = new org.openl.meta.BigIntegerValue(
+            BigIntegerValue result = new BigIntegerValue(
                 MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new org.openl.meta.BigIntegerValue(result, NumberOperations.MOD, number, divisor);
+            return new BigIntegerValue(result, NumberOperations.MOD, number, divisor);
         }
         return null;
     }
@@ -303,19 +298,19 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param value2
      * @return the result of value1 raised to the power of value2
      */
-    public static org.openl.meta.BigIntegerValue pow(org.openl.meta.BigIntegerValue value1,
-            org.openl.meta.BigIntegerValue value2) {
+    public static BigIntegerValue pow(BigIntegerValue value1,
+            BigIntegerValue value2) {
         // Commented to support operations with nulls
         // "null" means that data does not exist
         //
         // validate(value1, value2, NumberOperations.POW);
         if (value1 == null) {
-            return value2 == null ? null : new org.openl.meta.BigIntegerValue("0");
+            return value2 == null ? null : new BigIntegerValue("0");
         } else if (value2 == null) {
             return value1;
         }
 
-        return new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(
+        return new BigIntegerValue(new BigIntegerValue(
             Operators.pow(value1.getValue(), value2.getValue())), NumberOperations.POW, value1, value2);
     }
 
@@ -324,16 +319,16 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param value
      * @return the absolute value (module) of the value <b>value </b>
      */
-    public static org.openl.meta.BigIntegerValue abs(org.openl.meta.BigIntegerValue value) {
+    public static BigIntegerValue abs(BigIntegerValue value) {
         // Commented to support operations with nulls.
         // validate(value, NumberOperations.ABS);
         if (value == null) {
             return null;
         }
         // evaluate result
-        org.openl.meta.BigIntegerValue result = new org.openl.meta.BigIntegerValue(value.getValue().abs());
+        BigIntegerValue result = new BigIntegerValue(value.getValue().abs());
         // create instance with information about last operation
-        return new org.openl.meta.BigIntegerValue(result, NumberOperations.ABS, value);
+        return new BigIntegerValue(result, NumberOperations.ABS, value);
     }
 
     /**
@@ -341,7 +336,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param value
      * @return the negative value of the <b>value</b>
      */
-    public static org.openl.meta.BigIntegerValue negative(org.openl.meta.BigIntegerValue value) {
+    public static BigIntegerValue negative(BigIntegerValue value) {
         if (value == null) {
             return null;
         }
@@ -353,7 +348,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param value
      * @return the <b>value</b> increased by 1
      */
-    public static org.openl.meta.BigIntegerValue inc(org.openl.meta.BigIntegerValue value) {
+    public static BigIntegerValue inc(BigIntegerValue value) {
         return add(value, ONE);
     }
 
@@ -362,7 +357,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param value
      * @return the <b>value</b>
      */
-    public static org.openl.meta.BigIntegerValue positive(org.openl.meta.BigIntegerValue value) {
+    public static BigIntegerValue positive(BigIntegerValue value) {
         return value;
     }
 
@@ -371,7 +366,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param value
      * @return the <b>value </b> decreased by 1
      */
-    public static org.openl.meta.BigIntegerValue dec(org.openl.meta.BigIntegerValue value) {
+    public static BigIntegerValue dec(BigIntegerValue value) {
         return subtract(value, ONE);
     }
 
@@ -384,8 +379,8 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigIntegerValue
      */
-    public static org.openl.meta.BigIntegerValue autocast(byte x, org.openl.meta.BigIntegerValue y) {
-        return new org.openl.meta.BigIntegerValue(String.valueOf(x));
+    public static BigIntegerValue autocast(byte x, BigIntegerValue y) {
+        return new BigIntegerValue(String.valueOf(x));
     }
 
     /**
@@ -395,8 +390,8 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigIntegerValue
      */
-    public static org.openl.meta.BigIntegerValue autocast(short x, org.openl.meta.BigIntegerValue y) {
-        return new org.openl.meta.BigIntegerValue(String.valueOf(x));
+    public static BigIntegerValue autocast(short x, BigIntegerValue y) {
+        return new BigIntegerValue(String.valueOf(x));
     }
 
     /**
@@ -406,8 +401,8 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigIntegerValue
      */
-    public static org.openl.meta.BigIntegerValue autocast(int x, org.openl.meta.BigIntegerValue y) {
-        return new org.openl.meta.BigIntegerValue(String.valueOf(x));
+    public static BigIntegerValue autocast(int x, BigIntegerValue y) {
+        return new BigIntegerValue(String.valueOf(x));
     }
 
     /**
@@ -417,8 +412,8 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigIntegerValue
      */
-    public static org.openl.meta.BigIntegerValue autocast(char x, org.openl.meta.BigIntegerValue y) {
-        return new org.openl.meta.BigIntegerValue(String.valueOf((int) x));
+    public static BigIntegerValue autocast(char x, BigIntegerValue y) {
+        return new BigIntegerValue(String.valueOf((int) x));
     }
 
     /**
@@ -428,20 +423,17 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigIntegerValue
      */
-    public static org.openl.meta.BigIntegerValue autocast(long x, org.openl.meta.BigIntegerValue y) {
-        return new org.openl.meta.BigIntegerValue(String.valueOf(x));
+    public static BigIntegerValue autocast(long x, BigIntegerValue y) {
+        return new BigIntegerValue(String.valueOf(x));
     }
 
     // Constructors
-    public BigIntegerValue(java.math.BigInteger value) {
+    public BigIntegerValue(BigInteger value) {
         this.value = value;
     }
 
     /** Formula constructor **/
-    public BigIntegerValue(org.openl.meta.BigIntegerValue lv1,
-            org.openl.meta.BigIntegerValue lv2,
-            java.math.BigInteger value,
-            Formulas operand) {
+    public BigIntegerValue(BigIntegerValue lv1, BigIntegerValue lv2, BigInteger value, Formulas operand) {
         super(lv1, lv2, operand);
         this.value = value;
     }
@@ -449,14 +441,14 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
     /** Cast constructor **/
     public BigIntegerValue(String valueString, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
         super(beforeCastValue, new CastOperand("BigIntegerValue", autocast));
-        this.value = new java.math.BigInteger(valueString);
+        this.value = new BigInteger(valueString);
     }
 
     /**
      * Copy the current value with new name <b>name</b>
      */
     @Override
-    public org.openl.meta.BigIntegerValue copy(String name) {
+    public BigIntegerValue copy(String name) {
         return copy(this, name);
     }
 
@@ -471,7 +463,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
     /**
      * Returns the value of the current variable
      */
-    public java.math.BigInteger getValue() {
+    public BigInteger getValue() {
         return value;
     }
 
@@ -491,11 +483,11 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * @param values an array for sorting
      * @return the sorted array
      */
-    public static org.openl.meta.BigIntegerValue[] sort(org.openl.meta.BigIntegerValue[] values) {
-        org.openl.meta.BigIntegerValue[] sortedArray = null;
+    public static BigIntegerValue[] sort(BigIntegerValue[] values) {
+        BigIntegerValue[] sortedArray = null;
         if (values != null) {
-            sortedArray = new org.openl.meta.BigIntegerValue[values.length];
-            org.openl.meta.BigIntegerValue[] notNullArray = ArrayTool.removeNulls(values);
+            sortedArray = new BigIntegerValue[values.length];
+            BigIntegerValue[] notNullArray = ArrayTool.removeNulls(values);
 
             Arrays.sort(notNullArray);
 

@@ -2,8 +2,6 @@ package org.openl.rules.extension.instantiation;
 
 public class ExtensionRuntimeException extends RuntimeException {
 
-    private static final long serialVersionUID = -3336058672038276351L;
-
     public ExtensionRuntimeException() {
         super();
     }

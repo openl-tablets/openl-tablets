@@ -87,7 +87,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param value2
      * @return true if value1 equal value2
      */
-    public static boolean eq(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+    public static boolean eq(FloatValue value1, FloatValue value2) {
         if (value1 == null || value2 == null) {
             return value1 == value2;
         }
@@ -101,7 +101,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param value2
      * @return true if value1 greater or equal value2
      */
-    public static Boolean ge(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+    public static Boolean ge(FloatValue value1, FloatValue value2) {
         Float v1 = value1 == null ? null : value1.value;
         Float v2 = value2 == null ? null : value2.value;
         return Comparison.ge(v1, v2);
@@ -114,7 +114,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param value2
      * @return true if value1 greater value2
      */
-    public static Boolean gt(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+    public static Boolean gt(FloatValue value1, FloatValue value2) {
         Float v1 = value1 == null ? null : value1.value;
         Float v2 = value2 == null ? null : value2.value;
         return Comparison.gt(v1, v2);
@@ -127,7 +127,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param value2
      * @return true if value1 less or equal value2
      */
-    public static Boolean le(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+    public static Boolean le(FloatValue value1, FloatValue value2) {
         Float v1 = value1 == null ? null : value1.value;
         Float v2 = value2 == null ? null : value2.value;
         return Comparison.le(v1, v2);
@@ -140,7 +140,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param value2
      * @return true if value1 less value2
      */
-    public static Boolean lt(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+    public static Boolean lt(FloatValue value1, FloatValue value2) {
         Float v1 = value1 == null ? null : value1.value;
         Float v2 = value2 == null ? null : value2.value;
         return Comparison.lt(v1, v2);
@@ -153,7 +153,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param value2
      * @return true if value1 not equal value2
      */
-    public static boolean ne(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+    public static boolean ne(FloatValue value1, FloatValue value2) {
         if (value1 == null || value2 == null) {
             return value1 != value2;
         }
@@ -167,13 +167,13 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param name of new variable
      * @return the new org.openl.meta.FloatValue variable with name <b>name</b> and value <b>value</b>
      */
-    public static org.openl.meta.FloatValue copy(org.openl.meta.FloatValue value, String name) {
+    public static FloatValue copy(FloatValue value, String name) {
         if (value.getName() == null) {
             value.setName(name);
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.FloatValue result = new org.openl.meta.FloatValue(value.floatValue(),
+            FloatValue result = new FloatValue(value.floatValue(),
                 NumberOperations.COPY,
                 value);
             result.setName(name);
@@ -191,14 +191,14 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param value2 org.openl.meta.FloatValue
      * @return remainder from division value1 by value2
      */
-    public static org.openl.meta.FloatValue rem(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+    public static FloatValue rem(FloatValue value1, FloatValue value2) {
         // Commented to support operations with nulls. See also MathUtils.mod()
         // validate(value1, value2, Formulas.REM.toString());
         if (value1 == null || value2 == null) {
             return ZERO;
         }
 
-        return new org.openl.meta.FloatValue(value1,
+        return new FloatValue(value1,
             value2,
             Operators.rem(value1.getValue(), value2.getValue()),
             Formulas.REM);
@@ -220,7 +220,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param value2 org.openl.meta.FloatValue
      * @return the result of addition operation
      */
-    public static org.openl.meta.FloatValue add(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+    public static FloatValue add(FloatValue value1, FloatValue value2) {
         if (value1 == null) {
             return value2;
         }
@@ -229,7 +229,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
             return value1;
         }
 
-        return new org.openl.meta.FloatValue(value1,
+        return new FloatValue(value1,
             value2,
             Operators.add(value1.getValue(), value2.getValue()),
             Formulas.ADD);
@@ -243,13 +243,13 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param value2 org.openl.meta.FloatValue
      * @return the result of multiplication operation
      */
-    public static org.openl.meta.FloatValue multiply(org.openl.meta.FloatValue value1,
-            org.openl.meta.FloatValue value2) {
+    public static FloatValue multiply(FloatValue value1,
+                                      FloatValue value2) {
         if (value1 == null || value2 == null) {
             return null;
         }
 
-        return new org.openl.meta.FloatValue(value1,
+        return new FloatValue(value1,
             value2,
             Operators.multiply(value1.getValue(), value2.getValue()),
             Formulas.MULTIPLY);
@@ -263,8 +263,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param value2 org.openl.meta.FloatValue
      * @return the result of subtraction operation
      */
-    public static org.openl.meta.FloatValue subtract(org.openl.meta.FloatValue value1,
-            org.openl.meta.FloatValue value2) {
+    public static FloatValue subtract(FloatValue value1,
+                                      FloatValue value2) {
         if (value1 == null && value2 == null) {
             return null;
         }
@@ -277,7 +277,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
             return value1;
         }
 
-        return new org.openl.meta.FloatValue(value1,
+        return new FloatValue(value1,
             value2,
             Operators.subtract(value1.getValue(), value2.getValue()),
             Formulas.SUBTRACT);
@@ -291,12 +291,12 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param value2 org.openl.meta.FloatValue
      * @return the result of division operation
      */
-    public static org.openl.meta.FloatValue divide(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+    public static FloatValue divide(FloatValue value1, FloatValue value2) {
         if (value1 == null || value2 == null) {
             return null;
         }
 
-        return new org.openl.meta.FloatValue(value1,
+        return new FloatValue(value1,
             value2,
             Operators.divide(value1.getValue(), value2.getValue()),
             Formulas.DIVIDE);
@@ -310,7 +310,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param divisor org.openl.meta.FloatValue
      * @return LongValue the result of division operation
      */
-    public static LongValue quotient(org.openl.meta.FloatValue number, org.openl.meta.FloatValue divisor) {
+    public static LongValue quotient(FloatValue number, FloatValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
             return new LongValue(result, NumberOperations.QUOTIENT, null);
@@ -325,10 +325,10 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign
      *         as the devisor.
      */
-    public static org.openl.meta.FloatValue mod(org.openl.meta.FloatValue number, org.openl.meta.FloatValue divisor) {
+    public static FloatValue mod(FloatValue number, FloatValue divisor) {
         if (number != null && divisor != null) {
             float result = MathUtils.mod(number.getValue(), divisor.getValue());
-            return new org.openl.meta.FloatValue(result, NumberOperations.MOD, number, divisor);
+            return new FloatValue(result, NumberOperations.MOD, number, divisor);
         }
         return null;
     }
@@ -363,18 +363,18 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param value2
      * @return the result of value1 raised to the power of value2
      */
-    public static org.openl.meta.FloatValue pow(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+    public static FloatValue pow(FloatValue value1, FloatValue value2) {
         // Commented to support operations with nulls
         // "null" means that data does not exist
         //
         // validate(value1, value2, NumberOperations.POW);
         if (value1 == null) {
-            return value2 == null ? null : new org.openl.meta.FloatValue(0);
+            return value2 == null ? null : new FloatValue(0);
         } else if (value2 == null) {
             return value1;
         }
 
-        return new org.openl.meta.FloatValue(Operators.pow(value1.getValue(), value2.getValue()),
+        return new FloatValue(Operators.pow(value1.getValue(), value2.getValue()),
             NumberOperations.POW,
             value1,
             value2);
@@ -385,7 +385,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param value
      * @return the absolute value (module) of the value <b>value </b>
      */
-    public static org.openl.meta.FloatValue abs(org.openl.meta.FloatValue value) {
+    public static FloatValue abs(FloatValue value) {
         // Commented to support operations with nulls.
         // validate(value, NumberOperations.ABS);
         if (value == null) {
@@ -394,7 +394,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
         // evaluate result
         float result = Math.abs(value.getValue());
         // create instance with information about last operation
-        return new org.openl.meta.FloatValue(result, NumberOperations.ABS, value);
+        return new FloatValue(result, NumberOperations.ABS, value);
     }
 
     /**
@@ -402,7 +402,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param value
      * @return the negative value of the <b>value</b>
      */
-    public static org.openl.meta.FloatValue negative(org.openl.meta.FloatValue value) {
+    public static FloatValue negative(FloatValue value) {
         if (value == null) {
             return null;
         }
@@ -414,7 +414,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param value
      * @return the <b>value</b> increased by 1
      */
-    public static org.openl.meta.FloatValue inc(org.openl.meta.FloatValue value) {
+    public static FloatValue inc(FloatValue value) {
         return add(value, ONE);
     }
 
@@ -423,7 +423,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param value
      * @return the <b>value</b>
      */
-    public static org.openl.meta.FloatValue positive(org.openl.meta.FloatValue value) {
+    public static FloatValue positive(FloatValue value) {
         return value;
     }
 
@@ -432,7 +432,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param value
      * @return the <b>value </b> decreased by 1
      */
-    public static org.openl.meta.FloatValue dec(org.openl.meta.FloatValue value) {
+    public static FloatValue dec(FloatValue value) {
         return subtract(value, ONE);
     }
 
@@ -445,8 +445,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.FloatValue
      */
-    public static org.openl.meta.FloatValue autocast(byte x, org.openl.meta.FloatValue y) {
-        return new org.openl.meta.FloatValue(x);
+    public static FloatValue autocast(byte x, FloatValue y) {
+        return new FloatValue(x);
     }
 
     /**
@@ -456,8 +456,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.FloatValue
      */
-    public static org.openl.meta.FloatValue autocast(short x, org.openl.meta.FloatValue y) {
-        return new org.openl.meta.FloatValue(x);
+    public static FloatValue autocast(short x, FloatValue y) {
+        return new FloatValue(x);
     }
 
     /**
@@ -467,8 +467,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.FloatValue
      */
-    public static org.openl.meta.FloatValue autocast(int x, org.openl.meta.FloatValue y) {
-        return new org.openl.meta.FloatValue(x);
+    public static FloatValue autocast(int x, FloatValue y) {
+        return new FloatValue(x);
     }
 
     /**
@@ -478,8 +478,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.FloatValue
      */
-    public static org.openl.meta.FloatValue autocast(char x, org.openl.meta.FloatValue y) {
-        return new org.openl.meta.FloatValue(x);
+    public static FloatValue autocast(char x, FloatValue y) {
+        return new FloatValue(x);
     }
 
     /**
@@ -489,8 +489,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.FloatValue
      */
-    public static org.openl.meta.FloatValue autocast(long x, org.openl.meta.FloatValue y) {
-        return new org.openl.meta.FloatValue(x);
+    public static FloatValue autocast(long x, FloatValue y) {
+        return new FloatValue(x);
     }
 
     /**
@@ -500,8 +500,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.FloatValue
      */
-    public static org.openl.meta.FloatValue autocast(float x, org.openl.meta.FloatValue y) {
-        return new org.openl.meta.FloatValue(x);
+    public static FloatValue autocast(float x, FloatValue y) {
+        return new FloatValue(x);
     }
 
     // Constructors
@@ -510,7 +510,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     /** Formula constructor **/
-    public FloatValue(org.openl.meta.FloatValue lv1, org.openl.meta.FloatValue lv2, float value, Formulas operand) {
+    public FloatValue(FloatValue lv1, FloatValue lv2, float value, Formulas operand) {
         super(lv1, lv2, operand);
         this.value = value;
     }
@@ -525,7 +525,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * Copy the current value with new name <b>name</b>
      */
     @Override
-    public org.openl.meta.FloatValue copy(String name) {
+    public FloatValue copy(String name) {
         return copy(this, name);
     }
 
@@ -550,8 +550,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * Indicates whether some other object is "equal to" this org.openl.meta.FloatValue variable.
      */
     public boolean equals(Object obj) {
-        if (obj instanceof org.openl.meta.FloatValue) {
-            org.openl.meta.FloatValue secondObj = (org.openl.meta.FloatValue) obj;
+        if (obj instanceof FloatValue) {
+            FloatValue secondObj = (FloatValue) obj;
             return Comparison.eq(getValue(), secondObj.getValue());
         }
 
@@ -565,11 +565,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @param values an array for sorting
      * @return the sorted array
      */
-    public static org.openl.meta.FloatValue[] sort(org.openl.meta.FloatValue[] values) {
-        org.openl.meta.FloatValue[] sortedArray = null;
+    public static FloatValue[] sort(FloatValue[] values) {
+        FloatValue[] sortedArray = null;
         if (values != null) {
-            sortedArray = new org.openl.meta.FloatValue[values.length];
-            org.openl.meta.FloatValue[] notNullArray = ArrayTool.removeNulls(values);
+            sortedArray = new FloatValue[values.length];
+            FloatValue[] notNullArray = ArrayTool.removeNulls(values);
 
             Arrays.sort(notNullArray);
 

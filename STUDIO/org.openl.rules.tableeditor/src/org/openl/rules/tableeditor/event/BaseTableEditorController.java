@@ -13,7 +13,8 @@ import org.openl.rules.tableeditor.util.Constants;
 public class BaseTableEditorController {
 
     protected TableEditorModel getEditorModel(String editorId) {
-        Map editorModelMap = (Map) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get(Constants.TABLE_EDITOR_MODEL_NAME);
+        Map editorModelMap = (Map) FacesContext.getCurrentInstance().getExternalContext()
+                .getSessionMap().get(Constants.TABLE_EDITOR_MODEL_NAME);
         if (editorModelMap != null) {
             return (TableEditorModel) editorModelMap.get(editorId);
         }
@@ -47,7 +48,8 @@ public class BaseTableEditorController {
     }
 
     protected void removeEditorModel() {
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove(Constants.TABLE_EDITOR_MODEL_NAME);
+        FacesContext.getCurrentInstance().getExternalContext()
+                .getSessionMap().remove(Constants.TABLE_EDITOR_MODEL_NAME);
     }
 
     private TableModel initializeTableModel(String editorId) {

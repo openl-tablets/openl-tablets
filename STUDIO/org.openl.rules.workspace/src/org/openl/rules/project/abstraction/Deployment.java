@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * @author PUdalau
  */
 public class Deployment extends AProjectFolder {
-    private final Logger log = LoggerFactory.getLogger(Deployment.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Deployment.class);
     private Map<String, AProject> projects;
 
     private String deploymentName;
@@ -101,7 +101,7 @@ public class Deployment extends AProjectFolder {
                     fileDataList = repository.list(folderPath);
                 }
             } catch (IOException e) {
-                log.error(e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
                 return Collections.emptyMap();
             }
 

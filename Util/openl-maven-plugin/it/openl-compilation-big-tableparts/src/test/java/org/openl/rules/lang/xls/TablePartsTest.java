@@ -1,7 +1,5 @@
 package org.openl.rules.lang.xls;
 
-import java.io.File;
-
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
@@ -17,7 +15,7 @@ public class TablePartsTest {
 
     @Test
     public void test() throws Exception {
-        SimpleProjectEngineFactoryBuilder<ITestI> factoryBuilder = new SimpleProjectEngineFactoryBuilder<ITestI>();
+        SimpleProjectEngineFactoryBuilder<ITestI> factoryBuilder = new SimpleProjectEngineFactoryBuilder<>();
         SimpleProjectEngineFactory<ITestI> factory = factoryBuilder.setProject("src/main/openl")
                 .setInterfaceClass(ITestI.class)
                 .build();

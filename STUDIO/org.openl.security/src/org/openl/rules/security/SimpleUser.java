@@ -98,10 +98,8 @@ public class SimpleUser implements User {
                 return true;
             }
 
-            if (auth instanceof Group) {
-                if (((Group) auth).hasPrivilege(privilege)) {
-                    return true;
-                }
+            if (auth instanceof Group && ((Group) auth).hasPrivilege(privilege)) {
+                return true;
             }
         }
 

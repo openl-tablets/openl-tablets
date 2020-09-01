@@ -92,9 +92,9 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
             max = Math.max(max, (Long) vTo - 1);
         }
         min = min < Integer.MIN_VALUE ? Integer.MIN_VALUE : min;
-        min = min >= Integer.MAX_VALUE ? Integer.MAX_VALUE - 1 : min;
+        min = min >= Integer.MAX_VALUE ? (Integer.MAX_VALUE - 1) : min;
         max = max < Integer.MIN_VALUE ? Integer.MIN_VALUE : max;
-        max = max >= Integer.MAX_VALUE ? Integer.MAX_VALUE - 1 : max;
+        max = max >= Integer.MAX_VALUE ? (Integer.MAX_VALUE - 1) : max;
 
         return new IntRangeDomain((int) min, (int) max);
     }

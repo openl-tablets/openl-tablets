@@ -19,7 +19,8 @@ import org.slf4j.LoggerFactory;
 @XmlRootElement
 @XmlJavaTypeAdapter(StringValueAdapter.class)
 public class StringValue implements IMetaHolder, CharSequence, Comparable<StringValue> {
-    private final Logger log = LoggerFactory.getLogger(StringValue.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StringValue.class);
+
     private transient ValueMetaInfo metaInfo;
     private final String value;
 
@@ -143,7 +144,7 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
                     new URLSourceCodeModule(new URL(metaInfo.getSourceUrl())));
                 setMetaInfo(valueMetaInfo);
             } catch (Exception e) {
-                log.debug("Failed to set meta info for StringValue '{}'", value, e);
+                LOG.debug("Failed to set meta info for StringValue '{}'", value, e);
                 setMetaInfo((ValueMetaInfo) null);
             }
         }

@@ -36,8 +36,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
     public static final String SPREADSHEET_RESULT = "SpreadsheetResult";
 
-    private final Logger logger = LoggerFactory.getLogger(OpenAPIScaffoldingConverter.class);
-
     private boolean generateUnusedModels = true;
 
     public OpenAPIScaffoldingConverter() {

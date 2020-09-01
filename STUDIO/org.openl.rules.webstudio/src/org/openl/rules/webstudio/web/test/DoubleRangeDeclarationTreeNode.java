@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DoubleRangeDeclarationTreeNode extends SimpleParameterTreeNode {
-    private final Logger log = LoggerFactory.getLogger(DoubleRangeDeclarationTreeNode.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DoubleRangeDeclarationTreeNode.class);
 
     public DoubleRangeDeclarationTreeNode(String fieldName,
             Object value,
@@ -25,7 +25,7 @@ public class DoubleRangeDeclarationTreeNode extends SimpleParameterTreeNode {
                 setValueForced(new DoubleRange(value));
             } catch (RuntimeException e) {
                 // TODO message on UI
-                log.warn("Failed to set '{}' value to field [{}]", value, getName(), e);
+                LOG.warn("Failed to set '{}' value to field [{}]", value, getName(), e);
             }
         }
     }

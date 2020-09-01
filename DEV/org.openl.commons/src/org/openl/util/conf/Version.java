@@ -53,12 +53,9 @@ public class Version implements Comparable<Version> {
         }
 
         void parseVersion() {
-            if ((version[MAJOR] = getInt()) >= 0) {
-                if ((version[MINOR] = getInt()) >= 0) {
-                    if ((version[VARIANT] = getInt()) >= 0) {
-
-                    }
-                }
+            if ((version[MAJOR] = getInt()) >= 0
+                    && (version[MINOR] = getInt()) >= 0
+                    && (version[VARIANT] = getInt()) >= 0) {
             }
             version[BUILD] = getInt();
         }

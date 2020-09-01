@@ -154,7 +154,8 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     @Override
     public IGridRegion findEmptyRect(int width, int height) {
         int lastRow = PoiExcelHelper.getLastRowNum(getSheet());
-        int top = lastRow + 2, left = 1;
+        int top = lastRow + 2;
+        int left = 1;
 
         GridRegion newRegion = new GridRegion(top, left, top + height - 1, left + width - 1);
         if (IGridRegion.Tool.isValidRegion(newRegion, getSpreadsheetConstants())) {

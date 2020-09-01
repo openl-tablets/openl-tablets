@@ -29,7 +29,7 @@ import org.openl.vm.IRuntimeEnv;
 public class Action extends FunctionalRow implements IAction {
 
     private static final String EXTRA_RET = "e$x$t$r$a$R$e$t";
-    private boolean isSingleReturnParam = false;
+    private boolean isSingleReturnParam;
     private IOpenClass returnType;
     private ActionType actionType;
 
@@ -191,8 +191,9 @@ public class Action extends FunctionalRow implements IAction {
             OpenL openl,
             IBindingContext bindingContext) throws Exception {
 
-        if (EXTRA_RET.equals(methodSource
-            .getCode()) && (isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction()) && getParams() == null) {
+        if (EXTRA_RET.equals(methodSource.getCode())
+                && (isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction())
+                && getParams() == null) {
             ParameterDeclaration extraParam = new ParameterDeclaration(methodType, EXTRA_RET);
 
             IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[] { extraParam };

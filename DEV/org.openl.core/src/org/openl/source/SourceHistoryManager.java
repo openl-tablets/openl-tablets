@@ -2,7 +2,6 @@ package org.openl.source;
 
 import java.io.File;
 import java.util.List;
-import java.util.SortedMap;
 
 /**
  * @author Andrei Astrouski

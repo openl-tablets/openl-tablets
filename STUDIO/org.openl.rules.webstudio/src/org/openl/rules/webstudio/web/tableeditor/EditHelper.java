@@ -37,7 +37,7 @@ public final class EditHelper {
         boolean result = false;
         String systemValueDescriptor = systemProperty.getSystemValueDescriptor();
 
-        if (userMode.equals("single") && systemValueDescriptor.equals(SystemValuesManager.CURRENT_USER_DESCRIPTOR)) {
+        if ("single".equals(userMode) && systemValueDescriptor.equals(SystemValuesManager.CURRENT_USER_DESCRIPTOR)) {
             return true;
         }
 

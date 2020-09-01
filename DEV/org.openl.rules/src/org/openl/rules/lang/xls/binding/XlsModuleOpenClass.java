@@ -316,8 +316,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             IOpenField existedField = fields.get(openField.getName());
             if (openField instanceof ConstantOpenField && existedField instanceof ConstantOpenField) {
                 // Ignore constants with the same values
-                if (openField.getType().equals(existedField.getType()) && Objects
-                    .equals(((ConstantOpenField) openField).getValue(), ((ConstantOpenField) existedField).getValue())) {
+                if (Objects.equals(
+                        ((ConstantOpenField) openField).getValue(),
+                        ((ConstantOpenField) existedField).getValue()
+                    ) && openField.getType().equals(existedField.getType())) {
                     return;
                 }
 
@@ -540,7 +542,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
     }
 
-    private volatile OpenLArgumentsCloner cloner = null;
+    private volatile OpenLArgumentsCloner cloner;
 
     public Cloner getCloner() {
         if (cloner == null) {

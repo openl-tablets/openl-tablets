@@ -54,7 +54,7 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
         String stringValue = sourceCell.getStringValue();
         if (stringValue != null) {
             List<NodeUsage> nodeUsages = null;
-            if (stringValue.startsWith("=") || stringValue.startsWith("{") && stringValue.endsWith("}")) {
+            if (stringValue.startsWith("=") || (stringValue.startsWith("{") && stringValue.endsWith("}"))) {
                 nodeUsages = new ArrayList<>();
                 int from = stringValue.indexOf('=');
                 if (from >= 0 && type != null) {

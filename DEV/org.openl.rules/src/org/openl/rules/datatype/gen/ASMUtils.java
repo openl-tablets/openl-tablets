@@ -10,7 +10,10 @@ import org.objectweb.asm.Type;
  *
  * @author Yury Molchan
  */
-public class ASMUtils {
+public final class ASMUtils {
+
+    private ASMUtils() {
+    }
 
     /**
      * Search a method in the class. It works like {@link Class#getMethod(String, Class[])}

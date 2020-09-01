@@ -66,11 +66,11 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
         return conversionRules;
     }
 
-    private void fixBrokenValues(String[] label) {
+    private static void fixBrokenValues(String[] label) {
         for (int i = 0; i < label.length; i++) {
-            if (label[i].equalsIgnoreCase("N/A")) {
+            if ("N/A".equalsIgnoreCase(label[i])) {
                 label[i] = null;
-            } else if (label[i].equalsIgnoreCase("\"\"")) {
+            } else if ("\"\"".equalsIgnoreCase(label[i])) {
                 label[i] = "";
             }
         }
@@ -84,9 +84,7 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
      */
     @Override
     public TableParserSpecificationBean[] getAlgorithmSpecification() {
-        TableParserSpecificationBean[] result = rulesWrapperInstance.getAlgorithmSpecification();
-
-        return result;
+        return  rulesWrapperInstance.getAlgorithmSpecification();
     }
 
     @Override

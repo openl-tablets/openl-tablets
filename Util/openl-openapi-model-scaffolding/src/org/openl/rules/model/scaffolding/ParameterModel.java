@@ -30,12 +30,18 @@ public class ParameterModel implements InputParameter {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ParameterModel that = (ParameterModel) o;
 
-        if (!Objects.equals(type, that.type)) return false;
+        if (!Objects.equals(type, that.type)) {
+            return false;
+        }
         return Objects.equals(name, that.name);
     }
 

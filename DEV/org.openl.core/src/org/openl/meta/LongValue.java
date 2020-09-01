@@ -52,7 +52,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
 
     private final long value;
 
-    private static DoubleValue[] toDoubleValues(org.openl.meta.LongValue[] values) {
+    private static DoubleValue[] toDoubleValues(LongValue[] values) {
         if (values == null) {
             return null;
         }
@@ -103,15 +103,15 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param name of new variable
      * @return the new org.openl.meta.LongValue variable with name <b>name</b> and value <b>value</b>
      */
-    public static org.openl.meta.LongValue copy(org.openl.meta.LongValue value, String name) {
+    public static LongValue copy(LongValue value, String name) {
         if (value.getName() == null) {
             value.setName(name);
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.LongValue result = new org.openl.meta.LongValue(value,
+            LongValue result = new LongValue(value,
                 NumberOperations.COPY,
-                new org.openl.meta.LongValue[] { value });
+                new LongValue[] { value });
             result.setName(name);
 
             return result;
@@ -127,14 +127,14 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param value2 org.openl.meta.LongValue
      * @return remainder from division value1 by value2
      */
-    public static org.openl.meta.LongValue rem(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+    public static LongValue rem(LongValue value1, LongValue value2) {
         // Commented to support operations with nulls. See also MathUtils.mod()
         // validate(value1, value2, Formulas.REM.toString());
         if (value1 == null || value2 == null) {
             return ZERO;
         }
 
-        return new org.openl.meta.LongValue(value1,
+        return new LongValue(value1,
             value2,
             Operators.rem(value1.getValue(), value2.getValue()),
             Formulas.REM);
@@ -147,7 +147,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param value2 org.openl.meta.LongValue
      * @return the result of addition operation
      */
-    public static org.openl.meta.LongValue add(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+    public static LongValue add(LongValue value1, LongValue value2) {
         if (value1 == null) {
             return value2;
         }
@@ -156,7 +156,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
             return value1;
         }
 
-        return new org.openl.meta.LongValue(value1,
+        return new LongValue(value1,
             value2,
             Operators.add(value1.getValue(), value2.getValue()),
             Formulas.ADD);
@@ -170,12 +170,12 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param value2 org.openl.meta.LongValue
      * @return the result of multiplication operation
      */
-    public static org.openl.meta.LongValue multiply(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+    public static LongValue multiply(LongValue value1, LongValue value2) {
         if (value1 == null || value2 == null) {
             return null;
         }
 
-        return new org.openl.meta.LongValue(value1,
+        return new LongValue(value1,
             value2,
             Operators.multiply(value1.getValue(), value2.getValue()),
             Formulas.MULTIPLY);
@@ -189,7 +189,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param value2 org.openl.meta.LongValue
      * @return the result of subtraction operation
      */
-    public static org.openl.meta.LongValue subtract(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+    public static LongValue subtract(LongValue value1, LongValue value2) {
         if (value1 == null && value2 == null) {
             return null;
         }
@@ -202,7 +202,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
             return value1;
         }
 
-        return new org.openl.meta.LongValue(value1,
+        return new LongValue(value1,
             value2,
             Operators.subtract(value1.getValue(), value2.getValue()),
             Formulas.SUBTRACT);
@@ -216,7 +216,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param value2 org.openl.meta.LongValue
      * @return the result of division operation
      */
-    public static org.openl.meta.DoubleValue divide(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+    public static org.openl.meta.DoubleValue divide(LongValue value1, LongValue value2) {
         if (value1 == null || value2 == null) {
             return null;
         }
@@ -240,7 +240,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param divisor org.openl.meta.LongValue
      * @return LongValue the result of division operation
      */
-    public static LongValue quotient(org.openl.meta.LongValue number, org.openl.meta.LongValue divisor) {
+    public static LongValue quotient(LongValue number, LongValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
             return new LongValue(result, NumberOperations.QUOTIENT, null);
@@ -255,11 +255,11 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign
      *         as the devisor.
      */
-    public static org.openl.meta.LongValue mod(org.openl.meta.LongValue number, org.openl.meta.LongValue divisor) {
+    public static LongValue mod(LongValue number, LongValue divisor) {
         if (number != null && divisor != null) {
-            org.openl.meta.LongValue result = new org.openl.meta.LongValue(
+            LongValue result = new LongValue(
                 MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new org.openl.meta.LongValue(result, NumberOperations.MOD, number, divisor);
+            return new LongValue(result, NumberOperations.MOD, number, divisor);
         }
         return null;
     }
@@ -294,18 +294,18 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param value2
      * @return the result of value1 raised to the power of value2
      */
-    public static org.openl.meta.LongValue pow(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+    public static LongValue pow(LongValue value1, LongValue value2) {
         // Commented to support operations with nulls
         // "null" means that data does not exist
         //
         // validate(value1, value2, NumberOperations.POW);
         if (value1 == null) {
-            return value2 == null ? null : new org.openl.meta.LongValue(0);
+            return value2 == null ? null : new LongValue(0);
         } else if (value2 == null) {
             return value1;
         }
 
-        return new org.openl.meta.LongValue(new org.openl.meta.LongValue(
+        return new LongValue(new LongValue(
             Operators.pow(value1.getValue(), value2.getValue())), NumberOperations.POW, value1, value2);
     }
 
@@ -314,16 +314,16 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param value
      * @return the absolute value (module) of the value <b>value </b>
      */
-    public static org.openl.meta.LongValue abs(org.openl.meta.LongValue value) {
+    public static LongValue abs(LongValue value) {
         // Commented to support operations with nulls.
         // validate(value, NumberOperations.ABS);
         if (value == null) {
             return null;
         }
         // evaluate result
-        org.openl.meta.LongValue result = new org.openl.meta.LongValue(Math.abs(value.getValue()));
+        LongValue result = new LongValue(Math.abs(value.getValue()));
         // create instance with information about last operation
-        return new org.openl.meta.LongValue(result, NumberOperations.ABS, value);
+        return new LongValue(result, NumberOperations.ABS, value);
     }
 
     /**
@@ -331,7 +331,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param value
      * @return the negative value of the <b>value</b>
      */
-    public static org.openl.meta.LongValue negative(org.openl.meta.LongValue value) {
+    public static LongValue negative(LongValue value) {
         if (value == null) {
             return null;
         }
@@ -343,7 +343,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param value
      * @return the <b>value</b> increased by 1
      */
-    public static org.openl.meta.LongValue inc(org.openl.meta.LongValue value) {
+    public static LongValue inc(LongValue value) {
         return add(value, ONE);
     }
 
@@ -352,7 +352,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param value
      * @return the <b>value</b>
      */
-    public static org.openl.meta.LongValue positive(org.openl.meta.LongValue value) {
+    public static LongValue positive(LongValue value) {
         return value;
     }
 
@@ -361,7 +361,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param value
      * @return the <b>value </b> decreased by 1
      */
-    public static org.openl.meta.LongValue dec(org.openl.meta.LongValue value) {
+    public static LongValue dec(LongValue value) {
         return subtract(value, ONE);
     }
 
@@ -374,8 +374,8 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.LongValue
      */
-    public static org.openl.meta.LongValue autocast(byte x, org.openl.meta.LongValue y) {
-        return new org.openl.meta.LongValue(x);
+    public static LongValue autocast(byte x, LongValue y) {
+        return new LongValue(x);
     }
 
     /**
@@ -385,8 +385,8 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.LongValue
      */
-    public static org.openl.meta.LongValue autocast(short x, org.openl.meta.LongValue y) {
-        return new org.openl.meta.LongValue(x);
+    public static LongValue autocast(short x, LongValue y) {
+        return new LongValue(x);
     }
 
     /**
@@ -396,8 +396,8 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.LongValue
      */
-    public static org.openl.meta.LongValue autocast(int x, org.openl.meta.LongValue y) {
-        return new org.openl.meta.LongValue(x);
+    public static LongValue autocast(int x, LongValue y) {
+        return new LongValue(x);
     }
 
     /**
@@ -407,8 +407,8 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.LongValue
      */
-    public static org.openl.meta.LongValue autocast(long x, org.openl.meta.LongValue y) {
-        return new org.openl.meta.LongValue(x);
+    public static LongValue autocast(long x, LongValue y) {
+        return new LongValue(x);
     }
 
     /**
@@ -418,8 +418,8 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.LongValue
      */
-    public static org.openl.meta.LongValue autocast(char x, org.openl.meta.LongValue y) {
-        return new org.openl.meta.LongValue(x);
+    public static LongValue autocast(char x, LongValue y) {
+        return new LongValue(x);
     }
 
     // Constructors
@@ -428,7 +428,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
     }
 
     /** Formula constructor **/
-    public LongValue(org.openl.meta.LongValue lv1, org.openl.meta.LongValue lv2, long value, Formulas operand) {
+    public LongValue(LongValue lv1, LongValue lv2, long value, Formulas operand) {
         super(lv1, lv2, operand);
         this.value = value;
     }
@@ -443,7 +443,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * Copy the current value with new name <b>name</b>
      */
     @Override
-    public org.openl.meta.LongValue copy(String name) {
+    public LongValue copy(String name) {
         return copy(this, name);
     }
 
@@ -478,11 +478,11 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @param values an array for sorting
      * @return the sorted array
      */
-    public static org.openl.meta.LongValue[] sort(org.openl.meta.LongValue[] values) {
-        org.openl.meta.LongValue[] sortedArray = null;
+    public static LongValue[] sort(LongValue[] values) {
+        LongValue[] sortedArray = null;
         if (values != null) {
-            sortedArray = new org.openl.meta.LongValue[values.length];
-            org.openl.meta.LongValue[] notNullArray = ArrayTool.removeNulls(values);
+            sortedArray = new LongValue[values.length];
+            LongValue[] notNullArray = ArrayTool.removeNulls(values);
 
             Arrays.sort(notNullArray);
 

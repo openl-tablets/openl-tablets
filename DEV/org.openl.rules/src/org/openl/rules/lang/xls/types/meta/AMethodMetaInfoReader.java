@@ -57,12 +57,17 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
         if (metaInfo != null && typeLocation != null) {
             int start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
             int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText);
-            nodeUsages.add(new SimpleNodeUsage(start,
-                end,
-                metaInfo.getDisplayName(INamedThing.SHORT) + (StringUtils.isEmpty(
-                    getAdditionalMetaInfoForTableReturnType()) ? "" : "\n" + getAdditionalMetaInfoForTableReturnType()),
-                metaInfo.getSourceUrl(),
-                NodeType.DATATYPE));
+            nodeUsages.add(
+                new SimpleNodeUsage(
+                    start,
+                    end,
+                    metaInfo.getDisplayName(INamedThing.SHORT)
+                        + (StringUtils.isEmpty(getAdditionalMetaInfoForTableReturnType())
+                            ? ""
+                            : ("\n" + getAdditionalMetaInfoForTableReturnType())),
+                    metaInfo.getSourceUrl(),
+                    NodeType.DATATYPE)
+            );
         }
 
         // Link to input parameters

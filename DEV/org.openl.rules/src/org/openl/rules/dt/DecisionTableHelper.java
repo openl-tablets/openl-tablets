@@ -25,6 +25,12 @@ import org.openl.domain.IDomain;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.BigIntegerValue;
+import org.openl.meta.DoubleValue;
+import org.openl.meta.FloatValue;
+import org.openl.meta.LongValue;
+import org.openl.meta.StringValue;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.constants.ConstantOpenField;
@@ -140,12 +146,12 @@ public final class DecisionTableHelper {
         org.openl.meta.ByteValue.class,
         org.openl.meta.ShortValue.class,
         org.openl.meta.IntValue.class,
-        org.openl.meta.LongValue.class,
-        org.openl.meta.FloatValue.class,
-        org.openl.meta.DoubleValue.class,
-        org.openl.meta.BigIntegerValue.class,
-        org.openl.meta.BigDecimalValue.class,
-        org.openl.meta.StringValue.class,
+        LongValue.class,
+        FloatValue.class,
+        DoubleValue.class,
+        BigIntegerValue.class,
+        BigDecimalValue.class,
+        StringValue.class,
         Object.class,
         Map.class,
         SortedMap.class,

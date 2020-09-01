@@ -14,8 +14,6 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.ModuleFileSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.util.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The simplest {@link RulesInstantiationStrategyFactory} for module that contains only Excel file.
@@ -23,7 +21,6 @@ import org.slf4j.LoggerFactory;
  * @author PUdalau
  */
 public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStrategy {
-    private final Logger log = LoggerFactory.getLogger(ApiBasedInstantiationStrategy.class);
 
     /**
      * Rules engine factory for module that contains only Excel file.

@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ExcelFileBuilder {
 
-    private static final Logger logger = LoggerFactory.getLogger(ExcelFileBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExcelFileBuilder.class);
 
     private ExcelFileBuilder() {
     }
@@ -51,7 +51,7 @@ public class ExcelFileBuilder {
         try (FileOutputStream fos = new FileOutputStream(fileName)) {
             writeProject(sprs, dts, fos);
         } catch (IOException e) {
-            logger.error("Error on saving the file occurred.", e);
+            LOGGER.error("Error on saving the file occurred.", e);
         }
     }
 
@@ -117,7 +117,7 @@ public class ExcelFileBuilder {
             autoSizeSheets(workbook);
             workbook.write(outputStream);
         } catch (IOException e) {
-            logger.error("Error on generating DataTypes workbook occurred.", e);
+            LOGGER.error("Error on generating DataTypes workbook occurred.", e);
         } finally {
             if (tempWorkbook != null) {
                 tempWorkbook.dispose();
@@ -141,7 +141,7 @@ public class ExcelFileBuilder {
             autoSizeSheets(workbook);
             workbook.write(outputStream);
         } catch (IOException e) {
-            logger.error("Error on generating Spreadsheet workbook occurred.", e);
+            LOGGER.error("Error on generating Spreadsheet workbook occurred.", e);
         } finally {
             if (tempWorkbook != null) {
                 tempWorkbook.dispose();
@@ -175,7 +175,7 @@ public class ExcelFileBuilder {
             autoSizeSheets(workbook);
             workbook.write(outputStream);
         } catch (IOException e) {
-            logger.error("Error on generating Spreadsheet workbook occurred.", e);
+            LOGGER.error("Error on generating Spreadsheet workbook occurred.", e);
         } finally {
             if (tempWorkbook != null) {
                 tempWorkbook.dispose();
@@ -223,7 +223,7 @@ public class ExcelFileBuilder {
             autoSizeSheets(workbook);
             workbook.write(fos);
         } catch (IOException e) {
-            logger.error("Error on generating workbook occurred.", e);
+            LOGGER.error("Error on generating workbook occurred.", e);
         } finally {
             if (tempWorkbook != null) {
                 tempWorkbook.dispose();

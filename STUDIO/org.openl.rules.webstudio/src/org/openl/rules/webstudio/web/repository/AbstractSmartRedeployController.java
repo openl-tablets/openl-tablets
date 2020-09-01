@@ -45,7 +45,7 @@ import com.thoughtworks.xstream.XStreamException;
 
 public abstract class AbstractSmartRedeployController {
 
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractSmartRedeployController.class);
 
     /**
      * A controller which contains pre-built UI object tree.
@@ -86,8 +86,10 @@ public abstract class AbstractSmartRedeployController {
 
     public synchronized List<DeploymentProjectItem> getItems() {
         AProject project = getSelectedProject();
-        if (project == null || currentProject == null || project != currentProject && !project.getName()
-            .equals(currentProject.getName()) || isSupportsBranches() && project.getLastHistoryVersion() == null) {
+        if (project == null
+                || currentProject == null
+                || (project != currentProject && !project.getName().equals(currentProject.getName()))
+                || (isSupportsBranches() && project.getLastHistoryVersion() == null)) {
             reset();
             return null;
         }
@@ -99,12 +101,12 @@ public abstract class AbstractSmartRedeployController {
     }
 
     public synchronized boolean isProjectHasSelectedItems() {
-        List<DeploymentProjectItem> items = getItems();
-        if (items == null) {
+        List<DeploymentProjectItem> itemList = getItems();
+        if (itemList == null) {
             return false;
         }
 
-        for (DeploymentProjectItem item : items) {
+        for (DeploymentProjectItem item : itemList) {
             if (item.isSelected()) {
                 return true;
             }
@@ -196,6 +198,7 @@ public abstract class AbstractSmartRedeployController {
                 lastDeployedVersion = deployedProject != null ? projectVersionCacheManager
                     .getDeployedProjectVersion(deployedProject) : null;
             } catch (IOException e) {
+                LOG.debug("Error occurred: ", e);
                 item.setMessages("Internal error while reading project cache.");
             }
 
@@ -248,10 +251,14 @@ public abstract class AbstractSmartRedeployController {
                         } else if (lastDeployedVersion == null) {
                             if (projectVersionCacheManager.isCacheCalculated()) {
                                 item.setMessages(
-                                    "Can be updated to '" + to + "' and then deployed. Deployed version not defined");
+                                    "Can be updated to '" + to
+                                        + "' and then deployed. Deployed version not defined"
+                                );
                             } else {
                                 item.setMessages(
-                                    "Can be updated to " + to + " and then deployed. Deployed version is being defined");
+                                    "Can be updated to " + to
+                                        + " and then deployed. Deployed version is being defined"
+                                );
                             }
                         } else {
                             String repositoryId = projectDescriptor.getRepositoryId();
@@ -274,7 +281,9 @@ public abstract class AbstractSmartRedeployController {
                         }
                     } else {
                         item.setMessages(
-                            "Project version will be updated. Dependent projects should be added to deploy configuration.");
+                            "Project version will be updated. " +
+                                    "Dependent projects should be added to deploy configuration."
+                        );
                         item.setStyleForMessages(UiConst.STYLE_ERROR);
                         item.setCanDeploy(false);
                     }
@@ -294,17 +303,19 @@ public abstract class AbstractSmartRedeployController {
                     item.setMessages("Create deploy configuration and deploy");
                 } else {
                     item.setMessages(
-                        "Create deploy configuration. You should add dependent projects to created deploy configuration after that.");
+                        "Create deploy configuration. " +
+                                "You should add dependent projects to created deploy configuration after that."
+                    );
                     item.setStyleForMessages(UiConst.STYLE_ERROR);
                     item.setCanDeploy(false);
                 }
             } catch (ProjectException e) {
-                log.error(e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
                 item.setDisabled(true);
                 item.setMessages("Internal error while reading the project from repository.");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
             } catch (XStreamException e) {
-                log.error(e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
                 item.setDisabled(true);
                 item.setMessages("Project descriptor is invalid.");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
@@ -334,8 +345,8 @@ public abstract class AbstractSmartRedeployController {
 
         List<ADeploymentProject> toDeploy = new LinkedList<>();
         // update selected deployment projects
-        List<DeploymentProjectItem> items = getItems();
-        for (DeploymentProjectItem item : items) {
+        List<DeploymentProjectItem> projectItems = getItems();
+        for (DeploymentProjectItem item : projectItems) {
             if (!item.isSelected()) {
                 continue;
             }
@@ -361,7 +372,7 @@ public abstract class AbstractSmartRedeployController {
             } catch (Exception e) {
                 String msg = String
                     .format("Failed to deploy '%s' to repository '%s'", project.getName(), repositoryName);
-                log.error(msg, e);
+                LOG.error(msg, e);
                 WebStudioUtils.addErrorMessage(msg, e.getMessage());
             }
         }
@@ -409,12 +420,9 @@ public abstract class AbstractSmartRedeployController {
                 return null; // must never happen
             }
 
-            if (deploymentName.equals(project.getName())) {
-                // the same name
-                if (!userWorkspace.hasDDProject(deploymentName)) {
-                    // create if absent
-                    deployConfiguration = userWorkspace.createDDProject(deploymentName);
-                }
+            if (deploymentName.equals(project.getName()) && !userWorkspace.hasDDProject(deploymentName)) {
+                // the same name, than create if absent
+                deployConfiguration = userWorkspace.createDDProject(deploymentName);
             }
 
             boolean create;
@@ -438,11 +446,15 @@ public abstract class AbstractSmartRedeployController {
             } else {
                 deployConfiguration.open();
                 // rewrite project->version
-                String branch = project instanceof RulesProject ? ((RulesProject) project).getBranch() : null;
-                deployConfiguration.addProjectDescriptor(project.getRepository().getId(),
-                    project.getName(),
-                    branch,
-                    project.getVersion());
+                String branch = project instanceof RulesProject
+                        ? ((RulesProject) project).getBranch()
+                        : null;
+                deployConfiguration.addProjectDescriptor(
+                        project.getRepository().getId(),
+                        project.getName(),
+                        branch,
+                        project.getVersion()
+                );
 
                 String comment;
                 if (create) {
@@ -461,7 +473,7 @@ public abstract class AbstractSmartRedeployController {
             }
         } catch (ProjectException e) {
             String msg = "Failed to update deploy configuration '" + deploymentName + "'";
-            log.error(msg, e);
+            LOG.error(msg, e);
             WebStudioUtils.addErrorMessage(msg);
         }
 
@@ -500,11 +512,11 @@ public abstract class AbstractSmartRedeployController {
     }
 
     public boolean isSelectAll4SmartRedeploy() {
-        List<DeploymentProjectItem> items = getItems();
+        List<DeploymentProjectItem> projectItems = getItems();
 
         boolean hasSelectedItem = false;
 
-        for (DeploymentProjectItem item : items) {
+        for (DeploymentProjectItem item : projectItems) {
             if (!item.isDisabled() && !item.isSelected()) {
                 return false;
             }
@@ -517,9 +529,9 @@ public abstract class AbstractSmartRedeployController {
     }
 
     public void setSelectAll4SmartRedeploy(boolean newState) {
-        List<DeploymentProjectItem> items = getItems();
+        List<DeploymentProjectItem> projectItems = getItems();
 
-        for (DeploymentProjectItem item : items) {
+        for (DeploymentProjectItem item : projectItems) {
             if (!item.isDisabled()) {
                 item.setSelected(newState);
             }
@@ -548,7 +560,7 @@ public abstract class AbstractSmartRedeployController {
                 .supports()
                 .branches();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
         return false;
     }

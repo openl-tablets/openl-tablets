@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class DBRepository implements Repository, Closeable, RRepositoryFactory {
-    private final Logger log = LoggerFactory.getLogger(DBRepository.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DBRepository.class);
 
     private String id;
     private String name;
@@ -160,7 +160,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         try {
             data = getLatestVersionFileData(path.getName());
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             throw e;
         }
 
@@ -170,7 +170,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                 invokeListener();
                 return true;
             } catch (IOException e) {
-                log.error(e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
                 throw e;
             }
         } else {
@@ -294,7 +294,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                     return false;
                 }
             } catch (SQLException e) {
-                log.error(e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
                 throw new IOException(e.getMessage(), e);
             } finally {
                 SqlDBUtils.safeClose(statement);
@@ -317,7 +317,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                     return false;
                 }
             } catch (SQLException e) {
-                log.error(e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
                 throw new IOException(e.getMessage(), e);
             } finally {
                 SqlDBUtils.safeClose(statement);
@@ -522,11 +522,11 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             int majorVersion = metaData.getDatabaseMajorVersion();
             int minorVersion = metaData.getDatabaseMinorVersion();
 
-            log.info("Driver name      : {}", metaData.getDriverName());
-            log.info("Driver version   : {}", metaData.getDriverVersion());
-            log.info("Database name    : {}", metaData.getDatabaseProductName());
-            log.info("Database version : {}", metaData.getDatabaseProductVersion());
-            log.info("Database code    : {}-v{}.{}", databaseCode, majorVersion, minorVersion);
+            LOG.info("Driver name      : {}", metaData.getDriverName());
+            LOG.info("Driver version   : {}", metaData.getDriverVersion());
+            LOG.info("Database name    : {}", metaData.getDatabaseProductName());
+            LOG.info("Database version : {}", metaData.getDatabaseProductVersion());
+            LOG.info("Database code    : {}-v{}.{}", databaseCode, majorVersion, minorVersion);
             settings = new Settings(databaseCode, majorVersion, minorVersion);
         } finally {
             SqlDBUtils.safeClose(connection);
@@ -537,11 +537,11 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
     private void initializeDatabase() throws SQLException {
         Object revision = checkRepository();
         if (!(revision instanceof Throwable)) {
-            log.info("SQL result: {}. The repository is already initialized.", revision);
+            LOG.info("SQL result: {}. The repository is already initialized.", revision);
             return;
         }
-        log.info("SQL error: {}", ((Throwable) revision).getMessage());
-        log.info("Initializing  the repository in the DB...");
+        LOG.info("SQL error: {}", ((Throwable) revision).getMessage());
+        LOG.info("Initializing  the repository in the DB...");
         Connection connection = null;
         Statement statement = null;
         Boolean autoCommit = null;
@@ -557,7 +557,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                 }
             }
             connection.commit();
-            log.info("The repository has been initialized.");
+            LOG.info("The repository has been initialized.");
         } catch (Exception e) {
             if (connection != null) {
                 connection.rollback();
@@ -578,7 +578,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         public Object getRevision() {
             Object revision = checkRepository();
             if (revision instanceof Throwable) {
-                log.warn("Cannot check revision of the repository", (Throwable) revision);
+                LOG.warn("Cannot check revision of the repository", (Throwable) revision);
                 return null;
             }
             return revision;

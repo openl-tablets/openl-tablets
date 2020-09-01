@@ -77,7 +77,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
     static final class SelectIterator<T> extends IteratorWrapper<T, T> {
         ISelector<T> selector;
         T next;
-        boolean hasNext = false;
+        boolean hasNext;
 
         SelectIterator(Iterator<T> it, ISelector<T> selector) {
             super(it);
@@ -129,11 +129,11 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
 
     }
 
-    public static final EmptyIterator<?> EMPTY = new EmptyIterator<>();
+    public static final EmptyIterator<?> EMPTY_ITERATOR = new EmptyIterator<>();
 
     @SuppressWarnings("unchecked")
     public static <T> IOpenIterator<T> empty() {
-        return (IOpenIterator<T>) EMPTY;
+        return (IOpenIterator<T>) EMPTY_ITERATOR;
     }
 
     public static <X> IOpenIterator<X> reverse(Iterator<X> it) {

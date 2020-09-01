@@ -82,7 +82,7 @@ public class AdminRestController {
         return okOrNotFound(serviceManager.getManifest(serviceName));
     }
 
-    private Response okOrNotFound(Object entity) {
+    private static Response okOrNotFound(Object entity) {
         return Response.status(entity == null ? Response.Status.NOT_FOUND : Response.Status.OK).entity(entity).build();
     }
 }

@@ -73,7 +73,7 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
 
     }
 
-    int from = 0;
+    int from;
     int current;
 
     int step = 1;
@@ -89,7 +89,7 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
 
     @Override
     public final boolean hasNext() {
-        return step > 0 ? current < to : current > to;
+        return step > 0 ? (current < to) : (current > to);
     }
 
     protected abstract T indexedElement(int i);
@@ -116,7 +116,7 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
 
     @Override
     public final int size() {
-        return step > 0 ? (to - from) / step : (from - to) / -step;
+        return step > 0 ? ((to - from) / step) : ((from - to) / -step);
     }
 
 }

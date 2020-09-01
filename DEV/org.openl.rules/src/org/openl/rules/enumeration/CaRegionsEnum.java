@@ -7,7 +7,7 @@ public enum CaRegionsEnum {
 
     private final String displayName;
 
-    private CaRegionsEnum(String displayName) {
+    CaRegionsEnum(String displayName) {
         this.displayName = displayName;
     }
 

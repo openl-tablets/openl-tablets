@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
-    private final Logger log = LoggerFactory.getLogger(FileChangesToDeploy.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FileChangesToDeploy.class);
     private final DesignTimeRepository designRepo;
     private final List<ProjectDescriptor> descriptors;
     private final String rulesPath;
@@ -52,7 +52,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
     @Override
     public Iterator<FileItem> iterator() {
         return new Iterator<FileItem>() {
-            private int descriptorIndex = 0;
+            private int descriptorIndex;
             private Iterator<FileItem> projectIterator;
 
             @Override
@@ -87,14 +87,18 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
 
             private String resolveProjectVersion(String repositoryId, String projectName, String version) {
                 try {
-                    final FileData historyData = designRepo.getRepository(repositoryId).checkHistory(rulesPath + projectName, version);
+                    final FileData historyData = designRepo.getRepository(repositoryId)
+                            .checkHistory(rulesPath + projectName, version);
                     return RepositoryUtils.buildProjectVersion(historyData);
                 } catch (IOException ignored) {
                     return null;
                 }
             }
 
-            private Iterator<FileItem> getProjectIterator(Repository baseRepo, String projectName, String version, DeploymentManifestBuilder manifestBuilder) {
+            private Iterator<FileItem> getProjectIterator(Repository baseRepo,
+                                                          String projectName,
+                                                          String version,
+                                                          DeploymentManifestBuilder manifestBuilder) {
                 try {
                     if (baseRepo.supports().folders()) {
                         // Project in design repository is stored as a folder
@@ -103,7 +107,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                             .getRepositoryForVersion((FolderRepository) baseRepo, rulesPath, projectName, version);
                         List<FileData> files = repository.listFiles(srcProjectPath, version);
                         if (files.isEmpty()) {
-                            log.warn("Cannot find files in project {}", projectName);
+                            LOG.warn("Cannot find files in project {}", projectName);
                         }
                         //find and remove old manifest file from deployment
                         String srcManFileName = srcProjectPath + JarFile.MANIFEST_NAME;
@@ -129,7 +133,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                         return new FileChangesFromZip(stream, deploymentPath + projectName).iterator();
                     }
                 } catch (Exception e) {
-                    log.error(e.getMessage(), e);
+                    LOG.error(e.getMessage(), e);
                     return null;
                 }
             }
@@ -165,11 +169,14 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
     private class FolderIterator implements Iterator<FileItem> {
         private final Repository baseRepo;
         private final List<FileData> files;
-        private int fileIndex = 0;
+        private int fileIndex;
         private final FileItem manifest;
         private boolean writeManifest;
 
-        private FolderIterator(Repository baseRepo, List<FileData> files, String projectName, Manifest manifest) throws IOException {
+        private FolderIterator(Repository baseRepo,
+                               List<FileData> files,
+                               String projectName,
+                               Manifest manifest) throws IOException {
             this.baseRepo = baseRepo;
             this.files = files;
             if (manifest != null) {
@@ -205,7 +212,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                 openedStream = fileItem.getStream();
                 return new FileItem(fileTo, openedStream);
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
                 return null;
             }
 

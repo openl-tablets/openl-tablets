@@ -40,7 +40,7 @@ public class ColumnDescriptor {
     private final StringValue displayValue;
     private final OpenL openl;
     private final boolean valuesAnArray;
-    private boolean supportMultirows = false;
+    private boolean supportMultirows;
 
     /**
      * Flag indicating that current column descriptor is a constructor.<br>
@@ -48,7 +48,7 @@ public class ColumnDescriptor {
      */
     private final boolean constructor;
 
-    private Map<String, Integer> uniqueIndex = null;
+    private Map<String, Integer> uniqueIndex;
     private final IdentifierNode[] fieldChainTokens;
     private ColumnGroupKey groupKey;
     private final int columnIdx;
@@ -141,10 +141,10 @@ public class ColumnDescriptor {
             ILogicalTable valuesTable,
             OpenlToolAdaptor ota) throws SyntaxNodeException {
 
-        boolean valuesAnArray = isValuesAnArray(paramType);
+        boolean isValuesAnArray = isValuesAnArray(paramType);
         valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
 
-        if (valuesAnArray) {
+        if (isValuesAnArray) {
             IOpenClass aggregateType = paramType;
             paramType = aggregateType.getAggregateInfo().getComponentType(paramType);
             if (valuesTable.getHeight() == 1 && valuesTable.getWidth() == 1) {
@@ -254,8 +254,8 @@ public class ColumnDescriptor {
             IOpenClass aggregateType,
             IOpenClass paramType) throws SyntaxNodeException {
 
-        DatatypeArrayMultiRowElementContext datatypeArrayMultiRowElementContext = (DatatypeArrayMultiRowElementContext) env
-            .getLocalFrame()[0];
+        DatatypeArrayMultiRowElementContext datatypeArrayMultiRowElementContext =
+                (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
         Object prevRes = PREV_RES_EMPTY;
         for (int i = 0; i < valuesTable.getSource().getHeight(); i++) {
             datatypeArrayMultiRowElementContext.setRow(i);
@@ -308,16 +308,17 @@ public class ColumnDescriptor {
     private static boolean isSameArrayValue(Object res, Object prevRes) {
         boolean resIsEmpty = Array.getLength(res) == 0;
 
-        return resIsEmpty && Array.getLength(prevRes) == 0 || Arrays.deepEquals((Object[]) prevRes,
-            (Object[]) res) || prevRes != PREV_RES_EMPTY && resIsEmpty;
+        return (resIsEmpty && Array.getLength(prevRes) == 0)
+                || Arrays.deepEquals((Object[]) prevRes, (Object[]) res)
+                || (prevRes != PREV_RES_EMPTY && resIsEmpty);
     }
 
     private boolean isSameSingleValue(Object res, Object prevRes) {
-        return isSameSingleValueAllowsNull(res, prevRes) || prevRes != PREV_RES_EMPTY && res == null;
+        return isSameSingleValueAllowsNull(res, prevRes) || (prevRes != PREV_RES_EMPTY && res == null);
     }
 
     private boolean isSameSingleValueAllowsNull(Object res, Object prevRes) {
-        return prevRes == null && res == null || prevRes != null && prevRes.equals(res);
+        return (prevRes == null && res == null) || (prevRes != null && prevRes.equals(res));
     }
 
     public boolean isReference() {

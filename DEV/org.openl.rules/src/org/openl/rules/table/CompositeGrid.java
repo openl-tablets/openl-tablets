@@ -35,9 +35,9 @@ public class CompositeGrid extends AGrid {
      */
     private boolean vertical;
 
-    private int width = 0;
+    private int width;
 
-    private int height = 0;
+    private int height;
 
     public IGridTable[] getGridTables() {
         return gridTables;

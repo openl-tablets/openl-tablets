@@ -14,7 +14,8 @@ import org.openl.vm.IRuntimeEnv;
  */
 public final class AssignNode extends MethodBoundNode {
     private IOpenCast cast;
-    private IBoundNode target, source;
+    private IBoundNode target;
+    private IBoundNode source;
 
     /**
      * target = source - simple assign.

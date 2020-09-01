@@ -110,10 +110,12 @@ public abstract class AbstractMatchingOpenMethodDispatcherWrapper extends Matchi
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         AbstractMatchingOpenMethodDispatcherWrapper that = (AbstractMatchingOpenMethodDispatcherWrapper) o;
         return delegate.equals(that.delegate);
     }

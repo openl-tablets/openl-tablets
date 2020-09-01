@@ -6,6 +6,7 @@ import org.openl.rules.common.CommonVersion;
 
 public class CommonVersionImpl implements CommonVersion {
     private static final Pattern ONLY_DIGITS = Pattern.compile("\\d+");
+    private static final String VERSION_PATTERN = "\\d+\\.\\d+(\\.\\d+.*)?";
     private int major = MAX_MM_INT;
     private int minor = MAX_MM_INT;
     private String revision = "0";
@@ -32,7 +33,7 @@ public class CommonVersionImpl implements CommonVersion {
      * x -> revision x.y -> major.minor x.y.z -> major.minor.revision
      */
     public CommonVersionImpl(String s) {
-        if (!s.matches("\\d+\\.\\d+(\\.\\d+.*)?")) {
+        if (!s.matches(VERSION_PATTERN)) {
             revision = s;
             return;
         }
@@ -57,9 +58,9 @@ public class CommonVersionImpl implements CommonVersion {
         }
 
         /* Revision with num 0 always should be at last place */
-        if (revision.equals("0")) {
+        if ("0".equals(revision)) {
             return -1;
-        } else if (o.getRevision().equals("0")) {
+        } else if ("0".equals(o.getRevision())) {
             return 1;
         }
 

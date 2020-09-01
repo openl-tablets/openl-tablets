@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 @GroupSequence({ DataTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class })
 public class DataTableCreationWizard extends TableCreationWizard {
-    private final Logger log = LoggerFactory.getLogger(DataTableCreationWizard.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DataTableCreationWizard.class);
 
     @NotBlank(message = "Cannot be empty")
     private String tableType;
@@ -127,7 +127,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
         String s = super.next();
 
         // Switched to a next page
-        log.debug("Go to page {0}", getStep());
+        LOG.debug("Go to page {0}", getStep());
 
         if (Page.COLUMNS_CONFIGURATION == Page.valueOf(getStep())) {
             initTree();
@@ -410,7 +410,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
         private final int pageNum;
 
-        private Page(int pageNum) {
+        Page(int pageNum) {
             this.pageNum = pageNum;
         }
     }

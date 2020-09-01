@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.storelogdata;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -17,6 +18,8 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.staxutils.PrettyPrintXMLStreamWriter;
 import org.apache.cxf.staxutils.StaxUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract CXF interceptor for collecting data for logging to external source feature.
@@ -25,6 +28,8 @@ import org.apache.cxf.staxutils.StaxUtils;
  *
  */
 public abstract class AbstractProcessLoggingMessageInterceptor extends AbstractPhaseInterceptor<Message> {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractProcessLoggingMessageInterceptor.class);
+
     public static final int DEFAULT_LIMIT = 1024 * 1024;
     protected static final String BINARY_CONTENT_MESSAGE = "--- Binary Content ---";
     private static final List<String> BINARY_CONTENT_MEDIA_TYPES;
@@ -69,23 +74,27 @@ public abstract class AbstractProcessLoggingMessageInterceptor extends AbstractP
     protected void writePayload(StringBuilder builder,
             CachedOutputStream cos,
             String encoding,
-            String contentType) throws Exception {
+            String contentType) throws IOException {
         // Just transform the XML message when the cos has content
-        if (isPrettyLogging() && contentType != null && contentType.contains("xml") && !contentType.toLowerCase().contains("multipart/related") && cos.size() > 0) {
+        if (isPrettyLogging()
+                && contentType != null
+                && contentType.contains("xml")
+                && !contentType.toLowerCase().contains("multipart/related")
+                && cos.size() > 0) {
 
             StringWriter swriter = new StringWriter();
             XMLStreamWriter xwriter = StaxUtils.createXMLStreamWriter(swriter);
             xwriter = new PrettyPrintXMLStreamWriter(xwriter, 2);
             try (InputStream in = cos.getInputStream()) {
                 StaxUtils.copy(new StreamSource(in), xwriter);
-            } catch (XMLStreamException xse) {
-                // ignore
+            } catch (XMLStreamException ignored) {
+                LOG.debug("Ignored error: ", ignored);
             } finally {
                 try {
                     xwriter.flush();
                     xwriter.close();
-                } catch (XMLStreamException xse2) {
-                    // ignore
+                } catch (XMLStreamException ignored) {
+                    LOG.debug("Ignored error: ", ignored);
                 }
             }
 
@@ -105,7 +114,9 @@ public abstract class AbstractProcessLoggingMessageInterceptor extends AbstractP
         }
     }
 
-    protected void writePayload(StringBuilder builder, StringWriter stringWriter, String contentType) throws Exception {
+    protected void writePayload(StringBuilder builder,
+                                StringWriter stringWriter,
+                                String contentType) throws XMLStreamException {
         // Just transform the XML message when the cos has content
         if (isPrettyLogging() && contentType != null && contentType.contains("xml") && stringWriter.getBuffer()
             .length() > 0) {

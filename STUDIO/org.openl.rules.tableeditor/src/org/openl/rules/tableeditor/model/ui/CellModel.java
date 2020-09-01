@@ -16,7 +16,7 @@ public class CellModel implements ICellModel {
     private int colspan = 1;
     private int rowspan = 1;
 
-    private int indent = 0;
+    private int indent;
     private String halign;
     private String valign;
     private short[] rgbBackground;

@@ -25,7 +25,7 @@ import org.richfaces.event.TreeSelectionChangeEvent;
 
 public abstract class AbstractDiffController {
     // TODO remove?
-    private boolean showEqualElements = false;
+    private boolean showEqualElements;
 
     private TreeNode richDiffTree;
     private TreeNode selectedNode;
@@ -137,12 +137,7 @@ public abstract class AbstractDiffController {
 
             TreeNode node = new TreeNode(d, propertyNodes.isEmpty() && !hasChildren(d));
 
-            if (shouldSkipNode(node)) {
-                continue;
-            }
-
-            // Skip empty sheets
-            if (node.getType().equals(XlsProjectionType.SHEET.name()) && node.isLeaf()) {
+            if (shouldSkipNode(node) || (node.getType().equals(XlsProjectionType.SHEET.name()) && node.isLeaf())) {
                 continue;
             }
 
@@ -192,16 +187,14 @@ public abstract class AbstractDiffController {
                 if (pp2 != null) {
                     Object v1 = pp1.getRawValue();
                     Object v2 = pp2.getRawValue();
-                    if (v1 != null && v2 != null) {
-                        if (!v1.equals(v2)) {
-                            if (pp1.getName().equals("name")) {
-                                v1 = "";
-                            }
-                            String s = pp1.getName() + ": " + v1 + " -> " + v2;
-
-                            PropertyNode np = new PropertyNode(d, s);
-                            propertyNodes.add(np);
+                    if (v1 != null && v2 != null && !v1.equals(v2)) {
+                        if ("name".equals(pp1.getName())) {
+                            v1 = "";
                         }
+                        String s = pp1.getName() + ": " + v1 + " -> " + v2;
+
+                        PropertyNode np = new PropertyNode(d, s);
+                        propertyNodes.add(np);
                     }
                 }
             }

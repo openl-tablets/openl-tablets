@@ -55,7 +55,7 @@ public abstract class ARangeParser<T> {
             T o2 = adapter.adaptValue(m.group(3));
 
             String delim = m.group(2);
-            if (delim.equals("...") || delim.equals("…")) {
+            if ("...".equals(delim) || "…".equals(delim)) {
                 return new ParseStruct<>(o1, o2, BoundType.EXCLUDING, BoundType.EXCLUDING);
             }
             return new ParseStruct<>(o1, o2);
@@ -158,16 +158,16 @@ public abstract class ARangeParser<T> {
                 }
                 min = second;
                 max = first;
-                leftBoundType = secondBound.equals(">") ? BoundType.EXCLUDING : BoundType.INCLUDING;
-                rightBoundType = firstBound.equals("<") ? BoundType.EXCLUDING : BoundType.INCLUDING;
+                leftBoundType = ">".equals(secondBound) ? BoundType.EXCLUDING : BoundType.INCLUDING;
+                rightBoundType = "<".equals(firstBound) ? BoundType.EXCLUDING : BoundType.INCLUDING;
             } else {
                 if (secondBound.startsWith(">")) {
                     return null;
                 }
                 min = first;
                 max = second;
-                leftBoundType = firstBound.equals(">") ? BoundType.EXCLUDING : BoundType.INCLUDING;
-                rightBoundType = secondBound.equals("<") ? BoundType.EXCLUDING : BoundType.INCLUDING;
+                leftBoundType = ">".equals(firstBound) ? BoundType.EXCLUDING : BoundType.INCLUDING;
+                rightBoundType = "<".equals(secondBound) ? BoundType.EXCLUDING : BoundType.INCLUDING;
             }
             return new ParseStruct<>(min, max, leftBoundType, rightBoundType);
         }

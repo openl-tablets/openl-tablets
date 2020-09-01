@@ -11,7 +11,9 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public final class AlgorithmSubroutineMethodWrapper extends AbstractAlgorithmSubroutineMethodWrapper implements IRulesMethodWrapper {
+public final class AlgorithmSubroutineMethodWrapper
+        extends AbstractAlgorithmSubroutineMethodWrapper
+        implements IRulesMethodWrapper {
 
     private final XlsModuleOpenClass xlsModuleOpenClass;
     private final ContextPropertiesInjector contextPropertiesInjector;
@@ -27,8 +29,8 @@ public final class AlgorithmSubroutineMethodWrapper extends AbstractAlgorithmSub
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = contextPropertiesInjector;
         if (delegate.getType() instanceof ModuleSpecificType) {
-            IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
-            this.type = type != null ? type : delegate.getType();
+            IOpenClass openClassType = xlsModuleOpenClass.findType(delegate.getType().getName());
+            this.type = openClassType != null ? openClassType : delegate.getType();
         } else {
             this.type = delegate.getType();
         }
@@ -72,10 +74,12 @@ public final class AlgorithmSubroutineMethodWrapper extends AbstractAlgorithmSub
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         AlgorithmSubroutineMethodWrapper that = (AlgorithmSubroutineMethodWrapper) o;
         return delegate.equals(that.delegate);
     }
