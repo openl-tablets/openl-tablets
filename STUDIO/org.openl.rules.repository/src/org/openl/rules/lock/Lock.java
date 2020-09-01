@@ -44,23 +44,21 @@ public class Lock {
         if (info.isLocked()) {
             return info.getLockedBy().equals(lockedBy);
         }
+        boolean lockAcquired = false;
         if (!Files.exists(lockPath)) {
             try {
                 Path prepareLock = createLockFile(lockedBy);
-                boolean success = finishLockCreating(prepareLock);
-                if (!success) {
+                lockAcquired = finishLockCreating(prepareLock);
+                if (!lockAcquired) {
                     // Delete because of it loos lock
                     Files.delete(prepareLock);
                     deleteEmptyParentFolders();
                 }
-                return success;
             } catch (IOException e) {
                 LOG.error("Failure of lock creation.", e);
-                return false;
             }
-        } else {
-            return false;
         }
+        return lockAcquired;
     }
 
     public boolean tryLock(String lockedBy, long time, TimeUnit unit) {
