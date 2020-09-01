@@ -133,7 +133,6 @@ public class Lock {
                 return false;
             }
         }
-        lockPath.resolve(READY_LOCK);
         Files.move(lock, lockPath.resolve(READY_LOCK));
         return true;
     }
