@@ -31,17 +31,6 @@ public class ProjectDescriptor {
         this.propertiesFileNamePatterns = propertiesFileNamePatterns;
     }
 
-    @Deprecated
-    public String getPropertiesFileNamePattern() {
-        String[] patterns = getPropertiesFileNamePatterns();
-        return patterns == null || patterns.length == 0 ? null : patterns[0];
-    }
-
-    @Deprecated
-    public void setPropertiesFileNamePattern(String propertiesFileNamePattern) {
-        setPropertiesFileNamePatterns(new String[]{propertiesFileNamePattern});
-    }
-
     public String getPropertiesFileNameProcessor() {
         return propertiesFileNameProcessor;
     }
