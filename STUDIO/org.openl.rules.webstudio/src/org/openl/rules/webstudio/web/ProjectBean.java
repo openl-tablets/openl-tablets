@@ -75,6 +75,7 @@ public class ProjectBean {
 
     private List<ListItem<ProjectDependencyDescriptor>> dependencies;
     private String sources;
+    private String[] propertiesFileNamePatterns;
 
     private UIInput propertiesFileNameProcessorInput;
     private String propertiesFileNameProcessor;
@@ -152,6 +153,15 @@ public class ProjectBean {
         this.sources = sources;
     }
 
+    public String getPropertiesFileNamePatterns() {
+        propertiesFileNamePatterns = studio.getCurrentProjectDescriptor().getPropertiesFileNamePatterns();
+        return StringUtils.join(propertiesFileNamePatterns, "\n");
+    }
+
+    public void setPropertiesFileNamePatterns(String propertiesFileNamePatterns) {
+        this.propertiesFileNamePatterns = StringUtils.toLines(propertiesFileNamePatterns);
+    }
+
     // TODO Move messages to ValidationMessages.properties
     public void validateProjectName(FacesContext context, UIComponent toValidate, Object value) {
         String name = (String) value;
@@ -187,18 +197,20 @@ public class ProjectBean {
 
     // TODO Move messages to ValidationMessages.properties
     public void validatePropertiesFileNamePattern(FacesContext context, UIComponent toValidate, Object value) {
-        String pattern = (String) value;
+        String[] patterns = StringUtils.toLines((String) value);
 
-        if (StringUtils.isNotBlank(pattern)) {
+        if (patterns != null) {
             PropertiesFileNameProcessor processor;
             PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
             try {
                 ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
                 projectDescriptor.setPropertiesFileNameProcessor((String) propertiesFileNameProcessorInput.getValue());
-                projectDescriptor.setPropertiesFileNamePatterns(new String[] { pattern });
+                projectDescriptor.setPropertiesFileNamePatterns(patterns);
                 processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
                 if (processor instanceof FileNamePatternValidator) {
-                    ((FileNamePatternValidator) processor).validate(pattern);
+                    for(String pattern: patterns) {
+                        ((FileNamePatternValidator) processor).validate(pattern);
+                    }
                 }
             } catch (InvalidFileNamePatternException e) {
                 WebStudioUtils.throwValidationError(e.getMessage());
@@ -281,6 +293,8 @@ public class ProjectBean {
         tryLockProject();
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
+        projectDescriptor.setPropertiesFileNamePatterns(propertiesFileNamePatterns);
+
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
         RulesProject currentProject = studio.getCurrentProject();
@@ -839,10 +853,8 @@ public class ProjectBean {
                 builder.build(projectDescriptor).process(module, patterns);
                 fileNameMatched = true;
             }
-        } catch (InvalidFileNameProcessorException ignored) {
+        } catch (InvalidFileNameProcessorException | InvalidFileNamePatternException ignored) {
             // Cannot check for name correctness
-        } catch (InvalidFileNamePatternException e) {
-            // Invalid pattern, cannot check for name correctness
         } catch (NoMatchFileNameException e) {
             fileNameMatched = false;
         }

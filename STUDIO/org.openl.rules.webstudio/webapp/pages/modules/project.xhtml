@@ -414,7 +414,7 @@
                         <tr>
                             <td>Properties pattern for a file name:</td>
                             <td class="aligned-property">
-                                <h:inputText id="propertiesFileNamePattern" value="#{project.propertiesFileNamePattern}"
+                                <h:inputTextarea id="propertiesFileNamePattern" value="#{projectBean.propertiesFileNamePatterns}"
                                              validator="#{projectBean.validatePropertiesFileNamePattern}"/>
                                 <a id="patternInfo" onclick="showPatternInfo($j('#propertiesFileNameProcessor').val());"
                                    title="Details" class="imageButton"
