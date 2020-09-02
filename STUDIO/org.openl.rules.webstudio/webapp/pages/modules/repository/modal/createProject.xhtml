@@ -160,6 +160,12 @@
                                          action="#{repositoryTreeController.createNewRulesProject}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
+
+                    <script>
+                        $j(function () {
+                            createProjectFormTemplCommentHandler.setTemplate('#{repositoryTreeController.retrieveCreateProjectCommentTemplate()}');
+                        });
+                    </script>
                 </h:form>
             </rich:tab>
 
@@ -220,6 +226,12 @@
                                          action="#{repositoryTreeController.createProjectWithFiles}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
+
+                    <script>
+                        $j(function () {
+                            createProjectFormFilesCommentHandler.setTemplate('#{repositoryTreeController.retrieveCreateProjectCommentTemplate()}');
+                        });
+                    </script>
                 </h:form>
             </rich:tab>
 
@@ -281,6 +293,12 @@
                                          styleClass="button-primary"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
+
+                    <script>
+                        $j(function () {
+                            uploadProjectFormCommentHandler.setTemplate('#{repositoryTreeController.retrieveCreateProjectCommentTemplate()}');
+                        });
+                    </script>
                 </h:form>
             </rich:tab>
 
@@ -342,6 +360,12 @@
                                          styleClass="button-primary"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
+
+                    <script>
+                        $j(function () {
+                            createProjectFormOpenAPICommentHandler.setTemplate('#{repositoryTreeController.retrieveCreateProjectCommentTemplate()}');
+                        });
+                    </script>
                 </h:form>
             </rich:tab>
 
@@ -484,7 +508,7 @@
 
         let CommentTemplateHandler = function () {
             this.isEdited = false;
-            this.createProjectCommentTemplate = "#{repositoryTreeController.retrieveCreateProjectCommentTemplate()}";
+            this.createProjectCommentTemplate = "";
 
             let self = this;
 
@@ -493,6 +517,10 @@
                     input.value = self.createProjectCommentTemplate.replace(/\{project\-name}/g, projectName);
                 }
             };
+
+            this.setTemplate = function (newTemplate) {
+                self.createProjectCommentTemplate = newTemplate;
+            }
         };
 
         let uploadProjectFormCommentHandler = new CommentTemplateHandler();

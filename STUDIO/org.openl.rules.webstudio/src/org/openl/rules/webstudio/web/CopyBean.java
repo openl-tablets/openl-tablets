@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import javax.annotation.PostConstruct;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
@@ -21,7 +20,6 @@ import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -40,8 +38,8 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.jsf.FacesContextUtils;
@@ -55,7 +53,7 @@ import org.springframework.web.jsf.FacesContextUtils;
 public class CopyBean {
     private static final Logger LOG = LoggerFactory.getLogger(CopyBean.class);
 
-    private final Comments designRepoComments;
+    private final PropertyResolver propertyResolver;
 
     private final RepositoryTreeState repositoryTreeState;
 
@@ -64,6 +62,8 @@ public class CopyBean {
 
     private String repositoryId;
     private String toRepositoryId;
+    private boolean repositoryIsChanged = false;
+
     private String currentProjectName;
     private String newProjectName;
     private String projectFolder;
@@ -72,12 +72,10 @@ public class CopyBean {
     private String comment;
     private Boolean copyOldRevisions = Boolean.FALSE;
     private Integer revisionsCount;
-    private CommentValidator commentValidator;
     private String errorMessage;
 
-    public CopyBean(@Qualifier("designRepositoryComments") Comments designRepoComments,
-            RepositoryTreeState repositoryTreeState) {
-        this.designRepoComments = designRepoComments;
+    public CopyBean(PropertyResolver propertyResolver, RepositoryTreeState repositoryTreeState) {
+        this.propertyResolver = propertyResolver;
         this.repositoryTreeState = repositoryTreeState;
     }
 
@@ -102,11 +100,18 @@ public class CopyBean {
     }
 
     public String getProjectFolder() {
-        return projectFolder;
+        String folderToShow = this.projectFolder;
+        if (!folderToShow.startsWith("/")) {
+            folderToShow = "/" + folderToShow;
+        }
+        return folderToShow;
     }
 
     public void setProjectFolder(String projectFolder) {
         String folder = StringUtils.trimToEmpty(projectFolder).replace('\\', '/');
+        if (folder.startsWith("/")) {
+            folder = folder.substring(1);
+        }
         if (!folder.isEmpty() && !folder.endsWith("/")) {
             folder += '/';
         }
@@ -130,14 +135,20 @@ public class CopyBean {
     }
 
     public String getComment() {
-        if (comment == null) {
+        if (comment == null && toRepositoryId != null) {
+            Comments designRepoComments = new Comments(propertyResolver, toRepositoryId);
             return designRepoComments.copiedFrom(getCurrentProjectName());
         }
         return comment;
     }
 
     public void setComment(String comment) {
-        this.comment = StringUtils.trimToNull(comment);
+        if (repositoryIsChanged) {
+            this.comment = null;
+            repositoryIsChanged = false;
+        } else {
+            this.comment = StringUtils.trimToNull(comment);
+        }
     }
 
     public void setCopyOldRevisions(Boolean copyOldRevisions) {
@@ -170,11 +181,6 @@ public class CopyBean {
 
     public String getErrorMessage() {
         return errorMessage;
-    }
-
-    @PostConstruct
-    public void init() {
-        this.commentValidator = CommentValidator.forDesignRepo();
     }
 
     public void copy() {
@@ -327,8 +333,8 @@ public class CopyBean {
         String comment = (String) value;
 
         RulesProject project = getCurrentProject();
-        if (project != null) {
-            commentValidator.validate(comment);
+        if (project != null && toRepositoryId != null) {
+            CommentValidator.forRepo(toRepositoryId).validate(comment);
         }
     }
 
@@ -347,6 +353,9 @@ public class CopyBean {
     }
 
     public void setToRepositoryId(String toRepositoryId) {
+        if (this.toRepositoryId == null || !this.toRepositoryId.equals(toRepositoryId)) {
+            repositoryIsChanged = true;
+        }
         this.toRepositoryId = toRepositoryId;
     }
 

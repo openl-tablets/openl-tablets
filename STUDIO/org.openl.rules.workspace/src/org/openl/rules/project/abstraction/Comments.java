@@ -12,6 +12,15 @@ import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 
 public final class Comments {
+    /**
+     * Repository id for default repository
+     */
+    public static final String DESIGN_CONFIG_REPO_ID = "design";
+
+    /**
+     * Repository id for Deploy Configuration repository
+     */
+    public static final String DEPLOY_CONFIG_REPO_ID = "deploy-config";
 
     private static final String PROJECT_NAME = "\\{project-name}";
     private static final String REVISION = "\\{revision}";
@@ -28,23 +37,23 @@ public final class Comments {
     private final String copiedFromTemplate;
     private final String restoredFromTemplate;
 
-    public Comments(PropertyResolver environment, String prefix) {
+    public Comments(PropertyResolver environment, String repoId) {
         dateTimeFormat = Objects.requireNonNull(environment.getProperty("data.format.datetime"));
-        Objects.requireNonNull(prefix, "prefix cannot be null");
+        Objects.requireNonNull(repoId, "prefix cannot be null");
         saveProjectTemplate = environment
-            .getProperty(REPOSITORY_PREFIX + prefix + "comment-template.user-message.default.save");
+            .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.save");
         createProjectTemplate = environment
-            .getProperty(REPOSITORY_PREFIX + prefix + "comment-template.user-message.default.create");
+            .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.create");
         archiveProjectTemplate = environment
-            .getProperty(REPOSITORY_PREFIX + prefix + "comment-template.user-message.default.archive");
+            .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.archive");
         restoreProjectTemplate = environment
-            .getProperty(REPOSITORY_PREFIX + prefix + "comment-template.user-message.default.restore");
+            .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.restore");
         eraseProjectTemplate = environment
-            .getProperty(REPOSITORY_PREFIX + prefix + "comment-template.user-message.default.erase");
+            .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.erase");
         copiedFromTemplate = environment
-            .getProperty(REPOSITORY_PREFIX + prefix + "comment-template.user-message.default.copied-from");
+            .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.copied-from");
         restoredFromTemplate = environment
-            .getProperty(REPOSITORY_PREFIX + prefix + "comment-template.user-message.default.restored-from");
+            .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.restored-from");
     }
 
     // protected for tests

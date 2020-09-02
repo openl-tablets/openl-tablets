@@ -144,10 +144,6 @@ public class RepositoryTreeController {
     private ZipCharsetDetector zipCharsetDetector;
 
     @Autowired
-    @Qualifier("designRepositoryComments")
-    private Comments designRepoComments;
-
-    @Autowired
     @Qualifier("deployConfigRepositoryComments")
     private Comments deployConfigRepoComments;
 
@@ -190,8 +186,6 @@ public class RepositoryTreeController {
 
     private TreeNode activeProjectNode;
 
-    private boolean projectUseCustomComment;
-    private CommentValidator designCommentValidator;
     private CommentValidator deployConfigCommentValidator;
 
     private String createProjectComment;
@@ -552,7 +546,7 @@ public class RepositoryTreeController {
         if (StringUtils.isNotBlank(createProjectComment)) {
             comment = createProjectComment;
         } else {
-            comment = designRepoComments.createProject(projectName);
+            comment = getDesignRepoComments().createProject(projectName);
         }
         String msg = validateCreateProjectParams(comment);
 
@@ -657,7 +651,7 @@ public class RepositoryTreeController {
 
     private String validateCreateProjectComment(String comment) {
         try {
-            designCommentValidator.validate(comment);
+            getDesignCommentValidator().validate(comment);
             return null;
         } catch (Exception e) {
             return e.getMessage();
@@ -873,7 +867,7 @@ public class RepositoryTreeController {
     }
 
     private boolean isValidComment(UserWorkspaceProject project, String comment) {
-        CommentValidator commentValidator = project instanceof RulesProject ? designCommentValidator
+        CommentValidator commentValidator = project instanceof RulesProject ? getDesignCommentValidator()
                                                                             : deployConfigCommentValidator;
 
         try {
@@ -1297,11 +1291,18 @@ public class RepositoryTreeController {
             return comments.restoredFrom(fileData.getVersion(), fileData.getAuthor(), fileData.getModifiedAt());
         }
 
-        return comments.saveProject(project == null ? StringUtils.EMPTY : project.getName());
+        return project == null ? StringUtils.EMPTY : comments.saveProject(project.getName());
     }
 
     private Comments getComments(UserWorkspaceProject project) {
-        return project instanceof ADeploymentProject ? deployConfigRepoComments : designRepoComments;
+        if (project == null || project.getDesignRepository() == null) {
+            return new Comments(propertyResolver, Comments.DESIGN_CONFIG_REPO_ID);
+        }
+        if (project instanceof ADeploymentProject) {
+            return deployConfigRepoComments;
+        }
+        repositoryId = project.getDesignRepository().getId();
+        return getDesignRepoComments();
     }
 
     public String getNewProjectName() {
@@ -1518,7 +1519,7 @@ public class RepositoryTreeController {
                     if (projectDescriptor != null) {
                         setProjectName(projectDescriptor.getName());
                     }
-                    setCreateProjectComment(designRepoComments.createProject(getProjectName()));
+                    setCreateProjectComment(getDesignRepoComments().createProject(getProjectName()));
                 }
             } else {
                 setProjectName(fileName);
@@ -1588,6 +1589,15 @@ public class RepositoryTreeController {
 
     public void setRepositoryId(String repositoryId) {
         this.repositoryId = repositoryId;
+    }
+
+    private CommentValidator getDesignCommentValidator() {
+        return repositoryId == null ? CommentValidator.forRepo("") : CommentValidator.forRepo(repositoryId);
+    }
+
+    private Comments getDesignRepoComments() {
+        return repositoryId == null ? new Comments(propertyResolver, Comments.DESIGN_CONFIG_REPO_ID)
+                                    : new Comments(propertyResolver, repositoryId);
     }
 
     public void setNewProjectName(String newProjectName) {
@@ -1697,7 +1707,7 @@ public class RepositoryTreeController {
         if (StringUtils.isNotBlank(createProjectComment)) {
             comment = createProjectComment;
         } else {
-            comment = designRepoComments.createProject(projectName);
+            comment = getDesignRepoComments().createProject(projectName);
         }
         String errorMessage = validateCreateProjectParams(comment);
         if (errorMessage != null) {
@@ -1850,7 +1860,7 @@ public class RepositoryTreeController {
                 if (StringUtils.isNotBlank(createProjectComment)) {
                     comment = createProjectComment;
                 } else {
-                    comment = designRepoComments.createProject(projectName);
+                    comment = getDesignRepoComments().createProject(projectName);
                 }
 
                 ProjectUploader projectUploader = new ProjectUploader(repositoryId, uploadedItem,
@@ -2159,7 +2169,7 @@ public class RepositoryTreeController {
 
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
         if (project instanceof RulesProject) {
-            designCommentValidator.validate(comment);
+            getDesignCommentValidator().validate(comment);
         } else if (project instanceof ADeploymentProject) {
             deployConfigCommentValidator.validate(comment);
         }
@@ -2168,7 +2178,8 @@ public class RepositoryTreeController {
     public List<String> getCommentParts(AProjectArtefact artefact, ProjectVersion version) {
         String comment = version.getVersionComment();
         if (artefact instanceof RulesProject) {
-            List<String> commentParts = designRepoComments.getCommentParts(comment);
+            repositoryId = ((RulesProject) artefact).getDesignRepository().getId();
+            List<String> commentParts = getDesignRepoComments().getCommentParts(comment);
             if (commentParts.size() == 3) {
                 String name = commentParts.get(1);
                 if (repositoryTreeState.getProjectNodeByPhysicalName(name) != null) {
@@ -2185,7 +2196,11 @@ public class RepositoryTreeController {
      * Used when create a project.
      */
     public boolean isUseCustomComment() {
-        return projectUseCustomComment;
+        if (repositoryId == null) {
+            return false;
+        }
+        return Boolean
+            .parseBoolean(propertyResolver.getProperty("repository." + repositoryId + ".comment-template.use-custom-comments"));
     }
 
     /**
@@ -2193,11 +2208,17 @@ public class RepositoryTreeController {
      */
     public boolean isUseCustomCommentForProject() {
         // Only projects are supported for now. Deploy configs can be supported in future.
-        return repositoryTreeState.getSelectedProject() != null
-                                                                ? projectUseCustomComment && !repositoryTreeState
-                                                                    .getSelectedProject()
-                                                                    .isLocalOnly()
-                                                                : projectUseCustomComment;
+        UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+        if (selectedProject == null) {
+            return false;
+        }
+        Repository repository = selectedProject.getDesignRepository();
+        if (repository == null) {
+            return false;
+        }
+        repositoryId = repository.getId();
+        boolean projectUseCustomComment = isUseCustomComment();
+        return projectUseCustomComment && !selectedProject.isLocalOnly();
     }
 
     public String getCreateProjectComment() {
@@ -2205,7 +2226,7 @@ public class RepositoryTreeController {
     }
 
     public String retrieveCreateProjectCommentTemplate() {
-        return projectUseCustomComment ? designRepoComments.getCreateProjectTemplate() : null;
+        return isUseCustomComment() ? getDesignRepoComments().getCreateProjectTemplate() : null;
     }
 
     public void setCreateProjectComment(String createProjectComment) {
@@ -2214,8 +2235,11 @@ public class RepositoryTreeController {
 
     public String getArchiveProjectComment() {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+        if (project == null && activeProjectNode.getData() instanceof UserWorkspaceProject) {
+            project = (UserWorkspaceProject) activeProjectNode.getData();
+        }
         Comments comments = getComments(project);
-        return comments.archiveProject(project == null ? activeProjectNode.getName() : project.getName());
+        return project == null ? StringUtils.EMPTY : comments.archiveProject(project.getName());
     }
 
     public void setArchiveProjectComment(String archiveProjectComment) {
@@ -2224,8 +2248,11 @@ public class RepositoryTreeController {
 
     public String getRestoreProjectComment() {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+        if (project == null && activeProjectNode.getData() instanceof UserWorkspaceProject) {
+            project = (UserWorkspaceProject) activeProjectNode.getData();
+        }
         Comments comments = getComments(project);
-        return comments.restoreProject(project == null ? activeProjectNode.getName() : project.getName());
+        return project == null ? StringUtils.EMPTY : comments.restoreProject(project.getName());
     }
 
     public void setRestoreProjectComment(String restoreProjectComment) {
@@ -2234,8 +2261,11 @@ public class RepositoryTreeController {
 
     public String getEraseProjectComment() {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+        if (project == null && activeProjectNode.getData() instanceof UserWorkspaceProject) {
+            project = (UserWorkspaceProject) activeProjectNode.getData();
+        }
         Comments comments = getComments(project);
-        return comments.eraseProject(project == null ? activeProjectNode.getName() : project.getName());
+        return project == null ? StringUtils.EMPTY : comments.eraseProject(project.getName());
     }
 
     public void setProjectVersionCacheManager(ProjectVersionCacheManager projectVersionCacheManager) {
@@ -2266,10 +2296,6 @@ public class RepositoryTreeController {
         this.zipCharsetDetector = zipCharsetDetector;
     }
 
-    public void setDesignRepoComments(Comments designRepoComments) {
-        this.designRepoComments = designRepoComments;
-    }
-
     public void setDeployConfigRepoComments(Comments deployConfigRepoComments) {
         this.deployConfigRepoComments = deployConfigRepoComments;
     }
@@ -2282,14 +2308,11 @@ public class RepositoryTreeController {
     public void init() {
         customTemplatesResolver = new CustomTemplatesResolver(
             propertyResolver.getProperty(DynamicPropertySource.OPENL_HOME));
-        this.projectUseCustomComment = Boolean
-            .parseBoolean(propertyResolver.getProperty("repository.design.comment-template.use-custom-comments"));
-        designCommentValidator = CommentValidator.forDesignRepo();
-        boolean separateDeployConfigRepo = StringUtils.isBlank(propertyResolver.getProperty(USE_REPOSITORY_FOR_DEPLOY_CONFIG));
-        if (separateDeployConfigRepo) {
-            deployConfigCommentValidator = CommentValidator.forDeployConfigRepo();
+        String designRepoForDeployConfig = propertyResolver.getProperty(USE_REPOSITORY_FOR_DEPLOY_CONFIG);
+        if (StringUtils.isBlank(designRepoForDeployConfig)) {
+            deployConfigCommentValidator = CommentValidator.forRepo(Comments.DEPLOY_CONFIG_REPO_ID);
         } else {
-            deployConfigCommentValidator = designCommentValidator;
+            deployConfigCommentValidator = CommentValidator.forRepo(designRepoForDeployConfig);
         }
         eraseFromRepository = false;
     }

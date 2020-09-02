@@ -52,14 +52,9 @@
     <bean id="projectDescriptorArtefactResolver"
           class="org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver"/>
 
-    <bean id="designRepositoryComments" class="org.openl.rules.project.abstraction.Comments">
-        <constructor-arg ref="environment"/>
-        <constructor-arg name="prefix" value="design."/>
-    </bean>
-
     <bean id="deployConfigRepositoryComments" class="org.openl.rules.project.abstraction.Comments">
         <constructor-arg ref="environment"/>
-        <constructor-arg name="prefix" value="deploy-config."/>
+        <constructor-arg name="repoId" value="deploy-config"/>
     </bean>
 
     <bean id="projectVersionCacheDB" class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionH2CacheDB">

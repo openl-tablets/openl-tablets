@@ -241,6 +241,8 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     public boolean deleteHistory(FileData data) throws IOException {
         ProjectIndex mapping = getMappingForRead();
 
+        getUpToDateMapping();
+        FileData internalToDelete = toInternal(mapping, data);
         if (data.getVersion() == null) {
             try {
                 Lock lock = mappingLock.writeLock();
@@ -253,7 +255,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 }
 
                 // Use mapping before modification
-                return delegate.deleteHistory(toInternal(mapping, data));
+                return delegate.deleteHistory(internalToDelete);
             } catch (IOException | RuntimeException e) {
                 refreshMappingWithLock();
                 throw e;
@@ -270,34 +272,21 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                     }
                 }
             }
-            return delegate.deleteHistory(toInternal(mapping, data));
+            return delegate.deleteHistory(internalToDelete);
         }
     }
 
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
+        ProjectIndex mapping;
         if (isUpdateConfigNeeded(destData)) {
-            try {
-                ByteArrayInputStream configStream = updateConfigFile(destData);
-                FileData configData = new FileData();
-                configData.setName(configFile);
-                configData.setAuthor(destData.getAuthor());
-                configData.setComment(destData.getComment());
-                repositorySettings.getRepository().save(configData, configStream);
-
-                ProjectIndex mapping = getMappingForRead();
-                return toExternal(mapping,
-                    delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version));
-            } catch (IOException | RuntimeException e) {
-                // Failed to update mapping. Restore current saved version.
-                refreshMappingWithLock();
-                throw e;
-            }
+            mapping = updateConfigFile(destData);
         } else {
-            ProjectIndex mapping = getMappingForRead();
-            return toExternal(mapping,
-                delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version));
+            mapping = getMappingForRead();
         }
+
+        return toExternal(mapping,
+            delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version));
     }
 
     @Override
@@ -336,26 +325,16 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     public FileData save(FileData folderData,
             Iterable<FileItem> files,
             ChangesetType changesetType) throws IOException {
+        ProjectIndex mapping;
         if (isUpdateConfigNeeded(folderData)) {
-            try {
-                ByteArrayInputStream configStream = updateConfigFile(folderData);
-                FileData configData = new FileData();
-                configData.setName(configFile);
-                configData.setAuthor(folderData.getAuthor());
-                configData.setComment(folderData.getComment());
-                repositorySettings.getRepository().save(configData, configStream);
-            } catch (IOException | RuntimeException e) {
-                // Failed to update mapping. Restore current saved version.
-                refreshMappingWithLock();
-                throw e;
-            }
+            mapping = updateConfigFile(folderData);
+        } else {
+            mapping = getMappingForRead();
         }
         try {
-            ProjectIndex mapping = getMappingForRead();
             return toExternal(mapping,
                 delegate.save(toInternal(mapping, folderData), toInternal(mapping, files), changesetType));
         } catch (MergeConflictException e) {
-            ProjectIndex mapping = getMappingForRead();
             throw new MergeConflictException(toExternalKeys(mapping, e.getDiffs()),
                 e.getBaseCommit(),
                 e.getYourCommit(),
@@ -868,11 +847,11 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         }
     }
 
-    private ByteArrayInputStream updateConfigFile(FileData folderData) throws IOException {
+    private ProjectIndex updateConfigFile(FileData folderData) throws IOException {
         FileMappingData mappingData = folderData.getAdditionalData(FileMappingData.class);
         if (mappingData == null) {
             log.warn("Unexpected behavior: FileMappingData is absent.");
-            return null;
+            return externalToInternal;
         }
 
         Lock lock = mappingLock.writeLock();
@@ -890,7 +869,17 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 projects.add(info);
             }
 
-            return getStreamFromProperties(externalToInternal);
+            ByteArrayInputStream configStream = getStreamFromProperties(externalToInternal);
+            FileData configData = new FileData();
+            configData.setName(configFile);
+            configData.setAuthor(folderData.getAuthor());
+            configData.setComment(folderData.getComment());
+            repositorySettings.getRepository().save(configData, configStream);
+            return externalToInternal;
+        } catch (IOException | RuntimeException e) {
+            // Failed to update mapping. Restore current saved version.
+            refreshMappingWithLock();
+            throw e;
         } finally {
             lock.unlock();
         }

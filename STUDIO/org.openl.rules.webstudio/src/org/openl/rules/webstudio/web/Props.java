@@ -21,6 +21,10 @@ public class Props {
         return StringUtils.isNotEmpty(text) ? Integer.valueOf(text) : null;
     }
 
+    public static Environment getEnvironment() {
+        return env;
+    }
+
     public static void setEnvironment(Environment environment) {
         env = environment;
     }

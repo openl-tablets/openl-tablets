@@ -23,7 +23,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 
 @Service("localUpload")
@@ -61,10 +61,10 @@ public class LocalUploadController {
 
     private String createProjectCommentTemplate;
 
-    private final Comments designRepoComments;
+    private final PropertyResolver propertyResolver;
 
-    public LocalUploadController(@Qualifier("designRepositoryComments") Comments designRepoComments) {
-        this.designRepoComments = designRepoComments;
+    public LocalUploadController(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
     }
 
     private void createProject(File baseFolder,
@@ -165,7 +165,7 @@ public class LocalUploadController {
             for (UploadBean bean : beans) {
                 if (bean.isSelected()) {
                     try {
-                        String comment = designRepoComments.createProject(createProjectCommentTemplate,
+                        String comment = getDesignRepoComments().createProject(createProjectCommentTemplate,
                             bean.getProjectName());
 
                         createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession, comment,
@@ -198,7 +198,7 @@ public class LocalUploadController {
 
     public String getCreateProjectCommentTemplate() {
         if (createProjectCommentTemplate == null) {
-            return designRepoComments.getCreateProjectTemplate();
+            return getDesignRepoComments().getCreateProjectTemplate();
         }
         return createProjectCommentTemplate;
     }
@@ -226,5 +226,10 @@ public class LocalUploadController {
             log.error(e.getMessage(), e);
             return false;
         }
+    }
+
+    private Comments getDesignRepoComments() {
+        return repositoryId == null ? new Comments(propertyResolver, Comments.DESIGN_CONFIG_REPO_ID)
+                                    : new Comments(propertyResolver, repositoryId);
     }
 }
