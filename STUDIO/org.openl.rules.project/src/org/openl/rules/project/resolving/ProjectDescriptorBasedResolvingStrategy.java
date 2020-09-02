@@ -52,7 +52,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
             PropertiesFileNameProcessor processor = null;
             if (StringUtils.isNotBlank(projectDescriptor.getPropertiesFileNameProcessor())) {
                 try {
-                    processor = propertiesFileNameProcessorBuilder.buildCustomProcessor(projectDescriptor);
+                    processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
                 } catch (InvalidFileNameProcessorException e1) {
                     String message = e1.getMessage();
                     LOG.warn(message);
@@ -60,7 +60,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                 }
             } else {
                 if (CollectionUtils.isNotEmpty(projectDescriptor.getPropertiesFileNamePatterns())) {
-                    processor = propertiesFileNameProcessorBuilder.buildDefaultProcessor(projectDescriptor);
+                    processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
                 }
             }
             if (processor != null) {
