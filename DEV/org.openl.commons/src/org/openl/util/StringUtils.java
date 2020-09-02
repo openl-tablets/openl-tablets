@@ -23,10 +23,8 @@ public class StringUtils {
      * in the returned String array. Adjacent separators are treated as one separator.
      * </p>
      * <p>
-     * <p>
      * A {@code null} input String returns {@code null}.
      * </p>
-     * <p>
      *
      * <pre>
      * StringUtils.split(null, *)         = null
@@ -57,15 +55,12 @@ public class StringUtils {
      * {@link Character#isWhitespace(char)}.
      * </p>
      * <p>
-     * <p>
      * The separator is not included in the returned String array. Adjacent separators are treated as one separator. For
      * more control over the split use the StrTokenizer class.
      * </p>
      * <p>
-     * <p>
      * A {@code null} input String returns {@code null}.
      * </p>
-     * <p>
      *
      * <pre>
      * StringUtils.split(null)         = null
@@ -119,14 +114,42 @@ public class StringUtils {
 
     /**
      * <p>
-     * Joins the elements of the provided array into a single String containing the provided list of elements.
+     * Splits the provided string into an array of trimmed strings, separated by new line character codes: {@code '\n'}
+     * and {@code '\r'}. Blank lines are omitted from the result.
      * </p>
      * <p>
+     * A blank or {@code null} input String returns {@code null}.
+     * </p>
+     *
+     * <pre>
+     * StringUtils.toLines(null)                 = null
+     * StringUtils.toLines("")                   = null
+     * StringUtils.toLines("   ")                = null
+     * StringUtils.toLines("  abc  ")            = ["abc"]
+     * StringUtils.toLines("a b c")              = ["a b c"]
+     * StringUtils.toLines("a\rb\nc")            = ["a", "b", "c"]
+     * StringUtils.toLines("\r a\n\t\r \n c \n") = ["a", "c"]
+     * </pre>
+     *
+     * @param text the String to parse, may be null
+     * @return an array of parsed Strings, {@code null} if blank String input
+     */
+    public static String[] toLines(final String text) {
+        if (isBlank(text)) {
+            return null;
+        }
+        // Trim and split by one of the
+        return text.trim().split("\\s*[\r\n]\\s*");
+    }
+
+    /**
+     * <p>
+     * Joins the elements of the provided array into a single String containing the provided list of elements.
+     * </p>
      * <p>
      * No delimiter is added before or after the list. A {@code null} separator is the same as an empty String ("").
      * Null objects or empty strings within the array are represented by empty strings.
      * </p>
-     * <p>
      *
      * <pre>
      * StringUtils.join(null, *)                = null
@@ -152,7 +175,6 @@ public class StringUtils {
      * <p>
      * Checks if a CharSequence is empty ("") or null.
      * </p>
-     * <p>
      *
      * <pre>
      * StringUtils.isEmpty(null)      = true
@@ -173,7 +195,6 @@ public class StringUtils {
      * <p>
      * Checks if a CharSequence is not empty ("") and not null.
      * </p>
-     * <p>
      *
      * <pre>
      * StringUtils.isNotEmpty(null)      = false
@@ -194,7 +215,6 @@ public class StringUtils {
      * <p>
      * Checks if a CharSequence is whitespace, empty ("") or null.
      * </p>
-     * <p>
      *
      * <pre>
      * StringUtils.isBlank(null)      = true
@@ -224,7 +244,6 @@ public class StringUtils {
      * <p>
      * Checks if a CharSequence is not empty (""), not null and not whitespace only.
      * </p>
-     * <p>
      *
      * <pre>
      * StringUtils.isNotBlank(null)      = false
@@ -245,11 +264,10 @@ public class StringUtils {
      * <p>
      * Checks if String contains a search String irrespective of case, handling {@code null}. Case-insensitivity is
      * defined as by {@link String#equalsIgnoreCase(String)}.
-     * <p>
+     * </p>
      * <p>
      * A {@code null} String will return {@code false}.
      * </p>
-     * <p>
      *
      * <pre>
      * StringUtils.contains(null, *)     = false
@@ -295,10 +313,9 @@ public class StringUtils {
 
     /**
      * <p>
-     * Removes control characters (char &lt;= 32 or (&gt;= 127 and &lt;= 160) from both ends of this String, handling {@code null} by returning
-     * {@code null}.
+     * Removes control characters (char &lt;= 32 or (&gt;= 127 and &lt;= 160) from both ends of this String, handling
+     * {@code null} by returning {@code null}.
      * </p>
-     * <p>
      *
      * <pre>
      * StringUtils.trim(null)          = null
@@ -329,22 +346,21 @@ public class StringUtils {
     }
 
     /**
-     * Determines if the specified character is whitespace or control character (char &lt;= 32 or (&gt;= 127 and &lt;= 160)
+     * Determines if the specified character is whitespace or control character (char &lt;= 32 or (&gt;= 127 and &lt;=
+     * 160)
      *
      * @param ch the character to be tested
      * @return {@code true} if character is whitespace or control, otherwise {@code false}
      */
     public static boolean isSpaceOrControl(char ch) {
-        return Character.isWhitespace(ch)
-                || Character.isISOControl(ch)
-                || Character.isSpaceChar(ch);
+        return Character.isWhitespace(ch) || Character.isISOControl(ch) || Character.isSpaceChar(ch);
     }
 
     /**
      * <p>
-     * Removes control characters (char &lt;= 32 or (&gt;= 127 and &lt;= 160) from both ends of this String returning {@code null} if the String is
-     * empty ("") after the trim or if it is {@code null}.
-     * <p>
+     * Removes control characters (char &lt;= 32 or (&gt;= 127 and &lt;= 160) from both ends of this String returning
+     * {@code null} if the String is empty ("") after the trim or if it is {@code null}.
+     * </p>
      *
      * <pre>
      * StringUtils.trimToNull(null)          = null
@@ -364,9 +380,9 @@ public class StringUtils {
 
     /**
      * <p>
-     * Removes control characters (char &lt;= 32 or (&gt;= 127 and &lt;= 160) from both ends of this String returning an empty String ("") if the
-     * String is empty ("") after the trim or if it is {@code null}.
-     * <p>
+     * Removes control characters (char &lt;= 32 or (&gt;= 127 and &lt;= 160) from both ends of this String returning an
+     * empty String ("") if the String is empty ("") after the trim or if it is {@code null}.
+     * </p>
      *
      * <pre>
      * StringUtils.trimToEmpty(null)          = ""
@@ -389,10 +405,8 @@ public class StringUtils {
      * letters are changed.
      * </p>
      * <p>
-     * <p>
      * A {@code null} input String returns {@code null}.
      * </p>
-     * <p>
      *
      * <pre>
      * StringUtils.capitalize(null)  = null
@@ -425,10 +439,8 @@ public class StringUtils {
      * other letters are changed.
      * </p>
      * <p>
-     * <p>
      * A {@code null} input String returns {@code null}.
      * </p>
-     * <p>
      *
      * <pre>
      * StringUtils.uncapitalize(null)  = null
