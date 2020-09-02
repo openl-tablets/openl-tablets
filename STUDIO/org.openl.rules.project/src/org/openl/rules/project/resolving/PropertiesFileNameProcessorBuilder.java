@@ -18,52 +18,38 @@ public final class PropertiesFileNameProcessorBuilder {
         if (processor != null) {
             throw new IllegalStateException("Processor has already built! Use a new builder.");
         }
-        if (StringUtils.isNotBlank(projectDescriptor.getPropertiesFileNameProcessor())) {
-            processor = buildCustomProcessor(projectDescriptor);
+        String propertiesFileNameProcessor = projectDescriptor.getPropertiesFileNameProcessor();
+        if (StringUtils.isBlank(propertiesFileNameProcessor)) {
+            processor = new DefaultPropertiesFileNameProcessor();
+        } else if (CWPropertyFileNameProcessor.class.getName().equals(propertiesFileNameProcessor)) {
+            processor = new CWPropertyFileNameProcessor();
         } else {
-            processor = buildDefaultProcessor(projectDescriptor);
+            processor = buildCustomProcessor(projectDescriptor);
         }
         return processor;
     }
 
-    public PropertiesFileNameProcessor buildCustomProcessor(
+    private PropertiesFileNameProcessor buildCustomProcessor(
             ProjectDescriptor projectDescriptor) throws InvalidFileNameProcessorException {
         if (processor != null) {
             throw new IllegalStateException("Processor has already built! Use a new builder.");
         }
         ClassLoader classLoader = getCustomClassLoader(projectDescriptor);
+        String propertiesFileNameProcessor = projectDescriptor.getPropertiesFileNameProcessor();
         try {
-            Class<?> clazz = classLoader.loadClass(projectDescriptor.getPropertiesFileNameProcessor());
-            processor = (PropertiesFileNameProcessor) clazz.newInstance();
+            Class<?> clazz = classLoader.loadClass(propertiesFileNameProcessor);
+            processor = (PropertiesFileNameProcessor) clazz.getDeclaredConstructor().newInstance();
         } catch (ClassNotFoundException e) {
-            String message = "Properties file name processor class '" + projectDescriptor
-                .getPropertiesFileNameProcessor() + "' is not found.";
+            String message = "Properties file name processor class '" + propertiesFileNameProcessor + "' is not found.";
             throw new InvalidFileNameProcessorException(message, e);
         } catch (Exception e) {
             String message = "Failed to instantiate default properties file name processor! Class should have default constructor and implement org.openl.rules.project.resolving.PropertiesFileNameProcessor interface.";
             throw new InvalidFileNameProcessorException(message, e);
         } catch (NoClassDefFoundError e) {
-            String message = "Properties file name processor class '" + projectDescriptor
-                .getPropertiesFileNameProcessor() + "' has not been load.";
+            String message = "Properties file name processor class '" + propertiesFileNameProcessor + "' has not been load.";
             throw new InvalidFileNameProcessorException(message, e);
         }
         return processor;
-    }
-
-    public PropertiesFileNameProcessor buildDefaultProcessor(
-            ProjectDescriptor projectDescriptor) throws InvalidFileNameProcessorException {
-        if (processor != null) {
-            throw new IllegalStateException("Processor has already built! Use a new builder.");
-        }
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            Class<?> clazz = classLoader
-                .loadClass("org.openl.rules.project.resolving.DefaultPropertiesFileNameProcessor");
-            return (PropertiesFileNameProcessor) clazz.newInstance();
-        } catch (Exception e) {
-            // Should not occur in normal situation.
-            throw new InvalidFileNameProcessorException(e);
-        }
     }
 
     public void destroy() {
