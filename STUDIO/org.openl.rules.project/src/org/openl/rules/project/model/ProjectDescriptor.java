@@ -33,17 +33,6 @@ public class ProjectDescriptor {
         this.propertiesFileNamePatterns = propertiesFileNamePatterns;
     }
 
-    @Deprecated
-    public String getPropertiesFileNamePattern() {
-        String[] patterns = getPropertiesFileNamePatterns();
-        return patterns == null || patterns.length == 0 ? null : patterns[0];
-    }
-
-    @Deprecated
-    public void setPropertiesFileNamePattern(String propertiesFileNamePattern) {
-        setPropertiesFileNamePatterns(new String[]{propertiesFileNamePattern});
-    }
-
     public String getPropertiesFileNameProcessor() {
         return propertiesFileNameProcessor;
     }
@@ -114,14 +103,6 @@ public class ProjectDescriptor {
 
     public void setClasspath(List<PathEntry> classpath) {
         this.classpath = classpath;
-    }
-
-    private URL normalizeURL(URL url) {
-        try {
-            return url.toURI().normalize().toURL();
-        } catch (URISyntaxException | MalformedURLException ignored) {
-            return url;
-        }
     }
 
     public URL[] getClassPathUrls() {
