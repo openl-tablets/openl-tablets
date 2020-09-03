@@ -181,8 +181,9 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     public IOpenClass findType(String namespace, String typeName) {
         if (OpenLSystemProperties
             .isCustomSpreadsheetTypesSupported(getExternalParams()) && ISyntaxConstants.THIS_NAMESPACE
-                .equals(namespace) && typeName.startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName
-                    .length() > Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) {
+                .equals(namespace) && !typeName.equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName
+                    .startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName
+                        .charAt(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) != '.') {
             final String methodName = typeName.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
             IOpenClass openClass = super.findType(namespace, typeName);
             if (openClass instanceof CustomSpreadsheetResultOpenClass) {
