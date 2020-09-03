@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,15 +60,13 @@ public abstract class ADynamicClass extends AOpenClass {
             methodMap = new HashMap<>(4);
         }
 
-        if (instanceClass != null && !DynamicObject.class.isAssignableFrom(instanceClass)) {
+        if (instanceClass != null && !DynamicObject.class.isAssignableFrom(instanceClass) && isPublic(instanceClass)) {
             Method[] mm = instanceClass.getDeclaredMethods();
-            if (isPublic(instanceClass)) {
-                for (Method method : mm) {
-                    if (isPublic(method)) {
-                        JavaOpenMethod om = new JavaOpenMethod(method);
-                        MethodKey kom = new MethodKey(om);
-                        methodMap.put(kom, om);
-                    }
+            for (Method method : mm) {
+                if (isPublic(method)) {
+                    JavaOpenMethod om = new JavaOpenMethod(method);
+                    MethodKey kom = new MethodKey(om);
+                    methodMap.put(kom, om);
                 }
             }
         }
@@ -184,7 +183,7 @@ public abstract class ADynamicClass extends AOpenClass {
     }
 
     @Override
-    public Iterable<IOpenClass> superClasses() {
+    public Collection<IOpenClass> superClasses() {
         return Collections.emptyList();
     }
 }

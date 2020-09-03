@@ -130,7 +130,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param value2
      * @return true if value1 equal value2
      */
-    public static boolean eq(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
+    public static boolean eq(DoubleValue value1, DoubleValue value2) {
         if (value1 == null || value2 == null) {
             return value1 == value2;
         }
@@ -144,7 +144,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param value2
      * @return true if value1 greater or equal value2
      */
-    public static Boolean ge(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
+    public static Boolean ge(DoubleValue value1, DoubleValue value2) {
         Double v1 = value1 == null ? null : value1.value;
         Double v2 = value2 == null ? null : value2.value;
         return Comparison.ge(v1, v2);
@@ -157,7 +157,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param value2
      * @return true if value1 greater value2
      */
-    public static Boolean gt(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
+    public static Boolean gt(DoubleValue value1, DoubleValue value2) {
         Double v1 = value1 == null ? null : value1.value;
         Double v2 = value2 == null ? null : value2.value;
         return Comparison.gt(v1, v2);
@@ -170,7 +170,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param value2
      * @return true if value1 less or equal value2
      */
-    public static Boolean le(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
+    public static Boolean le(DoubleValue value1, DoubleValue value2) {
         Double v1 = value1 == null ? null : value1.value;
         Double v2 = value2 == null ? null : value2.value;
         return Comparison.le(v1, v2);
@@ -183,7 +183,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param value2
      * @return true if value1 less value2
      */
-    public static Boolean lt(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
+    public static Boolean lt(DoubleValue value1, DoubleValue value2) {
         Double v1 = value1 == null ? null : value1.value;
         Double v2 = value2 == null ? null : value2.value;
         return Comparison.lt(v1, v2);
@@ -196,7 +196,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param value2
      * @return true if value1 not equal value2
      */
-    public static boolean ne(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
+    public static boolean ne(DoubleValue value1, DoubleValue value2) {
         if (value1 == null || value2 == null) {
             return value1 != value2;
         }
@@ -210,13 +210,13 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param name of new variable
      * @return the new org.openl.meta.DoubleValue variable with name <b>name</b> and value <b>value</b>
      */
-    public static org.openl.meta.DoubleValue copy(org.openl.meta.DoubleValue value, String name) {
+    public static DoubleValue copy(DoubleValue value, String name) {
         if (value.getName() == null) {
             value.setName(name);
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.DoubleValue result = new org.openl.meta.DoubleValue(value.doubleValue(),
+            DoubleValue result = new DoubleValue(value.doubleValue(),
                 NumberOperations.COPY,
                 value);
             result.setName(name);
@@ -234,14 +234,14 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param value2 org.openl.meta.DoubleValue
      * @return remainder from division value1 by value2
      */
-    public static org.openl.meta.DoubleValue rem(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
+    public static DoubleValue rem(DoubleValue value1, DoubleValue value2) {
         // Commented to support operations with nulls. See also MathUtils.mod()
         // validate(value1, value2, Formulas.REM.toString());
         if (value1 == null || value2 == null) {
             return ZERO;
         }
 
-        return new org.openl.meta.DoubleValue(value1,
+        return new DoubleValue(value1,
             value2,
             Operators.rem(value1.getValue(), value2.getValue()),
             Formulas.REM);
@@ -254,7 +254,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param value2 org.openl.meta.DoubleValue
      * @return the result of addition operation
      */
-    public static org.openl.meta.DoubleValue add(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
+    public static DoubleValue add(DoubleValue value1, DoubleValue value2) {
         if (value1 == null) {
             return value2;
         }
@@ -263,7 +263,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
             return value1;
         }
 
-        return new org.openl.meta.DoubleValue(value1,
+        return new DoubleValue(value1,
             value2,
             Operators.add(value1.getValue(), value2.getValue()),
             Formulas.ADD);
@@ -277,13 +277,12 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param value2 org.openl.meta.DoubleValue
      * @return the result of multiplication operation
      */
-    public static org.openl.meta.DoubleValue multiply(org.openl.meta.DoubleValue value1,
-            org.openl.meta.DoubleValue value2) {
+    public static DoubleValue multiply(DoubleValue value1, DoubleValue value2) {
         if (value1 == null || value2 == null) {
             return null;
         }
 
-        return new org.openl.meta.DoubleValue(value1,
+        return new DoubleValue(value1,
             value2,
             Operators.multiply(value1.getValue(), value2.getValue()),
             Formulas.MULTIPLY);
@@ -297,8 +296,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param value2 org.openl.meta.DoubleValue
      * @return the result of subtraction operation
      */
-    public static org.openl.meta.DoubleValue subtract(org.openl.meta.DoubleValue value1,
-            org.openl.meta.DoubleValue value2) {
+    public static DoubleValue subtract(DoubleValue value1, DoubleValue value2) {
         if (value1 == null && value2 == null) {
             return null;
         }
@@ -311,7 +309,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
             return value1;
         }
 
-        return new org.openl.meta.DoubleValue(value1,
+        return new DoubleValue(value1,
             value2,
             Operators.subtract(value1.getValue(), value2.getValue()),
             Formulas.SUBTRACT);
@@ -325,13 +323,13 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param value2 org.openl.meta.DoubleValue
      * @return the result of division operation
      */
-    public static org.openl.meta.DoubleValue divide(org.openl.meta.DoubleValue value1,
-            org.openl.meta.DoubleValue value2) {
+    public static DoubleValue divide(DoubleValue value1,
+            DoubleValue value2) {
         if (value1 == null || value2 == null) {
             return null;
         }
 
-        return new org.openl.meta.DoubleValue(value1,
+        return new DoubleValue(value1,
             value2,
             Operators.divide(value1.getValue(), value2.getValue()),
             Formulas.DIVIDE);
@@ -345,7 +343,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param divisor org.openl.meta.DoubleValue
      * @return LongValue the result of division operation
      */
-    public static LongValue quotient(org.openl.meta.DoubleValue number, org.openl.meta.DoubleValue divisor) {
+    public static LongValue quotient(DoubleValue number, DoubleValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
             return new LongValue(result, NumberOperations.QUOTIENT, null);
@@ -360,11 +358,10 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign
      *         as the devisor.
      */
-    public static org.openl.meta.DoubleValue mod(org.openl.meta.DoubleValue number,
-            org.openl.meta.DoubleValue divisor) {
+    public static DoubleValue mod(DoubleValue number, DoubleValue divisor) {
         if (number != null && divisor != null) {
             double result = MathUtils.mod(number.getValue(), divisor.getValue());
-            return new org.openl.meta.DoubleValue(result, NumberOperations.MOD, number, divisor);
+            return new DoubleValue(result, NumberOperations.MOD, number, divisor);
         }
         return null;
     }
@@ -399,18 +396,18 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param value2
      * @return the result of value1 raised to the power of value2
      */
-    public static org.openl.meta.DoubleValue pow(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
+    public static DoubleValue pow(DoubleValue value1, DoubleValue value2) {
         // Commented to support operations with nulls
         // "null" means that data does not exist
         //
         // validate(value1, value2, NumberOperations.POW);
         if (value1 == null) {
-            return value2 == null ? null : new org.openl.meta.DoubleValue(0);
+            return value2 == null ? null : new DoubleValue(0);
         } else if (value2 == null) {
             return value1;
         }
 
-        return new org.openl.meta.DoubleValue(Operators.pow(value1.getValue(), value2.getValue()),
+        return new DoubleValue(Operators.pow(value1.getValue(), value2.getValue()),
             NumberOperations.POW,
             value1,
             value2);
@@ -421,7 +418,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param value
      * @return the absolute value (module) of the value <b>value </b>
      */
-    public static org.openl.meta.DoubleValue abs(org.openl.meta.DoubleValue value) {
+    public static DoubleValue abs(DoubleValue value) {
         // Commented to support operations with nulls.
         // validate(value, NumberOperations.ABS);
         if (value == null) {
@@ -430,7 +427,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
         // evaluate result
         double result = Math.abs(value.getValue());
         // create instance with information about last operation
-        return new org.openl.meta.DoubleValue(result, NumberOperations.ABS, value);
+        return new DoubleValue(result, NumberOperations.ABS, value);
     }
 
     /**
@@ -438,7 +435,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param value
      * @return the negative value of the <b>value</b>
      */
-    public static org.openl.meta.DoubleValue negative(org.openl.meta.DoubleValue value) {
+    public static DoubleValue negative(DoubleValue value) {
         if (value == null) {
             return null;
         }
@@ -450,7 +447,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param value
      * @return the <b>value</b> increased by 1
      */
-    public static org.openl.meta.DoubleValue inc(org.openl.meta.DoubleValue value) {
+    public static DoubleValue inc(DoubleValue value) {
         return add(value, ONE);
     }
 
@@ -459,7 +456,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param value
      * @return the <b>value</b>
      */
-    public static org.openl.meta.DoubleValue positive(org.openl.meta.DoubleValue value) {
+    public static DoubleValue positive(DoubleValue value) {
         return value;
     }
 
@@ -468,7 +465,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param value
      * @return the <b>value </b> decreased by 1
      */
-    public static org.openl.meta.DoubleValue dec(org.openl.meta.DoubleValue value) {
+    public static DoubleValue dec(DoubleValue value) {
         return subtract(value, ONE);
     }
 
@@ -481,8 +478,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.DoubleValue
      */
-    public static org.openl.meta.DoubleValue autocast(byte x, org.openl.meta.DoubleValue y) {
-        return new org.openl.meta.DoubleValue(x);
+    public static DoubleValue autocast(byte x, DoubleValue y) {
+        return new DoubleValue(x);
     }
 
     /**
@@ -492,8 +489,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.DoubleValue
      */
-    public static org.openl.meta.DoubleValue autocast(short x, org.openl.meta.DoubleValue y) {
-        return new org.openl.meta.DoubleValue(x);
+    public static DoubleValue autocast(short x, DoubleValue y) {
+        return new DoubleValue(x);
     }
 
     /**
@@ -503,8 +500,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.DoubleValue
      */
-    public static org.openl.meta.DoubleValue autocast(int x, org.openl.meta.DoubleValue y) {
-        return new org.openl.meta.DoubleValue(x);
+    public static DoubleValue autocast(int x, DoubleValue y) {
+        return new DoubleValue(x);
     }
 
     /**
@@ -514,8 +511,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.DoubleValue
      */
-    public static org.openl.meta.DoubleValue autocast(char x, org.openl.meta.DoubleValue y) {
-        return new org.openl.meta.DoubleValue(x);
+    public static DoubleValue autocast(char x, DoubleValue y) {
+        return new DoubleValue(x);
     }
 
     /**
@@ -525,8 +522,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.DoubleValue
      */
-    public static org.openl.meta.DoubleValue autocast(long x, org.openl.meta.DoubleValue y) {
-        return new org.openl.meta.DoubleValue(x);
+    public static DoubleValue autocast(long x, DoubleValue y) {
+        return new DoubleValue(x);
     }
 
     /**
@@ -536,8 +533,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.DoubleValue
      */
-    public static org.openl.meta.DoubleValue autocast(float x, org.openl.meta.DoubleValue y) {
-        return new org.openl.meta.DoubleValue(new BigDecimal(String.valueOf(x)).doubleValue());
+    public static DoubleValue autocast(float x, DoubleValue y) {
+        return new DoubleValue(new BigDecimal(String.valueOf(x)).doubleValue());
     }
 
     /**
@@ -547,8 +544,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.DoubleValue
      */
-    public static org.openl.meta.DoubleValue autocast(double x, org.openl.meta.DoubleValue y) {
-        return new org.openl.meta.DoubleValue(x);
+    public static DoubleValue autocast(double x, DoubleValue y) {
+        return new DoubleValue(x);
     }
 
     // Constructors
@@ -557,7 +554,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     }
 
     /** Formula constructor **/
-    public DoubleValue(org.openl.meta.DoubleValue lv1, org.openl.meta.DoubleValue lv2, double value, Formulas operand) {
+    public DoubleValue(DoubleValue lv1, DoubleValue lv2, double value, Formulas operand) {
         super(lv1, lv2, operand);
         this.value = value;
     }
@@ -572,7 +569,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * Copy the current value with new name <b>name</b>
      */
     @Override
-    public org.openl.meta.DoubleValue copy(String name) {
+    public DoubleValue copy(String name) {
         return copy(this, name);
     }
 
@@ -616,11 +613,11 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @param values an array for sorting
      * @return the sorted array
      */
-    public static org.openl.meta.DoubleValue[] sort(org.openl.meta.DoubleValue[] values) {
-        org.openl.meta.DoubleValue[] sortedArray = null;
+    public static DoubleValue[] sort(DoubleValue[] values) {
+        DoubleValue[] sortedArray = null;
         if (values != null) {
-            sortedArray = new org.openl.meta.DoubleValue[values.length];
-            org.openl.meta.DoubleValue[] notNullArray = ArrayTool.removeNulls(values);
+            sortedArray = new DoubleValue[values.length];
+            DoubleValue[] notNullArray = ArrayTool.removeNulls(values);
 
             Arrays.sort(notNullArray);
 

@@ -1,0 +1,125 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Inline objects sample, body named object",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/ruleservice/REST/Example%201%20-%20Bank%20Rating/Example%201%20-%20Bank%20Rating",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/BankLimitIndexInline": {
+      "post": {
+        "summary": "DoubleValue BankLimitIndex(IRulesRuntimeContext, Bank, String)",
+        "operationId": "BankLimitIndexInline",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "email"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/SamplePath": {
+      "post": {
+        "summary": "DoubleValue SamplePath(IRulesRuntimeContext, Bank, String)",
+        "operationId": "SamplePath",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dogName": {
+                    "type": "string"
+                  },
+                  "spr": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "JAXRSErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "USER_ERROR",
+              "RULES_RUNTIME",
+              "COMPILATION",
+              "SYSTEM",
+              "BAD_REQUEST",
+              "VALIDATION"
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "body": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "secondName": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

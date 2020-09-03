@@ -16,12 +16,15 @@ import org.openl.util.ClassUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
  *
  */
-public class BeanOpenField implements IOpenField {
+public final class BeanOpenField implements IOpenField {
+    private static final Logger LOG = LoggerFactory.getLogger(BeanOpenField.class);
 
     private final PropertyDescriptor descriptor;
     private final Method readMethod;
@@ -33,11 +36,8 @@ public class BeanOpenField implements IOpenField {
             BeanInfo info = Introspector.getBeanInfo(c, c.getSuperclass());
             PropertyDescriptor[] pds = info.getPropertyDescriptors();
             for (PropertyDescriptor pd : pds) {
-                if (pd.getPropertyType() == null) {
+                if (pd.getPropertyType() == null || "class".equals(pd.getName())) {
                     // (int) only method(s)
-                    continue;
-                }
-                if (pd.getName().equals("class")) {
                     continue;
                 }
 
@@ -56,6 +56,7 @@ public class BeanOpenField implements IOpenField {
                         // Reset the name
                         fieldName = field.getName();
                         pd.setName(fieldName);
+                        LOG.debug("Error occurred: ", ex);
                     } catch (NoSuchFieldException e1) {
                         try {
                             // Special case for backward compatibility
@@ -66,9 +67,10 @@ public class BeanOpenField implements IOpenField {
                             // Reset the name
                             fieldName = field.getName();
                             pd.setName(fieldName);
-                        } catch (NoSuchFieldException e2) {
+                            LOG.debug("Error occurred: ", e1);
+                        } catch (NoSuchFieldException ignored) {
+                            LOG.debug("Ignored error: ", ignored);
                             // It is possible that there is no such field at all
-                            //
                         }
                     }
 

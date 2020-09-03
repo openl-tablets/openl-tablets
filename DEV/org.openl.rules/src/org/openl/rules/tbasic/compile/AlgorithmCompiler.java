@@ -5,7 +5,7 @@ import java.util.*;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.component.ComponentBindingContext;
-import org.openl.engine.OpenLCellExpressionsCompiler;
+import org.openl.engine.OpenLManager;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.*;
 import org.openl.source.IOpenSourceCodeModule;
@@ -247,13 +247,15 @@ public class AlgorithmCompiler {
         IOpenSourceCodeModule src = fieldContent.asSourceCodeModule();
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
-        return OpenLCellExpressionsCompiler
-            .makeMethodWithUnknownType(openl,
+
+        return OpenLManager.makeMethodWithUnknownType(
+                openl,
                 src,
                 "cell_" + fieldContent.getValue(),
                 signature,
                 thisTargetClass,
-                getAlgorithmBindingContext())
+                getAlgorithmBindingContext()
+            )
             .getMethod()
             .getType();
     }
@@ -282,18 +284,19 @@ public class AlgorithmCompiler {
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
         IBindingContext cxt = getAlgorithmBindingContext();
-        return OpenLCellExpressionsCompiler
-            .makeMethodWithUnknownType(openl, src, methodName, signature, thisTargetClass, cxt);
+
+        return OpenLManager.makeMethodWithUnknownType(openl, src, methodName, signature, thisTargetClass, cxt);
     }
 
     public IMethodCaller makeMethodWithCast(IOpenSourceCodeModule src, String methodName, IOpenClass returnType) {
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
         // create method header for newly created method
-        OpenMethodHeader header = new OpenMethodHeader(methodName, returnType, signature, thisTargetClass);
+        OpenMethodHeader openMethodHeader = new OpenMethodHeader(methodName, returnType, signature, thisTargetClass);
 
         IBindingContext cxt = getAlgorithmBindingContext();
-        return OpenLCellExpressionsCompiler.makeMethod(openl, src, header, cxt);
+        return OpenLManager.makeMethod(openl, src, openMethodHeader, cxt);
+
     }
 
     private void postprocess(Algorithm algorithm) {
@@ -326,9 +329,7 @@ public class AlgorithmCompiler {
         for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
             linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToProcess, i);
 
-            List<AlgorithmTreeNode> nodesToCompile = nodesToProcess.subList(i, i + linkedNodesGroupSize);
-
-            precompileLinkedNodesGroup(nodesToCompile);
+            precompileLinkedNodesGroup(nodesToProcess.subList(i, i + linkedNodesGroupSize));
         }
     }
 

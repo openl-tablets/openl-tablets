@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AProjectCreator {
 
-    private final Logger log = LoggerFactory.getLogger(AProjectCreator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AProjectCreator.class);
 
     private String projectName;
     private String projectFolder;
@@ -54,18 +54,18 @@ public abstract class AProjectCreator {
         } catch (Exception e) {
             Throwable cause = e.getCause();
             if (projectBuilder != null && cause instanceof MergeConflictException) {
-                log.debug("Failed to save the project because of merge conflict.", cause);
+                LOG.debug("Failed to save the project because of merge conflict.", cause);
                 // Try to save second time. It should resolve the issue if conflict in openl-projects.properties file.
                 try {
                     projectBuilder.save();
                     projectBuilder.getProject().open();
                 } catch (Exception ex) {
-                    log.error("Error creating project.", e);
+                    LOG.error("Error creating project.", ex);
                     projectBuilder.cancel();
                     errorMessage = getErrorMessage(e);
                 }
             } else {
-                log.error("Error creating project.", e);
+                LOG.error("Error creating project.", e);
                 if (projectBuilder != null) {
                     projectBuilder.cancel();
                 }
@@ -118,7 +118,7 @@ public abstract class AProjectCreator {
                 projectDescriptor.setName(getProjectName());
                 return IOUtils.toInputStream(serializer.serialize(projectDescriptor));
             } catch (Exception e) {
-                log.warn(e.getMessage(), e);
+                LOG.warn(e.getMessage(), e);
                 copy.reset();
                 return copy;
             }

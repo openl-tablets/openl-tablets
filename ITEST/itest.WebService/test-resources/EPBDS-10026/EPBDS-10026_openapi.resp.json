@@ -1,0 +1,1299 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "EPBDS-10026",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/REST/EPBDS-10026/EPBDS-10026",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/main": {
+      "post": {
+        "summary": "Main main(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.Main main(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "main",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Main"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mySpr": {
+      "post": {
+        "summary": "MySpr mySpr(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MySpr mySpr(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "mySpr",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MySpr"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mySpr2": {
+      "post": {
+        "summary": "MySpr2 mySpr2(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MySpr2 mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "mySpr2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MySpr2"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/arrSpreadsheetResult": {
+      "post": {
+        "summary": "AnySpreadsheetResult[] arrSpreadsheetResult(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.AnySpreadsheetResult[] arrSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "arrSpreadsheetResult",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnySpreadsheetResult"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/arrSpreadsheetResultspr1": {
+      "post": {
+        "summary": "Spr1[] arrSpreadsheetResultspr1(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.Spr1[] arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "arrSpreadsheetResultspr1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Spr1"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/arrObjSpreadsheetResult": {
+      "post": {
+        "summary": "Object[] arrObjSpreadsheetResult(IRulesRuntimeContext)",
+        "description": "Method: java.lang.Object[] arrObjSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "arrObjSpreadsheetResult",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "JAXRSErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "USER_ERROR",
+              "RULES_RUNTIME",
+              "COMPILATION",
+              "SYSTEM",
+              "BAD_REQUEST",
+              "VALIDATION"
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "AnySpreadsheetResult": {
+        "type": "object",
+        "properties": {
+          "value3_Step3": {
+            "type": "number",
+            "format": "double"
+          },
+          "value4_Step3": {
+            "type": "number",
+            "format": "double"
+          },
+          "value_Step3": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "value3_Step4": {
+            "type": "number",
+            "format": "double"
+          },
+          "value4_Step4": {
+            "type": "number",
+            "format": "double"
+          },
+          "value_Step4": {
+            "type": "object"
+          },
+          "value1_Step1": {
+            "type": "number",
+            "format": "double"
+          },
+          "value2_Step1": {
+            "type": "number",
+            "format": "double"
+          },
+          "value_Step1": {
+            "type": "object"
+          },
+          "value1_Step2": {
+            "type": "number",
+            "format": "double"
+          },
+          "value2_Step2": {
+            "type": "number",
+            "format": "double"
+          },
+          "value_Step2": {
+            "$ref": "#/components/schemas/AnySpreadsheetResult"
+          },
+          "value_Step5": {
+            "type": "object"
+          },
+          "value_Step6": {
+            "type": "object"
+          },
+          "value_Step7": {
+            "type": "object"
+          },
+          "value_Step8": {
+            "type": "object"
+          },
+          "value_Step9": {
+            "type": "object"
+          },
+          "value_Step10": {
+            "type": "object"
+          },
+          "value_Step11": {
+            "type": "object"
+          },
+          "value_Step13": {
+            "type": "object"
+          },
+          "value_Step14": {
+            "type": "object"
+          },
+          "value_Step15": {
+            "type": "object"
+          },
+          "value_Step16": {
+            "type": "object"
+          },
+          "value_Step17": {
+            "type": "object"
+          },
+          "value_Step18": {
+            "type": "object"
+          },
+          "value_Step19": {
+            "type": "object"
+          },
+          "value_Step20": {
+            "$ref": "#/components/schemas/AnySpreadsheetResult"
+          },
+          "value_Step21": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "value_Step22": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "value_Step23": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "value_AAA": {
+            "type": "number",
+            "format": "double"
+          },
+          "value_Step0": {
+            "type": "number",
+            "format": "double"
+          },
+          "value_Step12": {
+            "type": "boolean"
+          },
+          "rowNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "columnNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tableDetails": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Main": {
+        "type": "object",
+        "properties": {
+          "step1": {
+            "type": "number",
+            "format": "double"
+          },
+          "step2": {
+            "$ref": "#/components/schemas/Spr"
+          },
+          "step3": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "step4": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Spr"
+            }
+          },
+          "step5": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Spr"
+            }
+          },
+          "step6": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Spr"
+              }
+            }
+          },
+          "step7": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "step8": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "step9": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "step10": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/AnySpreadsheetResult"
+              }
+            }
+          },
+          "step11": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "step13": {
+            "type": "object"
+          },
+          "step14": {
+            "type": "object"
+          },
+          "step15": {
+            "type": "object"
+          },
+          "step16": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "step17": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "step18": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "step19": {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "step20": {
+            "$ref": "#/components/schemas/AnySpreadsheetResult"
+          },
+          "step21": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Spr"
+            }
+          },
+          "step22": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "step23": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "aAA": {
+            "type": "number",
+            "format": "double"
+          },
+          "rowNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "columnNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tableDetails": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Spr": {
+        "type": "object",
+        "properties": {
+          "step1": {
+            "type": "number",
+            "format": "double"
+          },
+          "step2": {
+            "$ref": "#/components/schemas/Spr1"
+          },
+          "step3": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "step4": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Spr1"
+            }
+          },
+          "step5": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Spr1"
+            }
+          },
+          "step6": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Spr1"
+              }
+            }
+          },
+          "step7": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "step8": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "step9": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "step10": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/AnySpreadsheetResult"
+              }
+            }
+          },
+          "step11": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "step13": {
+            "type": "object"
+          },
+          "step14": {
+            "type": "object"
+          },
+          "step15": {
+            "type": "object"
+          },
+          "step16": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "step17": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "step18": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "step19": {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "step20": {
+            "$ref": "#/components/schemas/Spr1"
+          },
+          "step21": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Spr1"
+            }
+          },
+          "step22": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "step23": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "Spr1": {
+        "type": "object",
+        "properties": {
+          "step1": {
+            "type": "number",
+            "format": "double"
+          },
+          "step2": {
+            "$ref": "#/components/schemas/Spr"
+          }
+        }
+      },
+      "DefaultRulesRuntimeContext": {
+        "type": "object",
+        "properties": {
+          "currentDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "requestDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lob": {
+            "type": "string"
+          },
+          "nature": {
+            "type": "string"
+          },
+          "usState": {
+            "type": "string",
+            "enum": [
+              "AL",
+              "AK",
+              "AZ",
+              "AR",
+              "CA",
+              "CO",
+              "CT",
+              "DC",
+              "DE",
+              "FL",
+              "GA",
+              "HI",
+              "ID",
+              "IL",
+              "IN",
+              "IA",
+              "KS",
+              "KY",
+              "LA",
+              "ME",
+              "MD",
+              "MA",
+              "MI",
+              "MN",
+              "MS",
+              "MO",
+              "MT",
+              "NE",
+              "NV",
+              "NH",
+              "NJ",
+              "NM",
+              "NY",
+              "NC",
+              "ND",
+              "OH",
+              "OK",
+              "OR",
+              "PA",
+              "PR",
+              "RI",
+              "SC",
+              "SD",
+              "TN",
+              "TX",
+              "UT",
+              "VT",
+              "VA",
+              "WA",
+              "WV",
+              "WI",
+              "WY"
+            ]
+          },
+          "country": {
+            "type": "string",
+            "enum": [
+              "AL",
+              "DZ",
+              "AR",
+              "AU",
+              "AT",
+              "BH",
+              "BY",
+              "BE",
+              "BO",
+              "BA",
+              "BR",
+              "BG",
+              "CA",
+              "CL",
+              "CN",
+              "CO",
+              "CR",
+              "HR",
+              "CY",
+              "CZ",
+              "DK",
+              "DO",
+              "EC",
+              "EG",
+              "SV",
+              "EE",
+              "FI",
+              "FR",
+              "DE",
+              "GR",
+              "GT",
+              "HN",
+              "HK",
+              "HU",
+              "IS",
+              "IN",
+              "ID",
+              "IQ",
+              "IE",
+              "IL",
+              "IT",
+              "JP",
+              "JO",
+              "KW",
+              "LV",
+              "LB",
+              "LT",
+              "LU",
+              "MK",
+              "MY",
+              "MT",
+              "MX",
+              "MA",
+              "NL",
+              "NZ",
+              "NI",
+              "NO",
+              "OM",
+              "PA",
+              "PY",
+              "PE",
+              "PH",
+              "PL",
+              "PT",
+              "PR",
+              "QA",
+              "RO",
+              "RU",
+              "SA",
+              "CS",
+              "SG",
+              "SK",
+              "SI",
+              "ZA",
+              "ES",
+              "SD",
+              "SE",
+              "CH",
+              "SY",
+              "TW",
+              "TH",
+              "TN",
+              "TR",
+              "UA",
+              "AE",
+              "GB",
+              "US",
+              "UY",
+              "VE",
+              "VN",
+              "YE"
+            ]
+          },
+          "usRegion": {
+            "type": "string",
+            "enum": [
+              "MW",
+              "NE",
+              "SE",
+              "SW",
+              "W"
+            ]
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "ALL",
+              "DZD",
+              "ARS",
+              "AUD",
+              "BHD",
+              "BYR",
+              "BOB",
+              "BAM",
+              "BRL",
+              "CAD",
+              "CLP",
+              "CNY",
+              "COP",
+              "CRC",
+              "HRK",
+              "CZK",
+              "DKK",
+              "DOP",
+              "EGP",
+              "EUR",
+              "GTQ",
+              "HNL",
+              "HKD",
+              "HUF",
+              "ISK",
+              "INR",
+              "IDR",
+              "IQD",
+              "ILS",
+              "JPY",
+              "JOD",
+              "KWD",
+              "LVL",
+              "LBP",
+              "LTL",
+              "MKD",
+              "MYR",
+              "MXN",
+              "MAD",
+              "NZD",
+              "NIO",
+              "NOK",
+              "OMR",
+              "PAB",
+              "PYG",
+              "PEN",
+              "PHP",
+              "PLN",
+              "QAR",
+              "RON",
+              "RUB",
+              "SAR",
+              "RSD",
+              "SGD",
+              "ZAR",
+              "SDG",
+              "SEK",
+              "CHF",
+              "SYP",
+              "TWD",
+              "TND",
+              "TRY",
+              "UAH",
+              "AED",
+              "GBP",
+              "USD",
+              "UYU",
+              "VEF",
+              "VND",
+              "YER"
+            ]
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "ALB",
+              "ARA",
+              "BEL",
+              "BUL",
+              "CAT",
+              "CHI",
+              "SCR",
+              "CZE",
+              "DAN",
+              "DUT",
+              "ENG",
+              "FIN",
+              "FRE",
+              "GER",
+              "GRE",
+              "HEB",
+              "HIN",
+              "HUN",
+              "IND",
+              "GLE",
+              "ITA",
+              "JPN",
+              "LAV",
+              "LIT",
+              "MAC",
+              "MAY",
+              "MLT",
+              "NOR",
+              "POL",
+              "POR",
+              "RUM",
+              "RUS",
+              "SCC",
+              "SLO",
+              "SPA",
+              "THA",
+              "TUR",
+              "UKR",
+              "VIE"
+            ]
+          },
+          "region": {
+            "type": "string",
+            "enum": [
+              "NCSA",
+              "EU",
+              "EMEA",
+              "APJ"
+            ]
+          },
+          "caProvince": {
+            "type": "string",
+            "enum": [
+              "AB",
+              "BC",
+              "PE",
+              "MB",
+              "NB",
+              "NS",
+              "NU",
+              "ON",
+              "QC",
+              "SK",
+              "NL",
+              "YT",
+              "NT"
+            ]
+          },
+          "caRegion": {
+            "type": "string",
+            "enum": [
+              "QC",
+              "HQ"
+            ]
+          }
+        }
+      },
+      "MySpr": {
+        "type": "object",
+        "properties": {
+          "step1": {
+            "type": "number",
+            "format": "double"
+          },
+          "step2": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "MySpr2": {
+        "type": "object",
+        "properties": {
+          "value3_Step3": {
+            "type": "number",
+            "format": "double"
+          },
+          "value4_Step3": {
+            "type": "number",
+            "format": "double"
+          },
+          "value3_Step4": {
+            "type": "number",
+            "format": "double"
+          },
+          "value4_Step4": {
+            "type": "number",
+            "format": "double"
+          },
+          "value1_Step1": {
+            "type": "number",
+            "format": "double"
+          },
+          "value2_Step1": {
+            "type": "number",
+            "format": "double"
+          },
+          "value1_Step2": {
+            "type": "number",
+            "format": "double"
+          },
+          "value2_Step2": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      }
+    }
+  }
+}

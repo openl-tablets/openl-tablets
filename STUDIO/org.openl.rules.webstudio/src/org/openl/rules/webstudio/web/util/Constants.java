@@ -4,6 +4,7 @@ public final class Constants {
 
     public static final String REQUEST_PARAM_ID = "id";
     public static final String REQUEST_PARAM_PROJECT = "project";
+    public static final String REQUEST_PARAM_REPO_ID = "repo-id";
     public static final String REQUEST_PARAM_NAME = "name";
     public static final String REQUEST_PARAM_VERSION = "version";
     public static final String REQUEST_PARAM_URI = "uri";

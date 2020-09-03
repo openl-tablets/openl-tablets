@@ -15,7 +15,6 @@ import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +29,6 @@ public class ProductionRepositoryDataSource implements DataSource {
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoryDataSource.class);
 
     private Repository repository;
-    private boolean includeVersionInDeploymentName = false;
     private String deployPath;
 
     /**
@@ -53,35 +51,16 @@ public class ProductionRepositoryDataSource implements DataSource {
         ConcurrentMap<String, Deployment> deployments = new ConcurrentHashMap<>();
         for (FileData fileData : fileDatas) {
             String deploymentFolderName = fileData.getName().substring(deployPath.length()).split("/")[0];
-            String deploymentName = deploymentFolderName;
-            CommonVersionImpl commonVersion = null;
 
-            if (includeVersionInDeploymentName) {
-                int separatorPosition = deploymentFolderName.lastIndexOf(DeployUtils.SEPARATOR);
-
-                if (separatorPosition >= 0) {
-                    deploymentName = deploymentFolderName.substring(0, separatorPosition);
-                    int version = Integer.parseInt(deploymentFolderName.substring(separatorPosition + 1));
-                    commonVersion = new CommonVersionImpl(version);
-                } else {
-                    commonVersion = null;
-                    log.error(
-                        "WebServices are configured to include version in deployment name, but version is not found in the name.");
-                }
-            } else {
-                String version = fileData.getVersion();
-                if (version != null) {
-                    commonVersion = new CommonVersionImpl(version);
-                }
-            }
+            String version = fileData.getVersion();
+            CommonVersionImpl commonVersion = new CommonVersionImpl(version == null ? "0.0.0" : version);
 
             String folderPath = deployPath + deploymentFolderName;
 
             boolean folderStructure = isFolderStructure(folderPath);
 
             Deployment deployment = new Deployment(repository,
-                folderPath,
-                deploymentName,
+                folderPath, deploymentFolderName,
                 commonVersion,
                 folderStructure);
             deployments.putIfAbsent(deploymentFolderName, deployment);
@@ -102,13 +81,7 @@ public class ProductionRepositoryDataSource implements DataSource {
             deploymentName,
             deploymentVersion.getVersionName());
 
-        String name;
-        if (includeVersionInDeploymentName) {
-            name = deploymentName + DeployUtils.SEPARATOR + deploymentVersion.getVersionName();
-        } else {
-            name = deploymentName;
-        }
-        String folderPath = deployPath + name;
+        String folderPath = deployPath + deploymentName;
         boolean folderStructure = isFolderStructure(folderPath);
         return new Deployment(repository, folderPath, deploymentName, deploymentVersion, folderStructure);
     }
@@ -138,10 +111,6 @@ public class ProductionRepositoryDataSource implements DataSource {
 
     public void setRepository(Repository repository) {
         this.repository = repository;
-    }
-
-    public void setIncludeVersionInDeploymentName(boolean includeVersionInDeploymentName) {
-        this.includeVersionInDeploymentName = includeVersionInDeploymentName;
     }
 
     public void setDeployPath(String deployPath) {

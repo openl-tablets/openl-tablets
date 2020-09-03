@@ -204,14 +204,6 @@
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://table.rules.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://table.rules.openl.org">
-            <xsd:complexType name="Point">
-                <xsd:sequence>
-                    <xsd:element minOccurs="0" name="column" type="xsd:int"/>
-                    <xsd:element minOccurs="0" name="row" type="xsd:int"/>
-                </xsd:sequence>
-            </xsd:complexType>
-        </xsd:schema>
         <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://beans.generated.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://beans.generated.openl.org">
             <xsd:complexType name="RuleType">
                 <xsd:sequence>

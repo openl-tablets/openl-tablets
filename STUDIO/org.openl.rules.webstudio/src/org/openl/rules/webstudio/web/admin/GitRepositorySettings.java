@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.io.File;
+import java.util.Optional;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.spring.env.DynamicPropertySource;
@@ -70,8 +71,8 @@ public class GitRepositorySettings extends RepositorySettings {
         localRepositoryPath = defaultLocalPath;
         branch = properties.getProperty(BRANCH);
         tagPrefix = properties.getProperty(TAG_PREFIX);
-        listenerTimerPeriod = Integer.parseInt(properties.getProperty(LISTENER_TIMER_PERIOD));
-        connectionTimeout = Integer.parseInt(properties.getProperty(CONNECTION_TIMEOUT));
+        listenerTimerPeriod = Integer.parseInt(Optional.ofNullable(properties.getProperty(LISTENER_TIMER_PERIOD)).orElse("0"));
+        connectionTimeout = Integer.parseInt(Optional.ofNullable(properties.getProperty(CONNECTION_TIMEOUT)).orElse("0"));
         settingsPath = properties.getProperty(SETTINGS_PATH);
         newBranchTemplate = properties.getProperty(NEW_BRANCH_TEMPLATE);
 

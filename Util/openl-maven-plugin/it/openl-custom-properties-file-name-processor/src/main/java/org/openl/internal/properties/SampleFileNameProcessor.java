@@ -15,7 +15,7 @@ public class SampleFileNameProcessor implements PropertiesFileNameProcessor {
     private final Pattern PATTERN = Pattern.compile("hello-([A-Z]{2})");
 
     @Override
-    public ITableProperties process(Module module, String fileNamePattern) throws
+    public ITableProperties process(Module module, String... fileNamePatterns) throws
                                                                            NoMatchFileNameException,
                                                                            InvalidFileNamePatternException {
         Matcher matcher = PATTERN.matcher(module.getName());
@@ -24,7 +24,9 @@ public class SampleFileNameProcessor implements PropertiesFileNameProcessor {
             props.setState(new UsStatesEnum[] { UsStatesEnum.valueOf(matcher.group(1)) });
             return props;
         }
-        throw new NoMatchFileNameException(String.format("Cannot extract properties from module '%s'", module.getName()));
+        throw new NoMatchFileNameException(
+                String.format("Cannot extract properties from module '%s'", module.getName())
+        );
     }
 
 }

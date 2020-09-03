@@ -10,7 +10,10 @@ import org.richfaces.component.UITree;
 import org.richfaces.function.RichFunction;
 
 public class ShowDiffController extends ExcelDiffController implements AutoCloseable {
+    private static final String DELETED = "deleted";
+    private static final String MODIFIED = "modified";
     private final String fileName;
+    private String fileStatus;
 
     ShowDiffController(File tempFile1, File tempFile2, String fileName) {
         this.fileName = fileName;
@@ -24,6 +27,19 @@ public class ShowDiffController extends ExcelDiffController implements AutoClose
             } catch (Throwable ignore) {
             }
             throw t;
+        } finally {
+            defineFileStatus(tempFile2);
+        }
+    }
+
+    private void defineFileStatus(File tempFile2) {
+        if (tempFile2 == null) {
+            this.fileStatus = DELETED;
+        } else {
+            this.fileStatus = MODIFIED;
+            if (this.changesStatus != null) {
+                this.fileStatus += (". " + this.changesStatus);
+            }
         }
     }
 
@@ -49,5 +65,9 @@ public class ShowDiffController extends ExcelDiffController implements AutoClose
 
     public String getFileName() {
         return fileName;
+    }
+
+    public String getFileStatus() {
+        return fileStatus;
     }
 }

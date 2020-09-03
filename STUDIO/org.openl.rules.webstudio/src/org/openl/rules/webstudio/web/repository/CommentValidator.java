@@ -27,13 +27,9 @@ public class CommentValidator {
             "Length is greater than allowable maximum of '" + MAX_COMMENT_LENGTH + "'");
     }
 
-    public static CommentValidator forDesignRepo() {
-        return new CommentValidator(Props.text("repository.design.comment-validation-pattern"),
-            Props.text("repository.design.invalid-comment-message"));
+    public static CommentValidator forRepo(String repoId) {
+        return new CommentValidator(Props.text("repository." + repoId + ".comment-validation-pattern"),
+            Props.text("repository."+ repoId + ".invalid-comment-message"));
     }
 
-    static CommentValidator forDeployConfigRepo() {
-        return new CommentValidator(Props.text("repository.deploy-config.comment-validation-pattern"),
-            Props.text("repository.deploy-config.invalid-comment-message"));
-    }
 }

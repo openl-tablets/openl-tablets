@@ -17,7 +17,7 @@ public class TreeProductFolder extends TreeFolder {
     public void addChild(AProjectArtefact childArtefact) {
         String name = childArtefact.getName();
 
-        String id = RepositoryUtils.getTreeNodeId(name);
+        String id = RepositoryUtils.getTreeNodeId(childArtefact);
         if (childArtefact.isFolder()) {
             TreeProductFolder treeFolder = new TreeProductFolder(id, name, filter);
             treeFolder.setData(childArtefact);

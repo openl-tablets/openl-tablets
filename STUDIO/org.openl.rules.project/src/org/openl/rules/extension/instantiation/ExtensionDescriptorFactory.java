@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class ExtensionDescriptorFactory {
+    private static final Logger LOG = LoggerFactory.getLogger(ExtensionDescriptorFactory.class);
     private ExtensionDescriptorFactory() {
     }
 
@@ -23,17 +24,14 @@ public final class ExtensionDescriptorFactory {
 
             descriptor = (IExtensionDescriptor) extensionClass.newInstance();
         } catch (ClassNotFoundException e) {
-            Logger log = LoggerFactory.getLogger(ExtensionDescriptorFactory.class);
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             throw new ExtensionRuntimeException(String.format("Extension '%s' does not exist.", extension.getName()));
         } catch (InstantiationException e) {
-            Logger log = LoggerFactory.getLogger(ExtensionDescriptorFactory.class);
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             throw new ExtensionRuntimeException(
                 String.format("Failed to instantiate extension '%s'", extension.getName()));
         } catch (IllegalAccessException e) {
-            Logger log = LoggerFactory.getLogger(ExtensionDescriptorFactory.class);
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             throw new ExtensionRuntimeException(
                 String.format("Extension '%s' is not accessible.", extension.getName()));
         }

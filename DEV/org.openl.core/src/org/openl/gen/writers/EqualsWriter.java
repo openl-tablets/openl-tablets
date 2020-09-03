@@ -13,7 +13,7 @@ import org.openl.gen.FieldDescription;
  *
  * @author Yury Molchan
  */
-public class EqualsWriter extends MethodWriter {
+public class EqualsWriter extends DefaultBeanByteCodeWriter {
 
     /**
      *
@@ -22,7 +22,7 @@ public class EqualsWriter extends MethodWriter {
      * @param allFields collection of fields for current class and parent`s ones.
      */
     public EqualsWriter(String beanNameWithPackage, Map<String, FieldDescription> allFields) {
-        super(beanNameWithPackage, allFields);
+        super(beanNameWithPackage, null, allFields);
     }
 
     @Override
@@ -33,64 +33,23 @@ public class EqualsWriter extends MethodWriter {
         trueIfTheSame(mv);
         falseIfNull(mv);
         falseIfDifferentClassNames(mv);
-        doCast(mv);
+        doCast(mv); // CastType other = (CastType) arg0;
 
         Label retFalse = new Label();
         // comparing by fields
-        for (Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
-            pushFieldToStack(mv, 0, field.getKey());
-            pushFieldToStack(mv, 2, field.getKey());
+        for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
+            String fieldName = field.getKey();
+            FieldDescription fd = field.getValue();
+            String typeDescriptor = fd.getTypeDescriptor();
+            String typeName = fd.getTypeName();
 
-            final String type = field.getValue().getTypeName();
-            if ("double".equals(type)) {
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "compare", "(DD)I");
-                mv.visitJumpInsn(Opcodes.IFNE, retFalse);
-            } else if ("float".equals(type)) {
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "compare", "(FF)I");
-                mv.visitJumpInsn(Opcodes.IFNE, retFalse);
-            } else if ("long".equals(type)) {
-                mv.visitInsn(Opcodes.LCMP);
-                mv.visitJumpInsn(Opcodes.IFNE, retFalse);
-            } else if ("int".equals(type) || "boolean".equals(type) || "short".equals(type) || "byte"
-                .equals(type) || "char".equals(type)) {
-                mv.visitJumpInsn(Opcodes.IF_ICMPNE, retFalse);
-                // No conversions
-            } else if (type.charAt(0) == '[' && type.length() == 2) { // Array of primitives
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/util/Arrays", "equals", "(" + type + type + ")Z");
-                mv.visitJumpInsn(Opcodes.IFEQ, retFalse);
-            } else if (type.startsWith("[L")) { // Array of objects
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                    "java/util/Arrays",
-                    "equals",
-                    "([Ljava/lang/Object;[Ljava/lang/Object;)Z");
-                mv.visitJumpInsn(Opcodes.IFEQ, retFalse);
-            } else if (type.startsWith("[[")) { // Multi array
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                    "java/util/Arrays",
-                    "deepEquals",
-                    "([Ljava/lang/Object;[Ljava/lang/Object;)Z");
-                mv.visitJumpInsn(Opcodes.IFEQ, retFalse);
-            } else {
-                Label endif = new Label();
-                Label isNull = new Label();
-                mv.visitInsn(Opcodes.DUP_X1);
-                mv.visitJumpInsn(Opcodes.IFNULL, isNull);
-                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
-                mv.visitJumpInsn(Opcodes.IFEQ, retFalse);
-                mv.visitJumpInsn(Opcodes.GOTO, endif);
+            mv.visitVarInsn(Opcodes.ALOAD, 0); // this.fieldName
+            mv.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName, typeDescriptor);
 
-                mv.visitLabel(isNull);
-                String internalType = type.replace('.', '/');
-                mv.visitFrame(Opcodes.F_FULL,
-                    3,
-                    new Object[] { getBeanNameWithPackage(), "java/lang/Object", getBeanNameWithPackage() },
-                    2,
-                    new Object[] { internalType, internalType });
+            mv.visitVarInsn(Opcodes.ALOAD, 2); // other.fieldName
+            mv.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName, typeDescriptor);
 
-                mv.visitJumpInsn(Opcodes.IF_ACMPNE, retFalse);
-                mv.visitLabel(endif);
-
-            }
+            compareNE(mv, typeName, retFalse);
             mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
         }
 
@@ -105,20 +64,52 @@ public class EqualsWriter extends MethodWriter {
         mv.visitMaxs(0, 0);
     }
 
+    private void compareNE(MethodVisitor mv, String type, Label gotoIfNotEqual) {
+        if ("double".equals(type)) {
+            invoke(mv, "java/lang/Double", "compare", "(DD)I");
+            mv.visitJumpInsn(Opcodes.IFNE, gotoIfNotEqual);
+        } else if ("float".equals(type)) {
+            invoke(mv, "java/lang/Float", "compare", "(FF)I");
+            mv.visitJumpInsn(Opcodes.IFNE, gotoIfNotEqual);
+        } else if ("long".equals(type)) {
+            mv.visitInsn(Opcodes.LCMP);
+            mv.visitJumpInsn(Opcodes.IFNE, gotoIfNotEqual);
+        } else if ("int".equals(type) || "short".equals(type) || "byte".equals(type) || "char".equals(type)) {
+            // No conversions
+            mv.visitJumpInsn(Opcodes.IF_ICMPNE, gotoIfNotEqual);
+        } else if ("boolean".equals(type)) {
+            // No conversions
+            mv.visitJumpInsn(Opcodes.IF_ICMPNE, gotoIfNotEqual);
+        } else if (type.charAt(0) == '[' && type.length() == 2) { // Array of primitives
+            invoke(mv, "java/util/Arrays", "equals", "(" + type + type + ")Z");
+            mv.visitJumpInsn(Opcodes.IFEQ, gotoIfNotEqual);
+        } else if (type.startsWith("[L")) { // Array of objects
+            invoke(mv, "java/util/Arrays", "equals", "([Ljava/lang/Object;[Ljava/lang/Object;)Z");
+            mv.visitJumpInsn(Opcodes.IFEQ, gotoIfNotEqual);
+        } else if (type.startsWith("[[")) { // Multi array
+            invoke(mv, "java/util/Arrays", "deepEquals", "([Ljava/lang/Object;[Ljava/lang/Object;)Z");
+            mv.visitJumpInsn(Opcodes.IFEQ, gotoIfNotEqual);
+        } else {
+            invoke(mv, "java/util/Objects", "equals", "(Ljava/lang/Object;Ljava/lang/Object;)Z");
+            mv.visitJumpInsn(Opcodes.IFEQ, gotoIfNotEqual);
+
+        }
+    }
+
     private void doCast(MethodVisitor mv) {
         // cast
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         mv.visitTypeInsn(Opcodes.CHECKCAST, getBeanNameWithPackage());
         mv.visitVarInsn(Opcodes.ASTORE, 2);
-        mv.visitFrame(Opcodes.F_APPEND, 1, new Object[] { getBeanNameWithPackage() }, 0, new Object[] {});
+        mv.visitFrame(Opcodes.F_APPEND, 1, new Object[] { getBeanNameWithPackage() }, 0, null);
     }
 
     private void falseIfDifferentClassNames(MethodVisitor mv) {
         Label endif = new Label();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;");
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false);
         mv.visitVarInsn(Opcodes.ALOAD, 1);
-        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;");
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false);
         mv.visitJumpInsn(Opcodes.IF_ACMPEQ, endif); // this.class != other.class
         mv.visitInsn(Opcodes.ICONST_0);// false
         mv.visitInsn(Opcodes.IRETURN);
@@ -145,5 +136,9 @@ public class EqualsWriter extends MethodWriter {
         mv.visitInsn(Opcodes.IRETURN);
         mv.visitLabel(endif);
         mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+    }
+
+    private static void invoke(MethodVisitor mv, String clazz, String methodName, String descriptor) {
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, clazz, methodName, descriptor, false);
     }
 }

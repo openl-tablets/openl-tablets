@@ -13,7 +13,7 @@ import org.openl.conf.OpenLConfigurator;
  * @see LazyBinderMethodHandler
  * @author NSamatov
  */
-public class LazyOpenLConfigurator extends OpenLConfigurator {
+class LazyOpenLConfigurator extends OpenLConfigurator {
 
     @Override
     public synchronized IOpenLBuilder getBuilder(String openlName, IUserContext ucxt) {

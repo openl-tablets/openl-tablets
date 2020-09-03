@@ -7,7 +7,52 @@
 Creating a Project with a Working Example of OpenL Maven Plugin Usage
 
   OpenL Tablets has an archetype which can be used to create a simple OpenL Tablets rules project containing an example
-  of OpenL Maven plugin usage. Proceed as follows:
+  of OpenL Maven plugin usage.
+
+
+* OpenL Tablets Rules Project Archetype
+
+  The current project is ready to deploy to OpenL Rule Services and provides an example of a pure OpenL Tablets rules project with separated main and test modules.
+
+  [[1]] Execute the following command in the command line:
+
+------------------------
+  mvn archetype:generate
+------------------------
+
+  [[2]] Select the <<<openl-project-archetype>>> menu item and follow the wizard instructions to complete project creation.
+
+  When a new Maven-based project is created, it appears in the file system:
+
+    * The main OpenL Tablets project is located in the <<src/main/openl>> directory.
+
+    * The test OpenL Tablets project is located in the <<src/test/openl>> directory.
+
+    []
+
+  The directory structure is described {{{./usage.html}here}}.
+
+  [[3]] To compile the project, in the command line, execute the following command from the root of the project folder:
+
+-------------
+  mvn install
+-------------
+
+  []
+
+  After that, the following objects can be found the <<<target>>> folder:
+
+  * A ZIP file with the <<$\{project.artifactId\}-$\{project.version\}.zip>> name.
+
+  This archive contains only the main project from the <<src/main/openl>> directory and can be deployed to the OpenL Tablets Rule Services.
+
+  For more information, see [OpenL Tablets Rule Services Usage and Customization Guide].
+
+  All test tables from the test project executed on the Maven <<test>> goal are not included to the final ZIP archive.
+
+* Simple OpenL Tablets Project Archetype
+
+  The current project uses OpenL Tablets engine to demonstrate how OpenL Tablets rules usage in a Java application.
 
   [[1]] Execute the following command in the command line:
 
@@ -21,7 +66,7 @@ Creating a Project with a Working Example of OpenL Maven Plugin Usage
 
   [[3]] Follow the wizard instructions to complete project creation.
 
-  When the new Maven-based project is created, it appears in the file system.
+  When a new Maven-based project is created, it appears in the file system.
   It is an OpenL Tablets rules project which has one module with simple rules.
 
   [[4]] To compile the project, in the command line, execute the following command from the root of the project folder:
@@ -29,6 +74,8 @@ Creating a Project with a Working Example of OpenL Maven Plugin Usage
 -------------
   mvn install
 -------------
+
+  []
 
   After that, the following objects can be found the <<<target>>> folder:
 

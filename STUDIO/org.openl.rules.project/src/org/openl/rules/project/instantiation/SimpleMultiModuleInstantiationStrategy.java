@@ -49,7 +49,7 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
         try {
             return getEngineFactory().getInterfaceClass();
         } catch (Exception e) {
-            throw new RulesInstantiationException("Failed to resolve interface.", e);
+            throw new RulesInstantiationException("Failed to resolve an interface.", e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -61,6 +61,8 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
         Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
             return getEngineFactory().newEngineInstance();
+        } catch (Exception e) {
+            throw new RulesInstantiationException("Failed to instantiate.", e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -70,7 +72,7 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
     @SuppressWarnings("unchecked")
     protected RulesEngineFactory<?> getEngineFactory() {
         Class<?> serviceClass = getServiceClass();
-        if (engineFactory == null || serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass)) {
+        if (engineFactory == null) {
             engineFactory = new RulesEngineFactory<>(createVirtualSourceCodeModule(), (Class<Object>) serviceClass);
             engineFactory.setExecutionMode(isExecutionMode());
 
@@ -99,5 +101,13 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
         }
 
         return engineFactory;
+    }
+
+    @Override
+    public void setServiceClass(Class<?> serviceClass) {
+        super.setServiceClass(serviceClass);
+        if (engineFactory != null) {
+            engineFactory.setInterfaceClass((Class) serviceClass);
+        }
     }
 }

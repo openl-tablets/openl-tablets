@@ -1,13 +1,12 @@
 package org.openl.rules.ui;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Objects;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.*;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.source.SourceHistoryManager;
+import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,117 +15,85 @@ import org.slf4j.LoggerFactory;
  */
 public class FileBasedProjectHistoryManager implements SourceHistoryManager<File> {
 
-    private final Logger log = LoggerFactory.getLogger(FileBasedProjectHistoryManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FileBasedProjectHistoryManager.class);
 
     private ProjectModel projectModel;
-    private FileStorage storage;
-    private int maxFilesInStorage;
-    private boolean unlimitedStorage;
+    private final String storagePath;
 
-    public FileBasedProjectHistoryManager(ProjectModel projectModel,
-            String storagePath,
-            Integer maxFilesInStorage,
-            boolean unlimitedStorage) {
+    private static final String REVISION_VERSION = "Revision Version";
+
+    FileBasedProjectHistoryManager(ProjectModel projectModel, String storagePath, Integer maxFilesInStorage) {
         if (projectModel == null) {
             throw new IllegalArgumentException();
         }
         if (storagePath == null) {
             throw new IllegalArgumentException();
         }
-        if (!unlimitedStorage && maxFilesInStorage == null) {
-            throw new IllegalArgumentException();
-        }
+        this.storagePath = storagePath;
         this.projectModel = projectModel;
-        this.storage = new FileStorage(storagePath);
-        this.unlimitedStorage = unlimitedStorage;
-        this.maxFilesInStorage = maxFilesInStorage;
-        if (!this.unlimitedStorage) {
-            delete();
+        if (maxFilesInStorage != null) {
+            delete(maxFilesInStorage);
         }
     }
 
-    @Override
-    public void save(File source) {
-        storage.add(source);
-    }
-
-    public final void delete() {
-        storage.delete(maxFilesInStorage);
-    }
-
-    @Override
-    public File get(long date) {
-        List<File> files = new ArrayList<>(storage.list(new AgeFileFilter(date)));
-        if (!files.isEmpty()) {
-            for (File file : files) {
-                if (file.lastModified() == date) {
-                    return file;
-                }
+    private void delete(int count) {
+        File dir = new File(storagePath);
+        File[] files = dir.listFiles();
+        if (files == null) {
+            return;
+        }
+        try {
+            Arrays.sort(files);
+            for (int i = 0; i < files.length - count - 1; i++) {
+                File file = files[i];
+                FileUtils.delete(file);
             }
+        } catch (Exception e) {
+            LOG.error("Cannot delete history", e);
         }
-        return null;
     }
 
     @Override
-    public File getPrev(long date) {
-        File current = get(date);
-
-        List<IOFileFilter> filters = new ArrayList<>();
-        filters.add(new AgeFileFilter(date));
-        filters.add(new NameFileFilter(current.getName()));
-
-        List<File> files = new ArrayList<>(storage.list(new AndFileFilter(filters)));
-        if (files.size() >= 2) {
-            return files.get(files.size() - 2);
+    public synchronized void save(File source) {
+        Objects.requireNonNull(source);
+        File destFile = new File(storagePath, String.valueOf(System.currentTimeMillis()));
+        try {
+            FileUtils.copy(source, destFile);
+        } catch (Exception e) {
+            LOG.error("Cannot add file", e);
         }
-
-        return null;
     }
 
     @Override
-    public List<File> get(long... dates) {
-        List<File> sources = new ArrayList<>();
-        for (long date : dates) {
-            sources.add(get(date));
-        }
-        return sources;
+    public File get(String version) {
+        return new File(storagePath, version);
     }
 
     @Override
-    public List<File> get(String... names) {
-        Collection<File> files;
-        if (names != null && names.length > 0) {
-            files = storage.list(new NameFileFilter(names));
-        } else {
-            files = storage.list(TrueFileFilter.TRUE);
+    public void init(File source) {
+        File destFile = new File(storagePath, REVISION_VERSION);
+        if (destFile.exists()) {
+            return;
         }
-        return new ArrayList<>(files);
+        try {
+            FileUtils.copy(source, destFile);
+        } catch (Exception e) {
+            LOG.error("Cannot add file", e);
+        }
     }
 
     @Override
-    public void restore(long date) throws Exception {
-        File fileToRestore = get(date);
+    public void restore(String version) throws Exception {
+        File fileToRestore = get(version);
         if (fileToRestore != null) {
-            File currentSourceFile = projectModel.getSourceByName(fileToRestore.getName());
-            if (currentSourceFile == null) {
-                // Module compilation error, cannot find source by logical modules.
-                // Check current module's path (most often user restores only current module)
-                String path = projectModel.getModuleInfo().getRulesRootPath().getPath();
-                String[] pathElements = path.replace('\\', '/').split("/");
-                if (fileToRestore.getName().equals(pathElements[pathElements.length - 1])) {
-                    currentSourceFile = new File(path);
-                } else {
-                    throw new IllegalStateException("Can restore only current module");
-                }
-            }
+            File currentSourceFile = projectModel.getCurrentModuleWorkbook().getSourceFile();
             try {
-                FileUtils.copyFile(fileToRestore, currentSourceFile);
-                save(fileToRestore);
+                FileUtils.copy(fileToRestore, currentSourceFile);
                 projectModel.reset(ReloadType.FORCED);
                 projectModel.buildProjectTree();
-                log.info("Project was restored successfully");
+                LOG.info("Project was restored successfully");
             } catch (Exception e) {
-                log.error("Cannot restore project at {}", new SimpleDateFormat().format(new Date(date)));
+                LOG.error("Cannot restore project at {}", version);
                 throw e;
             }
         }

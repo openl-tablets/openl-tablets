@@ -84,13 +84,8 @@ public class OpenLMessagesUtils {
 
         for (OpenLMessage message : messages) {
             Severity severity = message.getSeverity();
-            Collection<OpenLMessage> groupedMessages = groupedMessagesMap.get(severity);
-
-            if (groupedMessages == null) {
-                groupedMessages = new ArrayList<>();
-                groupedMessagesMap.put(severity, groupedMessages);
-            }
-
+            Collection<OpenLMessage> groupedMessages = groupedMessagesMap.computeIfAbsent(severity,
+                    k -> new ArrayList<>());
             groupedMessages.add(message);
         }
 

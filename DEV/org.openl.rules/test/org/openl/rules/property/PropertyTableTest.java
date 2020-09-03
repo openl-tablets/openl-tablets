@@ -1,7 +1,11 @@
 package org.openl.rules.property;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.junit.Test;
@@ -56,13 +60,13 @@ public class PropertyTableTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testFielsInOpenClass() {
+    public void testFieldsInOpenClass() {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
         IOpenClass openClassWithErrors = compiledOpenClass.getOpenClassWithErrors();
-        Map<String, IOpenField> fields = openClassWithErrors.getFields();
-        assertTrue(fields.containsKey("categoryProp"));
-        for (String fieldName : fields.keySet()) {
-            IOpenField field = openClassWithErrors.getField(fieldName);
+        Collection<IOpenField> fields = openClassWithErrors.getFields();
+        assertTrue(fields.stream().anyMatch(e -> "categoryProp".equals(e.getName())));
+        for (IOpenField openField : fields) {
+            IOpenField field = openClassWithErrors.getField(openField.getName());
             if (field instanceof PropertiesOpenField) {
                 IRuntimeEnv environment = new SimpleVM().getRuntimeEnv();
                 Object myInstance = openClassWithErrors.newInstance(environment);

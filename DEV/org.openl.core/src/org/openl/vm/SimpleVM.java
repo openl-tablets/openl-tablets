@@ -6,14 +6,14 @@
 
 package org.openl.vm;
 
+import java.util.ArrayDeque;
+
 import org.openl.IOpenRunner;
 import org.openl.IOpenVM;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.IBoundNode;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.runtime.DefaultRuntimeContext;
 import org.openl.runtime.IRuntimeContext;
-import org.openl.util.fast.FastStack;
 
 /**
  * @author snshor
@@ -22,6 +22,8 @@ import org.openl.util.fast.FastStack;
 public class SimpleVM implements IOpenVM {
 
     private static final SimpleRunner SIMPLE_RUNNER = new SimpleRunner();
+    private static final Object[] NO_PARAMS = {};
+    private static final Object NULL_THIS = new Object();
 
     static class SimpleRunner implements IOpenRunner {
 
@@ -73,20 +75,20 @@ public class SimpleVM implements IOpenVM {
 
         IOpenRunner runner;
 
-        protected FastStack thisStack = new FastStack(100);
+        protected ArrayDeque<Object> thisStack = new ArrayDeque<>();
 
-        protected FastStack frameStack = new FastStack(100);
+        protected ArrayDeque<Object[]> frameStack = new ArrayDeque<>();
 
-        protected FastStack contextStack;
+        protected ArrayDeque<IRuntimeContext> contextStack;
 
         public SimpleRuntimeEnv() {
-            this(SIMPLE_RUNNER, 0, new Object[] {});
+            this(SIMPLE_RUNNER, 0, NO_PARAMS);
         }
 
         SimpleRuntimeEnv(IOpenRunner runner, int frameSize, Object[] params) {
             Object[] aLocalFrame = new Object[frameSize];
             this.runner = runner;
-            contextStack = new FastStack(5);
+            contextStack = new ArrayDeque<>();
             System.arraycopy(params, 0, aLocalFrame, 0, params.length);
             pushLocalFrame(aLocalFrame);
             pushContext(buildDefaultRuntimeContext());
@@ -98,7 +100,7 @@ public class SimpleVM implements IOpenVM {
 
         public SimpleRuntimeEnv(SimpleRuntimeEnv env) {
             this.runner = SIMPLE_RUNNER;
-            contextStack = (FastStack) env.contextStack.clone();
+            contextStack = new ArrayDeque<>(env.contextStack);
             pushThis(env.getThis());
             pushLocalFrame(env.getLocalFrame());
         }
@@ -110,7 +112,7 @@ public class SimpleVM implements IOpenVM {
          */
         @Override
         public Object[] getLocalFrame() {
-            return (Object[]) frameStack.peek();
+            return frameStack.peek();
         }
 
         @Override
@@ -120,15 +122,12 @@ public class SimpleVM implements IOpenVM {
 
         @Override
         public Object getThis() {
-            if (thisStack.size() == 0) {
-                return null;
-            }
             return thisStack.peek();
         }
 
         @Override
         public Object[] popLocalFrame() {
-            return (Object[]) frameStack.pop();
+            return frameStack.pop();
         }
 
         @Override
@@ -143,16 +142,12 @@ public class SimpleVM implements IOpenVM {
 
         @Override
         public void pushThis(Object thisObject) {
-            thisStack.push(thisObject);
+            thisStack.push(thisObject == null ? NULL_THIS : thisObject); // To prevent NPE
         }
 
         @Override
         public IRuntimeContext getContext() {
-            if (contextStack.size() > 0) {
-                return (IRuntimeContext) contextStack.peek();
-            }
-
-            throw new IllegalStateException("Context stack is empty.");
+            return contextStack.peek();
         }
 
         @Override
@@ -166,12 +161,7 @@ public class SimpleVM implements IOpenVM {
 
         @Override
         public IRuntimeContext popContext() {
-            if (contextStack.size() > 0) {
-                return (IRuntimeContext) contextStack.pop();
-            } else {
-                throw new OpenLRuntimeException(
-                    "Failed to restore context. The context modification history is empty.");
-            }
+            return contextStack.pop();
         }
 
         @Override

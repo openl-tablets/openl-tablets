@@ -6,12 +6,12 @@ import org.slf4j.LoggerFactory;
 
 public class BooleanFormatter implements IFormatter {
 
-    private final Logger log = LoggerFactory.getLogger(BooleanFormatter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BooleanFormatter.class);
 
     @Override
     public String format(Object value) {
         if (!(value instanceof Boolean)) {
-            log.debug("Should be Boolean: {}", value);
+            LOG.debug("Should be Boolean: {}", value);
             return null;
         }
 
@@ -23,7 +23,7 @@ public class BooleanFormatter implements IFormatter {
     public Object parse(String value) {
         Boolean boolValue = BooleanUtils.toBooleanObject(value);
         if (boolValue == null) {
-            log.debug("Could not parse Boolean: {}", value);
+            LOG.debug("Could not parse Boolean: {}", value);
         }
         return boolValue;
     }

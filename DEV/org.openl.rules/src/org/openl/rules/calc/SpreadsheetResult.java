@@ -27,10 +27,12 @@ import org.slf4j.LoggerFactory;
  * Serializable bean that handles result of spreadsheet calculation.
  */
 @XmlRootElement
-@CustomJavaOpenClass(type = SpreadsheetResultOpenClass.class, variableInContextFinder = SpreadsheetResultRootDictionaryContext.class)
+@CustomJavaOpenClass(
+        type = SpreadsheetResultOpenClass.class,
+        variableInContextFinder = SpreadsheetResultRootDictionaryContext.class
+)
 public class SpreadsheetResult implements Serializable {
 
-    private static final long serialVersionUID = 8704762477153429384L;
     private static final int MAX_WIDTH = 4;
     private static final int MAX_HEIGHT = 10;
     private static final int MAX_DEPTH = 2;
@@ -43,7 +45,7 @@ public class SpreadsheetResult implements Serializable {
     transient String[] columnNamesForResultModel;
     transient Map<String, Point> fieldsCoordinates;
 
-    boolean detailedPlainModel;
+    transient boolean detailedPlainModel;
 
     /**
      * logical representation of calculated spreadsheet table it is needed for web studio to display results
@@ -86,6 +88,14 @@ public class SpreadsheetResult implements Serializable {
         this.fieldsCoordinates = fieldsCoordinates;
     }
 
+    public SpreadsheetResult(SpreadsheetResult spr) {
+        this(spr.results, spr.rowNames, spr.columnNames, spr.rowNamesForResultModel, spr.columnNamesForResultModel,
+                spr.fieldsCoordinates);
+        this.logicalTable = spr.logicalTable;
+        this.customSpreadsheetResultOpenClass = spr.customSpreadsheetResultOpenClass;
+        this.detailedPlainModel = spr.detailedPlainModel;
+    }
+
     public boolean isFieldUsedInModel(String fieldName) {
         Point point = fieldsCoordinates.get(fieldName);
         if (point != null) {
@@ -100,18 +110,22 @@ public class SpreadsheetResult implements Serializable {
         if (columnNames != null && rowNames != null) {
             long nonNullsColumnsCount = Arrays.stream(columnNames).filter(Objects::nonNull).count();
             long nonNullsRowsCount = Arrays.stream(rowNames).filter(Objects::nonNull).count();
+            boolean isSingleColumn = nonNullsColumnsCount == 1;
+            boolean isSingleRow = nonNullsRowsCount == 1;
             for (int i = 0; i < rowNames.length; i++) {
                 for (int j = 0; j < columnNames.length; j++) {
                     if (columnNames[j] != null && rowNames[i] != null) {
                         fieldsCoordinates.put(
                             SpreadsheetStructureBuilder.getSpreadsheetCellFieldName(columnNames[j], rowNames[i]),
-                            new Point(j, i));
-                        if (nonNullsColumnsCount == 1) {
+                            Point.get(j, i));
+                        if (isSingleColumn) {
                             fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + rowNames[i],
-                                new Point(j, i));
-                        } else if (nonNullsRowsCount == 1) {
-                            fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + columnNames[j],
-                                new Point(j, i));
+                                Point.get(j, i));
+                        } else {
+                            if (isSingleRow) {
+                                fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + columnNames[j],
+                                    Point.get(j, i));
+                            }
                         }
                     }
                 }
@@ -156,24 +170,6 @@ public class SpreadsheetResult implements Serializable {
 
     public void setRowNames(String[] rowNames) {
         this.rowNames = rowNames;
-    }
-
-    @XmlTransient
-    public String[] getRowNamesForResultModel() {
-        return rowNamesForResultModel.clone();
-    }
-
-    public void setRowNamesForResultModel(String[] rowNamesForResultModel) {
-        this.rowNamesForResultModel = rowNamesForResultModel;
-    }
-
-    @XmlTransient
-    public String[] getColumnNamesForResultModel() {
-        return columnNamesForResultModel.clone();
-    }
-
-    public void setColumnNamesForResultModel(String[] columnNamesForResultModel) {
-        this.columnNamesForResultModel = columnNamesForResultModel;
     }
 
     @XmlTransient
@@ -359,19 +355,11 @@ public class SpreadsheetResult implements Serializable {
         this.customSpreadsheetResultOpenClass = customSpreadsheetResultOpenClass;
     }
 
-    public Object toPlain() {
-        if (getCustomSpreadsheetResultOpenClass() != null) {
-            return toPlain(getCustomSpreadsheetResultOpenClass().getModule());
-        } else {
-            return toMap();
-        }
-    }
-
     public Map<String, Object> toMap() {
         return toMap(null);
     }
 
-    public Object toPlain(XlsModuleOpenClass module) {
+    private Object toPlain(XlsModuleOpenClass module) {
         if (module == null) {
             return toMap(null);
         }
@@ -389,14 +377,15 @@ public class SpreadsheetResult implements Serializable {
         }
     }
 
-    public Map<String, Object> toMap(XlsModuleOpenClass module) {
+    private Map<String, Object> toMap(XlsModuleOpenClass module) {
         Map<String, Object> values = new HashMap<>();
         if (columnNames != null && rowNames != null) {
             long nonNullsColumnsCount = Arrays.stream(columnNamesForResultModel).filter(Objects::nonNull).count();
             long nonNullsRowsCount = Arrays.stream(rowNamesForResultModel).filter(Objects::nonNull).count();
+            final boolean isSingleRow = nonNullsRowsCount == 1;
+            final boolean isSingleColumn = nonNullsColumnsCount == 1;
             final boolean isDetailedPlainModel = detailedPlainModel;
-            String[][] TableDetails = isDetailedPlainModel ? new String[rowNames.length][columnNames.length]
-                                                                         : null;
+            String[][] TableDetails = isDetailedPlainModel ? new String[rowNames.length][columnNames.length] : null;
             if (customSpreadsheetResultOpenClass != null) {
                 CustomSpreadsheetResultOpenClass csrt;
                 if (module != null) {
@@ -425,30 +414,32 @@ public class SpreadsheetResult implements Serializable {
                     for (int j = 0; j < columnNamesForResultModel.length; j++) {
                         if (columnNamesForResultModel[j] != null && rowNamesForResultModel[i] != null) {
                             String fName;
-                            if (nonNullsColumnsCount == 1) {
+                            if (isSingleColumn) {
                                 fName = rowNamesForResultModel[i];
-                            } else if (nonNullsRowsCount == 1) {
-                                fName = columnNamesForResultModel[j];
                             } else {
-                                fName = columnNamesForResultModel[j] + "_" + rowNamesForResultModel[i];
+                                if (isSingleRow) {
+                                    fName = columnNamesForResultModel[j];
+                                } else {
+                                    fName = columnNamesForResultModel[j] + "_" + rowNamesForResultModel[i];
+                                }
                             }
                             String fNewName = fName;
                             int k = 1;
                             while (values.containsKey(fNewName)) {
-                                fNewName = fNewName + k;
+                                fNewName = fName + k;
                                 k++;
                             }
-                            values.put(fName, convertSpreadsheetResult(module, getValue(i, j)));
+                            values.put(fNewName, convertSpreadsheetResult(module, getValue(i, j)));
                             if (isDetailedPlainModel) {
-                                TableDetails[i][j] = fName;
+                                TableDetails[i][j] = fNewName;
                             }
                         }
                     }
                 }
             }
             if (detailedPlainModel) {
-                values.put(CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(),
-                    "TableDetails"), TableDetails);
+                values.put(CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(), "TableDetails"),
+                    TableDetails);
                 values.put(CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(), "RowNames"),
                     rowNames);
                 values.put(CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(), "ColumnNames"),
@@ -529,7 +520,7 @@ public class SpreadsheetResult implements Serializable {
                             toType != null && toType.isArray() ? toType.getComponentType() : null);
                     }
                 }
-                if (toType != null && toType.isArray() && !Object.class.equals(toType.getComponentType())) {
+                if (toType != null && toType.isArray() && Object.class != toType.getComponentType()) {
                     return tmpArray;
                 }
                 Class<?> c = null;

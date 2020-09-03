@@ -1,15 +1,25 @@
 package org.openl.rules.maven;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
@@ -21,6 +31,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProjectHelper;
+import org.codehaus.plexus.util.DirectoryScanner;
+import org.openl.info.OpenLVersion;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.ProjectPackager;
@@ -36,7 +48,9 @@ import org.yaml.snakeyaml.Yaml;
  * @author Yury Molchan
  * @since 5.19.1
  */
-@Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.RUNTIME, requiresDependencyCollection = ResolutionScope.RUNTIME)
+@Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true,
+        requiresDependencyResolution = ResolutionScope.RUNTIME,
+        requiresDependencyCollection = ResolutionScope.RUNTIME)
 public final class PackageMojo extends BaseOpenLMojo {
 
     private static final String DEPLOYMENT_YAML = "deployment.yaml";
@@ -84,7 +98,7 @@ public final class PackageMojo extends BaseOpenLMojo {
      * Allowed quantity of dependencies which can be included into the ZIP archive. Usually OpenL Tablets rules require
      * a few dependencies, such as domain models, that is, Java beans, or some utils, for example, JSON parsing.
      * Typically, the quantity of required dependencies does not exceed 3. If transitive dependencies are declared
-     * incorrectly, the size of the ZIP package increases dramatically. This parameter allows to prevent such situation
+     * incorrectly, the size of the ZIP package increases dramatically. This parameter allows preventing such situation
      * by failing packaging.
      */
     @Parameter(defaultValue = "3", required = true)
@@ -102,6 +116,57 @@ public final class PackageMojo extends BaseOpenLMojo {
      */
     @Parameter(defaultValue = "${project.build.finalName}")
     private String deploymentName;
+
+    /**
+     * Parameter that adds default manifest entries into MANIFEST.MF file.
+     *
+     * @since 5.23.4
+     */
+    @Parameter(defaultValue = "true")
+    private boolean addDefaultManifest;
+
+    /**
+     * Set of key/values to be included to MANIFEST.MF. This parameter overrides default values added by
+     * {@linkplain #addDefaultManifest} parameter.
+     * 
+     * @since 5.23.4
+     */
+    @Parameter
+    private Map<String, String> manifestEntries;
+
+    @Parameter(defaultValue = "${user.name}", readonly = true, required = true)
+    private String userName;
+
+    /**
+     * Sets the list of include patterns to use. All '/' and '\' characters are replaced by
+     * <code>File.separatorChar</code>, so the separator used need not match <code>File.separatorChar</code>.
+     * <p/>
+     * When a pattern ends with a '/' or '\', "**" is appended.
+     *
+     * If it is not defined, then all files will be included.
+     *
+     * @since 5.23.6
+     */
+    @Parameter
+    private String[] includes;
+
+    /**
+     * Sets the list of exclude patterns to use. All '/' and '\' characters are replaced by
+     * <code>File.separatorChar</code>, so the separator used need not match <code>File.separatorChar</code>.
+     * <p/>
+     * When a pattern ends with a '/' or '\', "**" is appended.
+     *
+     * If it is not defined, then no files will be excluded.
+     *
+     * Note: 'pom.xml' file and 'target' directory are excluded always independently on this parameter.
+     *
+     * @since 5.23.6
+     */
+    @Parameter
+    private String[] excludes = StringUtils.EMPTY_STRING_ARRAY;
+
+    @Parameter(defaultValue = "${basedir}", readonly = true, required = true)
+    private String projectBaseDir;
 
     @Override
     void execute(String sourcePath, boolean hasDependencies) throws Exception {
@@ -122,21 +187,23 @@ public final class PackageMojo extends BaseOpenLMojo {
         if (mainArtifactExists && StringUtils.isBlank(classifier) && Arrays.asList(types).contains(packaging)) {
             error("The main artifact have been attached already.");
             error(
-                "You have to use classifier to attach supplemental artifacts to the project instead of replacing them.");
+        "You have to use classifier to attach supplemental artifacts " +
+                "to the project instead of replacing them."
+            );
             throw new MojoFailureException("It is not possible to replace the main artifact.");
         }
         Set<Artifact> dependencies = getDependencies();
-        int dependensiesSize = dependencies.size();
-        if (dependensiesSize > dependenciesThreshold) {
+        int dependenciesSize = dependencies.size();
+        if (dependenciesSize > dependenciesThreshold) {
             error("The quantity of dependencies (",
-                dependensiesSize,
-                ") exceedes the defined threshold in 'dependenciesThreshold=",
+                dependenciesSize,
+                ") exceeds the defined threshold in 'dependenciesThreshold=",
                 dependenciesThreshold,
                 "' parameter.");
             for (Artifact artifact : dependencies) {
                 error("    : ", artifact);
             }
-            throw new MojoFailureException("The quantity of dependencies exceedes the limit");
+            throw new MojoFailureException("The quantity of dependencies exceeds the limit");
         }
         if (!mainArtifactExists && CollectionUtils.isNotEmpty(classesDirectory.list())) {
             // create a jar file with compiled Java sources for OpenL rules
@@ -145,12 +212,25 @@ public final class PackageMojo extends BaseOpenLMojo {
             JarArchiver.archive(classesDirectory, dependencyLib);
         }
 
+        DirectoryScanner dirScan = new DirectoryScanner();
+        dirScan.setBasedir(openLSourceDir);
+        dirScan.setExcludes(getExcludes());
+        dirScan.setIncludes(includes);
+        dirScan.scan();
+        final String[] includedFiles = dirScan.getIncludedFiles();
+
         for (String type : types) {
             File outputFile = getOutputFile(outputDirectory, finalName, classifier, type);
 
             try (ZipArchiver arch = new ZipArchiver(outputFile.toPath())) {
+                if (addDefaultManifest || manifestEntries != null) {
+                    Manifest manifest = createManifest();
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    manifest.write(baos);
+                    arch.addFile(new ByteArrayInputStream(baos.toByteArray()), JarFile.MANIFEST_NAME);
+                }
 
-                ProjectPackager.addOpenLProject(openLSourceDir, arch);
+                ProjectPackager.addOpenLProject(openLSourceDir, includedFiles, arch);
 
                 if (dependencyLib != null && dependencyLib.isFile()) {
                     arch.addFile(dependencyLib, classpathFolder + finalName + ".jar");
@@ -319,4 +399,43 @@ public final class PackageMojo extends BaseOpenLMojo {
             new Yaml(options).dump(properties, writer);
         }
     }
+
+    private Manifest createManifest() {
+        Manifest manifest = new Manifest();
+        Attributes attributes = manifest.getMainAttributes();
+        attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        if (addDefaultManifest) {
+            // initialize with default values
+            attributes.putValue("Build-Date", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+            attributes.putValue("Built-By", userName);
+            attributes.put(Attributes.Name.IMPLEMENTATION_TITLE,
+                String.format("%s:%s", project.getGroupId(), project.getArtifactId()));
+            attributes.put(Attributes.Name.IMPLEMENTATION_VERSION, project.getVersion());
+            if (project.getOrganization() != null) {
+                attributes.put(Attributes.Name.IMPLEMENTATION_VENDOR, project.getOrganization().getName());
+            }
+            attributes.putValue("Created-By", "OpenL Maven Plugin v" + OpenLVersion.getVersion());
+        }
+
+        if (manifestEntries != null) {
+            for (Map.Entry<String, String> entry : manifestEntries.entrySet()) {
+                String key = entry.getKey();
+                // if value is empty, create an entry with empty string to prevent nulls in file
+                String value = StringUtils.trimToEmpty(entry.getValue());
+                attributes.putValue(key, value);
+            }
+        }
+        return manifest;
+    }
+
+    private String[] getExcludes() {
+        ArrayList<String> strings = new ArrayList<>(excludes.length + 2);
+        Collections.addAll(strings, excludes);
+
+        final String targetDir = Paths.get(projectBaseDir).relativize(outputDirectory.toPath()) + "/**";
+        strings.add(targetDir);
+        strings.add("pom.xml");
+        return strings.toArray(StringUtils.EMPTY_STRING_ARRAY);
+    }
+
 }

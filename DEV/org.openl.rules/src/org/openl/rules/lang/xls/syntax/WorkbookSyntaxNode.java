@@ -50,7 +50,7 @@ public class WorkbookSyntaxNode extends NaryNode {
         for (TableSyntaxNode tnode : mergedTableParts) {
             tnodes.add(tnode);
         }
-        tableSyntaxNodes = tnodes.toArray(new TableSyntaxNode[0]);
+        tableSyntaxNodes = tnodes.toArray(TableSyntaxNode.EMPTY_ARRAY);
     }
 
     public XlsWorkbookSourceCodeModule getWorkbookSourceCodeModule() {

@@ -2,10 +2,14 @@ package org.openl.rules.helpers;
 
 import java.util.Objects;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.rules.helpers.ARangeParser.ParseStruct;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
+import org.openl.util.StringUtils;
 
+@XmlRootElement
 public class CharRange extends IntRange {
 
     private static final int TO_CHAR_RANGE_CAST_DISTANCE = CastFactory.AFTER_FIRST_WAVE_CASTS_DISTANCE + 8;
@@ -32,7 +36,8 @@ public class CharRange extends IntRange {
             max -= 1;
         }
         if (min > max) {
-            throw new RuntimeException(String.format("%s must be more or equal than %s", parsed.max, parsed.min));
+            throw new IllegalArgumentException(
+                String.format("%s must be greater or equal than %s", parsed.max, parsed.min));
         }
     }
 
@@ -42,11 +47,11 @@ public class CharRange extends IntRange {
     }
 
     private String printChar(long ch) {
-        return isPrintable(ch) ? String.valueOf((char) ch) : "'u" + Integer.toHexString((char) ch) + "'";
+        return isPrintable(ch) ? String.valueOf((char) ch) : ("'u" + Integer.toHexString((char) ch) + "'");
     }
 
     private boolean isPrintable(long ch) {
-        if (Character.isWhitespace((char) ch) || Character.isISOControl((char) ch)) {
+        if (StringUtils.isSpaceOrControl((char) ch)) {
             return false;
         }
 

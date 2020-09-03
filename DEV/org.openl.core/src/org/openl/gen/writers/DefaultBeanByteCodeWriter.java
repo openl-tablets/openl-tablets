@@ -6,12 +6,13 @@ import java.util.Map;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.gen.FieldDescription;
+import org.openl.gen.TypeDescription;
 
 public abstract class DefaultBeanByteCodeWriter implements BeanByteCodeWriter {
 
     private String beanNameWithPackage;
 
-    private Class<?> parentClass;
+    private TypeDescription parentType;
 
     private Map<String, FieldDescription> beanFields;
 
@@ -19,14 +20,14 @@ public abstract class DefaultBeanByteCodeWriter implements BeanByteCodeWriter {
      *
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
      *            (e.g. <code>my/test/TestClass</code>)
-     * @param parentClass class descriptor for super class.
+     * @param parentType class descriptor for super class.
      * @param beanFields fields of generating class.
      */
     public DefaultBeanByteCodeWriter(String beanNameWithPackage,
-            Class<?> parentClass,
+            TypeDescription parentType,
             Map<String, FieldDescription> beanFields) {
         this.beanNameWithPackage = beanNameWithPackage;
-        this.parentClass = parentClass;
+        this.parentType = parentType;
         this.beanFields = new LinkedHashMap<>(beanFields);
     }
 
@@ -40,8 +41,8 @@ public abstract class DefaultBeanByteCodeWriter implements BeanByteCodeWriter {
         return beanNameWithPackage;
     }
 
-    protected Class<?> getParentClass() {
-        return parentClass;
+    protected TypeDescription getParentType() {
+        return parentType;
     }
 
     protected Map<String, FieldDescription> getBeanFields() {
@@ -51,7 +52,7 @@ public abstract class DefaultBeanByteCodeWriter implements BeanByteCodeWriter {
     @Override
     public String toString() {
         // For debugging purpose
-        StringBuilder strBuilder = new StringBuilder(128);
+        StringBuilder strBuilder = new StringBuilder();
         strBuilder.append(this.getClass().getSimpleName());
         strBuilder.append(" for ");
         strBuilder.append(beanNameWithPackage);

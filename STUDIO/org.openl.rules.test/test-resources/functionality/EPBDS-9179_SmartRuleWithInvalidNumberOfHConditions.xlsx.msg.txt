@@ -1,1 +1,2 @@
-ERROR: The height of the horizontal keys must be equal to the number of the horizontal headers.
+ERROR: No input parameter found for horizontal condition.
+ERROR: Method 'someMyRule5(int, int, int)' is not found.

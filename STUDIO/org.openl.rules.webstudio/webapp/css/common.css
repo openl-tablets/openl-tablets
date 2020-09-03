@@ -171,6 +171,15 @@ a.button-secondary {
 }
 
 
+input[type='text'].with-button-select {
+    width: 322px;
+}
+
+input[type='button'].button-select {
+    height: 23px;
+    padding: 0 5px;
+}
+
 #refreshBtn,
 #designRepoRefresh,
 #productionRepoRefresh {
@@ -394,8 +403,8 @@ fieldset {
     min-height: 350px;
 }
 
-.tab-panel-vertical ul {
-    height: 350px;
+.tab-panel-vertical > ul {
+    min-height: 350px;
     list-style: none;
     margin: 0; padding: 0;
     background: #f5f5f5;
@@ -403,19 +412,19 @@ fieldset {
     border-right: 1px solid #ddd;
 }
 
-.tab-panel-vertical ul li {
-    width: 100px;
+.tab-panel-vertical > ul li {
+    min-width: 100px;
     margin: 0;
     padding: 0;
     text-align: center;
     opacity: 0.8;
 }
 
-.tab-panel-vertical ul li:hover {
+.tab-panel-vertical > ul li:hover {
      opacity: 1;
 }
 
-.tab-panel-vertical ul li.selected-tab {
+.tab-panel-vertical > ul li.selected-tab {
     font-weight: bold;
     position: relative;
     left: 1px;
@@ -426,11 +435,11 @@ fieldset {
     opacity: 1;
 }
 
-.tab-panel-vertical ul li:first-child.selected-tab {
+.tab-panel-vertical > ul li:first-child.selected-tab {
     border-top: 0;
 }
 
-.tab-panel-vertical ul li a {
+.tab-panel-vertical > ul li a {
     display: block;
     padding: 20px 5px;
     outline: none;
@@ -438,12 +447,12 @@ fieldset {
     color: #222;
 }
 
-.tab-panel-vertical ul li a span {
+.tab-panel-vertical > ul li a span {
     display: block;
 }
 
 .tab-panel-vertical .data-container {
-    padding: 15px 25px 15px 125px;
+    padding: 1px 25px 15px 105px;
 }
 
 .page {
@@ -721,6 +730,15 @@ form .formfields {
 .error {
     color: red;
     padding: 0 2px;
+    /* See above default width for input. */
+    max-width: 350px;
+    display: inline-block;
+}
+
+table.properties-form.wide .error {
+    /* See above the width for inputs in table.properties-form.wide. */
+    max-width: 315px;
+    display: inline-block;
 }
 
 .success {
@@ -928,6 +946,11 @@ form .formfields {
 .rf-tr-nd-exp-nc {
     display: none;
 }
+
+.rf-trn-sel {
+    font-weight: bold;
+}
+
 .param-tree .rf-trn-sel {
     font-weight: normal;
 }
@@ -1166,6 +1189,10 @@ form .formfields {
 .rf-tab-hdr-brd {
     border: 0 !important;
     height: 0 !important;
+}
+
+.rf-tab-hdr-spcr {
+    border-bottom: 1px solid #C0C0C0;
 }
 
 .rf-insp {
@@ -1508,4 +1535,36 @@ form .formfields {
 .expandable, .expandable-link {
     cursor: pointer;
     border-bottom: 1px dashed #777777;
+}
+
+.disabled {
+    pointer-events: none;
+    cursor: default;
+    border-color: lightgray;
+    opacity: 0.3;
+}
+
+option[value=""]:disabled {
+    background-color: lightgrey;
+    font-size: 1px;
+    pointer-events: none;
+}
+
+option[value=""]:disabled + option[value=""]:disabled {
+    display: none;
+}
+
+/**
+ * rich:popupPanel causes a line break because of style="visibility:hidden; display: inline-block;" instead of "display:none".
+ * This breaks top panel rendering and table properties panel.
+ * In previous version of richfaces there was no any "display" attribute and "display: block" was inherited.
+ * As a workaround we override such divs for rich:popupPanel.
+ * We should override it only when "display: inline-block" is exist (visibility attribute can be changed dynamically).
+ * If 'display: none', don't override.
+ * See these links:
+ * https://developer.jboss.org/thread/169474
+ * https://developer.jboss.org/thread/267743
+ */
+.popup-panel[style*="display: inline-block"] {
+    display: block !important;
 }

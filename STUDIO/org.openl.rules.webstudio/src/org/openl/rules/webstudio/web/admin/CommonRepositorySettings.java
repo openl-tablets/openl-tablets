@@ -7,27 +7,27 @@ public class CommonRepositorySettings extends RepositorySettings {
     private String login;
     private String password;
     private String uri;
-    private boolean secure = false;
+    private boolean secure;
     private final RepositoryType repositoryType;
-    private final String REPOSITORY_URI;
-    private final String REPOSITORY_LOGIN;
-    private final String REPOSITORY_PASS;
-    private String CONFIG_PREFIX;
+    private final String uriPath;
+    private final String loginPath;
+    private final String passwordPath;
+    private final String configPathPrefix;
 
     public CommonRepositorySettings(PropertiesHolder properties, String configPrefix, RepositoryType repositoryType) {
         super(properties, configPrefix);
-        CONFIG_PREFIX = configPrefix;
+        configPathPrefix = configPrefix;
         this.repositoryType = repositoryType;
-        REPOSITORY_URI = configPrefix + ".uri";
-        REPOSITORY_LOGIN = configPrefix + ".login";
-        REPOSITORY_PASS = configPrefix + ".password";
+        uriPath = configPrefix + ".uri";
+        loginPath = configPrefix + ".login";
+        passwordPath = configPrefix + ".password";
         load(properties);
     }
 
     private void load(PropertiesHolder properties) {
-        uri = properties.getProperty(REPOSITORY_URI);
-        login = properties.getProperty(REPOSITORY_LOGIN);
-        password = properties.getProperty(REPOSITORY_PASS);
+        uri = properties.getProperty(uriPath);
+        login = properties.getProperty(loginPath);
+        password = properties.getProperty(passwordPath);
 
         secure = StringUtils.isNotEmpty(getLogin());
     }
@@ -72,28 +72,29 @@ public class CommonRepositorySettings extends RepositorySettings {
     }
 
     private String getDefaultPath(RepositoryType repositoryType) {
-        String type = RepositorySettings.getTypePrefix(CONFIG_PREFIX);
+        String type = RepositorySettings.getTypePrefix(configPathPrefix);
         switch (repositoryType) {
             case DB:
                 return "jdbc:mysql://localhost:3306/" + type + "-repository";
             case JNDI:
                 return "java:comp/env/jdbc/" + type + "DB";
+            default:
+                return null;
         }
-        return null;
     }
 
     @Override
     protected void store(PropertiesHolder propertiesHolder) {
         super.store(propertiesHolder);
-        propertiesHolder.setProperty(REPOSITORY_URI, uri);
+        propertiesHolder.setProperty(uriPath, uri);
 
         if (!isSecure()) {
-            propertiesHolder.setProperty(REPOSITORY_LOGIN, "");
-            propertiesHolder.setProperty(REPOSITORY_PASS, "");
+            propertiesHolder.setProperty(loginPath, "");
+            propertiesHolder.setProperty(passwordPath, "");
         } else {
             if (StringUtils.isNotEmpty(password)) {
-                propertiesHolder.setProperty(REPOSITORY_LOGIN, getLogin());
-                propertiesHolder.setProperty(REPOSITORY_PASS, getPassword());
+                propertiesHolder.setProperty(loginPath, getLogin());
+                propertiesHolder.setProperty(passwordPath, getPassword());
             }
         }
     }
@@ -102,7 +103,7 @@ public class CommonRepositorySettings extends RepositorySettings {
     protected void revert(PropertiesHolder properties) {
         super.revert(properties);
 
-        properties.revertProperties(REPOSITORY_URI, REPOSITORY_LOGIN, REPOSITORY_PASS);
+        properties.revertProperties(uriPath, loginPath, passwordPath);
         load(properties);
     }
 

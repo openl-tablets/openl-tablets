@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Properties;
 
-public class SourceGenerator {
+public final class SourceGenerator {
 
     private static final String VELOCITY_PROPERTIES = "velocity.properties";
 
@@ -26,14 +26,14 @@ public class SourceGenerator {
         init();
     }
 
-    private void init() throws Exception {
+    private void init() throws IOException {
 
         Properties properties = loadVelocityProperties();
 
         generator = VelocityGenerator.getInstance(properties);
     }
 
-    private Properties loadVelocityProperties() throws IOException {
+    private static Properties loadVelocityProperties() throws IOException {
         try (FileInputStream is = new FileInputStream(new File(VELOCITY_PROPERTIES))) {
             Properties properties = new Properties();
             properties.load(is);
@@ -52,7 +52,7 @@ public class SourceGenerator {
         }
     }
 
-    public String generateSource(String templateName, Map<String, Object> variables) throws Exception {
+    public String generateSource(String templateName, Map<String, Object> variables) {
         return generator.generate(templateName, variables);
     }
 }

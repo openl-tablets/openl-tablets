@@ -20,9 +20,6 @@ import org.openl.syntax.grammar.IGrammarFactory;
  */
 public abstract class AParser implements IOpenParser {
 
-    private static final String INTEGER_RANGE_PARSING_TYPE = "range.literal";
-    private static final String FLOAT_RANGE_PARSING_TYPE = "range.literal.real";
-
     protected abstract IGrammarFactory getGrammarFactory();
 
     /**
@@ -73,32 +70,6 @@ public abstract class AParser implements IOpenParser {
         IGrammar grammar = getGrammarFactory().getGrammar();
         grammar.setModule(source);
         grammar.parseAsType(source.getCharacterStream());
-
-        return makeParsedCode(grammar, source);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public IParsedCode parseAsFloatRange(IOpenSourceCodeModule source) {
-
-        IGrammar grammar = getGrammarFactory().getGrammar();
-        grammar.setModule(source);
-        grammar.parse(source.getCharacterStream(), FLOAT_RANGE_PARSING_TYPE);
-
-        return makeParsedCode(grammar, source);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public IParsedCode parseAsIntegerRange(IOpenSourceCodeModule source) {
-
-        IGrammar grammar = getGrammarFactory().getGrammar();
-        grammar.setModule(source);
-        grammar.parse(source.getCharacterStream(), INTEGER_RANGE_PARSING_TYPE);
 
         return makeParsedCode(grammar, source);
     }

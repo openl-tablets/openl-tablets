@@ -1,5 +1,12 @@
 package org.openl.rules.binding;
 
+import java.lang.reflect.Array;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
@@ -43,6 +50,7 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
@@ -54,13 +62,6 @@ import org.openl.util.MessageUtils;
 import org.openl.util.StringPool;
 import org.openl.util.StringTool;
 import org.openl.util.text.LocationUtils;
-
-import java.lang.reflect.Array;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 public final class RuleRowHelper {
 
@@ -363,7 +364,10 @@ public final class RuleRowHelper {
 
         XlsModuleOpenClass xlsModuleOpenClass = getComponentOpenClass(bindingContext);
         if (xlsModuleOpenClass != null) {
-            return xlsModuleOpenClass.getConstantField(source.trim());
+            IOpenField openField = xlsModuleOpenClass.getField(source.trim());
+            if (openField instanceof ConstantOpenField) {
+                return (ConstantOpenField) openField;
+            }
         }
         return null;
     }
@@ -748,7 +752,7 @@ public final class RuleRowHelper {
             }
         }
 
-        return methodsList == null ? ary : new ArrayHolder(paramType, methodsList.toArray(new CompositeMethod[0]));
+        return methodsList == null ? ary : new ArrayHolder(paramType, methodsList.toArray(CompositeMethod.EMPTY_ARRAY));
     }
 
     private static List<CompositeMethod> addMethod(List<CompositeMethod> methods, CompositeMethod method) {
@@ -794,7 +798,7 @@ public final class RuleRowHelper {
             index.setValue(ary, i, values.get(i));
         }
 
-        return methodsList == null ? ary : new ArrayHolder(paramType, methodsList.toArray(new CompositeMethod[0]));
+        return methodsList == null ? ary : new ArrayHolder(paramType, methodsList.toArray(CompositeMethod.EMPTY_ARRAY));
 
     }
 }

@@ -1,7 +1,20 @@
 package org.openl.rules.project;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.OpenLBundleClassLoader;
@@ -24,10 +37,10 @@ import com.rits.cloning.Cloner;
 public class ProjectDescriptorManager {
 
     private IProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
-    private ProjectDescriptorValidator validator = new ProjectDescriptorValidator();
+    private final ProjectDescriptorValidator validator = new ProjectDescriptorValidator();
     private PathMatcher pathMatcher = new AntPathMatcher();
 
-    private Cloner cloner = new SafeCloner();
+    private final Cloner cloner = new SafeCloner();
 
     public PathMatcher getPathMatcher() {
         return pathMatcher;
@@ -84,7 +97,7 @@ public class ProjectDescriptorManager {
         // object
         preProcess(descriptor);
         String serializedObject = serializer.serialize(descriptor);
-        dest.write(serializedObject.getBytes("UTF-8"));
+        dest.write(serializedObject.getBytes(StandardCharsets.UTF_8));
     }
 
     public boolean isModuleWithWildcard(Module module) {
@@ -109,6 +122,19 @@ public class ProjectDescriptorManager {
                 }
             }
         }
+    }
+
+    public boolean isCoveredByWildcardModule(ProjectDescriptor descriptor, Module otherModule) {
+        for (Module module : descriptor.getModules()) {
+            final PathEntry otherModuleRootPath = otherModule.getRulesRootPath();
+            if (isModuleWithWildcard(module) && otherModuleRootPath != null) {
+                String relativePath = otherModuleRootPath.getPath().replace("\\", "/");
+                if (pathMatcher.match(module.getRulesRootPath().getPath(), relativePath)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public List<Module> getAllModulesMatchingPathPattern(ProjectDescriptor descriptor,

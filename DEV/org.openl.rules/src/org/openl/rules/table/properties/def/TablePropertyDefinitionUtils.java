@@ -10,6 +10,7 @@ import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
+import org.openl.util.StringUtils;
 
 /**
  * Helper methods, for working with properties.<br>
@@ -19,6 +20,8 @@ import org.openl.rules.table.properties.inherit.PropertiesChecker;
  *
  */
 public final class TablePropertyDefinitionUtils {
+
+    private static final TablePropertyDefinition[] NO_PROPERTIES = new TablePropertyDefinition[0];
 
     private TablePropertyDefinitionUtils() {
     }
@@ -87,7 +90,7 @@ public final class TablePropertyDefinitionUtils {
                 names.add(definition.getName());
             }
 
-            dimensionalTablePropertiesNames = names.toArray(new String[0]);
+            dimensionalTablePropertiesNames = names.toArray(StringUtils.EMPTY_STRING_ARRAY);
         }
         return dimensionalTablePropertiesNames;
     }
@@ -224,7 +227,7 @@ public final class TablePropertyDefinitionUtils {
                 resultDefinitions.add(propertyDefinition);
             }
         }
-        return resultDefinitions.toArray(new TablePropertyDefinition[0]);
+        return resultDefinitions.toArray(NO_PROPERTIES);
     }
 
     public static TablePropertyDefinition[] getDefaultDefinitionsForTable(String tableType) {
@@ -246,7 +249,7 @@ public final class TablePropertyDefinitionUtils {
             }
         }
 
-        return resultDefinitions.toArray(new TablePropertyDefinition[0]);
+        return resultDefinitions.toArray(NO_PROPERTIES);
     }
 
     public static Map<String, List<TablePropertyDefinition>> groupProperties(TablePropertyDefinition[] properties) {

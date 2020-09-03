@@ -16,7 +16,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public abstract class AEngineFactory {
 
-    private static final String INCORRECT_RET_TYPE_MSG = "Expected '%s' for the return type of method '%s', but found '%s' type.";
+    private static final String INCORRECT_RET_TYPE_MSG = "Expected return type '%s' for method '%s', but found '%s'.";
 
     public final Object newInstance() {
         return newInstance(getRuntimeEnvBuilder().buildRuntimeEnv());
@@ -29,7 +29,8 @@ public abstract class AEngineFactory {
 
         Class<?>[] proxyInterfaces = prepareInstanceInterfaces();
 
-        return ASMProxyFactory.newProxyInstance(classLoader, prepareMethodHandler(openClassInstance, methodMap, runtimeEnv),
+        return ASMProxyFactory.newProxyInstance(classLoader,
+            prepareMethodHandler(openClassInstance, methodMap, runtimeEnv),
             proxyInterfaces);
     }
 
@@ -76,8 +77,7 @@ public abstract class AEngineFactory {
             // Try to find openClass's method with appropriate name and
             // parameter types.
             //
-            IOpenClass[] params = OpenClassHelper.getOpenClasses(moduleOpenClass, interfaceMethod.getParameterTypes());
-            IOpenMethod rulesMethod = moduleOpenClass.getMethod(interfaceMethodName, params);
+            IOpenMethod rulesMethod = OpenClassHelper.findRulesMethod(moduleOpenClass, interfaceMethod);
 
             if (rulesMethod != null) {
                 validateReturnType(rulesMethod, interfaceMethod);
@@ -89,51 +89,23 @@ public abstract class AEngineFactory {
                 // Try to find appropriate method candidate in openClass's
                 // fields.
                 //
-                if (interfaceMethodName.startsWith("get")) {
-                    // Build field name to find.
-                    //
-                    String fieldName = ClassUtils.toFieldName(interfaceMethodName);
-                    // Try to find appropriate field.
-                    //
-                    IOpenField rulesField = moduleOpenClass.getField(fieldName, true);
-
-                    if (rulesField == null) {
-                        fieldName = ClassUtils.capitalize(fieldName);
-                        rulesField = moduleOpenClass.getField(fieldName, true);
-                    }
-
-                    if (rulesField != null) {
-                        // Cast method return type to appropriate OpenClass
-                        // type.
-                        //
-                        IOpenClass methodReturnType = OpenClassHelper.getOpenClass(moduleOpenClass,
-                            interfaceMethod.getReturnType());
-
-                        if (methodReturnType.isAssignableFrom(rulesField.getType())) {
-                            // If openClass's field type is equal to method
-                            // return
-                            // type then add new entry to methods map.
-                            //
-                            methodMap.put(interfaceMethod, rulesField);
-                            // Jump to the next interface method.
-                            //
-                            continue;
-                        } else {
-                            // If openClass does not have appropriate field
-                            // (field's type does not
-                            // equal to method return type) then throw runtime
-                            // exception.
-                            //
+                IOpenField ruleField = OpenClassHelper.findRulesField(moduleOpenClass, interfaceMethod);
+                if (ruleField != null) {
+                    methodMap.put(interfaceMethod, ruleField);
+                    continue;
+                } else {
+                    if (interfaceMethod.getParameterCount() == 0) {
+                        IOpenField openField = OpenClassHelper.findRulesField(moduleOpenClass,
+                            interfaceMethod.getName());
+                        if (openField != null) {
                             String message = String.format(INCORRECT_RET_TYPE_MSG,
+                                openField.getType(),
                                 interfaceMethodName,
-                                rulesField.getType(),
-                                methodReturnType.getName());
-
+                                interfaceMethod.getName());
                             throw new RuntimeException(message);
                         }
                     }
                 }
-
                 // If openClass does not have appropriate method or field then
                 // throw runtime exception.
                 //
@@ -153,8 +125,8 @@ public abstract class AEngineFactory {
         boolean isAssignable = ClassUtils.isAssignable(openClassReturnType, interfaceReturnType);
         if (!isAssignable) {
             String message = String.format(INCORRECT_RET_TYPE_MSG,
-                interfaceMethod.getName(),
                 openClassReturnType.getName(),
+                interfaceMethod.getName(),
                 interfaceReturnType.getName());
             throw new ClassCastException(message);
         }

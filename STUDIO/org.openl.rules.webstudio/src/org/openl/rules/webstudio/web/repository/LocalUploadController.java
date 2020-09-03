@@ -3,38 +3,38 @@ package org.openl.rules.webstudio.web.repository;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
-import javax.servlet.http.HttpSession;
-
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.lw.LocalWorkspace;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Service;
 
-@ManagedBean(name = "localUpload")
-@RequestScoped
+@Service("localUpload")
+@ViewScope
 public class LocalUploadController {
     public static class UploadBean {
-        private String projectName;
+        private final String projectName;
 
         private boolean selected;
 
-        public UploadBean(String projectName) {
+        UploadBean(String projectName) {
             this.projectName = projectName;
         }
 
@@ -46,10 +46,6 @@ public class LocalUploadController {
             return selected;
         }
 
-        public void setProjectName(String projectName) {
-            this.projectName = projectName;
-        }
-
         public void setSelected(boolean selected) {
             this.selected = selected;
         }
@@ -59,49 +55,56 @@ public class LocalUploadController {
 
     private List<UploadBean> uploadBeans;
 
+    private String repositoryId;
+
     private String projectFolder = "";
 
     private String createProjectCommentTemplate;
 
-    @ManagedProperty(value = "#{designRepositoryComments}")
-    private Comments designRepoComments;
+    private final PropertyResolver propertyResolver;
+
+    public LocalUploadController(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
+    }
 
     private void createProject(File baseFolder,
-            RulesUserSession rulesUserSession,
-            String comment) throws ProjectException, WorkspaceException, FileNotFoundException {
+        RulesUserSession rulesUserSession,
+        String comment,
+        String repositoryId) throws ProjectException, WorkspaceException, FileNotFoundException {
         if (!baseFolder.isDirectory()) {
             throw new FileNotFoundException(baseFolder.getName());
         }
 
-        rulesUserSession.getUserWorkspace().uploadLocalProject(baseFolder.getName(), projectFolder, comment);
+        rulesUserSession.getUserWorkspace().uploadLocalProject(repositoryId, baseFolder.getName(), projectFolder, comment);
     }
 
     public List<UploadBean> getProjects4Upload() {
         if (uploadBeans == null) {
             uploadBeans = new ArrayList<>();
-            RulesUserSession userRules = getRules();
+            RulesUserSession userRules = WebStudioUtils.getRulesUserSession();
             WebStudio webStudio = WebStudioUtils.getWebStudio();
             if (webStudio != null && userRules != null) {
+                UserWorkspace userWorkspace;
                 DesignTimeRepository dtr;
                 try {
-                    dtr = userRules.getUserWorkspace().getDesignTimeRepository();
+                    userWorkspace = userRules.getUserWorkspace();
+                    dtr = userWorkspace.getDesignTimeRepository();
                 } catch (Exception e) {
                     log.error("Cannot get DTR.", e);
                     return null;
                 }
-                File workspace = new File(webStudio.getWorkspacePath());
-                File[] projects = workspace.listFiles();
-                if (projects == null) {
-                    projects = new File[0];
-                }
-                Arrays.sort(projects, fileNameComparator);
-                // All OpenL projects folders in workspace
                 ProjectResolver projectResolver = webStudio.getProjectResolver();
-                for (File f : projects) {
+
+                LocalWorkspace localWorkspace = userWorkspace.getLocalWorkspace();
+                List<AProject> localProjects = new ArrayList<>(localWorkspace.getProjects());
+                localProjects.sort((p1, p2) -> p1.getName().compareToIgnoreCase(p2.getName()));
+                for (AProject project : localProjects) {
                     try {
-                        ResolvingStrategy strategy = projectResolver.isRulesProject(f);
-                        if (strategy != null && !dtr.hasProject(f.getName())) {
-                            uploadBeans.add(new UploadBean(f.getName()));
+                        String repoId = project.getRepository().getId();
+                        File projectFolder = new File(localWorkspace.getLocation(), project.getFolderPath());
+                        ResolvingStrategy strategy = projectResolver.isRulesProject(projectFolder);
+                        if (strategy != null && !dtr.hasProject(repoId, project.getName())) {
+                            uploadBeans.add(new UploadBean(project.getName()));
                         }
                     } catch (Exception e) {
                         log.error("Failed to list projects for upload.", e);
@@ -113,39 +116,47 @@ public class LocalUploadController {
         return uploadBeans;
     }
 
+    public String getRepositoryId() {
+        return repositoryId;
+    }
+
+    public void setRepositoryId(String repositoryId) {
+        this.repositoryId = repositoryId;
+    }
+
     public String getProjectFolder() {
-        return projectFolder;
+        String folderToShow = this.projectFolder;
+        if (!folderToShow.startsWith("/")) {
+            folderToShow = "/" + folderToShow;
+        }
+        return folderToShow;
     }
 
     public void setProjectFolder(String projectFolder) {
         String folder = StringUtils.trimToEmpty(projectFolder).replace('\\', '/');
+        if (folder.startsWith("/")) {
+            folder = folder.substring(1);
+        }
         if (!folder.isEmpty() && !folder.endsWith("/")) {
             folder += '/';
         }
         this.projectFolder = folder;
     }
 
-    /**
-     * EPBDS-8384: JSF beans discovery does not work if the bean contains static field with lambda expression. Possibly
-     * need to upgrade JSF version to fully support java 8. Until then use anonymous class instead.
-     */
-    private static Comparator<File> fileNameComparator = new Comparator<File>() {
-        @Override
-        public int compare(File f1, File f2) {
-            String name1 = f1.getName();
-            String name2 = f2.getName();
-            return name1.compareToIgnoreCase(name2);
-        }
+    private static final Comparator<File> fileNameComparator = (f1, f2) -> {
+        String name1 = f1.getName();
+        String name2 = f2.getName();
+        return name1.compareToIgnoreCase(name2);
     };
 
-    private RulesUserSession getRules() {
-        HttpSession session = WebStudioUtils.getSession();
-        return WebStudioUtils.getRulesUserSession(session);
-    }
-
     public String upload() {
+        if (StringUtils.isBlank(repositoryId)) {
+            WebStudioUtils.addErrorMessage("Repository must be selected.");
+            return null;
+        }
+
         String workspacePath = WebStudioUtils.getWebStudio().getWorkspacePath();
-        RulesUserSession rulesUserSession = getRules();
+        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
 
         List<UploadBean> beans = uploadBeans;
         uploadBeans = null; // force re-read.
@@ -154,10 +165,11 @@ public class LocalUploadController {
             for (UploadBean bean : beans) {
                 if (bean.isSelected()) {
                     try {
-                        String comment = designRepoComments.createProject(createProjectCommentTemplate,
+                        String comment = getDesignRepoComments().createProject(createProjectCommentTemplate,
                             bean.getProjectName());
 
-                        createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession, comment);
+                        createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession, comment,
+                            repositoryId);
                         WebStudioUtils.addInfoMessage("Project " + bean.getProjectName() + " was created successfully");
                     } catch (Exception e) {
                         String msg;
@@ -184,13 +196,9 @@ public class LocalUploadController {
         return null;
     }
 
-    public void setDesignRepoComments(Comments designRepoComments) {
-        this.designRepoComments = designRepoComments;
-    }
-
     public String getCreateProjectCommentTemplate() {
         if (createProjectCommentTemplate == null) {
-            return designRepoComments.getCreateProjectTemplate();
+            return getDesignRepoComments().getCreateProjectTemplate();
         }
         return createProjectCommentTemplate;
     }
@@ -204,5 +212,24 @@ public class LocalUploadController {
     }
 
     public void setSelectAll(boolean selectAll) {
+    }
+
+    public boolean isSupportsMappedFolders() {
+        if (StringUtils.isBlank(repositoryId)) {
+            return false;
+        }
+
+        try {
+            UserWorkspace userWorkspace = WebStudioUtils.getRulesUserSession().getUserWorkspace();
+            return userWorkspace.getDesignTimeRepository().getRepository(repositoryId).supports().mappedFolders();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    private Comments getDesignRepoComments() {
+        return repositoryId == null ? new Comments(propertyResolver, Comments.DESIGN_CONFIG_REPO_ID)
+                                    : new Comments(propertyResolver, repositoryId);
     }
 }

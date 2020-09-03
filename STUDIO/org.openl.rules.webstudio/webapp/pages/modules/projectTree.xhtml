@@ -86,11 +86,12 @@
                     <ul>
                         <ui:repeat value="#{studio.allProjects}" var="project">
                         <li>
-                            <a class="projectName" href="#{utils.toUrl(project.name)}">#{project.name}</a>
+                            <ui:param name="repoId" value="#{studio.getProjectByName(project.name).repository.id}"/>
+                            <a class="projectName" href="#{utils.toUrl(repoId, project.name)}">#{project.name}</a>
                             <ul>
-                                <ui:repeat value="#{project.modules}" var="module">
+                                <ui:repeat value="#{studio.getProjectByName(repoId, project.name).modules}" var="module">
                                 <li>
-                                    <a href="#{utils.toUrl(project.name, module.name)}">#{module.name}</a>
+                                    <a href="#{utils.toUrl(repoId, project.name, module.name)}">#{module.name}</a>
                                 </li>
                                 </ui:repeat>
                             </ul>

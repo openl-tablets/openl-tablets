@@ -1,10 +1,15 @@
 package org.openl.classloader;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -18,9 +23,9 @@ import org.openl.util.ClassUtils;
  */
 public class OpenLBundleClassLoader extends OpenLClassLoader {
 
-    private Set<ClassLoader> bundleClassLoaders = new LinkedHashSet<>();
+    private final Set<ClassLoader> bundleClassLoaders = new LinkedHashSet<>();
 
-    private Map<String, byte[]> generatedClasses = new ConcurrentHashMap<>();
+    private final Map<String, byte[]> generatedClasses = new ConcurrentHashMap<>();
 
     public OpenLBundleClassLoader(ClassLoader parent) {
         super(new URL[0], parent);
@@ -133,7 +138,7 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
 
     private URL findResourceInBundleClassLoader(String name) {
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
-            URL url = null;
+            URL url;
             if (bundleClassLoader instanceof OpenLBundleClassLoader && bundleClassLoader.getParent() == this) {
                 OpenLBundleClassLoader sbcl = (OpenLBundleClassLoader) bundleClassLoader;
                 url = sbcl.findResourceInBundleClassLoader(name);
@@ -149,7 +154,7 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
 
     private InputStream findResourceAsStreamInBundleClassLoader(String name) {
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
-            InputStream inputStream = null;
+            InputStream inputStream;
             if (bundleClassLoader instanceof OpenLBundleClassLoader && bundleClassLoader.getParent() == this) {
                 OpenLBundleClassLoader sbcl = (OpenLBundleClassLoader) bundleClassLoader;
                 inputStream = sbcl.findResourceAsStreamInBundleClassLoader(name);
@@ -161,6 +166,31 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
             }
         }
         return null;
+    }
+
+    private Enumeration<URL> findResourcesInBundleClassLoader(String name) throws IOException {
+        for (ClassLoader bundleClassLoader : bundleClassLoaders) {
+            Enumeration<URL> resources;
+            if (bundleClassLoader instanceof OpenLBundleClassLoader && bundleClassLoader.getParent() == this) {
+                OpenLBundleClassLoader sbcl = (OpenLBundleClassLoader) bundleClassLoader;
+                resources = sbcl.findResourcesInBundleClassLoader(name);
+            } else {
+                resources = bundleClassLoader.getResources(name);
+            }
+            if (resources != null) {
+                return resources;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Enumeration<URL> getResources(String name) throws IOException {
+        Enumeration<URL> resources = findResourcesInBundleClassLoader(name);
+        if (resources != null) {
+            return resources;
+        }
+        return super.getResources(name);
     }
 
     @Override
@@ -179,5 +209,30 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
             return inputStream;
         }
         return super.getResourceAsStream(name);
+    }
+
+    private void addURLToList(List<URL> urls, URL url) {
+        for (URL existingURL : urls) {
+            if (existingURL.sameFile(url)) {
+                return;
+            }
+        }
+        urls.add(url);
+    }
+
+    @Override
+    public URL[] getURLs() {
+        List<URL> urls = new ArrayList<>();
+        for (URL url : super.getURLs()) {
+            addURLToList(urls, url);
+        }
+        for (ClassLoader bundleClassLoader : bundleClassLoaders) {
+            if (bundleClassLoader instanceof URLClassLoader) {
+                for (URL url : ((URLClassLoader) bundleClassLoader).getURLs()) {
+                    addURLToList(urls, url);
+                }
+            }
+        }
+        return urls.toArray(new URL[0]);
     }
 }

@@ -1,5 +1,8 @@
 package org.openl.util.print;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.util.Collections;
@@ -14,7 +17,7 @@ import java.util.Map;
  * @author PUdalau
  */
 public class BeanNicePrinterAdaptor extends NicePrinterAdaptor {
-
+    private static final Logger LOG = LoggerFactory.getLogger(BeanNicePrinterAdaptor. class);
     private static final Object[] EMPTY = new Object[0];
 
     @Override
@@ -28,11 +31,12 @@ public class BeanNicePrinterAdaptor extends NicePrinterAdaptor {
         }
     }
 
-    private Map<String, Object> getFieldMap(Object obj) {
+    private static Map<String, Object> getFieldMap(Object obj) {
         final PropertyDescriptor[] propertyDescriptors;
         try {
             propertyDescriptors = Introspector.getBeanInfo(obj.getClass()).getPropertyDescriptors();
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
+            LOG.debug("Ignored error: ", ignored);
             return Collections.emptyMap();
         }
         Map<String, Object> fieldMap = new HashMap<>();
@@ -43,13 +47,14 @@ public class BeanNicePrinterAdaptor extends NicePrinterAdaptor {
                     Object propertyValue = descriptor.getReadMethod().invoke(obj, EMPTY);
                     fieldMap.put(propertyName, propertyValue);
                 }
-            } catch (Exception e) {
+            } catch (Exception ignored) {
+                LOG.debug("Ignored error: ", ignored);
             }
         }
         return fieldMap;
     }
 
-    private boolean isToStringSpecified(Class<?> clazz) {
+    private static boolean isToStringSpecified(Class<?> clazz) {
         try {
             return clazz.getMethod("toString", new Class<?>[] {}).getDeclaringClass() != Object.class;
         } catch (NoSuchMethodException e) {

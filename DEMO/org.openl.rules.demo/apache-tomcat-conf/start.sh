@@ -33,22 +33,34 @@ if [[ "$_java" ]]; then
 fi
 
 memory=$(free -g | awk '/Mem:/{print $2}')
-if [[ ${memory} -ge 12 ]]; then
-    _JAVA_MEMORY="-Xms8g -Xmx10g"
-elif [[ ${memory} -ge 8 ]]; then
+if [[ "$CONTAINER" != "true" ]]; then
+  if [[ ${memory} -ge 48 ]]; then
+    _JAVA_MEMORY="-Xms4g -Xmx42g"
+  elif [[ ${memory} -ge 32 ]]; then
+    _JAVA_MEMORY="-Xms4g -Xmx28g"
+  elif [[ ${memory} -ge 24 ]]; then
+    _JAVA_MEMORY="-Xms4g -Xmx20g"
+  elif [[ ${memory} -ge 16 ]]; then
+    _JAVA_MEMORY="-Xms4g -Xmx12g"
+  elif [[ ${memory} -ge 12 ]]; then
+    _JAVA_MEMORY="-Xms4g -Xmx10g"
+  elif [[ ${memory} -ge 8 ]]; then
     _JAVA_MEMORY="-Xms4g -Xmx7g"
-elif [[ _memory -ge 6 ]]; then
+  elif [[ _memory -ge 6 ]]; then
     _JAVA_MEMORY="-Xms3g -Xmx5g"
-elif [[ ${memory} -ge 4 ]]; then
+  elif [[ ${memory} -ge 4 ]]; then
     _JAVA_MEMORY="-Xms2g -Xmx3g"
-else
+  else
     _JAVA_MEMORY="-Xms512m -Xmx2g"
+  fi
 fi
+
+
 
 [[ -f demo-java.policy ]] && CATALINA_OPTS="$CATALINA_OPTS -Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=$JAVA_EXTENSIONS_DIR"
 
 export JAVA_OPTS="$JAVA_OPTS $_JAVA_MEMORY"
-export CATALINA_OPTS="-DDEMO=DEMO -Dopenl.home=openl-demo -Dws.port=8080 $CATALINA_OPTS"
+export CATALINA_OPTS="-DDEMO=DEMO -Dopenl.home=./openl-demo -Dws.port=8080 $CATALINA_OPTS"
 
 echo "### Starting OpenL Tablets DEMO ..."
 echo "Memory size (gigabytes):    $memory"

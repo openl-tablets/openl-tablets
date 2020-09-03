@@ -1,11 +1,13 @@
 package org.openl.rules.repository.api;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
  * @author Yury Molchan
  */
-public class FileItem {
+public class FileItem implements Closeable {
     private FileData data;
     private InputStream stream;
 
@@ -36,5 +38,12 @@ public class FileItem {
 
     public InputStream getStream() {
         return stream;
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (stream != null) {
+            stream.close();
+        }
     }
 }

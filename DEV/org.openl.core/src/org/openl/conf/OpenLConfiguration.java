@@ -93,8 +93,8 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return javaCastComponents;
     }
 
-    private Map<Key, IOpenClass> closestClassCache = new HashMap<>();
-    private ReadWriteLock closestClassCacheLock = new ReentrantReadWriteLock();
+    private final Map<Key, IOpenClass> closestClassCache = new HashMap<>();
+    private final ReadWriteLock closestClassCacheLock = new ReentrantReadWriteLock();
 
     @Override
     public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
@@ -172,19 +172,15 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     @Override
     public IOpenMethod[] getMethods(String namespace, String name) {
-        IOpenMethod[] mcs = methodFactory == null ? new IOpenMethod[] {}
+        IOpenMethod[] mcs = methodFactory == null ? IOpenMethod.EMPTY_ARRAY
                                                   : methodFactory.getMethods(namespace, name, configurationContext);
-        IOpenMethod[] pmcs = parent == null ? new IOpenMethod[] {} : parent.getMethods(namespace, name);
+        IOpenMethod[] pmcs = parent == null ? IOpenMethod.EMPTY_ARRAY : parent.getMethods(namespace, name);
 
         // Shadowing
         Map<MethodKey, Collection<IOpenMethod>> methods = new HashMap<>();
         for (IOpenMethod method : pmcs) {
             MethodKey mk = new MethodKey(method);
-            Collection<IOpenMethod> callers = methods.get(mk);
-            if (callers == null) {
-                callers = new ArrayList<>();
-                methods.put(mk, callers);
-            }
+            Collection<IOpenMethod> callers = methods.computeIfAbsent(mk, k -> new ArrayList<>());
             callers.add(method);
         }
 
@@ -209,7 +205,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         for (Collection<IOpenMethod> m : methods.values()) {
             openMethods.addAll(m);
         }
-        return openMethods.toArray(new IOpenMethod[] {});
+        return openMethods.toArray(IOpenMethod.EMPTY_ARRAY);
     }
 
     public LibraryFactoryConfiguration getMethodFactory() {

@@ -13,7 +13,10 @@ public final class IRulesRuntimeContextUtils {
     private IRulesRuntimeContextUtils() {
     }
 
-    private static void populate(IRulesRuntimeContext context, DelegateExecution execution, String propName, Class<?> propType) {
+    private static void populate(IRulesRuntimeContext context,
+                                 DelegateExecution execution,
+                                 String propName,
+                                 Class<?> propType) {
         Object currentDate = execution.getVariable(propName);
         if (currentDate != null) {
             if (propType.isInstance(currentDate)) {

@@ -1,8 +1,8 @@
 package org.openl.rules.workspace.lw;
 
 import java.io.File;
+import java.util.List;
 
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 
@@ -21,7 +21,7 @@ public interface LocalWorkspace extends ProjectsContainer {
      */
     void addWorkspaceListener(LocalWorkspaceListener listener);
 
-    LocalRepository getRepository();
+    LocalRepository getRepository(String id);
 
     /**
      * Returns directory in the filesystem used storage for workspace projects.
@@ -46,8 +46,7 @@ public interface LocalWorkspace extends ProjectsContainer {
      * Removes a listener from workspace. If there is no such listener nothing happens.
      *
      * @param listener listener to remove
-     * @return if listener was really removed, <code>false</code> if there was no such listener
      */
-    boolean removeWorkspaceListener(LocalWorkspaceListener listener);
+    void removeWorkspaceListener(LocalWorkspaceListener listener);
 
 }

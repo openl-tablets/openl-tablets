@@ -21,8 +21,8 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
         JavaOpenClass.OBJECT);
 
     private XlsModuleOpenClass module;
-    private Map<String, IOpenField> strictMatchCache = new HashMap<>();
-    private Map<String, IOpenField> noStrictMatchCache = new HashMap<>();
+    private final Map<String, IOpenField> strictMatchCache = new HashMap<>();
+    private final Map<String, IOpenField> noStrictMatchCache = new HashMap<>();
     private volatile CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
 
     public SpreadsheetResultOpenClass(Class<?> type) {
@@ -31,7 +31,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
 
     public SpreadsheetResultOpenClass(XlsModuleOpenClass module) {
         super(SpreadsheetResult.class);
-        this.module = Objects.requireNonNull(module, "module can not be null");
+        this.module = Objects.requireNonNull(module, "module cannot be null");
     }
 
     @Override
@@ -146,8 +146,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                     for (IOpenClass openClass : module.getTypes()) {
                         if (openClass instanceof CustomSpreadsheetResultOpenClass && this.customSpreadsheetResultOpenClass == null) {
                             CustomSpreadsheetResultOpenClass csrop = (CustomSpreadsheetResultOpenClass) openClass;
-                            customSpreadsheetResultOpenClass.extendWith(csrop);
-                            csrop.generateBeanClass();
+                            customSpreadsheetResultOpenClass.updateWithType(csrop);
                         }
                     }
                     if (this.customSpreadsheetResultOpenClass == null) {

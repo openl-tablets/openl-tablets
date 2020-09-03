@@ -9,6 +9,7 @@
         <constructor-arg name="factory" value="${production-repository.factory}"/>
         <constructor-arg name="params">
             <map>
+                <entry key="id" value="production-repository"/>
                 <entry key="uri" value="${production-repository.uri}"/>
                 <entry key="login" value="${production-repository.login}"/>
                 <entry key="password" value="${production-repository.password}"/>
@@ -60,7 +61,6 @@
     <bean id="productionRepositoryDataSource" class="org.openl.rules.ruleservice.loader.ProductionRepositoryDataSource"
           depends-on="deployClasspathJarsBean">
         <property name="repository" ref="repository"/>
-        <property name="includeVersionInDeploymentName" value="${version-in-deployment-name}"/>
         <property name="deployPath" value="${production-repository.base.path}"/>
     </bean>
 

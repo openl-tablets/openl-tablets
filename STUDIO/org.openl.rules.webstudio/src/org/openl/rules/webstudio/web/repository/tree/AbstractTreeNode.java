@@ -12,8 +12,6 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
 
-import com.google.common.collect.Iterators;
-
 /**
  * This abstract class implements basic functionality of {@link TreeNode} interface. Every particular tree node should
  * extends this class and adds own implementation for UI related methods: {@link #getType()}, {@link #getIcon()}, and
@@ -210,7 +208,7 @@ public abstract class AbstractTreeNode implements TreeNode {
 
         if (isLeafOnly) {
             checkLeafOnly();
-            result = Iterators.emptyIterator();
+            result = Collections.emptyIterator();
             // work around limitation for TreeNode
         } else {
             result = getElements().keySet().iterator();
@@ -321,20 +319,16 @@ public abstract class AbstractTreeNode implements TreeNode {
                 if (data.isFolder()) {
                     return false;
                 } else {
-                    List<ProjectVersion> versions = project
-                        .getArtefactVersions(getData().getArtefactPath().withoutFirstSegment());
-                    return !versions.isEmpty();
+                    return project
+                        .hasArtefactVersions(getData().getArtefactPath().withoutFirstSegment());
                 }
             } else {
-                return getData().getVersionsCount() > 0;
+                AProjectArtefact artefact = getData();
+                return artefact instanceof  AProject && ((AProject) artefact).getLastHistoryVersion() != null;
             }
         } else {
             return false;
         }
-    }
-
-    public boolean isHasModifications() {
-        return getData().hasModifications();
     }
 
     @Override
@@ -344,7 +338,7 @@ public abstract class AbstractTreeNode implements TreeNode {
 
     @Override
     public boolean isLeaf() {
-        return isLeafOnly || getData() instanceof AProjectFolder && !((AProjectFolder) getData()).hasArtefacts();
+        return isLeafOnly || (getData() instanceof AProjectFolder && !((AProjectFolder) getData()).hasArtefacts());
     }
 
     @Override

@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>5.23.2-SNAPSHOT</version>
+        <version>5.24.0-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
     <groupId>org.openl.rules.demo</groupId>
@@ -18,7 +18,7 @@
         <url>https://openl-tablets.org</url>
     </organization>
     <properties>
-        <tomcat.version>9.0.30</tomcat.version>
+        <tomcat.version>9.0.37</tomcat.version>
         <tomcat.root>apache-tomcat-${tomcat.version}</tomcat.root>
         <tomcat.webapps>${tomcat.root}/webapps</tomcat.webapps>
         <tomcat.lib>${tomcat.root}/lib</tomcat.lib>

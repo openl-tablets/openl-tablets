@@ -41,8 +41,7 @@ public class ValidateInputParametersTest {
     public void testArray() {
         IOpenMethod method = engineFactory.getCompiledOpenClass()
             .getOpenClass()
-            .getMethod("DTTable2",
-                new IOpenClass[] { JavaOpenClass.getOpenClass(JavaOpenClass.makeArrayClass(String.class)) });
+            .getMethod("DTTable2", new IOpenClass[] { JavaOpenClass.getOpenClass(String[].class) });
 
         Assert.assertNotNull(method);
 

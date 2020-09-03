@@ -2,9 +2,7 @@ package org.openl.rules.webstudio.web.repository.tree;
 
 import java.util.Date;
 
-import org.openl.rules.common.LockInfo;
-import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.common.VersionInfo;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -55,7 +53,7 @@ public class TreeProject extends TreeFolder {
             if (userProject.isLockedByMe(lock)) {
                 return "Locked by you. Please close this project.";
             } else {
-                return "Locked by " + lock.getLockedBy().getUserName();
+                return "Locked by " + lock.getLockedBy();
             }
         }
 
@@ -72,7 +70,7 @@ public class TreeProject extends TreeFolder {
                 // To make it clear for a user, what is happening with project.
                 status = ProjectStatus.VIEWING_VERSION;
             }
-            return status.getDisplayValue() + ". Locked by " + userProject.getLockInfo().getLockedBy().getUserName() + ".";
+            return status.getDisplayValue() + ". Locked by " + userProject.getLockInfo().getLockedBy() + ".";
         }
 
         return status.getDisplayValue();
@@ -88,26 +86,6 @@ public class TreeProject extends TreeFolder {
 
     public String getComments() {
         return generateComments(getProject());
-    }
-
-    public Date getCreatedAt() {
-        ProjectVersion projectVersion = getProject().getFirstVersion();
-        if (projectVersion == null) {
-            return null;
-        }
-
-        VersionInfo vi = projectVersion.getVersionInfo();
-        return vi != null ? vi.getCreatedAt() : null;
-    }
-
-    public String getCreatedBy() {
-        ProjectVersion projectVersion = getProject().getFirstVersion();
-        if (projectVersion == null) {
-            return null;
-        }
-
-        VersionInfo vi = projectVersion.getVersionInfo();
-        return vi != null ? vi.getCreatedBy() : null;
     }
 
     public Date getModifiedAt() {

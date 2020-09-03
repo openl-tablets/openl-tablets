@@ -7,6 +7,7 @@ import org.openl.OpenClassUtil;
 import org.openl.binding.IBoundCode;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.conf.UserContext;
+import org.openl.impl.DefaultCompileContext;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls.XlsProjectionDiffer;
 import org.openl.rules.lang.xls.XlsBinder;
@@ -58,7 +59,7 @@ public class XlsDiff2 {
             UserContext ucxt = new UserContext(bundleCl, ".");
 
             IParsedCode pc = new SequentialParser(ucxt).parseAsModule(src);
-            IBoundCode bc = new XlsBinder(ucxt).bind(pc);
+            IBoundCode bc = new XlsBinder(new DefaultCompileContext(), ucxt).bind(pc);
             IOpenClass ioc = bc.getTopNode().getType();
 
             XlsMetaInfo xmi = (XlsMetaInfo) ioc.getMetaInfo();

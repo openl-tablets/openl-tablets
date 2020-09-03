@@ -24,21 +24,23 @@ import org.openl.meta.IMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
  *
  */
 public abstract class AOpenClass implements IOpenClass {
+    private static final Logger LOG = LoggerFactory.getLogger(AOpenClass.class);
 
-    protected static final Map<MethodKey, IOpenMethod> STUB = Collections
-        .unmodifiableMap(Collections.<MethodKey, IOpenMethod> emptyMap());
+    protected static final Map<MethodKey, IOpenMethod> STUB = Collections.unmodifiableMap(Collections.emptyMap());
     private IOpenField indexField;
 
     protected IMetaInfo metaInfo;
-    protected Map<String, IOpenField> uniqueLowerCaseFieldMap = null;
+    protected Map<String, IOpenField> uniqueLowerCaseFieldMap;
 
-    protected Map<String, List<IOpenField>> nonUniqueLowerCaseFieldMap = null;
+    protected Map<String, List<IOpenField>> nonUniqueLowerCaseFieldMap;
 
     protected synchronized void addFieldToLowerCaseMap(IOpenField f) {
         if (uniqueLowerCaseFieldMap == null) {
@@ -63,19 +65,19 @@ public abstract class AOpenClass implements IOpenClass {
     protected abstract Map<String, IOpenField> fieldMap();
 
     @Override
-    public Map<String, IOpenField> getFields() {
-        Map<String, IOpenField> fields = new HashMap<>();
+    public Collection<IOpenField> getFields() {
+        Collection<IOpenField> fields = new ArrayList<>();
         Iterable<IOpenClass> superClasses = superClasses();
         for (IOpenClass superClass : superClasses) {
-            fields.putAll(superClass.getFields());
+            fields.addAll(superClass.getFields());
         }
-        fields.putAll(fieldMap());
+        fields.addAll(fieldMap().values());
         return fields;
     }
 
     @Override
-    public Map<String, IOpenField> getDeclaredFields() {
-        return new HashMap<>(fieldMap());
+    public Collection<IOpenField> getDeclaredFields() {
+        return Collections.unmodifiableCollection(fieldMap().values());
     }
 
     public static IOpenClass getArrayType(IOpenClass openClass, int dim) {
@@ -108,7 +110,8 @@ public abstract class AOpenClass implements IOpenClass {
     public IOpenField getField(String fname) {
         try {
             return getField(fname, true);
-        } catch (AmbiguousVarException e) {
+        } catch (AmbiguousVarException ignored) {
+            LOG.debug("Ignored error: ", ignored);
             return null;
         }
     }
@@ -261,7 +264,7 @@ public abstract class AOpenClass implements IOpenClass {
     private void makeLowerCaseMaps() {
         uniqueLowerCaseFieldMap = new HashMap<>();
 
-        for (IOpenField field : getFields().values()) {
+        for (IOpenField field : getFields()) {
             addFieldToLowerCaseMap(field);
         }
 
@@ -345,7 +348,7 @@ public abstract class AOpenClass implements IOpenClass {
         constructorMap = null;
     }
 
-    private Collection<IOpenMethod> allMethodsCache = null;
+    private Collection<IOpenMethod> allMethodsCache;
     private volatile boolean allMethodsCacheInvalidated = true;
 
     @Override
@@ -396,7 +399,7 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     public void setIndexField(IOpenField field) {
-        indexField = field;
+        this.indexField = field;
     }
 
     @Override
@@ -447,11 +450,11 @@ public abstract class AOpenClass implements IOpenClass {
         return Objects.equals(getName(), ((IOpenClass) obj).getName());
     }
 
-    private Map<String, List<IOpenMethod>> allMethodNamesMap = null;
+    private Map<String, List<IOpenMethod>> allMethodNamesMap;
 
     private volatile boolean allMethodNamesMapInvalidated = true;
 
-    private Collection<IOpenMethod> allConstructors = null;
+    private Collection<IOpenMethod> allConstructors;
 
     private volatile boolean allConstructorNamesMapInvalidated = true;
 

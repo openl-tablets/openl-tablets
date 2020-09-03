@@ -26,8 +26,6 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlSeeAlso({ CodeStep.class })
 public class CalculationStep implements Serializable {
 
-    private static final long serialVersionUID = 4067908093788043935L;
-
     private Double formula;
 
     /** step name */
@@ -50,7 +48,7 @@ public class CalculationStep implements Serializable {
     }
 
     @XmlTransient
-    private ConvertationMetadata convertationMetadata = null;
+    private ConvertationMetadata convertationMetadata;
 
     @XmlTransient
     public ConvertationMetadata getConvertationMetadata() {

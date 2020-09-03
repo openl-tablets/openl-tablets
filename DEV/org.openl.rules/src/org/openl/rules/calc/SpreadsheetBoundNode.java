@@ -1,9 +1,11 @@
 package org.openl.rules.calc;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
@@ -61,8 +63,12 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         if (!spreadsheet.isCustomSpreadsheet()) {
             throw new IllegalArgumentException("Only custom spreadsheets are supported.");
         }
-        Map<String, IOpenField> spreadsheetOpenClassFields = spreadsheet.getSpreadsheetType().getFields();
-        spreadsheetOpenClassFields.remove("this");
+        Collection<IOpenField> spreadsheetOpenClassFields = spreadsheet.getSpreadsheetType()
+            .getFields()
+            .stream()
+            .filter(e -> !"this".equals(e.getName()))
+            .collect(Collectors.toList());
+
         String typeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName();
 
         CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
@@ -79,7 +85,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         customSpreadsheetResultOpenClass
             .setMetaInfo(new TableMetaInfo("Spreadsheet", spreadsheet.getName(), spreadsheet.getSourceUrl()));
 
-        for (IOpenField field : spreadsheetOpenClassFields.values()) {
+        for (IOpenField field : spreadsheetOpenClassFields) {
             CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(
                 customSpreadsheetResultOpenClass,
                 field);
@@ -98,8 +104,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
              * We need to generate a customSpreadsheet class only if return type of the spreadsheet is SpreadsheetResult
              * and the customspreadsheet property is true
              */
-            boolean isCustomSpreadsheet = SpreadsheetResult.class.equals(getType()
-                .getInstanceClass()) && !(getType() instanceof CustomSpreadsheetResultOpenClass) && OpenLSystemProperties
+            boolean isCustomSpreadsheet = SpreadsheetResult.class == getType()
+                .getInstanceClass() && !(getType() instanceof CustomSpreadsheetResultOpenClass) && OpenLSystemProperties
                     .isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams());
 
             spreadsheet = new Spreadsheet(getHeader(), this, isCustomSpreadsheet);
@@ -123,7 +129,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
             Boolean.TRUE.equals(getTableSyntaxNode().getTableProperties().getDetailedPlainModel()));
 
         if (spreadsheet.isCustomSpreadsheet()) {
-            CustomSpreadsheetResultOpenClass type = null;
+            CustomSpreadsheetResultOpenClass type;
             try {
                 type = buildCustomSpreadsheetResultType(spreadsheet); // Can throw RuntimeException
                 IOpenClass bindingContextType = bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, type);
@@ -194,8 +200,9 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                         if (StringUtils.isBlank(fName)) {
                             fName = "_";
                         }
-                        String key = fName.length() > 1 ? Character.toLowerCase(fName.charAt(0)) + fName.substring(1)
-                                                        : fName.toLowerCase();
+                        String key = fName.length() > 1
+                                ? (Character.toLowerCase(fName.charAt(0)) + fName.substring(1))
+                                : fName.toLowerCase();
                         String v = fNames.put(key, refName);
                         if (v != null) {
                             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(

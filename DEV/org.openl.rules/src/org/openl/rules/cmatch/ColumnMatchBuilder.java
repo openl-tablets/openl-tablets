@@ -150,7 +150,7 @@ public class ColumnMatchBuilder {
         }
     }
 
-    private String safeId(String s) {
+    private static String safeId(String s) {
         if (s == null) {
             return "";
         }

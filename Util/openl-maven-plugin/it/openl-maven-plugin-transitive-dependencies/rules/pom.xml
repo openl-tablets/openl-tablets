@@ -29,7 +29,7 @@
         <dependency>
             <groupId>org.openl.internal</groupId>
             <artifactId>openl-maven-plugin-transitive-dependencies-common</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 

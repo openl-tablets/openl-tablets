@@ -86,7 +86,7 @@ public class CollectionElementField extends AOpenField {
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         if (target == null) {
-           return;
+            return;
         }
         Object v = field.get(target, env);
         if (collectionType.isArray()) {

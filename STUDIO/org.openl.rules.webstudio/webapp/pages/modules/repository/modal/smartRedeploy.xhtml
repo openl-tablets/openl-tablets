@@ -5,7 +5,7 @@
         xmlns:rich="http://richfaces.org/rich"
         xmlns:ui="http://java.sun.com/jsf/facelets">
 
-    <rich:popupPanel id="modalSmartRedeploy" width="480" autosized="true">
+    <rich:popupPanel id="modalSmartRedeploy" minWidth="480" autosized="true">
         <f:facet name="header">
             <h:outputText value="Auto Deploy"/>
         </f:facet>
@@ -25,10 +25,9 @@
                     </h:selectOneMenu>
                 </h:panelGroup>
 
-                <h:outputText value="Wait..." rendered="#{smartRedeployController.loading}" style="margin: 25px 0px"/>
                 <h:outputText
                         value="There are no deploy configurations containing project '#{repositoryTreeState.selectedProject.name}'"
-                        rendered="#{!smartRedeployController.loading and empty smartRedeployController.items}"
+                        rendered="#{empty smartRedeployController.items}"
                         style="margin: 25px 0px"/>
                 <rich:dataTable id="smartRedeployTable" value="#{smartRedeployController.items}" var="item"
                                 styleClass="table" rendered="#{not empty smartRedeployController.items}"
@@ -79,11 +78,18 @@
                                  styleClass="button-primary"/>
                 <h:commandButton id="cancelBtn" value="Cancel" action="#{smartRedeployController.reset}"/>
             </footer>
+
+            <a4j:jsFunction name="renderSmartRedeploy" render="@form"
+                            oncomplete="showSmartRedeployDialog()" action="#{smartRedeployController.initProject}"/>
         </h:form>
     </rich:popupPanel>
 
     <script>
         function openSmartRedeployDialog() {
+            renderSmartRedeploy();
+        }
+
+        function showSmartRedeployDialog() {
             RichFaces.$('modalSmartRedeploy').show();
             window._smartRedeployInProgress = false;
         }
@@ -116,6 +122,15 @@
             document.getElementById('smartRedeployForm:processing').style.visibility = 'visible';
 
             return true;
+        }
+
+        function resizeSmartRedeployPanel(data) {
+             // Can be "begin", "complete" or "success".
+            switch (data.status) {
+                case "success":
+                    resizePopupPanel('modalSmartRedeploy');
+                    break;
+            }
         }
 
     </script>

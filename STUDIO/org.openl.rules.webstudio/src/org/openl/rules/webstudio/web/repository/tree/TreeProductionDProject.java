@@ -60,33 +60,13 @@ public class TreeProductionDProject extends TreeProductFolder {
     @Override
     public void addChild(AProjectArtefact childArtefact) {
         String name = childArtefact.getName();
-        String id = RepositoryUtils.getTreeNodeId(name);
+        String id = RepositoryUtils.getTreeNodeId(childArtefact);
         if (childArtefact instanceof AProjectFolder) {
             TreeProductProject prj = new TreeProductProject(id, childArtefact.getName(), filter);
             prj.setData(childArtefact);
 
             add(prj);
         }
-    }
-
-    public Date getCreatedAt() {
-        ProjectVersion projectVersion = getProject().getVersion();
-        if (projectVersion == null) {
-            return null;
-        }
-
-        VersionInfo vi = projectVersion.getVersionInfo();
-        return vi != null ? vi.getCreatedAt() : null;
-    }
-
-    public String getCreatedBy() {
-        ProjectVersion projectVersion = getProject().getFirstVersion();
-        if (projectVersion == null) {
-            return null;
-        }
-
-        VersionInfo vi = projectVersion.getVersionInfo();
-        return vi != null ? vi.getCreatedBy() : null;
     }
 
     public Date getModifiedAt() {

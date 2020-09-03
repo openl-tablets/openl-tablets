@@ -17,7 +17,6 @@ import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
-import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.dt.DecisionTable;
@@ -440,7 +439,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                     // Some expression
                     String stringValue = cell.getStringValue();
                     int startIndex = stringValue.indexOf('=') + 1;
-                    List<NodeUsage> nodeUsages = OpenLCellExpressionsCompiler
+                    List<NodeUsage> nodeUsages = MetaInfoReaderUtils
                         .getNodeUsages((CompositeMethod) storageValue, stringValue.substring(startIndex), startIndex);
                     setPreparedMetaInfo(row, col, new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages));
                     continue;
@@ -467,7 +466,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         int row = codeCell.getAbsoluteRow();
         int col = codeCell.getAbsoluteColumn();
         if (IGridRegion.Tool.contains(region, col, row)) {
-            List<CellMetaInfo> metaInfoList = OpenLCellExpressionsCompiler.getMetaInfo(funcRow.getSourceCodeModule(),
+            List<CellMetaInfo> metaInfoList = MetaInfoReaderUtils.getMetaInfo(funcRow.getSourceCodeModule(),
                 funcRow.getMethod());
             // Decision table always contains 1 meta info
             setPreparedMetaInfo(row, col, metaInfoList.get(0));

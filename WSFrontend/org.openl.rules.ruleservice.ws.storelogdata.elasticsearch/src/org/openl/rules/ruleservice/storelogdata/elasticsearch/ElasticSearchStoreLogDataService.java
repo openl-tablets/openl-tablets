@@ -68,7 +68,7 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
             entities = new Object[storeLogDataToElasticsearchAnnotation.value().length];
             int i = 0;
             for (Class<?> entityClass : storeLogDataToElasticsearchAnnotation.value()) {
-                if (StoreLogDataToElasticsearch.DEFAULT.class.equals(entityClass)) {
+                if (StoreLogDataToElasticsearch.DEFAULT.class == entityClass) {
                     entities[i] = new DefaultElasticEntity();
                 } else {
                     try {

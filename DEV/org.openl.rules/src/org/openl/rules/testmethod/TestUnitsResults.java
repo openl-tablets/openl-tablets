@@ -18,6 +18,8 @@ public class TestUnitsResults implements INamedThing {
     private TestSuite testSuite;
     private ArrayList<ITestUnit> testUnits = new ArrayList<>();
 
+    private boolean testedRulesHaveErrors = false;
+
     public TestUnitsResults(TestSuite testSuite) {
         this.testSuite = testSuite;
     }
@@ -71,6 +73,9 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public int getNumberOfFailures() {
+        if(testedRulesHaveErrors){
+            return getTestSuite().getTests().length;
+        }
         int cnt = 0;
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
             if (testUnits.get(i).getResultStatus() != TestStatus.TR_OK) {
@@ -188,5 +193,13 @@ public class TestUnitsResults implements INamedThing {
             res[i] = testMethodSignature.getParameterName(i);
         }
         return res;
+    }
+
+    public boolean isTestedRulesHaveErrors() {
+        return testedRulesHaveErrors;
+    }
+
+    public void setTestedRulesHaveErrors(boolean testedRulesHaveErrors) {
+        this.testedRulesHaveErrors = testedRulesHaveErrors;
     }
 }

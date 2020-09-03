@@ -22,7 +22,7 @@ class ExpectedResultFilter extends AGridFilter {
 
     @Override
     public FormattedCell filterFormat(FormattedCell cell) {
-        Point cellCoordinates = new Point(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
+        Point cellCoordinates = Point.get(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
 
         if (spreadsheetCellsForTest.containsKey(cellCoordinates)) {
             ComparedResult result = spreadsheetCellsForTest.get(cellCoordinates);

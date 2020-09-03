@@ -10,11 +10,14 @@ import org.openl.rules.ruleservice.core.interceptors.IOpenMemberAware;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 
-public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServiceMethodAfterReturningAdvice<T> implements IOpenClassAware, IOpenMemberAware {
+public abstract class AbstractSPRToPlainConverterAdvice<T>
+        extends AbstractServiceMethodAfterReturningAdvice<T>
+        implements IOpenClassAware, IOpenMemberAware {
+
     private XlsModuleOpenClass module;
     private IOpenMember openMember;
     private volatile Class<?> convertToType;
-    private volatile boolean convertToTypeInitialized = false;
+    private volatile boolean convertToTypeInitialized;
 
     protected XlsModuleOpenClass getModule() {
         return module;

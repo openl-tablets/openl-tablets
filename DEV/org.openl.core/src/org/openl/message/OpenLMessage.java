@@ -1,8 +1,8 @@
 package org.openl.message;
 
-import org.openl.util.StringUtils;
-
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.openl.util.StringUtils;
 
 /**
  * The <code>OpenLMessage</code> class defines a message abstraction. Messages used in the OpenL engine as warnings,
@@ -10,19 +10,19 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class OpenLMessage {
 
-    private static AtomicInteger idCounter = new AtomicInteger(0);
+    private static final AtomicInteger idCounter = new AtomicInteger(0);
 
     private final int id = idCounter.incrementAndGet();
 
     /**
      * Message's brief information.
      */
-    private String summary;
+    private final String summary;
 
     /**
      * Message's severity.
      */
-    private Severity severity;
+    private final Severity severity;
 
     /**
      * Constructs new instance of message with INFO severity.

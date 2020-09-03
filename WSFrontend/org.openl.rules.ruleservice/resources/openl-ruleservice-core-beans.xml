@@ -9,6 +9,10 @@
 		<property name="lazyCompilation" value="${ruleservice.instantiation.strategy.lazy}"/>
 	</bean>
 
+	<!-- Reset cache on reload Application context -->
+	<bean class="org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache" factory-method="getInstance"
+		  destroy-method="reset"/>
+
 	<bean id="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
 		<property name="staticMethod" value="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile"/>
 		<property name="arguments">
@@ -29,18 +33,14 @@
 		</property>
 	</bean>
 
-	<!-- Bean orchestrates logic for web services application to identify and deploy services.  -->
-	<bean id="ruleService" class="org.openl.rules.ruleservice.core.RuleServiceImpl">
-		<property name="ruleServiceInstantiationFactory" ref="ruleServiceInstantiationFactory"/>
-		<property name="ruleServiceManager" ref="ruleServiceManager"/>
-	</bean>
-
 	<!-- Controls all services currently exposed.
 	Listens the data source changes and handles all deploy/redeploy/undelpoy operations.  -->
 	<bean id="serviceManager" class="org.openl.rules.ruleservice.management.ServiceManagerImpl">
 		<property name="serviceConfigurer" ref="serviceConfigurer"/>
-		<property name="ruleService" ref="ruleService"/>
+		<property name="ruleServiceInstantiationFactory" ref="ruleServiceInstantiationFactory"/>
 		<property name="ruleServiceLoader" ref="ruleServiceLoader"/>
+		<property name="supportedPublishers" ref="ruleServicePublishers"/>
+		<property name="defaultRuleServicePublishers" ref="defaultRuleServicePublishers"/>
 	</bean>
 	
 	<bean id="serviceManagerStarter" class="org.openl.rules.ruleservice.conf.ServiceManagerStarterBean" depends-on="serviceManager" lazy-init="false">

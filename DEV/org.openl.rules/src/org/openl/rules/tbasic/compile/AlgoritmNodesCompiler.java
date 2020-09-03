@@ -133,8 +133,7 @@ public class AlgoritmNodesCompiler {
      *
      */
     private RuntimeOperation compileAfter(List<AlgorithmTreeNode> nodesToCompile) throws Exception {
-        final String afterFieldName = "after";
-        return createOperationForFirstNodeField(nodesToCompile, afterFieldName);
+        return createOperationForFirstNodeField(nodesToCompile, "after");
     }
 
     /**
@@ -142,8 +141,7 @@ public class AlgoritmNodesCompiler {
      *
      */
     private RuntimeOperation compileBefore(List<AlgorithmTreeNode> nodesToCompile) throws Exception {
-        final String beforeFieldName = "before";
-        return createOperationForFirstNodeField(nodesToCompile, beforeFieldName);
+        return createOperationForFirstNodeField(nodesToCompile, "before");
     }
 
     private RuntimeOperation createOperationForFirstNodeField(List<AlgorithmTreeNode> nodesToCompile,

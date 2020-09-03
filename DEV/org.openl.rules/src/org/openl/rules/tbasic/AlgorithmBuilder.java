@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AlgorithmBuilder {
+    private static final Logger LOG = LoggerFactory.getLogger(AlgorithmBuilder.class);
 
     private static final String LABEL = "label";
     private static final String DESCRIPTION = "description";
@@ -34,7 +35,7 @@ public class AlgorithmBuilder {
     private static final String UNDERSCORE = "_";
 
     // Section Description Operation Condition Action Before After
-    private static class AlgorithmColumn {
+    private static final class AlgorithmColumn {
         private String id;
         private int columnIndex;
 
@@ -58,16 +59,15 @@ public class AlgorithmBuilder {
             for (TableParserSpecificationBean specification : algSpecifications) {
                 algorithmOperations.add(specification.getKeyword());
             }
-            String[] algorithmOperationsArray = algorithmOperations.toArray(new String[0]);
+            String[] algorithmOperationsArray = algorithmOperations.toArray(StringUtils.EMPTY_STRING_ARRAY);
             CELL_META_INFO = new CellMetaInfo(
-                new DomainOpenClass("operation",
+                new DomainOpenClass(OPERATION1,
                     JavaOpenClass.STRING,
                     new EnumDomain<>(algorithmOperationsArray),
                     null),
                 false);
         } catch (Throwable e) {
-            Logger logger = LoggerFactory.getLogger(AlgorithmBuilder.class);
-            logger.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             throw new IllegalStateException(e);
         }
     }
@@ -184,7 +184,7 @@ public class AlgorithmBuilder {
         }
     }
 
-    private String safeId(String s) {
+    private static String safeId(String s) {
         String id = "";
         if (s != null) {
             id = s.trim().toLowerCase();

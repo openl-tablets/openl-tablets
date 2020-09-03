@@ -15,7 +15,7 @@ public class TypeNamePair {
     private boolean iterable;
 
     @NotBlank(message = "Cannot be empty")
-    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = WizardUtils.INVALID_NAME_OF_PARAMETER_MESSAGE)
+    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = "Invalid name for parameter: only latin letters, numbers and _ are allowed, name cannot begin with a number")
     private String name;
 
     private String submittedName;

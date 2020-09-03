@@ -21,7 +21,7 @@ public class SpreadsheetCell implements Invokable {
 
     private IOpenMethod method;
 
-    private boolean typeUnknown = false;
+    private boolean typeUnknown;
 
     public SpreadsheetCell(int rowIndex, int columnIndex, ICell sourceCell, SpreadsheetCellType spreadsheetCellType) {
         this.rowIndex = rowIndex;

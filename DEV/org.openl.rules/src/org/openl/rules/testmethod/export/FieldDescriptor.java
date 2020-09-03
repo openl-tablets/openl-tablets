@@ -41,13 +41,10 @@ class FieldDescriptor {
 
         List<FieldDescriptor> result = new ArrayList<>();
 
-        Map<String, IOpenField> fields = type.getFields();
-
-        for (Map.Entry<String, IOpenField> entry : fields.entrySet()) {
-            if (entry.getValue().getType().equals(CLASS)) {
+        for (IOpenField field : type.getFields()) {
+            if (field.getType().equals(CLASS)) {
                 continue;
             }
-            IOpenField field = entry.getValue();
             IOpenClass fieldType = field.getType();
             List<Object> childFieldValues = ExportUtils.flatten(ExportUtils.fieldValues(values, field));
 

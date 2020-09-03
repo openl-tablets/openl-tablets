@@ -7,16 +7,20 @@ import javax.servlet.http.HttpSession;
 
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
-public class ConflictUtils {
+public final class ConflictUtils {
     private static final String SESSION_PARAM_MERGE_CONFLICT = "mergeConflict";
     private static final String CONFLICT_RESOLUTIONS_PARAMETER = "conflictResolutions";
+
+    private ConflictUtils(){
+    }
 
     public static void saveMergeConflict(MergeConflictInfo info) {
         WebStudioUtils.getExternalContext().getSessionMap().put(SESSION_PARAM_MERGE_CONFLICT, info);
     }
 
     public static MergeConflictInfo getMergeConflict() {
-        return (MergeConflictInfo) WebStudioUtils.getExternalContext().getSessionMap().get(SESSION_PARAM_MERGE_CONFLICT);
+        return (MergeConflictInfo) WebStudioUtils.getExternalContext()
+                .getSessionMap().get(SESSION_PARAM_MERGE_CONFLICT);
     }
 
     public static void removeMergeConflict() {

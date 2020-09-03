@@ -35,7 +35,7 @@ public class ProjectDescriptorVersionConverter implements ObjectVersionConverter
             descriptor.setDependencies(dependencies);
         }
 
-        descriptor.setPropertiesFileNamePattern(oldVersion.getPropertiesFileNamePattern());
+        descriptor.setPropertiesFileNamePatterns(new String[]{oldVersion.getPropertiesFileNamePattern()});
         descriptor.setPropertiesFileNameProcessor(oldVersion.getPropertiesFileNameProcessor());
 
         return descriptor;
@@ -69,7 +69,10 @@ public class ProjectDescriptorVersionConverter implements ObjectVersionConverter
             descriptor.setDependencies(dependencies);
         }
 
-        descriptor.setPropertiesFileNamePattern(currentVersion.getPropertiesFileNamePattern());
+        String[] patterns = currentVersion.getPropertiesFileNamePatterns();
+        if (CollectionUtils.isNotEmpty(patterns)) {
+            descriptor.setPropertiesFileNamePattern(patterns[0]);
+        }
         descriptor.setPropertiesFileNameProcessor(currentVersion.getPropertiesFileNameProcessor());
 
         return descriptor;

@@ -15,7 +15,6 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.management.ServiceManager;
-import org.openl.rules.ruleservice.publish.RuleServiceManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -34,14 +33,10 @@ public class RulesFrontendTest {
     @Autowired
     private ServiceManager serviceManager;
 
-    @Autowired
-    private RuleServiceManager ruleServiceManager;
-
     @Test
     public void testGetServices() {
         assertNotNull(serviceManager);
         assertNotNull(frontend);
-        assertNotNull(ruleServiceManager);
         Collection<String> services = frontend.getServiceNames();
         assertNotNull(services);
         assertEquals(
@@ -59,7 +54,7 @@ public class RulesFrontendTest {
 
     @Test(expected = org.openl.rules.ruleservice.simple.MethodInvocationException.class)
     public void testProxyServicesNotExistedMethod() throws MethodInvocationException {
-        frontend.execute("RulesFrontendTest_multimodule", "notExustedMethod", 10);
+        frontend.execute("RulesFrontendTest_multimodule", "notExistedMethod", 10);
     }
 
     @Test
@@ -69,19 +64,19 @@ public class RulesFrontendTest {
         assertEquals(2, frontend.getServiceNames().size());
         Object result = frontend.execute("RulesFrontendTest_multimodule", "worldHello", 10);
         assertEquals("World, Good Morning!", result);
-        OpenLService openLService = ruleServiceManager.getServiceByName("RulesFrontendTest_multimodule");
+        OpenLService openLService = serviceManager.getServiceByName("RulesFrontendTest_multimodule");
         try {
-            ruleServiceManager.undeploy("RulesFrontendTest_multimodule");
+            serviceManager.undeploy("RulesFrontendTest_multimodule");
             assertEquals(Arrays.asList("org.openl.rules.tutorial4.Tutorial4Interface"), frontend.getServiceNames());
 
             try {
-                frontend.execute("RulesFrontendTest_multimodule", "notExustedMethod", 10);
+                frontend.execute("RulesFrontendTest_multimodule", "notExistedMethod", 10);
                 fail();
             } catch (MethodInvocationException e) {
                 assertTrue(e.getMessage().contains("Service 'RulesFrontendTest_multimodule' is not found."));
             }
         } finally {
-            ruleServiceManager.deploy(openLService);
+            serviceManager.deploy(openLService);
         }
     }
 }

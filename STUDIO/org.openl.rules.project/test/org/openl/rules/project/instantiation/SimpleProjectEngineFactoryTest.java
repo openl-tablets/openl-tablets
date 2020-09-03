@@ -196,4 +196,34 @@ public class SimpleProjectEngineFactoryTest {
         Assert.assertTrue(instance instanceof SayHello);
     }
 
+    @Test
+    public void dynamicInterfaceTest2() throws Exception {
+        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
+                .setProject("test-resources/test1/third")
+                .setProjectDependencies("test-resources/test1/first", "test-resources/test1/second")
+                .build();
+        Object instance = simpleProjectEngineFactory.newInstance();
+        Assert.assertNotNull(instance);
+        Assert.assertNotNull(simpleProjectEngineFactory.getInterfaceClass());
+        Method sayHelloMethod = simpleProjectEngineFactory.getInterfaceClass().getMethod("sayHello");
+        Assert.assertNotNull(sayHelloMethod);
+    }
+
+    @Test(expected = RulesInstantiationException.class)
+    public void wrongProjectDependency() throws Exception {
+        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
+                .setProject("test-resources/test1/third")
+                .setProjectDependencies("test-resources/test1")
+                .build();
+        simpleProjectEngineFactory.newInstance();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void wrongProjectDependency2() {
+        new SimpleProjectEngineFactoryBuilder<>()
+                .setProject("test-resources/test1/third")
+                .setProjectDependencies("test-resources/test1/unknown")
+                .build();
+    }
+
 }

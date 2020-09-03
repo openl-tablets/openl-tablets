@@ -5,10 +5,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ArrayTool {
+public final class ArrayTool {
+
+    private ArrayTool() {
+    }
 
     static class ArrayIterator<T> implements Iterator<T> {
-        int _index = 0;
+        int _index;
         int _size;
         T[] _array;
 

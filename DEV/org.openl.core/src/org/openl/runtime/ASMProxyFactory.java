@@ -16,7 +16,7 @@ import org.openl.util.ClassUtils;
 
 public final class ASMProxyFactory {
 
-    private final static AtomicInteger nameCounter = new AtomicInteger(0);
+    private static final  AtomicInteger nameCounter = new AtomicInteger(0);
     private static final String HANDLER = "_handler";
     private static final Type HANDLER_TYPE = Type.getType(ASMProxyHandler.class);
     private static final Method INVOKE_HANDLER = Method.getMethod(ASMProxyHandler.class.getDeclaredMethods()[0]);

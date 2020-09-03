@@ -309,6 +309,9 @@ public class ParserTest extends TestCase {
 
         NaryNode naryNode = _testOperator("x?y: z", "op.ternary.qmark");
         Assert.assertNotNull(naryNode);
+
+        naryNode = _testOperator("x?y:z", "op.ternary.qmark");
+        Assert.assertNotNull(naryNode);
     }
 
     public void testParse() {

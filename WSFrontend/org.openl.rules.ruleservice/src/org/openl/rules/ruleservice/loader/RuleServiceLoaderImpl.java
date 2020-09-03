@@ -118,19 +118,19 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         Objects.requireNonNull(deploymentVersion, "deploymentVersion cannot be null");
         Objects.requireNonNull(projectName, "projectName cannot be null");
 
-        log.debug("Resoliving modules for deployment (name='{}', version='{}', projectName='{}')",
+        log.debug("Resolving modules for deployment (name='{}', version='{}', projectName='{}')",
             deploymentName,
             deploymentVersion.getVersionName(),
             projectName);
 
-        Deployment localDeployment = getDeploymentFromStorage(deploymentName, deploymentVersion);
+        Deployment localDeployment = getDeployment(deploymentName, deploymentVersion);
         AProject project = localDeployment.getProject(projectName);
         if (project == null) {
             throw new RuleServiceRuntimeException(
                 String.format("Project '%s' is not found in deployment '%s'.", projectName, deploymentName));
         }
-        String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
-        File projectFolder = new File(artefactPath);
+        String artifactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
+        File projectFolder = new File(artifactPath);
         List<Module> result = Collections.emptyList();
         try {
             ProjectDescriptor projectDescriptor = projectResolver.resolve(projectFolder);
@@ -144,10 +144,11 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         return result;
     }
 
-    private Deployment getDeploymentFromStorage(String deploymentName, CommonVersion commonVersion) {
-        Deployment localDeployment = storage.getDeployment(deploymentName, commonVersion);
+    @Override
+    public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
+        Deployment localDeployment = storage.getDeployment(deploymentName, deploymentVersion);
         if (localDeployment == null) {
-            Deployment deployment = dataSource.getDeployment(deploymentName, commonVersion);
+            Deployment deployment = dataSource.getDeployment(deploymentName, deploymentVersion);
             localDeployment = storage.loadDeployment(deployment);
         }
         return localDeployment;

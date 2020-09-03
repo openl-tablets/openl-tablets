@@ -101,10 +101,12 @@ public class CellEditorSelector {
                 }
 
                 // Date
-            } else if (ClassUtils.isAssignable(instanceClass, Date.class) || ClassUtils.isAssignable(instanceClass,
-                LocalDate.class) || ClassUtils.isAssignable(instanceClass, LocalDateTime.class) || ClassUtils
-                    .isAssignable(instanceClass, LocalTime.class) || ClassUtils.isAssignable(instanceClass,
-                        ZonedDateTime.class) || ClassUtils.isAssignable(instanceClass, Instant.class)) {
+            } else if (ClassUtils.isAssignable(instanceClass, Date.class)
+                        || ClassUtils.isAssignable(instanceClass, LocalDate.class)
+                        || ClassUtils.isAssignable(instanceClass, LocalDateTime.class)
+                        || ClassUtils.isAssignable(instanceClass, LocalTime.class)
+                        || ClassUtils.isAssignable(instanceClass, ZonedDateTime.class)
+                        || ClassUtils.isAssignable(instanceClass, Instant.class)) {
                 result = factory.makeDateEditor();
 
                 // Boolean
@@ -122,8 +124,7 @@ public class CellEditorSelector {
                     result = factory.makeComboboxEditor(values, displayValues);
                 }
                 // Range
-            } else if (ClassUtils.isAssignable(instanceClass,
-                INumberRange.class) && !instanceClass.equals(CharRange.class)) {
+            } else if (ClassUtils.isAssignable(instanceClass, INumberRange.class) && CharRange.class != instanceClass) {
                 if (ClassUtils.isAssignable(instanceClass, IntRange.class) && DecisionTableHelper
                     .parsableAs(initialValue, instanceClass, null)) {
                     result = factory.makeNumberRangeEditor(ICellEditor.CE_INTEGER, initialValue);

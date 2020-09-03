@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository.merge;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,9 +14,6 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.annotation.PreDestroy;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -28,6 +26,7 @@ import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
@@ -39,7 +38,6 @@ import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
-import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
@@ -48,22 +46,27 @@ import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
-@ManagedBean
-@SessionScoped
+@Service
+@SessionScope
 public class MergeConflictBean {
     private final Logger log = LoggerFactory.getLogger(MergeConflictBean.class);
 
-    @ManagedProperty(value = "#{workspaceManager}")
-    private MultiUserWorkspaceManager workspaceManager;
+    private final MultiUserWorkspaceManager workspaceManager;
 
-    private Map<String, ConflictResolution> conflictResolutions = new HashMap<>();
-    private Map<String, Boolean> existInRepositoryCache = new HashMap<>();
+    private final Map<String, ConflictResolution> conflictResolutions = new HashMap<>();
+    private final Map<String, Boolean> existInRepositoryCache = new HashMap<>();
     private String conflictedFile;
     private String mergeMessage;
     private boolean mergeMessageModified;
     private String mergeError;
     private String uploadError;
+
+    public MergeConflictBean(MultiUserWorkspaceManager workspaceManager) {
+        this.workspaceManager = workspaceManager;
+    }
 
     public List<ConflictGroup> getConflictGroups() {
         MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
@@ -133,7 +136,8 @@ public class MergeConflictBean {
             if (!mergeConflict.isMerging()) {
                 repository = project.getDesignRepository();
             } else {
-                repository = ((BranchRepository) getUserWorkspace().getDesignTimeRepository().getRepository())
+                String id = mergeConflict.getRepositoryId();
+                repository = ((BranchRepository) getUserWorkspace().getDesignTimeRepository().getRepository(id))
                     .forBranch(mergeConflict.getMergeBranchTo());
             }
         } catch (WorkspaceException | IOException e) {
@@ -141,7 +145,7 @@ public class MergeConflictBean {
             return path;
         }
         if (repository.supports().mappedFolders()) {
-            return ((MappedRepository) repository).getRealPath(path);
+            return ((FolderMapper) repository).getRealPath(path);
         }
 
         return path;
@@ -191,11 +195,12 @@ public class MergeConflictBean {
         try {
             UserWorkspace userWorkspace = getUserWorkspace();
 
-            Repository designRepository = userWorkspace.getDesignTimeRepository().getRepository();
+            SimpleDateFormat formatter = new SimpleDateFormat(WebStudioFormats.getInstance().dateTime());
+            Repository designRepository = userWorkspace.getDesignTimeRepository().getRepository(mergeConflict.getRepositoryId());
             for (String file : mergeConflict.getException().getConflictedFiles()) {
                 FileData fileData = designRepository.checkHistory(file, commit);
                 if (fileData != null) {
-                    String modifiedOnStr = WebStudioFormats.getInstance().formatDateTime(fileData.getModifiedAt());
+                    String modifiedOnStr = formatter.format(fileData.getModifiedAt());
                     return fileData.getAuthor() + ": " + modifiedOnStr;
                 }
             }
@@ -213,7 +218,8 @@ public class MergeConflictBean {
         if (mergeConflict == null) {
             return null;
         }
-        return mergeConflict.isExportOperation() ? mergeConflict.getMergeBranchFrom() : mergeConflict.getMergeBranchTo();
+        return mergeConflict.isExportOperation() ? mergeConflict.getMergeBranchFrom()
+                                                 : mergeConflict.getMergeBranchTo();
     }
 
     public String getTheirBranch() {
@@ -221,7 +227,8 @@ public class MergeConflictBean {
         if (mergeConflict == null) {
             return null;
         }
-        return mergeConflict.isExportOperation() ? mergeConflict.getMergeBranchTo() : mergeConflict.getMergeBranchFrom();
+        return mergeConflict.isExportOperation() ? mergeConflict.getMergeBranchTo()
+                                                 : mergeConflict.getMergeBranchFrom();
     }
 
     public String getMergeMessage() {
@@ -255,8 +262,12 @@ public class MergeConflictBean {
     }
 
     public void uploadListener(FileUploadEvent event) {
-        conflictResolutions.get(conflictedFile).setCustomResolutionFile(new ProjectFile(event.getUploadedFile()));
-        uploadError = null;
+        try {
+            conflictResolutions.get(conflictedFile).setCustomResolutionFile(new ProjectFile(event.getUploadedFile()));
+            uploadError = null;
+        } catch (IOException e) {
+            uploadError = "Can't upload the file. " + e.getMessage();
+        }
     }
 
     public void applyConflictResolution() {
@@ -317,6 +328,7 @@ public class MergeConflictBean {
         WebStudio studio = WebStudioUtils.getWebStudio();
         RulesProject project = mergeConflict.getProject();
         boolean mergeOperation = mergeConflict.isMerging();
+        String repositoryId = mergeConflict.getRepositoryId();
         try {
             if (!mergeOperation) {
                 studio.freezeProject(project.getName());
@@ -326,8 +338,8 @@ public class MergeConflictBean {
             UserWorkspace userWorkspace = getUserWorkspace();
             String rulesLocation = getRulesLocation();
 
-            Repository designRepository = userWorkspace.getDesignTimeRepository().getRepository();
-            LocalRepository localRepository = userWorkspace.getLocalWorkspace().getRepository();
+            Repository designRepository = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
+            LocalRepository localRepository = userWorkspace.getLocalWorkspace().getRepository(repositoryId);
 
             for (Map.Entry<String, ConflictResolution> entry : conflictResolutions.entrySet()) {
                 String name = entry.getKey();
@@ -376,7 +388,7 @@ public class MergeConflictBean {
             }
 
             String branch = mergeOperation ? mergeConflict.getMergeBranchTo() : project.getBranch();
-            updateRulesXmlFiles(modulesToAppend, branch);
+            updateRulesXmlFiles(repositoryId, modulesToAppend, branch);
 
             if (opened) {
                 if (project.isDeleted()) {
@@ -406,7 +418,7 @@ public class MergeConflictBean {
 
     public void init() {
         try {
-            conflictResolutions.clear();
+            clearConflictResolutions();
             ConflictUtils.saveResolutionsToSession(conflictResolutions);
             conflictedFile = null;
 
@@ -448,7 +460,8 @@ public class MergeConflictBean {
                     IProjectDescriptorSerializer serializer = WebStudioUtils
                         .getBean(ProjectDescriptorSerializerFactory.class)
                         .getDefaultSerializer();
-                    Repository repository = getUserWorkspace().getDesignTimeRepository().getRepository();
+                    String id = mergeConflict.getRepositoryId();
+                    Repository repository = getUserWorkspace().getDesignTimeRepository().getRepository(id);
 
                     Module module;
 
@@ -460,7 +473,7 @@ public class MergeConflictBean {
                         } else {
                             String localName = name.startsWith(rulesLocation) ? name.substring(rulesLocation.length())
                                                                               : name;
-                            fileItem = getUserWorkspace().getLocalWorkspace().getRepository().read(localName);
+                            fileItem = getUserWorkspace().getLocalWorkspace().getRepository(id).read(localName);
                         }
                         module = getModule(serializer, fileItem, moduleInternalPath);
                     }
@@ -475,11 +488,10 @@ public class MergeConflictBean {
         return modulesToAppend;
     }
 
-    private void updateRulesXmlFiles(Map<String, List<Module>> modulesToAppend,
-            String branch) throws WorkspaceException, IOException {
+    private void updateRulesXmlFiles(String repositoryId, Map<String, List<Module>> modulesToAppend, String branch) throws WorkspaceException, IOException {
         // Update rules.xml files if needed after merge was successful.
         if (!modulesToAppend.isEmpty()) {
-            Repository repository = getUserWorkspace().getDesignTimeRepository().getRepository();
+            Repository repository = getUserWorkspace().getDesignTimeRepository().getRepository(repositoryId);
             IProjectDescriptorSerializer serializer = WebStudioUtils.getBean(ProjectDescriptorSerializerFactory.class)
                 .getDefaultSerializer();
 
@@ -487,22 +499,23 @@ public class MergeConflictBean {
             for (Map.Entry<String, List<Module>> entry : modulesToAppend.entrySet()) {
                 String projectPath = entry.getKey();
                 String rulesXmlFile = projectPath + "/rules.xml";
-                FileItem fileItem = repository.read(rulesXmlFile);
-                if (fileItem != null) {
-                    ProjectDescriptor descriptor = serializer.deserialize(fileItem.getStream());
-                    Map<String, Module> modules = new LinkedHashMap<>();
-                    modules.putAll(descriptor.getModules()
-                        .stream()
-                        .collect(Collectors.toMap(m -> m.getRulesRootPath().getPath(), m -> m)));
-                    for (Module module : entry.getValue()) {
-                        String path = module.getRulesRootPath().getPath();
-                        // After merge there is possibility that there is no need to add a module.
-                        if (!modules.containsKey(path)) {
-                            modules.put(path, module);
+                try (FileItem fileItem = repository.read(rulesXmlFile)) {
+                    if (fileItem != null) {
+                        ProjectDescriptor descriptor = serializer.deserialize(fileItem.getStream());
+                        Map<String, Module> modules = new LinkedHashMap<>();
+                        modules.putAll(descriptor.getModules()
+                            .stream()
+                            .collect(Collectors.toMap(m -> m.getRulesRootPath().getPath(), m -> m)));
+                        for (Module module : entry.getValue()) {
+                            String path = module.getRulesRootPath().getPath();
+                            // After merge there is possibility that there is no need to add a module.
+                            if (!modules.containsKey(path)) {
+                                modules.put(path, module);
+                            }
                         }
+                        descriptor.setModules(new ArrayList<>(modules.values()));
+                        files.add(new FileItem(rulesXmlFile, IOUtils.toInputStream(serializer.serialize(descriptor))));
                     }
-                    descriptor.setModules(new ArrayList<>(modules.values()));
-                    files.add(new FileItem(rulesXmlFile, IOUtils.toInputStream(serializer.serialize(descriptor))));
                 }
             }
 
@@ -581,10 +594,6 @@ public class MergeConflictBean {
         return null;
     }
 
-    public void setWorkspaceManager(MultiUserWorkspaceManager workspaceManager) {
-        this.workspaceManager = workspaceManager;
-    }
-
     @PreDestroy
     public void destroy() {
         try {
@@ -596,22 +605,29 @@ public class MergeConflictBean {
 
     public void clearMergeStatus() {
         ConflictUtils.removeMergeConflict();
-        conflictResolutions.clear();
+        clearConflictResolutions();
         existInRepositoryCache.clear();
         conflictedFile = null;
         mergeMessage = null;
         mergeMessageModified = false;
     }
 
+    private void clearConflictResolutions() {
+        for (ConflictResolution resolution : conflictResolutions.values()) {
+            resolution.destroy();
+        }
+        conflictResolutions.clear();
+    }
+
     public boolean isExcelFile(String file) {
         return FileTypeHelper.isExcelFile(file);
     }
 
-    public boolean hasLocalFile(String name) {
+    private boolean hasLocalFile(String repositoryId, String name) {
         try {
             String rulesLocation = getRulesLocation();
             String localName = name.startsWith(rulesLocation) ? name.substring(rulesLocation.length()) : name;
-            return getUserWorkspace().getLocalWorkspace().getRepository().check(localName) != null;
+            return getUserWorkspace().getLocalWorkspace().getRepository(repositoryId).check(localName) != null;
         } catch (WorkspaceException | IOException e) {
             log.error(e.getMessage(), e);
             return false;
@@ -624,11 +640,13 @@ public class MergeConflictBean {
             return false;
         }
 
+        String repositoryId = mergeConflict.getRepositoryId();
+
         boolean merging = mergeConflict.isMerging();
         if (merging) {
-            return hasRepositoryFile(conflictedFile, getYourCommit());
+            return hasRepositoryFile(repositoryId, conflictedFile, getYourCommit());
         } else {
-            return hasLocalFile(conflictedFile);
+            return hasLocalFile(repositoryId, conflictedFile);
         }
     }
 
@@ -643,7 +661,8 @@ public class MergeConflictBean {
             return false;
         }
 
-        return hasRepositoryFile(conflictedFile, getTheirCommit());
+        String repositoryId = mergeConflict.getRepositoryId();
+        return hasRepositoryFile(repositoryId, conflictedFile, getTheirCommit());
     }
 
     public boolean hasBaseFile(String conflictedFile) {
@@ -652,10 +671,17 @@ public class MergeConflictBean {
             return false;
         }
 
-        return hasRepositoryFile(conflictedFile, mergeConflict.getException().getBaseCommit());
+        String repositoryId = mergeConflict.getRepositoryId();
+        return hasRepositoryFile(repositoryId, conflictedFile, mergeConflict.getException().getBaseCommit());
     }
 
-    private boolean hasRepositoryFile(String name, String version) {
+    public String getRepositoryId() {
+        MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
+        return mergeConflict == null ? null : mergeConflict.getRepositoryId();
+
+    }
+
+    private boolean hasRepositoryFile(String repositoryId, String name, String version) {
         try {
             // ':' is forbidden character in name, so it can be used as a separator.
             String key = name + ":" + version;
@@ -663,7 +689,7 @@ public class MergeConflictBean {
             if (value == null) {
                 // Exist status is cached to make UI smoother
                 value = getUserWorkspace().getDesignTimeRepository()
-                    .getRepository()
+                    .getRepository(repositoryId)
                     .checkHistory(name, version) != null;
                 existInRepositoryCache.put(key, value);
             }

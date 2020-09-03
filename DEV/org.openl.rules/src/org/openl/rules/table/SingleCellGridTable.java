@@ -54,6 +54,6 @@ public class SingleCellGridTable extends AGridTableDecorator {
         return cachedCell;
     }
 
-    ICell cachedCell = null;
+    ICell cachedCell;
 
 }

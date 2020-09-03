@@ -14,14 +14,13 @@ import java.util.zip.ZipOutputStream;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.LockInfo;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectDescriptorHelper;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
-import org.openl.rules.project.impl.local.SimpleLockInfo;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
@@ -37,12 +36,12 @@ import org.slf4j.LoggerFactory;
  * This class stores only deploy configuration, not deployed projects! For the latter see {@link Deployment} class.
  */
 public class ADeploymentProject extends UserWorkspaceProject {
-    private final Logger log = LoggerFactory.getLogger(ADeploymentProject.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ADeploymentProject.class);
 
     private List<ProjectDescriptor> descriptors;
     private ADeploymentProject openedVersion;
     /* this button is used for rendering the save button (only for deploy configuration) */
-    private boolean modifiedDescriptors = false;
+    private boolean modifiedDescriptors;
 
     private final LockEngine lockEngine;
 
@@ -65,11 +64,11 @@ public class ADeploymentProject extends UserWorkspaceProject {
         lockEngine = null;
     }
 
-    public void addProjectDescriptor(String name, CommonVersion version) {
+    public void addProjectDescriptor(String repositoryId, String name, String branch, CommonVersion version) {
         if (hasProjectDescriptor(name)) {
             removeProjectDescriptor(name);
         }
-        getDescriptors().add(new ProjectDescriptorImpl(name, version));
+        getDescriptors().add(new ProjectDescriptorImpl(repositoryId, name, branch, version));
     }
 
     public boolean hasProjectDescriptor(String name) {
@@ -213,13 +212,13 @@ public class ADeploymentProject extends UserWorkspaceProject {
     @Override
     public LockInfo getLockInfo() {
         if (lockEngine == null) {
-            return SimpleLockInfo.NO_LOCK;
+            return LockInfo.NO_LOCK;
         }
         return lockEngine.getLockInfo(getBranch(), getName());
     }
 
     @Override
-    public boolean tryLock() throws ProjectException {
+    public boolean tryLock() {
         if (lockEngine != null) {
             return lockEngine.tryLock(getBranch(), getName(), getUser().getUserName());
         }
@@ -254,7 +253,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
                         descriptors = newDescriptors;
                     }
                 } catch (Exception e) {
-                    log.error(e.getMessage(), e);
+                    LOG.error(e.getMessage(), e);
                 } finally {
                     IOUtils.closeQuietly(content);
                 }

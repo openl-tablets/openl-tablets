@@ -23,18 +23,23 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class BinaryOpNodeAnd extends ABoundNode {
 
-    BinaryOpNodeAnd(ISyntaxNode syntaxNode, IBoundNode[] child) {
-        super(syntaxNode, child);
+    private final IBoundNode left;
+    private final IBoundNode right;
+
+    BinaryOpNodeAnd(ISyntaxNode syntaxNode, IBoundNode left, IBoundNode right) {
+        super(syntaxNode, left, right);
+        this.left = left;
+        this.right = right;
     }
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
 
-        Object res1 = children[0].evaluate(env);
+        Object res1 = left.evaluate(env);
         if (Boolean.FALSE.equals(res1)) {
             return Boolean.FALSE;
         }
-        Object res2 = children[1].evaluate(env);
+        Object res2 = right.evaluate(env);
         if (Boolean.FALSE.equals(res2)) {
             return Boolean.FALSE;
         }
@@ -47,7 +52,7 @@ public class BinaryOpNodeAnd extends ABoundNode {
 
     @Override
     public IOpenClass getType() {
-        return JavaOpenClass.BOOLEAN;
+        return JavaOpenClass.getOpenClass(Boolean.class);
     }
 
 }

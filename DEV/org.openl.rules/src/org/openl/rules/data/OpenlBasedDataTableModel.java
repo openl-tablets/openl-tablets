@@ -6,6 +6,7 @@
 
 package org.openl.rules.data;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -24,14 +25,16 @@ public class OpenlBasedDataTableModel implements ITableModel {
     private IOpenClass type;
     private OpenL openl;
     private ColumnDescriptor[] columnDescriptors;
+    private List<ColumnDescriptor> idxs = new ArrayList<>();
     private boolean hasColumnTitleRow;
     private final int columnCount;
 
-    public OpenlBasedDataTableModel(String name,
-            IOpenClass type,
-            OpenL openl,
-            ColumnDescriptor[] columnDescriptor,
-            boolean hasColumnTitleRow) {
+    //columnDescriptor must be sorted by getColumnIdx
+    OpenlBasedDataTableModel(String name,
+                             IOpenClass type,
+                             OpenL openl,
+                             ColumnDescriptor[] columnDescriptor,
+                             boolean hasColumnTitleRow) {
         this.name = name;
         this.type = type;
         this.openl = openl;
@@ -40,7 +43,7 @@ public class OpenlBasedDataTableModel implements ITableModel {
         this.hasColumnTitleRow = hasColumnTitleRow;
     }
 
-    private static ColumnDescriptor[] initializeDescriptors(ColumnDescriptor[] descriptors) {
+    private ColumnDescriptor[] initializeDescriptors(ColumnDescriptor[] descriptors) {
         // group descriptors by KEY and put PK columns in first position of each group
         int cntDescriptors = 0;
         Map<ColumnDescriptor.ColumnGroupKey, List<ColumnDescriptor>> descriptorGroups = new TreeMap<>();
@@ -48,6 +51,11 @@ public class OpenlBasedDataTableModel implements ITableModel {
             if (descriptor == null) {
                 continue;
             }
+            int columnIdx = descriptor.getColumnIdx();
+            while (columnIdx > idxs.size()) {
+                idxs.add(null);
+            }
+            idxs.add(descriptor);
             cntDescriptors++;
             ColumnDescriptor.ColumnGroupKey key = descriptor.buildGroupKey();
             List<ColumnDescriptor> descriptorsByKey = descriptorGroups.computeIfAbsent(key, k -> new LinkedList<>());
@@ -104,10 +112,8 @@ public class OpenlBasedDataTableModel implements ITableModel {
 
     @Override
     public ColumnDescriptor getDescriptor(int idx) {
-        for (ColumnDescriptor descriptor : columnDescriptors) {
-            if (descriptor.getColumnIdx() == idx) {
-                return descriptor;
-            }
+        if (idx < idxs.size()) {
+            return idxs.get(idx);
         }
         return null;
     }

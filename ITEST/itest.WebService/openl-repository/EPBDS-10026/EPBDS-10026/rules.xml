@@ -1,0 +1,26 @@
+<project>
+	<name>simple3</name>
+	<modules>
+		<module>
+			<name>module1</name>
+			<rules-root path="module1.xlsx" />
+			<method-filter>
+				<includes>
+					<value>.+ mySpr\(\)</value>
+					<value>.+ mySpr2\(\)</value>
+					<value>.+ main\(\)</value>
+					<value>.+ arrSpreadsheetResult\(\)</value>
+					<value>.+ arrSpreadsheetResultspr1\(\)</value>
+					<value>.+ arrObjSpreadsheetResult\(\)</value>
+				</includes>
+			</method-filter>
+		</module>
+		<module>
+			<name>module2</name>
+			<rules-root path="module2.xlsx" />
+		</module>
+	</modules>
+	<classpath>
+		<entry path="lib/*.jar" />
+	</classpath>
+</project>

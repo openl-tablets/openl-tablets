@@ -133,7 +133,7 @@
 
             <h:panelGroup id="copyButtonPanel">
                 <a4j:commandButton id="copyTableBtn" value="#{msg['ws.copy.copy']}" action="#{wizard.finish}" data="#{wizard.newTableId}"
-                    oncomplete="copyComplete(event.data)" styleClass="button-primary"
+                    oncomplete="if(event.data) ws.nav.go('#{studio.url('table', wizard.newTableURI)}?id=' + event.data, true)" styleClass="button-primary"
                     rendered="#{!((tableCopierWizardManager.copyType == 'CHANGE_VERSION' || tableCopierWizardManager.copyType == 'CHANGE_DIMENSION') and wizard.tableTechnicalName == '')}" />
             </h:panelGroup>
         </h:form>
@@ -142,12 +142,6 @@
 
     <script>
         //<![CDATA[
-        function copyComplete(data) {
-            if (data) {
-                ws.nav.go("#{studio.url('table')}" + "?id=" + data, true);
-            }
-        }
-
         function updateControls() {
             var e = document.forms["copyTableForm"]["newSheet"][0];
             var newSheet = e.value == "new" ? e.checked : !e.checked;

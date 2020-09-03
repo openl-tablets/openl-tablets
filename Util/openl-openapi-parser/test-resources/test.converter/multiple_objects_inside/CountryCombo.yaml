@@ -1,0 +1,15 @@
+CountryCombo:
+  type: object
+  properties:
+    options:
+      type: object
+      properties:
+        option:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              value:
+                type: string

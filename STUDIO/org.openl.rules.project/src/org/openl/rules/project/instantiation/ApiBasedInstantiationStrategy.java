@@ -14,8 +14,6 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.ModuleFileSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.util.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The simplest {@link RulesInstantiationStrategyFactory} for module that contains only Excel file.
@@ -23,7 +21,6 @@ import org.slf4j.LoggerFactory;
  * @author PUdalau
  */
 public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStrategy {
-    private final Logger log = LoggerFactory.getLogger(ApiBasedInstantiationStrategy.class);
 
     /**
      * Rules engine factory for module that contains only Excel file.
@@ -83,7 +80,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
     @SuppressWarnings("unchecked")
     protected RulesEngineFactory<?> getEngineFactory() {
         Class<Object> serviceClass = (Class<Object>) getServiceClass();
-        if (engineFactory == null || serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass)) {
+        if (engineFactory == null) {
             if (getModule().getExtension() != null) {
                 IExtensionDescriptor extensionDescriptor = ExtensionDescriptorFactory
                     .getExtensionDescriptor(getModule().getExtension(), getClassLoader());
@@ -134,4 +131,11 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         }
     }
 
+    @Override
+    public void setServiceClass(Class<?> serviceClass) {
+        super.setServiceClass(serviceClass);
+        if (engineFactory != null) {
+            engineFactory.setInterfaceClass((Class) serviceClass);
+        }
+    }
 }

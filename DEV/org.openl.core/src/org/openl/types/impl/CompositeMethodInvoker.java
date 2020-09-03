@@ -8,6 +8,8 @@ import org.openl.binding.impl.BlockNode;
 import org.openl.binding.impl.ControlSignalReturn;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Invoker for {@link CompositeMethod}.
@@ -16,6 +18,7 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class CompositeMethodInvoker implements Invokable {
+    private static final Logger LOG = LoggerFactory.getLogger(CompositeMethodInvoker.class);
 
     private IBoundMethodNode methodBodyBoundNode;
 
@@ -73,6 +76,7 @@ public class CompositeMethodInvoker implements Invokable {
             return expressionNode == null ? runner.run(methodBodyBoundNode, params, env)
                                           : runner.runExpression(expressionNode, params, env);
         } catch (ControlSignalReturn csret) {
+            LOG.debug("Error occurred: ", csret);
             return csret.getReturnValue();
         } finally {
             env.popThis();

@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 import org.openl.CompiledOpenClass;
-import org.openl.OpenClassUtil;
 import org.openl.rules.project.model.Module;
 import org.openl.types.IOpenClass;
 
@@ -23,23 +23,24 @@ public final class OpenLService {
     /**
      * Unique for service.
      */
-    private String name;
-    private String url;
-    private String servicePath;
+    private final String name;
+    private final String url;
+    private final String servicePath;
     private String serviceClassName;
     private String rmiServiceClassName;
-    private String rmiName;
+    private final String rmiName;
     private Class<?> serviceClass;
     private Class<?> rmiServiceClass;
     private Object serviceBean;
     private CompiledOpenClass compiledOpenClass;
-    private boolean provideRuntimeContext = false;
-    private boolean provideVariations = false;
-    private Collection<Module> modules;
-    private Set<String> publishers;
+    private final boolean provideRuntimeContext;
+    private final boolean provideVariations;
+    private final Collection<Module> modules;
+    private final Set<String> publishers;
     private ClassLoader classLoader;
     private OpenLServiceInitializer initializer;
     private Throwable exception;
+    private Map<String, String> urls = Collections.emptyMap();
 
     /**
      * Returns service classloader
@@ -287,6 +288,14 @@ public final class OpenLService {
         this.exception = exception;
     }
 
+    public Map<String, String> getUrls() {
+        return urls;
+    }
+
+    public void setUrls(Map<String, String> urls) {
+        this.urls = urls;
+    }
+
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
@@ -398,7 +407,7 @@ public final class OpenLService {
         /**
          * Sets RMI class name to the builder.
          *
-         * @param serviceClassName
+         * @param rmiServiceClassName
          * @return
          */
         public OpenLServiceBuilder setRmiServiceClassName(String rmiServiceClassName) {

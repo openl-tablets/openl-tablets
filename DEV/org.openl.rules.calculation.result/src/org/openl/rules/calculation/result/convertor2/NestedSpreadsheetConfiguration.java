@@ -83,7 +83,6 @@ public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, 
      *
      * @param nestingLevel current level of nesting
      * @param columnToExtract column for extraction
-     * @param mandatory
      * @return the extractor for the column that is compound.
      */
     protected NestedSpreadsheedColumnExtractor initCompoundColumnExtractor(int nestingLevel,

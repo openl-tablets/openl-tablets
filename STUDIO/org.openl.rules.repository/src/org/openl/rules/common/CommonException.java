@@ -13,7 +13,6 @@ import java.text.MessageFormat;
  *
  */
 public class CommonException extends Exception {
-    private static final long serialVersionUID = 9016192638697492055L;
 
     private static String format(String pattern, Object... params) {
         return MessageFormat.format(pattern, params);

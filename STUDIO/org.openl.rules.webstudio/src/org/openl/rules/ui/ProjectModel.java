@@ -6,8 +6,10 @@ import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
 import static org.openl.rules.security.Privileges.EDIT_TABLES;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.*;
 
+import org.open.rules.project.validation.openapi.OpenApiProjectValidator;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.dependency.IDependencyManager;
@@ -35,9 +37,9 @@ import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
-import org.openl.rules.project.instantiation.SimpleDependencyLoader;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -91,32 +93,33 @@ public class ProjectModel {
     private CompiledOpenClass compiledOpenClass;
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
-    private Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = new HashSet<>();
+    private final Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = new HashSet<>();
+    private WorkbookSyntaxNode[] workbookSyntaxNodes;
 
     private Module moduleInfo;
 
     private boolean openedInSingleModuleMode;
 
-    private WebStudioWorkspaceDependencyManagerFactory webStudioWorkspaceDependencyManagerFactory;
+    private final WebStudioWorkspaceDependencyManagerFactory webStudioWorkspaceDependencyManagerFactory;
     private WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceDependencyManager;
 
-    private WebStudio studio;
+    private final WebStudio studio;
 
-    private ColorFilterHolder filterHolder = new ColorFilterHolder();
+    private final ColorFilterHolder filterHolder = new ColorFilterHolder();
 
     private ProjectTreeNode projectRoot = null;
 
     // TODO Fix performance
-    private Map<String, TableSyntaxNode> uriTableCache = new HashMap<>();
-    private Map<String, TableSyntaxNode> idTableCache = new HashMap<>();
+    private final Map<String, TableSyntaxNode> uriTableCache = new HashMap<>();
+    private final Map<String, TableSyntaxNode> idTableCache = new HashMap<>();
 
-    private Map<OpenLMessage, String> messageNodeIds = new HashMap<>();
+    private final Map<OpenLMessage, String> messageNodeIds = new HashMap<>();
 
     private DependencyRulesGraph dependencyGraph;
 
     private SourceHistoryManager<File> historyManager;
 
-    private RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
+    private final RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
     private final TestSuiteExecutor testSuiteExecutor;
 
     /**
@@ -282,7 +285,7 @@ public class ProjectModel {
         IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
 
         for (IOpenMethod method : openClass.getMethods()) {
-            IOpenMethod resolvedMethod = null;
+            IOpenMethod resolvedMethod;
 
             if (method instanceof OpenMethodDispatcher) {
                 resolvedMethod = resolveMethodDispatcher((OpenMethodDispatcher) method, tsn);
@@ -448,7 +451,7 @@ public class ProjectModel {
                     res.add(tester);
                 }
             }
-            return res.toArray(new IOpenMethod[0]);
+            return res.toArray(IOpenMethod.EMPTY_ARRAY);
         }
         return null;
     }
@@ -466,6 +469,19 @@ public class ProjectModel {
         }
 
         return getXlsModuleNode().getWorkbookSyntaxNodes();
+    }
+
+    /**
+     * Get all workbooks of all modules
+     * 
+     * @return all workbooks
+     */
+    public WorkbookSyntaxNode[] getAllWorkbookNodes() {
+        if (!isProjectCompiledSuccessfully()) {
+            return null;
+        }
+
+        return workbookSyntaxNodes;
     }
 
     public boolean isSourceModified() {
@@ -635,8 +651,8 @@ public class ProjectModel {
             }
         }
 
-        for (int i = 0; i < tableSyntaxNodes.length; i++) {
-            treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
+        for (TableSyntaxNode tableSyntaxNode : tableSyntaxNodes) {
+            treeBuilder.addToNode(root, tableSyntaxNode, treeSorters);
         }
 
         projectRoot = root;
@@ -674,7 +690,7 @@ public class ProjectModel {
 
     private LocalRepository getLocalRepository() {
         UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
-        return userWorkspace.getLocalWorkspace().getRepository();
+        return userWorkspace.getLocalWorkspace().getRepository(studio.getCurrentRepositoryId());
     }
 
     public TableSyntaxNode[] getTableSyntaxNodes() {
@@ -683,7 +699,7 @@ public class ProjectModel {
             return moduleSyntaxNode.getXlsTableSyntaxNodes();
         }
 
-        return new TableSyntaxNode[0];
+        return TableSyntaxNode.EMPTY_ARRAY;
     }
 
     public TableSyntaxNode[] getAllTableSyntaxNodes() {
@@ -697,7 +713,7 @@ public class ProjectModel {
             }
         }
 
-        return nodes.toArray(new TableSyntaxNode[0]);
+        return nodes.toArray(TableSyntaxNode.EMPTY_ARRAY);
     }
 
     public int getNumberOfTables() {
@@ -799,7 +815,8 @@ public class ProjectModel {
     }
 
     public TestUnitsResults runTest(TestSuite test) {
-        boolean isParallel = Props.bool(AdministrationSettings.RUN_TESTS_IN_PARALLEL);
+        Integer threads = Props.integer(AdministrationSettings.TEST_RUN_THREAD_COUNT_PROPERTY);
+        boolean isParallel = threads != null && threads > 1;
         return runTest(test, isParallel);
     }
 
@@ -855,6 +872,7 @@ public class ProjectModel {
         allXlsModuleSyntaxNodes.clear();
         messageNodeIds.clear();
         projectRoot = null;
+        workbookSyntaxNodes = null;
     }
 
     private void resetWebStudioWorkspaceDependencyManagerForSingleMode(Module moduleInfo, Module previousModuleInfo) {
@@ -915,6 +933,7 @@ public class ProjectModel {
         projectRoot = null;
         xlsModuleSyntaxNode = null;
         allXlsModuleSyntaxNodes.clear();
+        workbookSyntaxNodes = null;
 
         prepareWebstudioWorkspaceDependencyManager(singleModuleMode, previousModuleInfo);
 
@@ -937,7 +956,6 @@ public class ProjectModel {
 
         }
         instantiationStrategy.setExternalParameters(externalParameters);
-        instantiationStrategy.setServiceClass(SimpleDependencyLoader.EmptyInterface.class);
 
         // If autoCompile is false we cannot unload workbook during editing because we must show to a user latest edited
         // data (not parsed and compiled data).
@@ -950,6 +968,10 @@ public class ProjectModel {
             // Find all dependent XlsModuleSyntaxNode-s
             compiledOpenClass = instantiationStrategy.compile();
 
+            if (!singleModuleMode) {
+                compiledOpenClass = validate(instantiationStrategy);
+            }
+
             addAllSyntaxNodes(webStudioWorkspaceDependencyManager.getDependencyLoaders().values());
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);
@@ -958,12 +980,21 @@ public class ProjectModel {
 
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
             if (!isSingleModuleMode()) {
+                List<WorkbookSyntaxNode> workbookSyntaxNodes = new ArrayList<>();
+                for (XlsModuleSyntaxNode xlsSyntaxNode : allXlsModuleSyntaxNodes) {
+                    if (!(xlsSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
+                        workbookSyntaxNodes.addAll(Arrays.asList(xlsSyntaxNode.getWorkbookSyntaxNodes()));
+                    }
+                }
+                this.workbookSyntaxNodes = workbookSyntaxNodes.toArray(new WorkbookSyntaxNode[0]);
                 // EPBDS-7629: In multimodule mode xlsModuleSyntaxNode does not contain Virtual Module with dispatcher
                 // table syntax nodes.
                 // Such dispatcher syntax nodes are needed to show dispatcher tables in Trace.
                 // That's why we should add virtual module to allXlsModuleSyntaxNodes.
                 XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
                 allXlsModuleSyntaxNodes.add(xmi.getXlsModuleNode());
+            } else {
+                workbookSyntaxNodes = xlsModuleSyntaxNode.getWorkbookSyntaxNodes();
             }
             WorkbookLoaders.resetCurrentFactory();
         } catch (Throwable t) {
@@ -978,6 +1009,12 @@ public class ProjectModel {
 
             WorkbookLoaders.resetCurrentFactory();
         }
+    }
+
+    private CompiledOpenClass validate(
+            RulesInstantiationStrategy rulesInstantiationStrategy) throws RulesInstantiationException {
+        OpenApiProjectValidator openApiProjectValidator = new OpenApiProjectValidator();
+        return openApiProjectValidator.validate(moduleInfo.getProject(), rulesInstantiationStrategy);
     }
 
     private void addAllSyntaxNodes(
@@ -1128,12 +1165,14 @@ public class ProjectModel {
 
     public SourceHistoryManager<File> getHistoryManager() {
         if (historyManager == null) {
-            String projectHistoryHome = Props.text("project.history.home");
-            String projectHistoryCount = Props.text("project.history.count");
-            Integer maxFilesInStorage = Integer.valueOf(Objects.requireNonNull(projectHistoryCount));
-            boolean unlimitedStorage = Props.bool("project.history.unlimited");
-            String storagePath = projectHistoryHome + File.separator + getProject().getName();
-            historyManager = new FileBasedProjectHistoryManager(this, storagePath, maxFilesInStorage, unlimitedStorage);
+            Integer maxFilesInStorage = Props.integer("project.history.count");
+            File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
+                .getLocalWorkspace()
+                .getLocation();
+            String storagePath = Paths
+                .get(location.getPath(), getProject().getName(), ".history", getModuleInfo().getName())
+                .toString();
+            historyManager = new FileBasedProjectHistoryManager(this, storagePath, maxFilesInStorage);
         }
         return historyManager;
     }

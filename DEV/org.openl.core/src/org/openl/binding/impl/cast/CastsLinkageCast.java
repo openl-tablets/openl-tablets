@@ -5,7 +5,7 @@ import java.util.Objects;
 public final class CastsLinkageCast implements IOpenCast {
 
     private IOpenCast[] casts;
-    private int distance = 0;
+    private int distance;
 
     public CastsLinkageCast(IOpenCast... casts) {
         this.casts = Objects.requireNonNull(casts, "casts cannot be null");

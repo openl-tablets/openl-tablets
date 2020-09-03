@@ -8,9 +8,18 @@
           http://www.springframework.org/schema/context
           http://www.springframework.org/schema/context/spring-context-4.1.xsd
           http://www.springframework.org/schema/security
-          https://www.springframework.org/schema/security/spring-security-5.2.xsd">
+          https://www.springframework.org/schema/security/spring-security-5.3.xsd">
 
   <import resource="db-services.xml"/>
+
+  <bean id="canCreateExternalUsers" class="java.lang.Boolean">
+    <constructor-arg type="boolean" value="false"/>
+  </bean>
+
+  <bean id="canCreateInternalUsers" class="java.lang.Boolean">
+    <constructor-arg type="boolean" value="false"/>
+  </bean>
+
   <bean class="org.openl.rules.webstudio.service.SingleUserModeInit" lazy-init="false">
     <constructor-arg name="userDao" ref="openlUserDao"/>
     <constructor-arg name="userName" value="DEFAULT"/>

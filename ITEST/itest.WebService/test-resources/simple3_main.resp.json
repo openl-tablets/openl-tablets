@@ -3612,11 +3612,8 @@
     [
       {
         "Value_Step3": [
-          "[Ljava.lang.Double;",
-          [
-            1.0,
-            2.0
-          ]
+          1.0,
+          2.0
         ],
         "Value_Step4": [
           "[Lorg.openl.generated.spreadsheetresults.Spr1;",
@@ -3687,18 +3684,19 @@
           ]
         ],
         "Value_Step8": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "Step1": 1.0
-          },
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "Step1": 1.0
-          }
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "Step1": 1.0
+            },
+            {
+              "Step1": 1.0
+            }
+          ]
         ],
         "Value_Step9": [
+          "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
           [
-            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
             [
               {
                 "Step1": 1.0
@@ -3706,10 +3704,7 @@
               {
                 "Step1": 1.0
               }
-            ]
-          ],
-          [
-            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+            ],
             [
               {
                 "Step1": 1.0
@@ -3831,11 +3826,8 @@
       },
       {
         "Value_Step3": [
-          "[Ljava.lang.Double;",
-          [
-            1.0,
-            2.0
-          ]
+          1.0,
+          2.0
         ],
         "Value_Step4": [
           "[Lorg.openl.generated.spreadsheetresults.Spr1;",
@@ -3906,18 +3898,19 @@
           ]
         ],
         "Value_Step8": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "Step1": 1.0
-          },
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "Step1": 1.0
-          }
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "Step1": 1.0
+            },
+            {
+              "Step1": 1.0
+            }
+          ]
         ],
         "Value_Step9": [
+          "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
           [
-            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
             [
               {
                 "Step1": 1.0
@@ -3925,10 +3918,7 @@
               {
                 "Step1": 1.0
               }
-            ]
-          ],
-          [
-            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+            ],
             [
               {
                 "Step1": 1.0
@@ -4052,11 +4042,8 @@
     [
       {
         "Value_Step3": [
-          "[Ljava.lang.Double;",
-          [
-            1.0,
-            2.0
-          ]
+          1.0,
+          2.0
         ],
         "Value_Step4": [
           "[Lorg.openl.generated.spreadsheetresults.Spr1;",
@@ -4127,18 +4114,19 @@
           ]
         ],
         "Value_Step8": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "Step1": 1.0
-          },
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "Step1": 1.0
-          }
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "Step1": 1.0
+            },
+            {
+              "Step1": 1.0
+            }
+          ]
         ],
         "Value_Step9": [
+          "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
           [
-            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
             [
               {
                 "Step1": 1.0
@@ -4146,10 +4134,7 @@
               {
                 "Step1": 1.0
               }
-            ]
-          ],
-          [
-            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+            ],
             [
               {
                 "Step1": 1.0
@@ -4271,11 +4256,8 @@
       },
       {
         "Value_Step3": [
-          "[Ljava.lang.Double;",
-          [
-            1.0,
-            2.0
-          ]
+          1.0,
+          2.0
         ],
         "Value_Step4": [
           "[Lorg.openl.generated.spreadsheetresults.Spr1;",
@@ -4346,18 +4328,19 @@
           ]
         ],
         "Value_Step8": [
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "Step1": 1.0
-          },
-          {
-            "@class": "org.openl.generated.spreadsheetresults.Spr1",
-            "Step1": 1.0
-          }
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          [
+            {
+              "Step1": 1.0
+            },
+            {
+              "Step1": 1.0
+            }
+          ]
         ],
         "Value_Step9": [
+          "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
           [
-            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
             [
               {
                 "Step1": 1.0
@@ -4365,10 +4348,7 @@
               {
                 "Step1": 1.0
               }
-            ]
-          ],
-          [
-            "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+            ],
             [
               {
                 "Step1": 1.0
@@ -4493,11 +4473,8 @@
   "Step11": [
     {
       "Value_Step3": [
-        "[Ljava.lang.Double;",
-        [
-          1.0,
-          2.0
-        ]
+        1.0,
+        2.0
       ],
       "Value_Step4": [
         "[Lorg.openl.generated.spreadsheetresults.Spr1;",
@@ -4568,18 +4545,19 @@
         ]
       ],
       "Value_Step8": [
-        {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "Step1": 1.0
-        },
-        {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "Step1": 1.0
-        }
+        "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+        [
+          {
+            "Step1": 1.0
+          },
+          {
+            "Step1": 1.0
+          }
+        ]
       ],
       "Value_Step9": [
+        "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
         [
-          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
           [
             {
               "Step1": 1.0
@@ -4587,10 +4565,7 @@
             {
               "Step1": 1.0
             }
-          ]
-        ],
-        [
-          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          ],
           [
             {
               "Step1": 1.0
@@ -4712,11 +4687,8 @@
     },
     {
       "Value_Step3": [
-        "[Ljava.lang.Double;",
-        [
-          1.0,
-          2.0
-        ]
+        1.0,
+        2.0
       ],
       "Value_Step4": [
         "[Lorg.openl.generated.spreadsheetresults.Spr1;",
@@ -4787,18 +4759,19 @@
         ]
       ],
       "Value_Step8": [
-        {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "Step1": 1.0
-        },
-        {
-          "@class": "org.openl.generated.spreadsheetresults.Spr1",
-          "Step1": 1.0
-        }
+        "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+        [
+          {
+            "Step1": 1.0
+          },
+          {
+            "Step1": 1.0
+          }
+        ]
       ],
       "Value_Step9": [
+        "[[Lorg.openl.generated.spreadsheetresults.Spr1;",
         [
-          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
           [
             {
               "Step1": 1.0
@@ -4806,10 +4779,7 @@
             {
               "Step1": 1.0
             }
-          ]
-        ],
-        [
-          "[Lorg.openl.generated.spreadsheetresults.Spr1;",
+          ],
           [
             {
               "Step1": 1.0

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.model.SelectItem;
-import javax.validation.constraints.Pattern;
+import javax.validation.GroupSequence;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -17,12 +17,16 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.table.xls.builder.TestTableBuilder;
+import org.openl.rules.ui.validation.StringPresentedGroup;
+import org.openl.rules.ui.validation.StringValidGroup;
+import org.openl.rules.ui.validation.TableNameConstraint;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.util.StringUtils;
 
 /**
  * @author Aliaksandr Antonik.
  */
+@GroupSequence({ TestTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class })
 public class TestTableCreationWizard extends TableCreationWizard {
 
     private SelectItem[] tableItems;
@@ -35,8 +39,8 @@ public class TestTableCreationWizard extends TableCreationWizard {
     /**
      * Technical name of newly created test table.
      */
-    @NotBlank(message = "Cannot be empty")
-    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
+    @NotBlank(message = "Cannot be empty", groups = StringPresentedGroup.class)
+    @TableNameConstraint(groups = StringValidGroup.class)
     private String technicalName;
 
     private List<TableSyntaxNode> executableTables;
@@ -192,7 +196,7 @@ public class TestTableCreationWizard extends TableCreationWizard {
      * type of the table is not void.
      */
     private boolean isExecutableAndTestableNode(TableSyntaxNode node) {
-        return node.isExecutableNode() && !void.class.equals(node.getMember().getType().getInstanceClass());
+        return node.isExecutableNode() && void.class != node.getMember().getType().getInstanceClass();
     }
 
     @Override
@@ -206,7 +210,7 @@ public class TestTableCreationWizard extends TableCreationWizard {
     protected void onFinish() throws Exception {
         XlsSheetSourceCodeModule sheetSourceModule = getDestinationSheet();
         String newTableUri = buildTable(sheetSourceModule);
-        setNewTableId(newTableUri);
+        setNewTableURI(newTableUri);
         getModifiedWorkbooks().add(sheetSourceModule.getWorkbookSource());
         super.onFinish();
     }

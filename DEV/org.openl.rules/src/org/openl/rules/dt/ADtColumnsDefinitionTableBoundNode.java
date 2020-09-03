@@ -391,20 +391,20 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                     .createError("Expression is required for an action.", null, null, expressionCellSourceCodeModule);
             }
         }
-        if (isConditions()) {
-            if (compositeMethod.getType().getInstanceClass() != boolean.class && compositeMethod.getType()
-                .getInstanceClass() != Boolean.class) {
-                if (isSimplifiedSyntaxIsUsed(expressionCellSourceCodeModule.getCode(), header.getSignature())) {
-                    validateConditionType(compositeMethod, expressionCellSourceCodeModule, localParameters, cxt);
+        if (isConditions()
+            && compositeMethod.getType().getInstanceClass() != boolean.class
+            && compositeMethod.getType().getInstanceClass() != Boolean.class) {
+
+            if (isSimplifiedSyntaxIsUsed(expressionCellSourceCodeModule.getCode(), header.getSignature())) {
+                validateConditionType(compositeMethod, expressionCellSourceCodeModule, localParameters, cxt);
+            } else {
+                if (isLocalParameterIsUsed(compositeMethod, localParameters.values())) {
+                    throw SyntaxNodeExceptionUtils.createError("Condition expression must return a boolean type.",
+                        null,
+                        null,
+                        expressionCellSourceCodeModule);
                 } else {
-                    if (isLocalParameterIsUsed(compositeMethod, localParameters.values())) {
-                        throw SyntaxNodeExceptionUtils.createError("Condition expression must return a boolean type.",
-                            null,
-                            null,
-                            expressionCellSourceCodeModule);
-                    } else {
-                        validateConditionType(compositeMethod, expressionCellSourceCodeModule, localParameters, cxt);
-                    }
+                    validateConditionType(compositeMethod, expressionCellSourceCodeModule, localParameters, cxt);
                 }
             }
         }
@@ -468,7 +468,8 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     private void addMetaInfoForExpression(CompositeMethod compositeMethod, ICell cell) {
         MetaInfoReader metaInfoReader = getTableSyntaxNode().getMetaInfoReader();
         if (metaInfoReader instanceof DtColumnsDefinitionMetaInfoReader) {
-            DtColumnsDefinitionMetaInfoReader dtColumnsDefinitionMetaInfoReader = (DtColumnsDefinitionMetaInfoReader) metaInfoReader;
+            DtColumnsDefinitionMetaInfoReader dtColumnsDefinitionMetaInfoReader
+                    = (DtColumnsDefinitionMetaInfoReader) metaInfoReader;
             dtColumnsDefinitionMetaInfoReader
                 .addExpression(cell.getAbsoluteColumn(), cell.getAbsoluteRow(), compositeMethod, cell.getStringValue());
         }
@@ -477,7 +478,8 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     private void addMetaInfoForInputs(IOpenMethodHeader header, ICell cell, String text, int from) {
         MetaInfoReader metaInfoReader = getTableSyntaxNode().getMetaInfoReader();
         if (metaInfoReader instanceof DtColumnsDefinitionMetaInfoReader) {
-            DtColumnsDefinitionMetaInfoReader dtColumnsDefinitionMetaInfoReader = (DtColumnsDefinitionMetaInfoReader) metaInfoReader;
+            DtColumnsDefinitionMetaInfoReader dtColumnsDefinitionMetaInfoReader =
+                    (DtColumnsDefinitionMetaInfoReader) metaInfoReader;
             dtColumnsDefinitionMetaInfoReader
                 .addInput(cell.getAbsoluteColumn(), cell.getAbsoluteRow(), header, text, from);
         }
@@ -486,7 +488,8 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     private void addMetaInfoForParameter(IParameterDeclaration parameterDeclaration, ICell cell) {
         MetaInfoReader metaInfoReader = getTableSyntaxNode().getMetaInfoReader();
         if (metaInfoReader instanceof DtColumnsDefinitionMetaInfoReader) {
-            DtColumnsDefinitionMetaInfoReader dtColumnsDefinitionMetaInfoReader = (DtColumnsDefinitionMetaInfoReader) metaInfoReader;
+            DtColumnsDefinitionMetaInfoReader dtColumnsDefinitionMetaInfoReader =
+                    (DtColumnsDefinitionMetaInfoReader) metaInfoReader;
             dtColumnsDefinitionMetaInfoReader.addParameter(cell.getAbsoluteColumn(),
                 cell.getAbsoluteRow(),
                 parameterDeclaration,

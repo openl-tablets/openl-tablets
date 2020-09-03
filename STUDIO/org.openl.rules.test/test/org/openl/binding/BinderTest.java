@@ -39,7 +39,7 @@ public class BinderTest extends TestCase {
 
     public void _testMethodHeader(String code, IOpenClass type, String openlName, int numPar) {
         OpenL openl = OpenL.getInstance(openlName);
-        IOpenMethodHeader header = OpenLManager.makeMethodHeader(openl, new StringSourceCodeModule(code, null), null);
+        IOpenMethodHeader header = OpenLManager.makeMethodHeader(openl, new StringSourceCodeModule(code, null), openl.getBinder().makeBindingContext());
         Assert.assertEquals(type, header.getType());
         Assert.assertEquals(numPar, header.getSignature().getParameterTypes().length);
     }
@@ -120,7 +120,7 @@ public class BinderTest extends TestCase {
         _testNoError("4+3", int.class, OpenL.OPENL_J_NAME);
         _testNoError("\t-545847548567L", long.class, OpenL.OPENL_J_NAME);
         _testNoError("5-3", int.class, OpenL.OPENL_J_NAME);
-        _testNoError("int x = 5, z, y= 20; x < 3 || z > 2", boolean.class, OpenL.OPENL_J_NAME);
+        _testNoError("int x = 5, z, y= 20; x < 3 || z > 2", Boolean.class, OpenL.OPENL_J_NAME);
         _testNoError("Date d1, d2; d1 < d2", Boolean.class, OpenL.OPENL_J_NAME);
         // _testNoError("Date[] d1, d2", boolean.class, OpenL.OPENL_J_NAME);
         _testNoError("String[] name;", void.class, OpenL.OPENL_J_NAME);

@@ -1,87 +1,98 @@
 <ui:composition
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:c="http://java.sun.com/jsp/jstl/core"
-    template="/pages/layout/simpleLayout.xhtml">
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:c="http://java.sun.com/jsp/jstl/core"
+        template="/pages/layout/simpleLayout.xhtml">
 
     <ui:define name="content">
-        <input type="hidden" id="OPENL_LOGIN_PAGE" />
+        <f:view transient="true">
 
-        <table style="width: 100%">
-            <tr>
-                <td style="height: 440px;">
-                    <div align="center">
-                        <!-- possible error messages -->
-                        <c:set var="error" value="#{facesContext.externalContext.sessionMap.remove('SPRING_SECURITY_LAST_EXCEPTION')}" />
-                        <c:if test="#{not empty error}">
-                            <c:choose>
-                                <c:when test="#{error.getClass().simpleName == 'AuthenticationServiceException'}">
-                                    <p class="error">#{msg['ws.login.error']}</p>
-                                </c:when>
-                                <c:otherwise>
-                                    <p class="error">#{msg['ws.login.wrong']}</p>
-                                </c:otherwise>
-                            </c:choose>
-                        </c:if>
-                        <div>
-                            <!-- form itself -->
-                            <form action="#{contextPath}/security_login_check" method="post" onsubmit="showLoader(); setSubmitUrl(this);">
-                                <table id="loginForm" style="text-align: left;" cellpadding="4" cellspacing="0">
-                                    <tr>
-                                        <td align="right">
-                                            <label for="loginName">#{msg['ws.login.username']}: </label>
-                                        </td>
-                                        <td>
-                                            <input type="text" name="username" id="loginName" style="width: 120px" />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td align="right">
-                                            <label for="loginPassword">#{msg['ws.login.password']}: </label>
-                                        </td>
-                                        <td>
-                                            <input type="password" name="password" id="loginPassword" style="width: 120px" />
-                                        </td>
-                                    </tr>
-                                    <c:if test="#{!param.noRemember}">
-                                    <tr>
-                                        <td align="right">
-                                            <label for="rememberMe">#{msg['ws.login.remember']}</label>
-                                        </td>
-                                        <td>
-                                            <input type="checkbox" class="transparency" name="rememberMe" id="rememberMe"
-                                                style="margin-left:0" />
-                                        </td>
-                                    </tr>
-                                    </c:if>
-                                    <tr>
-                                        <td colspan="2" style="border-bottom:1px solid #ddd; padding:0">&#160;</td>
-                                    </tr>
-                                    <tr>
-                                        <td>&#160;</td>
-                                        <td style="padding:17px 4px">
-                                            <input type="submit" id="loginSubmit" value="#{msg['ws.login.signin']}"
-                                                class="button-large button-secondary" />
-                                        </td>
-                                    </tr>
-                                </table>
-                            </form>
-                            <script>
-                                focusElement("loginName");
-                            </script>
+            <input type="hidden" id="OPENL_LOGIN_PAGE"/>
+
+            <table style="width: 100%">
+                <tr>
+                    <td style="height: 440px;">
+                        <div align="center">
+                            <!-- possible error messages -->
+                            <c:set var="error"
+                                   value="#{facesContext.externalContext.sessionMap.remove('SPRING_SECURITY_LAST_EXCEPTION')}"/>
+                            <c:if test="#{not empty error}">
+                                <c:choose>
+                                    <c:when test="#{error.getClass().simpleName == 'AuthenticationServiceException'}">
+                                        <p class="error">#{msg['ws.login.error']}</p>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <p class="error">#{msg['ws.login.wrong']}</p>
+                                    </c:otherwise>
+                                </c:choose>
+                            </c:if>
+                            <div>
+                                <!-- form itself -->
+                                <form action="#{contextPath}/security_login_check" method="post"
+                                      onsubmit="showLoader(); setSubmitUrl(this);">
+                                    <table id="loginForm" style="text-align: left;" cellpadding="4" cellspacing="0">
+                                        <tr>
+                                            <td align="right">
+                                                <label for="loginName">#{msg['ws.login.username']}: </label>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="username" id="loginName" style="width: 120px"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td align="right">
+                                                <label for="loginPassword">#{msg['ws.login.password']}: </label>
+                                            </td>
+                                            <td>
+                                                <input type="password" name="password" id="loginPassword"
+                                                       style="width: 120px"/>
+                                            </td>
+                                        </tr>
+                                        <c:if test="#{!param.noRemember}">
+                                            <tr>
+                                                <td align="right">
+                                                    <label for="rememberMe">#{msg['ws.login.remember']}</label>
+                                                </td>
+                                                <td>
+                                                    <input type="checkbox" class="transparency" name="rememberMe"
+                                                           id="rememberMe"
+                                                           style="margin-left:0"/>
+                                                </td>
+                                            </tr>
+                                        </c:if>
+                                        <tr>
+                                            <td colspan="2" style="border-bottom:1px solid #ddd; padding:0">&#160;</td>
+                                        </tr>
+                                        <tr>
+                                            <td>&#160;</td>
+                                            <td style="padding:17px 4px">
+                                                <input type="submit" id="loginSubmit" value="#{msg['ws.login.signin']}"
+                                                       class="button-large button-secondary"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </form>
+                                <script>
+                                    focusElement("loginName");
+                                </script>
+                            </div>
                         </div>
-                    </div>
-                </td>
-            </tr>
-        </table>
+                    </td>
+                </tr>
+            </table>
 
-        <script>
-            function setSubmitUrl(form){
-                if (location.href.indexOf("login.xhtml") == -1) {
-                    form.action += "?openl-redirect=" + location;
+            <script>
+                //<![CDATA[
+                function setSubmitUrl(form) {
+                    if (location.href.indexOf("login.xhtml") == -1) {
+                        form.action += "?openl-redirect=" + location;
+                    }
+                    return true;
                 }
-                return true;
-            }
-        </script>
 
+                //]]>
+            </script>
+
+        </f:view>
     </ui:define>
 </ui:composition>

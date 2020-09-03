@@ -1,8 +1,8 @@
 package org.openl.rules.ruleservice.databinding;
 
-import org.openl.rules.ruleservice.core.RuleServiceException;
+import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 
-public class ServiceConfigurationException extends RuleServiceException {
+public class ServiceConfigurationException extends RuleServiceRuntimeException {
 
     private static final long serialVersionUID = 1L;
 

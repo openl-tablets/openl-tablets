@@ -19,7 +19,7 @@ public class ProjectResolver {
     private static final ProjectResolver INSTANCE = new ProjectResolver();
     private final Logger log = LoggerFactory.getLogger(ProjectResolver.class);
 
-    public static ProjectResolver instance() {
+    public static ProjectResolver getInstance() {
         return INSTANCE;
     }
 
@@ -47,7 +47,7 @@ public class ProjectResolver {
     }
 
     public List<ProjectDescriptor> resolve(File... files) {
-        ArrayList<ProjectDescriptor> projectDescriptors = new ArrayList<>();
+        List<ProjectDescriptor> projectDescriptors = new ArrayList<>();
         for (File file : files) {
             try {
                 ProjectDescriptor project = resolve(file);

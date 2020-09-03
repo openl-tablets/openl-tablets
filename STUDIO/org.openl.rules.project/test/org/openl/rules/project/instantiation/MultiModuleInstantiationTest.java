@@ -22,7 +22,7 @@ public class MultiModuleInstantiationTest {
     public void test1() throws Exception {
 
         File root = new File("test-resources/multi-module-support/test1");
-        ProjectResolver projectResolver = ProjectResolver.instance();
+        ProjectResolver projectResolver = ProjectResolver.getInstance();
         List<ProjectDescriptor> projects = projectResolver.resolve(root.listFiles());
 
         List<Module> modules = new ArrayList<>();
@@ -52,7 +52,7 @@ public class MultiModuleInstantiationTest {
     }
 
     private List<ProjectDescriptor> listProjectsInFolder(File root) {
-        ProjectResolver projectResolver = ProjectResolver.instance();
+        ProjectResolver projectResolver = ProjectResolver.getInstance();
         return projectResolver.resolve(root.listFiles());
     }
 
@@ -123,7 +123,7 @@ public class MultiModuleInstantiationTest {
     public void test3() throws Exception {
 
         File root = new File("test-resources/multi-module-support/test3");
-        ProjectResolver projectResolver = ProjectResolver.instance();
+        ProjectResolver projectResolver = ProjectResolver.getInstance();
         List<ProjectDescriptor> projects = projectResolver.resolve(root.listFiles());
 
         List<Module> modules = new ArrayList<>();

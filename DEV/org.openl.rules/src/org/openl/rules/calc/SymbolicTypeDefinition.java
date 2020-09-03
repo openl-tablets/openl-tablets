@@ -6,15 +6,15 @@ public class SymbolicTypeDefinition {
 
     private IdentifierNode name;
     private IdentifierNode type;
-    private boolean withAsterisk;
-    private boolean withTilde;
+    private boolean asterisk;
+    private boolean tilde;
 
-    public SymbolicTypeDefinition(IdentifierNode name, IdentifierNode type, boolean withAsterisk, boolean withTilde) {
+    public SymbolicTypeDefinition(IdentifierNode name, IdentifierNode type, boolean asterisk, boolean tilde) {
         this.name = name;
         this.type = type;
-        this.withAsterisk = withAsterisk;
-        this.withTilde = withTilde;
-        if (withAsterisk && withTilde) {
+        this.asterisk = asterisk;
+        this.tilde = tilde;
+        if (asterisk && tilde) {
             throw new IllegalArgumentException("Only ~ or * can be used at the same time.");
         }
     }
@@ -27,11 +27,11 @@ public class SymbolicTypeDefinition {
         return type;
     }
 
-    public boolean isWithAsterisk() {
-        return withAsterisk;
+    public boolean isAsteriskPresented() {
+        return asterisk;
     }
 
-    public boolean isWithTilde() {
-        return withTilde;
+    public boolean isTildePresented() {
+        return tilde;
     }
 }

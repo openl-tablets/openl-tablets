@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?><!-- This file is for releasing OpenL version wIth maven-release-plugin -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
     <packaging>pom</packaging>
-    <version>5.23.2-SNAPSHOT</version>
+    <version>5.24.0-SNAPSHOT</version>
     <name>OpenL Tablets</name>
     <url>https://openl-tablets.org</url>
     <description>OpenL Tablets rules engine and related frameworks</description>
@@ -79,34 +80,41 @@
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
         <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl-pub</staging.hg.repo.url>
-        <org.springframework.version>5.2.4.RELEASE</org.springframework.version>
-        <org.springsecurity.version>5.2.2.RELEASE</org.springsecurity.version>
+        <org.springframework.version>5.2.8.RELEASE</org.springframework.version>
+        <org.springsecurity.version>5.3.4.RELEASE</org.springsecurity.version>
         <org.hibernate.version>5.2.18.Final</org.hibernate.version>
-        <org.mojarra.version>2.1.19</org.mojarra.version>
-        <asm.version>7.2</asm.version>
+        <org.mojarra.version>2.3.9</org.mojarra.version>
+        <asm.version>8.0.1</asm.version>
         <cglib.version>3.3.0</cglib.version>
         <kafka.version>2.4.0</kafka.version>
         <kafka-junit.version>2.4.0</kafka-junit.version>
         <cassandra.driver.version>4.3.1</cassandra.driver.version>
         <cassandra.unit.version>3.11.2.0</cassandra.unit.version>
         <cassandra.unit.driver.version>3.8.0</cassandra.unit.driver.version>
-        <org.richfaces.version>4.0.0.Final</org.richfaces.version>
-        <org.apache.cxf.version>3.3.5</org.apache.cxf.version>
+        <org.apache.cxf.version>3.3.7</org.apache.cxf.version>
+        <!-- if updated org.apache.cxf.version to version from org.apache.cxf -->
+        <jakarta.ws.rs-api.version>2.1.5</jakarta.ws.rs-api.version>
+        <io.swagger.core.v3.version>2.0.10</io.swagger.core.v3.version>
+        <log4j.version>2.13.3</log4j.version>
         <org.slf4j.version>1.7.30</org.slf4j.version>
         <org.apache.poi.version>4.1.2</org.apache.poi.version>
         <org.bouncycastle.version>1.62</org.bouncycastle.version>
-        <com.fasterxml.jackson.version>2.10.3</com.fasterxml.jackson.version>
+        <com.fasterxml.jackson.version>2.11.2</com.fasterxml.jackson.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
-        <jetty.server.version>9.4.27.v20200227</jetty.server.version>
+        <jetty.server.version>9.4.31.v20200723</jetty.server.version>
         <awaitility.version>3.1.6</awaitility.version>
-        <elasticsearch-cluster-runner.version>6.8.1.0</elasticsearch-cluster-runner.version>
+        <elasticsearch-cluster-runner.version>6.8.9.0</elasticsearch-cluster-runner.version>
+        <elasticsearch.version>6.8.12</elasticsearch.version>
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
-        <surefire.argLine>-Xms8m -Xmx41m</surefire.argLine>
-        <invoker.mavenOpts>-Xms16m -Xmx40m</invoker.mavenOpts>
-        <invoker.timeoutInSeconds>30</invoker.timeoutInSeconds>
+        <!-- 48MB Should be enough to don't fall in OutOfMemoryError. It equals to MaxNonGCSize=30MB + ~50%-->
+        <!-- 128MB allows do not worry about OutOfMemoryError. It equals to MaxNonGCSize=30MB + ~350% -->
+        <surefire.argLine>-Xms8m -Xmx128m</surefire.argLine>
+        <!-- Fine tuned settings to detects memory and performance issues -->
+        <surefire.argLine.perf>-Xms8m -Xmx41m</surefire.argLine.perf>
         <openl.home>${project.build.directory}/openl-test</openl.home>
+        <openl.info>main</openl.info>
     </properties>
 
     <modules>
@@ -117,6 +125,10 @@
         <module>DEMO/org.openl.rules.demo</module>
         <module>Util/openl-maven-plugin</module>
         <module>Util/openl-simple-project-archetype</module>
+        <module>Util/openl-project-archetype</module>
+        <module>Util/openl-openapi-model-scaffolding</module>
+        <module>Util/openl-openapi-parser</module>
+        <module>Util/openl-excel-builder</module>
     </modules>
     <distributionManagement>
         <repository>
@@ -155,7 +167,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-archetype-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>3.2.0</version>
                     <configuration>
                         <skip>true</skip>
                     </configuration>
@@ -183,7 +195,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>1.20</version>
+                    <version>2.0.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -193,7 +205,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.2.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -216,13 +228,14 @@
                     <configuration>
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
+                            <openl.info>${openl.info}</openl.info>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
-                    <version>3.2.3</version>
+                    <version>3.3.1</version>
                     <configuration>
                         <warSourceDirectory>webapp</warSourceDirectory>
                     </configuration>
@@ -230,7 +243,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>3.3.0</version>
                     <configuration>
                         <appendAssemblyId>false</appendAssemblyId>
                     </configuration>
@@ -238,12 +251,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-antrun-plugin</artifactId>
-                    <version>1.8</version>
+                    <version>3.0.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>3.2.0</version>
                     <configuration>
                         <skipIfEmpty>true</skipIfEmpty>
                         <archive>
@@ -259,7 +272,7 @@
                 <plugin>
                     <groupId>org.basepom.maven</groupId>
                     <artifactId>duplicate-finder-maven-plugin</artifactId>
-                    <version>1.3.0</version>
+                    <version>1.4.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -270,54 +283,21 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-invoker-plugin</artifactId>
                     <version>3.2.1</version>
-                    <configuration>
-                        <projectsDirectory>it</projectsDirectory>
-                        <pomIncludes>
-                            <pomInclude>*/pom.xml</pomInclude>
-                        </pomIncludes>
-                        <preBuildHookScript>setup</preBuildHookScript>
-                        <postBuildHookScript>verify</postBuildHookScript>
-                        <goals>
-                            <goal>clean</goal>
-                            <goal>verify</goal>
-                        </goals>
-                        <properties>
-                            <maven.compiler.source>${java.source.version}</maven.compiler.source>
-                            <maven.compiler.target>${java.target.version}</maven.compiler.target>
-                        </properties>
-                        <showErrors>true</showErrors>
-                        <!-- Estimated test's time should not take more than 10 sec on 4х CPU (2GHz) -->
-                        <!-- with limited amount of memory. It allows to detect memory leaks. -->
-                        <!-- Special cases should be defined in invoker.properties file. -->
-                        <!-- !!! Don't increase these parameters without special need !!! -->
-                        <timeoutInSeconds>${invoker.timeoutInSeconds}</timeoutInSeconds>
-                        <mavenOpts>${jacoco.argLine} ${invoker.mavenOpts}</mavenOpts>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.gmaven</groupId>
                     <artifactId>groovy-maven-plugin</artifactId>
-                    <version>2.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-pdf-plugin</artifactId>
-                    <version>1.4</version>
-                    <configuration>
-                        <siteDirectory>${basedir}/site</siteDirectory>
-                        <docDescriptor>${basedir}/site/pdf.xml</docDescriptor>
-                        <includeReports>false</includeReports>
-                    </configuration>
+                    <version>2.1.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.1.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.7.1</version>
+                    <version>3.9.1</version>
                     <configuration>
                         <siteDirectory>${basedir}/site</siteDirectory>
                     </configuration>
@@ -331,6 +311,10 @@
                             <systemProperty>
                                 <name>openl.home</name>
                                 <value>${project.build.directory}/openl-jetty</value>
+                            </systemProperty>
+                            <systemProperty>
+                                <name>openl.info</name>
+                                <value>${openl.info}</value>
                             </systemProperty>
                         </systemProperties>
                     </configuration>
@@ -390,6 +374,17 @@
             </modules>
         </profile>
         <profile>
+            <id>perf</id>
+            <activation>
+                <property>
+                    <name>!noPerf</name>
+                </property>
+            </activation>
+            <properties>
+                <surefire.argLine>${surefire.argLine.perf}</surefire.argLine>
+            </properties>
+        </profile>
+        <profile>
             <id>no-sonar</id>
             <activation>
                 <property>
@@ -398,7 +393,7 @@
             </activation>
             <properties>
                 <!-- Empty for building without JaCoCo agent -->
-                <jacoco.argLine />
+                <jacoco.argLine/>
                 <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
             </properties>
         </profile>
@@ -410,7 +405,7 @@
                 </property>
             </activation>
             <properties>
-                <sonar />
+                <sonar/>
                 <invoker.timeoutInSeconds>40</invoker.timeoutInSeconds>
             </properties>
             <build>
@@ -418,7 +413,7 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.4</version>
+                        <version>0.8.5</version>
                         <configuration>
                             <propertyName>jacoco.argLine</propertyName>
                             <includes>
@@ -482,7 +477,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.1.0</version>
+                        <version>3.2.1</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -495,7 +490,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.1.0</version>
+                        <version>3.2.0</version>
                         <configuration>
                             <!-- To skip invalid HTML4 tags -->
                             <!-- http://openjdk.java.net/jeps/172 -->
@@ -620,7 +615,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.12</version>
+                <version>4.13</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -658,7 +653,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.9</version>
+                <version>3.11</version>
             </dependency>
             <!-- The Apache Commons Collections package contains types that extend and augment the Java Collections Framework. -->
             <dependency>
@@ -675,14 +670,14 @@
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.13</version>
+                <version>1.14</version>
             </dependency>
             <!-- The Commons IO library contains utility classes, stream implementations, file filters,
             file comparators, endian transformation classes, and much more. -->
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.6</version>
+                <version>2.7</version>
             </dependency>
             <!-- Spring Framework -->
             <!-- Core utilities used by other modules. Define this if you use Spring
@@ -797,6 +792,10 @@
                 https://github.com/spring-projects/spring-security-saml/issues/144
                 updating the xml-tooling library gives an opportunity to use the higher version
                 of bouncy-castle
+
+                Why it is still old version, but not 1.0.10.RELEASE :
+                https://github.com/spring-projects/spring-security-saml/issues/237
+                https://github.com/spring-projects/spring-security-saml/pull/454
              -->
             <dependency>
                 <groupId>org.springframework.security.extensions</groupId>
@@ -852,16 +851,24 @@
                 <artifactId>javax.faces</artifactId>
                 <version>${org.mojarra.version}</version>
             </dependency>
-            <!-- RichFaces -->
             <dependency>
-                <groupId>org.richfaces.core</groupId>
-                <artifactId>richfaces-core-impl</artifactId>
-                <version>${org.richfaces.version}</version>
+                <groupId>javax.enterprise</groupId>
+                <artifactId>cdi-api</artifactId>
+                <version>2.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.el</groupId>
+                        <artifactId>javax.el-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
+            <!-- RichFaces -->
+            <!-- RichFaces reached end-of-life status with version 4.5.17.Final so vulnerabilities will not be fixed.
+            To fix that we use forked richfaces implementation until we stop using richfaces features. -->
             <dependency>
-                <groupId>org.richfaces.ui</groupId>
-                <artifactId>richfaces-components-ui</artifactId>
-                <version>${org.richfaces.version}</version>
+                <groupId>com.github.albfernandez.richfaces</groupId>
+                <artifactId>richfaces</artifactId>
+                <version>4.6.8.ayg</version>
             </dependency>
             <!-- Servlets -->
             <dependency>
@@ -885,12 +892,12 @@
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-slf4j-impl</artifactId>
-                <version>2.13.0</version>
+                <version>${log4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
-                <version>2.13.0</version>
+                <version>${log4j.version}</version>
             </dependency>
             <!-- The slf4j API -->
             <dependency>
@@ -940,7 +947,7 @@
             <dependency>
                 <groupId>com.helger</groupId>
                 <artifactId>jcodemodel</artifactId>
-                <version>3.2.3</version>
+                <version>3.4.0</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.annotation</groupId>
@@ -964,6 +971,11 @@
                         <artifactId>javax.annotation-api</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.ws.rs</groupId>
+                <artifactId>jakarta.ws.rs-api</artifactId>
+                <version>${jakarta.ws.rs-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
@@ -1014,23 +1026,28 @@
             <!-- CXF Runtime CORBA Binding -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-service-description-openapi-v3</artifactId>
+                <version>${org.apache.cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-rs-service-description-swagger</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>3.24.3</version>
+                <version>3.31.1</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-jaxrs</artifactId>
-                <version>1.6.0</version>
+                <version>1.6.2</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-annotations</artifactId>
-                <version>1.6.0</version>
+                <version>1.6.2</version>
             </dependency>
             <!-- Apache CXF Runtime CORBA Binding -->
             <dependency>
@@ -1044,19 +1061,9 @@
                 <version>2.7.18</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                <artifactId>jackson-jaxrs-json-provider</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-elasticsearch</artifactId>
-                <version>3.2.1.RELEASE</version>
+                <version>3.2.6.RELEASE</version>
                 <exclusions>
                     <!-- Elasticsearch rest template is used, no need in transport client -->
                     <exclusion>
@@ -1069,6 +1076,20 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <!-- Upgrade Elasticsearch using by spring-data-elasticsearch. -->
+            <!-- Reduce dependencies as spring-data-elasticsearch uses 6.8.8 -->
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-high-level-client</artifactId>
+                <version>${elasticsearch.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
             <dependency>
                 <groupId>org.codelibs</groupId>
                 <artifactId>elasticsearch-cluster-runner</artifactId>
@@ -1124,17 +1145,17 @@
             <dependency>
                 <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jakarta.xml.bind-api</artifactId>
-                <version>2.3.2</version>
+                <version>2.3.3</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.activation</groupId>
                 <artifactId>jakarta.activation-api</artifactId>
-                <version>1.2.1</version>
+                <version>1.2.2</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.istack</groupId>
                 <artifactId>istack-commons-runtime</artifactId>
-                <version>3.0.8</version>
+                <version>3.0.11</version>
             </dependency>
             <!-- Full jar with all schemas. It's a replacement for poi-ooxml-schemas jar when the full schema is needed -->
             <dependency>
@@ -1146,7 +1167,7 @@
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.11.1</version>
+                <version>1.4.12</version>
             </dependency>
             <!-- graph-theory data structures and algorithms. -->
             <dependency>
@@ -1158,23 +1179,18 @@
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.10.2</version>
+                <version>2.10.6</version>
             </dependency>
             <!-- standards-based cache for boosting performance -->
             <dependency>
-                <groupId>org.ehcache</groupId>
-                <artifactId>ehcache</artifactId>
-                <version>3.8.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jaxb-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.activation</groupId>
-                        <artifactId>javax.activation-api</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>javax.cache</groupId>
+                <artifactId>cache-api</artifactId>
+                <version>1.1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.cache2k</groupId>
+                <artifactId>cache2k-jcache</artifactId>
+                <version>1.2.4.Final</version>
             </dependency>
             <!-- Java library which deep-clones objects. -->
             <dependency>
@@ -1196,12 +1212,12 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-s3</artifactId>
-                <version>1.11.744</version>
+                <version>1.11.785</version>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-core</artifactId>
-                <version>1.11.744</version>
+                <version>1.11.785</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -1212,7 +1228,7 @@
             <dependency>
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit</artifactId>
-                <version>5.7.0.202003110725-r</version>
+                <version>5.8.1.202007141445-r</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -1238,20 +1254,18 @@
                 <artifactId>bcpg-jdk15on</artifactId>
                 <version>${org.bouncycastle.version}</version>
             </dependency>
-
-            <!-- httpclient is required for aws-java-sdk-core and jgit, so we must synchronize it's version for both libraries.
-                    But jgit since version 5.1.0 doesn't have dependency on httpclient. Remove explicit dependency
-                    on httpclient when upgrade jgit to the latest version. -->
+            <!-- httpclient is required for aws-java-sdk-core and elasticsearch,
+                 so we must synchronize it's version for both libraries. -->
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.5.9</version>
+                <version>4.5.12</version>
             </dependency>
             <!-- HikariCP - A high-performance JDBC connection pool. -->
             <dependency>
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
-                <version>3.4.2</version>
+                <version>3.4.5</version>
             </dependency>
             <!-- Microsoft JDBC Driver for SQL Server -->
             <dependency>
@@ -1312,6 +1326,12 @@
                 </exclusions>
             </dependency>
             <dependency>
+                <!-- Transitive from hibernate-core -->
+                <groupId>org.dom4j</groupId>
+                <artifactId>dom4j</artifactId>
+                <version>2.1.3</version>
+            </dependency>
+            <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
                 <version>${com.fasterxml.jackson.version}</version>
@@ -1324,6 +1344,11 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
+                <version>${com.fasterxml.jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                <artifactId>jackson-jaxrs-json-provider</artifactId>
                 <version>${com.fasterxml.jackson.version}</version>
             </dependency>
             <dependency>
@@ -1355,6 +1380,40 @@
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>1.26</version>
+            </dependency>
+            <!-- OpenAPI -->
+            <dependency>
+                <groupId>io.swagger.parser.v3</groupId>
+                <artifactId>swagger-parser</artifactId>
+                <version>2.0.15</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.httpcomponents</groupId>
+                        <artifactId>httpclient</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.mail</groupId>
+                        <artifactId>mailapi</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>jakarta.validation</groupId>
+                        <artifactId>jakarta.validation-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>jaxb-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-jaxrs2</artifactId>
+                <version>${io.swagger.core.v3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${io.swagger.core.v3.version}</version>
             </dependency>
             <!--Activity -->
             <dependency>
@@ -1392,11 +1451,6 @@
                 <version>${kafka.version}</version>
             </dependency>
             <!-- Kafka -->
-            <dependency>
-                <groupId>com.github.sps.junidecode</groupId>
-                <artifactId>junidecode</artifactId>
-                <version>0.3</version>
-            </dependency>
             <!-- dependencies to annotations for maven-plugin-plugin -->
             <dependency>
                 <groupId>org.apache.maven.plugin-tools</groupId>
@@ -1534,6 +1588,16 @@
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.project.validation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.project.validation.openapi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.webstudio</artifactId>
                 <type>war</type>
                 <scope>runtime</scope>
@@ -1559,6 +1623,11 @@
                 <artifactId>org.openl.rules.jackson.configuration</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.test</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- WSFrontend -->
             <dependency>
                 <groupId>org.openl.rules</groupId>
@@ -1568,6 +1637,16 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.annotation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.ws.common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -1642,6 +1721,21 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-maven-plugin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-openapi-model-scaffolding</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-openapi-parser</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-excel-builder</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

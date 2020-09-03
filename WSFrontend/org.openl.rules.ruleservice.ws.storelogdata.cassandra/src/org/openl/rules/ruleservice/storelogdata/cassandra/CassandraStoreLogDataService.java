@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public class CassandraStoreLogDataService implements StoreLogDataService {
 
-    private final Logger log = LoggerFactory.getLogger(CassandraStoreLogDataService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CassandraStoreLogDataService.class);
 
     private CassandraOperations cassandraOperations;
 
@@ -60,17 +60,19 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
             entities = new Object[storeLogDataToCassandraAnnotation.value().length];
             int i = 0;
             for (Class<?> entityClass : storeLogDataToCassandraAnnotation.value()) {
-                if (StoreLogDataToCassandra.DEFAULT.class.equals(entityClass)) {
+                if (StoreLogDataToCassandra.DEFAULT.class == entityClass) {
                     entities[i] = new DefaultCassandraEntity();
                 } else {
                     try {
                         entities[i] = entityClass.newInstance();
                     } catch (InstantiationException | IllegalAccessException e) {
-                        if (log.isErrorEnabled()) {
-                            log.error(String.format(
-                                "Failed to instantiate cassandra entity%s. Please, check that class '%s' is not abstract and has a default constructor.",
-                                serviceMethod != null ? " for method '" + MethodUtil
-                                    .printQualifiedMethodName(serviceMethod) + "'" : StringUtils.EMPTY,
+                        if (LOG.isErrorEnabled()) {
+                            LOG.error(String.format(
+                                "Failed to instantiate cassandra entity%s. " +
+                                "Please, check that class '%s' is not abstract and has a default constructor.",
+                                serviceMethod != null
+                                        ? (" for method '" + MethodUtil.printQualifiedMethodName(serviceMethod) + "'")
+                                        : StringUtils.EMPTY,
                                 entityClass.getTypeName()), e);
                         }
                         return;
@@ -83,13 +85,13 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
             try {
                 storeLogDataMapper.map(storeLogData, entity);
             } catch (Exception e) {
-                if (log.isErrorEnabled()) {
+                if (LOG.isErrorEnabled()) {
                     if (serviceMethod != null) {
-                        log.error(String.format("Failed to map '%s' cassandra entity for method '%s'.",
+                        LOG.error(String.format("Failed to map '%s' cassandra entity for method '%s'.",
                             entity.getClass().getTypeName(),
                             MethodUtil.printQualifiedMethodName(serviceMethod)), e);
                     } else {
-                        log.error(
+                        LOG.error(
                             String.format("Failed to map '%s' cassandra entity.", entity.getClass().getTypeName()),
                             e);
                     }
@@ -103,7 +105,7 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
                     cassandraOperations.save(entity);
                 } catch (Exception e) {
                     // Continue the loop if exception occurs
-                    log.error("Failed on cassandra entity save operation.", e);
+                    LOG.error("Failed on cassandra entity save operation.", e);
                 }
             }
         }

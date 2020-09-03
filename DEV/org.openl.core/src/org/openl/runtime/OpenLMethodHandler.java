@@ -11,8 +11,8 @@ import org.openl.vm.SimpleVM;
 
 public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMember>, IEngineWrapper {
 
-    private Object openlInstance;
-    private Map<Method, IOpenMember> methodMap;
+    private final Object openlInstance;
+    private final Map<Method, IOpenMember> methodMap;
 
     public OpenLMethodHandler(Object openlInstance, Map<Method, IOpenMember> methodMap) {
         this.openlInstance = openlInstance;
@@ -34,7 +34,7 @@ public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMemb
         return methodMap.get(key);
     }
 
-    private ThreadLocal<IRuntimeEnv> env = ThreadLocal.withInitial(this::makeRuntimeEnv);
+    private final ThreadLocal<IRuntimeEnv> env = ThreadLocal.withInitial(this::makeRuntimeEnv);
 
     public IRuntimeEnv makeRuntimeEnv() {
         return new SimpleVM().getRuntimeEnv();
@@ -72,10 +72,10 @@ public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMemb
 
     @Override
     public Object invoke(Method method, Object[] args) throws Exception {
-        if (IEngineWrapper.class.equals(method.getDeclaringClass())) {
+        if (IEngineWrapper.class == method.getDeclaringClass()) {
             return method.invoke(this, args);
         }
-        if (Object.class.equals(method.getDeclaringClass())) {
+        if (Object.class == method.getDeclaringClass()) {
             return method.invoke(this, args);
         } else {
             IOpenMember member = methodMap.get(method);

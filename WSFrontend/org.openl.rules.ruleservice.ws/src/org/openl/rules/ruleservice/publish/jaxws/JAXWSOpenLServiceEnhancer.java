@@ -51,8 +51,8 @@ public final class JAXWSOpenLServiceEnhancer {
     private class JAXWSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$JAXWSAnnotated";
 
-        private Class<?> originalClass;
-        private OpenLService service;
+        private final Class<?> originalClass;
+        private final OpenLService service;
 
         private Map<Method, String> operationNames = null;
 
@@ -70,13 +70,7 @@ public final class JAXWSOpenLServiceEnhancer {
                 String superName,
                 String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces);
-            boolean requiredWebServiceAnnotation = true;
-            for (Annotation annotation : originalClass.getAnnotations()) {
-                if (annotation.annotationType().equals(WebService.class)) {
-                    requiredWebServiceAnnotation = false;
-                    break;
-                }
-            }
+            boolean requiredWebServiceAnnotation = !originalClass.isAnnotationPresent(WebService.class);
             if (requiredWebServiceAnnotation) {
                 AnnotationVisitor annotationVisitor = this.visitAnnotation(Type.getDescriptor(WebService.class), true);
                 if (service != null) {
@@ -128,13 +122,16 @@ public final class JAXWSOpenLServiceEnhancer {
                     // for
                     // generated
                     // interfaces
-                    String[] parameterNames = MethodUtils.getParameterNames(originalMethod, service);
+                    String[] parameterNames = MethodUtils.getParameterNames(service.getOpenClass(),
+                        originalMethod,
+                        service.isProvideRuntimeContext(),
+                        service.isProvideVariations());
                     int i = 0;
                     for (String paramName : parameterNames) {
                         Annotation[] annotations = originalMethod.getParameterAnnotations()[i];
                         boolean found = false;
                         for (Annotation ann : annotations) {
-                            if (ann.annotationType().equals(WebParam.class)) {
+                            if (ann instanceof WebParam) {
                                 found = true;
                                 break;
                             }
@@ -235,7 +232,7 @@ public final class JAXWSOpenLServiceEnhancer {
                 methodMap.put(targetMethod, method);
             } catch (NoSuchMethodException ex) {
                 throw new RulesInstantiationException(String.format(
-                    "Failed to find corresponding method in original class for method '%s' in service '%s'",
+                    "Failed to find corresponding method in original class for method '%s' in service '%s'.",
                     MethodUtil.printMethod(method.getName(), method.getParameterTypes()),
                     service.getName()));
             }

@@ -1,0 +1,143 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "models file",
+    "version": "1.0.0"
+  },
+  "components": {
+    "schemas": {
+      "Building": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int64",
+            "description": "the height in millimeters",
+            "default": 12345678910,
+            "minimum": 0
+          },
+          "opening_date": {
+            "type": "string",
+            "format": "date",
+            "description": "the opening date",
+            "default": "2005-08-09"
+          },
+          "last_incident_date_time": {
+            "type": "string",
+            "format": "date-time",
+            "description": "the time of the last incident",
+            "default": "2017-07-21T17:32:28Z"
+          },
+          "coefficient": {
+            "type": "number",
+            "format": "float",
+            "default": "0.1"
+          }
+        }
+      },
+      "Dog": {
+        "type": "object",
+        "properties": {
+          "height": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "huntingSkill": {
+            "type": "string",
+            "description": "The measured skill for hunting",
+            "default": "lazy",
+            "enum": [
+              "clueless",
+              "lazy",
+              "adventurous",
+              "aggressive"
+            ]
+          },
+          "packSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "the size of the pack the dog is from",
+            "default": 0,
+            "minimum": 0
+          },
+          "owner":{
+            "$ref": "#/components1/schemas/Building"
+          }
+        }
+      }
+    }
+  },
+  "components1": {
+    "schemas": {
+      "Building": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int64",
+            "description": "the height in millimeters",
+            "default": 12345678910,
+            "minimum": 0
+          },
+          "opening_date": {
+            "type": "string",
+            "format": "date",
+            "description": "the opening date",
+            "default": "2005-08-09"
+          },
+          "last_incident_date_time": {
+            "type": "string",
+            "format": "date-time",
+            "description": "the time of the last incident",
+            "default": "2017-07-21T17:32:28Z"
+          },
+          "coefficient": {
+            "type": "number",
+            "format": "float",
+            "default": "0.1"
+          }
+        }
+      },
+      "Dog": {
+        "type": "object",
+        "properties": {
+          "height": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "huntingSkill": {
+            "type": "string",
+            "description": "The measured skill for hunting",
+            "default": "lazy",
+            "enum": [
+              "clueless",
+              "lazy",
+              "adventurous",
+              "aggressive"
+            ]
+          },
+          "packSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "the size of the pack the dog is from",
+            "default": 0,
+            "minimum": 0
+          },
+          "owner":{
+            "$ref": "#/components/schemas/Building"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+  }
+}

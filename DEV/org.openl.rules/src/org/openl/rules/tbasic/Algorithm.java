@@ -98,12 +98,12 @@ public class Algorithm extends AlgorithmFunction {
     }
 
     public Collection<AlgorithmSubroutineMethod> getSubroutines() {
-        IOpenClass thisClass = getThisClass();
-        if (thisClass == null) {
+        IOpenClass thisIOpenClass = getThisClass();
+        if (thisIOpenClass == null) {
             return Collections.emptyList();
         }
         List<AlgorithmSubroutineMethod> subroutines = new ArrayList<>();
-        for (IOpenMethod method : thisClass.getMethods()) {
+        for (IOpenMethod method : thisIOpenClass.getMethods()) {
             if (method instanceof AlgorithmSubroutineMethod) {
                 subroutines.add((AlgorithmSubroutineMethod) method);
             }

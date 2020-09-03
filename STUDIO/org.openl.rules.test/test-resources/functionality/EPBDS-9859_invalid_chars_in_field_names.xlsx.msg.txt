@@ -1,0 +1,21 @@
+ERROR: Bad field name: 'array²'.
+ERROR: Bad field name: 'array² :context'.
+ERROR: Bad field name: 'array² :context .lob'.
+ERROR: Bad field name: '0array'.
+ERROR: Bad field name: '0array :context'.
+ERROR: Bad field name: '0array :context .lob'.
+ERROR: Bad field name: 'array[]'.
+ERROR: Bad field name: 'array[] :context'.
+ERROR: Bad field name: 'array[] :context .lob'.
+ERROR: Bad field name: 'array^'.
+ERROR: Bad field name: 'array^ :context'.
+ERROR: Bad field name: 'array^ :context .lob'.
+ERROR: Property '_array' is not found in the context. Available properties: [caProvince, caRegion, country, currency, currentDate, lang, lob, nature, region, requestDate, usRegion, usState].
+ERROR: Property '$array' is not found in the context. Available properties: [caProvince, caRegion, country, currency, currentDate, lang, lob, nature, region, requestDate, usRegion, usState].
+ERROR: Property 'массив' is not found in the context. Available properties: [caProvince, caRegion, country, currency, currentDate, lang, lob, nature, region, requestDate, usRegion, usState].
+ERROR: Property 'массив2' is not found in the context. Available properties: [caProvince, caRegion, country, currency, currentDate, lang, lob, nature, region, requestDate, usRegion, usState].
+ERROR: Bad context property name: '_array :context .0type'.
+ERROR: Bad context property name: '$array :context .type*'.
+ERROR: Bad context property name: 'массив :context .'.
+ERROR: Type mismatch for context property 'lob'. Cannot convert from 'Массив' to 'java.lang.String'.
+ERROR: Bad context property name: 'array* :context'.

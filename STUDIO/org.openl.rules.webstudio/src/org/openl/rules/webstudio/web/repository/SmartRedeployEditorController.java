@@ -1,47 +1,46 @@
 package org.openl.rules.webstudio.web.repository;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * @author Aleh Bykhavets
  */
-@ManagedBean
-@SessionScoped
+@Service
+@SessionScope
 public class SmartRedeployEditorController extends AbstractSmartRedeployController {
+    private static final Logger LOG = LoggerFactory.getLogger(SmartRedeployEditorController.class);
+    private String repositoryId;
 
-    private boolean loading = true;
+    public void setRepositoryId(String repositoryId) {
+        this.repositoryId = repositoryId;
+    }
 
     public void setProject(String projectName) {
         try {
+            String repoId = repositoryId;
             reset();
-            currentProject = userWorkspace.getProject(projectName);
-            loading = false;
-        } catch (ProjectException e) {
-            log.warn("Failed to retrieve the project", e);
-        }
-    }
+            currentProject = userWorkspace.getProject(repoId, projectName);
 
-    public AProject getCurrentProject() {
-        return currentProject;
+            repositoryId = null;
+        } catch (ProjectException e) {
+            LOG.warn("Failed to retrieve the project", e);
+        }
     }
 
     public void reset() {
         setRepositoryConfigName(null);
         items = null;
+        repositoryId = null;
         currentProject = null;
-        loading = true;
-    }
-
-    public boolean isLoading() {
-        return loading;
     }
 
     @Override
     public AProject getSelectedProject() {
-        return getCurrentProject();
+        return currentProject;
     }
 }

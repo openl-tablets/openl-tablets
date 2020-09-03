@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.OpenL;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLWarnMessage;
@@ -26,7 +25,7 @@ public class DimensionPropertiesValidator extends TablesValidator {
     private static final String VALIDATION_FAILED = "Validation failed for dispatcher table";
 
     @Override
-    public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
+    public ValidationResult validateTables(TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
 
         // FIXME: currently validation of dispatcher tables is disabled
         // because of "match by default" case(when context value == null

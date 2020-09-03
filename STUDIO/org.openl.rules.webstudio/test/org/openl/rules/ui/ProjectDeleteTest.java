@@ -80,7 +80,7 @@ public class ProjectDeleteTest {
     }
 
     private List<Module> getModules() throws ProjectResolvingException {
-        return ProjectResolver.instance().resolve(projectFolder).getModules();
+        return ProjectResolver.getInstance().resolve(projectFolder).getModules();
     }
 
 }

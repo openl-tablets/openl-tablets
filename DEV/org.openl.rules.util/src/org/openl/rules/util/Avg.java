@@ -25,12 +25,12 @@ public final class Avg {
             @Override
             public void processNonNull(T value) {
                 double doubleValue = value.doubleValue();
-                result = result == null ? doubleValue : result + doubleValue;
+                result = result == null ? doubleValue : (result + doubleValue);
             }
 
             @Override
             public Double result() {
-                return result == null ? null : result / counter;
+                return result == null ? null : (result / counter);
             }
         });
     }
@@ -47,7 +47,7 @@ public final class Avg {
 
             @Override
             public Float result() {
-                return result == null ? null : result / counter;
+                return result == null ? null : (result / counter);
             }
         });
     }

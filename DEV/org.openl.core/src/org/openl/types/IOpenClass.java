@@ -7,7 +7,6 @@
 package org.openl.types;
 
 import java.util.Collection;
-import java.util.Map;
 
 import org.openl.binding.IOpenLibrary;
 import org.openl.binding.exception.AmbiguousVarException;
@@ -29,14 +28,14 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
 
     IOpenClass[] EMPTY = {};
 
-    Map<String, IOpenField> getFields();
+    Collection<IOpenField> getFields();
 
     /**
      * Returns public fields declared in this class.
      *
      * @return map of fields declared in this class.
      */
-    Map<String, IOpenField> getDeclaredFields();
+    Collection<IOpenField> getDeclaredFields();
 
     IAggregateInfo getAggregateInfo();
 
@@ -142,7 +141,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
     /**
      * We do not have a limitation on number of superclasses. This feature is not fully supported yet
      */
-    Iterable<IOpenClass> superClasses();
+    Collection<IOpenClass> superClasses();
 
     /**
      * Add new type to internal types list. If the type with the same name already exists exception will be thrown.

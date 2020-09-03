@@ -81,7 +81,7 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
         return null;
     }
 
-    private Object[] asObjects(int[] columnScores) {
+    private static Object[] asObjects(int[] columnScores) {
         Object[] objects = new Object[columnScores.length];
         for (int i = 0; i < columnScores.length; i++) {
             objects[i] = columnScores[i];

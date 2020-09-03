@@ -1,12 +1,10 @@
 package org.openl.rules.project;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -20,6 +18,7 @@ import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.validation.ValidationException;
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 
 public class ProjectDescriptorManagerTest {
 
@@ -32,7 +31,7 @@ public class ProjectDescriptorManagerTest {
         assertEquals("Project name", descriptor.getName());
         assertEquals("comment", descriptor.getComment());
         assertEquals(2, descriptor.getModules().size());
-        assertEquals("%lob%", descriptor.getPropertiesFileNamePattern());
+        assertArrayEquals(new String[] {"%lob%"}, descriptor.getPropertiesFileNamePatterns());
         assertEquals("default.DefaultPropertiesFileNameProcessor", descriptor.getPropertiesFileNameProcessor());
         Module module1 = descriptor.getModules().get(0);
         assertEquals("MyModule1", module1.getName());
@@ -85,6 +84,24 @@ public class ProjectDescriptorManagerTest {
         manager.readDescriptor("test-resources/descriptor/rules3.xml");
     }
 
+    @Test
+    public void testIsCoveredByWildcardModule() throws IOException {
+        ProjectDescriptorManager manager = new ProjectDescriptorManager();
+        XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
+        final ProjectDescriptor descriptor = serializer.deserialize(new FileInputStream("test-resources/descriptor/rules-wildcard.xml"));
+
+        Module newModule = new Module();
+        newModule.setName("New Module");
+        newModule.setRulesRootPath(new PathEntry("rules/New Module.xlsx"));
+        assertTrue(manager.isCoveredByWildcardModule(descriptor, newModule));
+
+        newModule.setRulesRootPath(new PathEntry("rules\\New Module.xlsx"));
+        assertTrue(manager.isCoveredByWildcardModule(descriptor, newModule));
+
+        newModule.setRulesRootPath(new PathEntry("New Module.xlsx"));
+        assertFalse(manager.isCoveredByWildcardModule(descriptor, newModule));
+    }
+
     @SuppressWarnings("deprecation")
     @Test
     public void testWriteDescriptor1() throws IOException, ValidationException {
@@ -93,7 +110,7 @@ public class ProjectDescriptorManagerTest {
         descriptor.setId("id1"); // As far as id was deprecated, it should not be saved to xml.
         descriptor.setName("name1");
         descriptor.setComment("comment1");
-        descriptor.setPropertiesFileNamePattern("{lob}");
+        descriptor.setPropertiesFileNamePatterns(new String[]{"{lob}"});
         descriptor.setPropertiesFileNameProcessor("default.DefaultPropertiesFileNameProcessor");
 
         List<ProjectDependencyDescriptor> dependencies = new ArrayList<>();
@@ -163,7 +180,7 @@ public class ProjectDescriptorManagerTest {
         ProjectDescriptor projectDescriptor = projectDescriptorManager
             .readDescriptor("./test-resources/descriptor/rules-clspth.xml");
         URL[] classPathUrls = projectDescriptor.getClassPathUrls();
-        assertEquals(9, classPathUrls.length);
+        assertEquals(10, classPathUrls.length);
 
     }
 }

@@ -37,7 +37,7 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
         createMainModule();
 
         WebStudio ws = mock(WebStudio.class);
-        when(ws.getProjectResolver()).thenReturn(ProjectResolver.instance());
+        when(ws.getProjectResolver()).thenReturn(ProjectResolver.getInstance());
         when(ws.isChangeableModuleMode()).thenReturn(true);
 
         pm = new ProjectModel(ws);
@@ -50,7 +50,7 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
     }
 
     @Test
-    public void testTypesAndTestMethodsCount() throws Exception {
+    public void testTypesAndTestMethodsCount() {
         assertEquals(singleModuleMode, pm.isSingleModuleMode());
         assertTrue(pm.getCompiledOpenClass().hasErrors());
 

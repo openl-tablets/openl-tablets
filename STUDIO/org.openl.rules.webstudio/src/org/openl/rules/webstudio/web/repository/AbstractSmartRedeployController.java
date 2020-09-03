@@ -11,64 +11,68 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.faces.bean.ManagedProperty;
-
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.Deployment;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
+import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
 
 import com.thoughtworks.xstream.XStreamException;
 
 public abstract class AbstractSmartRedeployController {
 
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractSmartRedeployController.class);
 
     /**
      * A controller which contains pre-built UI object tree.
      */
-    @ManagedProperty(value = "#{repositoryTreeState}")
+    @Autowired
     RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{productionRepositoriesTreeController}")
+    @Autowired
     private ProductionRepositoriesTreeController productionRepositoriesTreeController;
 
-    @ManagedProperty(value = "#{deploymentManager}")
+    @Autowired
     private DeploymentManager deploymentManager;
 
-    @ManagedProperty(value = "#{projectVersionCacheManager}")
+    @Autowired
     private ProjectVersionCacheManager projectVersionCacheManager;
 
-    @ManagedProperty("#{projectDescriptorArtefactResolver}")
+    @Autowired
     private volatile ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
-    @ManagedProperty(value = "#{deployConfigRepositoryComments}")
+    @Autowired
+    @Qualifier("deployConfigRepositoryComments")
     private Comments deployConfigRepoComments;
 
-    @ManagedProperty(value = "#{environment}")
+    @Autowired
     private PropertyResolver propertyResolver;
 
-    @ManagedProperty(value = "#{rulesUserSession.userWorkspace}")
-    volatile UserWorkspace userWorkspace;
+    volatile UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
 
     List<DeploymentProjectItem> items;
 
@@ -82,7 +86,10 @@ public abstract class AbstractSmartRedeployController {
 
     public synchronized List<DeploymentProjectItem> getItems() {
         AProject project = getSelectedProject();
-        if (project == null || project != currentProject || isSupportsBranches() && project.getVersion() == null) {
+        if (project == null
+                || currentProject == null
+                || (project != currentProject && !project.getName().equals(currentProject.getName()))
+                || (isSupportsBranches() && project.getLastHistoryVersion() == null)) {
             reset();
             return null;
         }
@@ -94,12 +101,12 @@ public abstract class AbstractSmartRedeployController {
     }
 
     public synchronized boolean isProjectHasSelectedItems() {
-        List<DeploymentProjectItem> items = getItems();
-        if (items == null) {
+        List<DeploymentProjectItem> itemList = getItems();
+        if (itemList == null) {
             return false;
         }
 
-        for (DeploymentProjectItem item : items) {
+        for (DeploymentProjectItem item : itemList) {
             if (item.isSelected()) {
                 return true;
             }
@@ -108,8 +115,8 @@ public abstract class AbstractSmartRedeployController {
         return false;
     }
 
-    private String getLastDeployedVersion(AProject wsProject, String deployConfigName) throws IOException {
-        Repository deployRepo = null;
+    private AProject getDeployedProject(AProject wsProject, String deployConfigName) throws IOException {
+        Repository deployRepo;
         try {
             deployRepo = deploymentManager.getDeployRepository(repositoryConfigName);
         } catch (RRepositoryException e) {
@@ -119,18 +126,17 @@ public abstract class AbstractSmartRedeployController {
 
         if (deployRepo.supports().folders()) {
             folderStructure = !((FolderRepository) deployRepo)
-                .listFolders(deploymentManager.repositoryFactoryProxy.getDeploymentsPath(repositoryConfigName) + "/")
+                .listFolders(deploymentManager.repositoryFactoryProxy.getBasePath(repositoryConfigName) + "/")
                 .isEmpty();
         } else {
             folderStructure = false;
         }
         Deployment deployment = new Deployment(deployRepo,
-            deploymentManager.repositoryFactoryProxy.getDeploymentsPath(repositoryConfigName) + deployConfigName,
+            deploymentManager.repositoryFactoryProxy.getBasePath(repositoryConfigName) + deployConfigName,
             wsProject.getName(),
             null,
             folderStructure);
-        AProject deployedProject = deployment.getProject(wsProject.getName());
-        return deployedProject != null ? projectVersionCacheManager.getDeployedProjectVersion(deployedProject) : null;
+        return deployment.getProject(wsProject.getName());
     }
 
     private List<DeploymentProjectItem> getItems4Project(AProject project, String repositoryConfigName) {
@@ -140,6 +146,7 @@ public abstract class AbstractSmartRedeployController {
         if (userWorkspace == null) {
             return result; // must never happen
         }
+        String dateTimeFormat = WebStudioFormats.getInstance().dateTime();
         // get all deployment projects
         List<TreeNode> nodes = repositoryTreeState.getDeploymentRepository().getChildNodes();
         for (TreeNode node : nodes) {
@@ -184,10 +191,14 @@ public abstract class AbstractSmartRedeployController {
             checker.addProjects(latestDeploymentVersion);
 
             String lastDeployedVersion = "";
+            AProject deployedProject = null;
             try {
                 String name = getSelectedProject().getName();
-                lastDeployedVersion = getLastDeployedVersion(project, name);
+                deployedProject = getDeployedProject(project, name);
+                lastDeployedVersion = deployedProject != null ? projectVersionCacheManager
+                    .getDeployedProjectVersion(deployedProject) : null;
             } catch (IOException e) {
+                LOG.debug("Error occurred: ", e);
                 item.setMessages("Internal error while reading project cache.");
             }
 
@@ -233,19 +244,46 @@ public abstract class AbstractSmartRedeployController {
                     // overwrite settings
                     checker.addProject(project);
                     if (checker.check()) {
-                        String to = RepositoryTreeController.getDescriptiveVersion(project.getVersion());
-                        String from = "undefined";
-                        if (lastDeployedVersion != null) {
-                            from = RepositoryTreeController
-                                .getDescriptiveVersion(userWorkspace.getDesignTimeRepository()
-                                    .getProject(projectDescriptor.getProjectName(),
-                                        new CommonVersionImpl(lastDeployedVersion))
-                                    .getVersion());
+                        String to = Utils.getDescriptiveVersion(project.getVersion(),
+                            dateTimeFormat);
+                        if (deployedProject == null) {
+                            item.setMessages("Can be deployed");
+                        } else if (lastDeployedVersion == null) {
+                            if (projectVersionCacheManager.isCacheCalculated()) {
+                                item.setMessages(
+                                    "Can be updated to '" + to
+                                        + "' and then deployed. Deployed version not defined"
+                                );
+                            } else {
+                                item.setMessages(
+                                    "Can be updated to " + to
+                                        + " and then deployed. Deployed version is being defined"
+                                );
+                            }
+                        } else {
+                            String repositoryId = projectDescriptor.getRepositoryId();
+                            if (repositoryId == null) {
+                                repositoryId = userWorkspace.getDesignTimeRepository().getRepositories().get(0).getId();
+                            }
+                            ProjectVersion version = userWorkspace.getDesignTimeRepository()
+                                .getProject(repositoryId, projectDescriptor.getProjectName(),
+                                    new CommonVersionImpl(lastDeployedVersion))
+                                .getVersion();
+
+                            if (version.getVersionInfo() == null) {
+                                item.setMessages(
+                                    "Can be updated to '" + to + "' and then deployed. Deployed version not defined");
+                            } else {
+                                String from = Utils.getDescriptiveVersion(version, dateTimeFormat);
+                                item.setMessages(
+                                    "Can be updated to '" + to + "' from '" + from + "' and then deployed");
+                            }
                         }
-                        item.setMessages("Can be updated to '" + to + "' from '" + from + "' and then deployed");
                     } else {
                         item.setMessages(
-                            "Project version will be updated. Dependent projects should be added to deploy configuration.");
+                            "Project version will be updated. " +
+                                    "Dependent projects should be added to deploy configuration."
+                        );
                         item.setStyleForMessages(UiConst.STYLE_ERROR);
                         item.setCanDeploy(false);
                     }
@@ -265,17 +303,19 @@ public abstract class AbstractSmartRedeployController {
                     item.setMessages("Create deploy configuration and deploy");
                 } else {
                     item.setMessages(
-                        "Create deploy configuration. You should add dependent projects to created deploy configuration after that.");
+                        "Create deploy configuration. " +
+                                "You should add dependent projects to created deploy configuration after that."
+                    );
                     item.setStyleForMessages(UiConst.STYLE_ERROR);
                     item.setCanDeploy(false);
                 }
             } catch (ProjectException e) {
-                log.error(e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
                 item.setDisabled(true);
                 item.setMessages("Internal error while reading the project from repository.");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
             } catch (XStreamException e) {
-                log.error(e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
                 item.setDisabled(true);
                 item.setMessages("Project descriptor is invalid.");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
@@ -305,8 +345,8 @@ public abstract class AbstractSmartRedeployController {
 
         List<ADeploymentProject> toDeploy = new LinkedList<>();
         // update selected deployment projects
-        List<DeploymentProjectItem> items = getItems();
-        for (DeploymentProjectItem item : items) {
+        List<DeploymentProjectItem> projectItems = getItems();
+        for (DeploymentProjectItem item : projectItems) {
             if (!item.isSelected()) {
                 continue;
             }
@@ -332,7 +372,7 @@ public abstract class AbstractSmartRedeployController {
             } catch (Exception e) {
                 String msg = String
                     .format("Failed to deploy '%s' to repository '%s'", project.getName(), repositoryName);
-                log.error(msg, e);
+                LOG.error(msg, e);
                 WebStudioUtils.addErrorMessage(msg, e.getMessage());
             }
         }
@@ -380,12 +420,9 @@ public abstract class AbstractSmartRedeployController {
                 return null; // must never happen
             }
 
-            if (deploymentName.equals(project.getName())) {
-                // the same name
-                if (!userWorkspace.hasDDProject(deploymentName)) {
-                    // create if absent
-                    deployConfiguration = userWorkspace.createDDProject(deploymentName);
-                }
+            if (deploymentName.equals(project.getName()) && !userWorkspace.hasDDProject(deploymentName)) {
+                // the same name, than create if absent
+                deployConfiguration = userWorkspace.createDDProject(deploymentName);
             }
 
             boolean create;
@@ -409,7 +446,15 @@ public abstract class AbstractSmartRedeployController {
             } else {
                 deployConfiguration.open();
                 // rewrite project->version
-                deployConfiguration.addProjectDescriptor(project.getName(), project.getVersion());
+                String branch = project instanceof RulesProject
+                        ? ((RulesProject) project).getBranch()
+                        : null;
+                deployConfiguration.addProjectDescriptor(
+                        project.getRepository().getId(),
+                        project.getName(),
+                        branch,
+                        project.getVersion()
+                );
 
                 String comment;
                 if (create) {
@@ -428,7 +473,7 @@ public abstract class AbstractSmartRedeployController {
             }
         } catch (ProjectException e) {
             String msg = "Failed to update deploy configuration '" + deploymentName + "'";
-            log.error(msg, e);
+            LOG.error(msg, e);
             WebStudioUtils.addErrorMessage(msg);
         }
 
@@ -467,11 +512,11 @@ public abstract class AbstractSmartRedeployController {
     }
 
     public boolean isSelectAll4SmartRedeploy() {
-        List<DeploymentProjectItem> items = getItems();
+        List<DeploymentProjectItem> projectItems = getItems();
 
         boolean hasSelectedItem = false;
 
-        for (DeploymentProjectItem item : items) {
+        for (DeploymentProjectItem item : projectItems) {
             if (!item.isDisabled() && !item.isSelected()) {
                 return false;
             }
@@ -484,9 +529,9 @@ public abstract class AbstractSmartRedeployController {
     }
 
     public void setSelectAll4SmartRedeploy(boolean newState) {
-        List<DeploymentProjectItem> items = getItems();
+        List<DeploymentProjectItem> projectItems = getItems();
 
-        for (DeploymentProjectItem item : items) {
+        for (DeploymentProjectItem item : projectItems) {
             if (!item.isDisabled()) {
                 item.setSelected(newState);
             }
@@ -507,9 +552,15 @@ public abstract class AbstractSmartRedeployController {
      */
     public boolean isSupportsBranches() {
         try {
-            return userWorkspace.getDesignTimeRepository().getRepository().supports().branches();
+            if (currentProject == null) {
+                return false;
+            }
+            return userWorkspace.getDesignTimeRepository()
+                .getRepository(currentProject.getRepository().getId())
+                .supports()
+                .branches();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
         return false;
     }

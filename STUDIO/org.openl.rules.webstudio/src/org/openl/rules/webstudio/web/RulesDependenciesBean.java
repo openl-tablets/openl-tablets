@@ -4,21 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
 import org.openl.rules.dependency.graph.DirectedEdge;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.impl.ExecutableMethod;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * @author Andrei Astrouski
  */
-@ManagedBean
-@RequestScoped
+@Service
+@RequestScope
 public class RulesDependenciesBean {
 
     public DependencyRulesGraph getDependencyGraph() {

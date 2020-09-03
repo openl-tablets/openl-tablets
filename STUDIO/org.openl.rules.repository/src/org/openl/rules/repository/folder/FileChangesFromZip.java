@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FileChangesFromZip implements Iterable<FileItem> {
-    private final Logger log = LoggerFactory.getLogger(FileChangesFromZip.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FileChangesFromZip.class);
     private final ZipInputStream stream;
     private final String folderTo;
 
@@ -31,7 +31,7 @@ public class FileChangesFromZip implements Iterable<FileItem> {
                         entry = stream.getNextEntry();
                     } while (entry != null && entry.isDirectory());
                 } catch (IOException e) {
-                    log.error(e.getMessage(), e);
+                    LOG.error(e.getMessage(), e);
                     entry = null;
                 }
 

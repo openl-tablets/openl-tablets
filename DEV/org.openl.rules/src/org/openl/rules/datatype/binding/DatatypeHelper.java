@@ -85,7 +85,7 @@ public class DatatypeHelper {
             table.getCell(DEFAULTS_COLUMN, FIELD_NAME_COLUMN));
     }
 
-    public static boolean isDefault(ICell cell) {
+    private static boolean isDefault(ICell cell) {
         // Type name and field name cannot be blank or start with number but default value can.
         String value = cell.getStringValue();
         if (StringUtils.isBlank(value)) {
@@ -97,7 +97,7 @@ public class DatatypeHelper {
 
     }
 
-    public static int countTypes(ILogicalTable table, OpenL openl, IBindingContext cxt) {
+    private static int countTypes(ILogicalTable table, OpenL openl, IBindingContext cxt) {
 
         int height = table.getHeight();
         int count = 1; // The first cell is always type name, there is no need to check it. Start from the second one.
@@ -121,32 +121,6 @@ public class DatatypeHelper {
         GridCellSourceCodeModule source = new GridCellSourceCodeModule(table.getSource(), bindingContext);
 
         return OpenLManager.makeType(openl, source, bindingContext);
-    }
-
-    /**
-     * TODO: This method should be generic for the TableSyntaxNode and return the type of the table e.g.
-     * TableSyntaxNode.getTableReturnType()
-     */
-    public static String getDatatypeName(TableSyntaxNode tsn) throws OpenLCompilationException {
-
-        if (XlsNodeTypes.XLS_DATATYPE.equals(tsn.getNodeType())) {
-            IOpenSourceCodeModule src = tsn.getHeader().getModule();
-
-            IdentifierNode[] parsedHeader = tokenizeHeader(src);
-
-            return parsedHeader[DatatypeNodeBinder.TYPE_INDEX].getIdentifier();
-        }
-
-        return null;
-    }
-
-    public static IdentifierNode[] tokenizeHeader(IOpenSourceCodeModule tableHeader) throws OpenLCompilationException {
-        IdentifierNode[] parsedHeader = Tokenizer.tokenize(tableHeader, " \n\r");
-        if (parsedHeader.length < 2) {
-            String message = "Datatype table format: Datatype <typename>";
-            throw SyntaxNodeExceptionUtils.createError(message, null, null, tableHeader);
-        }
-        return parsedHeader;
     }
 
 }

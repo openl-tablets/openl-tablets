@@ -25,18 +25,15 @@ public class H2CacheDB {
             throw new IOException(e);
         }
         try {
-            Connection dbConnection = DriverManager
-                .getConnection(DB_CONNECTION + openLHome + CACHE_FOLDER + cacheName, "", "");
-            return dbConnection;
+            return DriverManager
+                .getConnection(DB_CONNECTION + openLHome + CACHE_FOLDER + cacheName + ";DB_CLOSE_DELAY=8");
         } catch (SQLException e) {
             throw new IOException(e);
         }
     }
 
     public void setOpenLHome(String openLHome) {
-        if (!openLHome.startsWith("./") && !openLHome.contains(":")) {
-            openLHome = "./" + openLHome;
-        }
         this.openLHome = openLHome;
     }
+
 }

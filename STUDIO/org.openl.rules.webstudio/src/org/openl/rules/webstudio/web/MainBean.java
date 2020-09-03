@@ -2,13 +2,9 @@ package org.openl.rules.webstudio.web;
 
 import java.util.UUID;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
-import org.openl.rules.common.CommonException;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FileData;
@@ -23,41 +19,33 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean providing logic for Main page.
  */
-@ManagedBean
-@RequestScoped
+@Service
+@RequestScope
 public class MainBean {
 
-    @ManagedProperty(value = "#{repositoryTreeState}")
-    private RepositoryTreeState repositoryTreeState;
+    private final RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{designRepositoryComments}")
-    private Comments designRepoComments;
-
-    private CommentValidator commentValidator;
+    private final PropertyResolver propertyResolver;
 
     private String requestId;
 
     private final Logger log = LoggerFactory.getLogger(MainBean.class);
 
-    public MainBean() {
+    public MainBean(RepositoryTreeState repositoryTreeState, PropertyResolver propertyResolver) {
         if (WebContext.getContextPath() == null) {
             WebContext.setContextPath(WebStudioUtils.getExternalContext().getRequestContextPath());
         }
         requestId = UUID.randomUUID().toString();
 
-        commentValidator = CommentValidator.forDesignRepo();
-    }
-
-    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
-    }
-
-    public void setDesignRepoComments(Comments designRepoComments) {
-        this.designRepoComments = designRepoComments;
+        this.propertyResolver = propertyResolver;
     }
 
     /**
@@ -71,23 +59,29 @@ public class MainBean {
     public void init() {
         WebStudio studio = WebStudioUtils.getWebStudio(true);
 
+        String repositoryId = WebStudioUtils.getRequestParameter("repositoryId");
         String branchName = WebStudioUtils.getRequestParameter("branch");
         String projectName = WebStudioUtils.getRequestParameter("project");
         String moduleName = WebStudioUtils.getRequestParameter("module");
 
-        studio.init(branchName, projectName, moduleName);
+        studio.init(repositoryId, branchName, projectName, moduleName);
     }
 
     public String getVersionComment() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         RulesProject project = studio.getCurrentProject();
 
-        if (project != null && project.isOpenedOtherVersion()) {
+        if (project == null || project.getDesignRepository() == null) {
+            return null;
+        }
+        Comments designRepoComments = new Comments(propertyResolver, project.getDesignRepository().getId());
+
+        if (project.isOpenedOtherVersion()) {
             FileData fileData = project.getFileData();
             return designRepoComments.restoredFrom(fileData.getVersion(), fileData.getAuthor(), fileData.getModifiedAt());
         }
 
-        return designRepoComments.saveProject(project == null ? "" : project.getName());
+        return designRepoComments.saveProject(project.getName());
     }
 
     public void setVersionComment(String comment) {
@@ -104,7 +98,10 @@ public class MainBean {
     public void commentValidator(FacesContext context, UIComponent toValidate, Object value) {
         String comment = (String) value;
 
-        commentValidator.validate(comment);
+        RulesProject project = WebStudioUtils.getWebStudio().getCurrentProject();
+        if (project != null && project.getDesignRepository() != null) {
+            CommentValidator.forRepo(project.getDesignRepository().getId()).validate(comment);
+        }
     }
 
     public void saveProject() {
@@ -113,11 +110,6 @@ public class MainBean {
     }
 
     public void reload() {
-        try {
-            WebStudioUtils.getRulesUserSession(WebStudioUtils.getSession()).getUserWorkspace().refresh();
-        } catch (CommonException e) {
-            log.error("Error on reloading user's workspace", e);
-        }
         repositoryTreeState.invalidateTree();
         repositoryTreeState.invalidateSelection();
         WebStudioUtils.getWebStudio().resetProjects();

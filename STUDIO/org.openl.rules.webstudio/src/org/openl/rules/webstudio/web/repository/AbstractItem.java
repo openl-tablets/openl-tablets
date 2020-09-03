@@ -8,7 +8,6 @@ import java.io.Serializable;
  *
  */
 public abstract class AbstractItem implements Serializable, Comparable<AbstractItem> {
-    private static final long serialVersionUID = -6017864869385004280L;
 
     /** Boolean flag. If this entry is currently 'selected'. */
     private boolean selected;

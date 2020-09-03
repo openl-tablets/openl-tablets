@@ -1,7 +1,7 @@
 package org.openl.source;
 
+import java.io.File;
 import java.util.List;
-import java.util.SortedMap;
 
 /**
  * @author Andrei Astrouski
@@ -12,14 +12,10 @@ public interface SourceHistoryManager<T> {
 
     void save(T source);
 
-    void restore(long version) throws Exception;
+    void restore(String version) throws Exception;
 
-    T get(long version);
+    T get(String version);
 
-    T getPrev(long version);
-
-    List<T> get(long... versions);
-
-    List<T> get(String... names);
+    void init(File sourceFile);
 
 }

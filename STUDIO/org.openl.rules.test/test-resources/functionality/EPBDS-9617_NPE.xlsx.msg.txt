@@ -1,0 +1,5 @@
+ERROR: Type 'TypeB' is not found.
+ERROR: Type 'TypeA' is defined with errors.
+ERROR: Type 'TypeA' is defined with errors.
+ERROR: Type 'TypeA' is defined with errors.
+ERROR: Cannot parse cell value: [3] to the necessary type

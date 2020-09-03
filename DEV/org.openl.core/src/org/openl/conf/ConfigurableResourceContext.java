@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 public class ConfigurableResourceContext implements IConfigurableResourceContext {
 
-    private final Logger log = LoggerFactory.getLogger(ConfigurableResourceContext.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigurableResourceContext.class);
 
     private static final String[] DEFAULT_FILESYSTEM_ROOTS = { ".", "" };
 
@@ -59,7 +59,7 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
         try {
             return getClassLoader().loadClass(className);
         } catch (Throwable t) {
-            log.debug("Cannot load class '{}'", className, t);
+            LOG.debug("Cannot load class '{}'", className, t);
             return null;
         }
     }

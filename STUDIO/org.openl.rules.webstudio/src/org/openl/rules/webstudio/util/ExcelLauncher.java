@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public class ExcelLauncher {
     private static final int LOCK_DETECT_TIMEOUT = 20000;
 
-    private Logger log = LoggerFactory.getLogger(ExcelLauncher.class);
+    private static Logger LOG = LoggerFactory.getLogger(ExcelLauncher.class);
 
     private String scriptPath;
 
@@ -38,7 +38,7 @@ public class ExcelLauncher {
     }
 
     public void launch() throws Exception {
-        if (range == null || range.equals("null")) {
+        if (range == null || "null".equals(range)) {
             range = "A1";
         }
 
@@ -107,7 +107,7 @@ public class ExcelLauncher {
                 try {
                     excelLaunchProcess.exitValue();
                 } catch (IllegalThreadStateException e) {
-                    log.error("ExcelLauncher is locked. Allow GUI interaction for service.");
+                    LOG.error("ExcelLauncher is locked. Allow GUI interaction for service.");
                     excelLaunchProcess.destroy();
                 }
             } catch (InterruptedException e) {

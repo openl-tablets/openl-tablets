@@ -11,5 +11,7 @@ package org.openl.types;
  *
  */
 public interface IOpenMethod extends IOpenMethodHeader, IMethodCaller {
+    IOpenMethod[] EMPTY_ARRAY = new IOpenMethod[0];
+
     boolean isConstructor();
 }

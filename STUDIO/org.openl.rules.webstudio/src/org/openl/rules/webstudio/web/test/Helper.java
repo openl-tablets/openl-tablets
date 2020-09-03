@@ -1,20 +1,17 @@
 package org.openl.rules.webstudio.web.test;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.ui.Explanator;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
+import org.springframework.stereotype.Service;
 
 /**
  * A helper class which contains utility methods.
  */
-@ManagedBean
-@RequestScoped
+@Service
 public final class Helper {
 
     public Helper() {

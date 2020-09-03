@@ -1,59 +1,33 @@
 package org.openl.rules.webstudio.web;
 
-/**
- * @author Andrei Astrouski
- */
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.openl.rules.webstudio.WebStudioFormats;
+
 public class ProjectHistoryItem {
 
-    private long version;
-    private String modifiedOn;
-    private String sourceName;
-    private boolean disabled;
-    private boolean current;
+    private final String version;
+    private final String modifiedOn;
 
-    public ProjectHistoryItem(long version, String modifiedOn, String sourceName) {
+    public ProjectHistoryItem(String version) {
         this.version = version;
-        this.modifiedOn = modifiedOn;
-        this.sourceName = sourceName;
+        SimpleDateFormat formatter = new SimpleDateFormat(WebStudioFormats.getInstance().dateTime());
+        String format;
+        try {
+            long time = Long.parseLong(version);
+            format = formatter.format(new Date(time));
+        } catch (NumberFormatException e) {
+            format = version;
+        }
+        this.modifiedOn = format;
     }
 
-    public long getVersion() {
+    public String getVersion() {
         return version;
-    }
-
-    public void setVersion(long version) {
-        this.version = version;
     }
 
     public String getModifiedOn() {
         return modifiedOn;
-    }
-
-    public void setModifiedOn(String modifiedOn) {
-        this.modifiedOn = modifiedOn;
-    }
-
-    public String getSourceName() {
-        return sourceName;
-    }
-
-    public void setSourceName(String sourceName) {
-        this.sourceName = sourceName;
-    }
-
-    public boolean isDisabled() {
-        return disabled;
-    }
-
-    public void setDisabled(boolean disabled) {
-        this.disabled = disabled;
-    }
-
-    public boolean isCurrent() {
-        return current;
-    }
-
-    public void setCurrent(boolean current) {
-        this.current = current;
     }
 }

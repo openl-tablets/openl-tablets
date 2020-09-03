@@ -1,0 +1,119 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:tns="http://DefaultNamespace" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="EPBDS-10118_EPBDS-10118"
+                  targetNamespace="http://DefaultNamespace">
+    <wsdl:types>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://cxf.apache.org/arrays"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://cxf.apache.org/arrays">
+            <xsd:complexType name="ArrayOfAnyType">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="anyType" type="xsd:anyType"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="ArrayOfArrayOfAnyType">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfAnyType" type="tns:ArrayOfAnyType"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://DefaultNamespace"
+                    xmlns:ns0="http://beans.generated.openl.org" attributeFormDefault="qualified"
+                    elementFormDefault="qualified" targetNamespace="http://DefaultNamespace">
+            <xsd:import namespace="http://beans.generated.openl.org"/>
+            <xsd:complexType name="ArrayOfString">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="string" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="someRule" type="tns:someRule"/>
+            <xsd:complexType name="someRule">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="a" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="someRuleResponse" type="tns:someRuleResponse"/>
+            <xsd:complexType name="someRuleResponse">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" type="ns0:Benefit"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://beans.generated.openl.org"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://beans.generated.openl.org">
+            <xsd:complexType name="SubBenefit">
+                <xsd:complexContent>
+                    <xsd:extension base="tns:Benefit">
+                        <xsd:sequence>
+                            <xsd:element minOccurs="0" name="fieldThree" type="xsd:string"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+            <xsd:complexType name="Benefit">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="fieldOne" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="fieldTwo" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://itest.openl.org"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://itest.openl.org">
+            <xsd:complexType name="Error">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="message" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://calc.rules.openl.org"
+                    xmlns:ns1="http://cxf.apache.org/arrays" xmlns:ns0="http://DefaultNamespace"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://calc.rules.openl.org">
+            <xsd:import namespace="http://DefaultNamespace"/>
+            <xsd:import namespace="http://cxf.apache.org/arrays"/>
+            <xsd:complexType name="SpreadsheetResult">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="columnNames" type="ns0:ArrayOfString"/>
+                    <xsd:element minOccurs="0" name="results" type="ns1:ArrayOfArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="rowNames" type="ns0:ArrayOfString"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+    </wsdl:types>
+    <wsdl:message name="someRuleResponse">
+        <wsdl:part element="tns:someRuleResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="someRule">
+        <wsdl:part element="tns:someRule" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:portType name="EPBDS-10118_EPBDS-10118PortType">
+        <wsdl:operation name="someRule">
+            <wsdl:input message="tns:someRule" name="someRule">
+            </wsdl:input>
+            <wsdl:output message="tns:someRuleResponse" name="someRuleResponse">
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="EPBDS-10118_EPBDS-10118SoapBinding" type="tns:EPBDS-10118_EPBDS-10118PortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="someRule">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="someRule">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="someRuleResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="EPBDS-10118_EPBDS-10118">
+        <wsdl:port binding="tns:EPBDS-10118_EPBDS-10118SoapBinding" name="EPBDS-10118_EPBDS-10118PortType">
+            <soap:address location="http://localhost:#####/EPBDS-10118/EPBDS-10118"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

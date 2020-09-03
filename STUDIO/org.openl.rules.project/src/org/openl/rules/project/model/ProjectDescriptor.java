@@ -2,34 +2,35 @@ package org.openl.rules.project.model;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
 
 public class ProjectDescriptor {
-    private final Logger log = LoggerFactory.getLogger(ProjectDescriptor.class);
-
     private String id;
     private String name;
     private String comment;
     private File projectFolder;
     private List<Module> modules = Collections.emptyList();
     private List<PathEntry> classpath;
-    private List<Property> properties;
 
     private List<ProjectDependencyDescriptor> dependencies;
-    private String propertiesFileNamePattern;
+    private String[] propertiesFileNamePatterns;
     private String propertiesFileNameProcessor;
 
-    public String getPropertiesFileNamePattern() {
-        return propertiesFileNamePattern;
+    public String[] getPropertiesFileNamePatterns() {
+        return propertiesFileNamePatterns;
     }
 
-    public void setPropertiesFileNamePattern(String propertiesFileNamePattern) {
-        this.propertiesFileNamePattern = propertiesFileNamePattern;
+    public void setPropertiesFileNamePatterns(String[] propertiesFileNamePatterns) {
+        this.propertiesFileNamePatterns = propertiesFileNamePatterns;
     }
 
     public String getPropertiesFileNameProcessor() {
@@ -105,33 +106,40 @@ public class ProjectDescriptor {
     }
 
     public URL[] getClassPathUrls() {
-        if (classpath == null) {
+        if (projectFolder == null) {
             return new URL[] {};
         }
         URL projectUrl;
         try {
-            projectUrl = projectFolder.toURI().toURL();
+            projectUrl = projectFolder.toURI().normalize().toURL();
         } catch (MalformedURLException e) {
-            log.error("Bad URL for the project folder '{}'", projectFolder, e);
             return new URL[] {};
         }
-        Set<String> classpaths = processClasspathPathPatterns();
-        ArrayList<URL> urls = new ArrayList<>(classpaths.size());
-
-        for (String clspth : classpaths) {
+        if (classpath == null) {
+            return new URL[] { projectUrl };
+        }
+        List<URL> urls = new ArrayList<>();
+        urls.add(projectUrl);
+        for (String path : processClasspathPathPatterns()) {
             URL url;
             try {
-                // absolute
-                url = new URL(clspth);
-            } catch (MalformedURLException e1) {
+                url = new URL(path).toURI().normalize().toURL();
+            } catch (URISyntaxException | MalformedURLException e1) {
                 try {
-                    url = new URL(projectUrl, clspth);
-                } catch (MalformedURLException e2) {
-                    log.error("Bad URL in classpath '{}'", clspth, e2);
+                    url = new URL(projectUrl, path).toURI().normalize().toURL();
+                } catch (URISyntaxException | MalformedURLException e2) {
                     continue;
                 }
             }
-            urls.add(url);
+            boolean f = false;
+            for (URL url1 : urls) {
+                if (url1.sameFile(url)) {
+                    f = true;
+                }
+            }
+            if (!f) {
+                urls.add(url);
+            }
         }
         return urls.toArray(new URL[0]);
     }
@@ -180,13 +188,5 @@ public class ProjectDescriptor {
                 }
             }
         }
-    }
-
-    public List<Property> getProperties() {
-        return properties;
-    }
-
-    public void setProperties(List<Property> properties) {
-        this.properties = properties;
     }
 }

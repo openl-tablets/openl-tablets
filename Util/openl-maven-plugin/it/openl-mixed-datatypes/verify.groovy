@@ -1,7 +1,5 @@
 try {
     assert new File(basedir, 'target/generated-sources/openl/com/example/Service.java').exists()
-    assert new File(basedir, 'target/generated-sources/openl/com/example/beans/openl/Auto.java').exists()
-    assert new File(basedir, 'target/generated-sources/openl/com/example/beans/openl/Person.java').exists()
 
     assert new File(basedir, 'target/classes/com/example/Service.class').exists()
     assert new File(basedir, 'target/classes/com/example/beans/Address.class').exists()

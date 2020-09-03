@@ -2,15 +2,11 @@ package org.openl.itest.core;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.regex.Pattern;
+import java.net.URL;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -18,18 +14,13 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.w3c.dom.Node;
-import org.xmlunit.builder.DiffBuilder;
-import org.xmlunit.diff.ComparisonResult;
-import org.xmlunit.diff.DefaultNodeMatcher;
-import org.xmlunit.diff.Difference;
-import org.xmlunit.diff.DifferenceEvaluator;
-import org.xmlunit.diff.DifferenceEvaluators;
-import org.xmlunit.diff.ElementSelectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,21 +34,31 @@ public class HttpClient {
 
     private static final String ANY_BODY = "F0gupfmZFkK0RaK1NbnV";
     private static final String NO_BODY = "JhSC9dXQ1dkqZ7qHP1qZ";
-
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private RestTemplate rest;
+    private final RestTemplate rest;
+    private final URL baseURL;
 
-    private HttpClient(RestTemplate rest) {
+    private HttpClient(RestTemplate rest, URL baseURL) {
         this.rest = rest;
+        this.baseURL = baseURL;
     }
 
-    static HttpClient create(String baseURI) {
-        RestTemplate rest = new RestTemplate();
+    static HttpClient create(URL url) {
+        RestTemplate rest = new RestTemplate(getClientHttpFactory());
 
-        rest.setUriTemplateHandler(new DefaultUriBuilderFactory(baseURI));
+        rest.setUriTemplateHandler(new DefaultUriBuilderFactory(url.toExternalForm()));
         rest.setErrorHandler(NO_ERROR_HANDLER);
-        return new HttpClient(rest);
+        return new HttpClient(rest, url);
+    }
+
+    private static ClientHttpRequestFactory getClientHttpFactory() {
+        SimpleClientHttpRequestFactory httpRequestFactory = new SimpleClientHttpRequestFactory();
+        int connectTimeout = Integer.parseInt(System.getProperty("http.timeout.connect"));
+        int readTimeout = Integer.parseInt(System.getProperty("http.timeout.read"));
+        httpRequestFactory.setConnectTimeout(connectTimeout);
+        httpRequestFactory.setReadTimeout(readTimeout);
+        return httpRequestFactory;
     }
 
     private static final ResponseErrorHandler NO_ERROR_HANDLER = new ResponseErrorHandler() {
@@ -110,10 +111,6 @@ public class HttpClient {
         return headers;
     }
 
-    public void get(String url) {
-        send(HttpMethod.GET, url, null, 200, ANY_BODY);
-    }
-
     public void get(String url, String responseFile) {
         send(HttpMethod.GET, url, null, 200, responseFile);
     }
@@ -162,6 +159,10 @@ public class HttpClient {
         send(HttpMethod.DELETE, url, null, 200, NO_BODY);
     }
 
+    public void delete(String url, int status) {
+        send(HttpMethod.DELETE, url, null, status, NO_BODY);
+    }
+
     private <T> T request(HttpMethod method, String url, String requestFile, int status, Class<T> clazz) {
         ResponseEntity<T> response = rest.exchange(url, method, file(requestFile, null), clazz);
         assertEquals("URL :" + url, status, response.getStatusCodeValue());
@@ -172,21 +173,40 @@ public class HttpClient {
         ResponseEntity<Resource> response = rest.exchange(url, method, file(requestFile, responseFile), Resource.class);
         assertEquals("URL :" + url, status, response.getStatusCodeValue());
         Resource body = response.getBody();
-        switch (responseFile.substring(responseFile.lastIndexOf('.') + 1)) {
-            case NO_BODY:
-                assertNull("Expected empty body for URL :" + url, body);
-                break;
-            case ANY_BODY:
-                // Skip checcking of a response body
-                break;
-            case "xml":
-                compareXML(responseFile, body);
-                break;
-            case "json":
-                compareJson(responseFile, body);
-                break;
-            default:
-                compareBinary(responseFile, body);
+        try {
+            switch (responseFile.substring(responseFile.lastIndexOf('.') + 1)) {
+                case NO_BODY:
+                    assertNull("Expected empty body for URL :" + url, body);
+                    break;
+                case ANY_BODY:
+                    // Skip checcking of a response body
+                    break;
+                case "xml":
+
+                    try (InputStream actual = body.getInputStream();
+                            InputStream file = HttpClient.class.getResourceAsStream(responseFile)) {
+                        Comparators.xml("File: [" + responseFile + "]", file, actual);
+                    }
+                    break;
+                case "json":
+                    compareJson(responseFile, body);
+                    break;
+                default:
+                    compareBinary(responseFile, body);
+            }
+        } catch (Exception | AssertionError ex) {
+            if (body != null) {
+                try (InputStream actual = body.getInputStream()) {
+                    byte[] bytes = StreamUtils.copyToByteArray(actual);
+                    HttpData.log(responseFile,
+                        response.getStatusCode().toString(),
+                        response.getHeaders().toSingleValueMap(),
+                        bytes);
+                } catch (Exception ignored) {
+                    // Ignored
+                }
+            }
+            throw new RuntimeException(ex);
         }
     }
 
@@ -211,108 +231,34 @@ public class HttpClient {
         }
     }
 
-    private void compareXML(String responseFile, Resource body) {
-
+    private static void compareJson(String responseFile, Resource body) {
         try (InputStream actual = body.getInputStream();
-                InputStream file = getClass().getResourceAsStream(responseFile)) {
-            DifferenceEvaluator evaluator = DifferenceEvaluators.chain(DifferenceEvaluators.Default, matchByPattern());
-            Iterator<Difference> differences = DiffBuilder.compare(file)
-                .withTest(actual)
-                .ignoreWhitespace()
-                .checkForSimilar()
-                .withNodeMatcher(
-                    new DefaultNodeMatcher(ElementSelectors.byNameAndAllAttributes, ElementSelectors.byName))
-                .withDifferenceEvaluator(evaluator)
-                .build()
-                .getDifferences()
-                .iterator();
-            if (differences.hasNext()) {
-                fail("File: [" + responseFile + "]\n" + differences.next());
-            }
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    private DifferenceEvaluator matchByPattern() {
-        return (comparison, outcome) -> {
-            if (outcome == ComparisonResult.DIFFERENT) {
-                Node control = comparison.getControlDetails().getTarget();
-                Node test = comparison.getTestDetails().getTarget();
-                if (control != null && test != null) {
-                    String controlValue = control.getNodeValue();
-                    String testValue = test.getNodeValue();
-                    if (controlValue != null && testValue != null) {
-                        String regExp = controlValue.replaceAll("\\\\", "\\\\\\\\")
-                            .replaceAll("\\s+", " ")
-                            .replaceAll("#+", "\\\\d+")
-                            .replaceAll("@+", "[@\\\\w]+")
-                            .replaceAll("\\*+", "[^\uFFFF]*");
-                        String noSpaces = testValue.replaceAll("\\s+", " ");
-                        boolean matches = noSpaces
-                            .equals(regExp) || Pattern.compile(regExp).matcher(noSpaces).matches();
-                        if (matches) {
-                            return ComparisonResult.SIMILAR;
-                        }
-                    }
-                }
-
-                return outcome;
-            }
-            return outcome;
-        };
-    }
-
-    private void compareJson(String responseFile, Resource body) {
-        try (InputStream actual = body.getInputStream();
-                InputStream file = getClass().getResourceAsStream(responseFile)) {
-            JsonNode actualNode = OBJECT_MAPPER.readTree(actual);
+                InputStream file = HttpClient.class.getResourceAsStream(responseFile)) {
             if (file == null) {
                 throw new FileNotFoundException(String.format("File '%s' is not found.", responseFile));
             }
+            JsonNode actualNode = OBJECT_MAPPER.readTree(actual);
             JsonNode expectedNode = OBJECT_MAPPER.readTree(file);
-            compareJsonObjects(expectedNode, actualNode, "");
+            Comparators.compareJsonObjects(expectedNode, actualNode, "");
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
     }
 
-    private void compareJsonObjects(JsonNode expectedJson, JsonNode actualJson, String path) {
-        if (Objects.equals(expectedJson, actualJson)) {
-            return;
-        }
-        if (expectedJson == null || actualJson == null) {
-            failDiff(expectedJson, actualJson, path);
-        } else if (expectedJson.isTextual()) {
-            // try to compare by a pattern
-            String regExp = expectedJson.asText()
-                .replaceAll("\\[", "\\\\[")
-                .replaceAll("]", "\\\\]")
-                .replaceAll("#+", "[#\\\\d]+")
-                .replaceAll("@+", "[@\\\\w]+")
-                .replaceAll("\\*+", "[^\uFFFF]*");
-            String actualText = actualJson.isTextual() ? actualJson.asText() : actualJson.toString();
-            if (!Pattern.compile(regExp).matcher(actualText).matches()) {
-                failDiff(expectedJson, actualJson, path);
-            }
-        } else if (expectedJson.isArray() && actualJson.isArray()) {
-            for (int i = 0; i < expectedJson.size() || i < actualJson.size(); i++) {
-                compareJsonObjects(expectedJson.get(i), actualJson.get(i), path + "[" + i + "]");
-            }
-        } else if (expectedJson.isObject() && actualJson.isObject()) {
-            LinkedHashSet<String> names = new LinkedHashSet<>();
-            expectedJson.fieldNames().forEachRemaining(names::add);
-            actualJson.fieldNames().forEachRemaining(names::add);
-
-            for (String name : names) {
-                compareJsonObjects(expectedJson.get(name), actualJson.get(name), path + " > " + name);
-            }
-        } else {
-            failDiff(expectedJson, actualJson, path);
-        }
+    public void send(String reqRespFiles) {
+        send("/" + reqRespFiles + ".req", "/" + reqRespFiles + ".resp");
     }
 
-    private static void failDiff(JsonNode expectedJson, JsonNode actualJson, String path) {
-        assertEquals("Path: \\" + path, expectedJson, actualJson);
+    public void send(String requestFile, String responseFile) {
+        try {
+            HttpData header = HttpData.send(baseURL, requestFile);
+
+            HttpData respHeader = HttpData.readFile(responseFile);
+
+            header.assertTo(respHeader);
+
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }

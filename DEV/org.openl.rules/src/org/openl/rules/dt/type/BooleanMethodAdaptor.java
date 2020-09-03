@@ -4,6 +4,7 @@ import org.openl.types.IOpenMethod;
 
 public class BooleanMethodAdaptor extends BooleanTypeAdaptor {
 
+    private static final Object[] NO_PARAMS = new Object[0];
     private IOpenMethod method;
 
     public BooleanMethodAdaptor(IOpenMethod method) {
@@ -12,7 +13,7 @@ public class BooleanMethodAdaptor extends BooleanTypeAdaptor {
 
     @Override
     public boolean extractBooleanValue(Object target) {
-        return (Boolean) method.invoke(target, new Object[0], null);
+        return (Boolean) method.invoke(target, NO_PARAMS, null);
     }
 
 }

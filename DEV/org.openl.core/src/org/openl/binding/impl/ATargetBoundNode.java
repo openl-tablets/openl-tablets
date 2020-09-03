@@ -10,7 +10,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public abstract class ATargetBoundNode extends ABoundNode {
 
-    private IBoundNode targetNode;
+    private final IBoundNode targetNode;
 
     public ATargetBoundNode(ISyntaxNode syntaxNode, IBoundNode targetNode, IBoundNode... children) {
         super(syntaxNode, children);

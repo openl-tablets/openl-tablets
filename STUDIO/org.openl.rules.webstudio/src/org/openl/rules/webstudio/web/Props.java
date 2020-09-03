@@ -1,9 +1,11 @@
 package org.openl.rules.webstudio.web;
 
+import org.openl.spring.env.DisablePropertySource;
+import org.openl.util.StringUtils;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 
-public class Props implements EnvironmentAware {
+public class Props {
     private static Environment env;
 
     public static String text(String key) {
@@ -14,8 +16,21 @@ public class Props implements EnvironmentAware {
         return Boolean.parseBoolean(text(key));
     }
 
-    @Override
-    public void setEnvironment(Environment environment) {
+    public static Integer integer(String key) {
+        String text = text(key);
+        return StringUtils.isNotEmpty(text) ? Integer.valueOf(text) : null;
+    }
+
+    public static Environment getEnvironment() {
+        return env;
+    }
+
+    public static void setEnvironment(Environment environment) {
         env = environment;
     }
+
+    public static boolean isDisabled(String name) {
+        return Props.bool(DisablePropertySource.PROPS_PREFIX + name);
+    }
+
 }

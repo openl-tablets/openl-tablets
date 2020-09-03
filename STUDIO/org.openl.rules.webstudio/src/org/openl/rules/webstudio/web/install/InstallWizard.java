@@ -1,8 +1,11 @@
 package org.openl.rules.webstudio.web.install;
 
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -20,9 +23,6 @@ import java.util.Properties;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.UIViewRoot;
@@ -39,6 +39,7 @@ import org.openl.config.ConfigNames;
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryInstatiator;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.security.Group;
@@ -47,18 +48,18 @@ import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
-import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.security.KeyStoreUtils;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.GroupManagementServiceWrapper;
 import org.openl.rules.webstudio.service.UserManagementService;
+import org.openl.rules.webstudio.util.WebStudioValidationUtils;
 import org.openl.rules.webstudio.web.admin.ConnectionProductionRepoController;
 import org.openl.rules.webstudio.web.admin.FolderStructureSettings;
-import org.openl.rules.webstudio.web.admin.ProductionRepositoryEditor;
+import org.openl.rules.webstudio.web.admin.RepositoryEditor;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.admin.RepositoryValidationException;
 import org.openl.rules.webstudio.web.admin.RepositoryValidators;
-import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.spring.env.DynamicPropertySource;
@@ -71,12 +72,14 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
+import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
+import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
-@ManagedBean
-@SessionScoped
-public class InstallWizard {
+@Service
+@SessionScope
+public class InstallWizard implements Serializable {
 
     private static final String MULTI_USER_MODE = "multi";
     private static final String AD_USER_MODE = "ad";
@@ -95,7 +98,6 @@ public class InstallWizard {
 
     @NotBlank
     private String workingDir;
-    private boolean workingDirChanged;
     private boolean showErrorMessage = false;
 
     private String userMode = "demo";
@@ -121,21 +123,25 @@ public class InstallWizard {
     private RepositoryConfiguration designRepositoryConfiguration;
     private RepositoryConfiguration deployConfigRepositoryConfiguration;
 
-    private ProductionRepositoryEditor productionRepositoryEditor;
-    private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
+    private RepositoryEditor productionRepositoryEditor;
+    private RepositoryFactoryProxy productionRepositoryFactoryProxy;
 
     // Reuse existing controllers
     private ConnectionProductionRepoController connectionProductionRepoController;
 
-    @ManagedProperty(value = "#{groupManagementService}")
-    private GroupManagementService groupManagementService;
+    private final GroupManagementService groupManagementService;
     private XmlWebApplicationContext dbContext;
     private Boolean allowAccessToNewUsers;
     private String externalAdmins;
 
-    @ManagedProperty(value = "#{environment}")
-    private PropertyResolver propertyResolver;
-    private PropertiesHolder properties;
+    private final PropertyResolver propertyResolver;
+    private final PropertiesHolder properties;
+
+    public InstallWizard(GroupManagementService groupManagementService, PropertyResolver propertyResolver) {
+        this.groupManagementService = groupManagementService;
+        this.propertyResolver = propertyResolver;
+        this.properties = new InMemoryProperties(propertyResolver);
+    }
 
     private static FacesMessage createErrorMessage(String summary) {
         return new FacesMessage(FacesMessage.SEVERITY_ERROR, summary, null);
@@ -144,7 +150,6 @@ public class InstallWizard {
     @PostConstruct
     public void init() {
         workingDir = propertyResolver.getProperty(DynamicPropertySource.OPENL_HOME);
-        workingDirChanged = true;
     }
 
     public String start() {
@@ -156,8 +161,6 @@ public class InstallWizard {
         HashMap<String, String> props = new HashMap<>();
         props.put("webstudio.configured", "false");
         DynamicPropertySource.get().save(props);
-        ReloadableDelegatingFilter
-            .reloadApplicationContext((ServletContext) WebStudioUtils.getExternalContext().getContext());
         return next();
     }
 
@@ -189,24 +192,19 @@ public class InstallWizard {
             ++step;
             if (step == 2) {
                 // Get defaults
-                if (workingDirChanged) {
-                    designRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DESIGN_CONFIG, properties);
-                    if (designRepositoryConfiguration.getErrorMessage() != null) {
-                        log.error(designRepositoryConfiguration.getErrorMessage());
-                    }
-
-                    deployConfigRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DEPLOY_CONFIG,
-                        properties);
-                    if (deployConfigRepositoryConfiguration.getErrorMessage() != null) {
-                        log.error(deployConfigRepositoryConfiguration.getErrorMessage());
-                    }
-
-                    initProductionRepositoryEditor();
-
-                    userMode = propertyResolver.getProperty("user.mode");
-
-                    workingDirChanged = false;
+                designRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DESIGN_CONFIG, properties);
+                if (designRepositoryConfiguration.getErrorMessage() != null) {
+                    log.error(designRepositoryConfiguration.getErrorMessage());
                 }
+
+                deployConfigRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DEPLOY_CONFIG,
+                    properties);
+                if (deployConfigRepositoryConfiguration.getErrorMessage() != null) {
+                    log.error(deployConfigRepositoryConfiguration.getErrorMessage());
+                }
+
+                initProductionRepositoryEditor();
+                userMode = propertyResolver.getProperty("user.mode");
             } else if (step == 3) {
                 readDbProperties();
                 readAdProperties();
@@ -419,9 +417,6 @@ public class InstallWizard {
 
             destroyRepositoryObjects();
             destroyDbContext();
-
-            ReloadableDelegatingFilter
-                .reloadApplicationContext((ServletContext) WebStudioUtils.getExternalContext().getContext());
 
             FacesContext.getCurrentInstance()
                 .getExternalContext()
@@ -748,100 +743,7 @@ public class InstallWizard {
      * will appears
      */
     public void workingDirValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String studioPath;
-        File studioDir;
-
-        if (StringUtils.isNotEmpty((String) value)) {
-            studioPath = (String) value;
-            studioDir = new File(studioPath);
-
-            if (studioDir.exists()) {
-                if (studioDir.isDirectory()) {
-
-                    if (studioDir.canWrite()) {
-                        /*
-                         * If canWrite() returns true the temp file will be created. It's needed because in Windows OS
-                         * method canWrite() returns true if folder is not marked 'read only' but such folders can have
-                         * security permissions 'deny all'
-                         */
-                        validateIsWritable(studioDir);
-                    } else {
-                        throw new ValidatorException(createErrorMessage(String.format(
-                            "There is not enough access rights for installing WebStudio into the folder: '%s'.",
-                            studioPath)));
-                    }
-                } else {
-                    throw new ValidatorException(
-                        createErrorMessage(String.format("'%s' is not a folder.", studioPath)));
-                }
-            } else {
-                File parentFolder = studioDir.getAbsoluteFile().getParentFile();
-                File existingFolder = null;
-
-                while (parentFolder != null) {
-                    if (parentFolder.exists()) {
-                        existingFolder = parentFolder.getAbsoluteFile();
-
-                        break;
-                    }
-                    parentFolder = parentFolder.getParentFile();
-                }
-                boolean hasAccess = studioDir.mkdirs();
-
-                if (!hasAccess) {
-
-                    validateIsWritable(studioDir);
-
-                } else {
-                    deleteFolder(existingFolder, studioDir);
-                }
-            }
-
-        } else {
-            throw new ValidatorException(createErrorMessage("WebStudio working directory cannot be blank."));
-        }
-    }
-
-    /**
-     * Creates a temp file for validating folder write permissions
-     *
-     * @param file is a folder where temp file will be created
-     */
-    private void validateIsWritable(File file) {
-
-        try {
-            File tmpFile = File.createTempFile("temp", null, file);
-            if (!tmpFile.delete()) {
-                log.warn("Cannot delete temp file {}.", tmpFile.getName());
-            }
-
-        } catch (IOException ioe) {
-            throw new ValidatorException(
-                createErrorMessage(String.format("%s for '%s'", ioe.getMessage(), file.getAbsolutePath())));
-        }
-    }
-
-    /**
-     * Deletes the folder which was created for validating folder permissions
-     *
-     * @param existingFolder folder which already exists on file system
-     * @param studioFolder folder were studio will be installed
-     */
-    private void deleteFolder(File existingFolder, File studioFolder) {
-        if (studioFolder.exists() && !studioFolder.delete()) {
-            log.warn("Cannot delete the folder {}.", studioFolder.getName());
-        }
-
-        if (existingFolder == null) {
-            return;
-        }
-
-        while (!studioFolder.getAbsolutePath().equalsIgnoreCase(existingFolder.getAbsolutePath())) {
-            if (studioFolder.exists() && !studioFolder.delete()) {
-                log.warn("Cannot delete the folder {}.", studioFolder.getName());
-            }
-            studioFolder = studioFolder.getAbsoluteFile().getParentFile();
-        }
+        WebStudioValidationUtils.directoryValidator(value, "WebStudio working directory");
     }
 
     /**
@@ -884,18 +786,9 @@ public class InstallWizard {
     }
 
     public void setWorkingDir(String workingDir) {
-
-        workingDirChanged = workingDirChanged || !workingDir.equals(this.workingDir);
         this.workingDir = workingDir;
-
         // Other configurations depend on this property
         DynamicPropertySource.get().setOpenLHomeDir(this.workingDir);
-
-        String newWorkingDir = propertyResolver.getProperty(DynamicPropertySource.OPENL_HOME);
-        if (!workingDir.equals(newWorkingDir)) {
-            log.warn("Expected working dir {} but WebStudio sees it as {}", workingDir, newWorkingDir);
-            throw new IllegalStateException("WebStudio sees working dir as " + newWorkingDir);
-        }
     }
 
     public String getGroupsAreManagedInStudio() {
@@ -1024,11 +917,12 @@ public class InstallWizard {
     }
 
     public boolean isUseDesignRepo() {
-        return !Boolean.parseBoolean(properties.getProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO));
+        return StringUtils.isNotBlank(properties.getProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG));
     }
 
     public void setUseDesignRepo(boolean useDesignRepo) {
-        properties.setProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO, !useDesignRepo);
+        // TODO: We should point specific design repository
+        properties.setProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG, useDesignRepo ? ConfigNames.DESIGN_CONFIG : null);
     }
 
     public FolderStructureSettings getDesignFolderStructure() {
@@ -1040,12 +934,12 @@ public class InstallWizard {
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
-        return productionRepositoryEditor.getProductionRepositoryConfigurations();
+        return productionRepositoryEditor.getRepositoryConfigurations();
     }
 
     public void deleteProductionRepository(String configName) {
         try {
-            productionRepositoryEditor.deleteProductionRepository(configName);
+            productionRepositoryEditor.deleteRepository(configName);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             WebStudioUtils.addErrorMessage(e.getMessage());
@@ -1076,11 +970,11 @@ public class InstallWizard {
     private void initProductionRepositoryEditor() {
         destroyRepositoryObjects();
 
-        productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy(propertyResolver);
-        productionRepositoryEditor = new ProductionRepositoryEditor(productionRepositoryFactoryProxy, properties);
+        productionRepositoryFactoryProxy = new RepositoryFactoryProxy(propertyResolver, RepositoryMode.PRODUCTION);
+        productionRepositoryEditor = new RepositoryEditor(productionRepositoryFactoryProxy, properties);
 
         connectionProductionRepoController = new ConnectionProductionRepoController();
-        connectionProductionRepoController.setProperties(properties);
+        connectionProductionRepoController.setProperties(properties, PRODUCTION_REPOSITORY_CONFIGS);
         connectionProductionRepoController.setProductionRepositoryFactoryProxy(productionRepositoryFactoryProxy);
         connectionProductionRepoController
             .setProductionRepositoryConfigurations(getProductionRepositoryConfigurations());
@@ -1106,14 +1000,5 @@ public class InstallWizard {
             dbContext.close();
             dbContext = null;
         }
-    }
-
-    public void setGroupManagementService(GroupManagementService groupManagementService) {
-        this.groupManagementService = groupManagementService;
-    }
-
-    public void setPropertyResolver(PropertyResolver propertyResolver) {
-        this.propertyResolver = propertyResolver;
-        properties = new InMemoryProperties(propertyResolver);
     }
 }

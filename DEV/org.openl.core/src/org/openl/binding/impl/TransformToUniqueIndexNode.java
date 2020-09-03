@@ -8,16 +8,15 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
-import org.openl.types.java.JavaArrayAggregateInfo;
 import org.openl.util.CollectionUtils;
 import org.openl.vm.IRuntimeEnv;
 
 class TransformToUniqueIndexNode extends ABoundNode {
-    private ILocalVar tempVar;
-    private IBoundNode transformer;
-    private IBoundNode targetNode;
-    private Class<?> componentClass;
-    private IOpenClass resultType;
+    private final ILocalVar tempVar;
+    private final IBoundNode transformer;
+    private final IBoundNode targetNode;
+    private final Class<?> componentClass;
+    private final IOpenClass resultType;
 
     TransformToUniqueIndexNode(ISyntaxNode syntaxNode,
             IBoundNode targetNode,
@@ -29,7 +28,7 @@ class TransformToUniqueIndexNode extends ABoundNode {
         this.transformer = transformer;
         IOpenClass componentType = transformer.getType();
         this.componentClass = componentType.getInstanceClass();
-        this.resultType = JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(componentType);
+        this.resultType = componentType.getAggregateInfo().getIndexedAggregateType(componentType);
     }
 
     @Override

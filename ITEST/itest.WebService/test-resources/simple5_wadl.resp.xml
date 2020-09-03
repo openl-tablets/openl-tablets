@@ -362,22 +362,20 @@
             <xs:import namespace="http://jaxb.dev.java.net/array"/>
             <xs:element name="AnySpreadsheetResult" type="tns:AnySpreadsheetResult"/>
             <xs:element name="Calc" type="tns:Calc"/>
-            <xs:complexType name="AnySpreadsheetResult">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="Step1" type="xs:double"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="RowNames" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="ColumnNames" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="TableDetails"
-                                type="ns1:stringArray"/>
-                </xs:sequence>
-            </xs:complexType>
             <xs:complexType name="Calc">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="Step1" type="xs:double"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="RowNames" type="xs:string"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="ColumnNames" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="TableDetails"
-                                type="ns1:stringArray"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="TableDetails" type="ns1:stringArray"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="AnySpreadsheetResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Step1" type="xs:double"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="RowNames" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="ColumnNames" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="TableDetails" type="ns1:stringArray"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
@@ -387,21 +385,6 @@
             <xs:complexType name="error">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="message" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-        </xs:schema>
-        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://enumeration.rules.openl.org"
-                   xmlns:ns2="http://context.rules.openl.org" xmlns:ns3="http://beans.generated.openl.org"
-                   xmlns:tns="http://jaxrs.openl.org" attributeFormDefault="unqualified"
-                   elementFormDefault="unqualified" targetNamespace="http://jaxrs.openl.org" version="1.0">
-            <xs:import namespace="http://enumeration.rules.openl.org"/>
-            <xs:import namespace="http://context.rules.openl.org"/>
-            <xs:import namespace="http://beans.generated.openl.org"/>
-            <xs:element name="CalcRequest" type="tns:CalcRequest"/>
-            <xs:complexType name="CalcRequest">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
-                    <xs:element minOccurs="0" name="myDatatype" type="ns3:MyDatatype"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
@@ -435,6 +418,21 @@
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://enumeration.rules.openl.org"
+                   xmlns:ns2="http://context.rules.openl.org" xmlns:ns3="http://beans.generated.openl.org"
+                   xmlns:tns="http://jaxrs.openl.org" attributeFormDefault="unqualified"
+                   elementFormDefault="unqualified" targetNamespace="http://jaxrs.openl.org" version="1.0">
+            <xs:import namespace="http://enumeration.rules.openl.org"/>
+            <xs:import namespace="http://context.rules.openl.org"/>
+            <xs:import namespace="http://beans.generated.openl.org"/>
+            <xs:element name="CalcRequest" type="tns:CalcRequest"/>
+            <xs:complexType name="CalcRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="runtimeContext" type="ns2:defaultRulesRuntimeContext"/>
+                    <xs:element minOccurs="0" name="myDatatype" type="ns3:MyDatatype"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
     </grammars>
     <resources base="http://localhost:#####/REST/deployment5/simple5">
         <resource path="/">
@@ -458,6 +456,27 @@
                     <representation mediaType="application/yaml"/>
                 </response>
             </method>
+        </resource>
+        <resource path="/openapi.{type:json|yaml}">
+            <param name="type" style="template" type="xs:string"/>
+            <method name="GET">
+                <request></request>
+                <response>
+                    <representation mediaType="application/json"/>
+                    <representation mediaType="application/yaml"/>
+                </response>
+            </method>
+        </resource>
+        <resource path="/api-docs">
+            <resource path="/{resource:.*}">
+                <param name="resource" style="template" type="xs:string"/>
+                <method name="GET">
+                    <request></request>
+                    <response>
+                        <representation mediaType="*/*"/>
+                    </response>
+                </method>
+            </resource>
         </resource>
     </resources>
 </application>

@@ -1,0 +1,2 @@
+WARN: Accessing to static field from non-static object.
+WARN: Accessing to static field from non-static object.

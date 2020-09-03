@@ -49,20 +49,4 @@ public interface IOpenParser {
      * @return {@link IParsedCode} instance
      */
     IParsedCode parseAsType(IOpenSourceCodeModule source);
-
-    /**
-     * Parse source as integer range.
-     *
-     * @param source source code
-     * @return {@link IParsedCode} instance
-     */
-    IParsedCode parseAsIntegerRange(IOpenSourceCodeModule source);
-
-    /**
-     * Parse source as float range.
-     *
-     * @param source source code
-     * @return {@link IParsedCode} instance
-     */
-    IParsedCode parseAsFloatRange(IOpenSourceCodeModule source);
 }

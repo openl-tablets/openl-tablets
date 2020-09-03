@@ -7,9 +7,9 @@
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
     <h:head>
-        <link href="#{contextPath}/css/common.css" rel="stylesheet" />
+        <link href="#{contextPath}/css/common.css?3" rel="stylesheet" />
         <script src="#{contextPath}/javascript/vendor/jquery-1.7.2.min.js"></script>
-        <script src="#{contextPath}/javascript/common.js?2"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
+        <script src="#{contextPath}/javascript/common.js?5"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
 
         <script>
             //<![CDATA[
@@ -36,6 +36,30 @@
                     complete: hideLoader
                 });
             });
+            var ws = {
+                ui: {
+                    success: function(content) {
+                        message(content, 4000, true, "success");
+                    },
+                    error: function(content) {
+                        message(content, -1, true, "error");
+                    },
+                    info: function(content) {
+                        message(content, 8000, true);
+                    },
+                    showLoader: function () {
+                        if (loadingPanel.is(":hidden")) {
+                            showAnimatedPanel(loadingPanel);
+                        }
+                    },
+                    hideLoader: function () {
+                        if (loadingPanel.is(":visible")) {
+                            loadingPanel.hide();
+                        }
+                    }
+
+                }
+            };
             //]]>
         </script>
     </h:head>

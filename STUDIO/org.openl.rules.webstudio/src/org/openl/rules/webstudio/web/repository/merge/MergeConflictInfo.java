@@ -58,4 +58,8 @@ public class MergeConflictInfo {
     public boolean isExportOperation() {
         return mergeBranchFrom != null && mergeBranchFrom.equals(currentBranch);
     }
+
+    public String getRepositoryId() {
+        return getProject().getRepository().getId();
+    }
 }

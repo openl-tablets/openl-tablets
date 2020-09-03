@@ -60,7 +60,7 @@ public class NewNodeBinder extends ANodeBinder {
             return makeErrorNode(MessageUtils.getConstructorNotFoundMessage(constructor), typeNode, bindingContext);
         }
 
-        return new MethodBoundNode(node, children, methodCaller);
+        return new MethodBoundNode(node, methodCaller, children);
     }
 
 }

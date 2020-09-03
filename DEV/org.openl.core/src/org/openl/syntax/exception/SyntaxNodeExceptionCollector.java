@@ -8,7 +8,7 @@ import java.util.Objects;
 import org.openl.util.StringUtils;
 
 public class SyntaxNodeExceptionCollector {
-    private List<SyntaxNodeException> syntaxNodeExceptions = new ArrayList<>();
+    private final List<SyntaxNodeException> syntaxNodeExceptions = new ArrayList<>();
 
     public void run(Runnable r) throws Exception {
         try {
@@ -34,6 +34,10 @@ public class SyntaxNodeExceptionCollector {
 
     public void throwIfAny() throws SyntaxNodeException {
         throwIfAny(StringUtils.EMPTY);
+    }
+
+    public boolean hasErrors() {
+        return !syntaxNodeExceptions.isEmpty();
     }
 
     public void throwIfAny(String msg) throws SyntaxNodeException {

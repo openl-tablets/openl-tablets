@@ -9,11 +9,11 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
-import org.openl.engine.OpenLValidationManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.validation.ValidationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,6 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         Map<String, Object> params = dependencyManager.getExternalParameters();
         if (!singleModuleMode) {
             params = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(params, getModules());
-            return params;
         }
         return params;
     }
@@ -115,9 +114,9 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         rulesInstantiationStrategy.setServiceClass(EmptyInterface.class); // Prevent
         // interface
         // generation
-        boolean oldValidationState = OpenLValidationManager.isValidationEnabled();
+        boolean oldValidationState = ValidationManager.isValidationEnabled();
         try {
-            OpenLValidationManager.turnOffValidation();
+            ValidationManager.turnOffValidation();
             CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
             compiledDependency = new CompiledDependency(dependencyName, compiledOpenClass);
             log.debug("Dependency '{}' is saved in cache.", dependencyName);
@@ -127,7 +126,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
             return onCompilationFailure(ex, dependencyManager);
         } finally {
             if (oldValidationState) {
-                OpenLValidationManager.turnOnValidation();
+                ValidationManager.turnOnValidation();
             }
         }
     }

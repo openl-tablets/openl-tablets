@@ -5,10 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.openl.rules.util.Arrays.isEmpty;
-import static org.openl.rules.util.Arrays.isNotEmpty;
-import static org.openl.rules.util.Arrays.length;
-import static org.openl.rules.util.Arrays.slice;
+import static org.openl.rules.util.Arrays.*;
 
 import org.junit.Test;
 
@@ -49,8 +46,28 @@ public class ArraysTest {
         assertNull(slice(null, 0, 2));
         assertArrayEquals(new Object[0], slice(new Object[0], 0, -2));
         assertArrayEquals(new Object[] { 5, 4, 3, 2 }, slice(new Object[] { 5, 4, 3, 2, 1 }, 0, 4));
+        assertArrayEquals(new Object[0], slice(new Object[] { 5, 4, 3, 2, 1 }, -55, -55));
         assertArrayEquals(new Object[] { 3, 2 }, slice(new Object[] { 5, 4, 3, 2, 1 }, 2, -1));
         assertArrayEquals(new Object[] { 4, 3 }, slice(new Object[] { 5, 4, 3, 2, 1 }, -4, 3));
         assertArrayEquals(new Object[0], slice(new Object[] { 5, 4, 3, 2, 1 }, -8, -5));
+    }
+
+    @Test
+    public void testAdd() {
+        final Object[] expected = new Object[]{1, 2, 3, 4, 5};
+        assertArrayEquals(expected, add(1, 2, 3, 4, 5));
+    }
+
+    @Test
+    public void testAdd2() {
+        final Object[] expected = new Object[]{1.0, 2.0, 3.0, 4.0, 5.0, 9.0};
+        assertArrayEquals(expected, add(new Double[]{1.0, 2.0, 3.0}, new Double[]{4.0, 5.0, 9.0}));
+        assertArrayEquals(expected, addAll(new Double[]{1.0, 2.0, 3.0}, new Double[]{4.0, 5.0, 9.0}));
+        assertArrayEquals(expected, add(new Double[]{1.0, 2.0}, new Double[]{3.0, 4.0}, new Double[]{5.0, 9.0}));
+        assertArrayEquals(expected, add(new Double[]{1.0, 2.0, 3.0}, (Double[]) null, new Double[]{ 4.0, 5.0, 9.0}));
+        assertArrayEquals(new Double[0], add((Double[]) null, (Double[]) null, (Double[]) null));
+        assertArrayEquals(new Double[]{1.0, 2.0, 3.0}, add(new Double[]{1.0, 2.0, 3.0}, null));
+        assertArrayEquals(new Double[]{1.0, 2.0, 3.0}, add(new Double[]{1.0, 2.0, 3.0}, null));
+        assertArrayEquals(expected, add(new Double[]{1.0, 2.0, 3.0, 9.0}, 3, new Double[]{4.0, 5.0}));
     }
 }

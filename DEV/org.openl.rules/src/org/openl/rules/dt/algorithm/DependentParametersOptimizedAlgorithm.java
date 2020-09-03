@@ -171,79 +171,79 @@ class DependentParametersOptimizedAlgorithm {
         Class<?> typeClass = conditionCasts.isCastToInputTypeExists() ? expressionType.getInstanceClass()
                                                                       : paramType.getInstanceClass();
 
-        if (typeClass.equals(String.class)) {
+        if (typeClass == String.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.STRING, conditionCasts);
         }
 
-        if (typeClass.equals(StringValue.class)) {
+        if (typeClass == StringValue.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.STRING_VALUE, conditionCasts);
         }
 
-        if (typeClass.equals(byte.class) || typeClass.equals(Byte.class)) {
+        if (typeClass == byte.class || typeClass == Byte.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BYTE, conditionCasts);
         }
 
-        if (typeClass.equals(ByteValue.class)) {
+        if (typeClass == ByteValue.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BYTE_VALUE, conditionCasts);
         }
 
-        if (typeClass.equals(short.class) || typeClass.equals(Short.class)) {
+        if (typeClass == short.class || typeClass == Short.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.SHORT, conditionCasts);
         }
 
-        if (typeClass.equals(ShortValue.class)) {
+        if (typeClass == ShortValue.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.SHORT_VALUE, conditionCasts);
         }
 
-        if (typeClass.equals(int.class) || typeClass.equals(Integer.class)) {
+        if (typeClass == int.class || typeClass == Integer.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.INT, conditionCasts);
         }
 
-        if (typeClass.equals(IntValue.class)) {
+        if (typeClass == IntValue.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.INT_VALUE, conditionCasts);
         }
 
-        if (typeClass.equals(long.class) || typeClass.equals(Long.class)) {
+        if (typeClass == long.class || typeClass == Long.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.LONG, conditionCasts);
         }
 
-        if (typeClass.equals(LongValue.class)) {
+        if (typeClass == LongValue.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.LONG_VALUE, conditionCasts);
         }
 
-        if (typeClass.equals(float.class) || typeClass.equals(Float.class)) {
+        if (typeClass == float.class || typeClass == Float.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.FLOAT, conditionCasts);
         }
 
-        if (typeClass.equals(FloatValue.class)) {
+        if (typeClass == FloatValue.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.FLOAT_VALUE, conditionCasts);
         }
 
-        if (typeClass.equals(double.class) || typeClass.equals(Double.class)) {
+        if (typeClass == double.class || typeClass == Double.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.DOUBLE, conditionCasts);
         }
 
-        if (typeClass.equals(DoubleValue.class)) {
+        if (typeClass == DoubleValue.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.DOUBLE_VALUE, conditionCasts);
         }
 
-        if (typeClass.equals(BigInteger.class)) {
+        if (typeClass == BigInteger.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGINTEGER, conditionCasts);
         }
 
-        if (typeClass.equals(BigIntegerValue.class)) {
+        if (typeClass == BigIntegerValue.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGINTEGER_VALUE, conditionCasts);
         }
 
-        if (typeClass.equals(BigDecimal.class)) {
+        if (typeClass == BigDecimal.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGDECIMAL, conditionCasts);
         }
 
-        if (typeClass.equals(BigDecimalValue.class)) {
+        if (typeClass == BigDecimalValue.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGDECIMAL_VALUE, conditionCasts);
         }
 
-        if (typeClass.equals(Date.class)) {
+        if (typeClass == Date.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.DATE, conditionCasts);
         }
 

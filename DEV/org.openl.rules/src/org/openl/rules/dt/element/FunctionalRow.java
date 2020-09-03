@@ -5,7 +5,7 @@ import java.util.Set;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.engine.OpenLCellExpressionsCompiler;
+import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
@@ -40,6 +40,7 @@ import org.openl.vm.IRuntimeEnv;
 public abstract class FunctionalRow implements IDecisionRow {
 
     private static final String NO_PARAM = "P";
+    private static final Object[] NO_PARAMS = new Object[0];
 
     private String name;
     private int row;
@@ -346,7 +347,7 @@ public abstract class FunctionalRow implements IDecisionRow {
     Object[] mergeParams(Object target, Object[] dtParams, IRuntimeEnv env, int ruleN) {
 
         if (dtParams == null) {
-            dtParams = new Object[0];
+            dtParams = NO_PARAMS;
         }
 
         Object[] newParams = new Object[dtParams.length + getNumberOfParams()];
@@ -396,7 +397,8 @@ public abstract class FunctionalRow implements IDecisionRow {
         IMethodSignature newSignature = ((MethodSignature) signature).merge(methodParams);
         OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, newSignature, null);
 
-        return OpenLCellExpressionsCompiler.makeMethod(openl, source, methodHeader, bindingContext);
+        return OpenLManager.makeMethod(openl, source, methodHeader, bindingContext);
+
     }
 
     protected IOpenSourceCodeModule getExpressionSource(TableSyntaxNode tableSyntaxNode,
@@ -453,8 +455,8 @@ public abstract class FunctionalRow implements IDecisionRow {
             if (allowEmpty) {
                 try {
                     OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, signature, declaringClass);
-                    CompositeMethod method = OpenLCellExpressionsCompiler
-                        .makeMethod(openl, methodSource, methodHeader, bindingContext);
+
+                    CompositeMethod method = OpenLManager.makeMethod(openl, methodSource, methodHeader, bindingContext);
 
                     IOpenClass type = method.getBodyType();
 

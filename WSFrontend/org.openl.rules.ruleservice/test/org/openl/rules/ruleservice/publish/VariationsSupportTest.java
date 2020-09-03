@@ -26,9 +26,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
         "ruleservice.isSupportVariations=true" })
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
 public class VariationsSupportTest implements ApplicationContextAware {
-    public static final String STANDART = "Standard Driver";
+    public static final String STANDARD = "Standard Driver";
     public static final String YOUNG = "Young Driver";
-    public static final String SENOIR = "Senior Driver";
+    public static final String SENIOR = "Senior Driver";
 
     private ApplicationContext applicationContext;
 
@@ -44,12 +44,8 @@ public class VariationsSupportTest implements ApplicationContextAware {
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
 
-        RuleServiceManager ruleServicePublisher = applicationContext.getBean("ruleServiceManager",
-            RuleServiceManager.class);
-        assertNotNull(ruleServicePublisher);
-
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
-        Object driver = ruleServicePublisher.getServiceByName("org.openl.rules.tutorial4.Tutorial4WithVariations")
+        Object driver = serviceManager.getServiceByName("org.openl.rules.tutorial4.Tutorial4WithVariations")
             .getServiceClass()
             .getClassLoader()
             .loadClass("org.openl.generated.beans.publisher.test.Driver")
@@ -65,8 +61,8 @@ public class VariationsSupportTest implements ApplicationContextAware {
             "driverAgeType",
             new Object[] { driver, variations });
         assertEquals(YOUNG, resultsDrivers.getResultForVariation("young"));
-        assertEquals(SENOIR, resultsDrivers.getResultForVariation("senior"));
-        assertEquals(STANDART, resultsDrivers.getResultForVariation(NoVariation.ORIGINAL_CALCULATION));
+        assertEquals(SENIOR, resultsDrivers.getResultForVariation("senior"));
+        assertEquals(STANDARD, resultsDrivers.getResultForVariation(NoVariation.ORIGINAL_CALCULATION));
         assertTrue(resultsDrivers.getVariationFailures().isEmpty());
     }
 }

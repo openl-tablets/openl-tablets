@@ -41,7 +41,10 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
         try {
             return VariationInstantiationStrategyEnhancerHelper.decorateClass(serviceClass, classLoader);
         } catch (Exception e) {
-            throw new OpenlNotCheckedException("Failed to inject variation in parameters of each method.", e);
+            throw new OpenlNotCheckedException(
+                String.format("Failed to inject variation parameters into methods in the interface '%s'.",
+                    serviceClass.getTypeName()),
+                e);
         }
     }
 
@@ -50,8 +53,9 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
         if (VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(serviceClass)) {
             return true;
         } else {
-            throw new ValidationServiceClassException(
-                "Variation result return type and variation pack parameter is required in each variation method.");
+            throw new ValidationServiceClassException(String.format(
+                "Variation result return type and variation pack parameter is required for each method in the interface '%s'.",
+                serviceClass.getTypeName()));
         }
     }
 
@@ -60,7 +64,10 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
         try {
             return VariationInstantiationStrategyEnhancerHelper.undecorateClass(serviceClass, classLoader);
         } catch (Exception e) {
-            throw new OpenlNotCheckedException("Failed to remove variation methods.", e);
+            throw new OpenlNotCheckedException(
+                String.format("Failed to remove variation parameters from methods in the interface '%s'.",
+                    serviceClass.getTypeName()),
+                e);
         }
     }
 
@@ -97,7 +104,7 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
                 methodMap.put(serviceMethod, originalMethod);
             } catch (Exception e) {
                 throw new RulesInstantiationException(
-                    "Failed to find corresrponding method in original class for method '" + MethodUtil
+                    "Failed to find corresponding method in original class for method '" + MethodUtil
                         .printMethod(serviceMethod.getName() + "'.", serviceMethod.getParameterTypes()));
             }
         }

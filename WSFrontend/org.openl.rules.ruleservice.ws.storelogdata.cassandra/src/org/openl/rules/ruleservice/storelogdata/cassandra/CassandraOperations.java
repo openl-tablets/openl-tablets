@@ -28,11 +28,12 @@ import com.datastax.oss.driver.api.core.DriverException;
 import com.datastax.oss.driver.api.core.type.codec.TypeCodecs;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 
-public class CassandraOperations implements InitializingBean, DisposableBean, RuleServicePublisherListener, ApplicationContextAware {
-    private final Logger log = LoggerFactory.getLogger(CassandraOperations.class);
+public class CassandraOperations
+        implements InitializingBean, DisposableBean, RuleServicePublisherListener, ApplicationContextAware {
+    private static final Logger LOG = LoggerFactory.getLogger(CassandraOperations.class);
 
     private CqlSession session;
-    private boolean schemaCreationEnabled = false;
+    private boolean schemaCreationEnabled;
     private ApplicationContext applicationContext;
     private AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
         Collections.unmodifiableSet(new HashSet<>()));
@@ -70,7 +71,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
             try {
                 session.close();
             } catch (Exception e) {
-                log.error("Failed to close Cassandra connection.", e);
+                LOG.error("Failed to close Cassandra connection.", e);
             }
         }
     }
@@ -124,13 +125,13 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
             createSchemaIfMissed(entity.getClass());
             EntitySupport entitySupport = entity.getClass().getAnnotation(EntitySupport.class);
             if (entitySupport == null) {
-                log.error("Failed to save cassandra entity. Annotation @EntitySupport is not presented in class {}.",
+                LOG.error("Failed to save cassandra entity. Annotation @EntitySupport is not presented in class {}.",
                     entity.getClass().getTypeName());
             } else {
                 getEntitySaver(entity.getClass()).insert(entity);
             }
         } catch (ReflectiveOperationException | DaoCreationException e) {
-            log.error("Failed to save cassandra entity.", e);
+            LOG.error("Failed to save cassandra entity.", e);
         }
     }
 
@@ -212,7 +213,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
             try {
                 init();
             } catch (Exception e) {
-                log.error("Cassandra initialization failure.", e);
+                LOG.error("Cassandra initialization failure.", e);
             }
         }
     }

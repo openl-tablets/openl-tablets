@@ -8,29 +8,21 @@ import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
-/**
- * @author snshor
- *
- */
-public class LocalVarDeclarationNode extends ABoundNode {
+public final class LocalVarDeclarationNode extends ABoundNode {
 
     ILocalVar var;
+    IBoundNode initNode;
 
-    /**
-     * @param syntaxNode
-     * @param children
-     */
-    public LocalVarDeclarationNode(ISyntaxNode syntaxNode, IBoundNode[] children, ILocalVar var) {
-        super(syntaxNode, children);
+    public LocalVarDeclarationNode(ISyntaxNode syntaxNode, IBoundNode initNode, ILocalVar var) {
+        super(syntaxNode, initNode);
 
+        this.initNode = initNode;
         this.var = var;
     }
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object[] init = evaluateChildren(env);
-
-        Object initObj = init == null || init.length == 0 ? null : init[0];
+        Object initObj = initNode == null ? null : initNode.evaluate(env);
 
         env.getLocalFrame()[var.getIndexInLocalFrame()] = initObj;
         return null;

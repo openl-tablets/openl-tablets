@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.publish.jaxrs.swagger;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -55,11 +54,7 @@ public class SwaggerSupportConverter implements ModelConverter {
             t = null;
         }
         if (model != null && model.getProperties() != null && t != null) {
-            List<Method> methods = new ArrayList<>();
-            while (!Object.class.equals(t) && t != null) {
-                methods.addAll(Arrays.asList(t.getDeclaredMethods()));
-                t = t.getSuperclass();
-            }
+            List<Method> methods = SupportConverterHelper.getAllMethods(t);
             Set<String> methodNames = methods.stream().map(Method::getName).collect(Collectors.toSet());
             for (Method m : methods) {
                 if (m.getName().startsWith("get") || m.getName().startsWith("is")) {
@@ -68,14 +63,14 @@ public class SwaggerSupportConverter implements ModelConverter {
                         String getterMethod = ClassUtils.getter(prop.getName());
                         if (!methodNames.contains(getterMethod)) {
                             XmlAttribute xmlAttributeAnn = m.getAnnotation(XmlAttribute.class);
-                            if (xmlAttributeAnn != null) {
+                            if (xmlAttributeAnn != null && !"".equals(xmlAttributeAnn.name()) && !"##default"
+                                .equals(xmlAttributeAnn.name())) {
                                 prop = prop.rename(xmlAttributeAnn.name());
-                                prop.setXml(null);
                             }
                             XmlElement xmlElementAnn = m.getAnnotation(XmlElement.class);
-                            if (xmlElementAnn != null) {
+                            if (xmlElementAnn != null && !"".equals(xmlElementAnn.name()) && !"##default"
+                                .equals(xmlElementAnn.name())) {
                                 prop = prop.rename(xmlElementAnn.name());
-                                prop.setXml(null);
                             }
                             if (xmlElementAnn != null || xmlAttributeAnn != null) {
                                 model.getProperties().remove(m.getName());

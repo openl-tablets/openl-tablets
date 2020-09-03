@@ -12,9 +12,6 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -42,26 +39,30 @@ import org.richfaces.event.TreeSelectionChangeEvent;
 import org.richfaces.model.SequenceRowKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * Used for holding information about rulesRepository tree.
  *
  * @author Andrey Naumenko
  */
-@ManagedBean
-@SessionScoped
+@Service
+@SessionScope
 public class RepositoryTreeState implements DesignTimeRepositoryListener {
     private static final String ROOT_TYPE = "root";
 
-    @ManagedProperty(value = "#{repositorySelectNodeStateHolder}")
+    @Autowired
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
-    @ManagedProperty("#{projectDescriptorArtefactResolver}")
+    @Autowired
     private ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
     private static final String DEFAULT_TAB = "Properties";
     private final Logger log = LoggerFactory.getLogger(RepositoryTreeState.class);
-    private static IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<>();
+    private static final IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<>();
 
+    private RepositorySelectNodeStateHolder.SelectionHolder selectionHolder;
     /**
      * Root node for RichFaces's tree. It is not displayed.
      */
@@ -240,10 +241,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             branch = ((UserWorkspaceProject) project).getBranch();
         }
 
+        String repoId = artefact.getRepository().getId();
         Iterator<String> it = artefact.getArtefactPath().getSegments().iterator();
         TreeNode currentNode = getRulesRepository();
         while (currentNode != null && it.hasNext()) {
-            String id = RepositoryUtils.getTreeNodeId(it.next());
+            String id = RepositoryUtils.getTreeNodeId(repoId, it.next());
             currentNode = (TreeNode) currentNode.getChild(id);
 
             if (branch != null && currentNode != null) {
@@ -290,7 +292,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public void addDeploymentProjectToTree(ADeploymentProject project) {
         String name = project.getName();
-        String id = RepositoryUtils.getTreeNodeId(name);
+        String id = RepositoryUtils.getTreeNodeId(project);
         if (!project.isDeleted() || !hideDeleted) {
             TreeDProject prj = new TreeDProject(id, name);
             prj.setData(project);
@@ -300,7 +302,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public void addRulesProjectToTree(AProject project) {
         String name = project.getName();
-        String id = RepositoryUtils.getTreeNodeId(name);
+        String id = RepositoryUtils.getTreeNodeId(project);
         if (!project.isDeleted() || !hideDeleted) {
             TreeProject prj = new TreeProject(id, name, filter, projectDescriptorResolver);
             prj.setData(project);
@@ -310,7 +312,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public void addNodeToTree(TreeNode parent, AProjectArtefact childArtefact) {
         String name = childArtefact.getName();
-        String id = RepositoryUtils.getTreeNodeId(name);
+        String id = RepositoryUtils.getTreeNodeId(childArtefact);
         if (childArtefact.isFolder()) {
             TreeFolder treeFolder = new TreeFolder(id, name, filter);
             treeFolder.setData(childArtefact);
@@ -385,11 +387,13 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public void setSelectedNode(TreeNode selectedNode) {
-        repositorySelectNodeStateHolder.setSelectedNode(selectedNode);
+        selectionHolder.setSelectedNode(selectedNode);
     }
 
     @PostConstruct
-    public void initUserWorkspace() {
+    public void init() {
+        selectionHolder = repositorySelectNodeStateHolder.getSelectionHolder();
+
         this.userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
         userWorkspace.getDesignTimeRepository().addListener(this);
     }
@@ -405,7 +409,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public void onRepositoryModified() {
         synchronized (lock) {
             // We must not refresh the table when getting selected node.
-            TreeNode selectedNode = repositorySelectNodeStateHolder.getSelectedNode();
+            TreeNode selectedNode = selectionHolder.getSelectedNode();
             AProjectArtefact artefact = selectedNode == null ? null : selectedNode.getData();
             if (artefact != null) {
                 AProject project = artefact instanceof UserWorkspaceProject ? (UserWorkspaceProject) artefact
@@ -575,7 +579,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public boolean getCanModify() {
         AProjectArtefact selectedArtefact = getSelectedNode().getData();
         String projectName = selectedArtefact.getProject().getName();
-        String projectId = RepositoryUtils.getTreeNodeId(projectName);
+        String projectId = RepositoryUtils.getTreeNodeId(selectedArtefact.getProject());
         RulesProject project = (RulesProject) getRulesRepository().getChild(projectId).getData();
         return project.isOpenedForEditing() && isGranted(EDIT_PROJECTS);
     }

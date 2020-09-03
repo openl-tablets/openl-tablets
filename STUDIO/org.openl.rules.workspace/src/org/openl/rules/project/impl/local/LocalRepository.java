@@ -18,6 +18,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.file.FileSystemRepository;
+import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -31,6 +32,8 @@ public class LocalRepository extends FileSystemRepository {
      */
     @Deprecated
     private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private static final String REPOSITORY_ID = "repository-id";
+    private static final String PATH_IN_REPOSITORY = "path-in-repository";
     private static final String VERSION_PROPERTY = "version";
     private static final String BRANCH_PROPERTY = "branch";
     private static final String AUTHOR_PROPERTY = "author";
@@ -268,12 +271,37 @@ public class LocalRepository extends FileSystemRepository {
             }
 
             @Override
-            public void saveFileData(FileData fileData) {
+            public String getRepositoryId() {
+                File file = propertiesEngine.getPropertiesFile(pathInProject, VERSION_FILE_NAME);
+                if (!file.exists()) {
+                    return null;
+                }
+
+                Properties properties = new Properties();
+                FileInputStream is = null;
+                try {
+                    is = new FileInputStream(file);
+                    properties.load(is);
+                    return properties.getProperty(REPOSITORY_ID);
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                } finally {
+                    IOUtils.closeQuietly(is);
+                }
+            }
+
+            @Override
+            public void saveFileData(String repositoryId, FileData fileData) {
                 if (fileData.getVersion() == null || fileData.getAuthor() == null || fileData.getModifiedAt() == null) {
                     // No need to save empty fileData
                     return;
                 }
                 Properties properties = new Properties();
+                properties.setProperty(REPOSITORY_ID, repositoryId);
+                FileMappingData mappingData = fileData.getAdditionalData(FileMappingData.class);
+                if (mappingData != null) {
+                    properties.setProperty(PATH_IN_REPOSITORY, mappingData.getInternalPath());
+                }
                 properties.setProperty(VERSION_PROPERTY, fileData.getVersion());
                 properties.setProperty(AUTHOR_PROPERTY, fileData.getAuthor());
                 properties.setProperty(MODIFIED_AT_PROPERTY,
@@ -318,6 +346,12 @@ public class LocalRepository extends FileSystemRepository {
                     String version = properties.getProperty(VERSION_PROPERTY);
                     String branch = properties.getProperty(BRANCH_PROPERTY);
                     String author = properties.getProperty(AUTHOR_PROPERTY);
+                    String pathIntRepository = properties.getProperty(PATH_IN_REPOSITORY);
+
+                    if (pathIntRepository != null) {
+                        fileData.addAdditionalData(new FileMappingData(pathIntRepository));
+                    }
+
                     Date modifiedAt;
                     String modifiedAtLong = properties.getProperty(MODIFIED_AT_LONG_PROPERTY);
                     if (modifiedAtLong != null) {

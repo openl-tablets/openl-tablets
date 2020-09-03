@@ -23,5 +23,5 @@
 			ref="localTemporaryDeploymentsStorage" />
 	</bean>
 
-	<bean id="projectResolver" class="org.openl.rules.project.resolving.ProjectResolver" factory-method="instance"/>
+	<bean id="projectResolver" class="org.openl.rules.project.resolving.ProjectResolver" factory-method="getInstance"/>
 </beans>

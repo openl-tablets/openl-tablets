@@ -8,11 +8,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -57,14 +55,17 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean for Table page.
  */
-@ManagedBean
-@RequestScoped
+@Service
+@RequestScope
 public class TableBean {
-    private static final String REQUEST_ID_PREFIX = "project-";
+    private static final String REQUEST_ID_FORMAT = "request-id:%s;project-name:%s";
+    private static final Pattern REQUEST_ID_PATTERN = Pattern.compile("request-id:(.+);project-name:(.+)");
     private static final int MAX_PROBLEMS = 100;
     private final Logger log = LoggerFactory.getLogger(TableBean.class);
 
@@ -90,12 +91,13 @@ public class TableBean {
     // Errors + Warnings
     private List<OpenLMessage> problems;
 
-    @ManagedProperty(value = "#{environment}")
-    private PropertyResolver propertyResolver;
+    private final PropertyResolver propertyResolver;
 
     private boolean targetTablesHasErrors;
 
-    public TableBean() {
+    public TableBean(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
+
         id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
         WebStudio studio = WebStudioUtils.getWebStudio();
@@ -135,7 +137,7 @@ public class TableBean {
             model.getRecentlyVisitedTables().setLastVisitedTable(table);
             // Check the save table parameter
             String saveTable1 = WebStudioUtils.getRequestParameter("saveTable");
-            boolean saveTable = saveTable1 == null ? true  : Boolean.valueOf(saveTable1);
+            boolean saveTable = saveTable1 == null || Boolean.parseBoolean(saveTable1);
             if (saveTable) {
                 storeTable();
             }
@@ -265,7 +267,7 @@ public class TableBean {
         }
     }
 
-    public final boolean isDispatcherValidationNode() {
+    public boolean isDispatcherValidationNode() {
         return table != null && table.getName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
     }
 
@@ -315,7 +317,7 @@ public class TableBean {
                 params[n++] = inputParam;
             }
         } else {
-            params = new ParameterWithValueDeclaration[0];
+            params = ParameterWithValueDeclaration.EMPTY_ARRAY;
         }
         return params;
     }
@@ -452,10 +454,6 @@ public class TableBean {
         return true;
     }
 
-    public void setPropertyResolver(PropertyResolver propertyResolver) {
-        this.propertyResolver = propertyResolver;
-    }
-
     public boolean beforeSaveAction() {
         String editorId = WebStudioUtils
             .getRequestParameter(org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
@@ -484,19 +482,25 @@ public class TableBean {
     public String getRequestId() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         RulesProject currentProject = studio.getCurrentProject();
+        String requestId = currentProject == null ? "" : currentProject.getRepository().getId();
         String projectName = currentProject == null ? "" : currentProject.getName();
-        return REQUEST_ID_PREFIX + projectName;
+        return String.format(REQUEST_ID_FORMAT, requestId, projectName);
     }
 
     public static void tryUnlock(String requestId) {
-        if (StringUtils.isBlank(requestId) || !requestId.startsWith(REQUEST_ID_PREFIX)) {
+        if (StringUtils.isBlank(requestId)) {
+            return;
+        }
+        Matcher matcher = REQUEST_ID_PATTERN.matcher(requestId);
+        if (!matcher.matches()) {
             return;
         }
 
-        String projectName = requestId.substring(REQUEST_ID_PREFIX.length());
+        String repositoryId = matcher.group(1);
+        String projectName = matcher.group(2);
 
         final WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getProject(projectName);
+        RulesProject currentProject = studio.getProject(repositoryId, projectName);
         if (currentProject != null) {
             try {
                 if (!currentProject.isModified()) {

@@ -3,11 +3,19 @@ package org.openl.itest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runners.model.MultipleFailureException;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
+import org.openl.itest.core.worker.AsyncExecutor;
+import org.openl.itest.core.worker.TaskScheduler;
 import org.openl.itest.response.ServiceInfoResponse;
 import org.openl.itest.response.UiInfoResponse;
 
@@ -79,6 +87,7 @@ public class RunRestRulesDeploymentTest {
         assertEquals(ServiceInfoResponse.ServiceStatus.FAILED, servicesInfo5[0].getStatus());
         client.get("/admin/services/deployed-rules/errors", "/deployed-rules_errors.resp.json");
 
+        client.get("/admin/services/deployed-rules/MANIFEST.MF", 404);
         client.delete("/admin/delete/deployed-rules");
         UiInfoResponse uiInfoResponseResponseEntity2 = client.get("/admin/ui/info", UiInfoResponse.class);
         assertEquals(0, uiInfoResponseResponseEntity2.getServices().length);
@@ -117,11 +126,76 @@ public class RunRestRulesDeploymentTest {
         // should be updated
         client.put("/admin/deploy", "/multiple-deployment_v2.zip", 201);
         client.post("/REST/project1/sayHello", "/project1_sayHello.req.txt", "/project1_sayHello_2.resp.txt");
+
+        client.delete("/admin/delete/project1");
+        client.delete("/admin/delete/yaml_project_project2");
     }
 
     @Test
     public void testMissingServiceMethods() {
         client.get("/admin/services/missing-name/methods", 404);
+        client.delete("/admin/delete/missing-name", 404);
+        client.get("/admin/read/missing-name", 404);
+        client.get("/admin/services/missing-name/errors", 404);
+        client.get("/admin/services/missing-name/MANIFEST.MF", 404);
+    }
+
+    @Test
+    public void test_EPBDS_8758_multithread() throws Exception {
+        client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
+        client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v1.resp.txt");
+        AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS, () -> client.get("/REST/EPBDS-8758/doSomething", String.class));
+        TaskScheduler taskScheduler = new TaskScheduler();
+
+        executor.start();
+
+        taskScheduler.schedule(() -> {
+            client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v2.zip", 201);
+            client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v2.resp.txt");
+        }, 1, TimeUnit.SECONDS);
+        taskScheduler.schedule(() -> {
+            client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v3.zip", 201);
+            client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v3.resp.txt");
+        }, 2, TimeUnit.SECONDS);
+
+        List<Throwable> deployErrors = taskScheduler.await();
+        List<Throwable> invocationErrors = executor.stop();
+
+        client.delete("/admin/delete/EPBDS-8758");
+
+        MultipleFailureException.assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream())
+                .collect(Collectors.toList()));
+    }
+
+    @Test
+    public void test_EPBDS_8758_multithread2() throws Exception {
+        client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
+        client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v1.resp.txt");
+        AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS, () -> client.send("EPBDS-8758/doSomething.get"));
+        executor.start();
+
+        AsyncExecutor deployers = new AsyncExecutor(() -> {
+            client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v2.zip", 201);
+        }, () -> {
+            client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v3.zip", 201);
+        });
+
+        deployers.start();
+        TimeUnit.SECONDS.sleep(1);
+        List<Throwable> deployErrors = deployers.stop();
+        List<Throwable> invocationErrors = executor.stop();
+
+        client.delete("/admin/delete/EPBDS-8758");
+
+        MultipleFailureException.assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream())
+                .collect(Collectors.toList()));
+    }
+
+    @Test
+    public void test_EPBDS_10068_MANIFEST() {
+        client.put("/admin/deploy", "/EPBDS-10068/EPBDS-10068.zip", 201);
+        client.get("/admin/services/EPBDS-10068/MANIFEST.MF", "/EPBDS-10068/MANIFEST.MF.resp.json");
+        client.delete("/admin/delete/EPBDS-10068");
     }
 
     private void checkServiceInfo(ServiceInfoResponse service,
@@ -136,4 +210,5 @@ public class RunRestRulesDeploymentTest {
     private void checkServiceTime(long timeToCheckMs, long createServiceTime) {
         assertTrue((timeToCheckMs >= createServiceTime && timeToCheckMs <= System.currentTimeMillis()));
     }
+
 }

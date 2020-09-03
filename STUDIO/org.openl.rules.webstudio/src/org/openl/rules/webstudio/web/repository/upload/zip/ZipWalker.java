@@ -46,7 +46,7 @@ public class ZipWalker {
 
     }
 
-    private ZipInputStream getZipInputStream() {
+    private ZipInputStream getZipInputStream() throws IOException {
         return new ZipInputStream(uploadedFile.getInput(), charset);
     }
 

@@ -21,7 +21,7 @@
                 <h:outputText value="Parent type:" rendered="#{not empty wizard.definedDatatypes}"/>
                 <h:selectOneMenu value="#{wizard.parent}" rendered="#{not empty wizard.definedDatatypes}">
                     <f:selectItem itemLabel="" itemValue="#{null}"/>
-                    <f:selectItems value="#{wizard.definedDatatypes}" />
+                    <f:selectItems value="#{wizard.definedDatatypes}" var="v" itemDisabled="#{v == ''}" />
                 </h:selectOneMenu>
 
             </h:panelGrid>

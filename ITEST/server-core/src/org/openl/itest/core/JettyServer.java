@@ -1,8 +1,14 @@
 package org.openl.itest.core;
 
+import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.webapp.WebInfConfiguration;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Simple wrapper for Jetty Server
@@ -18,6 +24,10 @@ public class JettyServer {
         this.server.setStopAtShutdown(true);
         WebAppContext webAppContext = new WebAppContext();
         webAppContext.setResourceBase(explodedWar);
+        webAppContext.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", ".*/classes/.*");
+        webAppContext
+            .setConfigurations(new Configuration[] { new AnnotationConfiguration(), new WebInfConfiguration() });
+
         if (sharedClassloader) {
             webAppContext.setClassLoader(JettyServer.class.getClassLoader());
         }
@@ -41,6 +51,12 @@ public class JettyServer {
     }
 
     public HttpClient client() {
-        return HttpClient.create("http://localhost:" + ((ServerConnector) server.getConnectors()[0]).getLocalPort());
+        int port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
+        try {
+            URL url = new URL("http", "localhost", port, "");
+            return HttpClient.create(url);
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 }

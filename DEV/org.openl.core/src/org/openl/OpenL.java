@@ -40,8 +40,6 @@ public class OpenL {
 
     private IOpenVM vm;
 
-    private ICompileContext compileContext;
-
     private String name;
 
     public OpenL() {
@@ -176,24 +174,6 @@ public class OpenL {
      */
     public void setBinder(IOpenBinder binder) {
         this.binder = binder;
-    }
-
-    /**
-     * Gets compilation context.
-     *
-     * @return {@link ICompileContext} instance
-     */
-    public ICompileContext getCompileContext() {
-        return compileContext;
-    }
-
-    /**
-     * Sets compilation context.
-     *
-     * @param compileContext {@link ICompileContext} instance
-     */
-    public void setCompileContext(ICompileContext compileContext) {
-        this.compileContext = compileContext;
     }
 
     @Override

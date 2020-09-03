@@ -12,14 +12,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.ProjectDescriptorManager;
@@ -58,28 +54,28 @@ import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.util.PathMatcher;
+import org.springframework.web.context.annotation.RequestScope;
 
-@ManagedBean
-@RequestScoped
+@Service
+@RequestScope
 public class ProjectBean {
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     private final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
 
-    @ManagedProperty(value = "#{repositoryTreeState}")
-    private RepositoryTreeState repositoryTreeState;
+    private final RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{projectDescriptorSerializerFactory}")
-    private ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory;
-    @ManagedProperty(value = "#{rulesDeploySerializerFactory}")
-    private RulesDeploySerializerFactory rulesDeploySerializerFactory;
+    private final ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory;
+    private final RulesDeploySerializerFactory rulesDeploySerializerFactory;
 
-    private WebStudio studio = WebStudioUtils.getWebStudio();
+    private final WebStudio studio = WebStudioUtils.getWebStudio();
 
     private final Logger log = LoggerFactory.getLogger(ProjectBean.class);
 
     private List<ListItem<ProjectDependencyDescriptor>> dependencies;
     private String sources;
+    private String[] propertiesFileNamePatterns;
 
     private UIInput propertiesFileNameProcessorInput;
     private String propertiesFileNameProcessor;
@@ -91,6 +87,14 @@ public class ProjectBean {
     private String currentPathPattern;
     private Integer currentModuleIndex;
     private IRulesDeploySerializer rulesDeploySerializer;
+
+    public ProjectBean(RepositoryTreeState repositoryTreeState,
+            ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory,
+            RulesDeploySerializerFactory rulesDeploySerializerFactory) {
+        this.repositoryTreeState = repositoryTreeState;
+        this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
+        this.rulesDeploySerializerFactory = rulesDeploySerializerFactory;
+    }
 
     public String getModulePath(Module module) {
         PathEntry modulePath = module == null ? null : module.getRulesRootPath();
@@ -149,7 +153,27 @@ public class ProjectBean {
         this.sources = sources;
     }
 
+    public String getPropertiesFileNamePatterns() {
+        propertiesFileNamePatterns = studio.getCurrentProjectDescriptor().getPropertiesFileNamePatterns();
+        return StringUtils.join(propertiesFileNamePatterns, "\n");
+    }
+
+    public void setPropertiesFileNamePatterns(String propertiesFileNamePatterns) {
+        this.propertiesFileNamePatterns = StringUtils.toLines(propertiesFileNamePatterns);
+    }
+
     // TODO Move messages to ValidationMessages.properties
+    public void validateProjectName(FacesContext context, UIComponent toValidate, Object value) {
+        String name = (String) value;
+
+        WebStudioUtils.validate(StringUtils.isNotBlank(name), "Can not be empty");
+
+        if (!studio.getCurrentProjectDescriptor().getName().equals(name)) {
+            WebStudioUtils.validate(NameChecker.checkName(name), NameChecker.BAD_PROJECT_NAME_MSG);
+            WebStudioUtils.validate(!studio.isProjectExists(name), "Project with such name already exists");
+        }
+    }
+
     public void validatePropertiesFileNameProcessor(FacesContext context, UIComponent toValidate, Object value) {
         String className = (String) value;
 
@@ -173,18 +197,20 @@ public class ProjectBean {
 
     // TODO Move messages to ValidationMessages.properties
     public void validatePropertiesFileNamePattern(FacesContext context, UIComponent toValidate, Object value) {
-        String pattern = (String) value;
+        String[] patterns = StringUtils.toLines((String) value);
 
-        if (StringUtils.isNotBlank(pattern)) {
+        if (patterns != null) {
             PropertiesFileNameProcessor processor;
             PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
             try {
                 ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
                 projectDescriptor.setPropertiesFileNameProcessor((String) propertiesFileNameProcessorInput.getValue());
-                projectDescriptor.setPropertiesFileNamePattern(pattern);
+                projectDescriptor.setPropertiesFileNamePatterns(patterns);
                 processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
                 if (processor instanceof FileNamePatternValidator) {
-                    ((FileNamePatternValidator) processor).validate(pattern);
+                    for(String pattern: patterns) {
+                        ((FileNamePatternValidator) processor).validate(pattern);
+                    }
                 }
             } catch (InvalidFileNamePatternException e) {
                 WebStudioUtils.throwValidationError(e.getMessage());
@@ -267,6 +293,8 @@ public class ProjectBean {
         tryLockProject();
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
+        projectDescriptor.setPropertiesFileNamePatterns(propertiesFileNamePatterns);
+
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
         RulesProject currentProject = studio.getCurrentProject();
@@ -512,13 +540,8 @@ public class ProjectBean {
 
     private void tryLockProject() {
         RulesProject currentProject = studio.getCurrentProject();
-        try {
-            if (!currentProject.tryLock()) {
-                throw new Message("Project is locked by other user");
-            }
-        } catch (ProjectException e) {
-            log.error(e.getMessage(), e);
-            throw new Message("Error while project locking");
+        if (!currentProject.tryLock()) {
+            throw new Message("Project is locked by other user");
         }
     }
 
@@ -533,9 +556,9 @@ public class ProjectBean {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
 
             if (project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
-                AProjectResource artefact = (AProjectResource) project
+                AProjectResource artifact = (AProjectResource) project
                     .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-                artefact.setContent(inputStream);
+                artifact.setContent(inputStream);
             } else {
                 // new
                 // ProjectDescriptorManager().writeDescriptor(projectDescriptor,
@@ -545,11 +568,11 @@ public class ProjectBean {
             }
 
             if (project.hasArtefact(RULES_DEPLOY_XML)) {
-                AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_XML);
-                rulesDeployContent = artefact.getContent();
+                AProjectResource artifact = (AProjectResource) project.getArtefact(RULES_DEPLOY_XML);
+                rulesDeployContent = artifact.getContent();
                 RulesDeploy rulesDeploy = rulesDeploySerializerFactory.getSerializer(SupportedVersion.getLastVersion())
                     .deserialize(rulesDeployContent);
-                artefact.setContent(new ByteArrayInputStream(
+                artifact.setContent(new ByteArrayInputStream(
                     rulesDeploySerializer.serialize(rulesDeploy).getBytes(StandardCharsets.UTF_8)));
             }
 
@@ -585,8 +608,8 @@ public class ProjectBean {
             descriptor.setClasspath(null);
         }
 
-        if (StringUtils.isBlank(descriptor.getPropertiesFileNamePattern())) {
-            descriptor.setPropertiesFileNamePattern(null);
+        if (CollectionUtils.isEmpty(descriptor.getPropertiesFileNamePatterns())) {
+            descriptor.setPropertiesFileNamePatterns(null);
         }
 
         if (StringUtils.isBlank(descriptor.getPropertiesFileNameProcessor())) {
@@ -631,19 +654,6 @@ public class ProjectBean {
 
     private ProjectDescriptor cloneProjectDescriptor(ProjectDescriptor projectDescriptor) {
         return new SafeCloner().deepClone(projectDescriptor);
-    }
-
-    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
-        this.repositoryTreeState = repositoryTreeState;
-    }
-
-    public void setProjectDescriptorSerializerFactory(
-            ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory) {
-        this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
-    }
-
-    public void setRulesDeploySerializerFactory(RulesDeploySerializerFactory rulesDeploySerializerFactory) {
-        this.rulesDeploySerializerFactory = rulesDeploySerializerFactory;
     }
 
     public UIInput getPropertiesFileNameProcessorInput() {
@@ -838,15 +848,13 @@ public class ProjectBean {
 
         Boolean fileNameMatched = null;
         try {
-            String pattern = projectDescriptor.getPropertiesFileNamePattern();
-            if (pattern != null) {
-                builder.build(projectDescriptor).process(module, pattern);
+            String[] patterns = projectDescriptor.getPropertiesFileNamePatterns();
+            if (patterns != null) {
+                builder.build(projectDescriptor).process(module, patterns);
                 fileNameMatched = true;
             }
-        } catch (InvalidFileNameProcessorException ignored) {
+        } catch (InvalidFileNameProcessorException | InvalidFileNamePatternException ignored) {
             // Cannot check for name correctness
-        } catch (InvalidFileNamePatternException e) {
-            // Invalid pattern, cannot check for name correctness
         } catch (NoMatchFileNameException e) {
             fileNameMatched = false;
         }
@@ -919,7 +927,8 @@ public class ProjectBean {
     }
 
     public String getPropertiesFileNamePattern() {
-        return studio.getCurrentProjectDescriptor().getPropertiesFileNamePattern();
+        String[] patterns = studio.getCurrentProjectDescriptor().getPropertiesFileNamePatterns();
+        return CollectionUtils.isEmpty(patterns) ? null : patterns[0];
     }
 
     public String getCurrentPropertiesFileNameProcessor() {

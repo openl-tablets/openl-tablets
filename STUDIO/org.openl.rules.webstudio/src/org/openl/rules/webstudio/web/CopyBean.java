@@ -8,11 +8,8 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
-import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
@@ -23,12 +20,12 @@ import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.admin.ProjectsInHistoryController;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
@@ -42,36 +39,45 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.jsf.FacesContextUtils;
 
 /**
  * FIXME: Replace SessionScoped with RequestScoped when validation issues in inputNumberSpinner in Repository and Editor
  * tabs will be fixed.
  */
-@ManagedBean
-@SessionScoped
+@Service
+@SessionScope
 public class CopyBean {
-    private final Logger log = LoggerFactory.getLogger(CopyBean.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CopyBean.class);
 
-    @ManagedProperty(value = "#{designRepositoryComments}")
-    private Comments designRepoComments;
+    private final PropertyResolver propertyResolver;
 
-    @ManagedProperty(value = "#{repositoryTreeState}")
-    private RepositoryTreeState repositoryTreeState;
+    private final RepositoryTreeState repositoryTreeState;
 
-    private ApplicationContext applicationContext = FacesContextUtils
-        .getWebApplicationContext(FacesContext.getCurrentInstance());
+    private final ApplicationContext applicationContext = FacesContextUtils
+        .getRequiredWebApplicationContext(FacesContext.getCurrentInstance());
+
+    private String repositoryId;
+    private String toRepositoryId;
+    private boolean repositoryIsChanged = false;
 
     private String currentProjectName;
     private String newProjectName;
     private String projectFolder;
-    private boolean separateProject = false;
+    private boolean separateProject;
     private String newBranchName;
     private String comment;
     private Boolean copyOldRevisions = Boolean.FALSE;
     private Integer revisionsCount;
-    private CommentValidator commentValidator;
     private String errorMessage;
+
+    public CopyBean(PropertyResolver propertyResolver, RepositoryTreeState repositoryTreeState) {
+        this.propertyResolver = propertyResolver;
+        this.repositoryTreeState = repositoryTreeState;
+    }
 
     public boolean getCanCreate() {
         return isGranted(CREATE_PROJECTS);
@@ -94,11 +100,18 @@ public class CopyBean {
     }
 
     public String getProjectFolder() {
-        return projectFolder;
+        String folderToShow = this.projectFolder;
+        if (!folderToShow.startsWith("/")) {
+            folderToShow = "/" + folderToShow;
+        }
+        return folderToShow;
     }
 
     public void setProjectFolder(String projectFolder) {
         String folder = StringUtils.trimToEmpty(projectFolder).replace('\\', '/');
+        if (folder.startsWith("/")) {
+            folder = folder.substring(1);
+        }
         if (!folder.isEmpty() && !folder.endsWith("/")) {
             folder += '/';
         }
@@ -122,14 +135,20 @@ public class CopyBean {
     }
 
     public String getComment() {
-        if (comment == null) {
+        if (comment == null && toRepositoryId != null) {
+            Comments designRepoComments = new Comments(propertyResolver, toRepositoryId);
             return designRepoComments.copiedFrom(getCurrentProjectName());
         }
         return comment;
     }
 
     public void setComment(String comment) {
-        this.comment = StringUtils.trimToNull(comment);
+        if (repositoryIsChanged) {
+            this.comment = null;
+            repositoryIsChanged = false;
+        } else {
+            this.comment = StringUtils.trimToNull(comment);
+        }
     }
 
     public void setCopyOldRevisions(Boolean copyOldRevisions) {
@@ -152,17 +171,16 @@ public class CopyBean {
     }
 
     public int getMaxRevisionsCount() {
+        if (repositoryId == null || !repositoryId.equals(toRepositoryId)) {
+            // We don't support copy history when copying to another repository.
+            return 0;
+        }
         RulesProject project = getCurrentProject();
         return project == null ? 0 : project.getVersionsCount();
     }
 
     public String getErrorMessage() {
         return errorMessage;
-    }
-
-    @PostConstruct
-    public void init() {
-        this.commentValidator = CommentValidator.forDesignRepo();
     }
 
     public void copy() {
@@ -172,21 +190,20 @@ public class CopyBean {
             UserWorkspace userWorkspace = getUserWorkspace();
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
-            LocalRepository localRepository = userWorkspace.getLocalWorkspace().getRepository();
-
-            RulesProject project = userWorkspace.getProject(currentProjectName, false);
+            RulesProject project = userWorkspace.getProject(repositoryId, currentProjectName, false);
+            ProjectsInHistoryController.deleteHistory(project.getName());
             if (isSupportsBranches() && !separateProject) {
                 Repository designRepository = project.getDesignRepository();
                 ((BranchRepository) designRepository).createBranch(currentProjectName, newBranchName);
             } else {
-                Repository designRepository = designTimeRepository.getRepository();
+                Repository designRepository = designTimeRepository.getRepository(toRepositoryId);
                 String designPath = designTimeRepository.getRulesLocation() + newProjectName;
                 FileData designData = new FileData();
                 designData.setName(designPath);
 
                 FileMappingData mappingData = new FileMappingData(projectFolder + newProjectName);
 
-                if (copyOldRevisions) {
+                if (copyOldRevisions && repositoryId.equals(toRepositoryId)) {
                     List<ProjectVersion> versions = project.getVersions();
                     int start = versions.size() - revisionsCount;
                     for (int i = start; i < versions.size(); i++) {
@@ -214,7 +231,7 @@ public class CopyBean {
                 designProject.setResourceTransformer(null);
 
                 RulesProject copiedProject = new RulesProject(userWorkspace,
-                    localRepository,
+                    userWorkspace.getLocalWorkspace().getRepository(toRepositoryId),
                     null,
                     designRepository,
                     designProject.getFileData(),
@@ -228,7 +245,7 @@ public class CopyBean {
 
             switchToNewBranch();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             errorMessage = "Cannot copy the project: " + e.getMessage();
         }
     }
@@ -257,7 +274,7 @@ public class CopyBean {
             repositoryTreeState.refreshNode(node);
             studio.reset();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
     }
 
@@ -269,12 +286,13 @@ public class CopyBean {
         WebStudioUtils.validate(StringUtils.isNotBlank(newProjectName), "Cannot be empty");
         WebStudioUtils.validate(NameChecker.checkName(newProjectName), NameChecker.BAD_PROJECT_NAME_MSG);
 
-        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(WebStudioUtils.getSession());
+        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
         try {
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
-            WebStudioUtils.validate(!userWorkspace.hasProject(newProjectName), "Project with such name already exists.");
+            WebStudioUtils.validate(!userWorkspace.hasProject(toRepositoryId, newProjectName),
+                "Project with such name already exists.");
         } catch (WorkspaceException e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             WebStudioUtils.throwValidationError("Error during validation.");
         }
     }
@@ -293,15 +311,13 @@ public class CopyBean {
             UserWorkspace userWorkspace = getUserWorkspace();
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
-            BranchRepository designRepository = (BranchRepository) designTimeRepository.getRepository();
+            BranchRepository designRepository = (BranchRepository) designTimeRepository.getRepository(repositoryId);
             WebStudioUtils.validate(designRepository.isValidBranchName(newBranchName),
                 "Invalid branch name. It should not contain reserved words or symbols.");
             WebStudioUtils.validate(!designRepository.branchExists(newBranchName),
                 "Branch " + newBranchName + " already exists.");
             for (String branch : designRepository.getBranches(null)) {
-                String message = "Can't create the branch '" + newBranchName + "' because the branch '" + branch + "' already exists.\n"
-                    + "Explanation: for example a branch 'foo/bar'exists. That branch can be considered as a file 'bar' located in the folder 'foo'.\n"
-                    + "So you can't create a branch 'foo/bar/baz' because you can't create the folder 'foo/bar': the file with such name already exists.";
+                String message = "Can't create the branch '" + newBranchName + "' because the branch '" + branch + "' already exists.\n" + "Explanation: for example a branch 'foo/bar'exists. That branch can be considered as a file 'bar' located in the folder 'foo'.\n" + "So you can't create a branch 'foo/bar/baz' because you can't create the folder 'foo/bar': the file with such name already exists.";
                 WebStudioUtils.validate(!newBranchName.startsWith(branch + "/"), message);
             }
         } catch (WorkspaceException | IOException ignored) {
@@ -317,14 +333,30 @@ public class CopyBean {
         String comment = (String) value;
 
         RulesProject project = getCurrentProject();
-        if (project != null) {
-            commentValidator.validate(comment);
+        if (project != null && toRepositoryId != null) {
+            CommentValidator.forRepo(toRepositoryId).validate(comment);
         }
     }
 
     private Boolean isSeparateProjectSubmitted(FacesContext context) {
         return (Boolean) ((UIInput) context.getViewRoot().findComponent("copyProjectForm:separateProjectCheckbox"))
             .getValue();
+    }
+
+    public void setRepositoryId(String repositoryId) {
+        this.repositoryId = repositoryId;
+        this.toRepositoryId = repositoryId;
+    }
+
+    public String getToRepositoryId() {
+        return toRepositoryId;
+    }
+
+    public void setToRepositoryId(String toRepositoryId) {
+        if (this.toRepositoryId == null || !this.toRepositoryId.equals(toRepositoryId)) {
+            repositoryIsChanged = true;
+        }
+        this.toRepositoryId = toRepositoryId;
     }
 
     public void setInitProject(String currentProjectName) {
@@ -344,10 +376,11 @@ public class CopyBean {
                 String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
                 String pattern = applicationContext.getEnvironment()
                     .getProperty("repository.design.new-branch-pattern");
+                Objects.requireNonNull(pattern);
                 newBranchName = MessageFormat.format(pattern, simplifiedProjectName, userName, date);
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
     }
 
@@ -358,13 +391,17 @@ public class CopyBean {
 
     public boolean isSupportsMappedFolders() {
         try {
+            if (toRepositoryId == null) {
+                return false;
+            }
+
             UserWorkspace userWorkspace = getUserWorkspace();
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
-            Repository designRepository = designTimeRepository.getRepository();
+            Repository designRepository = designTimeRepository.getRepository(toRepositoryId);
             return designRepository.supports().mappedFolders();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             return false;
         }
     }
@@ -376,29 +413,21 @@ public class CopyBean {
 
         try {
             UserWorkspace userWorkspace = getUserWorkspace();
-            if (!userWorkspace.hasProject(currentProjectName)) {
+            if (!userWorkspace.hasProject(repositoryId, currentProjectName)) {
                 currentProjectName = null;
                 return null;
             }
 
-            return userWorkspace.getProject(currentProjectName, false);
+            return userWorkspace.getProject(repositoryId, currentProjectName, false);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             return null;
         }
     }
 
     private UserWorkspace getUserWorkspace() throws WorkspaceException {
-        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(WebStudioUtils.getSession());
+        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
         return rulesUserSession.getUserWorkspace();
-    }
-
-    public void setDesignRepoComments(Comments designRepoComments) {
-        this.designRepoComments = designRepoComments;
-    }
-
-    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
-        this.repositoryTreeState = repositoryTreeState;
     }
 
     public boolean isConfirmationRequired() {

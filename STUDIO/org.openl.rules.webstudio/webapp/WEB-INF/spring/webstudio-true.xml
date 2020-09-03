@@ -8,7 +8,7 @@
     default-autowire="no">
 
     <context:property-placeholder/>
-    <context:component-scan base-package="org.openl.rules.webstudio, org.openl.rules.rest"/>
+    <context:component-scan base-package="org.openl.rules.webstudio, org.openl.rules.rest, org.openl.rules.ui.tablewizard"/>
     <import resource="system-config-beans.xml" />
     <import resource="repository-beans.xml" />
     <import resource="security-beans.xml" />
@@ -17,13 +17,14 @@
     <bean id="currentUserInfo" class="org.openl.rules.webstudio.security.CurrentUserInfo" />
 
     <bean id="excludedFolders" class="java.util.LinkedHashSet">
-    <constructor-arg>
-      <list>
-        <value>.svn</value>
-        <value>CVS</value>
-        <value>.studioProps</value>
-      </list>
-    </constructor-arg>
+        <constructor-arg>
+            <list>
+                <value>.svn</value>
+                <value>CVS</value>
+                <value>.studioProps</value>
+                <value>.history</value>
+            </list>
+        </constructor-arg>
     </bean>
 
     <bean id="excludedFiles" class="java.util.LinkedHashSet">
@@ -47,34 +48,6 @@
     </constructor-arg>
     </bean>
 
-    <bean id="localWorkspaceFolderFilter" class="org.apache.commons.io.filefilter.AndFileFilter">
-    <constructor-arg>
-      <list>
-        <bean class="org.apache.commons.io.filefilter.DirectoryFileFilter" />
-        <bean class="org.apache.commons.io.filefilter.NotFileFilter">
-          <constructor-arg>
-            <bean class="org.apache.commons.io.filefilter.OrFileFilter">
-              <constructor-arg>
-                <list>
-                  <bean class="org.apache.commons.io.filefilter.NameFileFilter">
-                    <constructor-arg ref="excludedFolders" />
-                  </bean>
-                  <bean class="org.apache.commons.io.filefilter.NameFileFilter">
-                    <constructor-arg>
-                      <list>
-                        <value>.studioProps</value>
-                      </list>
-                    </constructor-arg>
-                  </bean>
-                </list>
-              </constructor-arg>
-            </bean>
-          </constructor-arg>
-        </bean>
-      </list>
-    </constructor-arg>
-    </bean>
-
     <bean class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean" init-method="create">
         <property name="address" value=""/>
         <property name="serviceBeans">
@@ -85,6 +58,8 @@
                 <ref bean="testDownloadService"/>
                 <ref bean="conflictService"/>
                 <ref bean="diffService"/>
+                <ref bean="notificationService"/>
+                <ref bean="projectHistoryService"/>
             </list>
         </property>
         <property name="providers">

@@ -3,7 +3,11 @@ package org.openl.rules.repository;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -78,7 +82,7 @@ public class RepositoryInstatiator {
         try {
             // Instantiate a repository
             Class<?> clazz = Class.forName(factory);
-            instance = clazz.newInstance();
+            instance = clazz.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             throw new IllegalStateException("Failed to instantiate a repository: " + factory, e);
         } catch (UnsupportedClassVersionError e) {
@@ -143,8 +147,13 @@ public class RepositoryInstatiator {
             PropertyResolver propertyResolver,
             String configName) {
         Class<?> clazz = instance.getClass();
-        for (Field field : clazz.getDeclaredFields()) {
-            String fieldName = field.getName();
+        for (String fieldName : getAllFieldNames(clazz)) {
+            if ("id".equals(fieldName)) {
+                if (StringUtils.isNotBlank(configName)) {
+                    injectValue(instance, clazz, configName, fieldName);
+                }
+                continue;
+            }
             String propertyName = buildPropertyName(configName, fieldName);
             String propertyValue = propertyResolver.getProperty(propertyName);
             boolean propertyExists = StringUtils.isNotBlank(propertyValue);
@@ -152,7 +161,14 @@ public class RepositoryInstatiator {
                 injectValue(instance, clazz, propertyValue, fieldName);
             }
         }
+    }
 
+    private static Collection<String> getAllFieldNames(Class<?> type) {
+        Collection<String> fields = new HashSet<>();
+        for (Class<?> c = type; c != null; c = c.getSuperclass()) {
+            fields.addAll(Arrays.stream(c.getDeclaredFields()).map(Field::getName).collect(Collectors.toList()));
+        }
+        return fields;
     }
 
     private static String buildPropertyName(String configName, String name) {

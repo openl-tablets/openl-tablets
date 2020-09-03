@@ -1,9 +1,8 @@
 package org.openl.rules.tbasic.compile;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.openl.OpenL;
@@ -37,7 +36,7 @@ public class AlgorithmOpenClass extends ComponentOpenClass {
     }
 
     @Override
-    public Map<String, IOpenField> getFields() {
+    public Collection<IOpenField> getFields() {
         return filterFields(super.getFields());
     }
 
@@ -50,18 +49,18 @@ public class AlgorithmOpenClass extends ComponentOpenClass {
         }
     }
 
-    private Map<String, IOpenField> filterFields(Map<String, IOpenField> fields) {
-        Map<String, IOpenField> visibleFields = new HashMap<>();
-        for (Entry<String, IOpenField> entry : fields.entrySet()) {
-            if (!invisibleFields.contains(entry.getKey())) {
-                visibleFields.put(entry.getKey(), entry.getValue());
+    private Collection<IOpenField> filterFields(Collection<IOpenField> fields) {
+        Collection<IOpenField> visibleFields = new ArrayList<>();
+        for (IOpenField field : fields) {
+            if (!invisibleFields.contains(field.getName())) {
+                visibleFields.add(field);
             }
         }
         return visibleFields;
     }
 
     @Override
-    public Map<String, IOpenField> getDeclaredFields() {
+    public Collection<IOpenField> getDeclaredFields() {
         return filterFields(super.getDeclaredFields());
     }
 

@@ -3,16 +3,15 @@ package org.openl.generated.epbds7084;
 import java.util.Objects;
 
 public class BeanA {
-    private int a = 1000;
-    private int B = 2000;
-    private int aa = 4000;
-    private int aB = 8000;
-    private int Ba = 16000;
-    private int BB = 32000;
-    private int xB = 64000;
+    protected int a = 1;
+    protected int B = 2;
+    protected int aa = 4;
+    protected int aB = 8;
+    protected int Ba = 16;
+    protected int BB = 32;
+    protected int xB = 64;
 
     public BeanA() {
-
     }
 
     public BeanA(int a, int b, int aa, int aB, int ba, int BB, int xB) {

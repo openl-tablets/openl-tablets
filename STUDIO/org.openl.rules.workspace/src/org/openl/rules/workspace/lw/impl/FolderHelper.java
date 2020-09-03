@@ -15,6 +15,7 @@ public final class FolderHelper {
     public static final String PROPERTIES_FOLDER = ".studioProps";
     public static final String FOLDER_PROPERTIES_FILE = "..studioProps.folder";
     public static final String RESOURCE_PROPERTIES_EXT = ".props";
+    public static final String HISTORY_FOLDER = ".history";
 
     private FolderHelper() {
     }

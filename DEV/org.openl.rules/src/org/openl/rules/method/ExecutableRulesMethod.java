@@ -2,6 +2,7 @@ package org.openl.rules.method;
 
 import java.util.Map;
 
+import org.openl.binding.IBindingContext;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -68,8 +69,10 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
                         aliasDatatypesCasts = new IOpenCast[header.getSignature().getNumberOfParameters()];
                     }
                     IOpenClass methodParam = header.getSignature().getParameterTypes()[i];
-                    aliasDatatypesCasts[i++] = castFactory
-                        .getCast(JavaOpenClass.getOpenClass(methodParam.getInstanceClass()), methodParam);
+                    if (methodParam.getInstanceClass() != null) {
+                        aliasDatatypesCasts[i++] = castFactory
+                            .getCast(JavaOpenClass.getOpenClass(methodParam.getInstanceClass()), methodParam);
+                    }
                 }
             }
         }
@@ -183,6 +186,16 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
 
     public void setBoundNode(ATableBoundNode node) {
         this.boundNode = node;
+    }
+
+    public void removeDebugInformation() {
+        setBoundNode(null);
+        ITableProperties methodProperties = getMethodProperties();
+        if (methodProperties != null) {
+            methodProperties.setModulePropertiesTableSyntaxNode(null);
+            methodProperties.setCategoryPropertiesTableSyntaxNode(null);
+            methodProperties.setPropertiesSection(null);
+        }
     }
 
     public ATableBoundNode getBoundNode() {

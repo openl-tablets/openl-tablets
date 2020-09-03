@@ -14,7 +14,7 @@ final class SysInfoLogger extends OpenLLogger {
 
     @Override
     protected void discover() {
-        log("System properties:");
+        log("System info:");
         try {
             log("    Java : {} v{} ({})",
                 System.getProperty("java.vendor"),

@@ -3,8 +3,6 @@
   <mapping>
     <property name="logicalTable" ignore="true"/>
     <property name="customSpreadsheetResultOpenClass" ignore="true"/>
-    <property name="columnTitles" ignore="true"/>
-    <property name="rowTitles" ignore="true"/>
     <property name="fieldsCoordinates" ignore="true"/>
     <property name="rowNamesForResultModel" ignore="true"/>
     <property name="columnNamesForResultModel" ignore="true"/>

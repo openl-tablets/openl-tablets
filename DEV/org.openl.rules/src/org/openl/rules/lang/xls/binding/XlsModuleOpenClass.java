@@ -8,7 +8,6 @@ package org.openl.rules.lang.xls.binding;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +32,8 @@ import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.IRulesMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
-import org.openl.rules.lang.xls.prebind.ILazyMember;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.OpenLArgumentsCloner;
@@ -74,19 +72,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
      * Whether DecisionTable should be used as a dispatcher for overloaded tables. By default(this flag equals false)
      * dispatching logic will be performed in Java code.
      */
-    private boolean useDecisionTableDispatcher;
+    private final boolean useDecisionTableDispatcher;
 
-    private boolean dispatchingValidationEnabled;
+    private final boolean dispatchingValidationEnabled;
 
-    private Collection<String> imports = new HashSet<>();
+    private Collection<String> imports = Collections.emptySet();
 
-    private ClassLoader classLoader;
+    private final ClassLoader classLoader;
 
-    private OpenLBundleClassLoader classGenerationClassLoader;
+    private final OpenLBundleClassLoader classGenerationClassLoader;
 
     private RulesModuleBindingContext rulesModuleBindingContext;
 
-    private XlsDefinitions xlsDefinitions = new XlsDefinitions();
+    private final XlsDefinitions xlsDefinitions = new XlsDefinitions();
 
     private SpreadsheetResultOpenClass spreadsheetResultOpenClass;
 
@@ -162,7 +160,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     private void initImports(XlsModuleSyntaxNode xlsModuleSyntaxNode) {
-        imports.addAll(xlsModuleSyntaxNode.getImports());
+        imports = Collections.unmodifiableSet(new HashSet<>(xlsModuleSyntaxNode.getImports()));
     }
 
     // TODO: should be placed to ModuleOpenClass
@@ -184,14 +182,14 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     @Override
     protected IOpenClass processDependencyTypeBeforeAdding(IOpenClass type) {
-        if (type instanceof CustomSpreadsheetResultOpenClass) {
+        if (type instanceof ModuleSpecificType) {
             IOpenClass existingType = findType(type.getName());
-            if (existingType instanceof CustomSpreadsheetResultOpenClass) {
-                CustomSpreadsheetResultOpenClass existingCustomSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) existingType;
-                existingCustomSpreadsheetResultOpenClass.extendWith((CustomSpreadsheetResultOpenClass) type);
-                return existingCustomSpreadsheetResultOpenClass;
+            if (existingType != null) {
+                ModuleSpecificType existingModuleRelatedType = (ModuleSpecificType) existingType;
+                existingModuleRelatedType.updateWithType(type);
+                return existingType;
             } else {
-                return ((CustomSpreadsheetResultOpenClass) type).makeCopyForModule(this);
+                return ((ModuleSpecificType) type).makeCopyForModule(this);
             }
         }
         return super.processDependencyTypeBeforeAdding(type);
@@ -227,7 +225,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
         for (IOpenClass type : getTypes()) {
             if (type instanceof CustomSpreadsheetResultOpenClass) {
-                ((CustomSpreadsheetResultOpenClass) type).fixCSRFields();
+                ((CustomSpreadsheetResultOpenClass) type).fixModuleFieldTypes();
             }
         }
     }
@@ -244,38 +242,20 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return imports;
     }
 
-    @SuppressWarnings("unchecked")
-    protected IOpenMethod extractNonLazyMethod(IOpenMethod method) {
-        if (method instanceof ILazyMember) {
-            return extractNonLazyMethod(((ILazyMember<IOpenMethod>) method).getOriginal());
-        }
-        return method;
-    }
-
     @Override
     protected boolean isDependencyMethodInheritable(IOpenMethod openMethod) {
-        IOpenMethod method = extractNonLazyMethod(openMethod);
-        if (method instanceof TestSuiteMethod) {
+        if (openMethod instanceof TestSuiteMethod) {
             return false;
         }
-        return super.isDependencyMethodInheritable(method);
-    }
-
-    @SuppressWarnings("unchecked")
-    protected IOpenField extractNonLazyMember(IOpenField openField) {
-        if (openField instanceof ILazyMember) {
-            return extractNonLazyMember(((ILazyMember<IOpenField>) openField).getOriginal());
-        }
-        return openField;
+        return super.isDependencyMethodInheritable(openMethod);
     }
 
     @Override
     protected boolean isDependencyFieldInheritable(IOpenField openField) {
-        IOpenField field = extractNonLazyMember(openField);
-        if (field instanceof ConstantOpenField) {
+        if (openField instanceof ConstantOpenField) {
             return true;
         }
-        return super.isDependencyFieldInheritable(field);
+        return super.isDependencyFieldInheritable(openField);
     }
 
     @Override
@@ -317,62 +297,38 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return (XlsMetaInfo) metaInfo;
     }
 
-    protected IOpenMethod undecorateForMultimoduleDispatching(final IOpenMethod openMethod) { // Dispatching
-        // fix
-        // for
-        // mul1ti-module
-        if (openMethod instanceof IOpenMethodWrapper) {
-            IOpenMethodWrapper dispatchWrapper = (IOpenMethodWrapper) openMethod;
-            return dispatchWrapper.getDelegate();
+    protected IOpenMethod unwrapOpenMethod(IOpenMethod method) {
+        if (method instanceof IRulesMethodWrapper) {
+            IRulesMethodWrapper wrapper = (IRulesMethodWrapper) method;
+            return wrapper.getDelegate();
         }
-        return openMethod;
+        return method;
     }
 
-    protected IOpenMethod decorateForMultimoduleDispatching(final IOpenMethod openMethod) { // Dispatching
-        // fix
-        // for
-        // mul1ti-module
-        return WrapperLogic.wrapOpenMethod(openMethod, this);
+    protected IOpenMethod wrapOpenMethod(IOpenMethod method) {
+        return WrapperLogic.wrapOpenMethod(method, this);
     }
 
     @Override
     public void addField(IOpenField openField) {
         Map<String, IOpenField> fields = fieldMap();
-        IOpenField field = extractNonLazyMember(openField);
         if (fields.containsKey(openField.getName())) {
-            IOpenField existedField = extractNonLazyMember(fields.get(openField.getName()));
-            if (field instanceof ConstantOpenField && existedField instanceof ConstantOpenField) { // Ignore
-                // constants
-                // with
-                // the
-                // same
-                // values
-                if (field.getType().equals(existedField.getType()) && Objects
-                    .equals(((ConstantOpenField) field).getValue(), ((ConstantOpenField) existedField).getValue())) {
+            IOpenField existedField = fields.get(openField.getName());
+            if (openField instanceof ConstantOpenField && existedField instanceof ConstantOpenField) {
+                // Ignore constants with the same values
+                if (Objects.equals(
+                        ((ConstantOpenField) openField).getValue(),
+                        ((ConstantOpenField) existedField).getValue()
+                    ) && openField.getType().equals(existedField.getType())) {
                     return;
                 }
 
-                throw new DuplicatedFieldException("", field.getName());
+                throw new DuplicatedFieldException("", openField.getName());
             }
-
             UriMemberHelper.validateFieldDuplication(openField, existedField);
         }
         fieldMap().put(openField.getName(), openField);
-        if (field instanceof ConstantOpenField) {
-            constantFields.put(openField.getName(), openField);
-        }
         addFieldToLowerCaseMap(openField);
-    }
-
-    private Map<String, IOpenField> constantFields = new HashMap<>();
-
-    public ConstantOpenField getConstantField(String fname) {
-        IOpenField openField = constantFields.get(fname);
-        return (ConstantOpenField) extractNonLazyMember(openField);
-    }
-
-    public Map<String, IOpenField> getConstantFields() {
-        return Collections.unmodifiableMap(constantFields);
     }
 
     /**
@@ -397,7 +353,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             }
             return;
         }
-        IOpenMethod m = decorateForMultimoduleDispatching(method);
+        IOpenMethod m = wrapOpenMethod(method);
 
         // Workaround needed to set the module name in the method while compile
         if (m instanceof AMethod && ((AMethod) m).getModuleName() == null) {
@@ -414,20 +370,20 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         // exists then "overload" it using decorator; otherwise - just add to
         // the class.
         //
-        IOpenMethod existedMethod = getDeclaredMethod(m.getName(), m.getSignature().getParameterTypes());
-        if (existedMethod != null) {
+        IOpenMethod existingMethod = getDeclaredMethod(m.getName(), m.getSignature().getParameterTypes());
+        if (existingMethod != null) {
 
-            if (!existedMethod.getType().equals(m.getType())) {
+            if (!existingMethod.getType().equals(m.getType())) {
                 String message = String.format(
                     "Method '%s' with return type '%s' is already defined with another return type ('%s')",
                     m.getName(),
                     m.getType().getDisplayName(0),
-                    existedMethod.getType().getDisplayName(0));
-                throw new DuplicatedMethodException(message, existedMethod, method);
+                    existingMethod.getType().getDisplayName(0));
+                throw new DuplicatedMethodException(message, existingMethod, method);
             }
 
-            if (!m.equals(existedMethod) && method instanceof TestSuiteMethod) {
-                UriMemberHelper.validateMethodDuplication(method, existedMethod);
+            if (!m.equals(existingMethod) && method instanceof TestSuiteMethod) {
+                UriMemberHelper.validateMethodDuplication(method, existingMethod);
                 return;
             }
 
@@ -437,20 +393,20 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             // of OpenMethodDecorator for existed method and add new one.
             //
             try {
-                if (existedMethod instanceof OpenMethodDispatcher) {
-                    OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
-                    decorator.addMethod(undecorateForMultimoduleDispatching(m));
+                if (existingMethod instanceof OpenMethodDispatcher) {
+                    OpenMethodDispatcher decorator = (OpenMethodDispatcher) existingMethod;
+                    decorator.addMethod(unwrapOpenMethod(m));
                 } else {
-                    if (!m.equals(existedMethod)) {
+                    if (!m.equals(existingMethod)) {
                         // Create decorator for existed method.
                         //
-                        OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(existedMethod);
+                        OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(existingMethod);
 
-                        IOpenMethod openMethod = decorateForMultimoduleDispatching(dispatcher);
+                        IOpenMethod openMethod = wrapOpenMethod(dispatcher);
 
                         overrideMethod(openMethod);
 
-                        dispatcher.addMethod(undecorateForMultimoduleDispatching(m));
+                        dispatcher.addMethod(unwrapOpenMethod(m));
                     }
                 }
             } catch (DuplicatedMethodException e) {
@@ -489,7 +445,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 //
                 OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(m);
 
-                IOpenMethod openMethod = decorateForMultimoduleDispatching(dispatcher);
+                IOpenMethod openMethod = wrapOpenMethod(dispatcher);
 
                 super.addMethod(openMethod);
 
@@ -514,7 +470,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private OpenMethodDispatcher getOpenMethodDispatcher(IOpenMethod method) {
         OpenMethodDispatcher decorator;
-        IOpenMethod decorated = undecorateForMultimoduleDispatching(method);
+        IOpenMethod decorated = unwrapOpenMethod(method);
         if (useDecisionTableDispatcher) {
             decorator = new OverloadedMethodsDispatcherTable(decorated, this);
         } else {
@@ -586,7 +542,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
     }
 
-    private volatile OpenLArgumentsCloner cloner = null;
+    private volatile OpenLArgumentsCloner cloner;
 
     public Cloner getCloner() {
         if (cloner == null) {

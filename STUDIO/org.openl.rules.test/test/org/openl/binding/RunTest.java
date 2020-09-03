@@ -15,18 +15,17 @@ import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.DoubleValue;
-import org.openl.source.SourceType;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 
 public class RunTest {
-    private static Object runExpression(String expression, SourceType parseType) {
+    private static Object runExpression(String expression) {
         OpenL openl = OpenL.getInstance(OpenL.OPENL_JAVA_NAME);
-        return OpenLManager.run(openl, new StringSourceCodeModule(expression, null), parseType);
+        return OpenLManager.run(openl, new StringSourceCodeModule(expression, null));
     }
 
-    private static void assertEquals(String expression, Object expected, SourceType parseType) {
-        Object res = runExpression(expression, parseType);
+    private static <T> void assertEquals(String expression, T expected) {
+        Object res = runExpression(expression);
         Assert.assertThat(res, new BaseMatcher<Object>() {
             @Override
             public boolean matches(Object item) {
@@ -40,23 +39,15 @@ public class RunTest {
         });
     }
 
-    private static <T> void assertEquals(String expression, T expected) {
-        assertEquals(expression, expected, SourceType.METHOD_BODY);
-    }
-
-    private static void assertError(String expression, Class<? extends Throwable> expected, SourceType parseType) {
+    private static void assertError(String expr, Class<? extends Throwable> expected) {
         Throwable ex = null;
         try {
-            runExpression(expression, parseType);
+            runExpression(expr);
         } catch (Throwable t) {
             ex = t;
         }
         Assert.assertNotNull(ex);
         Assert.assertEquals(expected, ex.getClass());
-    }
-
-    private static void assertError(String expr, Class<? extends Throwable> expected) {
-        assertError(expr, expected, SourceType.METHOD_BODY);
     }
 
     @Test

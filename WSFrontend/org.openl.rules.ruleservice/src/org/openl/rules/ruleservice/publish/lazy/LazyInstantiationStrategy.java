@@ -1,20 +1,17 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 
 import org.openl.classloader.OpenLBundleClassLoader;
-import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.MultiModuleInstantiationStartegy;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
+import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Prebinds openclass and creates LazyMethod and LazyField that will compile neccessary modules on demand.
@@ -23,38 +20,23 @@ import org.slf4j.LoggerFactory;
  */
 public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy {
 
-    private final Logger log = LoggerFactory.getLogger(LazyInstantiationStrategy.class);
-
     private LazyEngineFactory<?> engineFactory;
-    private DeploymentDescription deployment;
+    private final DeploymentDescription deployment;
 
     public DeploymentDescription getDeployment() {
         return deployment;
     }
 
     public LazyInstantiationStrategy(DeploymentDescription deployment,
-            final Module module,
-            IDependencyManager dependencyManager) {
-        super(new ArrayList<Module>() {
-            private static final long serialVersionUID = 1L;
-
-            {
-                add(module);
-            }
-        }, dependencyManager, true);
-        this.deployment = Objects.requireNonNull(deployment, "deployment cannot be null");
-    }
-
-    public LazyInstantiationStrategy(DeploymentDescription deployment,
             Collection<Module> modules,
-            IDependencyManager dependencyManager) {
+            RuleServiceDependencyManager dependencyManager) {
         super(modules, dependencyManager, true);
         this.deployment = Objects.requireNonNull(deployment, "deployment cannot be null");
     }
 
-    public LazyInstantiationStrategy(DeploymentDescription deployment,
+    LazyInstantiationStrategy(DeploymentDescription deployment,
             Collection<Module> modules,
-            IDependencyManager dependencyManager,
+            RuleServiceDependencyManager dependencyManager,
             ClassLoader classLoader) {
         super(modules, dependencyManager, classLoader, true);
         this.deployment = Objects.requireNonNull(deployment, "deployment cannot be null");
@@ -69,7 +51,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
     private ClassLoader classLoader = null;
 
     @Override
-    protected ClassLoader initClassLoader() throws RulesInstantiationException {// Required for lazy
+    protected ClassLoader initClassLoader() {// Required for lazy
         if (classLoader == null) {
             ClassLoader simpleBundleClassLoader = new OpenLBundleClassLoader(
                 Thread.currentThread().getContextClassLoader());
@@ -110,10 +92,15 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
     }
 
     @Override
+    protected RuleServiceDependencyManager getDependencyManager() {
+        return (RuleServiceDependencyManager) super.getDependencyManager();
+    }
+
+    @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected LazyEngineFactory<?> getEngineFactory() {
         Class<?> serviceClass = getServiceClass();
-        if (engineFactory == null || serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass)) {
+        if (engineFactory == null) {
             engineFactory = new LazyEngineFactory(getDeployment(),
                 getModules(),
                 getDependencyManager(),
@@ -141,4 +128,11 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
         return engineFactory;
     }
 
+    @Override
+    public void setServiceClass(Class<?> serviceClass) {
+        super.setServiceClass(serviceClass);
+        if (engineFactory != null) {
+            engineFactory.setInterfaceClass((Class) serviceClass);
+        }
+    }
 }

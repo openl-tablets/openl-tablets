@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.core.interceptors;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,7 +28,11 @@ import org.openl.rules.project.instantiation.SimpleDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.ruleservice.core.*;
+import org.openl.rules.ruleservice.core.DeploymentDescription;
+import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
+import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl;
+import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
@@ -37,24 +42,21 @@ import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 public class ServiceInterfaceMethodInterceptingTest {
     public static class ResultConverter extends AbstractServiceMethodAfterReturningAdvice<Double> {
         @Override
-        public Double afterReturning(Method method, Object result, Object... args) throws Exception {
+        public Double afterReturning(Method method, Object result, Object... args) {
             return ((IntValue) result).doubleValue();
         }
     }
 
     public static class ResultConverter1 extends AbstractServiceMethodAfterReturningAdvice<Double> {
         @Override
-        public Double afterReturning(Method method, Object result, Object... args) throws Exception {
+        public Double afterReturning(Method method, Object result, Object... args) {
             return ((DoubleValue) result).doubleValue();
         }
     }
 
     public static class AroundInterceptor implements ServiceMethodAroundAdvice<IntValue> {
         @Override
-        public IntValue around(Method interfaceMethod,
-                Method beanMethod,
-                Object proxy,
-                Object... args) throws Exception {
+        public IntValue around(Method interfaceMethod, Method beanMethod, Object proxy, Object... args) {
             return new IntValue(-1);
         }
 
@@ -126,7 +128,6 @@ public class ServiceInterfaceMethodInterceptingTest {
         when(ruleServiceLoader.resolveModulesForProject(deploymentDescription.getName(),
             deploymentDescription.getVersion(),
             projectDescriptor.getName())).thenReturn(modules);
-        List<Deployment> deployments = new ArrayList<>();
         Deployment deployment = mock(Deployment.class);
         List<AProject> projects = new ArrayList<>();
         AProject project = mock(AProject.class);
@@ -135,8 +136,8 @@ public class ServiceInterfaceMethodInterceptingTest {
         when(deployment.getProjects()).thenReturn(projects);
         when(deployment.getDeploymentName()).thenReturn(deploymentDescription.getName());
         when(deployment.getCommonVersion()).thenReturn(deploymentDescription.getVersion());
-        deployments.add(deployment);
-        when(ruleServiceLoader.getDeployments()).thenReturn(deployments);
+        when(ruleServiceLoader.getDeployment(eq(deploymentDescription.getName()),
+            eq(deploymentDescription.getVersion()))).thenReturn(deployment);
         when(ruleServiceLoader
             .resolveModulesForProject(deploymentDescription.getName(), deploymentDescription.getVersion(), "service"))
                 .thenReturn(modules);
@@ -208,9 +209,10 @@ public class ServiceInterfaceMethodInterceptingTest {
         RulesInstantiationStrategy rulesInstantiationStrategy = instantiationFactory.getInstantiationStrategyFactory()
             .getStrategy(serviceDescription, dependencyManager);
         Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper
-            .buildInterfaceForInstantiationStrategy(serviceDescription,
-                OverloadInterface.class,
-                rulesInstantiationStrategy.getClassLoader());
+            .buildInterfaceForInstantiationStrategy(OverloadInterface.class,
+                rulesInstantiationStrategy.getClassLoader(),
+                serviceDescription.isProvideRuntimeContext(),
+                serviceDescription.isProvideVariations());
         for (Method method : OverloadInterface.class.getMethods()) {
             if (!method.isAnnotationPresent(ServiceExtraMethod.class)) {
                 Method methodGenerated = interfaceForInstantiationStrategy.getMethod(method.getName(),

@@ -6,7 +6,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.SourceType;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
@@ -47,8 +46,12 @@ public final class OpenLManager {
             IOpenSourceCodeModule source,
             IOpenMethodHeader methodHeader,
             IBindingContext bindingContext) {
-        OpenLCodeManager codeManager = new OpenLCodeManager(openl);
-        return codeManager.makeMethod(source, methodHeader, bindingContext);
+
+        CompositeMethod compositeMethod = new CompositeMethod(methodHeader, null);
+
+        compileMethod(openl, source, compositeMethod, bindingContext);
+
+        return compositeMethod;
     }
 
     /**
@@ -90,7 +93,7 @@ public final class OpenLManager {
     }
 
     /**
-     * Compiles a method.
+     * Compiles a method and sets meta info to the cells.
      *
      * @param openl OpenL engine context
      * @param source method source
@@ -101,72 +104,10 @@ public final class OpenLManager {
             IOpenSourceCodeModule source,
             CompositeMethod compositeMethod,
             IBindingContext bindingContext) {
-        OpenLCompileManager compileManager = new OpenLCompileManager(openl);
-        compileManager.compileMethod(source, compositeMethod, bindingContext);
-    }
 
-    /**
-     * Compiles module. As a result a module open class will be returned by engine.
-     *
-     * @param openl OpenL engine context
-     * @param source source
-     * @return {@link IOpenClass} instance
-     */
-    public static IOpenClass compileModule(OpenL openl, IOpenSourceCodeModule source) {
-        return compileModule(openl, source, false);
-    }
+        OpenLCodeManager codeManager = new OpenLCodeManager(openl);
 
-    /**
-     * Compiles module. As a result a module open class will be returned by engine.
-     *
-     * @param openl OpenL engine context
-     * @param source source
-     * @param executionMode <code>true</code> if module should be compiled in memory optimized mode for only execution
-     * @return {@link IOpenClass} instance
-     */
-    public static IOpenClass compileModule(OpenL openl, IOpenSourceCodeModule source, boolean executionMode) {
-        return compileModule(openl, source, executionMode, null);
-    }
-
-    public static IOpenClass compileModule(OpenL openl,
-            IOpenSourceCodeModule source,
-            boolean executionMode,
-            IDependencyManager dependencyManager) {
-        OpenLCompileManager compileManager = new OpenLCompileManager(openl);
-        try {
-            return compileManager.compileModule(source, executionMode, dependencyManager);
-        } finally {
-            if (dependencyManager != null) {
-                dependencyManager.clearOddDataForExecutionMode();
-            }
-        }
-    }
-
-    /**
-     * Compiles module. As a result a module open class will be returned by engine. All errors that occurred during
-     * compilation are suppressed.
-     *
-     * @param openl OpenL engine context
-     * @param source source
-     * @return {@link CompiledOpenClass} instance
-     */
-    public static CompiledOpenClass compileModuleWithErrors(OpenL openl, IOpenSourceCodeModule source) {
-        return compileModuleWithErrors(openl, source, false);
-    }
-
-    /**
-     * Compiles module. As a result a module open class will be returned by engine. All errors that occurred during
-     * compilation are suppressed.
-     *
-     * @param openl OpenL engine context
-     * @param source source
-     * @param executionMode <code>true</code> if module should be compiled in memory optimized mode for only execution
-     * @return {@link CompiledOpenClass} instance
-     */
-    public static CompiledOpenClass compileModuleWithErrors(OpenL openl,
-            IOpenSourceCodeModule source,
-            boolean executionMode) {
-        return compileModuleWithErrors(openl, source, executionMode, null);
+        codeManager.compileMethod(source, compositeMethod, bindingContext);
     }
 
     public static CompiledOpenClass compileModuleWithErrors(OpenL openl,
@@ -191,11 +132,9 @@ public final class OpenLManager {
      * @return result of script execution
      * @throws OpenLRuntimeException
      */
-    public static Object runScript(OpenL openl, IOpenSourceCodeModule source) {
-
+    public static Object run(OpenL openl, IOpenSourceCodeModule source) {
         OpenLRunManager runManager = new OpenLRunManager(openl);
-
-        return runManager.runScript(source);
+        return runManager.run(source);
     }
 
     /**
@@ -216,19 +155,4 @@ public final class OpenLManager {
         OpenLRunManager runManager = new OpenLRunManager(openl);
         return runManager.runMethod(source, methodName, paramTypes, params);
     }
-
-    /**
-     * Compiles source and runs code.
-     *
-     * @param openl OpenL engine context
-     * @param source source
-     * @param sourceType type of source
-     * @return result of execution
-     * @throws OpenLRuntimeException
-     */
-    public static Object run(OpenL openl, IOpenSourceCodeModule source, SourceType sourceType) {
-        OpenLRunManager runManager = new OpenLRunManager(openl);
-        return runManager.run(source, sourceType);
-    }
-
 }

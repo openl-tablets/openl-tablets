@@ -46,7 +46,7 @@ public final class OpenLFuzzyUtils {
             ret = new HashMap<>();
             Map<Token, LinkedList<IOpenField>> map = new HashMap<>();
             if (!openClass.isSimple()) {
-                for (IOpenField field : openClass.getFields().values()) {
+                for (IOpenField field : openClass.getFields()) {
                     if (!field.isStatic() && !field.isConst()) {
                         String fieldName = field.getName();
                         String t = OpenLFuzzyUtils.toTokenString(phoneticFix(fieldName));
@@ -162,7 +162,7 @@ public final class OpenLFuzzyUtils {
         }
         Map<Token, LinkedList<LinkedList<IOpenField>>> ret = new HashMap<>();
         if (!openClass.isSimple()) {
-            for (IOpenField field : openClass.getFields().values()) {
+            for (IOpenField field : openClass.getFields()) {
                 if (!field.isStatic() && !field.isConst()) {
                     if (writable ? field.isWritable() : field.isReadable()) {
                         String fieldName = field.getName();

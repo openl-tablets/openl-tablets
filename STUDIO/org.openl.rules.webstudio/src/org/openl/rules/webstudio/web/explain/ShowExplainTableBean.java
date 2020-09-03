@@ -1,9 +1,10 @@
 package org.openl.rules.webstudio.web.explain;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-
-import org.openl.rules.table.*;
+import org.openl.rules.table.CompositeGrid;
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.IGridSelector;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
@@ -15,16 +16,18 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean for showExplainTable page.
  */
-@ManagedBean
-@RequestScoped
+@Service
+@RequestScope
 public class ShowExplainTableBean {
 
-    private String uri;
-    private IOpenLTable table;
+    private final String uri;
+    private final IOpenLTable table;
 
     public ShowExplainTableBean() {
         ProjectModel model = WebStudioUtils.getProjectModel();

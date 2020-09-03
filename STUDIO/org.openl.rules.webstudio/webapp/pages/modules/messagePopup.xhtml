@@ -1,0 +1,36 @@
+<ui:composition
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+>
+
+    <rich:popupPanel id="messagePopup" minWidth="300" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Message"/>
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                            onclick="RichFaces.$('messagePopup').hide();" alt="Close" />
+        </f:facet>
+
+        <div>
+            <span id="messagePopupText"/>
+
+            <footer>
+                <input type="button" value="OK" onclick="RichFaces.$('messagePopup').hide();" />
+            </footer>
+        </div>
+    </rich:popupPanel>
+
+    <script>
+        //<![CDATA[
+        function showMessagePopup(message) {
+            $j('#messagePopupText').text(message)
+            RichFaces.$('messagePopup').show();
+        }
+        //]]>
+    </script>
+
+</ui:composition>

@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CassandraEntitySaver {
-    private final Logger log = LoggerFactory.getLogger(CassandraEntitySaver.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CassandraEntitySaver.class);
 
     private Object dao;
     private EntityOperations<Object, Object> entityOperations;
@@ -20,7 +20,7 @@ public class CassandraEntitySaver {
 
     public void insert(Object entity) {
         entityOperations.insert(dao, entity).exceptionally(e -> {
-            log.error("Failed to save cassandra entity.", e);
+            LOG.error("Failed to save cassandra entity.", e);
             return null;
         });
     }

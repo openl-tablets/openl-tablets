@@ -1,21 +1,18 @@
 package org.openl.rules.ui.tablewizard;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * @author Aliaksandr Antonik.
  */
-@ManagedBean(name = "tableCreatorWizardManager")
-@SessionScoped
+@Service("tableCreatorWizardManager")
+@SessionScope
 public class TableWizardManager extends BaseTableWizardManager {
 
     enum TableType {
-        UNKNOWN,
-        DECISION,
         DATATYPE,
         DATATYPE_ALIAS,
         DATA,
@@ -57,10 +54,6 @@ public class TableWizardManager extends BaseTableWizardManager {
     public String startWizard() {
         reload();
         switch (tableType) {
-            case DECISION:
-                wizard = new DecisionTableCreationWizard();
-                wizard.setStepsCount(6);
-                break;
             case DATATYPE:
                 wizard = new DatatypeTableCreationWizard();
                 wizard.setStepsCount(3);

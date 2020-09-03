@@ -3,7 +3,6 @@ package org.openl.rules.validation;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
-import org.openl.OpenL;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -31,18 +30,18 @@ public class RegexpPropertyValidator extends TablesValidator {
     }
 
     @Override
-    public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
+    public ValidationResult validateTables(TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
             if (PropertiesChecker.isPropertySuitableForTableType(propertyName,
-                tsn.getType()) && tsn.getTableProperties() != null && tsn.getTableProperties()
+                    tsn.getType()) && tsn.getTableProperties() != null && tsn.getTableProperties()
                     .getPropertyLevelDefinedOn(propertyName) == InheritanceLevel.TABLE) {
                 String propertyValue = (String) tsn.getTableProperties().getPropertyValue(propertyName);
                 if (propertyValue == null || !propertyValue.matches(constraintsStr)) {
                     SyntaxNodeException exception = SyntaxNodeExceptionUtils
-                        .createError(String.format("Incorrect value '%s' for property '%s'",
-                            propertyValue,
-                            TablePropertyDefinitionUtils.getPropertyDisplayName(propertyName)), tsn);
+                            .createError(String.format("Incorrect value '%s' for property '%s'",
+                                    propertyValue,
+                                    TablePropertyDefinitionUtils.getPropertyDisplayName(propertyName)), tsn);
                     tsn.addError(exception);
                     messages.add(new OpenLErrorMessage(exception));
                 }

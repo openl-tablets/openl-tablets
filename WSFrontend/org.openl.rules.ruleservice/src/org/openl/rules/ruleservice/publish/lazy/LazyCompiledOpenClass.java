@@ -7,8 +7,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
-import org.openl.rules.ruleservice.core.LazyRuleServiceDependencyLoader;
-import org.openl.rules.ruleservice.core.RuleServiceDeploymentRelatedDependencyManager;
+import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.syntax.code.IDependency;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
@@ -16,10 +15,10 @@ import org.openl.types.NullOpenClass;
 public class LazyCompiledOpenClass extends CompiledOpenClass {
 
     private LazyRuleServiceDependencyLoader lazyRuleServiceDependencyLoader;
-    private RuleServiceDeploymentRelatedDependencyManager dependencyManager;
+    private RuleServiceDependencyManager dependencyManager;
     private IDependency dependency;
 
-    public LazyCompiledOpenClass(RuleServiceDeploymentRelatedDependencyManager dependencyManager,
+    LazyCompiledOpenClass(RuleServiceDependencyManager dependencyManager,
             LazyRuleServiceDependencyLoader lazyRuleServiceDependencyLoader,
             IDependency dependency) {
         super(NullOpenClass.the, null);
@@ -29,7 +28,7 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
         this.dependency = Objects.requireNonNull(dependency, "dependency cannot be null");
     }
 
-    protected CompiledOpenClass getCompiledOpenClass() {
+    private CompiledOpenClass getCompiledOpenClass() {
         try {
             return lazyRuleServiceDependencyLoader.compile(dependency.getNode().getIdentifier(), dependencyManager);
         } catch (OpenLCompilationException e) {

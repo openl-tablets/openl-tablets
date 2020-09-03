@@ -5,23 +5,25 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:popupPanel id="modalNewFile" width="500" autosized="true">
+  <rich:popupPanel id="modalNewFile" minWidth="500" autosized="true">
     <f:facet name="header">
       <h:outputText value="Upload File" />
     </f:facet>
 
     <f:facet name="controls">
       <h:graphicImage value="/images/close.gif" class="close"
-        onclick="clearNewFileForm(); RichFaces.$('modalNewFile').hide();" alt="Close" />
+                      onclick="closeNewFileDialog();" alt="Close" />
     </f:facet>
     
     <h:form id="newFileForm" >
         <h:panelGrid id="newFilePanel" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
             <h:outputLabel for="file" styleClass="required" value="File:" />
             <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}" maxFilesQuantity="1"
-                             onfilesubmit="showLoader();" oncomplete="hideLoader();">
-                <a4j:ajax event="uploadcomplete" render="newFileForm:fileName" oncomplete="onNewFileNameChange();" />
-            </rich:fileUpload>
+                             immediateUpload="true"
+                             render="newFileForm:fileName"
+                             onfilesubmit="showLoader();"
+                             oncomplete="onNewFileNameChange();hideLoader();"
+                             onclear="clearUploadedNewFile();"/>
     
             <h:outputLabel for="fileName" styleClass="required" value="File name:" />
             <h:inputText id="fileName" size="40" maxlength="50" value="#{repositoryTreeController.fileName}"/>
@@ -29,13 +31,21 @@
 
       <footer>
         <h:commandButton id="upload" value="Upload" action="#{repositoryTreeController.addFile}" styleClass="button-primary" />
-        <input type="button" value="Cancel" onclick="clearNewFileForm(); RichFaces.$('modalNewFile').hide();" />
+        <input type="button" value="Cancel" onclick="closeNewFileDialog();" />
       </footer>
+
+        <a4j:jsFunction name="initNewFileDialog" action="#{repositoryTreeController.clearUploadedFiles}" render="newFilePanel" oncomplete="showNewFileDialog();" />
+        <a4j:jsFunction name="closeNewFileDialog" action="#{repositoryTreeController.clearUploadedFiles}" oncomplete="clearNewFileForm(); RichFaces.$('modalNewFile').hide();" />
+        <a4j:jsFunction name="clearUploadedNewFile" action="#{repositoryTreeController.clearUploadedFiles}" oncomplete="enableUploadButton(false);"/>
     </h:form>
   </rich:popupPanel>
 
   <script>
     function openNewFileDialog() {
+        initNewFileDialog();
+    }
+
+    function showNewFileDialog() {
         onNewFileNameChange();
         RichFaces.$('modalNewFile').show();
     }

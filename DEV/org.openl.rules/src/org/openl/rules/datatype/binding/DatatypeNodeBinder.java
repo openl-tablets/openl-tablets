@@ -9,6 +9,7 @@ import org.openl.binding.IMemberBoundNode;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.engine.OpenLManager;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.binding.RulesModuleBindingContext;
@@ -19,11 +20,13 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeMetaInfo;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.utils.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
+import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -47,9 +50,17 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
         ILogicalTable table = tsn.getTable();
         IOpenSourceCodeModule tableSource = tsn.getHeader().getModule();
 
-        IdentifierNode[] parsedHeader = DatatypeHelper.tokenizeHeader(tableSource);
+        IdentifierNode[] parsedHeader = Tokenizer.tokenize(tableSource, " \n\r");
+        if (parsedHeader.length < 2) {
+            String message1 = "Datatype table format: Datatype <typename>";
+            throw SyntaxNodeExceptionUtils.createError(message1, null, null, tableSource);
+        }
 
         String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
+        if (TableNameChecker.isInvalidJavaIdentifier(typeName)) {
+            String message = "Datatype table " + typeName + TableNameChecker.NAME_ERROR_MESSAGE;
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TYPE_INDEX]));
+        }
 
         IOpenClass openClass = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
         String packageName = tsn.getTableProperties().getPropertyValueAsString("datatypePackage");
@@ -62,7 +73,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
         // Put sub table without header and properties section for business view.
         //
-        putSubTableForBussinesView(tsn);
+        putSubTableForBusinessView(tsn);
 
         // Check the datatype table that is alias data type.
         //
@@ -134,6 +145,10 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
             DatatypeOpenClass tableType = new DatatypeOpenClass(typeName, packageName);
 
+            if (!bindingContext.isExecutionMode()) {
+                tableType.setTableSyntaxNode(tsn);
+            }
+
             // set meta info with uri to the DatatypeOpenClass for indicating the source of the datatype table
             //
             tableType.setMetaInfo(new DatatypeMetaInfo(tableSource.getCode(), tsn.getUri()));
@@ -155,7 +170,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
         }
     }
 
-    private void putSubTableForBussinesView(TableSyntaxNode tsn) {
+    private void putSubTableForBusinessView(TableSyntaxNode tsn) {
         tsn.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tsn.getTableBody());
     }
 }

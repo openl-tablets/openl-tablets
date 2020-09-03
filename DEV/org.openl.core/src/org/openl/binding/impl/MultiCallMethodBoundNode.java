@@ -40,7 +40,7 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
             IBoundNode[] children,
             IMethodCaller singleParameterMethod,
             List<Integer> arrayArgArgumentList) {
-        super(syntaxNode, children, singleParameterMethod);
+        super(syntaxNode, singleParameterMethod, children);
         returnType = singleParameterMethod.getMethod().getType();
 
         if (!JavaOpenClass.VOID.equals(returnType)) {

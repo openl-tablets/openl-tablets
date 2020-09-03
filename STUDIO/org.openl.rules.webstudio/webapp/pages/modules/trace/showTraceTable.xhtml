@@ -37,8 +37,9 @@
                             <td>
                                 <ui:include src="/pages/modules/test/parameter.xhtml">
                                     <ui:param name="parameter" value="#{parameter}" />
-                                    <ui:param name="lazy" value="false" />
+                                    <ui:param name="lazy" value="true" />
                                     <ui:param name="trace" value="true"/>
+                                    <ui:param name="requestId" value="#{mainBean.requestId}" />
                                 </ui:include>
                             </td>
                         </h:panelGroup>

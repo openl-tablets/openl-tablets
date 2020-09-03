@@ -30,9 +30,9 @@ public abstract class BaseRangeParser implements RangeParser {
         if ("K".equals(suffix)) {
             multiplier = 1000;
         } else if ("M".equals(suffix)) {
-            multiplier = 1000000;
+            multiplier = 1_000_000;
         } else if ("B".equals(suffix)) {
-            multiplier = 1000000000;
+            multiplier = 1_000_000_000;
         } else {
             throw new IllegalArgumentException(String.format("Suffix %s is not supported in ranges", suffix));
         }
@@ -100,9 +100,9 @@ public abstract class BaseRangeParser implements RangeParser {
             }
             min = second;
             max = first;
-            minBound = secondBound.equals(">") ? RangeWithBounds.BoundType.EXCLUDING
+            minBound = ">".equals(secondBound) ? RangeWithBounds.BoundType.EXCLUDING
                                                : RangeWithBounds.BoundType.INCLUDING;
-            maxBound = firstBound.equals("<") ? RangeWithBounds.BoundType.EXCLUDING
+            maxBound = "<".equals(firstBound) ? RangeWithBounds.BoundType.EXCLUDING
                                               : RangeWithBounds.BoundType.INCLUDING;
 
             String t;
@@ -119,9 +119,9 @@ public abstract class BaseRangeParser implements RangeParser {
             }
             min = first;
             max = second;
-            minBound = firstBound.equals(">") ? RangeWithBounds.BoundType.EXCLUDING
+            minBound = ">".equals(firstBound) ? RangeWithBounds.BoundType.EXCLUDING
                                               : RangeWithBounds.BoundType.INCLUDING;
-            maxBound = secondBound.equals("<") ? RangeWithBounds.BoundType.EXCLUDING
+            maxBound = "<".equals(secondBound) ? RangeWithBounds.BoundType.EXCLUDING
                                                : RangeWithBounds.BoundType.INCLUDING;
         }
 

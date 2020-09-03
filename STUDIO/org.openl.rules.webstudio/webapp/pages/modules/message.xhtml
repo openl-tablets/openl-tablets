@@ -1,8 +1,15 @@
 <ui:composition
-    xmlns:ui="http://java.sun.com/jsf/facelets">
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <ui:include src="/pages/modules/messages.xhtml">
         <ui:param name="messages" value="#{showMessageBean.message}" />
     </ui:include>
+
+    <c:if test="#{showMessageBean.isMessageOutdated()}">
+        <script>
+            ws.nav.go("#{studio.url()}", true);
+        </script>
+    </c:if>
 
 </ui:composition>

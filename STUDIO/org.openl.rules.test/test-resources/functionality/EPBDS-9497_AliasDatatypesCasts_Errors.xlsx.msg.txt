@@ -6,5 +6,3 @@ ERROR: Cannot convert from 'Datatype1' to 'Datatype3'.
 ERROR: Cannot convert from 'Datatype2' to 'Datatype3'.
 ERROR: Method 'myMethod3(Datatype4)' is not found.
 ERROR: Method 'myMethod4(Datatype3)' is not found.
-ERROR: Cannot convert from 'java.lang.Integer[]' to 'Datatype3'.
-ERROR: Cannot convert from 'java.lang.Integer[]' to 'Datatype4'.

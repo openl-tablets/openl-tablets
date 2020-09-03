@@ -1,5 +1,6 @@
 package org.openl.rules.lang.xls.load;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -27,7 +28,7 @@ final class WorkbookLoadUtils {
 
         try {
             is = fileSource.getByteStream();
-            workbook = WorkbookFactory.create(is);
+            workbook = createWorkbook(is);
         } catch (Exception e) {
             log.error("Error while preprocessing workbook", e);
 
@@ -42,7 +43,11 @@ final class WorkbookLoadUtils {
                 log.error("Error trying close input stream:", e);
             }
         }
-
         return workbook;
+    }
+
+    // EPBDS-9685 synchronized should be removed after issue fixed in poi
+    static synchronized Workbook createWorkbook(InputStream is) throws IOException {
+        return WorkbookFactory.create(is);
     }
 }

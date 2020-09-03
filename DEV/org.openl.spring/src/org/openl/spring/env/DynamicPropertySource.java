@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -26,27 +28,45 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     public static final String PROPS_NAME = "Dynamic properties";
 
     public static final String OPENL_HOME = "openl.home";
+    public static final String OPENL_HOME_SHARED = "openl.home.shared";
 
     private final PropertyResolver resolver;
     private final String appName;
+
+    private Properties settings;
+    private long timestamp;
 
     public DynamicPropertySource(String appName, PropertyResolver resolver) {
         super(PROPS_NAME);
         this.resolver = resolver;
         this.appName = appName;
+        loadProperties();
         ConfigLog.LOG.info("+        Add: '{}'", getFile());
     }
 
     @Override
     public String[] getPropertyNames() {
-        Properties properties = getProperties();
-
-        return properties.keySet().toArray(StringUtils.EMPTY_STRING_ARRAY);
+        return settings.keySet().toArray(StringUtils.EMPTY_STRING_ARRAY);
     }
 
-    private Properties getProperties() {
+    @Override
+    public boolean containsProperty(String name) {
+        return settings.containsKey(name);
+    }
+
+    public boolean reloadIfModified() {
+        long l = getFile().lastModified();
+        boolean modified = l != timestamp;
+        if (modified) {
+            loadProperties();
+        }
+        return modified;
+    }
+
+    private synchronized void loadProperties() {
         File file = getFile();
         Properties properties = new Properties();
+        long lastModified = file.lastModified();
         if (file.exists()) {
             try (InputStreamReader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
                 properties.load(reader);
@@ -54,21 +74,23 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
                 ConfigLog.LOG.error("Failed to load", e);
             }
         }
-        return properties;
+        settings = properties;
+        timestamp = lastModified;
     }
 
     private File getFile() {
-        String property = resolver.getProperty(OPENL_HOME);
-        return new File(property, appName + ".properties");
+        String property = resolver.getProperty(OPENL_HOME_SHARED);
+        File file = new File(property, appName + ".properties");
+        return file;
     }
 
     @Override
     public Object getProperty(String name) {
-        if (OPENL_HOME.equals(name)) {
+        if (OPENL_HOME.equals(name) || OPENL_HOME_SHARED.equals(name)) {
             // prevent cycled call
             return null;
         }
-        String property = getProperties().getProperty(name);
+        String property = settings.getProperty(name);
         if (property == null) {
             return null;
         }
@@ -92,10 +114,12 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         } catch (BackingStoreException e) {
             ConfigLog.LOG.error("Cannot save preferences value", e);
         }
+        loadProperties();
     }
 
-    public void save(Map<String, String> config) throws IOException {
-        Properties properties = getProperties();
+    public synchronized void save(Map<String, String> config) throws IOException {
+        Properties properties = new Properties();
+        properties.putAll(settings);
         for (Map.Entry<String, String> pair : config.entrySet()) {
             String propertyName = pair.getKey();
             String value = pair.getValue();
@@ -118,13 +142,30 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
                 properties.setProperty(propertyName, value);
             }
         }
-        File file = getFile();
-        File parent = file.getParentFile();
-        if (!parent.mkdirs() && !parent.exists()) {
-            throw new FileNotFoundException("Can't create the folder " + parent.getAbsolutePath());
+        Properties origin = settings;
+        settings = new Properties(); // 'unconfigure' settings for matching with defaults. to get settings not from a file
+
+        Iterator<Map.Entry<Object, Object>> props = properties.entrySet().iterator();
+        while (props.hasNext()) { // Do clean up from default values
+            Map.Entry<Object, Object> e = props.next();
+            String key = e.getKey().toString();
+            if (Objects.equals(resolver.getProperty(key), e.getValue())) {
+                props.remove();
+            }
         }
-        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
-            properties.store(writer, null);
+
+        settings = properties;
+        if (!origin.equals(properties)) {
+            // Save the difference only
+            File settingsFile = getFile();
+            File parent = settingsFile.getParentFile();
+            if (!parent.mkdirs() && !parent.exists()) {
+                throw new FileNotFoundException("Can't create the folder " + parent.getAbsolutePath());
+            }
+            try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(settingsFile),
+                StandardCharsets.UTF_8)) {
+                properties.store(writer, null);
+            }
         }
     }
 
@@ -149,4 +190,5 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     private String getCipher() {
         return StringUtils.trimToNull(resolver.getProperty("secret.cipher"));
     }
+
 }

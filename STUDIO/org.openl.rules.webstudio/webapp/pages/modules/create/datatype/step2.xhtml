@@ -34,7 +34,7 @@
                                 <h:outputText value="Type:" />
                             </f:facet>
                             <h:selectOneMenu value="#{parameter.type}">
-                                <f:selectItems value="#{wizard.domainTypes}" />
+                                <f:selectItems value="#{wizard.domainTypes}" var="v" itemDisabled="#{v == ''}" />
                             </h:selectOneMenu>
                         </h:column>
 

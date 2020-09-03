@@ -9,13 +9,12 @@ import java.util.List;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
-import org.openl.rules.common.LockInfo;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
-import org.openl.rules.project.impl.local.SimpleLockInfo;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -55,9 +54,9 @@ public class AProjectArtefact {
     }
 
     public void delete() throws ProjectException {
-        FileData fileData = getFileData();
+        FileData data = getFileData();
         try {
-            getRepository().delete(fileData);
+            getRepository().delete(data);
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
         }
@@ -74,7 +73,7 @@ public class AProjectArtefact {
 
     public String getName() {
         String name = getFileData().getName();
-        return name.substring(name.lastIndexOf("/") + 1);
+        return name.substring(name.lastIndexOf('/') + 1);
     }
 
     public boolean isFolder() {
@@ -84,30 +83,6 @@ public class AProjectArtefact {
     // current version
     public ProjectVersion getVersion() {
         return createProjectVersion(getFileData());
-    }
-
-    public ProjectVersion getLastVersion() {
-        List<FileData> fileDatas;
-        try {
-            fileDatas = getRepository().listHistory(getFileData().getName());
-        } catch (IOException ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
-        }
-        return fileDatas.isEmpty() ? createProjectVersion(null)
-                                   : createProjectVersion(fileDatas.get(fileDatas.size() - 1));
-    }
-
-    public ProjectVersion getFirstVersion() {
-        try {
-            int versionsCount = getVersionsCount();
-            if (versionsCount == 0) {
-                return new RepositoryProjectVersionImpl();
-            }
-
-            return getVersion(0);
-        } catch (Exception e) {
-            return new RepositoryProjectVersionImpl();
-        }
     }
 
     public List<ProjectVersion> getVersions() {
@@ -127,26 +102,12 @@ public class AProjectArtefact {
         return versions;
     }
 
-    public boolean hasModifications() {
-        return !getFirstVersion().equals(getLastVersion());
-    }
-
     public int getVersionsCount() {
         try {
             return getFileData() == null ? 0 : getRepository().listHistory(getFileData().getName()).size();
         } catch (IOException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
-    }
-
-    protected ProjectVersion getVersion(int index) {
-        List<FileData> fileDatas;
-        try {
-            fileDatas = getRepository().listHistory(getFileData().getName());
-        } catch (IOException ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
-        }
-        return fileDatas.isEmpty() ? null : createProjectVersion(fileDatas.get(index));
     }
 
     protected ProjectVersion createProjectVersion(FileData fileData) {
@@ -167,21 +128,22 @@ public class AProjectArtefact {
     }
 
     public void refresh() {
+        //nothing to do
     }
 
     /**
      * Try to lock the project if it's not locked already. Does not overwrite lock info if the user was locked already.
      *
      * @return false if the project was locked by other user. true if project wasn't locked before or was locked by me.
-     * @throws ProjectException if cannot lock the project.
      */
-    public boolean tryLock() throws ProjectException {
+    public boolean tryLock() {
         // Default implementation does nothing and returns true to indicate that invocation was successful.
         return true;
     }
 
     /**
-     * Try to lock the project if it's not locked already. If the project was locked by other user, throws ProjectException.
+     * Try to lock the project if it's not locked already.
+     * If the project was locked by other user, throws ProjectException.
      * @throws ProjectException if cannot lock the project, or the project was locked by other user.
      */
     public final void tryLockOrThrow() throws ProjectException {
@@ -204,20 +166,20 @@ public class AProjectArtefact {
 
     protected boolean isLockedByUser(LockInfo lockInfo, CommonUser user) {
         if (lockInfo.isLocked()) {
-            CommonUser lockedBy = lockInfo.getLockedBy();
-            return lockedBy.getUserName().equals(user.getUserName()) || isLockedByDefaultUser(lockedBy, user);
+            String lockedBy = lockInfo.getLockedBy();
+            return lockedBy.equals(user.getUserName()) || isLockedByDefaultUser(lockedBy, user);
 
         }
         return false;
     }
 
     public LockInfo getLockInfo() {
-        return SimpleLockInfo.NO_LOCK;
+        return LockInfo.NO_LOCK;
     }
 
     public boolean isModified() {
-        FileData fileData = getFileData();
-        return fileData != null && (modifiedTime == null || !modifiedTime.equals(fileData.getModifiedAt()));
+        FileData data = getFileData();
+        return data != null && (modifiedTime == null || !modifiedTime.equals(data.getModifiedAt()));
     }
 
     /**
@@ -228,8 +190,8 @@ public class AProjectArtefact {
      * @param currentUser - current user trying to unlock
      * @return true if owner of the lock is "LOCAL" and current user is "DEFAULT"
      */
-    private boolean isLockedByDefaultUser(CommonUser lockedUser, CommonUser currentUser) {
-        return "LOCAL".equals(lockedUser.getUserName()) && "DEFAULT".equals(currentUser.getUserName());
+    private boolean isLockedByDefaultUser(String lockedUser, CommonUser currentUser) {
+        return "LOCAL".equals(lockedUser) && "DEFAULT".equals(currentUser.getUserName());
     }
 
     public boolean isHistoric() {

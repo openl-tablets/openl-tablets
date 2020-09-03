@@ -151,10 +151,13 @@ public class RepositoryConfiguration {
     }
 
     public void setType(String accessType) {
+        if (StringUtils.isEmpty(accessType)) {
+            return;
+        }
         RepositoryType newRepositoryType = RepositoryType.findByAccessType(accessType);
         if (repositoryType != newRepositoryType) {
             if (newRepositoryType == null) {
-                throw new IllegalArgumentException(String.format("Access type %s is not supported", accessType));
+                throw new IllegalArgumentException(String.format("Access type '%s' is not supported", accessType));
             }
             repositoryType = newRepositoryType;
             errorMessage = null;
@@ -163,6 +166,10 @@ public class RepositoryConfiguration {
             settings = newSettings;
             settings.onTypeChanged(newRepositoryType);
         }
+    }
+
+    public String getId() {
+        return getConfigName();
     }
 
     public String getConfigName() {

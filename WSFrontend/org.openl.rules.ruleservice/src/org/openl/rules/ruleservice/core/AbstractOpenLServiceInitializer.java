@@ -2,8 +2,8 @@ package org.openl.rules.ruleservice.core;
 
 public abstract class AbstractOpenLServiceInitializer implements OpenLServiceInitializer {
 
-    private volatile boolean initializated = false;
-    private volatile boolean initializationStarted = false;
+    private volatile boolean initializated;
+    private volatile boolean initializationStarted;
 
     @Override
     public void ensureInitialization(OpenLService openLService) throws RuleServiceInstantiationException {

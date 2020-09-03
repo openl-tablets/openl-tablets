@@ -22,7 +22,7 @@ import org.openl.types.impl.DynamicObjectField;
  */
 public class VarDeclarationNodeBinder extends ANodeBinder {
 
-    private final IBoundNode createVarDeclarationNode(ISyntaxNode node,
+    private IBoundNode createVarDeclarationNode(ISyntaxNode node,
             String name,
             ISyntaxNode initializationNode,
             IOpenClass varType,
@@ -36,10 +36,7 @@ public class VarDeclarationNodeBinder extends ANodeBinder {
             cast = getCast(init, varType, bindingContext);
         }
 
-        return new VarDeclarationNode(node,
-            init == null ? null : new IBoundNode[] { init },
-            new DynamicObjectField(name, varType),
-            cast);
+        return new VarDeclarationNode(node, init, new DynamicObjectField(name, varType), cast);
     }
 
     @Override
@@ -66,7 +63,7 @@ public class VarDeclarationNodeBinder extends ANodeBinder {
             }
         }
 
-        return new MemberBlockNode(node, boundNodes.toArray(new IBoundNode[boundNodes.size()]));
+        return new MemberBlockNode(node, boundNodes.toArray(IBoundNode.EMPTY));
     }
 
 }

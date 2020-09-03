@@ -37,12 +37,13 @@
         </script>
 
         <f:view transient="true">
-        <a4j:jsFunction name="reload" action="#{mainBean.reload}" render="poll"
-            oncomplete="top.ws.nav.reload(true); top.ws.ui.hideLoader();" />
-
-        <a4j:jsFunction name="resetChecking" action="#{studio.model.resetSourceModified}" render="poll" />
 
         <h:form>
+            <a4j:jsFunction name="reload" action="#{mainBean.reload}" render="poll"
+                            oncomplete="top.ws.nav.reload(true); top.ws.ui.hideLoader();" />
+
+            <a4j:jsFunction name="resetChecking" action="#{studio.model.resetSourceModified}" render="poll" />
+
             <a4j:poll id="poll" enabled="#{!sourceModified}" interval="4000" render="poll"
                 oncomplete="#{sourceModified ? 'sourceModified()' : ''}" onbegin="beforePoll();" onbeforedomupdate="afterPoll();" />
         </h:form>

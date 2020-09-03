@@ -4,6 +4,8 @@ import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +17,14 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.enumeration.CaProvincesEnum;
+import org.openl.rules.enumeration.CaRegionsEnum;
+import org.openl.rules.enumeration.CountriesEnum;
+import org.openl.rules.enumeration.CurrenciesEnum;
+import org.openl.rules.enumeration.LanguagesEnum;
+import org.openl.rules.enumeration.RegionsEnum;
+import org.openl.rules.enumeration.UsRegionsEnum;
+import org.openl.rules.enumeration.UsStatesEnum;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
@@ -23,20 +33,74 @@ import org.openl.util.BooleanUtils;
 
 public class DefaultPropertiesFileNameProcessor implements PropertiesFileNameProcessor, FileNamePatternValidator {
 
+    private static final String SINGLE_PATTERN_ERROR_MSG = "Module '%s' does not match file name pattern '%s'.";
+    private static final String MULTI_PATTERN_ERROR_MSG = "Module '%s' does not match any file name pattern: '%s'.";
+
     private static final String EMPTY_STRING = "";
     private static final String ARRAY_SEPARATOR = ",";
     private static final String DEFAULT_PATTERN = ".+?";
     private static final Pattern pattern = Pattern.compile("(%[^%]+%)");
+    private static final String STATE_PROPERTY_NAME = "state";
+    private static final String CW_STATE_VALUE = "CW";
+    private static final String ALL_KEYWORD = "Any";
+    private static final Map<String, Class<?>> PROP_SUPPORT_ALL_KEY;
 
-    @Override
-    public ITableProperties process(Module module, String fileNamePattern) throws NoMatchFileNameException,
-                                                                           InvalidFileNamePatternException {
-        String fileName = FilenameExtractorUtil.extractFileNameFromModule(module);
-        return process(fileName, fileNamePattern);
+    static {
+        Map<String, Class<?>> map = new HashMap<>();
+        map.put("caProvinces", CaProvincesEnum.class);
+        map.put("caRegions", CaRegionsEnum.class);
+        map.put("country", CountriesEnum.class);
+        map.put("currency", CurrenciesEnum.class);
+        map.put("lang", LanguagesEnum.class);
+        map.put("region", RegionsEnum.class);
+        map.put(STATE_PROPERTY_NAME, UsStatesEnum.class);
+        map.put("usregion", UsRegionsEnum.class);
+        PROP_SUPPORT_ALL_KEY = Collections.unmodifiableMap(map);
     }
 
-    ITableProperties process(String fileName, String fileNamePattern) throws InvalidFileNamePatternException,
-                                                                      NoMatchFileNameException {
+    @Override
+    public ITableProperties process(Module module, String... fileNamePatterns) throws NoMatchFileNameException,
+                                                                               InvalidFileNamePatternException {
+        String fileName = FilenameExtractorUtil.extractFileNameFromModule(module);
+        return process(fileName, fileNamePatterns);
+    }
+
+    ITableProperties process(String fileName, String... fileNamePatterns) throws InvalidFileNamePatternException,
+                                                                          NoMatchFileNameException {
+        if (fileNamePatterns == null) {
+            fileNamePatterns = new String[]{EMPTY_STRING};
+        }
+        NoMatchFileNameException error = null;
+        //choose the suitable pattern
+        for (String fileNamePattern : fileNamePatterns) {
+            try {
+                ITableProperties properties = process(fileName, fileNamePattern);
+                if (properties != null) {
+                    return properties;
+                }
+            } catch (NoMatchFileNameException e) {
+                if (error != null) {
+                    e.addSuppressed(error);
+                }
+                error = e;
+            }
+        }
+
+        if (error != null) {
+            throw error;
+        }
+
+        if (fileNamePatterns.length == 1) {
+            throw new NoMatchFileNameException(String.format(SINGLE_PATTERN_ERROR_MSG, fileName, fileNamePatterns[0]));
+        } else {
+            throw new NoMatchFileNameException(String.format(MULTI_PATTERN_ERROR_MSG,
+                    fileName,
+                    Arrays.toString(fileNamePatterns)));
+        }
+    }
+
+    private ITableProperties process(String fileName, String fileNamePattern) throws InvalidFileNamePatternException,
+                                                                              NoMatchFileNameException {
         if (fileNamePattern == null) {
             fileNamePattern = EMPTY_STRING;
         }
@@ -63,19 +127,17 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                     props.setFieldValue(propertyName, value);
                 } catch (Exception e) {
                     throw new NoMatchFileNameException(String.format(
-                        "Module '%s' does not match file name pattern '%s'.%n Invalid property: %s.%n Message: %s.",
-                        fileName,
-                        fileNamePattern,
-                        propertyName,
-                        e.getMessage()));
+                            "Module '%s' does not match file name pattern '%s'.%n Invalid property: %s.%n Message: %s.",
+                            fileName,
+                            fileNamePattern,
+                            propertyName,
+                            e.getMessage()));
                 }
             }
 
             return props;
-        } else {
-            throw new NoMatchFileNameException(
-                String.format("Module '%s' does not match file name pattern '%s'.", fileName, fileNamePattern));
         }
+        return null;
     }
 
     protected PatternModel getPatternModel(String fileNamePattern) throws InvalidFileNamePatternException {
@@ -218,6 +280,13 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         }
 
         protected Object convert(String propertyName, String value) {
+            if (STATE_PROPERTY_NAME.equals(propertyName) && CW_STATE_VALUE.equals(value)) {
+                return UsStatesEnum.values();
+            }
+            Class<?> type = PROP_SUPPORT_ALL_KEY.get(propertyName);
+            if (type != null && ALL_KEYWORD.equals(value)) {
+                return type.getEnumConstants();
+            }
             Class<?> returnType = TablePropertyDefinitionUtils.getTypeByPropertyName(propertyName);
             return getObject(propertyName, value, returnType);
         }

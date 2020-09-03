@@ -3,7 +3,9 @@ package org.openl.util;
 import static java.util.Locale.ENGLISH;
 
 import java.beans.Introspector;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
@@ -18,49 +20,84 @@ import java.util.regex.Pattern;
 public class ClassUtils {
 
     private static final Method DEFINE_CLASS;
+    private static final Method DEFINE_PACKAGE;
+    private static final Method GET_PACKAGE;
     private static final ProtectionDomain PROTECTION_DOMAIN;
     private static final Throwable THROWABLE;
 
     static {
         ProtectionDomain pd;
         Method dc;
+        Method dp;
+        Method gp;
         Throwable ex = null;
         try {
             pd = (ProtectionDomain) AccessController
                 .doPrivileged((PrivilegedAction) () -> ClassUtils.class.getProtectionDomain());
-            dc = (Method) AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
-                @Override
-                public Object run() throws Exception {
-                    Class<?> loader = Class.forName("java.lang.ClassLoader");
-                    Method defineClass = loader.getDeclaredMethod("defineClass",
-                        String.class,
-                        byte[].class,
-                        int.class,
-                        int.class,
-                        ProtectionDomain.class);
-                    defineClass.setAccessible(true);
-                    return defineClass;
-                }
+            dc = (Method) AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
+                Class<?> loader = Class.forName("java.lang.ClassLoader");
+                Method defineClass = loader.getDeclaredMethod("defineClass",
+                    String.class,
+                    byte[].class,
+                    int.class,
+                    int.class,
+                    ProtectionDomain.class);
+                defineClass.setAccessible(true);
+                return defineClass;
+            });
+            dp = (Method) AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
+                Class<?> loader = Class.forName("java.lang.ClassLoader");
+                Method defineClass = loader.getDeclaredMethod("definePackage",
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    URL.class);
+                defineClass.setAccessible(true);
+                return defineClass;
+            });
+            gp = (Method) AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
+                Class<?> loader = Class.forName("java.lang.ClassLoader");
+                Method defineClass = loader.getDeclaredMethod("getPackage", String.class);
+                defineClass.setAccessible(true);
+                return defineClass;
             });
         } catch (NoClassDefFoundError | Exception e) {
             ex = e;
             dc = null;
             pd = null;
-
+            dp = null;
+            gp = null;
         }
         DEFINE_CLASS = dc;
+        DEFINE_PACKAGE = dp;
+        GET_PACKAGE = gp;
         PROTECTION_DOMAIN = pd;
         THROWABLE = ex;
+    }
+
+    private ClassUtils() {
     }
 
     /**
      * Loads bytecode and run static initializes.
      */
-    public static Class<?> defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
+    public static Class<?> defineClass(String className, byte[] b, ClassLoader loader)
+            throws InvocationTargetException, IllegalAccessException, ClassNotFoundException {
         Class<?> clazz;
-        if (DEFINE_CLASS != null) {
+        if (DEFINE_CLASS != null && DEFINE_PACKAGE != null) {
             Object[] args = new Object[] { className, b, 0, b.length, PROTECTION_DOMAIN };
             clazz = (Class<?>) DEFINE_CLASS.invoke(loader, args);
+            String pkgName = className.substring(0, className.lastIndexOf("."));
+            if (StringUtils.isNotEmpty(pkgName)) {
+                if (GET_PACKAGE.invoke(loader, pkgName) == null) {
+                    Object[] args1 = new Object[] { pkgName, null, null, null, null, null, null, null };
+                    DEFINE_PACKAGE.invoke(loader, args1);
+                }
+            }
         } else {
             throw new IllegalStateException(THROWABLE);
         }
@@ -189,7 +226,7 @@ public class ClassUtils {
         }
 
         int arrayIndex = className.indexOf("[L"); // array encoding
-        int start = arrayIndex == -1 ? 0 : arrayIndex + 2;
+        int start = arrayIndex == -1 ? 0 : (arrayIndex + 2);
 
         return className.substring(start, lastDot);
     }
@@ -249,39 +286,33 @@ public class ClassUtils {
             cls = primitiveToWrapper(cls);
         }
 
-        if (cls.equals(toClass)) {
+        if (cls == toClass) {
             return true;
         }
         if (cls.isPrimitive()) {
-            if (toClass.isPrimitive() == false) {
+            if (!toClass.isPrimitive()) {
                 return false;
             }
-            if (Integer.TYPE.equals(cls)) {
-                return Long.TYPE.equals(toClass) || Float.TYPE.equals(toClass) || Double.TYPE.equals(toClass);
+            if (Integer.TYPE == cls) {
+                return Long.TYPE == toClass || Float.TYPE == toClass || Double.TYPE == toClass;
             }
             if (Long.TYPE.equals(cls)) {
-                return Float.TYPE.equals(toClass) || Double.TYPE.equals(toClass);
+                return Float.TYPE == toClass || Double.TYPE == toClass;
             }
-            if (Boolean.TYPE.equals(cls)) {
+            if (Boolean.TYPE == cls) {
                 return false;
             }
-            if (Double.TYPE.equals(cls)) {
+            if (Double.TYPE == cls) {
                 return false;
             }
-            if (Float.TYPE.equals(cls)) {
-                return Double.TYPE.equals(toClass);
+            if (Float.TYPE == cls) {
+                return Double.TYPE == toClass;
             }
-            if (Character.TYPE.equals(cls)) {
-                return Integer.TYPE.equals(toClass) || Long.TYPE.equals(toClass) || Float.TYPE
-                    .equals(toClass) || Double.TYPE.equals(toClass);
-            }
-            if (Short.TYPE.equals(cls)) {
-                return Integer.TYPE.equals(toClass) || Long.TYPE.equals(toClass) || Float.TYPE
-                    .equals(toClass) || Double.TYPE.equals(toClass);
+            if (Character.TYPE == cls || Short.TYPE == cls) {
+                return Integer.TYPE == toClass || Long.TYPE == toClass || Float.TYPE == toClass || Double.TYPE == toClass;
             }
             if (Byte.TYPE.equals(cls)) {
-                return Short.TYPE.equals(toClass) || Integer.TYPE.equals(toClass) || Long.TYPE
-                    .equals(toClass) || Float.TYPE.equals(toClass) || Double.TYPE.equals(toClass);
+                return Short.TYPE == toClass || Integer.TYPE == toClass || Long.TYPE == toClass || Float.TYPE == toClass || Double.TYPE == toClass;
             }
             // should never get here
             return false;

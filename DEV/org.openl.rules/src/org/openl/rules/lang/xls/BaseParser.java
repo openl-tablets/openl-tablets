@@ -29,16 +29,6 @@ public abstract class BaseParser implements IOpenParser {
         return getNotSupportedCode(source, "a Type");
     }
 
-    @Override
-    public IParsedCode parseAsIntegerRange(IOpenSourceCodeModule source) {
-        return getNotSupportedCode(source, "an integer range");
-    }
-
-    @Override
-    public IParsedCode parseAsFloatRange(IOpenSourceCodeModule source) {
-        return getNotSupportedCode(source, "a float range");
-    }
-
     protected IParsedCode getNotSupportedCode(IOpenSourceCodeModule source, String sourceType) {
         String message = String.format("The source cannot be parsed as %s", sourceType);
         return getInvalidCode(message, source);

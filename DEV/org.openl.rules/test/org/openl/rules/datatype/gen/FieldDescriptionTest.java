@@ -6,8 +6,8 @@ import org.junit.Test;
 import org.openl.gen.FieldDescription;
 import org.openl.gen.writers.DefaultValue;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
+import org.openl.rules.lang.xls.types.DatatypeOpenField;
 import org.openl.types.IOpenClass;
-import org.openl.types.impl.DatatypeOpenField;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
 
 /**
@@ -81,7 +81,7 @@ public class FieldDescriptionTest {
 
         // Create the field that belongs to the policy and contains drivers
         //
-        DatatypeOpenField driversField = new DatatypeOpenField(policyClass, "drivers", driversClass, null);
+        DatatypeOpenField driversField = new DatatypeOpenField(policyClass, "drivers", driversClass, null, false);
 
         FieldDescription field = new FieldDescription(driversField.getType().getInstanceClass().getName());
         assertEquals(Driver[].class.getName(), field.getTypeName());

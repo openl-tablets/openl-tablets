@@ -16,7 +16,9 @@ import org.springframework.core.env.PropertySources;
 import org.springframework.core.env.PropertySourcesPropertyResolver;
 import org.springframework.util.StringValueResolver;
 
-public class DelegatedPropertySourceLoader extends PlaceholderConfigurerSupport implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+public class DelegatedPropertySourceLoader
+        extends PlaceholderConfigurerSupport
+        implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     private final PropertiesHolder propertiesHolder;
 

@@ -10,28 +10,39 @@ Usage
 
   OpenL Tablets Maven plugin expects the following directory structure:
 
-+--------------------------------------
-|- your-project/                   Project root folder
-| |- pom.xml                       Maven project file
-| |
-| |- src/
-| |
-| | |- main/
-| | |
-| | | |- java/                     Contains java sources
-| | | |
-| | | |- resources/                Contains java resources
-| | | |
-| | | |- openl/                    Contains all OpenL-related resources (rules, xml etc.)
-| | | |
-| | | |
-| | | | |- rules.xml               OpenL project descriptor (for OpenL only)
-| | | | |- rules/
-| | | | | |- TemplateRules.xls     File with rules
-+--------------------------------------
++-------------------------------
+|- your-project/                     Project root folder
+|  |- pom.xml                        Maven project file
+|  |
+|  |- src/
+|  |  |
+|  |  |
+|  |  |- main/
+|  |  |  |
+|  |  |  |- java/                    Java sources
+|  |  |  |
+|  |  |  |- resources/               Java resources
+|  |  |  |
+|  |  |  |- openl/                   OpenL Tablets project that contains resources such as rules and configurations
+|  |  |  |  |
+|  |  |  |  |- rules.xml             OpenL Tablets project descriptor
+|  |  |  |  |- rules/
+|  |  |  |  |  |- MyRules.xlsx       File with rules
+|  |  |
+|  |  |
+|  |  |- test/                       Tests run upon build generation
+|  |  |  |
+|  |  |  |- openl/                   OpenL Tablets project for testing rules
+|  |  |  |  |
+|  |  |  |  |- rules.xml             Descriptor that contains dependency on the tested OpenL Tablets project
+|  |  |  |  |- rules/
+|  |  |  |  |  |- MyTest.xlsx        File with OpenL Tablets tests
++-------------------------------
 
   Note that OpenL Tablets-related resources are located in the <<<src/main/openl>>> directory.
   It can be changed to fit user needs by modifying the <<<sourceDirectory>>> parameter in Maven plugin configuration.
+
+  The test directory contains tests run on Maven plugin upon build generation but not included in the target project.
 
   <<Note:>> It is not recommended to put OpenL Tablets-related resources to the <<<src/main/resources>>> folder.
   In this case, OpenL Tablets resources will be inside the JAR file alongside with the compiled Java classes, which
@@ -60,7 +71,7 @@ Usage
 </build>
 +--------------------------------------
 
-  In this case, the OpenL project is processed through Maven lifecycle as follows:
+  In this case, the OpenL project is processed through the Maven lifecycle as follows:
 
       * Java compilation happens at the 'compile' phase.
 
@@ -72,7 +83,7 @@ Usage
 
 * Configuring Interface and Generating Domain Classes
 
-  The simplest way to generate interface for rules defined in the TemplateRules.xls file:
+  The simplest way to generate interface for rules defined in the TemplateRules.xls file is as follows:
 
 +--------------------------------------
 <build>
@@ -84,6 +95,7 @@ Usage
           <artifactId>openl-maven-plugin</artifactId>
           <version>${org.openl.version}</version>
           <configuration>
+              <moduleName>TemplateRules</moduleName>
               <interfaceClass>org.company.gen.TemplateRulesInterface</interfaceClass>
           </configuration>
           <executions>

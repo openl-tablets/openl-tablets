@@ -245,7 +245,8 @@ public class Condition extends FunctionalRow implements ICondition {
         }
         if (conditionCasts.isCastToConditionTypeExists()) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                "PERFORMANCE: Condition '%s' uses additional type casting from '%s' to '%s' in calculation time for each table row.",
+                "PERFORMANCE: Condition '%s' uses additional type casting " +
+                        "from '%s' to '%s' in calculation time for each table row.",
                 getName(),
                 methodType.getName(),
                 param.getType().getComponentClass().getName()), tableSyntaxNode));
@@ -255,7 +256,8 @@ public class Condition extends FunctionalRow implements ICondition {
                 source.getCode());
         } else if (conditionCasts.isCastToInputTypeExists()) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                "PERFORMANCE: Condition '%s' uses additional type casting from '%s' to '%s' in calculation time for each table row.",
+                "PERFORMANCE: Condition '%s' uses additional type casting " +
+                        "from '%s' to '%s' in calculation time for each table row.",
                 getName(),
                 param.getType().getComponentClass().getInstanceClass().getTypeName(),
                 methodType.getName()), tableSyntaxNode));
@@ -266,7 +268,7 @@ public class Condition extends FunctionalRow implements ICondition {
     }
 
     private static boolean isIntRangeType(IOpenClass type) {
-        return org.openl.rules.helpers.IntRange.class.equals(type.getInstanceClass());
+        return org.openl.rules.helpers.IntRange.class == type.getInstanceClass();
     }
 
     private String getRangeExpression(TableSyntaxNode tableSyntaxNode,
@@ -276,7 +278,8 @@ public class Condition extends FunctionalRow implements ICondition {
             IBindingContext bindingContext) {
         if (isIntRangeType(param.getType()) && NumberUtils.isFloatPointType(methodType.getInstanceClass())) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                "PERFORMANCE: Condition '%s' uses additional type casting from '%s' to '%s' in calculation time for each table row.",
+                "PERFORMANCE: Condition '%s' uses additional type casting " +
+                        "from '%s' to '%s' in calculation time for each table row.",
                 getName(),
                 param.getType().getName(),
                 DoubleRange.class.getTypeName()), tableSyntaxNode));
@@ -290,7 +293,7 @@ public class Condition extends FunctionalRow implements ICondition {
             return true;
         }
         if (ClassUtils.isAssignable(paramType.getInstanceClass(), INumberRange.class) && methodType.getInstanceClass()
-            .isPrimitive() && !char.class.equals(methodType.getInstanceClass())) {
+            .isPrimitive() && char.class != methodType.getInstanceClass()) {
             return true;
         }
         if (ClassUtils.isAssignable(paramType.getInstanceClass(), DateRange.class) && ClassUtils
@@ -299,7 +302,7 @@ public class Condition extends FunctionalRow implements ICondition {
         }
         if (ClassUtils.isAssignable(paramType.getInstanceClass(),
             CharRange.class) && (ClassUtils.isAssignable(methodType.getInstanceClass(), Character.class) || char.class
-                .equals(methodType.getInstanceClass()))) {
+                == methodType.getInstanceClass())) {
             return true;
         }
         return ClassUtils.isAssignable(paramType.getInstanceClass(), StringRange.class) && ClassUtils

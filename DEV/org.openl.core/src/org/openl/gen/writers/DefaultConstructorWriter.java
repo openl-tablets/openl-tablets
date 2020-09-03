@@ -1,13 +1,5 @@
 package org.openl.gen.writers;
 
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.GeneratorAdapter;
-import org.objectweb.asm.commons.Method;
-import org.openl.gen.ByteCodeGenerationException;
-import org.openl.gen.FieldDescription;
-
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -17,6 +9,15 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
+
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
+import org.objectweb.asm.commons.Method;
+import org.openl.gen.ByteCodeGenerationException;
+import org.openl.gen.FieldDescription;
+import org.openl.gen.TypeDescription;
 
 public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
 
@@ -60,13 +61,13 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
     /**
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
      *            (e.g. <code>my/test/TestClass</code>)
-     * @param parentClass class descriptor for super class.
+     * @param parentType class descriptor for super class.
      * @param beanFields fields of generating class.
      */
     public DefaultConstructorWriter(String beanNameWithPackage,
-            Class<?> parentClass,
+            TypeDescription parentType,
             Map<String, FieldDescription> beanFields) {
-        super(beanNameWithPackage, parentClass, beanFields);
+        super(beanNameWithPackage, parentType, beanFields);
     }
 
     private static void pushValue(GeneratorAdapter mg, Type type, Object value) {
@@ -289,7 +290,7 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
 
         // invokes the super class constructor
         mg.loadThis();
-        mg.invokeConstructor(Type.getType(getParentClass()), DEF_CONSTR);
+        mg.invokeConstructor(Type.getType(getParentType().getTypeDescriptor()), DEF_CONSTR);
 
         for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
             FieldDescription fieldDescription = field.getValue();

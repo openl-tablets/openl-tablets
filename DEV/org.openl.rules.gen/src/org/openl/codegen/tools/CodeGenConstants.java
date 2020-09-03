@@ -1,6 +1,6 @@
 package org.openl.codegen.tools;
 
-public class CodeGenConstants {
+public final class CodeGenConstants {
 
     public static final String RULES_SOURCE_LOCATION = "../org.openl.rules/src/";
 
@@ -14,5 +14,8 @@ public class CodeGenConstants {
     public static final String ENUMS_PACKAGE = "org.openl.rules.enumeration";
 
     public static final String DEFINITIONS_ARRAY_NAME = "definitions";
+
+    private CodeGenConstants() {
+    }
 
 }

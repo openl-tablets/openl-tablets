@@ -10,6 +10,8 @@ import org.openl.rules.table.xls.XlsUrlParser;
  */
 public interface IGridTable extends ITable<IGridTable> {
 
+    IGridTable[] EMPTY_GRID = new IGridTable[0];
+
     IGrid getGrid();
 
     void edit();

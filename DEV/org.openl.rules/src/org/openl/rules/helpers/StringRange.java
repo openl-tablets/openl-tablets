@@ -44,13 +44,13 @@ public class StringRange {
 
     private void validate() {
         if (lowerBoundType == null || upperBoundType == null) {
-            throw new IllegalStateException("Bound types must be initialized.");
+            throw new IllegalArgumentException("Bound types must be initialized.");
         }
         if (lowerBound == null || upperBound == null) {
-            throw new IllegalStateException("All bounds must be initialized.");
+            throw new IllegalArgumentException("All bounds must be initialized.");
         }
         if (lowerBound.compareTo(upperBound) > 0) {
-            throw new IllegalStateException("Left bound must be lower than right.");
+            throw new IllegalArgumentException("Left bound must be lower than right.");
         }
     }
 
@@ -80,10 +80,9 @@ public class StringRange {
             return true;
         } else if (lowerComparison == 0 && lowerBoundType == BoundType.INCLUDING) {
             return true;
-        } else if (upperComparison == 0 && upperBoundType == BoundType.INCLUDING) {
-            return true;
+        } else {
+            return upperComparison == 0 && upperBoundType == BoundType.INCLUDING;
         }
-        return false;
     }
 
     public boolean contains(CharSequence s) {

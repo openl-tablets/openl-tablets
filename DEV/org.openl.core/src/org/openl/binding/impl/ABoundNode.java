@@ -26,7 +26,9 @@ public abstract class ABoundNode implements IBoundNode {
 
     protected ABoundNode(ISyntaxNode syntaxNode, IBoundNode... children) {
         this.syntaxNode = syntaxNode;
-        this.children = children != null && children.length == 0 ? IBoundNode.EMPTY : children;
+        this.children = children != null && (children.length == 0 || (children.length == 1 && children[0] == null))
+                ? IBoundNode.EMPTY
+                : children;
     }
 
     @Override
@@ -37,7 +39,8 @@ public abstract class ABoundNode implements IBoundNode {
     @Override
     public final Object evaluate(IRuntimeEnv env) {
         try {
-            return evaluateRuntime(env);
+            Object res = evaluateRuntime(env);
+            return res != null ? res : getType().nullObject();
         } catch (OpenLRuntimeException ore) {
             throw ore;
         } catch (ControlSignal controlSignal) {
@@ -52,22 +55,6 @@ public abstract class ABoundNode implements IBoundNode {
     @Override
     public IOpenClass getType() {
         return NullOpenClass.the;
-    }
-
-    public Object[] evaluateChildren(IRuntimeEnv env) {
-        if (children == null) {
-            return null;
-        } else if (children == EMPTY) {
-            return EMPTY_RESULT;
-        }
-
-        Object[] ch = new Object[children.length];
-
-        for (int i = 0; i < ch.length; i++) {
-            ch[i] = children[i].evaluate(env);
-        }
-
-        return ch;
     }
 
     @Override

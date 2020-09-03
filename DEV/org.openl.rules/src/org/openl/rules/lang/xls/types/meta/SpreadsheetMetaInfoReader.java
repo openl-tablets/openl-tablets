@@ -8,7 +8,6 @@ import java.util.Map;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
-import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.rules.calc.SpreadsheetBoundNode;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -55,7 +54,7 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
         String stringValue = sourceCell.getStringValue();
         if (stringValue != null) {
             List<NodeUsage> nodeUsages = null;
-            if (stringValue.startsWith("=") || stringValue.startsWith("{") && stringValue.endsWith("}")) {
+            if (stringValue.startsWith("=") || (stringValue.startsWith("{") && stringValue.endsWith("}"))) {
                 nodeUsages = new ArrayList<>();
                 int from = stringValue.indexOf('=');
                 if (from >= 0 && type != null) {
@@ -66,7 +65,7 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
                 IOpenMethod method = spreadsheetCell.getMethod();
                 if (method instanceof CompositeMethod) {
                     int startIndex = from + 1;
-                    List<NodeUsage> parsedNodeUsages = OpenLCellExpressionsCompiler
+                    List<NodeUsage> parsedNodeUsages = MetaInfoReaderUtils
                         .getNodeUsages((CompositeMethod) method, stringValue.substring(startIndex), startIndex);
                     nodeUsages.addAll(parsedNodeUsages);
                 }

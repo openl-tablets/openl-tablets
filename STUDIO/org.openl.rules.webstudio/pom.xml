@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.studio-pom</artifactId>
-        <version>5.23.2-SNAPSHOT</version>
+        <version>5.24.0-SNAPSHOT</version>
     </parent>
     <artifactId>org.openl.rules.webstudio</artifactId>
     <packaging>war</packaging>
@@ -16,7 +17,6 @@
         <url>https://openl-tablets.org</url>
     </organization>
     <properties>
-        <war.name>openl-tablets-webstudio-${project.version}</war.name>
         <generate-application.properties>process-resources</generate-application.properties>
         <sonar.sources>src,webapp</sonar.sources>
     </properties>
@@ -68,6 +68,22 @@
                                 <class>org.xmlpull.v1.XmlPullParserException</class>
                             </classes>
                         </exception>
+                        <exception>
+                            <conflictingDependencies>
+                                <dependency>
+                                    <groupId>com.github.java-json-tools</groupId>
+                                    <artifactId>json-schema-core</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>com.github.java-json-tools</groupId>
+                                    <artifactId>json-schema-validator</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                            <resources>
+                                <resource>draftv3/schema</resource>
+                                <resource>draftv4/schema</resource>
+                            </resources>
+                        </exception>
                     </exceptions>
                     <ignoredResourcePatterns>
                         <ignoredResourcePattern>mozilla/public-suffix-list.txt</ignoredResourcePattern>
@@ -79,6 +95,33 @@
                         <ignoredClassPattern>META-INF\.versions\.\d+\.module-info</ignoredClassPattern>
                     </ignoredClassPatterns>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>websphere-fix-by-removing-beans-xml-file</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <jar destfile="${project.build.directory}/${project.build.finalName}/WEB-INF/lib/swagger-jaxrs2-${io.swagger.core.v3.version}-repacked.jar">
+                                    <zipfileset
+                                            src="${project.build.directory}/${project.build.finalName}/WEB-INF/lib/swagger-jaxrs2-${io.swagger.core.v3.version}.jar"
+                                            excludes="META-INF/beans.xml"/>
+                                </jar>
+                                <delete failonerror="true" verbose="true"
+                                        file="${project.build.directory}/${project.build.finalName}/WEB-INF/lib/swagger-jaxrs2-${io.swagger.core.v3.version}.jar"/>
+                                <delete failonerror="true" verbose="true"
+                                        file="${project.build.directory}/${project.build.finalName}.war"/>
+                                <jar destfile="${project.build.directory}/${project.build.finalName}.war"
+                                     basedir="${project.build.directory}/${project.build.finalName}"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -172,7 +215,19 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.project.validation.openapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.diff</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>openl-openapi-parser</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>openl-excel-builder</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openl</groupId>
@@ -189,12 +244,8 @@
             <artifactId>hibernate-validator</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.richfaces.core</groupId>
-            <artifactId>richfaces-core-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.richfaces.ui</groupId>
-            <artifactId>richfaces-components-ui</artifactId>
+            <groupId>com.github.albfernandez.richfaces</groupId>
+            <artifactId>richfaces</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -284,18 +335,20 @@
             <artifactId>jakarta.activation-api</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!--added for fix problem webstudio failure on Jboss 7.1 and JBoss 7.2, due to new JSF version-->
+        <dependency>
+            <groupId>org.reactivestreams</groupId>
+            <artifactId>reactive-streams</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+        <!--added for fix problem webstudio failure on Websphere, due to new JSF version-->
+        <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+            <version>1.1</version>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <!-- r08 is required for richfaces -->
-                <version>r08</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <profiles>
         <profile>
             <id>java11</id>

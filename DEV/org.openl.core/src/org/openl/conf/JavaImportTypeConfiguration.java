@@ -19,9 +19,9 @@ import org.openl.util.StringUtils;
  */
 public class JavaImportTypeConfiguration extends AConfigurationElement implements ITypeFactoryConfigurationElement {
 
-    private List<String> classes = new ArrayList<>();
+    private final List<String> classes = new ArrayList<>();
 
-    private List<String> packages = new ArrayList<>();
+    private final List<String> packages = new ArrayList<>();
 
     private ITypeLibrary library = null;
 

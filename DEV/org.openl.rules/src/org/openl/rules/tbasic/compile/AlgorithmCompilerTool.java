@@ -17,9 +17,12 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 
-public class AlgorithmCompilerTool {
+public final class AlgorithmCompilerTool {
 
     public static final String FIELD_SEPARATOR = ".";
+
+    private AlgorithmCompilerTool() {
+    }
 
     private static String extractFieldName(String instruction) {
         // Get the first token after ".", it will be the field name

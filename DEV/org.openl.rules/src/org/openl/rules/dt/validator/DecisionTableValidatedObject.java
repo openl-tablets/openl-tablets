@@ -221,7 +221,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
         Class<?> instanceClass = pd.getParameterDeclaration().getType().getInstanceClass();
 
-        if (boolean.class.equals(instanceClass) || Boolean.class.equals(instanceClass)) {
+        if (boolean.class == instanceClass || Boolean.class == instanceClass) {
             return intValue == 1 ? "true" : "false";
         }
 

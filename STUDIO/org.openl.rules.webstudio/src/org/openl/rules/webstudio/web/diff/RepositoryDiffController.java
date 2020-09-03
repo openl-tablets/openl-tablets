@@ -11,9 +11,6 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.PreDestroy;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.model.SelectItem;
 
@@ -41,31 +38,37 @@ import org.richfaces.component.UITree;
 import org.richfaces.function.RichFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * Supplies repository structured diff UI tree with data.
  *
  * @author Andrey Naumenko
  */
-@ManagedBean
-@SessionScoped
+@Service
+@SessionScope
 public class RepositoryDiffController extends AbstractDiffController {
     private final Logger log = LoggerFactory.getLogger(RepositoryDiffController.class);
 
-    @ManagedProperty(value = "#{repositoryTreeState}")
-    private RepositoryTreeState repositoryTreeState;
+    private final RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{designTimeRepository}")
-    private DesignTimeRepository designTimeRepository;
+    private final DesignTimeRepository designTimeRepository;
 
     private String branch;
-    private AProject projectUW; // User Workspace project
+    private UserWorkspaceProject projectUW; // User Workspace project
     private List<AProjectArtefact> excelArtefactsUW;
     private List<AProjectArtefact> excelArtefactsRepo;
 
     private String selectedExcelFileUW;
     private String selectedExcelFileRepo;
     private String selectedVersionRepo;
+
+    public RepositoryDiffController(RepositoryTreeState repositoryTreeState,
+        DesignTimeRepository designTimeRepository) {
+        this.repositoryTreeState = repositoryTreeState;
+        this.designTimeRepository = designTimeRepository;
+    }
 
     public String getBranch() {
         return branch;
@@ -104,9 +107,10 @@ public class RepositoryDiffController extends AbstractDiffController {
     public List<ProjectVersion> getVersionsRepo() {
         try {
             List<ProjectVersion> versions;
-            if (designTimeRepository.getRepository().supports().branches()) {
-                Repository repository = ((BranchRepository) designTimeRepository.getRepository()).forBranch(branch);
-                String folderPath = designTimeRepository.getProject(projectUW.getName()).getFolderPath();
+            Repository designRepository = projectUW.getDesignRepository();
+            if (designRepository.supports().branches()) {
+                Repository repository = ((BranchRepository) designRepository).forBranch(branch);
+                String folderPath = designTimeRepository.getProject(designRepository.getId(), projectUW.getName()).getFolderPath();
                 versions = new AProject(repository, folderPath).getVersions();
             } else {
                 versions = projectUW.getVersions();
@@ -139,12 +143,8 @@ public class RepositoryDiffController extends AbstractDiffController {
         return excelItems;
     }
 
-    public void setDesignTimeRepository(DesignTimeRepository designTimeRepository) {
-        this.designTimeRepository = designTimeRepository;
-    }
-
-    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
-        this.repositoryTreeState = repositoryTreeState;
+    public String getRepositoryId() {
+        return projectUW == null ? null : projectUW.getDesignRepository().getId();
     }
 
     public String init() {
@@ -158,7 +158,7 @@ public class RepositoryDiffController extends AbstractDiffController {
             UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
             if (projectUW != selectedProject) {
                 projectUW = selectedProject;
-                selectedVersionRepo = projectUW.getVersion().getVersionName();
+                selectedVersionRepo = projectUW.getFileData().getVersion();
                 setDiffTree(null);
 
                 if (selectedProject.isSupportsBranches()) {
@@ -176,18 +176,19 @@ public class RepositoryDiffController extends AbstractDiffController {
             // Repository project
             AProject projectRepo;
 
-            if (designTimeRepository.getRepository().supports().branches()) {
-                projectRepo = designTimeRepository.getProject(branch, projectUW.getName(), selectedVersionRepo);
+            Repository designRepository = projectUW.getDesignRepository();
+            if (designRepository.supports().branches()) {
+                projectRepo = designTimeRepository.getProject(designRepository.getId(), branch, projectUW.getName(), selectedVersionRepo);
             } else {
                 CommonVersionImpl version = new CommonVersionImpl(selectedVersionRepo);
                 try {
-                    projectRepo = designTimeRepository.getProject(projectUW.getName(), version);
+                    projectRepo = designTimeRepository.getProject(designRepository.getId(), projectUW.getName(), version);
                 } catch (Exception e) {
                     log.warn("Could not get project'{}' of version '{}'",
                         projectUW.getName(),
                         version.getVersionName(),
                         e);
-                    projectRepo = designTimeRepository.getProject(projectUW.getName());
+                    projectRepo = designTimeRepository.getProject(designRepository.getId(), projectUW.getName());
                 }
             }
             excelArtefactsRepo = getExcelArtefacts(projectRepo, "");

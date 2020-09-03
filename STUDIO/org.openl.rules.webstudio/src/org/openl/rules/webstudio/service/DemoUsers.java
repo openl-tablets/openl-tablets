@@ -20,7 +20,7 @@ public class DemoUsers {
      * refreshed and this bean is invoked again. This time it must keep previous changes, no need to create demo users
      * again.
      */
-    private static boolean initialized = false;
+    private static boolean initialized;
 
     @Autowired
     private UserManagementService userManagementService;

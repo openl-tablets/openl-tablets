@@ -36,16 +36,7 @@ public class FolderStructureValidatorsTest {
             String name = "LPT" + i;
             assertInvalid("'" + name + "'" + suffix, () -> validators.pathInRepository(null, null, name));
         }
-    }
 
-    @Test
-    public void folderConfigFile() {
-        validators.folderConfigFile(null, null, "openl-projects.properties");
-        validators.folderConfigFile(null, null, "folder/file.properties");
-
-        assertInvalid("Folder config file cannot be empty", () -> validators.folderConfigFile(null, null, null));
-        assertInvalid("Folder config file cannot be empty", () -> validators.folderConfigFile(null, null, ""));
-        assertInvalid(NameChecker.BAD_NAME_MSG, () -> validators.folderConfigFile(null, null, "c:\\file.properties"));
         assertInvalid("Invalid name '.git'", () -> validators.pathInRepository(null, null, ".git"));
         assertInvalid("'PRN' is a reserved word.", () -> validators.pathInRepository(null, null, "PRN"));
     }

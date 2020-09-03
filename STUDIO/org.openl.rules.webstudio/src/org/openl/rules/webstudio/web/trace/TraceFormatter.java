@@ -13,8 +13,7 @@ import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tbasic.runtime.Result;
 import org.openl.rules.webstudio.web.trace.node.*;
-import org.openl.types.IOpenClass;
-import org.openl.types.java.JavaOpenClass;
+import org.openl.util.OpenClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,11 +67,11 @@ public class TraceFormatter {
         }
         int operationRow = tbo.getOperationRow();
 
-        String fieldFormatedValues = getFieldValuesAsString(fieldValues);
+        String fieldFormattedValues = getFieldValuesAsString(fieldValues);
 
-        String displayFieldFormatedValues = "";
-        if (!fieldFormatedValues.equals("")) {
-            displayFieldFormatedValues = String.format("[Local vars: %s]", fieldFormatedValues);
+        String displayFieldFormattedValues = "";
+        if (!fieldFormattedValues.equals("")) {
+            displayFieldFormattedValues = String.format("[Local vars: %s]", fieldFormattedValues);
         }
 
         return String.format("Step: row %d: %s %s %s %s",
@@ -80,7 +79,7 @@ public class TraceFormatter {
             operationName,
             nameForDebug != null ? nameForDebug : "",
             resultValue,
-            displayFieldFormatedValues);
+            displayFieldFormattedValues);
     }
 
     private static String getFieldValuesAsString(HashMap<String, Object> fieldValues) {
@@ -125,8 +124,8 @@ public class TraceFormatter {
         buf.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
         buf.append(spreadsheet.getRowNames()[spreadsheetCell.getRowIndex()]);
 
-        if (!JavaOpenClass.isVoid(spreadsheetCell.getType())) {
-            /** write result for all cells, excluding void type */
+        if (!OpenClassUtils.isVoid(spreadsheetCell.getType())) {
+            /* write result for all cells, excluding void type */
             Object result = stl.getResult();
             String txt;
             if (result != null && result.getClass().isArray()) {
@@ -155,8 +154,7 @@ public class TraceFormatter {
             // append error of any
             buf.append(" = ERROR");
         } else {
-            IOpenClass type = method.getType();
-            if (!JavaOpenClass.isVoid(type)) {
+            if (!OpenClassUtils.isVoid(method.getType())) {
                 // append formatted result
                 buf.append(" = ").append(format(attn.getResult()));
             }
@@ -173,8 +171,8 @@ public class TraceFormatter {
             log.debug(e.getMessage(), e);
 
             return String.format("<span style=\"color: red;\">throw '%s' exception. Cannot format '%s'</span>",
-                    e.getClass().getName(),
-                    o.getClass().getName());
+                e.getClass().getName(),
+                o.getClass().getName());
         }
     }
 

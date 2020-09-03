@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>5.23.2-SNAPSHOT</version>
+        <version>5.24.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.openl.itest</groupId>
@@ -16,31 +16,25 @@
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
+        <http.timeout.connect>0</http.timeout.connect>
+        <http.timeout.read>0</http.timeout.read>
     </properties>
 
     <modules>
         <module>server-core</module>
         <module>itest.smoke</module>
-        <module>itest.kafka.smoke</module>
+        <module>itest.kafka.smoke</module> 
         <module>itest.jacksonbinding</module>
         <module>itest.WebServiceAnnotation</module>
         <module>itest.ws-rest-rules-deploy</module>
         <module>itest.dateTimeFormat</module>
-        <module>itest.HttpStatuses</module>
-        <module>itest.EPBDS-7787</module>
         <module>itest.swaggerSchemas</module>
         <module>itest.WebService</module>
         <module>itest.SpreadsheetResult</module>
-        <module>itest.EPBDS-7187</module>
-        <module>itest.EPBDS-7654</module>
-        <module>itest.EPBDS-7947</module>
-        <module>itest.EPBDS-7721</module>
         <module>itest.storelogdata</module>
-        <module>itest.EPBDS-6555</module>
-        <module>itest.EPBDS-5057</module>
-        <module>itest.EPBDS-8076</module>
         <module>itest.BigServiceDeploy</module>
-        <module>itest.executionModeCompilation</module>
+        <module>itest.non-lazy-compilation</module>
+        <module>itest.deployment-filter</module>
     </modules>
 
     <dependencyManagement>
@@ -53,6 +47,11 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-webapp</artifactId>
+                <version>${jetty.server.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-annotations</artifactId>
                 <version>${jetty.server.version}</version>
             </dependency>
             <dependency>
@@ -88,10 +87,27 @@
                             </webservice-webapp>
                             <openl.config.location>file:./openl-repository/application.properties
                             </openl.config.location>
+                            <server.responses>${project.build.directory}/responses/</server.responses>
+                            <http.timeout.connect>${http.timeout.connect}</http.timeout.connect>
+                            <http.timeout.read>${http.timeout.read}</http.timeout.read>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
     </build>
+    <profiles>
+        <profile>
+            <id>perf</id>
+            <activation>
+                <property>
+                    <name>!noPerf</name>
+                </property>
+            </activation>
+            <properties>
+                <http.timeout.connect>300</http.timeout.connect>
+                <http.timeout.read>5000</http.timeout.read>
+            </properties>
+        </profile>
+    </profiles>
 </project>

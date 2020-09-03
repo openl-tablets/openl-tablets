@@ -8,21 +8,14 @@
     </parent>
 
     <artifactId>openl-child-dependency</artifactId>
-    <version>0.0.0</version>
     <packaging>openl</packaging>
     <name>OpenL Plugin: Child Project</name>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <org.openl.version>@project.version@</org.openl.version>
-    </properties>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-maven-plugin</artifactId>
-                <version>${org.openl.version}</version>
                 <extensions>true</extensions>
             </plugin>
         </plugins>

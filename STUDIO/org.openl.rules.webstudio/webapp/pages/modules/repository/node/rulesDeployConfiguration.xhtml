@@ -26,6 +26,7 @@
   <h:panelGroup rendered="#{!hasRulesDeploy}">
     <a4j:commandButton value="Create rules deploy configuration" action="#{repositoryProjectRulesDeployConfig.createRulesDeploy}"
                        onclick="return canOverwriteRevision();"
+                       render="nodeView"
                        rendered="#{openedForEditing}"/>
     <h:outputText value="Rules deploy configuration is absent" rendered="#{!openedForEditing}"/>
   </h:panelGroup>

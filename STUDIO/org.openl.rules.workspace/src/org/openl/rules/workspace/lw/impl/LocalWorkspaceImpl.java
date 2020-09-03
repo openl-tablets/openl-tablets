@@ -1,35 +1,44 @@
 package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.WorkspaceUser;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 
 public class LocalWorkspaceImpl implements LocalWorkspace {
+    private static final Comparator<AProject> PROJECTS_COMPARATOR = (o1, o2) -> o1.getName()
+        .compareToIgnoreCase(o2.getName());
 
     private final WorkspaceUser user;
     private final File location;
-    private final Map<String, AProject> localProjects;
+    private final Map<ProjectKey, AProject> localProjects;
     private final List<LocalWorkspaceListener> listeners = new ArrayList<>();
-    private final FileFilter localWorkspaceFolderFilter;
     private final LocalRepository localRepository;
+    private final DesignTimeRepository designTimeRepository;
 
-    LocalWorkspaceImpl(WorkspaceUser user, File location, FileFilter localWorkspaceFolderFilter) {
+    LocalWorkspaceImpl(WorkspaceUser user, File location, DesignTimeRepository designTimeRepository) {
         this.user = user;
         this.location = location;
-        this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
+        this.designTimeRepository = designTimeRepository;
 
         localProjects = new HashMap<>();
+
         localRepository = new LocalRepository(location);
         try {
             localRepository.initialize();
@@ -46,17 +55,26 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     @Override
-    public LocalRepository getRepository() {
-        return localRepository;
-    }
-
-    @Override
-    public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
-        String projectName = artefactPath.segment(0);
-        AProject lp = getProject(projectName);
-
-        ArtefactPath pathInProject = artefactPath.withoutFirstSegment();
-        return lp.getArtefactByPath(pathInProject);
+    public LocalRepository getRepository(String id) {
+        if (id == null) {
+            // For backward compatibility.
+            id = "design";
+        }
+        // Create a new instance with id and name.
+        LocalRepository repository = new LocalRepository(localRepository.getRoot());
+        repository.setId(id);
+        if (designTimeRepository != null) {
+            Repository designRepository = designTimeRepository.getRepository(id);
+            if (designRepository != null) {
+                repository.setName(designRepository.getName());
+            }
+        }
+        try {
+            repository.initialize();
+        } catch (RRepositoryException e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
+        return repository;
     }
 
     @Override
@@ -65,10 +83,18 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     @Override
-    public AProject getProject(String name) throws ProjectException {
+    public AProject getProject(String repositoryId, String name) throws ProjectException {
         AProject lp;
         synchronized (localProjects) {
-            lp = localProjects.get(name.toLowerCase());
+            if (repositoryId == null) {
+                lp = localProjects.values()
+                    .stream()
+                    .filter(p -> p.getName().toLowerCase().equals(name.toLowerCase()))
+                    .findFirst()
+                    .orElse(null);
+            } else {
+                lp = localProjects.get(new ProjectKey(repositoryId, name.toLowerCase()));
+            }
         }
         if (lp == null) {
             throw new ProjectException("Cannot find project ''{0}''.", null, name);
@@ -80,7 +106,9 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     @Override
     public Collection<AProject> getProjects() {
         synchronized (localProjects) {
-            return new ArrayList<>(localProjects.values());
+            ArrayList<AProject> projects = new ArrayList<>(localProjects.values());
+            projects.sort(PROJECTS_COMPARATOR);
+            return projects;
         }
     }
 
@@ -89,29 +117,28 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     @Override
-    public boolean hasProject(String name) {
+    public boolean hasProject(String repositoryId, String name) {
         synchronized (localProjects) {
-            return localProjects.get(name.toLowerCase()) != null;
+            return localProjects.get(new ProjectKey(repositoryId, name.toLowerCase())) != null;
         }
     }
 
     private void loadProjects() {
-        File[] folders = location.listFiles(localWorkspaceFolderFilter);
-        if (folders != null) {
-            for (File f : folders) {
-                String name = f.getName();
-
-                AProject lpi;
-                FileData fileData = localRepository.getProjectState(name).getFileData();
-                if (fileData == null) {
-                    String version = localRepository.getProjectState(name).getProjectVersion();
-                    lpi = new AProject(getRepository(), name, version);
-                } else {
-                    lpi = new AProject(getRepository(), fileData);
-                }
-                synchronized (localProjects) {
-                    localProjects.put(name.toLowerCase(), lpi);
-                }
+        List<FileData> folders = localRepository.listFolders("");
+        for (FileData folder : folders) {
+            AProject lpi;
+            String name = folder.getName();
+            ProjectState projectState = localRepository.getProjectState(name);
+            LocalRepository repository = getRepository(projectState.getRepositoryId());
+            FileData fileData = projectState.getFileData();
+            if (fileData == null) {
+                String version = projectState.getProjectVersion();
+                lpi = new AProject(repository, name, version);
+            } else {
+                lpi = new AProject(repository, fileData);
+            }
+            synchronized (localProjects) {
+                localProjects.put(new ProjectKey(repository.getId(), name.toLowerCase()), lpi);
             }
         }
     }
@@ -139,7 +166,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     @Override
-    public boolean removeWorkspaceListener(LocalWorkspaceListener listener) {
-        return listeners.remove(listener);
+    public void removeWorkspaceListener(LocalWorkspaceListener listener) {
+        listeners.remove(listener);
     }
 }

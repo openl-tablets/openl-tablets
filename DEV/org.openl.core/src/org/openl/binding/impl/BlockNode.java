@@ -13,7 +13,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class BlockNode extends ABoundNode implements IBoundMethodNode {
 
-    private int localFrameSize = 0;
+    private int localFrameSize;
 
     public BlockNode(ISyntaxNode node, int localFrameSize, IBoundNode... children) {
         super(node, children);
@@ -22,8 +22,11 @@ public class BlockNode extends ABoundNode implements IBoundMethodNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object[] res = evaluateChildren(env);
-        return res == null ? null : res.length == 0 ? null : res[res.length - 1];
+        Object res = null;
+        for (IBoundNode child : children) {
+            res = child.evaluate(env);
+        }
+        return res;
     }
 
     /*

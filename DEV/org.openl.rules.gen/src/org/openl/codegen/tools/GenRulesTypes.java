@@ -45,12 +45,10 @@ public class GenRulesTypes {
         IRuntimeEnv env = engineFactory.getOpenL().getVm().getRuntimeEnv();
         Object openClassInstance = openClass.newInstance(env);
 
-        for (IOpenField field : openClass.getFields().values()) {
-
+        for (IOpenField field : openClass.getFields()) {
             IOpenClass type = field.getType();
             Class<?> clazz = type.getInstanceClass();
-
-            if (clazz.equals(EnumPropertyDefinition[].class)) {
+            if (clazz == EnumPropertyDefinition[].class) {
                 String name = field.getName();
                 String enumName = getEnumName(name);
 

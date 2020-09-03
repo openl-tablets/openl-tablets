@@ -7,14 +7,14 @@ import org.openl.types.IOpenClass;
 
 final class OneElementArrayCast implements IOpenCast, IOneElementArrayCast {
 
-    private IOpenClass toComponentType;
-    private IOpenCast openCast;
-    private int distance;
+    private final IOpenClass toComponentType;
+    private final IOpenCast openCast;
+    private final int distance;
 
-    OneElementArrayCast(IOpenClass to, IOpenCast openCast) {
-        this.toComponentType = Objects.requireNonNull(to, "to cannot be null");
+    OneElementArrayCast(IOpenClass toComponentType, IOpenCast openCast) {
+        this.toComponentType = Objects.requireNonNull(toComponentType, "toComponentType cannot be null");
         if (this.toComponentType.isArray()) {
-            throw new IllegalArgumentException("to cannot be an array type.");
+            throw new IllegalArgumentException("toComponentType cannot be an array type.");
         }
         this.openCast = openCast;
         this.distance = CastFactory.ONE_ELEMENT_ARRAY_CAST_DISTANCE + openCast.getDistance();

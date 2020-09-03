@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,6 @@ public final class OpenLVersion {
         version = props.getProperty("openl.version", "???");
         buildDate = props.getProperty("openl.build.date", "????-??-??");
         buildNumber = props.getProperty("openl.commit.hash", "????");
-        logOpenLInfo();
     }
 
     public static String getUrl() {
@@ -56,19 +56,4 @@ public final class OpenLVersion {
         return buildNumber;
     }
 
-    /**
-     * Logs information for investigation purposes.
-     */
-    private static void logOpenLInfo() {
-        Logger logger = LoggerFactory.getLogger("OpenL");
-
-        logger.info("***** OpenL Tablets v{}  ({}, #{})", getVersion(), getBuildDate(), getBuildNumber());
-        logger.info("***** Site : {}", getUrl());
-
-        new SysInfoLogger().log();
-        new ClasspathLogger().log();
-        new SysPropLogger().log();
-        new EnvPropLogger().log();
-        new JndiLogger().log();
-    }
 }

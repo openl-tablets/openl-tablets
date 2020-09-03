@@ -24,6 +24,8 @@ import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.OpenClassUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base implementation of {@link ICastFactory} abstraction that used by engine for type conversion operations.
@@ -31,6 +33,7 @@ import org.openl.util.OpenClassUtils;
  * @author snshor, Yury Molchan, Marat Kamalov
  */
 public class CastFactory implements ICastFactory {
+    private static final Logger LOG = LoggerFactory.getLogger(CastFactory.class);
 
     public static final int NO_CAST_DISTANCE = 1;
     public static final int ALIAS_TO_TYPE_CAST_DISTANCE = 1;
@@ -71,6 +74,7 @@ public class CastFactory implements ICastFactory {
 
     public static final int ARRAY_CAST_DISTANCE = 1000;
     public static final int ONE_ELEMENT_ARRAY_CAST_DISTANCE = 2000;
+    public static final int ARRAY_ONE_ELEMENT_CAST_DISTANCE = 3000;
 
     public static final String AUTO_CAST_METHOD_NAME = "autocast";
     public static final String CAST_METHOD_NAME = "cast";
@@ -216,8 +220,9 @@ public class CastFactory implements ICastFactory {
                             ret = openClass;
                         } else if (distance == backDistance) {
                             // We have a collision.
-                            String message = "Cannot find closest cast: have two candidate classes with same cast distance: " + ret
-                                .getName() + " and " + openClass.getName();
+                            String message =
+                                    "Cannot find closest cast: have two candidate classes with same cast distance: " +
+                                            ret.getName() + " and " + openClass.getName();
                             throw new IllegalStateException(message);
                         } else {
                             // Previous candidate is narrower. Keep it.
@@ -235,8 +240,9 @@ public class CastFactory implements ICastFactory {
 
             if (newCandidates.size() == openClassCandidates.size()) {
                 // Cannot filter out classes to choose a closest. Prevent infinite recursion.
-                String message = "Cannot find closest cast: have several candidate classes not convertible between each over: " + Arrays
-                    .toString(newCandidates.toArray());
+                String message = "Cannot find closest cast: " +
+                        "have several candidate classes not convertible between each over: " +
+                        Arrays.toString(newCandidates.toArray());
                 throw new IllegalStateException(message);
             }
 
@@ -299,7 +305,7 @@ public class CastFactory implements ICastFactory {
             }
         }
 
-        if (ThrowableVoid.class.equals(from.getInstanceClass())) {
+        if (ThrowableVoid.class == from.getInstanceClass()) {
             return ThrowableVoidCast.getInstance();
         }
         /* END: This is very cheap operations, so no needs to cache it */
@@ -345,11 +351,21 @@ public class CastFactory implements ICastFactory {
         IOpenCast methodBasedCast = findMethodBasedCast(from, to, methodFactory);
         typeCast = selectBetterCast(from, to, typeCast, methodBasedCast);
 
-        if (typeCast == null) {
-            typeCast = findOneElementArrayCast(from, to);
-        }
+        typeCast = typeCast == null ? findOneElementArrayCast(from, to) : typeCast;
+
+        typeCast = typeCast == null ? findArrayOneElementCast(from, to) : typeCast;
 
         return typeCast;
+    }
+
+    private IOpenCast findArrayOneElementCast(IOpenClass from, IOpenClass to) {
+        if (from.isArray() && !to.isArray() && !from.getComponentClass().isArray()) {
+            IOpenCast cast = getCast(from.getComponentClass(), to);
+            if (cast != null) {
+                return new ArrayOneElementCast(to, cast);
+            }
+        }
+        return null;
     }
 
     private IOpenCast selectBetterCast(IOpenClass from, IOpenClass to, IOpenCast castA, IOpenCast castB) {
@@ -385,7 +401,7 @@ public class CastFactory implements ICastFactory {
             // Improve for up cast
             return getUpCast(fromClass, to.getInstanceClass());
         }
-        if (Object.class.equals(fromClass)) {
+        if (Object.class == fromClass) {
             // Special case for casting when:
             // Object from = new SomeType[x]
             // SomeType[] to = from
@@ -402,7 +418,9 @@ public class CastFactory implements ICastFactory {
             return null;
         }
         IOpenCast arrayElementCast = getCast(f, t);
-        if (arrayElementCast != null) {
+        if (arrayElementCast != null
+                && !(arrayElementCast instanceof IArrayOneElementCast)
+                && !(arrayElementCast instanceof IOneElementArrayCast)) {
             return new ArrayCast(t, arrayElementCast);
         }
         return null;
@@ -454,13 +472,11 @@ public class CastFactory implements ICastFactory {
         Class<?> fromClass = from.getInstanceClass();
         Class<?> toClass = to.getInstanceClass();
 
-        if (fromClass == toClass && from != to && from instanceof ADynamicClass && to instanceof ADynamicClass) { // Dynamic
-            // classes
-            // with
-            // the
-            // same
-            // instance
-            // class
+        if (fromClass == toClass
+                && from != to
+                && from instanceof ADynamicClass
+                && to instanceof ADynamicClass) {
+            // Dynamic classes with the same instance class
             return null;
         }
 
@@ -522,7 +538,7 @@ public class CastFactory implements ICastFactory {
         }
 
         // Apache ClassUtils has error in 2.6
-        if (void.class.equals(fromClass) && Void.class.equals(toClass)) {
+        if (void.class == fromClass && Void.class == toClass) {
             return JavaBoxingCast.getInstance();
         }
 
@@ -550,7 +566,7 @@ public class CastFactory implements ICastFactory {
         }
 
         // Apache ClassUtils has error in 2.6
-        if (Void.class.equals(fromClass) && void.class.equals(toClass)) {
+        if (Void.class == fromClass && void.class == toClass) {
             return JavaUnboxingCast.getInstance(fromClass);
         }
 
@@ -765,9 +781,8 @@ public class CastFactory implements ICastFactory {
                 castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME,
                     new IOpenClass[] { openClassFrom, openClassTo });
             }
-        } catch (AmbiguousMethodException ex) {
-            // Ignore exception.
-            //
+        } catch (AmbiguousMethodException ignored) {
+            LOG.debug("Ignored error: ", ignored);
         }
 
         // If appropriate auto cast method is not found try to find explicit
@@ -810,9 +825,8 @@ public class CastFactory implements ICastFactory {
                         new IOpenClass[] { openClassFrom, openClassTo });
                 }
 
-            } catch (AmbiguousMethodException ex) {
-                // Ignore exception.
-                //
+            } catch (AmbiguousMethodException ignored) {
+                LOG.debug("Ignored error: ", ignored);
             }
         }
 
@@ -826,6 +840,7 @@ public class CastFactory implements ICastFactory {
             distanceCaller = methodFactory.getMethod(DISTANCE_METHOD_NAME,
                 new IOpenClass[] { fromOpenClass, toOpenClass });
         } catch (AmbiguousMethodException ignored) {
+            LOG.debug("Ignored error: ", ignored);
         }
 
         if (distanceCaller != null) {

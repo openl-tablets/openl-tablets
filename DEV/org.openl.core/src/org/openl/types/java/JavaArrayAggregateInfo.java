@@ -12,6 +12,7 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 import org.openl.types.impl.AAggregateInfo;
+import org.openl.types.impl.ArrayIndex;
 import org.openl.util.OpenIterator;
 
 /**
@@ -30,10 +31,7 @@ public class JavaArrayAggregateInfo extends AAggregateInfo {
     @Override
     public IOpenClass getComponentType(IOpenClass aggregateType) {
         Class<?> c = aggregateType.getInstanceClass().getComponentType();
-        if (c == null) {
-            return null;
-        }
-        return JavaOpenClass.getOpenClass(c);
+        return c != null ? JavaOpenClass.getOpenClass(c) : null;
     }
 
     @Override
@@ -46,7 +44,7 @@ public class JavaArrayAggregateInfo extends AAggregateInfo {
             return null;
         }
 
-        return JavaOpenClass.makeArrayIndex(aggregateType);
+        return new ArrayIndex(JavaOpenClass.getOpenClass(aggregateType.getInstanceClass().getComponentType()));
     }
 
     @Override

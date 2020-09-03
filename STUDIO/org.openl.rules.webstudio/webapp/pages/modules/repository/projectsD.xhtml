@@ -1,8 +1,9 @@
 <ui:composition
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:rich="http://richfaces.org/rich"
-    xmlns:ui="http://java.sun.com/jsf/facelets">
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <style>
         #content {
@@ -21,9 +22,6 @@
                 <rich:column>
                   <h:outputText value="Name" />
                 </rich:column>
-                <rich:column>
-                  <h:outputText value="Revision" />
-                </rich:column>
                 <rich:column style="min-width: 90px">
                   <h:outputText value="Status" />
                 </rich:column>
@@ -41,12 +39,9 @@
 
               <rich:column>
                 <h:commandLink value="#{prj.name}" action="#{repositoryTreeController.selectDeploymentProject}">
+                  <f:param name="repositoryId" value="#{prj.data.repository.id}" />
                   <f:param name="projectName" value="#{prj.name}" />
                 </h:commandLink>
-              </rich:column>
-              <rich:column style="text-align:center">
-                  <h:outputText value="#{prj.shortVersion}" styleClass="expandable"/>
-                  <h:outputText value="#{prj.version}" styleClass="hidden"/>
               </rich:column>
               <rich:column>
                 <h:outputText value="#{prj.status}" />

@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * @author Yury Molchan
  */
 public class ChangesMonitor implements Runnable {
-    private final Logger log = LoggerFactory.getLogger(ChangesMonitor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ChangesMonitor.class);
     private RevisionGetter getter;
     private int period;
 
@@ -75,7 +75,7 @@ public class ChangesMonitor implements Runnable {
 
             fireOnChange();
         } catch (Throwable th) {
-            log.warn("An exception has occurred during checking the repository", th);
+            LOG.warn("An exception has occurred during checking the repository", th);
         }
     }
 
@@ -89,7 +89,7 @@ public class ChangesMonitor implements Runnable {
                 listener.onChange();
             }
         } catch (Throwable th) {
-            log.warn("An exception has occurred in onChange() method in '{}' listener", listener, th);
+            LOG.warn("An exception has occurred in onChange() method in '{}' listener", listener, th);
         }
     }
 
@@ -109,6 +109,7 @@ public class ChangesMonitor implements Runnable {
             try {
                 scheduledPool.awaitTermination(period, TimeUnit.SECONDS);
             } catch (InterruptedException ignored) {
+                LOG.debug("Ignored error: ", ignored);
             }
             scheduledPool = null;
         }
@@ -118,7 +119,7 @@ public class ChangesMonitor implements Runnable {
         try {
             return getter.getRevision();
         } catch (Throwable th) {
-            log.warn("An exception has occurred during retrieving the last change set from the repository", th);
+            LOG.warn("An exception has occurred during retrieving the last change set from the repository", th);
             return null;
         }
     }

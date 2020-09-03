@@ -23,6 +23,7 @@ import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
+import org.openl.rules.lang.xls.binding.ModuleSpecificType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -156,21 +157,20 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     @Override
     public IOpenClass addType(String namespace, IOpenClass type) throws DuplicatedTypeException {
         final String typeName = type.getName();
-        if (type instanceof CustomSpreadsheetResultOpenClass) {
-            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
+        if (type instanceof ModuleSpecificType) {
+            ModuleSpecificType moduleRelatedType = (ModuleSpecificType) type;
             IOpenClass openClass = super.findType(namespace, typeName);
-            if (openClass == customSpreadsheetResultOpenClass) {
+            if (openClass == moduleRelatedType) {
                 return openClass;
             }
             if (openClass == null) {
-                IOpenClass copyOfCustomSpreadsheetResultOpenClass = customSpreadsheetResultOpenClass
-                    .makeCopyForModule(getModule());
-                getModule().addType(copyOfCustomSpreadsheetResultOpenClass);
-                return copyOfCustomSpreadsheetResultOpenClass;
+                IOpenClass copyOfType = moduleRelatedType.makeCopyForModule(getModule());
+                getModule().addType(copyOfType);
+                return copyOfType;
             } else {
-                CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) openClass;
-                csroc.extendWith(customSpreadsheetResultOpenClass);
-                return csroc;
+                ModuleSpecificType existingModuleRelatedOpenClass = (ModuleSpecificType) openClass;
+                existingModuleRelatedOpenClass.updateWithType(type);
+                return openClass;
             }
         } else {
             return super.addType(namespace, type);
@@ -181,8 +181,9 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     public IOpenClass findType(String namespace, String typeName) {
         if (OpenLSystemProperties
             .isCustomSpreadsheetTypesSupported(getExternalParams()) && ISyntaxConstants.THIS_NAMESPACE
-                .equals(namespace) && typeName.startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName
-                    .length() > Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) {
+                .equals(namespace) && !typeName.equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName
+                    .startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName
+                        .charAt(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) != '.') {
             final String methodName = typeName.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
             IOpenClass openClass = super.findType(namespace, typeName);
             if (openClass instanceof CustomSpreadsheetResultOpenClass) {

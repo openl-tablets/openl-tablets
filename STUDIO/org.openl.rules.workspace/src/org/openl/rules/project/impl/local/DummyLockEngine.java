@@ -1,6 +1,6 @@
 package org.openl.rules.project.impl.local;
 
-import org.openl.rules.common.LockInfo;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.LockEngine;
 
 public class DummyLockEngine implements LockEngine {
@@ -11,10 +11,11 @@ public class DummyLockEngine implements LockEngine {
 
     @Override
     public void unlock(String branch, String projectName) {
+        //nothing to do
     }
 
     @Override
     public LockInfo getLockInfo(String branch, String projectName) {
-        return SimpleLockInfo.NO_LOCK;
+        return LockInfo.NO_LOCK;
     }
 }

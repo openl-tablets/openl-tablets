@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.rest;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -16,11 +17,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.deployer.RulesDeployInputException;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
-import org.openl.rules.ruleservice.publish.RuleServiceManager;
+import org.openl.rules.ruleservice.management.ServiceManager;
 
 /**
  * REST endpoint to deploy OpenL rules to the Web Service
@@ -31,11 +31,11 @@ import org.openl.rules.ruleservice.publish.RuleServiceManager;
 public class RulesDeployerRestController {
 
     private RulesDeployerService rulesDeployerService;
-    private RuleServiceManager ruleServiceManager;
+    private ServiceManager serviceManager;
 
     @Resource
-    public void setRuleServiceManager(RuleServiceManager ruleServiceManager) {
-        this.ruleServiceManager = ruleServiceManager;
+    public void setServiceManager(ServiceManager serviceManager) {
+        this.serviceManager = serviceManager;
     }
 
     @Resource
@@ -74,6 +74,22 @@ public class RulesDeployerRestController {
     }
 
     /**
+     * Redeploys target zip input stream
+     */
+    @PUT
+    @Path("/deploy/{serviceName}")
+    @Consumes("application/zip")
+    public Response redeploy(@PathParam("serviceName") final String serviceName,
+            @Context HttpServletRequest request) throws Exception {
+        try {
+            rulesDeployerService.deploy(serviceName, request.getInputStream(), true);
+            return Response.status(Status.CREATED).build();
+        } catch (RulesDeployInputException e) {
+            return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+    }
+
+    /**
      * Read a file by the given path name.
      *
      * @return the file descriptor.
@@ -83,9 +99,12 @@ public class RulesDeployerRestController {
     @Path("/read/{serviceName}")
     @Produces("application/zip")
     public Response read(@PathParam("serviceName") final String serviceName) throws Exception {
-        OpenLService service = ruleServiceManager.getServiceByName(serviceName);
-        FileItem fileItem = rulesDeployerService.read(service.getServicePath());
-        return Response.ok(fileItem.getStream())
+        OpenLService service = serviceManager.getServiceByName(serviceName);
+        if (service == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+        InputStream read = rulesDeployerService.read(service.getServicePath());
+        return Response.ok(read)
             .header("Content-Disposition", "attachment;filename='" + serviceName + ".zip'")
             .build();
     }
@@ -98,7 +117,10 @@ public class RulesDeployerRestController {
     @DELETE
     @Path("/delete/{serviceName}")
     public Response delete(@PathParam("serviceName") final String serviceName) throws Exception {
-        OpenLService service = ruleServiceManager.getServiceByName(serviceName);
+        OpenLService service = serviceManager.getServiceByName(serviceName);
+        if (service == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
         boolean deleted = rulesDeployerService.delete(service.getServicePath());
         return Response.status(deleted ? Response.Status.OK : Status.NOT_FOUND).build();
     }

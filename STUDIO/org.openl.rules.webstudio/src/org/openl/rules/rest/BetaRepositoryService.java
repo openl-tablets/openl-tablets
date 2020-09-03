@@ -8,12 +8,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.zip.ZipInputStream;
 
@@ -36,7 +36,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
-import org.openl.rules.common.LockInfo;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
@@ -68,13 +68,15 @@ import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.xml.sax.InputSource;
 
 /*
- GET /projects                                       list of (Project Name, Last Version, Last Modified Date, Last Modified By, Status, Editor)
+ GET /projects                                       list of (Project Name, Last Version, Last Modified Date,
+                                                     Last Modified By, Status, Editor)
  GET /project/{Project Name}/[{version}]             (Project_Name.zip)
  POST /project/{Project Name}                        (Some_Project.zip, comments)
  POST /project                                       (Some_Project.zip, comments)
@@ -92,10 +94,9 @@ public class BetaRepositoryService {
 
     private final Comments designRepoComments;
 
-    public BetaRepositoryService(MultiUserWorkspaceManager workspaceManager,
-            @Qualifier("designRepositoryComments") Comments designRepoComments) {
+    public BetaRepositoryService(MultiUserWorkspaceManager workspaceManager, PropertyResolver propertyResolver) {
         this.workspaceManager = workspaceManager;
-        this.designRepoComments = designRepoComments;
+        this.designRepoComments = new Comments(propertyResolver, Comments.DESIGN_CONFIG_REPO_ID);
     }
 
     /**
@@ -167,6 +168,7 @@ public class BetaRepositoryService {
 
             return getProject(name, fileData.getVersion());
         } catch (IOException ex) {
+            LOG.debug("Error occurred on getting last project: ", ex);
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
         }
     }
@@ -216,12 +218,14 @@ public class BetaRepositoryService {
 
                 final String rulesPath = getDesignTimeRepository().getRulesLocation();
 
-                entity = new StreamingOutput() {
-                    @Override
-                    public void write(OutputStream out) throws IOException {
-                        RepositoryUtils.archive((FolderRepository) repository, rulesPath, name, version, out);
-                    }
-                };
+                entity = (StreamingOutput) out -> RepositoryUtils.archive(
+                        (FolderRepository) repository,
+                        rulesPath,
+                        name,
+                        version,
+                        out,
+                        null
+                );
             } else {
                 final String projectPath = getFileName(name);
                 FileItem fileItem = repository.readHistory(projectPath, version);
@@ -237,6 +241,7 @@ public class BetaRepositoryService {
                 .header("Content-Disposition", "attachment;filename=\"" + zipFileName + "\"")
                 .build();
         } catch (IOException ex) {
+            LOG.debug("Error occurred during getting project: ", ex);
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
         }
     }
@@ -303,6 +308,7 @@ public class BetaRepositoryService {
 
             return addProject(uriInfo.getPath(false), name, branch, modifiedZipStream, modifiedZip.length(), comment);
         } catch (IOException ex) {
+            LOG.debug("Error occurred while adding project: ", ex);
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } finally {
             FileUtils.deleteQuietly(originalZipFolder);
@@ -367,6 +373,7 @@ public class BetaRepositoryService {
                 zipFile.length(),
                 comment);
         } catch (IOException ex) {
+            LOG.debug("Error occurred during getting project: ", ex);
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } finally {
             /* Clean up */
@@ -409,13 +416,14 @@ public class BetaRepositoryService {
             String comment) throws WorkspaceException {
         try {
             UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
-            if (userWorkspace.hasProject(name)) {
+            String repositoryId = getDefaultRepositoryId();
+            if (userWorkspace.hasProject(repositoryId, name)) {
                 if (!isGranted(Privileges.EDIT_PROJECTS)) {
                     return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
                 }
-                RulesProject project = userWorkspace.getProject(name);
+                RulesProject project = userWorkspace.getProject(repositoryId, name);
                 if (!project.tryLock()) {
-                    String lockedBy = project.getLockInfo().getLockedBy().getUserName();
+                    String lockedBy = project.getLockInfo().getLockedBy();
                     return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
                 }
             } else {
@@ -468,11 +476,13 @@ public class BetaRepositoryService {
                 data.setSize(zipSize);
                 save = repo.save(data, zipFile);
             }
-            userWorkspace.getProject(name).unlock();
+            userWorkspace.getProject(getDefaultRepositoryId(), name).unlock();
             return Response.created(new URI(uri + "/" + StringTool.encodeURL(save.getVersion()))).build();
         } catch (IOException | URISyntaxException | RuntimeException ex) {
+            LOG.debug("Error occurred: ", ex);
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } catch (ProjectException ex) {
+            LOG.debug("Error occurred: ", ex);
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
         } finally {
             IOUtils.closeQuietly(zipFile);
@@ -486,7 +496,8 @@ public class BetaRepositoryService {
             XPath xPath = factory.newXPath();
             XPathExpression xPathExpression = xPath.compile("/project/name");
             return StringUtils.trimToNull(xPathExpression.evaluate(inputSource));
-        } catch (FileNotFoundException | XPathExpressionException e) {
+        } catch (FileNotFoundException | XPathExpressionException ignored) {
+            LOG.debug("Error occurred on getting project name: ", ignored);
             return null;
         }
     }
@@ -514,7 +525,7 @@ public class BetaRepositoryService {
     @POST
     @Path("lockProject/{name}/{branch}")
     public Response lockProject(@PathParam("name") String name,
-            @PathParam("branch") String branch) throws WorkspaceException, ProjectException {
+            @PathParam("branch") String branch) throws WorkspaceException {
         // When locking the project only EDIT_PROJECTS privilege is needed because we modify the project's state.
         if (!isGranted(Privileges.EDIT_PROJECTS)) {
             return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
@@ -522,7 +533,7 @@ public class BetaRepositoryService {
         LockEngine lockEngine = workspaceManager.getUserWorkspace(getUser()).getProjectsLockEngine();
         LockInfo lockInfo = lockEngine.getLockInfo(branch, name);
         if (lockInfo.isLocked()) {
-            String lockedBy = lockInfo.getLockedBy().getUserName();
+            String lockedBy = lockInfo.getLockedBy();
             return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
         }
         lockEngine.tryLock(branch, name, getUserName());
@@ -536,7 +547,7 @@ public class BetaRepositoryService {
      */
     @POST
     @Path("unlockProject/{name}")
-    public Response unlockProject(@PathParam("name") String name) throws WorkspaceException, ProjectException {
+    public Response unlockProject(@PathParam("name") String name) throws WorkspaceException {
         return unlockProject(name, null);
     }
 
@@ -548,7 +559,7 @@ public class BetaRepositoryService {
     @POST
     @Path("unlockProject/{name}/{branch}")
     public Response unlockProject(@PathParam("name") String name,
-            @PathParam("branch") String branch) throws WorkspaceException, ProjectException {
+            @PathParam("branch") String branch) throws WorkspaceException {
         // When unlocking the project locked by current user, only EDIT_PROJECTS privilege is needed because we modify
         // the project's state.
         // UNLOCK_PROJECTS privilege is needed only to unlock the project locked by other user (it's not our case).
@@ -560,8 +571,8 @@ public class BetaRepositoryService {
 
         if (!lockInfo.isLocked()) {
             return Response.status(Status.FORBIDDEN).entity("The project is not locked.").build();
-        } else if (!getUserName().equals(lockInfo.getLockedBy().getUserName())) {
-            String lockedBy = lockInfo.getLockedBy().getUserName();
+        } else if (!getUserName().equals(lockInfo.getLockedBy())) {
+            String lockedBy = lockInfo.getLockedBy();
             return Response.status(Status.FORBIDDEN).entity("Locked by '" + lockedBy + "'").build();
         }
         lockEngine.unlock(branch, name);
@@ -569,8 +580,15 @@ public class BetaRepositoryService {
     }
 
     private Repository getRepository() throws WorkspaceException {
-        return getDesignTimeRepository().getRepository();
+        return getDesignTimeRepository().getRepository(getDefaultRepositoryId());
     }
+
+    @Deprecated
+    private String getDefaultRepositoryId() throws WorkspaceException {
+        // We don't support several repositories for now. Use first repository.
+        return getDesignTimeRepository().getRepositories().get(0).getId();
+    }
+
 
     private DesignTimeRepository getDesignTimeRepository() throws WorkspaceException {
         return workspaceManager.getUserWorkspace(getUser()).getDesignTimeRepository();
@@ -588,8 +606,8 @@ public class BetaRepositoryService {
         description.setLocked(locked);
         if (locked) {
             LockInfo lockInfo = project.getLockInfo();
-            description.setLockedBy(lockInfo.getLockedBy().getUserName());
-            description.setLockedAt(lockInfo.getLockedAt());
+            description.setLockedBy(lockInfo.getLockedBy());
+            description.setLockedAt(new Date(lockInfo.getLockedAt().toEpochMilli()));
         }
         return description;
     }
@@ -608,7 +626,7 @@ public class BetaRepositoryService {
         return new WorkspaceUserImpl(name);
     }
 
-    private String getUserName() {
+    private static String getUserName() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return auth.getName();
     }

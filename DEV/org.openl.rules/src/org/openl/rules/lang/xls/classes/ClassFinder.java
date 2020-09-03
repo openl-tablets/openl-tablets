@@ -13,7 +13,8 @@ import org.slf4j.LoggerFactory;
  * @author NSamatov
  */
 public class ClassFinder {
-    private final Logger log = LoggerFactory.getLogger(ClassFinder.class);
+    private static final Class[] NO_CLASSES = new Class[0];
+    private static final Logger LOG = LoggerFactory.getLogger(ClassFinder.class);
 
     private Map<String, ClassLocator> locators = new HashMap<>();
 
@@ -52,8 +53,8 @@ public class ClassFinder {
         try {
             resources = classLoader.getResources(path);
         } catch (IOException e) {
-            log.debug(e.getMessage(), e);
-            return new Class[0];
+            LOG.debug(e.getMessage(), e);
+            return NO_CLASSES;
         }
 
         Set<Class<?>> classes = new HashSet<>();
@@ -67,7 +68,7 @@ public class ClassFinder {
                 if (locator != null) {
                     classes.addAll(locator.getClasses(resource, packageName, classLoader));
                 } else {
-                    log.warn("A ClassLocator for protocol '{}' is not found.", protocol);
+                    LOG.warn("A ClassLocator for protocol '{}' is not found.", protocol);
                 }
             }
         }

@@ -11,7 +11,6 @@ public class XlsCellStringWriter extends AXlsCellWriter {
 
     @Override
     public void writeCellValue() {
-        getCellToWrite().setCellType(CellType.BLANK);
         getCellToWrite().setCellValue(getStringValue());
     }
 

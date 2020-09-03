@@ -29,7 +29,7 @@
 
                 <h:outputText value="Return Value Type:" styleClass="required" />
                 <h:selectOneMenu value="#{wizard.returnValueType}">
-                    <f:selectItems value="#{wizard.domainTypes}" />
+                    <f:selectItems value="#{wizard.domainTypes}" var="v" itemDisabled="#{v == ''}" />
                 </h:selectOneMenu>
             </h:panelGrid>
             <h:panelGroup id="inputParamTable">
@@ -39,7 +39,7 @@
                             <h:outputText value="Type:" />
                         </f:facet>
                         <h:selectOneMenu value="#{parameter.type}" valueChangeListener="#{wizard.pTypeListener}">
-                            <f:selectItems value="#{wizard.domainTypes}" />
+                            <f:selectItems value="#{wizard.domainTypes}" var="v" itemDisabled="#{v == ''}" />
                         </h:selectOneMenu>
                     </h:column>
 

@@ -180,7 +180,7 @@ public class RunAnnotationsITest {
 
     @Test
     public void test_voidMethod_REST() {
-        client.get("/REST/ws-serviceclass-positive/voidMethod");
+        client.send("serviceclass-positive_voidMethod.get");
     }
 
     @Test

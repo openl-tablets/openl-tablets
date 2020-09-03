@@ -1,17 +1,18 @@
 package org.openl.rules.webstudio.web.diff;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
-@ManagedBean
-@SessionScoped
+@Service
+@SessionScope
 public class ShowDiffBean {
-    @ManagedProperty(value = "#{diffManager}")
-    private DiffManager diffManager;
+    private final DiffManager diffManager;
+
+    public ShowDiffBean(DiffManager diffManager) {
+        this.diffManager = diffManager;
+    }
 
     public ShowDiffController getCurrent(String requestId) {
         if (StringUtils.isBlank(requestId)) {
@@ -19,10 +20,6 @@ public class ShowDiffBean {
         }
 
         return diffManager.get(requestId);
-    }
-
-    public void setDiffManager(DiffManager diffManager) {
-        this.diffManager = diffManager;
     }
 
     public String getRequestId() {

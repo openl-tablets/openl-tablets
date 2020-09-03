@@ -1,23 +1,23 @@
 package org.openl.rules.ui.tablewizard;
 
-import javax.faces.model.SelectItem;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.classes.ClassFinder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,38 +25,76 @@ import org.slf4j.LoggerFactory;
  * @author Aliaksandr Antonik.
  */
 public final class WizardUtils {
-    protected static final String INVALID_NAME_OF_PARAMETER_MESSAGE = "Invalid name for parameter: only latin letters, numbers and _ are allowed, name cannot begin with a number";
-
-    private static final Pattern REGEXP_PARAMETER = Pattern.compile("[a-zA-Z_][a-zA-Z_0-9]*");
 
     private WizardUtils() {
     }
 
-    public static void autoRename(Collection<? extends TableArtifact> conditions, String prefix) {
-        int i = 0;
-        for (TableArtifact c : conditions) {
-            c.setName(prefix + ++i);
-        }
+    private static final List<String> predefinedTypes;
+    static {
+        ArrayList<String> types = new ArrayList<>();
+
+        // The most popular
+        types.add("String");
+        types.add("Double");
+        types.add("Integer");
+        types.add("Boolean");
+        types.add("Date");
+
+        types.add("BigInteger");
+        types.add("BigDecimal");
+
+        types.add("IntRange");
+        types.add("DoubleRange");
+
+        types.add("Long");
+        types.add("Float");
+        types.add("Short");
+        types.add("Character");
+
+        // Less popular
+        types.add("byte");
+        types.add("short");
+        types.add("int");
+        types.add("long");
+        types.add("float");
+        types.add("double");
+        types.add("boolean");
+        types.add("char");
+
+        predefinedTypes = Collections.unmodifiableList(types);
+    }
+    static List<String> predefinedTypes() {
+        return predefinedTypes;
     }
 
-    public static String checkParameterName(String name) {
-        if (StringUtils.isEmpty(name)) {
-            return "Parameter name cannot be empty";
-        }
+    static List<String> declaredDatatypes() {
+        return getProjectOpenClass().getTypes()
+            .stream()
+            .filter(t -> t instanceof DatatypeOpenClass)
+            .map(IOpenClass::getName)
+            .sorted()
+            .collect(Collectors.toList());
+    }
 
-        if (!isValidParameter(name)) {
-            return INVALID_NAME_OF_PARAMETER_MESSAGE;
-        }
+    static List<String> declaredAliases() {
+        return getProjectOpenClass().getTypes()
+            .stream()
+            .filter(t -> t instanceof DomainOpenClass)
+            .map(IOpenClass::getName)
+            .sorted()
+            .collect(Collectors.toList());
+    }
 
-        return null;
+    static List<String> importedClasses() {
+        return getImportedClasses().stream()
+            .filter(t -> t instanceof JavaOpenClass)
+            .map(v -> v.getDisplayName(INamedThing.SHORT))
+            .sorted()
+            .collect(Collectors.toList());
     }
 
     public static IOpenClass getProjectOpenClass() {
         return WebStudioUtils.getProjectModel().getCompiledOpenClass().getOpenClassWithErrors();
-    }
-
-    public static WorkbookSyntaxNode[] getWorkbookNodes() {
-        return WebStudioUtils.getProjectModel().getWorkbookNodes();
     }
 
     public static XlsModuleSyntaxNode getXlsModuleNode() {
@@ -65,16 +103,6 @@ public final class WizardUtils {
 
     public static TableSyntaxNode[] getTableSyntaxNodes() {
         return WebStudioUtils.getProjectModel().getTableSyntaxNodes();
-    }
-
-    /**
-     * Checks a string to be a valid parameter name
-     *
-     * @param s String to check, must not be <code>null</code>
-     * @return if <code>s</code> is a valid parameter name.
-     */
-    public static boolean isValidParameter(String s) {
-        return REGEXP_PARAMETER.matcher(s).matches();
     }
 
     /**
@@ -128,25 +156,9 @@ public final class WizardUtils {
             return false;
         }
 
-        Map<String, IOpenField> fields = openType.getFields();
         // Every field has a "class" field. We skip a classes that does not
         // have any other field.
-        return fields.size() > 1;
+        return !openType.getFields().isEmpty();
 
-    }
-
-    /**
-     * Creates an array of <code>SelectItem</code>s from collection of <code>String</code>s.
-     *
-     * @param values an array of <code>SelectItem</code> values.
-     * @return array of JSF objects representing items.
-     */
-    public static SelectItem[] createSelectItems(Collection<String> values) {
-        SelectItem[] items = new SelectItem[values.size()];
-        int index = 0;
-        for (String value : values) {
-            items[index++] = new SelectItem(value);
-        }
-        return items;
     }
 }

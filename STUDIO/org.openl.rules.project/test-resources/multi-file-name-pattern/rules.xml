@@ -1,0 +1,13 @@
+<project>
+    <name>test ?</name>
+    <modules>
+        <module>
+            <name>testmodule</name>
+            <rules-root path="dependencies/test3/module/dependency-module?/dependency?.xls" />
+        </module>
+    </modules>
+
+    <properties-file-name-pattern>%lob%-%usState%</properties-file-name-pattern>
+    <properties-file-name-pattern>Tests-*</properties-file-name-pattern>
+    <properties-file-name-pattern>DataTables</properties-file-name-pattern>
+</project>

@@ -18,6 +18,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class CompositeMethod extends ExecutableMethod {
 
+    public static final CompositeMethod[] EMPTY_ARRAY = new CompositeMethod[0];
     private IBoundMethodNode methodBodyBoundNode;
     private Boolean invokable;
 
@@ -40,7 +41,7 @@ public class CompositeMethod extends ExecutableMethod {
     }
 
     public boolean isInvokable() {
-        return invokable != null ? invokable : methodBodyBoundNode != null;
+        return invokable != null ? invokable : (methodBodyBoundNode != null);
     }
 
     @Override

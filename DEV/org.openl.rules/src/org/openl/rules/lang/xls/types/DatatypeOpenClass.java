@@ -7,6 +7,7 @@
 package org.openl.rules.lang.xls.types;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -14,16 +15,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
+import org.openl.base.INamedThing;
+import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.rules.lang.xls.XlsBinder;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ADynamicClass;
-import org.openl.types.impl.DatatypeOpenConstructor;
-import org.openl.types.impl.DatatypeOpenField;
-import org.openl.types.impl.DatatypeOpenMethod;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.impl.ParameterDeclaration;
@@ -49,6 +50,9 @@ public class DatatypeOpenClass extends ADynamicClass {
     private final String javaName;
 
     private final String packageName;
+
+    private TableSyntaxNode tableSyntaxNode;
+
     private byte[] bytecode;
 
     /**
@@ -87,7 +91,7 @@ public class DatatypeOpenClass extends ADynamicClass {
     }
 
     @Override
-    public Iterable<IOpenClass> superClasses() {
+    public Collection<IOpenClass> superClasses() {
         if (superClass != null) {
             return Collections.singletonList(superClass);
         } else {
@@ -124,33 +128,39 @@ public class DatatypeOpenClass extends ADynamicClass {
     private volatile Map<String, IOpenField> fields = null;
 
     @Override
-    public Map<String, IOpenField> getFields() {
-        Map<String, IOpenField> localFields = this.fields;
-        if (localFields == null) {
+    public Collection<IOpenField> getFields() {
+        if (this.fields == null) {
             synchronized (this) {
-                localFields = this.fields;
-                if (localFields == null) {
-                    fields = localFields = initializeFields();
+                if (this.fields == null) {
+                    fields = initializeFields();
                 }
             }
         }
-        return Collections.unmodifiableMap(localFields);
+        return Collections.unmodifiableCollection(this.fields.values());
     }
 
     private Map<String, IOpenField> initializeFields() {
         Map<String, IOpenField> fields = new LinkedHashMap<>();
         Iterable<IOpenClass> superClasses = superClasses();
         for (IOpenClass superClass : superClasses) {
-            fields.putAll(superClass.getFields());
+            for (IOpenField field : superClass.getFields()) {
+                fields.put(field.getName(), field);
+            }
         }
-        fields.putAll(fieldMap());
+        fieldMap().forEach(fields::putIfAbsent);
         return fields;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public Map<String, IOpenField> getDeclaredFields() {
-        return (Map<String, IOpenField>) fieldMap().clone();
+    public void addField(IOpenField field) throws DuplicatedFieldException {
+        this.fields = null;
+        super.addField(field);
+        invalidateInternalData();
+    }
+
+    @Override
+    public Collection<IOpenField> getDeclaredFields() {
+        return Collections.unmodifiableCollection(fieldMap().values());
     }
 
     @Override
@@ -166,9 +176,6 @@ public class DatatypeOpenClass extends ADynamicClass {
 
     @Override
     public IOpenClass getComponentClass() {
-        if (isArray()) {
-            return JavaOpenClass.getOpenClass(getInstanceClass().getComponentType());
-        }
         return null;
     }
 
@@ -246,7 +253,6 @@ public class DatatypeOpenClass extends ADynamicClass {
                 methodMap.put(m.getKey(), m.getValue());
             }
         }
-
         return methodMap;
     }
 
@@ -272,10 +278,9 @@ public class DatatypeOpenClass extends ADynamicClass {
                 return new DatatypeOpenConstructor(javaOpenConstructor, this);
             } else {
                 MethodKey candidate = new MethodKey(
-                    getFields().values().stream().map(IOpenMember::getType).toArray(IOpenClass[]::new));
+                    getFields().stream().map(IOpenMember::getType).toArray(IOpenClass[]::new));
                 if (mk.equals(candidate)) {
-                    ParameterDeclaration[] parameters = getFields().values()
-                        .stream()
+                    ParameterDeclaration[] parameters = getFields().stream()
                         .map(f -> new ParameterDeclaration(f.getType(), f.getName()))
                         .toArray(ParameterDeclaration[]::new);
                     return new DatatypeOpenConstructor(javaOpenConstructor, this, parameters);
@@ -283,6 +288,14 @@ public class DatatypeOpenClass extends ADynamicClass {
             }
         }
         return method;
+    }
+
+    @Override
+    public String getDisplayName(int mode) {
+        if (mode == INamedThing.LONG) {
+            return getPackageName() + "." + getName();
+        }
+        return getName();
     }
 
     public byte[] getBytecode() {
@@ -303,4 +316,11 @@ public class DatatypeOpenClass extends ADynamicClass {
         OBJECT_CLASS_METHODS = Collections.unmodifiableMap(objectClassMethods);
     }
 
+    public TableSyntaxNode getTableSyntaxNode() {
+        return tableSyntaxNode;
+    }
+
+    public void setTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {
+        this.tableSyntaxNode = tableSyntaxNode;
+    }
 }
