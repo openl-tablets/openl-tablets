@@ -28,49 +28,35 @@ public class LockEngineImpl implements LockEngine {
     }
 
     @Override
-    public synchronized boolean tryLock(String branch, String projectName, String userName) {
-        String lockId = getId("", branch, projectName);
+    public synchronized boolean tryLock(String repoId, String branch, String projectName, String userName) {
+        String lockId = getId(repoId, branch, projectName);
         return lockManager.getLock(lockId).tryLock(userName);
     }
 
     @Override
-    public synchronized void unlock(String branch, String projectName) {
-        String lockId = getId("", branch, projectName);
+    public synchronized void unlock(String repoId, String branch, String projectName) {
+        String lockId = getId(repoId, branch, projectName);
         lockManager.getLock(lockId).unlock();
     }
 
     @Override
-    public synchronized LockInfo getLockInfo(String branch, String projectName) {
-        String lockId = getId("", branch, projectName);
+    public synchronized LockInfo getLockInfo(String repoId, String branch, String projectName) {
+        String lockId = getId(repoId, branch, projectName);
         return lockManager.getLock(lockId).info();
     }
 
     /**
-     * If branch null, return the folder ".locks/no-branch". If branch is not null, return the folder
-     * .locks/branches/<project-name>/<branch-name>/
+     * Id in the format "${repo}/${projectName}/.branches/${branch}".
+     * If the branch is null, then id will be "${repo}/${projectName}/.no-branch".
      *
-     * @param branch branch name. Can be null
+     * @param repo repository id. For example: design1, design2, design3 etc.
+     * @param branch branch name. Can be null. Can contain '/' symbol.
      * @param projectName project name
      * @return the folder where lock file is stored
      */
-
     private String getId(String repo, String branch, String projectName) {
-        // To avoid conflict between branch and project names, branch folder will be:
-        // .locks/branches/<project-name>/<branch-name>/
-        // and inside that folder a file with the name <project-name> will be stored.
-        // So full path for a file will be: .locks/branches/<project-name>/<branch-name>/<project-name>
-        // Note: branch name can contain '/' symbol
-        // Example:
-        // project1 name: "test", branch1: "WebStudio/test/user1"
-        // project2 name: "user1", branch2: "WebStudio/test"
-        // Then full paths for both lock files will be:
-        // .locks/branches/test/WebStudio/test/user1/test
-        // .locks/branches/user1/WebStudio/test/user1
-        // If we don't include project name before branch name, there will be conflict:
-        // locks/branches/WebStudio/test/user1 will be treated both as a folder and a file. So we must include it.
-        //
         // In this method we return only folder without locks filename.
-        String branchId = branch == null ? "no-branch" : ("branch/" + branch.replace("[/\\\\]", "_"));
-        return projectName + "/" + branchId;
+        String branchId = branch == null ? ".no-branch" : ".branches/" + branch;
+        return repo + "/" + projectName + "/" + branchId;
     }
 }

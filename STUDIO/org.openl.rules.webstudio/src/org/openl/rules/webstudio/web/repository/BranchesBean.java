@@ -161,14 +161,14 @@ public class BranchesBean {
     }
 
     private boolean isProjectLockedInBranch(String currentProjectName, String branchToMergeTo) {
-        if (currentProjectName == null && branchToMergeTo == null) {
+        if (currentProjectName == null && branchToMergeTo == null || currentRepositoryId == null) {
             return false;
         }
         UserWorkspace userWorkspace;
         try {
             userWorkspace = getUserWorkspace();
             LockEngine projectsLockEngine = userWorkspace.getProjectsLockEngine();
-            LockInfo lockInfo = projectsLockEngine.getLockInfo(branchToMergeTo, currentProjectName);
+            LockInfo lockInfo = projectsLockEngine.getLockInfo(currentRepositoryId, branchToMergeTo, currentProjectName);
             return lockInfo.isLocked();
         } catch (WorkspaceException e) {
             LOG.error(e.getMessage(), e);

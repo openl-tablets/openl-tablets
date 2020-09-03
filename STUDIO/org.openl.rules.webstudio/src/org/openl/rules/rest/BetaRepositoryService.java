@@ -67,7 +67,6 @@ import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -531,12 +530,12 @@ public class BetaRepositoryService {
             return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
         }
         LockEngine lockEngine = workspaceManager.getUserWorkspace(getUser()).getProjectsLockEngine();
-        LockInfo lockInfo = lockEngine.getLockInfo(branch, name);
+        LockInfo lockInfo = lockEngine.getLockInfo(getDefaultRepositoryId(), branch, name);
         if (lockInfo.isLocked()) {
             String lockedBy = lockInfo.getLockedBy();
             return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
         }
-        lockEngine.tryLock(branch, name, getUserName());
+        lockEngine.tryLock(getDefaultRepositoryId(), branch, name, getUserName());
         return Response.ok().build();
     }
 
@@ -567,7 +566,7 @@ public class BetaRepositoryService {
             return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
         }
         LockEngine lockEngine = workspaceManager.getUserWorkspace(getUser()).getProjectsLockEngine();
-        LockInfo lockInfo = lockEngine.getLockInfo(branch, name);
+        LockInfo lockInfo = lockEngine.getLockInfo(getDefaultRepositoryId(), branch, name);
 
         if (!lockInfo.isLocked()) {
             return Response.status(Status.FORBIDDEN).entity("The project is not locked.").build();
@@ -575,7 +574,7 @@ public class BetaRepositoryService {
             String lockedBy = lockInfo.getLockedBy();
             return Response.status(Status.FORBIDDEN).entity("Locked by '" + lockedBy + "'").build();
         }
-        lockEngine.unlock(branch, name);
+        lockEngine.unlock(getDefaultRepositoryId(), branch, name);
         return Response.ok().build();
     }
 

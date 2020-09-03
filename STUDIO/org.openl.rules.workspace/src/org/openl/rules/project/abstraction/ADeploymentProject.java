@@ -214,13 +214,13 @@ public class ADeploymentProject extends UserWorkspaceProject {
         if (lockEngine == null) {
             return LockInfo.NO_LOCK;
         }
-        return lockEngine.getLockInfo(getBranch(), getName());
+        return lockEngine.getLockInfo(getDesignRepository().getId(), getBranch(), getName());
     }
 
     @Override
     public boolean tryLock() {
         if (lockEngine != null) {
-            return lockEngine.tryLock(getBranch(), getName(), getUser().getUserName());
+            return lockEngine.tryLock(getDesignRepository().getId(), getBranch(), getName(), getUser().getUserName());
         }
 
         return super.tryLock();
@@ -229,7 +229,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
     @Override
     public void unlock() {
         if (lockEngine != null) {
-            lockEngine.unlock(getBranch(), getName());
+            lockEngine.unlock(getDesignRepository().getId(), getBranch(), getName());
         }
     }
 

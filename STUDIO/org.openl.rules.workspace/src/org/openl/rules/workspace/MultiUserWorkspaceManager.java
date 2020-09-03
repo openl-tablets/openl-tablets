@@ -32,8 +32,8 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
         UserWorkspaceImpl userWorkspace = new UserWorkspaceImpl(user,
             usersLocalWorkspace,
             designTimeRepository,
-            localWorkspaceManager.getLockEngine("rules"),
-            localWorkspaceManager.getLockEngine("deployments"));
+            localWorkspaceManager.getLockEngine("projects"),
+            localWorkspaceManager.getLockEngine("deploy-configs"));
         userWorkspace.addWorkspaceListener(this);
         return userWorkspace;
     }

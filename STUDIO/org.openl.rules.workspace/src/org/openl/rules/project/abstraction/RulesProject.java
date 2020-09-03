@@ -223,12 +223,12 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public LockInfo getLockInfo() {
-        return lockEngine.getLockInfo(getBranch(), getName());
+        return lockEngine.getLockInfo(getDesignRepository().getId(), getBranch(), getName());
     }
 
     @Override
     public void unlock() {
-        lockEngine.unlock(getBranch(), getName());
+        lockEngine.unlock(getDesignRepository().getId(), getBranch(), getName());
     }
 
     /**
@@ -242,7 +242,7 @@ public class RulesProject extends UserWorkspaceProject {
             // No need to lock local only projects. Other users don't see it.
             return true;
         }
-        return lockEngine.tryLock(getBranch(), getName(), getUser().getUserName());
+        return lockEngine.tryLock(getDesignRepository().getId(), getBranch(), getName(), getUser().getUserName());
     }
 
     public String getLockedUserName() {

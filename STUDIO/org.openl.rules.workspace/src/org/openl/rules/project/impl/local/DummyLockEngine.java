@@ -5,17 +5,17 @@ import org.openl.rules.project.abstraction.LockEngine;
 
 public class DummyLockEngine implements LockEngine {
     @Override
-    public boolean tryLock(String branch, String projectName, String userName) {
+    public boolean tryLock(String repoId, String branch, String projectName, String userName) {
         return true;
     }
 
     @Override
-    public void unlock(String branch, String projectName) {
+    public void unlock(String repoId, String branch, String projectName) {
         //nothing to do
     }
 
     @Override
-    public LockInfo getLockInfo(String branch, String projectName) {
+    public LockInfo getLockInfo(String repoId, String branch, String projectName) {
         return LockInfo.NO_LOCK;
     }
 }
