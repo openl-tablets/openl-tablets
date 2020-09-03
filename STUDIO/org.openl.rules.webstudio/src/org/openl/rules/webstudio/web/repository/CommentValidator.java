@@ -28,8 +28,13 @@ public class CommentValidator {
     }
 
     public static CommentValidator forRepo(String repoId) {
-        return new CommentValidator(Props.text("repository." + repoId + ".comment-validation-pattern"),
-            Props.text("repository."+ repoId + ".invalid-comment-message"));
+        boolean customComments = Boolean.parseBoolean(Props.text("repository." + repoId + ".comment-template.use-custom-comments"));
+        if (customComments) {
+            return new CommentValidator(Props.text("repository." + repoId + ".comment-validation-pattern"),
+                Props.text("repository." + repoId + ".invalid-comment-message"));
+        } else {
+            return new CommentValidator(null, null);
+        }
     }
 
 }
