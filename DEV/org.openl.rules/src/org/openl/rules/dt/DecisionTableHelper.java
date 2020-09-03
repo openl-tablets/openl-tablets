@@ -1928,9 +1928,6 @@ public final class DecisionTableHelper {
             int numberOfReturns,
             int fuzzyReturnsFlag,
             int counter) {
-        if (counter > 500) {
-            System.out.println();
-        }
         if (fits.size() > FITS_MAX_LIMIT) {
             return column >= lastColumn;
         }
