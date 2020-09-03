@@ -105,45 +105,45 @@ public class DecisionTableLoader {
             OpenL openl,
             ModuleOpenClass module,
             IBindingContext bindingContext) throws Exception {
-        boolean firstTransposedThenNormal = tableSyntaxNode.getTableBody() != null && tableSyntaxNode.getTableBody()
-            .getWidth() > tableSyntaxNode.getTableBody().getHeight() && (tableSyntaxNode.getTableBody()
-                .getWidth() >= MAX_COLUMNS_IN_DT || tableSyntaxNode.getTableBody().getHeight() >= MAX_COLUMNS_IN_DT);
+        ILogicalTable tableBody = tableSyntaxNode.getTableBody();
+        int height = tableBody == null ? 0 : tableBody.getHeight();
+        int width = tableBody == null ? 0 : tableBody.getWidth();
+        boolean firstTransposedThenNormal = width > height && width >= MAX_COLUMNS_IN_DT;
         CompilationErrors loadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode, () -> {
             loadAndBind(tableSyntaxNode, decisionTable, openl, module, firstTransposedThenNormal, bindingContext);
             return null;
         }, bindingContext);
         final DTInfo dtInfo = decisionTable.getDtInfo();
         if (loadAndBindErrors != null) {
-            if ((tableSyntaxNode.getTableBody() == null || (firstTransposedThenNormal ? tableSyntaxNode.getTableBody()
-                .getWidth() : tableSyntaxNode.getTableBody().getHeight()) <= MAX_COLUMNS_IN_DT)) {
-                if (DecisionTableHelper.isSimple(tableSyntaxNode) || DecisionTableHelper.isSmart(tableSyntaxNode)) {
-                    CompilationErrors altLoadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode, () -> {
-                        loadAndBind(tableSyntaxNode,
-                            decisionTable,
-                            openl,
-                            module,
-                            !firstTransposedThenNormal,
-                            bindingContext);
-                        return null;
-                    }, bindingContext);
-                    if (altLoadAndBindErrors == null) {
-                        return;
-                    } else {
-                        // Select compilation with less errors count
-                        if (loadAndBindErrors.getBindingSyntaxNodeException().size() > altLoadAndBindErrors
-                            .getBindingSyntaxNodeException()
-                            .size() || loadAndBindErrors.getSyntaxNodeExceptions().length > altLoadAndBindErrors
-                                .getSyntaxNodeExceptions().length && loadAndBindErrors.getBindingSyntaxNodeException()
-                                    .size() == altLoadAndBindErrors.getBindingSyntaxNodeException().size()) {
-                            altLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
-                            if (altLoadAndBindErrors.getEx() != null) {
-                                throw altLoadAndBindErrors.getEx();
-                            }
-                            return;
+            // If table have errors, try to compile transposed variant.
+            // Note that compiling transposed table consumes memory twice and for big tables it does not make any sense
+            if (tableBody == null || firstTransposedThenNormal || height <= MAX_COLUMNS_IN_DT) {
+                CompilationErrors altLoadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode, () -> {
+                    loadAndBind(tableSyntaxNode,
+                        decisionTable,
+                        openl,
+                        module,
+                        !firstTransposedThenNormal,
+                        bindingContext);
+                    return null;
+                }, bindingContext);
+                if (altLoadAndBindErrors == null) {
+                    return;
+                } else {
+                    // Select compilation with less errors count
+                    if (loadAndBindErrors.getBindingSyntaxNodeException().size() > altLoadAndBindErrors
+                        .getBindingSyntaxNodeException()
+                        .size() || loadAndBindErrors.getSyntaxNodeExceptions().length > altLoadAndBindErrors
+                            .getSyntaxNodeExceptions().length && loadAndBindErrors.getBindingSyntaxNodeException()
+                                .size() == altLoadAndBindErrors.getBindingSyntaxNodeException().size()) {
+                        altLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
+                        if (altLoadAndBindErrors.getEx() != null) {
+                            throw altLoadAndBindErrors.getEx();
                         }
+                        return;
                     }
-                    decisionTable.setDtInfo(dtInfo);
                 }
+                decisionTable.setDtInfo(dtInfo);
             }
             loadAndBindErrors.apply(tableSyntaxNode, bindingContext);
             if (loadAndBindErrors.getEx() != null) {
