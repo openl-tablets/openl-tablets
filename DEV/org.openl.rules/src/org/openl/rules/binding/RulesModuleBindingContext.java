@@ -179,33 +179,27 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     @Override
     public IOpenClass findType(String namespace, String typeName) {
-        if (OpenLSystemProperties
-            .isCustomSpreadsheetTypesSupported(getExternalParams()) && ISyntaxConstants.THIS_NAMESPACE
-                .equals(namespace) && !typeName.equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName
-                    .startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName
-                        .charAt(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) != '.') {
-            final String methodName = typeName.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
-            IOpenClass openClass = super.findType(namespace, typeName);
-            if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
-                if (!customSpreadsheetResultOpenClass.isIgnoreCompilation()) {
+        IOpenClass openClass = super.findType(namespace, typeName);
+        if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(getExternalParams())) {
+            // We found some type which can be CSR
+            // So there additional action is required for CSR
+            if (openClass instanceof SpreadsheetResultOpenClass) {
+                return getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes();
+            } else if (openClass instanceof CustomSpreadsheetResultOpenClass) {
+                CustomSpreadsheetResultOpenClass csrOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
+                if (!csrOpenClass.isIgnoreCompilation()) {
+                    // CSR class name is a conjunction of "SpreadsheetResult" and "MethodName"
+                    // If a class is CSR, then extract a method from the class name and process the Spreadsheet method
+                    final String methodName = typeName.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
                     preBinderMethods.findByMethodName(methodName).forEach(openMethodBinder -> {
                         if (openMethodBinder.isReturnsCustomSpreadsheetResult()) {
                             preBindMethod(openMethodBinder.getHeader());
                         }
                     });
                 }
-            } else {
-                throw new IllegalStateException(MessageUtils.getTypeNotFoundMessage(typeName));
             }
         }
-        IOpenClass ret = super.findType(namespace, typeName);
-        if (OpenLSystemProperties
-            .isCustomSpreadsheetTypesSupported(getExternalParams()) && ret instanceof SpreadsheetResultOpenClass) {
-            return getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes();
-        } else {
-            return ret;
-        }
+        return openClass;
     }
 
     public void addBinderMethod(OpenMethodHeader openMethodHeader, RecursiveOpenMethodPreBinder method) {
