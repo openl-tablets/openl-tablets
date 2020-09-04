@@ -8,7 +8,7 @@ public interface PropertiesFileNameProcessor {
     @Deprecated
     default ITableProperties process(Module module, String fileNamePattern) throws NoMatchFileNameException,
             InvalidFileNamePatternException {
-        throw new UnsupportedOperationException("Deprecated. Use 'process(Module module, String... fileNamePatterns)' instead.");
+        return process(module, new String[] {fileNamePattern});
     }
 
     default ITableProperties process(Module module, String... fileNamePatterns) throws NoMatchFileNameException,
