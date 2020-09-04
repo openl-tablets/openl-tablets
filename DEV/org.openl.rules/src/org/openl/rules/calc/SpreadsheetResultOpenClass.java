@@ -36,9 +36,6 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
 
     @Override
     public IOpenField getField(String fieldName, boolean strictMatch) {
-        if (module == null) {
-            return new SpreadsheetResultField(this, fieldName, JavaOpenClass.OBJECT);
-        }
         IOpenField openField = null;
         if (strictMatchCache.containsKey(fieldName)) {
             openField = strictMatchCache.get(fieldName);
@@ -49,7 +46,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
         if (openField != null && openField != RESOLVING_IN_PROGRESS) {
             return openField;
         }
-        if (module.getRulesModuleBindingContext() == null) {
+        if (module != null && module.getRulesModuleBindingContext() == null) {
             return null;
         }
         if (openField == RESOLVING_IN_PROGRESS) {
