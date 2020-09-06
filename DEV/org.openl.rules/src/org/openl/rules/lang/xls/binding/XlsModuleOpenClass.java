@@ -505,7 +505,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     CustomSpreadsheetResultOpenClass csrType = (CustomSpreadsheetResultOpenClass) t;
                     if (Objects.equals(csrType.getName(), type.getName()) && csrType.isBeanClassInitialized()) {
                         throw new IllegalStateException(String.format(
-                            "This module does not support adding '%s' custom spreadsheet result types. Bean class has already been initialized for this custom spreadsheet result type.",
+                            "This module does not support adding '%s' custom spreadsheet result types. Bean class has already been initialized for existing custom spreadsheet result type.",
                             csrType.getName()));
                     }
                 }

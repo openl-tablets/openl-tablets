@@ -41,6 +41,11 @@ public class AbstractSpreadsheetWrapper extends Spreadsheet {
     }
 
     @Override
+    public boolean isAlias() {
+        return delegate.isAlias();
+    }
+
+    @Override
     public void setCustomSpreadsheetResultType(CustomSpreadsheetResultOpenClass spreadsheetCustomResultType) {
         delegate.setCustomSpreadsheetResultType(spreadsheetCustomResultType);
     }

@@ -168,6 +168,11 @@ public abstract class AbstractAlgorithmWrapper extends Algorithm {
     }
 
     @Override
+    public boolean isAlias() {
+        return delegate.isAlias();
+    }
+
+    @Override
     public boolean isStatic() {
         return delegate.isStatic();
     }

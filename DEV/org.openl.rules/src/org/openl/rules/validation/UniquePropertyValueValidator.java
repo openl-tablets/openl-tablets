@@ -2,10 +2,12 @@ package org.openl.rules.validation;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openl.message.OpenLErrorMessage;
@@ -36,55 +38,65 @@ public class UniquePropertyValueValidator extends TablesValidator {
     public ValidationResult validateTables(TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
 
         Collection<ExecutableRulesMethod> executableActiveMethods = selectActiveMethods(
-                OpenMethodDispatcherHelper.extractMethods(openClass));
+            OpenMethodDispatcherHelper.extractMethods(openClass));
 
         Map<Object, ExecutableRulesMethod> values = new HashMap<>();
+        Set<Object> addedMessageToExistingMethod = new HashSet<>();
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
 
         for (ExecutableRulesMethod method : executableActiveMethods) {
+            if (!method.isAlias()) {
 
-            ITableProperties methodProperties = method.getMethodProperties();
+                ITableProperties methodProperties = method.getMethodProperties();
 
-            if (methodProperties == null) {
+                if (methodProperties == null) {
 
-                // Skip current method validation.
-                //
-                continue;
-            }
-
-            // Get property value.
-            //
-            Object value = methodProperties.getPropertyValue(propertyName);
-
-            if (value == null) {
-                continue;
-            }
-
-            // Check that method with same property value does not exist. If
-            // method with the same property value exists then create/add
-            // validation error message else add current property value to list
-            // of processed values.
-            //
-            if (values.containsKey(value)) {
-                ExecutableRulesMethod existingMethod = values.get(value);
-                if (!Objects.equals(existingMethod.getUri(), method.getUri())) {
-                    String message = String.format("Found method with duplicate property '%s'.", propertyName);
-
-                    TablePropertyDefinition property = TablePropertyDefinitionUtils.getPropertyByName(propertyName);
-
-                    Severity errorSeverity = null;
-                    if (property != null) {
-                        errorSeverity = property.getErrorSeverity();
-                    }
-
-                    OpenLMessage message1 = getMessage(message, errorSeverity, existingMethod.getSyntaxNode());
-                    OpenLMessage message2 = getMessage(message, errorSeverity, method.getSyntaxNode());
-
-                    messages.add(message1);
-                    messages.add(message2);
+                    // Skip current method validation.
+                    //
+                    continue;
                 }
-            } else {
-                values.put(value, method);
+
+                // Get property value.
+                //
+                Object value = methodProperties.getPropertyValue(propertyName);
+
+                if (value == null) {
+                    continue;
+                }
+
+                // Check that method with same property value does not exist. If
+                // method with the same property value exists then create/add
+                // validation error message else add current property value to list
+                // of processed values.
+                //
+                if (values.containsKey(value)) {
+                    ExecutableRulesMethod existingMethod = values.get(value);
+                    if (!Objects.equals(existingMethod.getUri(), method.getUri())) {
+                        TablePropertyDefinition property = TablePropertyDefinitionUtils.getPropertyByName(propertyName);
+
+                        Severity errorSeverity = null;
+                        if (property != null) {
+                            errorSeverity = property.getErrorSeverity();
+                        }
+                        if (!addedMessageToExistingMethod.contains(value)) {
+                            OpenLMessage message1 = getMessage(
+                                String.format("Found non-unique value '%s' for table property '%s'.",
+                                    value,
+                                    propertyName),
+                                errorSeverity,
+                                existingMethod.getSyntaxNode());
+                            messages.add(message1);
+                            addedMessageToExistingMethod.add(value);
+                        }
+                        OpenLMessage message2 = getMessage(String
+                            .format("Found non-unique value '%s' for table property '%s'.", value, propertyName),
+                            errorSeverity,
+                            method.getSyntaxNode());
+                        messages.add(message2);
+                    }
+                } else {
+                    values.put(value, method);
+                }
             }
         }
 
