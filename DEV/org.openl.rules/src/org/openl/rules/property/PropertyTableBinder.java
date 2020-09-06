@@ -118,11 +118,11 @@ public class PropertyTableBinder extends DataNodeBinder {
 
         if (scope != null) {
             if (isModuleProperties(scope)) {
-                processModuleProperties(tableSyntaxNode, propertiesInstance, bindingContext);
+                processModuleProperties(tableSyntaxNode, bindingContext);
             } else if (isCategoryProperties(scope)) {
                 processCategoryProperties(tableSyntaxNode, propertiesInstance, bindingContext);
             } else if (isGlobalProperties(scope)) {
-                processGlobalProperties(tableSyntaxNode, propertiesInstance, bindingContext);
+                processGlobalProperties(tableSyntaxNode, bindingContext);
             } else {
                 String message = String.format("Value of the property '%s' is neither '%s', '%s' or '%s'.",
                     SCOPE_PROPERTY_NAME,
@@ -145,9 +145,6 @@ public class PropertyTableBinder extends DataNodeBinder {
 
         String category = getCategoryToApplyProperties(tableSyntaxNode, propertiesInstance);
         String key = RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category;
-        InheritanceLevel currentLevel = InheritanceLevel.CATEGORY;
-
-        checkPropertiesLevel(currentLevel, propertiesInstance, tableSyntaxNode);
 
         if (!bindingContext.isTableSyntaxNodePresented(key)) {
             bindingContext.registerTableSyntaxNode(key, tableSyntaxNode);
@@ -159,44 +156,19 @@ public class PropertyTableBinder extends DataNodeBinder {
     }
 
     private void processGlobalProperties(TableSyntaxNode tableSyntaxNode,
-            TableProperties propertiesInstance,
             RulesModuleBindingContext bindingContext) throws SyntaxNodeException {
         String key = RulesModuleBindingContext.GLOBAL_PROPERTIES_KEY;
-        InheritanceLevel currentLevel = InheritanceLevel.GLOBAL;
-        checkPropertiesLevel(currentLevel, propertiesInstance, tableSyntaxNode);
-
         if (!bindingContext.isTableSyntaxNodePresented(key)) {
             bindingContext.registerTableSyntaxNode(key, tableSyntaxNode);
         } else {
-            throw new DuplicatedPropertiesTableException("Global properties is already exists.", null, tableSyntaxNode);
-        }
-    }
-
-    private void checkPropertiesLevel(InheritanceLevel currentLevel,
-            TableProperties propertiesInstance,
-            TableSyntaxNode tableSyntaxNode) throws SyntaxNodeException {
-
-        for (String propertyNameToCheck : propertiesInstance.getAllProperties().keySet()) {
-
-            if (!PropertiesChecker.isPropertySuitableForLevel(currentLevel, propertyNameToCheck)) {
-                String message = String.format("Property '%s' cannot be defined on the '%s' level.",
-                    propertyNameToCheck,
-                    currentLevel.getDisplayName());
-
-                throw SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
-            }
+            throw new DuplicatedPropertiesTableException("Global properties already exist.", null, tableSyntaxNode);
         }
     }
 
     private void processModuleProperties(TableSyntaxNode tableSyntaxNode,
-            TableProperties propertiesInstance,
             RulesModuleBindingContext bindingContext) throws SyntaxNodeException {
 
         String key = RulesModuleBindingContext.MODULE_PROPERTIES_KEY;
-
-        InheritanceLevel currentLevel = InheritanceLevel.MODULE;
-
-        checkPropertiesLevel(currentLevel, propertiesInstance, tableSyntaxNode);
 
         if (!bindingContext.isTableSyntaxNodePresented(key)) {
             bindingContext.registerTableSyntaxNode(key, tableSyntaxNode);

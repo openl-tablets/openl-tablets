@@ -260,6 +260,11 @@ public abstract class AbstractDecisionTableWrapper extends DecisionTable {
     }
 
     @Override
+    public boolean isAlias() {
+        return delegate.isAlias();
+    }
+
+    @Override
     public boolean isStatic() {
         return delegate.isStatic();
     }
