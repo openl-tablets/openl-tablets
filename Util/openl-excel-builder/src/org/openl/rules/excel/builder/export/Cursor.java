@@ -4,15 +4,12 @@ import java.util.Objects;
 
 public class Cursor {
 
-    private int column;
-    private int row;
+    private final int column;
+    private final int row;
 
     public Cursor(int column, int row) {
         this.column = column;
         this.row = row;
-    }
-
-    public Cursor() {
     }
 
     public Cursor moveLeft(int x) {

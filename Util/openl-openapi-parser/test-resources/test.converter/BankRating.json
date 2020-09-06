@@ -6,21 +6,93 @@
   },
   "servers": [
     {
-      "url": "/ruleservice/REST/Example%201%20-%20Bank%20Rating/Example%201%20-%20Bank%20Rating",
+      "url": "/webservice/BankRating",
       "variables": {}
     }
   ],
   "paths": {
-    "/BankLimitIndex": {
+    "/getBankData": {
       "post": {
-        "summary": "DoubleValue BankLimitIndex(IRulesRuntimeContext, Bank, String)",
-        "description": "Method: org.openl.meta.DoubleValue BankLimitIndex(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Bank, java.lang.String)",
-        "operationId": "BankLimitIndex",
+        "summary": "Bank[] getBankData(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.beans.Bank[] getBankData(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getBankData",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/BankLimitIndexRequest"
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Bank"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/TotalBalanceScore": {
+      "post": {
+        "summary": "Double TotalBalanceScore(IRulesRuntimeContext, Double, String)",
+        "description": "Method: java.lang.Double TotalBalanceScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double, java.lang.String)",
+        "operationId": "TotalBalanceScore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TotalBalanceScoreRequest"
               }
             }
           }
@@ -81,16 +153,16 @@
         }
       }
     },
-    "/BankRatingGroup": {
+    "/IsAdequateLiquidityRatioScore": {
       "post": {
-        "summary": "String BankRatingGroup(IRulesRuntimeContext, DoubleValue)",
-        "description": "Method: java.lang.String BankRatingGroup(org.openl.rules.context.IRulesRuntimeContext, org.openl.meta.DoubleValue)",
-        "operationId": "BankRatingGroup",
+        "summary": "Double IsAdequateLiquidityRatioScore(IRulesRuntimeContext, Boolean)",
+        "description": "Method: java.lang.Double IsAdequateLiquidityRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Boolean)",
+        "operationId": "IsAdequateLiquidityRatioScore",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/BankRatingGroupRequest"
+                "$ref": "#/components/schemas/IsAdequateLiquidityRatioScoreRequest"
               }
             }
           }
@@ -142,7 +214,8 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "type": "string"
+                  "type": "number",
+                  "format": "double"
                 }
               }
             }
@@ -150,16 +223,506 @@
         }
       }
     },
-    "/EquityScore": {
+    "/NetMoneyMarketLiabilitiesScore": {
       "post": {
-        "summary": "DoubleValue EquityScore(IRulesRuntimeContext, String, Double)",
-        "description": "Method: org.openl.meta.DoubleValue EquityScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.String, java.lang.Double)",
-        "operationId": "EquityScore",
+        "summary": "Double NetMoneyMarketLiabilitiesScore(IRulesRuntimeContext, Double)",
+        "description": "Method: java.lang.Double NetMoneyMarketLiabilitiesScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+        "operationId": "NetMoneyMarketLiabilitiesScore",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/EquityScoreRequest"
+                "$ref": "#/components/schemas/NetMoneyMarketLiabilitiesScoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/IsAdequateMaxCreditRiskScore": {
+      "post": {
+        "summary": "Double IsAdequateMaxCreditRiskScore(IRulesRuntimeContext, String, Boolean)",
+        "description": "Method: java.lang.Double IsAdequateMaxCreditRiskScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.String, java.lang.Boolean)",
+        "operationId": "IsAdequateMaxCreditRiskScore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IsAdequateMaxCreditRiskScoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/NegativeInfoShareHoldersOrManagementScore": {
+      "post": {
+        "summary": "Double NegativeInfoShareHoldersOrManagementScore(IRulesRuntimeContext, Boolean)",
+        "description": "Method: java.lang.Double NegativeInfoShareHoldersOrManagementScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Boolean)",
+        "operationId": "NegativeInfoShareHoldersOrManagementScore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NegativeInfoShareHoldersOrManagementScoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/LiquidityDynamicScore": {
+      "post": {
+        "summary": "Double LiquidityDynamicScore(IRulesRuntimeContext, Double)",
+        "description": "Method: java.lang.Double LiquidityDynamicScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+        "operationId": "LiquidityDynamicScore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LiquidityDynamicScoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/NegativeHistoryRelationsScore": {
+      "post": {
+        "summary": "Double NegativeHistoryRelationsScore(IRulesRuntimeContext, Boolean)",
+        "description": "Method: java.lang.Double NegativeHistoryRelationsScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Boolean)",
+        "operationId": "NegativeHistoryRelationsScore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NegativeHistoryRelationsScoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/LiabilitiesToCustomersOnDemandRatioScore": {
+      "post": {
+        "summary": "Double LiabilitiesToCustomersOnDemandRatioScore(IRulesRuntimeContext, Double)",
+        "description": "Method: java.lang.Double LiabilitiesToCustomersOnDemandRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+        "operationId": "LiabilitiesToCustomersOnDemandRatioScore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LiabilitiesToCustomersOnDemandRatioScoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/HighLiquidityRatioScore": {
+      "post": {
+        "summary": "Double HighLiquidityRatioScore(IRulesRuntimeContext, Double)",
+        "description": "Method: java.lang.Double HighLiquidityRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+        "operationId": "HighLiquidityRatioScore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HighLiquidityRatioScoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/IsAdequateNormativeIndexCalculation": {
+      "post": {
+        "summary": "Double IsAdequateNormativeIndexCalculation(IRulesRuntimeContext, Bank)",
+        "description": "Method: java.lang.Double IsAdequateNormativeIndexCalculation(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Bank)",
+        "operationId": "IsAdequateNormativeIndexCalculation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IsAdequateNormativeIndexCalculationRequest"
               }
             }
           }
@@ -222,8 +785,8 @@
     },
     "/QuickRatioScore": {
       "post": {
-        "summary": "DoubleValue QuickRatioScore(IRulesRuntimeContext, DoubleValue)",
-        "description": "Method: org.openl.meta.DoubleValue QuickRatioScore(org.openl.rules.context.IRulesRuntimeContext, org.openl.meta.DoubleValue)",
+        "summary": "Double QuickRatioScore(IRulesRuntimeContext, Double)",
+        "description": "Method: java.lang.Double QuickRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
         "operationId": "QuickRatioScore",
         "requestBody": {
           "content": {
@@ -290,16 +853,784 @@
         }
       }
     },
+    "/BankRatingGroup": {
+      "post": {
+        "summary": "String BankRatingGroup(IRulesRuntimeContext, Double)",
+        "description": "Method: java.lang.String BankRatingGroup(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+        "operationId": "BankRatingGroup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BankRatingGroupRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/NegativeMassMediaScore": {
+      "post": {
+        "summary": "Double NegativeMassMediaScore(IRulesRuntimeContext, Boolean)",
+        "description": "Method: java.lang.Double NegativeMassMediaScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Boolean)",
+        "operationId": "NegativeMassMediaScore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NegativeMassMediaScoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/LiabilitiesToCustomersDynamicScore": {
+      "post": {
+        "summary": "Double LiabilitiesToCustomersDynamicScore(IRulesRuntimeContext, Double)",
+        "description": "Method: java.lang.Double LiabilitiesToCustomersDynamicScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+        "operationId": "LiabilitiesToCustomersDynamicScore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LiabilitiesToCustomersDynamicScoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/MaxLimit": {
       "post": {
-        "summary": "DoubleValue MaxLimit(IRulesRuntimeContext)",
-        "description": "Method: org.openl.meta.DoubleValue MaxLimit(org.openl.rules.context.IRulesRuntimeContext)",
+        "summary": "Double MaxLimit(IRulesRuntimeContext)",
+        "description": "Method: java.lang.Double MaxLimit(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "MaxLimit",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/BankRatingCalculation": {
+      "post": {
+        "summary": "BankRatingCalculation BankRatingCalculation(IRulesRuntimeContext, Bank)",
+        "description": "Method: org.openl.generated.spreadsheetresults.BankRatingCalculation BankRatingCalculation(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Bank)",
+        "operationId": "BankRatingCalculation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BankRatingCalculationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BankRatingCalculation"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/BankQualitativeIndexCalculation": {
+      "post": {
+        "summary": "Double BankQualitativeIndexCalculation(IRulesRuntimeContext, Bank)",
+        "description": "Method: java.lang.Double BankQualitativeIndexCalculation(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Bank)",
+        "operationId": "BankQualitativeIndexCalculation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BankQualitativeIndexCalculationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ClaimsOnCustomerRatioScore": {
+      "post": {
+        "summary": "Double ClaimsOnCustomerRatioScore(IRulesRuntimeContext, Double)",
+        "description": "Method: java.lang.Double ClaimsOnCustomerRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+        "operationId": "ClaimsOnCustomerRatioScore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimsOnCustomerRatioScoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/LossesInThisYearScore": {
+      "post": {
+        "summary": "Double LossesInThisYearScore(IRulesRuntimeContext, Boolean)",
+        "description": "Method: java.lang.Double LossesInThisYearScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Boolean)",
+        "operationId": "LossesInThisYearScore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LossesInThisYearScoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/BankLimitIndex": {
+      "post": {
+        "summary": "Double BankLimitIndex(IRulesRuntimeContext, Bank, String)",
+        "description": "Method: java.lang.Double BankLimitIndex(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Bank, java.lang.String)",
+        "operationId": "BankLimitIndex",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BankLimitIndexRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ProfitDynamicScore": {
+      "post": {
+        "summary": "Double ProfitDynamicScore(IRulesRuntimeContext, Double, Double)",
+        "description": "Method: java.lang.Double ProfitDynamicScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double, java.lang.Double)",
+        "operationId": "ProfitDynamicScore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfitDynamicScoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/CapitalDynamicScore": {
+      "post": {
+        "summary": "Double CapitalDynamicScore(IRulesRuntimeContext, Double)",
+        "description": "Method: java.lang.Double CapitalDynamicScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+        "operationId": "CapitalDynamicScore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CapitalDynamicScoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/BalanceDynamicIndexCalculation": {
+      "post": {
+        "summary": "Double BalanceDynamicIndexCalculation(IRulesRuntimeContext, FinancialData, FinancialData)",
+        "description": "Method: java.lang.Double BalanceDynamicIndexCalculation(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.FinancialData, org.openl.generated.beans.FinancialData)",
+        "operationId": "BalanceDynamicIndexCalculation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BalanceDynamicIndexCalculationRequest"
               }
             }
           }
@@ -429,157 +1760,16 @@
         }
       }
     },
-    "/getBankData": {
+    "/LiquidityRatioScore": {
       "post": {
-        "summary": "Bank[] getBankData(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.beans.Bank[] getBankData(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getBankData",
+        "summary": "Double LiquidityRatioScore(IRulesRuntimeContext, Double)",
+        "description": "Method: java.lang.Double LiquidityRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+        "operationId": "LiquidityRatioScore",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Bank"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/BankRatingCalculation": {
-      "post": {
-        "summary": "BankRatingCalculation BankRatingCalculation(IRulesRuntimeContext, Bank)",
-        "description": "Method: org.openl.generated.spreadsheetresults.BankRatingCalculation BankRatingCalculation(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Bank)",
-        "operationId": "BankRatingCalculation",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BankRatingCalculationRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BankRatingCalculation"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/ClaimsOnCustomerRatioScore": {
-      "post": {
-        "summary": "DoubleValue ClaimsOnCustomerRatioScore(IRulesRuntimeContext, DoubleValue)",
-        "description": "Method: org.openl.meta.DoubleValue ClaimsOnCustomerRatioScore(org.openl.rules.context.IRulesRuntimeContext, org.openl.meta.DoubleValue)",
-        "operationId": "ClaimsOnCustomerRatioScore",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ClaimsOnCustomerRatioScoreRequest"
+                "$ref": "#/components/schemas/LiquidityRatioScoreRequest"
               }
             }
           }
@@ -640,16 +1830,16 @@
         }
       }
     },
-    "/LiquidityDynamicScore": {
+    "/CreditPortfolioQualityScore": {
       "post": {
-        "summary": "DoubleValue LiquidityDynamicScore(IRulesRuntimeContext, DoubleValue)",
-        "description": "Method: org.openl.meta.DoubleValue LiquidityDynamicScore(org.openl.rules.context.IRulesRuntimeContext, org.openl.meta.DoubleValue)",
-        "operationId": "LiquidityDynamicScore",
+        "summary": "Double CreditPortfolioQualityScore(IRulesRuntimeContext, Double)",
+        "description": "Method: java.lang.Double CreditPortfolioQualityScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+        "operationId": "CreditPortfolioQualityScore",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/LiquidityDynamicScoreRequest"
+                "$ref": "#/components/schemas/CreditPortfolioQualityScoreRequest"
               }
             }
           }
@@ -710,16 +1900,86 @@
         }
       }
     },
-    "/NetMoneyMarketLiabilitiesScore": {
+    "/OtherAssetsRatioScore": {
       "post": {
-        "summary": "DoubleValue NetMoneyMarketLiabilitiesScore(IRulesRuntimeContext, DoubleValue)",
-        "description": "Method: org.openl.meta.DoubleValue NetMoneyMarketLiabilitiesScore(org.openl.rules.context.IRulesRuntimeContext, org.openl.meta.DoubleValue)",
-        "operationId": "NetMoneyMarketLiabilitiesScore",
+        "summary": "Double OtherAssetsRatioScore(IRulesRuntimeContext, Double)",
+        "description": "Method: java.lang.Double OtherAssetsRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+        "operationId": "OtherAssetsRatioScore",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NetMoneyMarketLiabilitiesScoreRequest"
+                "$ref": "#/components/schemas/OtherAssetsRatioScoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/CapitalAdequacyScore": {
+      "post": {
+        "summary": "Double CapitalAdequacyScore(IRulesRuntimeContext, Double)",
+        "description": "Method: java.lang.Double CapitalAdequacyScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+        "operationId": "CapitalAdequacyScore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CapitalAdequacyScoreRequest"
               }
             }
           }
@@ -782,8 +2042,8 @@
     },
     "/IsAdequateCoreCapitalRatioScore": {
       "post": {
-        "summary": "DoubleValue IsAdequateCoreCapitalRatioScore(IRulesRuntimeContext, Boolean)",
-        "description": "Method: org.openl.meta.DoubleValue IsAdequateCoreCapitalRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Boolean)",
+        "summary": "Double IsAdequateCoreCapitalRatioScore(IRulesRuntimeContext, Boolean)",
+        "description": "Method: java.lang.Double IsAdequateCoreCapitalRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Boolean)",
         "operationId": "IsAdequateCoreCapitalRatioScore",
         "requestBody": {
           "content": {
@@ -850,296 +2110,16 @@
         }
       }
     },
-    "/BankQualitativeIndexCalculation": {
+    "/EquityScore": {
       "post": {
-        "summary": "DoubleValue BankQualitativeIndexCalculation(IRulesRuntimeContext, Bank)",
-        "description": "Method: org.openl.meta.DoubleValue BankQualitativeIndexCalculation(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Bank)",
-        "operationId": "BankQualitativeIndexCalculation",
+        "summary": "Double EquityScore(IRulesRuntimeContext, String, Double)",
+        "description": "Method: java.lang.Double EquityScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.String, java.lang.Double)",
+        "operationId": "EquityScore",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/BankQualitativeIndexCalculationRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/TotalBalanceScore": {
-      "post": {
-        "summary": "DoubleValue TotalBalanceScore(IRulesRuntimeContext, Double, String)",
-        "description": "Method: org.openl.meta.DoubleValue TotalBalanceScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double, java.lang.String)",
-        "operationId": "TotalBalanceScore",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TotalBalanceScoreRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/HighLiquidityRatioScore": {
-      "post": {
-        "summary": "DoubleValue HighLiquidityRatioScore(IRulesRuntimeContext, DoubleValue)",
-        "description": "Method: org.openl.meta.DoubleValue HighLiquidityRatioScore(org.openl.rules.context.IRulesRuntimeContext, org.openl.meta.DoubleValue)",
-        "operationId": "HighLiquidityRatioScore",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/HighLiquidityRatioScoreRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/LossesInThisYearScore": {
-      "post": {
-        "summary": "DoubleValue LossesInThisYearScore(IRulesRuntimeContext, Boolean)",
-        "description": "Method: org.openl.meta.DoubleValue LossesInThisYearScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Boolean)",
-        "operationId": "LossesInThisYearScore",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LossesInThisYearScoreRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/NegativeMassMediaScore": {
-      "post": {
-        "summary": "DoubleValue NegativeMassMediaScore(IRulesRuntimeContext, Boolean)",
-        "description": "Method: org.openl.meta.DoubleValue NegativeMassMediaScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Boolean)",
-        "operationId": "NegativeMassMediaScore",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NegativeMassMediaScoreRequest"
+                "$ref": "#/components/schemas/EquityScoreRequest"
               }
             }
           }
@@ -1269,150 +2249,10 @@
         }
       }
     },
-    "/BalanceDynamicIndexCalculation": {
-      "post": {
-        "summary": "DoubleValue BalanceDynamicIndexCalculation(IRulesRuntimeContext, FinancialData, FinancialData)",
-        "description": "Method: org.openl.meta.DoubleValue BalanceDynamicIndexCalculation(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.FinancialData, org.openl.generated.beans.FinancialData)",
-        "operationId": "BalanceDynamicIndexCalculation",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BalanceDynamicIndexCalculationRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/CapitalAdequacyScore": {
-      "post": {
-        "summary": "DoubleValue CapitalAdequacyScore(IRulesRuntimeContext, DoubleValue)",
-        "description": "Method: org.openl.meta.DoubleValue CapitalAdequacyScore(org.openl.rules.context.IRulesRuntimeContext, org.openl.meta.DoubleValue)",
-        "operationId": "CapitalAdequacyScore",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CapitalAdequacyScoreRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/DowngradesOfBankRatingScore": {
       "post": {
-        "summary": "DoubleValue DowngradesOfBankRatingScore(IRulesRuntimeContext, boolean)",
-        "description": "Method: org.openl.meta.DoubleValue DowngradesOfBankRatingScore(org.openl.rules.context.IRulesRuntimeContext, boolean)",
+        "summary": "Double DowngradesOfBankRatingScore(IRulesRuntimeContext, boolean)",
+        "description": "Method: java.lang.Double DowngradesOfBankRatingScore(org.openl.rules.context.IRulesRuntimeContext, boolean)",
         "operationId": "DowngradesOfBankRatingScore",
         "requestBody": {
           "content": {
@@ -1479,578 +2319,16 @@
         }
       }
     },
-    "/ProfitDynamicScore": {
+    "/SecuredByPropertyChargesClaimsRatioScore": {
       "post": {
-        "summary": "DoubleValue ProfitDynamicScore(IRulesRuntimeContext, DoubleValue, Double)",
-        "description": "Method: org.openl.meta.DoubleValue ProfitDynamicScore(org.openl.rules.context.IRulesRuntimeContext, org.openl.meta.DoubleValue, java.lang.Double)",
-        "operationId": "ProfitDynamicScore",
+        "summary": "Double SecuredByPropertyChargesClaimsRatioScore(IRulesRuntimeContext, Double)",
+        "description": "Method: java.lang.Double SecuredByPropertyChargesClaimsRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+        "operationId": "SecuredByPropertyChargesClaimsRatioScore",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ProfitDynamicScoreRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/CreditPortfolioQualityScore": {
-      "post": {
-        "summary": "DoubleValue CreditPortfolioQualityScore(IRulesRuntimeContext, DoubleValue)",
-        "description": "Method: org.openl.meta.DoubleValue CreditPortfolioQualityScore(org.openl.rules.context.IRulesRuntimeContext, org.openl.meta.DoubleValue)",
-        "operationId": "CreditPortfolioQualityScore",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreditPortfolioQualityScoreRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/NegativeHistoryRelationsScore": {
-      "post": {
-        "summary": "DoubleValue NegativeHistoryRelationsScore(IRulesRuntimeContext, Boolean)",
-        "description": "Method: org.openl.meta.DoubleValue NegativeHistoryRelationsScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Boolean)",
-        "operationId": "NegativeHistoryRelationsScore",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NegativeHistoryRelationsScoreRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/IsAdequateLiquidityRatioScore": {
-      "post": {
-        "summary": "DoubleValue IsAdequateLiquidityRatioScore(IRulesRuntimeContext, Boolean)",
-        "description": "Method: org.openl.meta.DoubleValue IsAdequateLiquidityRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Boolean)",
-        "operationId": "IsAdequateLiquidityRatioScore",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IsAdequateLiquidityRatioScoreRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/CapitalDynamicScore": {
-      "post": {
-        "summary": "DoubleValue CapitalDynamicScore(IRulesRuntimeContext, DoubleValue)",
-        "description": "Method: org.openl.meta.DoubleValue CapitalDynamicScore(org.openl.rules.context.IRulesRuntimeContext, org.openl.meta.DoubleValue)",
-        "operationId": "CapitalDynamicScore",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CapitalDynamicScoreRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/getQualityIndicatorsData": {
-      "post": {
-        "summary": "QualityIndicators[] getQualityIndicatorsData(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.beans.QualityIndicators[] getQualityIndicatorsData(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getQualityIndicatorsData",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/QualityIndicators"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/IsAdequateMaxCreditRiskScore": {
-      "post": {
-        "summary": "DoubleValue IsAdequateMaxCreditRiskScore(IRulesRuntimeContext, String, Boolean)",
-        "description": "Method: org.openl.meta.DoubleValue IsAdequateMaxCreditRiskScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.String, java.lang.Boolean)",
-        "operationId": "IsAdequateMaxCreditRiskScore",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IsAdequateMaxCreditRiskScoreRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/LiquidityRatioScore": {
-      "post": {
-        "summary": "DoubleValue LiquidityRatioScore(IRulesRuntimeContext, DoubleValue)",
-        "description": "Method: org.openl.meta.DoubleValue LiquidityRatioScore(org.openl.rules.context.IRulesRuntimeContext, org.openl.meta.DoubleValue)",
-        "operationId": "LiquidityRatioScore",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LiquidityRatioScoreRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/OtherAssetsRatioScore": {
-      "post": {
-        "summary": "DoubleValue OtherAssetsRatioScore(IRulesRuntimeContext, DoubleValue)",
-        "description": "Method: org.openl.meta.DoubleValue OtherAssetsRatioScore(org.openl.rules.context.IRulesRuntimeContext, org.openl.meta.DoubleValue)",
-        "operationId": "OtherAssetsRatioScore",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/OtherAssetsRatioScoreRequest"
+                "$ref": "#/components/schemas/SecuredByPropertyChargesClaimsRatioScoreRequest"
               }
             }
           }
@@ -2183,6 +2461,78 @@
         }
       }
     },
+    "/getQualityIndicatorsData": {
+      "post": {
+        "summary": "QualityIndicators[] getQualityIndicatorsData(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.beans.QualityIndicators[] getQualityIndicatorsData(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getQualityIndicatorsData",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/QualityIndicators"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/getBankRatingList": {
       "post": {
         "summary": "Rating[] getBankRatingList(IRulesRuntimeContext)",
@@ -2254,426 +2604,6 @@
           }
         }
       }
-    },
-    "/NegativeInfoShareHoldersOrManagementScore": {
-      "post": {
-        "summary": "DoubleValue NegativeInfoShareHoldersOrManagementScore(IRulesRuntimeContext, Boolean)",
-        "description": "Method: org.openl.meta.DoubleValue NegativeInfoShareHoldersOrManagementScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Boolean)",
-        "operationId": "NegativeInfoShareHoldersOrManagementScore",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NegativeInfoShareHoldersOrManagementScoreRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/LiabilitiesToCustomersOnDemandRatioScore": {
-      "post": {
-        "summary": "DoubleValue LiabilitiesToCustomersOnDemandRatioScore(IRulesRuntimeContext, DoubleValue)",
-        "description": "Method: org.openl.meta.DoubleValue LiabilitiesToCustomersOnDemandRatioScore(org.openl.rules.context.IRulesRuntimeContext, org.openl.meta.DoubleValue)",
-        "operationId": "LiabilitiesToCustomersOnDemandRatioScore",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LiabilitiesToCustomersOnDemandRatioScoreRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/SecuredByPropertyChargesClaimsRatioScore": {
-      "post": {
-        "summary": "DoubleValue SecuredByPropertyChargesClaimsRatioScore(IRulesRuntimeContext, DoubleValue)",
-        "description": "Method: org.openl.meta.DoubleValue SecuredByPropertyChargesClaimsRatioScore(org.openl.rules.context.IRulesRuntimeContext, org.openl.meta.DoubleValue)",
-        "operationId": "SecuredByPropertyChargesClaimsRatioScore",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SecuredByPropertyChargesClaimsRatioScoreRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/LiabilitiesToCustomersDynamicScore": {
-      "post": {
-        "summary": "DoubleValue LiabilitiesToCustomersDynamicScore(IRulesRuntimeContext, DoubleValue)",
-        "description": "Method: org.openl.meta.DoubleValue LiabilitiesToCustomersDynamicScore(org.openl.rules.context.IRulesRuntimeContext, org.openl.meta.DoubleValue)",
-        "operationId": "LiabilitiesToCustomersDynamicScore",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LiabilitiesToCustomersDynamicScoreRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/IsAdequateNormativeIndexCalculation": {
-      "post": {
-        "summary": "DoubleValue IsAdequateNormativeIndexCalculation(IRulesRuntimeContext, Bank)",
-        "description": "Method: org.openl.meta.DoubleValue IsAdequateNormativeIndexCalculation(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Bank)",
-        "operationId": "IsAdequateNormativeIndexCalculation",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IsAdequateNormativeIndexCalculationRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/BankLimitIndexInline": {
-      "post": {
-        "summary": "DoubleValue BankLimitIndex(IRulesRuntimeContext, Bank, String)",
-        "operationId": "BankLimitIndexInline",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/SamplePath": {
-      "post": {
-        "summary": "DoubleValue SamplePath(IRulesRuntimeContext, Bank, String)",
-        "operationId": "SamplePath",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "dogName": {
-                    "type": "string"
-                  },
-                  "spr": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
@@ -2733,16 +2663,143 @@
           }
         }
       },
-      "BankLimitIndexRequest": {
+      "FinancialData": {
         "type": "object",
         "properties": {
-          "runtimeContext": {
-            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          "reportDate": {
+            "type": "string",
+            "format": "date-time"
           },
-          "bank": {
-            "$ref": "#/components/schemas/Bank"
+          "totalAssets": {
+            "type": "number",
+            "format": "double",
+            "default": 0.00010
           },
-          "bankRatingGroup": {
+          "claimsOnDemand": {
+            "type": "number",
+            "format": "double",
+            "default": 0.00010
+          },
+          "claimsUpTo3Months": {
+            "type": "number",
+            "format": "double",
+            "default": 0.00010
+          },
+          "claimsSecuredByPropertyCharges": {
+            "type": "number",
+            "format": "double",
+            "default": 0
+          },
+          "claimsOnBanks": {
+            "type": "number",
+            "format": "double",
+            "default": 0
+          },
+          "claimsOnCustomers": {
+            "type": "number",
+            "format": "double",
+            "default": 0.00010
+          },
+          "loanLossProvisionsForClaimsOnCustomers": {
+            "type": "number",
+            "format": "double",
+            "default": 0
+          },
+          "otherAssets": {
+            "type": "number",
+            "format": "double",
+            "default": 0
+          },
+          "capital": {
+            "type": "number",
+            "format": "double",
+            "default": 0.00010
+          },
+          "equity": {
+            "type": "number",
+            "format": "double",
+            "default": 0
+          },
+          "liabilities": {
+            "type": "number",
+            "format": "double",
+            "default": 0.00010
+          },
+          "liabilitiesToBanks": {
+            "type": "number",
+            "format": "double",
+            "default": 0
+          },
+          "liabilitiesToCustomers": {
+            "type": "number",
+            "format": "double",
+            "default": 0.00010
+          },
+          "liabilitiesOnDemand": {
+            "type": "number",
+            "format": "double",
+            "default": 0.00010
+          },
+          "liabilitiesToCustomersOnDemand": {
+            "type": "number",
+            "format": "double",
+            "default": 0
+          },
+          "consolidatedProfit": {
+            "type": "number",
+            "format": "double",
+            "default": 0.00010
+          }
+        }
+      },
+      "QualityIndicators": {
+        "type": "object",
+        "properties": {
+          "reportDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lossesInThisYear": {
+            "type": "boolean",
+            "default": false
+          },
+          "negativeHistoryRelations": {
+            "type": "boolean",
+            "default": false
+          },
+          "negativeMassMedia": {
+            "type": "boolean",
+            "default": false
+          },
+          "negativeInfoShareHoldersOrManagement": {
+            "type": "boolean",
+            "default": false
+          },
+          "downgradesOfBankRating": {
+            "type": "boolean",
+            "default": false
+          },
+          "isAdequateCoreCapitalRatio": {
+            "type": "boolean",
+            "default": true
+          },
+          "isAdequateLiquidityRatio": {
+            "type": "boolean",
+            "default": true
+          },
+          "isAdequateMaxCreditRisk": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "Rating": {
+        "type": "object",
+        "properties": {
+          "ratingAgency": {
+            "type": "string"
+          },
+          "rating": {
             "type": "string"
           }
         }
@@ -3082,160 +3139,45 @@
           }
         }
       },
-      "FinancialData": {
-        "type": "object",
-        "properties": {
-          "reportDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "totalAssets": {
-            "type": "number",
-            "format": "double",
-            "default": 0.00010
-          },
-          "claimsOnDemand": {
-            "type": "number",
-            "format": "double",
-            "default": 0.00010
-          },
-          "claimsUpTo3Months": {
-            "type": "number",
-            "format": "double",
-            "default": 0.00010
-          },
-          "claimsSecuredByPropertyCharges": {
-            "type": "number",
-            "format": "double",
-            "default": 0
-          },
-          "claimsOnBanks": {
-            "type": "number",
-            "format": "double",
-            "default": 0
-          },
-          "claimsOnCustomers": {
-            "type": "number",
-            "format": "double",
-            "default": 0.00010
-          },
-          "loanLossProvisionsForClaimsOnCustomers": {
-            "type": "number",
-            "format": "double",
-            "default": 0
-          },
-          "otherAssets": {
-            "type": "number",
-            "format": "double",
-            "default": 0
-          },
-          "capital": {
-            "type": "number",
-            "format": "double",
-            "default": 0.00010
-          },
-          "equity": {
-            "type": "number",
-            "format": "double",
-            "default": 0
-          },
-          "liabilities": {
-            "type": "number",
-            "format": "double",
-            "default": 0.00010
-          },
-          "liabilitiesToBanks": {
-            "type": "number",
-            "format": "double",
-            "default": 0
-          },
-          "liabilitiesToCustomers": {
-            "type": "number",
-            "format": "double",
-            "default": 0.00010
-          },
-          "liabilitiesOnDemand": {
-            "type": "number",
-            "format": "double",
-            "default": 0.00010
-          },
-          "liabilitiesToCustomersOnDemand": {
-            "type": "number",
-            "format": "double",
-            "default": 0
-          },
-          "consolidatedProfit": {
-            "type": "number",
-            "format": "double",
-            "default": 0.00010
-          }
-        }
-      },
-      "QualityIndicators": {
-        "type": "object",
-        "properties": {
-          "reportDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "lossesInThisYear": {
-            "type": "boolean",
-            "default": false
-          },
-          "negativeHistoryRelations": {
-            "type": "boolean",
-            "default": false
-          },
-          "negativeMassMedia": {
-            "type": "boolean",
-            "default": false
-          },
-          "negativeInfoShareHoldersOrManagement": {
-            "type": "boolean",
-            "default": false
-          },
-          "downgradesOfBankRating": {
-            "type": "boolean",
-            "default": false
-          },
-          "isAdequateCoreCapitalRatio": {
-            "type": "boolean",
-            "default": true
-          },
-          "isAdequateLiquidityRatio": {
-            "type": "boolean",
-            "default": true
-          },
-          "isAdequateMaxCreditRisk": {
-            "type": "boolean",
-            "default": true
-          }
-        }
-      },
-      "Rating": {
-        "type": "object",
-        "properties": {
-          "ratingAgency": {
-            "type": "string"
-          },
-          "rating": {
-            "type": "string"
-          }
-        }
-      },
-      "BankRatingGroupRequest": {
+      "TotalBalanceScoreRequest": {
         "type": "object",
         "properties": {
           "runtimeContext": {
             "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
           },
-          "bankRating": {
+          "totalBalance": {
+            "type": "number",
+            "format": "double"
+          },
+          "countryCode": {
+            "type": "string"
+          }
+        }
+      },
+      "IsAdequateLiquidityRatioScoreRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "isAdequateLiquidityRatio": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NetMoneyMarketLiabilitiesScoreRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "netMoneyMarketLiabilities": {
             "type": "number",
             "format": "double"
           }
         }
       },
-      "EquityScoreRequest": {
+      "IsAdequateMaxCreditRiskScoreRequest": {
         "type": "object",
         "properties": {
           "runtimeContext": {
@@ -3244,9 +3186,77 @@
           "countryCode": {
             "type": "string"
           },
-          "equity": {
+          "isAdequateMaxCreditRisk": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NegativeInfoShareHoldersOrManagementScoreRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "negativeManagInfo": {
+            "type": "boolean"
+          }
+        }
+      },
+      "LiquidityDynamicScoreRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "liquidityDynamic": {
             "type": "number",
             "format": "double"
+          }
+        }
+      },
+      "NegativeHistoryRelationsScoreRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "negativeHistoryRelations": {
+            "type": "boolean"
+          }
+        }
+      },
+      "LiabilitiesToCustomersOnDemandRatioScoreRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "liabilitiesToCustOnDemand": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "HighLiquidityRatioScoreRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "highLiquidityRatio": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "IsAdequateNormativeIndexCalculationRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "bank": {
+            "$ref": "#/components/schemas/Bank"
           }
         }
       },
@@ -3262,14 +3272,38 @@
           }
         }
       },
-      "SetNonZeroValuesRequest": {
+      "BankRatingGroupRequest": {
         "type": "object",
         "properties": {
           "runtimeContext": {
             "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
           },
-          "financialData": {
-            "$ref": "#/components/schemas/FinancialData"
+          "bankRating": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "NegativeMassMediaScoreRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "negativeMassMedia": {
+            "type": "boolean"
+          }
+        }
+      },
+      "LiabilitiesToCustomersDynamicScoreRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "LiabToCustDynamic": {
+            "type": "number",
+            "format": "double"
           }
         }
       },
@@ -3492,53 +3526,6 @@
           }
         }
       },
-      "ClaimsOnCustomerRatioScoreRequest": {
-        "type": "object",
-        "properties": {
-          "runtimeContext": {
-            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "claimsOnCustomerRatio": {
-            "type": "number",
-            "format": "double"
-          }
-        }
-      },
-      "LiquidityDynamicScoreRequest": {
-        "type": "object",
-        "properties": {
-          "runtimeContext": {
-            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "liquidityDynamic": {
-            "type": "number",
-            "format": "double"
-          }
-        }
-      },
-      "NetMoneyMarketLiabilitiesScoreRequest": {
-        "type": "object",
-        "properties": {
-          "runtimeContext": {
-            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "netMoneyMarketLiabilities": {
-            "type": "number",
-            "format": "double"
-          }
-        }
-      },
-      "IsAdequateCoreCapitalRatioScoreRequest": {
-        "type": "object",
-        "properties": {
-          "runtimeContext": {
-            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "isAdequateCoreCapitalRatio": {
-            "type": "boolean"
-          }
-        }
-      },
       "BankQualitativeIndexCalculationRequest": {
         "type": "object",
         "properties": {
@@ -3550,28 +3537,13 @@
           }
         }
       },
-      "TotalBalanceScoreRequest": {
+      "ClaimsOnCustomerRatioScoreRequest": {
         "type": "object",
         "properties": {
           "runtimeContext": {
             "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
           },
-          "totalBalance": {
-            "type": "number",
-            "format": "double"
-          },
-          "countryCode": {
-            "type": "string"
-          }
-        }
-      },
-      "HighLiquidityRatioScoreRequest": {
-        "type": "object",
-        "properties": {
-          "runtimeContext": {
-            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "highLiquidityRatio": {
+          "claimsOnCustomerRatio": {
             "type": "number",
             "format": "double"
           }
@@ -3588,62 +3560,17 @@
           }
         }
       },
-      "NegativeMassMediaScoreRequest": {
+      "BankLimitIndexRequest": {
         "type": "object",
         "properties": {
           "runtimeContext": {
             "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
           },
-          "negativeMassMedia": {
-            "type": "boolean"
-          }
-        }
-      },
-      "BalanceQualityIndexCalculationRequest": {
-        "type": "object",
-        "properties": {
-          "runtimeContext": {
-            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          "bank": {
+            "$ref": "#/components/schemas/Bank"
           },
-          "currentFinancialData": {
-            "$ref": "#/components/schemas/FinancialData"
-          }
-        }
-      },
-      "BalanceDynamicIndexCalculationRequest": {
-        "type": "object",
-        "properties": {
-          "runtimeContext": {
-            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "currentFinancialData": {
-            "$ref": "#/components/schemas/FinancialData"
-          },
-          "previousFinancialData": {
-            "$ref": "#/components/schemas/FinancialData"
-          }
-        }
-      },
-      "CapitalAdequacyScoreRequest": {
-        "type": "object",
-        "properties": {
-          "runtimeContext": {
-            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "capitalAdequacy": {
-            "type": "number",
-            "format": "double"
-          }
-        }
-      },
-      "DowngradesOfBankRatingScoreRequest": {
-        "type": "object",
-        "properties": {
-          "runtimeContext": {
-            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "downgradesOfBankRating": {
-            "type": "boolean"
+          "bankRatingGroup": {
+            "type": "string"
           }
         }
       },
@@ -3663,40 +3590,6 @@
           }
         }
       },
-      "CreditPortfolioQualityScoreRequest": {
-        "type": "object",
-        "properties": {
-          "runtimeContext": {
-            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "creditPortfolioQuality": {
-            "type": "number",
-            "format": "double"
-          }
-        }
-      },
-      "NegativeHistoryRelationsScoreRequest": {
-        "type": "object",
-        "properties": {
-          "runtimeContext": {
-            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "negativeHistoryRelations": {
-            "type": "boolean"
-          }
-        }
-      },
-      "IsAdequateLiquidityRatioScoreRequest": {
-        "type": "object",
-        "properties": {
-          "runtimeContext": {
-            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "isAdequateLiquidityRatio": {
-            "type": "boolean"
-          }
-        }
-      },
       "CapitalDynamicScoreRequest": {
         "type": "object",
         "properties": {
@@ -3709,17 +3602,28 @@
           }
         }
       },
-      "IsAdequateMaxCreditRiskScoreRequest": {
+      "BalanceDynamicIndexCalculationRequest": {
         "type": "object",
         "properties": {
           "runtimeContext": {
             "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
           },
-          "countryCode": {
-            "type": "string"
+          "currentFinancialData": {
+            "$ref": "#/components/schemas/FinancialData"
           },
-          "isAdequateMaxCreditRisk": {
-            "type": "boolean"
+          "previousFinancialData": {
+            "$ref": "#/components/schemas/FinancialData"
+          }
+        }
+      },
+      "SetNonZeroValuesRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "financialData": {
+            "$ref": "#/components/schemas/FinancialData"
           }
         }
       },
@@ -3730,6 +3634,18 @@
             "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
           },
           "liquidityRatio": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "CreditPortfolioQualityScoreRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "creditPortfolioQuality": {
             "type": "number",
             "format": "double"
           }
@@ -3747,26 +3663,63 @@
           }
         }
       },
-      "NegativeInfoShareHoldersOrManagementScoreRequest": {
+      "CapitalAdequacyScoreRequest": {
         "type": "object",
         "properties": {
           "runtimeContext": {
             "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
           },
-          "negativeManagInfo": {
+          "capitalAdequacy": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "IsAdequateCoreCapitalRatioScoreRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "isAdequateCoreCapitalRatio": {
             "type": "boolean"
           }
         }
       },
-      "LiabilitiesToCustomersOnDemandRatioScoreRequest": {
+      "EquityScoreRequest": {
         "type": "object",
         "properties": {
           "runtimeContext": {
             "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
           },
-          "liabilitiesToCustOnDemand": {
+          "countryCode": {
+            "type": "string"
+          },
+          "equity": {
             "type": "number",
             "format": "double"
+          }
+        }
+      },
+      "BalanceQualityIndexCalculationRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "currentFinancialData": {
+            "$ref": "#/components/schemas/FinancialData"
+          }
+        }
+      },
+      "DowngradesOfBankRatingScoreRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "downgradesOfBankRating": {
+            "type": "boolean"
           }
         }
       },
@@ -3779,29 +3732,6 @@
           "securedClaimsRatio": {
             "type": "number",
             "format": "double"
-          }
-        }
-      },
-      "LiabilitiesToCustomersDynamicScoreRequest": {
-        "type": "object",
-        "properties": {
-          "runtimeContext": {
-            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "LiabToCustDynamic": {
-            "type": "number",
-            "format": "double"
-          }
-        }
-      },
-      "IsAdequateNormativeIndexCalculationRequest": {
-        "type": "object",
-        "properties": {
-          "runtimeContext": {
-            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "bank": {
-            "$ref": "#/components/schemas/Bank"
           }
         }
       }

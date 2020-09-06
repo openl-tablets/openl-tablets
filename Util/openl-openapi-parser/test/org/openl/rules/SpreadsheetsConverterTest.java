@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.openl.rules.model.scaffolding.InputParameter;
+import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.StepModel;
@@ -40,6 +41,13 @@ public class SpreadsheetsConverterTest {
         Optional<SpreadsheetModel> model = sprModels.stream().findFirst();
         String formattedName = model.get().getName();
         assertEquals("myRule", formattedName);
+
+        List<PathInfo> pathInfos = projectModel.getPathInfo();
+        assertEquals(1, pathInfos.size());
+        PathInfo pp = pathInfos.iterator().next();
+        assertEquals("/myRule/{bla}/xyz", pp.getOriginalPath());
+        assertEquals("myRulexyz", pp.getFormattedPath());
+
     }
 
     @Test
@@ -322,5 +330,16 @@ public class SpreadsheetsConverterTest {
         assertEquals("Result", step.getName());
         assertEquals("DriverRisk", step.getType());
         assertEquals("=new DriverRisk()", step.getValue());
+    }
+
+    @Test
+    public void testProvidedContext() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/rd/EPBDS-10306_Runtime_context.json");
+        assertFalse(projectModel.isRuntimeContextProvided());
+
+        ProjectModel projectModelWithDRC = converter
+            .extractProjectModel("test.converter/rd/EPBDS-10306_Runtime_context_provided.json");
+        assertTrue(projectModelWithDRC.isRuntimeContextProvided());
     }
 }

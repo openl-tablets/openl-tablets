@@ -26,6 +26,7 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
     public static final String SPREADSHEET_RESULT_STEP_VALUE = "\\{spr.field.value}";
 
     public SpreadsheetResultTableExporter() {
+        // empty constructor for tests
     }
 
     @Override

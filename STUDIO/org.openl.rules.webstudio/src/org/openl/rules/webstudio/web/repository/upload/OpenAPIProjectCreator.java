@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,7 +24,9 @@ import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.validation.ValidationException;
+import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTool;
@@ -40,15 +43,17 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     public static final String MODELS_FILE_NAME = MODELS_NAME + ".xlsx";
     public static final String SPR_FILE_NAME = "Algorithm.xlsx";
     public static final String RULES_FILE_NAME = "rules.xml";
+    public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     public static final String MODULE_NAME = "Main";
     public static final String OPENAPI_FILE_DEFAULT_NAME = "openapi";
 
-    private final Logger log = LoggerFactory.getLogger(OpenAPIProjectCreator.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(OpenAPIProjectCreator.class);
 
     private final File uploadedOpenAPIFile;
     private final String comment;
     private final String fileName;
     private final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
+    private final XmlRulesDeploySerializer serializer = new XmlRulesDeploySerializer();
     private final String repositoryId;
     private final String projectName;
 
@@ -98,35 +103,56 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                 throw new ProjectException("Error creating the project, uploaded file has invalid structure.");
             }
             if (!dataTypesAreEmpty) {
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                ExcelFileBuilder.generateDataTypes(datatypeModels, bos);
-                byte[] dtBytes = bos.toByteArray();
-                InputStream dtis = new ByteArrayInputStream(dtBytes);
-
+                InputStream dtis = generateDataTypesFile(datatypeModels);
                 projectBuilder.addFile(PATH + MODELS_FILE_NAME, dtis);
             }
             if (!sprsAreEmpty) {
-                ByteArrayOutputStream sos = new ByteArrayOutputStream();
-                ExcelFileBuilder.generateSpreadsheetsWithEnvironment(spreadsheetModels, sos, environmentModel);
-                byte[] sprBytes = sos.toByteArray();
-                InputStream spris = new ByteArrayInputStream(sprBytes);
+                InputStream spris = generateSpreadsheetsFile(spreadsheetModels, environmentModel);
                 projectBuilder.addFile(PATH + SPR_FILE_NAME, spris);
             }
 
             projectBuilder.addFile(fileName, new FileInputStream(uploadedOpenAPIFile));
 
-            ProjectDescriptor descriptor = defineDescriptor();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            projectDescriptorManager.writeDescriptor(descriptor, baos);
-            byte[] descriptorBytes = baos.toByteArray();
-            InputStream ds = new ByteArrayInputStream(descriptorBytes);
+            InputStream ds = generateRulesFile();
             projectBuilder.addFile(RULES_FILE_NAME, ds);
+
+            InputStream bais = generateRulesDeployFile(projectModel);
+            projectBuilder.addFile(RULES_DEPLOY_XML, bais);
 
         } catch (IOException | ValidationException e) {
             projectBuilder.cancel();
             throw new ProjectException(e.getMessage(), e);
         }
         return projectBuilder;
+    }
+
+    private InputStream generateDataTypesFile(List<DatatypeModel> datatypeModels) {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ExcelFileBuilder.generateDataTypes(datatypeModels, bos);
+        byte[] dtBytes = bos.toByteArray();
+        return new ByteArrayInputStream(dtBytes);
+    }
+
+    private InputStream generateSpreadsheetsFile(List<SpreadsheetModel> spreadsheetModels,
+            EnvironmentModel environmentModel) {
+        ByteArrayOutputStream sos = new ByteArrayOutputStream();
+        ExcelFileBuilder.generateSpreadsheetsWithEnvironment(spreadsheetModels, sos, environmentModel);
+        byte[] sprBytes = sos.toByteArray();
+        return new ByteArrayInputStream(sprBytes);
+    }
+
+    private ByteArrayInputStream generateRulesDeployFile(ProjectModel projectModel) {
+        RulesDeploy rd = new RulesDeploy();
+        rd.setProvideRuntimeContext(projectModel.isRuntimeContextProvided());
+        return new ByteArrayInputStream(serializer.serialize(rd).getBytes(StandardCharsets.UTF_8));
+    }
+
+    private InputStream generateRulesFile() throws IOException, ValidationException {
+        ProjectDescriptor descriptor = defineDescriptor();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        projectDescriptorManager.writeDescriptor(descriptor, baos);
+        byte[] descriptorBytes = baos.toByteArray();
+        return new ByteArrayInputStream(descriptorBytes);
     }
 
     private ProjectDescriptor defineDescriptor() {
@@ -145,10 +171,10 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     public void destroy() {
         try {
             if (!Files.deleteIfExists(uploadedOpenAPIFile.toPath())) {
-                log.warn("Cannot delete the file {}", uploadedOpenAPIFile.getName());
+                LOGGER.warn("Cannot delete the file {}", uploadedOpenAPIFile.getName());
             }
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

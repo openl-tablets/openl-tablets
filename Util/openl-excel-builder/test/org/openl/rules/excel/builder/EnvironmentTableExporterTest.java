@@ -31,7 +31,11 @@ public class EnvironmentTableExporterTest {
         environmentModel.setDependencies(Collections.singletonList(MODEL));
         environmentModel.setImports(Collections.singletonList(IMPORTED_VALUE));
 
-        ProjectModel projectModel = new ProjectModel(TEST_PROJECT, Collections.emptyList(), Collections.emptyList());
+        ProjectModel projectModel = new ProjectModel(TEST_PROJECT,
+            false,
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList());
 
         ByteArrayOutputStream sos = new ByteArrayOutputStream();
         ExcelFileBuilder

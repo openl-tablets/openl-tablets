@@ -3,6 +3,7 @@ package org.openl.rules;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,7 +28,7 @@ public class OpenAPIConverterTest {
         ProjectModel projectModel = converter.extractProjectModel(JSON_FILE_NAME);
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
-        assertEquals(3, datatypeModels.size());
+        assertEquals(4, datatypeModels.size());
         assertEquals(39, spreadsheetModels.size());
     }
 
@@ -39,7 +40,8 @@ public class OpenAPIConverterTest {
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(7, datatypeModels.size());
-        assertEquals(39, spreadsheetModels.size());
+        assertEquals(37, spreadsheetModels.size());
+        assertTrue(projectModel.isRuntimeContextProvided());
     }
 
     @Test

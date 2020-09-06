@@ -41,53 +41,31 @@ public class DatatypeTableExporterTest {
     public void testDatatypeExport() throws IOException {
         DatatypeModel dt = new DatatypeModel("Test");
 
-        FieldModel stringField = new FieldModel.Builder().setName("type")
-            .setType(STRING_TYPE)
-            .setDefaultValue("Hello, World")
-            .build();
-
-        FieldModel doubleField = new FieldModel.Builder().setName("sum")
-            .setType("Double")
-            .setDefaultValue(0.0d)
-            .build();
-
-        FieldModel floatField = new FieldModel.Builder().setName("weight")
-            .setType("Float")
-            .setDefaultValue(1.3124124f)
-            .build();
-
+        FieldModel stringField = new FieldModel("type", STRING_TYPE, "Hello, World");
+        FieldModel doubleField = new FieldModel("sum", "Double", 0.0d);
+        FieldModel floatField = new FieldModel("weight", "Float", 1.3124124f);
         Date dateValue = new Date();
-        FieldModel dateField = new FieldModel.Builder().setName("registrationDate")
-            .setType("Date")
-            .setDefaultValue(dateValue)
-            .build();
+        FieldModel dateField = new FieldModel("registrationDate", "Date", dateValue);
 
         OffsetDateTime dateTimeValue = OffsetDateTime.now(ZoneId.systemDefault());
-        FieldModel dateTimeField = new FieldModel.Builder().setName("registrationDateTime")
-            .setType("OffsetDateTime")
-            .setDefaultValue(dateTimeValue)
-            .build();
+        FieldModel dateTimeField = new FieldModel("registrationDateTime", "OffsetDateTime", dateTimeValue);
 
-        FieldModel booleanField = new FieldModel.Builder().setName("isOk")
-            .setType("Boolean")
-            .setDefaultValue(true)
-            .build();
+        FieldModel booleanField = new FieldModel("isOk", "Boolean", true);
 
-        FieldModel customTypeField = new FieldModel.Builder().setName("driver").setType("Human").build();
+        FieldModel customTypeField = new FieldModel("driver", "Human");
 
         dt.setFields(Arrays
             .asList(stringField, doubleField, dateField, booleanField, customTypeField, dateTimeField, floatField));
 
         DatatypeModel oneMoreModel = new DatatypeModel("NextModel");
-        FieldModel nextModelField = new FieldModel.Builder().setName("color")
-            .setType(STRING_TYPE)
-            .setDefaultValue("red")
-            .build();
+        FieldModel nextModelField = new FieldModel("color", STRING_TYPE, "red");
         oneMoreModel.setParent("Test");
         oneMoreModel.setFields(Collections.singletonList(nextModelField));
 
         ProjectModel projectModel = new ProjectModel(TEST_PROJECT,
+            false,
             Arrays.asList(dt, oneMoreModel),
+            Collections.emptyList(),
             Collections.emptyList());
         ExcelFileBuilder.generateProject(projectModel);
 
@@ -231,30 +209,14 @@ public class DatatypeTableExporterTest {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DatatypeModel dt = new DatatypeModel("Test");
 
-        FieldModel stringField = new FieldModel.Builder().setName("type")
-            .setType(STRING_TYPE)
-            .setDefaultValue("Hello, World")
-            .build();
-
-        FieldModel doubleField = new FieldModel.Builder().setName("sum")
-            .setType("Double")
-            .setDefaultValue(0.0d)
-            .build();
-
+        FieldModel stringField = new FieldModel("type", STRING_TYPE, "Hello, World");
+        FieldModel doubleField = new FieldModel("sum", "Double", 0.0d);
         Date dateValue = new Date();
-        FieldModel dateField = new FieldModel.Builder().setName("registrationDate")
-            .setType("Date")
-            .setDefaultValue(dateValue)
-            .build();
-
-        FieldModel booleanField = new FieldModel.Builder().setName("isOk")
-            .setType("Boolean")
-            .setDefaultValue(true)
-            .build();
-
-        FieldModel customTypeField = new FieldModel.Builder().setName("driver").setType("Human").build();
-
+        FieldModel dateField = new FieldModel("registrationDate", "Date", dateValue);
+        FieldModel booleanField = new FieldModel("isOk", "Boolean", true);
+        FieldModel customTypeField = new FieldModel("driver", "Human");
         dt.setFields(Arrays.asList(stringField, doubleField, dateField, booleanField, customTypeField));
+
         ExcelFileBuilder.generateDataTypes(Collections.singletonList(dt), bos);
         try (OutputStream fos = new FileOutputStream(DATATYPE_TEST_PROJECT_NAME)) {
             fos.write(bos.toByteArray());

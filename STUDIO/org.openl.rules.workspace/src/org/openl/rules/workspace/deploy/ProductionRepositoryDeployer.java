@@ -227,7 +227,7 @@ public class ProductionRepositoryDeployer {
             String deployPath,
             File rulesFolder,
             String defaultName,
-            String deploymentName) throws RRepositoryException, IOException {
+            String deploymentName) throws IOException {
         // Renamed a project according to rules.xml
         String name = defaultName;
         File rules = new File(rulesFolder, "rules.xml");
