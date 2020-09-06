@@ -17,7 +17,7 @@ import org.openl.types.impl.OpenMethodHeader;
 public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
     private SubTextSourceCodeModule nameOfAlgorithm;
 
-    private SubTextSourceCodeModule cutNameOfAlgorithm(TableSyntaxNode tsn,
+    private static SubTextSourceCodeModule cutNameOfAlgorithm(TableSyntaxNode tsn,
             IOpenSourceCodeModule src,
             int headerTokenLength) throws SyntaxNodeException {
         String s = src.getCode();

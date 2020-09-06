@@ -79,7 +79,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
         return !ParserUtils.isBlankOrCommented(rowSrc.getCode());
     }
 
-    private String getName(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
+    private static String getName(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
         GridCellSourceCodeModule nameCellSource = DatatypeTableBoundNode.getCellSource(row, cxt, 1);
         IdentifierNode[] idn = DatatypeTableBoundNode.getIdentifierNode(nameCellSource);
         if (idn.length != 1) {
@@ -134,7 +134,12 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                 objectValue = constantType.newInstance(openl.getVm().getRuntimeEnv());
             } else if (RuleRowHelper.isFormula(value)) {
                 SubTextSourceCodeModule source = new SubTextSourceCodeModule(defaultValueSrc, 1);
-                OpenMethodHeader methodHeader = new OpenMethodHeader(constantName, constantType, new MethodSignature(), null);
+                OpenMethodHeader methodHeader = new OpenMethodHeader(
+                        constantName,
+                        constantType,
+                        new MethodSignature(),
+                        null
+                );
                 objectValue = OpenLManager.makeMethod(openl, source, methodHeader, cxt)
                     .invoke(null, IBoundNode.EMPTY_RESULT, openl.getVm().getRuntimeEnv());
             } else if (String.class == constantType.getInstanceClass()) {

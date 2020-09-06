@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNode> {
-    private final Logger log = LoggerFactory.getLogger(DataTableMetaInfoReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DataTableMetaInfoReader.class);
 
     public DataTableMetaInfoReader(DataTableBoundNode boundNode) {
         super(boundNode);
@@ -54,7 +54,7 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
                 return RuleRowHelper
                     .createCellMetaInfo(parsedHeader[DataNodeBinder.TYPE_INDEX], typeMeta, NodeType.DATATYPE);
             } catch (OpenLCompilationException e) {
-                log.error(e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
                 return null;
             }
         }
@@ -82,12 +82,12 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
 
             return null;
         } catch (SyntaxNodeException e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             return null;
         }
     }
 
-    private boolean isDescription(ITable table, int row, int col) {
+    private static boolean isDescription(ITable table, int row, int col) {
         if (table.getNumberOfRows() == 0) {
             // No data values in this table. Only description.
             return true;
@@ -145,7 +145,7 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
 
         ICell firstCell = table.getRowTable(0).getCell(0, 0);
         // logicalCol is column for normal orientation and is row for transposed table
-        int logicalCol = normalOrientation ? col - firstCell.getAbsoluteColumn() : row - firstCell.getAbsoluteRow();
+        int logicalCol = normalOrientation ? (col - firstCell.getAbsoluteColumn()) : (row - firstCell.getAbsoluteRow());
 
         for (int i = 0; i < table.getNumberOfColumns(); i++) {
             ICell cell = data.getCell(i, 0);

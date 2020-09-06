@@ -32,7 +32,7 @@ public class CollectOperationResourceInfoInterceptor extends AbstractPhaseInterc
         injectServiceMethod(message);
     }
 
-    private void injectServiceMethod(Message message) {
+    private static void injectServiceMethod(Message message) {
         StoreLogData storeLogData = StoreLogDataHolder.get();
         OperationResourceInfo operationResourceInfo = message.getExchange().get(OperationResourceInfo.class);
         if (operationResourceInfo != null) {

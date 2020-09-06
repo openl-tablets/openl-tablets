@@ -77,7 +77,7 @@ public class DateRangeDomain implements IDomain<Date> {
         this.max.setTime(truncate(max));
     }
 
-    private Date truncate(Date min) {
+    private static Date truncate(Date min) {
         final Calendar cal = Calendar.getInstance();
         cal.setTime(min);
         Date date = cal.getTime();

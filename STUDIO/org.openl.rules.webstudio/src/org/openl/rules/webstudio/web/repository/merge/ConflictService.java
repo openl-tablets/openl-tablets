@@ -153,7 +153,7 @@ public class ConflictService {
         }
     }
 
-    private NewCookie newCookie(String cookieName, String value, String contextPath) {
+    private static NewCookie newCookie(String cookieName, String value, String contextPath) {
         if (StringUtils.isEmpty(contextPath)) {
             contextPath = "/"; // //EPBDS-7613
         }
@@ -175,7 +175,7 @@ public class ConflictService {
         return new WorkspaceUserImpl(name);
     }
 
-    private String getUserName() {
+    private static String getUserName() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return auth.getName();
     }

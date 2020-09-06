@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeModel> {
 
-    private final Logger logger = LoggerFactory.getLogger(DatatypeTableExporter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatatypeTableExporter.class);
 
     public static final String DATATYPES_SHEET = "Datatypes";
 
@@ -116,8 +116,12 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
             try {
                 setDefaultValue(field, valueCell, dateStyle, dateTimeStyle);
             } catch (ParseException e) {
-                logger
-                    .error("Error is occurred on writing field: {}, model: {} .", field.getName(), model.getName(), e);
+                LOGGER.error(
+                        "Error is occurred on writing field: {}, model: {} .",
+                        field.getName(),
+                        model.getName(),
+                        e
+                );
             }
         }
     }

@@ -10,8 +10,6 @@ import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
  */
 public class DataSourceException extends RuleServiceRuntimeException {
 
-    private static final long serialVersionUID = 6818824565990021295L;
-
     /**
      * Constructs a new DataSourceException.
      */

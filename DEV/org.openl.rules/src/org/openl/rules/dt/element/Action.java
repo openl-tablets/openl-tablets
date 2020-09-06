@@ -50,17 +50,17 @@ public class Action extends FunctionalRow implements IAction {
 
     @Override
     public boolean isReturnAction() {
-        return ActionType.RETURN.equals(actionType);
+        return ActionType.RETURN == actionType;
     }
 
     @Override
     public boolean isCollectReturnKeyAction() {
-        return ActionType.COLLECT_RETURN_KEY.equals(actionType);
+        return ActionType.COLLECT_RETURN_KEY == actionType;
     }
 
     @Override
     public boolean isCollectReturnAction() {
-        return ActionType.COLLECT_RETURN.equals(actionType);
+        return ActionType.COLLECT_RETURN == actionType;
     }
 
     @Override
@@ -80,13 +80,13 @@ public class Action extends FunctionalRow implements IAction {
 
             Object returnValue = dest[0];
             IOpenMethod method = getMethod();
-            IOpenClass returnType = method.getType();
+            IOpenClass methodType = method.getType();
 
             // Check that returnValue object has the same type as a return type
             // of method. If they are same return returnValue as result of
             // execution.
             //
-            if (returnValue == null || ClassUtils.isAssignable(returnValue.getClass(), returnType.getInstanceClass())) {
+            if (returnValue == null || ClassUtils.isAssignable(returnValue.getClass(), methodType.getInstanceClass())) {
                 return returnValue;
             }
 
@@ -108,9 +108,9 @@ public class Action extends FunctionalRow implements IAction {
         return getMethod().invoke(target, mergeParams(target, params, env, ruleN), env);
     }
 
-    private IOpenClass extractMethodTypeForCollectReturnKeyAction(TableSyntaxNode tableSyntaxNode,
-            IOpenMethodHeader header,
-            IBindingContext bindingContext) {
+    private static IOpenClass extractMethodTypeForCollectReturnKeyAction(TableSyntaxNode tableSyntaxNode,
+                                                                         IOpenMethodHeader header,
+                                                                         IBindingContext bindingContext) {
         IOpenClass cType = null;
         if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
             cType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
@@ -119,9 +119,9 @@ public class Action extends FunctionalRow implements IAction {
         return cType != null ? cType : JavaOpenClass.OBJECT;
     }
 
-    private IOpenClass extractMethodTypeForCollectReturnAction(TableSyntaxNode tableSyntaxNode,
-            IOpenMethodHeader header,
-            IBindingContext bindingContext) {
+    private static IOpenClass extractMethodTypeForCollectReturnAction(TableSyntaxNode tableSyntaxNode,
+                                                                      IOpenMethodHeader header,
+                                                                      IBindingContext bindingContext) {
         IOpenClass type = header.getType();
         if (type.isArray()) {
             return type.getComponentClass();

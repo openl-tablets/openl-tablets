@@ -52,7 +52,7 @@ public class BaseProjectDescriptorSerializer<T> implements IProjectDescriptorSer
         return descriptor;
     }
 
-    private void postProcess(ProjectDescriptor descriptor) {
+    private static void postProcess(ProjectDescriptor descriptor) {
         if (descriptor.getClasspath() == null) {
             descriptor.setClasspath(new ArrayList<PathEntry>());
         }

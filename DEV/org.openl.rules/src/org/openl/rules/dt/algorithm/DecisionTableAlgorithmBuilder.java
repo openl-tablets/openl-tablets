@@ -287,7 +287,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
             DecisionTableUtils.getConditionSourceCode(condition));
     }
 
-    private IMethodCaller makeOptimizedConditionMethodEvaluator(ICondition condition,
+    private static IMethodCaller makeOptimizedConditionMethodEvaluator(ICondition condition,
             IMethodSignature signature,
             String code) {
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
@@ -299,7 +299,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         return null;
     }
 
-    private IMethodCaller makeDependentParamsIndexedConditionMethodEvaluator(ICondition condition,
+    private static IMethodCaller makeDependentParamsIndexedConditionMethodEvaluator(ICondition condition,
             IMethodSignature signature,
             String optimizedCode) {
         String v = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode()

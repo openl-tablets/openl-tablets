@@ -7,7 +7,7 @@ package org.openl.rules.table;
  * @author snshor
  *
  */
-public class CellKey {
+public final class CellKey {
 
     private int col;
     private int row;

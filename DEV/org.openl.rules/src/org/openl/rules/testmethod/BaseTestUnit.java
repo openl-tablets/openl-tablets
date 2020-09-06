@@ -120,7 +120,7 @@ public class BaseTestUnit implements ITestUnit {
     }
 
     private void addComparisonResult(ComparedResult result) {
-        if (!TestStatus.TR_OK.equals(result.getStatus())) {
+        if (!(TestStatus.TR_OK == result.getStatus())) {
             numberOfFailedTests++;
         }
         comparisonResults.add(result);
@@ -185,7 +185,7 @@ public class BaseTestUnit implements ITestUnit {
         return true;
     }
 
-    private Object getFieldValueOrNull(Object result, IOpenField field) {
+    private static Object getFieldValueOrNull(Object result, IOpenField field) {
         Object fieldValue = null;
         if (result != null) {
             try {

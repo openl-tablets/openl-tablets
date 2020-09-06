@@ -78,7 +78,7 @@ public class DatasourceDBRepositoryFactory extends DBRepository {
         }
     }
 
-    private InitialContext createInitialContext() {
+    private static InitialContext createInitialContext() {
         try {
             return new InitialContext();
         } catch (NamingException e) {
@@ -86,7 +86,7 @@ public class DatasourceDBRepositoryFactory extends DBRepository {
         }
     }
 
-    private void closeInitialContext(InitialContext initialContext) {
+    private static void closeInitialContext(InitialContext initialContext) {
         try {
             initialContext.close();
         } catch (Throwable e) {

@@ -77,8 +77,8 @@ public class DataTableBuilder extends TableBuilder {
         boolean hasForeignKeys = hasForeignKeys(fields);
 
         fieldNameRow = getCurrentRow();
-        foreignKeyRow = hasForeignKeys ? fieldNameRow + 1 : NOT_INITIALIZED;
-        businessNameRow = hasForeignKeys ? fieldNameRow + 2 : fieldNameRow + 1;
+        foreignKeyRow = hasForeignKeys ? (fieldNameRow + 1) : NOT_INITIALIZED;
+        businessNameRow = hasForeignKeys ? (fieldNameRow + 2) : (fieldNameRow + 1);
 
         writeFields("", fields, 0);
 
@@ -96,7 +96,7 @@ public class DataTableBuilder extends TableBuilder {
         incCurrentRow();
     }
 
-    private boolean hasForeignKeys(List<? extends DataTableField> fields) {
+    private static boolean hasForeignKeys(List<? extends DataTableField> fields) {
         for (DataTableField field : fields) {
             boolean hasForeignKey;
 
@@ -137,7 +137,7 @@ public class DataTableBuilder extends TableBuilder {
         return col;
     }
 
-    private String parseForeignKey(String foreignKey) {
+    private static String parseForeignKey(String foreignKey) {
         if (StringUtils.isNotBlank(foreignKey)) {
             if (foreignKey.startsWith(">")) {
                 return foreignKey;
@@ -145,7 +145,7 @@ public class DataTableBuilder extends TableBuilder {
 
             int dotPos = foreignKey.indexOf('.');
             String tableName = dotPos > 0 ? foreignKey.substring(0, dotPos) : foreignKey;
-            String columnName = dotPos > 0 ? " " + foreignKey.substring(dotPos + 1) : "";
+            String columnName = dotPos > 0 ? (" " + foreignKey.substring(dotPos + 1)) : "";
             return ">" + tableName + columnName;
         }
 

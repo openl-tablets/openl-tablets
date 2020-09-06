@@ -84,7 +84,7 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
         }
     }
 
-    private void extractAllTypes(IOpenField field, Set<IOpenField> resultFields) {
+    private static void extractAllTypes(IOpenField field, Set<IOpenField> resultFields) {
         if (field instanceof CastingCustomSpreadsheetResultField) {
             CastingCustomSpreadsheetResultField castingCustomSpreadsheetResultField =
                     (CastingCustomSpreadsheetResultField) field;
@@ -110,7 +110,7 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
         return declaredClasses.toArray(new IOpenClass[] {});
     }
 
-    private void getFieldDeclaredClasses(IOpenField field, List<IOpenClass> declaredClasses) {
+    private static void getFieldDeclaredClasses(IOpenField field, List<IOpenClass> declaredClasses) {
         if (declaredClasses.contains(field.getDeclaringClass())) {
             return;
         }

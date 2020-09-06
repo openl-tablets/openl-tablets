@@ -139,7 +139,9 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
                 .getIdentifier()
                 .equals("extends")) {
 
-                String message = "Datatype table formats: [Datatype %typename%] or [Datatype %typename% extends %parentTypeName%] or [Datatype %typename% %<aliastype>%] ";
+                String message = "Datatype table formats: [Datatype %typename%] " +
+                    "or [Datatype %typename% extends %parentTypeName%] " +
+                    "or [Datatype %typename% %<aliastype>%] ";
                 throw SyntaxNodeExceptionUtils.createError(message, null, null, tableSource);
             }
 
@@ -170,7 +172,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
         }
     }
 
-    private void putSubTableForBusinessView(TableSyntaxNode tsn) {
+    private static void putSubTableForBusinessView(TableSyntaxNode tsn) {
         tsn.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tsn.getTableBody());
     }
 }

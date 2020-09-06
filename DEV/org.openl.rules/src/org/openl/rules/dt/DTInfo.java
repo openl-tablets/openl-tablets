@@ -2,7 +2,7 @@ package org.openl.rules.dt;
 
 public class DTInfo {
 
-    private int numberHConditions = 0;
+    private int numberHConditions;
     private int numberVConditions;
     private DTScale scale = DTScale.STANDARD;
 

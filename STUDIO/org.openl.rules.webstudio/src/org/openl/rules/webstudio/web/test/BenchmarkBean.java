@@ -31,7 +31,7 @@ public class BenchmarkBean {
         this.runTestHelper = runTestHelper;
     }
 
-    private boolean isTestForOverallTestSuiteMethod(TestSuite testSuite) {
+    private static boolean isTestForOverallTestSuiteMethod(TestSuite testSuite) {
         return testSuite.getTestSuiteMethod() != null && testSuite.getNumberOfTests() == testSuite.getTestSuiteMethod()
             .getNumberOfTestsCases();
     }
@@ -139,7 +139,7 @@ public class BenchmarkBean {
     // The lowest total time for benchmark.
     private static final long MIN_NANOS = 3 * 1_000_000_000L;
 
-    private BenchmarkInfoView runBenchmark(String tableId,
+    private static BenchmarkInfoView runBenchmark(String tableId,
             String testName,
             String testInfo,
             ToLongFunction<Integer> bu,

@@ -27,30 +27,25 @@ public class ConflictResolveData implements AdditionalData<ConflictResolveData> 
 
     @Override
     public ConflictResolveData convertPaths(final PathConverter converter) {
-        Iterable<FileItem> convertedFolders = new Iterable<FileItem>() {
+        Iterable<FileItem> convertedFolders = () -> new Iterator<FileItem>() {
+            private final Iterator<FileItem> delegate = resolvedFiles.iterator();
+
             @Override
-            public Iterator<FileItem> iterator() {
-                return new Iterator<FileItem>() {
-                    private final Iterator<FileItem> delegate = resolvedFiles.iterator();
+            public boolean hasNext() {
+                return delegate.hasNext();
+            }
 
-                    @Override
-                    public boolean hasNext() {
-                        return delegate.hasNext();
-                    }
+            @Override
+            public FileItem next() {
+                FileItem oldPath = delegate.next();
+                FileData data = oldPath.getData();
+                data.setName(converter.convert(oldPath.getData().getName()));
+                return new FileItem(data, oldPath.getStream());
+            }
 
-                    @Override
-                    public FileItem next() {
-                        FileItem oldPath = delegate.next();
-                        FileData data = oldPath.getData();
-                        data.setName(converter.convert(oldPath.getData().getName()));
-                        return new FileItem(data, oldPath.getStream());
-                    }
-
-                    @Override
-                    public void remove() {
-                        throw new UnsupportedOperationException("Remove is not supported");
-                    }
-                };
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("Remove is not supported");
             }
         };
         return new ConflictResolveData(commitToMerge, convertedFolders, mergeMessage);

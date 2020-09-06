@@ -13,8 +13,8 @@ public class ClassCastExceptionFormatter implements ExceptionMessageFormatter {
             if (msg.contains(" (")) {
                 msg = msg.substring(0, msg.indexOf(" ("));
             }
-            String classFrom = msg.substring(0, msg.indexOf(" "));
-            String classTo = msg.substring(msg.lastIndexOf(" ") + 1);
+            String classFrom = msg.substring(0, msg.indexOf(' '));
+            String classTo = msg.substring(msg.lastIndexOf(' ') + 1);
             return String.format("Class '%s' cannot be cast to class '%s'.", classFrom, classTo);
         }
         return error.getMessage();

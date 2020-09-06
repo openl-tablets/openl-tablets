@@ -3,21 +3,17 @@ package org.openl.rules.datatype.binding;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.engine.OpenLManager;
-import org.openl.exception.OpenLCompilationException;
-import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.PropertiesHelper;
-import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DatatypeHelper {
+    private static final Logger LOG = LoggerFactory.getLogger(DatatypeHelper.class);
 
     /**
      * Datatype table can contain no more than 3 columns: 1) First column - type name 2) Second column - field name 3)
@@ -108,8 +104,8 @@ public class DatatypeHelper {
                 if (type != null) {
                     count += 1;
                 }
-            } catch (Exception t) {
-                // Ignore exception.
+            } catch (Exception ignored) {
+                LOG.debug("Ignored error: ", ignored);
             }
         }
 

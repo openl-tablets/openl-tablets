@@ -10,7 +10,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 
-public class ConversionRulesController {
+public final class ConversionRulesController {
     private static ConversionRulesController instance;
     private ConversionRuleBean[] conversionRules;
 

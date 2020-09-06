@@ -96,7 +96,7 @@ public enum CountriesEnum {
 
     private final String displayName;
 
-    private CountriesEnum(String displayName) {
+    CountriesEnum(String displayName) {
         this.displayName = displayName;
     }
 

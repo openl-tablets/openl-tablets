@@ -201,7 +201,7 @@ public class AlgorithmCompiler {
         }
     }
 
-    private List<AlgorithmTreeNode> findFirstReturn(List<AlgorithmTreeNode> nodes) {
+    private static List<AlgorithmTreeNode> findFirstReturn(List<AlgorithmTreeNode> nodes) {
         // FIXME delete this method at all
         List<AlgorithmTreeNode> returnNodeSubList = null;
         for (int i = 0; i < nodes.size() && returnNodeSubList == null; i++) {

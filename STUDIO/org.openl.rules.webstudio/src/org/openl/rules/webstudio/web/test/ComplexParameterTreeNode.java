@@ -123,7 +123,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
      * @param referenceName reference
      * @return reference name to a parent or null
      */
-    private String getReferenceNameToParent(Object fieldValue,
+    private static String getReferenceNameToParent(Object fieldValue,
             ParameterDeclarationTreeNode parentObject,
             String referenceName) {
         // Check reference, not value - that's why "==" instead of "equals".

@@ -116,7 +116,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         return dataNode;
     }
 
-    private IdentifierNode[] mergeArraySimbols(IdentifierNode[] parsedHeader) {
+    private static IdentifierNode[] mergeArraySimbols(IdentifierNode[] parsedHeader) {
         List<IdentifierNode> parsedHeader1 = new ArrayList<>();
         parsedHeader1.add(parsedHeader[0]);
         int i = 2;
@@ -201,7 +201,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         }
     }
 
-    private void validateTestTableDescriptors(ColumnDescriptor[] descriptors,
+    private static void validateTestTableDescriptors(ColumnDescriptor[] descriptors,
             ITable tableToProcess,
             IBindingContext bindingContext) throws SyntaxNodeException {
         Set<String> runtimeContextProps = new HashSet<>();

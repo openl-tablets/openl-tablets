@@ -258,7 +258,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
      * @param rootNode root node of a data table type
      * @return total fields count including child ones
      */
-    private int getFieldsCount(DataTableField rootNode) {
+    private static int getFieldsCount(DataTableField rootNode) {
         int count = 0;
 
         for (DataTableField childNode : rootNode.getAggregatedFields()) {
@@ -334,7 +334,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
         return correct;
     }
 
-    private boolean isColumnNodeCorrect(DataTableTreeNode node, String prefix) {
+    private static boolean isColumnNodeCorrect(DataTableTreeNode node, String prefix) {
         if (!node.isLeaf()) {
             Iterator<Object> it = node.getChildrenKeysIterator();
             boolean correct = true;
@@ -367,7 +367,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
         }
     }
 
-    private void updateNodesForeignKey(DataTableTreeNode node) {
+    private static void updateNodesForeignKey(DataTableTreeNode node) {
         if (!node.isEditForeignKey()) {
             node.setForeignKeyTable(null);
             node.setForeignKeyColumn(null);
@@ -402,8 +402,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
                     return page;
                 }
             }
-            final Logger log = LoggerFactory.getLogger(Page.class);
-            log.warn("There is no pageNum {}.", pageNum);
+            LOG.warn("There is no pageNum {}.", pageNum);
 
             return NO_SUCH_PAGE;
         }

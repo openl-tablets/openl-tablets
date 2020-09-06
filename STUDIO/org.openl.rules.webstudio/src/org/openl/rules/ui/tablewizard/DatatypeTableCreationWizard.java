@@ -85,8 +85,9 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
         definedDatatypes = new ArrayList<>(WizardUtils.declaredDatatypes());
         definedDatatypes.add("");
         WizardUtils.getImportedClasses().forEach(c -> {
-            if (!Modifier.isFinal(c.getInstanceClass().getModifiers()))
+            if (!Modifier.isFinal(c.getInstanceClass().getModifiers())) {
                 definedDatatypes.add(c.getDisplayName(INamedThing.SHORT));
+            }
         });
 
         domainTypes = new ArrayList<>(WizardUtils.predefinedTypes());

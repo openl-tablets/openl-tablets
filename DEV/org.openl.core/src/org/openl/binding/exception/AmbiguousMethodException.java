@@ -20,8 +20,6 @@ import org.openl.types.IOpenMethod;
  */
 public class AmbiguousMethodException extends OpenlNotCheckedException {
 
-    private static final long serialVersionUID = -4733490029481524664L;
-
     private final List<IOpenMethod> matchingMethods;
 
     private final String methodName;

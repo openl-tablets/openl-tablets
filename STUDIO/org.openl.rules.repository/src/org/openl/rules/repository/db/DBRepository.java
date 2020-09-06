@@ -275,7 +275,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
 
     @Override
     public boolean deleteHistory(FileData data) throws IOException {
-        String name = data.getName();
+        String dataName = data.getName();
         String version = data.getVersion();
 
         if (version == null) {
@@ -284,7 +284,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             try {
                 connection = getConnection();
                 statement = connection.prepareStatement(settings.deleteAllHistory);
-                statement.setString(1, name);
+                statement.setString(1, dataName);
                 int rows = statement.executeUpdate();
 
                 if (rows > 0) {
@@ -307,7 +307,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                 connection = getConnection();
                 statement = connection.prepareStatement(settings.deleteVersion);
                 statement.setLong(1, Long.parseLong(version));
-                statement.setString(2, name);
+                statement.setString(2, dataName);
                 int rows = statement.executeUpdate();
 
                 if (rows > 0) {

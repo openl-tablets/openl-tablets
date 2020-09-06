@@ -1,10 +1,15 @@
 package org.openl.info;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
 final class ClasspathLogger extends OpenLLogger {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ClasspathLogger.class);
 
     @Override
     protected String getName() {
@@ -30,7 +35,7 @@ final class ClasspathLogger extends OpenLLogger {
         }
     }
 
-    private String getClassLoaderName(ClassLoader classLoader) {
+    private static String getClassLoaderName(ClassLoader classLoader) {
         Class<?> clazz = classLoader.getClass();
         String name = clazz.getName();
         try {
@@ -48,7 +53,8 @@ final class ClasspathLogger extends OpenLLogger {
             if (getNameStr != null) {
                 name += "  Name: " + getNameStr.toString();
             }
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
+            LOG.debug("Ignored error: ", ignored);
             // Ignore
         }
         return name;

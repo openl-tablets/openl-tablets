@@ -90,7 +90,7 @@ public class DateRangeParser extends ARangeParser<Long> {
             return toInstant(res);
         }
 
-        private Long toInstant(TemporalAccessor t) {
+        private static Long toInstant(TemporalAccessor t) {
             LocalDateTime localDateTime = t instanceof LocalDate ? ((LocalDate) t).atStartOfDay() : (LocalDateTime) t;
             return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         }

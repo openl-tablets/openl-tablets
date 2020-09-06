@@ -67,15 +67,15 @@ public class DTColumnsDefinition implements IUriMember {
     }
 
     public boolean isCondition() {
-        return DTColumnsDefinitionType.CONDITION.equals(type);
+        return DTColumnsDefinitionType.CONDITION == type;
     }
 
     public boolean isAction() {
-        return DTColumnsDefinitionType.ACTION.equals(type);
+        return DTColumnsDefinitionType.ACTION == type;
     }
 
     public boolean isReturn() {
-        return DTColumnsDefinitionType.RETURN.equals(type);
+        return DTColumnsDefinitionType.RETURN == type;
     }
 
     @Override

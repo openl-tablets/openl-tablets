@@ -79,7 +79,7 @@ public class DecisionTableAnalyzer {
         return result;
     }
 
-    private StringDomain gatherStringDomainFromValues(IBaseCondition condition) {
+    private static StringDomain gatherStringDomainFromValues(IBaseCondition condition) {
         int nRules = condition.getNumberOfRules();
         int np = condition.getNumberOfParams();
         String[] enumValues = new String[nRules * np];
@@ -91,7 +91,7 @@ public class DecisionTableAnalyzer {
         return new StringDomain(enumValues);
     }
 
-    private IntRangeDomain gatherIntDomainFromValues(IBaseCondition condition) {
+    private static IntRangeDomain gatherIntDomainFromValues(IBaseCondition condition) {
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
         int nRules = condition.getNumberOfRules();
@@ -157,7 +157,7 @@ public class DecisionTableAnalyzer {
 
     /**
      * Takes the paramDeclarationFromSignature and transform its type to appropriate for validating. see
-     * {@link DecisionTableValidatedObject.#transformParameterType(IParameterDeclaration)}.
+     * {@link DecisionTableValidatedObject#transformParameterType(IParameterDeclaration)}.
      *
      * @param paramDeclarationFromSignature parameter declaration from the signature.
      * @param decisionTableToValidate decision table that is being validated.
@@ -185,7 +185,7 @@ public class DecisionTableAnalyzer {
         return usedParamsFromSignature;
     }
 
-    private IOpenField getLocalField(IOpenField field) {
+    private static IOpenField getLocalField(IOpenField field) {
 
         if (field instanceof ILocalVar) {
             return field;

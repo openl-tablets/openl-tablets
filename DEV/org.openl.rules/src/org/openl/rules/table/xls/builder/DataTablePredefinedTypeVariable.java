@@ -52,7 +52,7 @@ public final class DataTablePredefinedTypeVariable extends DataTableField {
      *
      * @author NSamatov
      */
-    private class ThisField extends DataTableField {
+    private final class ThisField extends DataTableField {
         private static final String PREDEFINED_TYPE_FIELD_NAME = "this";
         private static final String PREDEFINED_TYPE_FIELD_VALUE = "Value";
 

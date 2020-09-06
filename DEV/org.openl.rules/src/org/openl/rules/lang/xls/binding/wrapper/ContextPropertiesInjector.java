@@ -13,32 +13,35 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class ContextPropertiesInjector {
-
+    private static final Logger LOG = LoggerFactory.getLogger(ContextPropertiesInjector.class);
     private static final ContextPropertyInjection[] PROPERTY_INJECTIONS = new ContextPropertyInjection[0];
     private final ContextPropertyInjection[] contextPropertyInjections;
 
     public ContextPropertiesInjector(IOpenClass[] paramTypes, ICastFactory castFactory) {
         int i = 0;
-        Map<String, ContextPropertyInjection> contextPropertyInjections = new LinkedHashMap<>();
+        Map<String, ContextPropertyInjection> contextInjections = new LinkedHashMap<>();
         for (IOpenClass paramType : paramTypes) {
             try {
                 int paramIndex = i;
                 paramType.getFields()
                     .stream()
                     .filter(IOpenField::isContextProperty)
-                    .forEach(field -> contextPropertyInjections.put(field.getContextProperty(),
+                    .forEach(field -> contextInjections.put(field.getContextProperty(),
                         createContextInjection(paramIndex, field, castFactory)));
             } catch (Exception | LinkageError ignored) {
+                LOG.debug("Ignored error: ", ignored);
             }
             i++;
         }
-        this.contextPropertyInjections = !contextPropertyInjections.isEmpty() ? contextPropertyInjections.values()
+        this.contextPropertyInjections = !contextInjections.isEmpty() ? contextInjections.values()
             .toArray(PROPERTY_INJECTIONS) : null;
     }
 
-    private ContextPropertyInjection createContextInjection(int paramIndex,
+    private static ContextPropertyInjection createContextInjection(int paramIndex,
             IOpenField field,
             ICastFactory castFactory) {
         Class<?> contextType = DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(field.getContextProperty());
@@ -48,13 +51,14 @@ class ContextPropertiesInjector {
         }
         IOpenClass contextTypeOpenClass = JavaOpenClass.getOpenClass(contextType);
         IOpenCast openCast = castFactory.getCast(field.getType(), contextTypeOpenClass);
-        if (openCast != null && (openCast
-            .isImplicit() || contextTypeOpenClass.getInstanceClass() != null && contextTypeOpenClass.getInstanceClass()
-                .isEnum())) {
+        if ((openCast != null && (openCast.isImplicit())
+                || (contextTypeOpenClass.getInstanceClass() != null
+                    && contextTypeOpenClass.getInstanceClass().isEnum()))) {
             return new ContextPropertyInjection(paramIndex, field, openCast);
         } else {
             throw new ClassCastException(String.format(
-                "Type mismatch for context property '%s' for field '%s' in class '%s'. Cannot convert from '%s' to '%s'.",
+                "Type mismatch for context property '%s' for field '%s' in class '%s'. " +
+                    "Cannot convert from '%s' to '%s'.",
                 field.getContextProperty(),
                 field.getName(),
                 field.getDeclaringClass().getName(),

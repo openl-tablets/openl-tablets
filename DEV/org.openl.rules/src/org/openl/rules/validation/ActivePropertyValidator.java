@@ -79,11 +79,11 @@ public class ActivePropertyValidator extends TablesValidator {
         return ValidationUtils.withMessages(messages);
     }
 
-    private boolean isActive(TableSyntaxNode executableMethodTable) {
+    private static boolean isActive(TableSyntaxNode executableMethodTable) {
         return Boolean.TRUE.equals(executableMethodTable.getTableProperties().getActive());
     }
 
-    private Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupExecutableMethods(
+    private static Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupExecutableMethods(
             TableSyntaxNode[] tableSyntaxNodes) {
         Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupedMethods = new HashMap<>();
 

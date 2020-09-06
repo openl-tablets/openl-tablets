@@ -38,7 +38,7 @@ public class BaseTableEditorController {
         return editorModel;
     }
 
-    private void prepareForEdit(TableEditorModel editorModel) {
+    private static void prepareForEdit(TableEditorModel editorModel) {
         TableEditor tableEditor = editorModel.getTableEditor();
         String mode = tableEditor.getMode();
         if ((mode == null || Constants.MODE_EDIT.equals(mode)) && tableEditor.isEditable()) {

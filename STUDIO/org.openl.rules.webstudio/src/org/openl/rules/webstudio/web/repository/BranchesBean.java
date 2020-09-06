@@ -324,7 +324,7 @@ public class BranchesBean {
         this.branchToMerge = branchToMerge;
     }
 
-    private List<String> getBranches(RulesProject project) {
+    private static List<String> getBranches(RulesProject project) {
         String projectName = project.getName();
         Repository repository = project.getDesignRepository();
         if (repository.supports().branches()) {
@@ -356,7 +356,7 @@ public class BranchesBean {
         }
     }
 
-    private UserWorkspace getUserWorkspace() throws WorkspaceException {
+    private static UserWorkspace getUserWorkspace() throws WorkspaceException {
         RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
         return rulesUserSession.getUserWorkspace();
     }
