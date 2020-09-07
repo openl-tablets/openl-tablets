@@ -17,7 +17,6 @@ import java.util.prefs.Preferences;
 
 import org.openl.util.StringUtils;
 import org.springframework.core.env.EnumerablePropertySource;
-import org.springframework.core.env.PropertyResolver;
 
 /**
  * Loads always actual properties from an external file located in ${openl.home} directory.
@@ -30,13 +29,13 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     public static final String OPENL_HOME = "openl.home";
     public static final String OPENL_HOME_SHARED = "openl.home.shared";
 
-    private final PropertyResolver resolver;
+    private final RawPropertyResolver resolver;
     private final String appName;
 
     private Properties settings;
     private long timestamp;
 
-    public DynamicPropertySource(String appName, PropertyResolver resolver) {
+    public DynamicPropertySource(String appName, RawPropertyResolver resolver) {
         super(PROPS_NAME);
         this.resolver = resolver;
         this.appName = appName;
@@ -146,15 +145,8 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         settings = new Properties(); // 'unconfigure' settings for matching with defaults. to get settings not from a
                                      // file
 
-        Iterator<Map.Entry<Object, Object>> props = properties.entrySet().iterator();
-        while (props.hasNext()) { // Do clean up from default values
-            Map.Entry<Object, Object> e = props.next();
-            String placeholderParsedValue = e.getValue() != null ? resolver
-                .resolveRequiredPlaceholders(e.getValue().toString()) : null;
-            if (Objects.equals(resolver.getProperty(e.getKey().toString()), placeholderParsedValue)) {
-                props.remove();
-            }
-        }
+        // Do clean up from default values
+        properties.entrySet().removeIf(e -> Objects.equals(resolver.getRawProperty(e.getKey().toString()), e.getValue().toString()));
 
         settings = properties;
         if (!origin.equals(properties)) {

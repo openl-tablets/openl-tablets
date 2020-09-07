@@ -10,7 +10,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
-import org.springframework.core.env.PropertySourcesPropertyResolver;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.jndi.JndiLocatorDelegate;
 import org.springframework.jndi.JndiPropertySource;
@@ -71,7 +70,7 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
             String appName,
             ServletContext servletContext) {
         MutablePropertySources propertySources = env.getPropertySources();
-        PropertySourcesPropertyResolver props = new PropertySourcesPropertyResolver(propertySources);
+        RawPropertyResolver props = new RawPropertyResolver(propertySources);
         String[] profiles = env.getActiveProfiles();
 
         ConfigLog.LOG.info("Loading default properties...");
@@ -107,25 +106,18 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         DisablePropertySource.THE = disablePropertySource;
         propertySources.addBefore(DynamicPropertySource.PROPS_NAME, disablePropertySource);
 
-        registerPropertyBean(appContext, defaultPropertySource.getSource(), propertySources);
+        registerPropertyBean(appContext, defaultPropertySource, props);
     }
 
     private void registerPropertyBean(ConfigurableApplicationContext appContext,
-            Map<String, String> defaultPropertyMap,
-            MutablePropertySources propertySources) {
-
+            DefaultPropertySource defaultPropertySource,
+            RawPropertyResolver props) {
         Map<String, String> propertyMap = new HashMap<>();
-        for (String key : defaultPropertyMap.keySet()) {
-            for (PropertySource source : propertySources) {
-                Object property = source.getProperty(key);
-                if (property != null) {
-                    propertyMap.put(key, property.toString());
-                    break;
-                }
-            }
+        for (String key : defaultPropertySource.getPropertyNames()) {
+            propertyMap.put(key, props.getRawProperty(key));
         }
-        appContext.addBeanFactoryPostProcessor(
-            bf -> bf.registerSingleton("PropertyBean", new PropertyBean(defaultPropertyMap, propertyMap)));
+        appContext.addBeanFactoryPostProcessor(bf -> bf.registerSingleton("PropertyBean",
+            new PropertyBean(defaultPropertySource.getSource(), propertyMap)));
     }
 
     private static String normalizeAppName(String appName) {
