@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,7 +17,7 @@ public class ProjectDescriptor {
     private String name;
     private String comment;
     private File projectFolder;
-    private List<Module> modules = Collections.emptyList();
+    private List<Module> modules;
     private List<PathEntry> classpath;
 
     private List<ProjectDependencyDescriptor> dependencies;
@@ -94,7 +93,7 @@ public class ProjectDescriptor {
     }
 
     public void setModules(List<Module> modules) {
-        this.modules = modules == null ? Collections.emptyList() : modules;
+        this.modules = modules;
     }
 
     public List<PathEntry> getClasspath() {
