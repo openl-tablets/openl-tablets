@@ -296,7 +296,7 @@ public class SpreadsheetComponentsBuilder {
         IdentifierNode[] nodes;
 
         try {
-            nodes = Tokenizer.tokenize(source, SpreadsheetSymbols.TYPE_DELIMETER.toString());
+            nodes = Tokenizer.tokenize(source, SpreadsheetSymbols.TYPE_DELIMITER.toString());
         } catch (OpenLCompilationException e) {
             LOG.debug("Error occured: ", e);
             throw SyntaxNodeExceptionUtils.createError("Cannot parse header.", source);
@@ -322,7 +322,7 @@ public class SpreadsheetComponentsBuilder {
                 return new SymbolicTypeDefinition(headerNameNode, nodes[1], endsWithAsterisk, endsWithTilde);
             default:
                 String message = String.format("Valid header format: name [%s type].",
-                    SpreadsheetSymbols.TYPE_DELIMETER.toString());
+                    SpreadsheetSymbols.TYPE_DELIMITER.toString());
                 throw SyntaxNodeExceptionUtils.createError(message, nodes[2]);
         }
     }
@@ -402,7 +402,7 @@ public class SpreadsheetComponentsBuilder {
     private IdentifierNode cutTypeIdentifier(IdentifierNode typeIdentifierNode) {
         try {
             IdentifierNode[] variableAndType = Tokenizer.tokenize(typeIdentifierNode.getModule(),
-                SpreadsheetSymbols.TYPE_DELIMETER.toString());
+                SpreadsheetSymbols.TYPE_DELIMITER.toString());
             if (variableAndType.length > 1) {
                 IdentifierNode[] nodes = Tokenizer
                     .tokenize(typeIdentifierNode.getModule(), " []\n\r", variableAndType[1].getLocation());
