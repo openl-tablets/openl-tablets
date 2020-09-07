@@ -22,7 +22,7 @@ public final class IRulesRuntimeContextUtils {
             if (propType.isInstance(currentDate)) {
                 context.setValue(propName, currentDate);
             } else {
-                IOpenCast opencast = convertor.getConvertor(propType, currentDate.getClass());
+                IOpenCast opencast = convertor.getConvertor(currentDate.getClass(), propType);
                 if (opencast != null) {
                     Object o = opencast.convert(currentDate);
                     context.setValue(propName, o);

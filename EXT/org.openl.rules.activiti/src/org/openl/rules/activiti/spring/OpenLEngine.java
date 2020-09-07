@@ -36,7 +36,7 @@ public class OpenLEngine {
                 IOpenCast[] openCasts = new IOpenCast[args.length];
                 for (int i = 0; i < args.length; i++) {
                     if (args[i] != null) {
-                        IOpenCast openCast = convertor.getConvertor(method.getParameterTypes()[i], args[i].getClass());
+                        IOpenCast openCast = convertor.getConvertor(args[i].getClass(), method.getParameterTypes()[i]);
                         if (openCast == null) {
                             f = false;
                             break;

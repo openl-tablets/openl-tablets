@@ -62,7 +62,7 @@ public class MethodInvokeResourceServiceTask extends AbstractOpenLResourceServic
             Object variable = execution.getVariable(parameterName);
             if (variable != null) {
                 IOpenClass parameterClass = openMethod.getSignature().getParameterType(i);
-                IOpenCast openCast = convertor.getConvertor(parameterClass.getInstanceClass(), variable.getClass());
+                IOpenCast openCast = convertor.getConvertor(variable.getClass(), parameterClass.getInstanceClass());
                 openCasts[i] = openCast;
                 if (openCast == null) {
                     f = false;

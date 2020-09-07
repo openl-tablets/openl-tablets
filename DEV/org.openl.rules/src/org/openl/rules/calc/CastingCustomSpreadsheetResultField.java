@@ -53,7 +53,7 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
         }
         if (!ClassUtils.isAssignable(res.getClass(), getType().getInstanceClass())) {
             IOpenCast cast = getDeclaringClass().getObjectToDataOpenCastConvertor()
-                .getConvertor(getType().getInstanceClass(), res.getClass());
+                .getConvertor(res.getClass(), getType().getInstanceClass());
             if (cast != null && cast.isImplicit()) {
                 return cast.convert(res);
             } else {
