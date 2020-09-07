@@ -1,5 +1,10 @@
 package org.openl.spring.env;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.ServletContext;
+
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -9,8 +14,6 @@ import org.springframework.core.env.PropertySourcesPropertyResolver;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.jndi.JndiLocatorDelegate;
 import org.springframework.jndi.JndiPropertySource;
-
-import javax.servlet.ServletContext;
 
 /**
  * Allows to combine environment properties, default application properties and external application properties. This
@@ -52,7 +55,7 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
             .info("The initialization of properties from 'contextInitializerClasses' context-param in web.xml");
         ConfigurableEnvironment env = appContext.getEnvironment();
         String appName = normalizeAppName(appContext.getApplicationName());
-        loadEnvironment(env, appName, null);
+        loadEnvironment(appContext, env, appName, null);
     }
 
     public void initialize(ConfigurableApplicationContext appContext, ServletContext servletContext) {
@@ -60,16 +63,20 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         ConfigurableEnvironment env = new StandardEnvironment();
         appContext.setEnvironment(env);
         String appName = normalizeAppName(servletContext.getContextPath());
-        loadEnvironment(env, appName, servletContext);
+        loadEnvironment(appContext, env, appName, servletContext);
     }
 
-    private void loadEnvironment(ConfigurableEnvironment env, String appName, ServletContext servletContext) {
+    private void loadEnvironment(ConfigurableApplicationContext appContext,
+            ConfigurableEnvironment env,
+            String appName,
+            ServletContext servletContext) {
         MutablePropertySources propertySources = env.getPropertySources();
         PropertySourcesPropertyResolver props = new PropertySourcesPropertyResolver(propertySources);
         String[] profiles = env.getActiveProfiles();
 
         ConfigLog.LOG.info("Loading default properties...");
-        propertySources.addLast(new DefaultPropertySource());
+        DefaultPropertySource defaultPropertySource = new DefaultPropertySource();
+        propertySources.addLast(defaultPropertySource);
 
         ConfigLog.LOG.info("Loading preference properties...");
         PreferencePropertySource preferencePropertySource = new PreferencePropertySource(appName);
@@ -99,6 +106,26 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         DisablePropertySource disablePropertySource = new DisablePropertySource(propertySources);
         DisablePropertySource.THE = disablePropertySource;
         propertySources.addBefore(DynamicPropertySource.PROPS_NAME, disablePropertySource);
+
+        registerPropertyBean(appContext, defaultPropertySource.getSource(), propertySources);
+    }
+
+    private void registerPropertyBean(ConfigurableApplicationContext appContext,
+            Map<String, String> defaultPropertyMap,
+            MutablePropertySources propertySources) {
+
+        Map<String, String> propertyMap = new HashMap<>();
+        for (String key : defaultPropertyMap.keySet()) {
+            for (PropertySource source : propertySources) {
+                Object property = source.getProperty(key);
+                if (property != null) {
+                    propertyMap.put(key, property.toString());
+                    break;
+                }
+            }
+        }
+        appContext.addBeanFactoryPostProcessor(
+            bf -> bf.registerSingleton("PropertyBean", new PropertyBean(defaultPropertyMap, propertyMap)));
     }
 
     private static String normalizeAppName(String appName) {

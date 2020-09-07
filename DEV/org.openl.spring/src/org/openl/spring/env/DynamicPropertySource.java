@@ -143,13 +143,15 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
             }
         }
         Properties origin = settings;
-        settings = new Properties(); // 'unconfigure' settings for matching with defaults. to get settings not from a file
+        settings = new Properties(); // 'unconfigure' settings for matching with defaults. to get settings not from a
+                                     // file
 
         Iterator<Map.Entry<Object, Object>> props = properties.entrySet().iterator();
         while (props.hasNext()) { // Do clean up from default values
             Map.Entry<Object, Object> e = props.next();
-            String key = e.getKey().toString();
-            if (Objects.equals(resolver.getProperty(key), e.getValue())) {
+            String placeholderParsedValue = e.getValue() != null ? resolver
+                .resolveRequiredPlaceholders(e.getValue().toString()) : null;
+            if (Objects.equals(resolver.getProperty(e.getKey().toString()), placeholderParsedValue)) {
                 props.remove();
             }
         }
@@ -181,6 +183,10 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         } else {
             return value;
         }
+    }
+
+    public Properties getProperties() {
+        return settings;
     }
 
     private String getSecretKey() {
