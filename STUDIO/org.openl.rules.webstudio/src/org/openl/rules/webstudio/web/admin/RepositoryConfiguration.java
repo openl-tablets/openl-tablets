@@ -150,6 +150,10 @@ public class RepositoryConfiguration {
         return repositoryType.name().toLowerCase();
     }
 
+    public RepositoryType getRepositoryType() {
+        return repositoryType;
+    }
+
     public void setType(String accessType) {
         if (StringUtils.isEmpty(accessType)) {
             return;
