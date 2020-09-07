@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.openl.base.INamedThing;
 import org.openl.binding.impl.CastToWiderType;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenClass;
@@ -49,21 +48,6 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                 if (ClassUtils.isAssignable(res.getClass(), cast.getKey().getInstanceClass())) {
                     return cast.getValue().convert(res);
                 }
-            }
-        }
-        if (!ClassUtils.isAssignable(res.getClass(), getType().getInstanceClass())) {
-            IOpenCast cast = getDeclaringClass().getModule()
-                .getObjectToDataOpenCastConvertor()
-                .getConvertor(res.getClass(), getType().getInstanceClass());
-            if (cast != null && cast.isImplicit()) {
-                return cast.convert(res);
-            } else {
-                throw new UnexpectedSpreadsheetResultFieldTypeException(
-                    String.format("Unexpected type for field '%s' in '%s'. Expected type '%s', but found '%s'.",
-                        getName(),
-                        getDeclaringClass().getName(),
-                        getType().getDisplayName(INamedThing.LONG),
-                        res.getClass().getTypeName()));
             }
         }
         return res;

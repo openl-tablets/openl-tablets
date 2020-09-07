@@ -3,6 +3,7 @@ package org.openl.rules.calc;
 import java.util.Objects;
 
 import org.openl.base.INamedThing;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.binding.RecursiveSpreadsheetMethodPreBindingException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -15,7 +16,7 @@ import org.slf4j.LoggerFactory;
 public class CustomSpreadsheetResultField extends ASpreadsheetField implements IOriginalDeclaredClassesOpenField {
     private static final Logger LOG = LoggerFactory.getLogger(CustomSpreadsheetResultField.class);
     protected IOpenField field;
-    private IOpenClass[] declaredClasses;
+    private final IOpenClass[] declaredClasses;
 
     public CustomSpreadsheetResultField(CustomSpreadsheetResultOpenClass declaringClass, IOpenField field) {
         super(declaringClass, field.getName(), null);
@@ -57,12 +58,19 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField implements I
 
     protected Object processResult(Object res) {
         if (res != null && !ClassUtils.isAssignable(res.getClass(), getType().getInstanceClass())) {
-            throw new UnexpectedSpreadsheetResultFieldTypeException(
-                String.format("Unexpected type for field '%s' in '%s'. Expected type '%s', but found '%s'.",
-                    getName(),
-                    getDeclaringClass().getName(),
-                    getType().getDisplayName(INamedThing.LONG),
-                    res.getClass().getTypeName()));
+            IOpenCast cast = ((CustomSpreadsheetResultOpenClass) getDeclaringClass()).getModule()
+                .getObjectToDataOpenCastConvertor()
+                .getConvertor(res.getClass(), getType().getInstanceClass());
+            if (cast != null && cast.isImplicit()) {
+                return cast.convert(res);
+            } else {
+                throw new UnexpectedSpreadsheetResultFieldTypeException(
+                    String.format("Unexpected type for field '%s' in '%s'. Expected type '%s', but found '%s'.",
+                        getName(),
+                        getDeclaringClass().getName(),
+                        getType().getDisplayName(INamedThing.LONG),
+                        res.getClass().getTypeName()));
+            }
         }
 
         return res != null ? res : getType().nullObject();
