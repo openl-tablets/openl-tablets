@@ -13,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.gen.FieldDescription;
-import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.binding.ModuleSpecificType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -85,7 +84,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     volatile Map<String, String> xmlNamesMap;
     private String[] sprStructureFieldNames;
     private volatile boolean initializing;
-    private final ObjectToDataOpenCastConvertor objectToDataOpenCastConvertor = new ObjectToDataOpenCastConvertor();
 
     public CustomSpreadsheetResultOpenClass(String name,
             String[] rowNames,
@@ -133,10 +131,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         this.simpleRefBeanByRow = true;
         this.simpleRefBeanByColumn = true;
         this.logicalTable = logicalTable;
-    }
-
-    public ObjectToDataOpenCastConvertor getObjectToDataOpenCastConvertor() {
-        return objectToDataOpenCastConvertor;
     }
 
     @Override
