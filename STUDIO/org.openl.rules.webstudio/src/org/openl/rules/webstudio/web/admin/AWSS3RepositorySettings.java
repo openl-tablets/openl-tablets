@@ -96,7 +96,13 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     protected void revert(PropertiesHolder properties) {
         super.revert(properties);
 
-        properties.revertProperties(bucketNamePath, regionNamePath, accessKeyPath, secretKeyPath, listenerTimerPeriodPath);
+        properties.revertProperties(
+                bucketNamePath,
+                regionNamePath,
+                accessKeyPath,
+                secretKeyPath,
+                listenerTimerPeriodPath
+        );
         load(properties);
     }
 

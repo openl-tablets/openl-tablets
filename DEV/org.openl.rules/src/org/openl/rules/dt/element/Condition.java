@@ -113,7 +113,7 @@ public class Condition extends FunctionalRow implements ICondition {
         return Boolean.TRUE.equals(result) ? DecisionValue.TRUE_VALUE : DecisionValue.FALSE_VALUE;
     }
 
-    private IOpenField getLocalField(IOpenField f) {
+    private static IOpenField getLocalField(IOpenField f) {
         if (f instanceof ILocalVar) {
             return f;
         }
@@ -191,8 +191,8 @@ public class Condition extends FunctionalRow implements ICondition {
                         IOpenClass inputType = signature.getParameterType(i);
                         ConditionCasts conditionCasts = ConditionHelper
                             .findConditionCasts(params[0].getType().getComponentClass(), inputType, bindingContext);
-                        if (conditionCasts.isCastToConditionTypeExists() || conditionCasts
-                            .isCastToInputTypeExists() && !inputType.isArray()) {
+                        if (conditionCasts.isCastToConditionTypeExists()
+                            || (conditionCasts.isCastToInputTypeExists() && !inputType.isArray())) {
                             return !hasFormulas() ? source
                                                   : new StringSourceCodeModule(
                                                       getContainsInArrayExpression(tableSyntaxNode,
@@ -287,7 +287,7 @@ public class Condition extends FunctionalRow implements ICondition {
         return String.format("contains(%s, %s)", param.getName(), source.getCode());
     }
 
-    private boolean isRangeExpression(IOpenClass methodType, IOpenClass paramType) {
+    private static boolean isRangeExpression(IOpenClass methodType, IOpenClass paramType) {
         if (ClassUtils.isAssignable(paramType.getInstanceClass(), INumberRange.class) && ClassUtils
             .isAssignable(methodType.getInstanceClass(), Number.class)) {
             return true;

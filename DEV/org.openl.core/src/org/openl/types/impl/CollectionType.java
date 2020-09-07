@@ -6,15 +6,15 @@ public enum CollectionType {
     MAP;
 
     public boolean isArray() {
-        return ARRAY.equals(this);
+        return ARRAY == this;
     }
 
     public boolean isList() {
-        return LIST.equals(this);
+        return LIST == this;
     }
 
     public boolean isMap() {
-        return MAP.equals(this);
+        return MAP == this;
     }
 
 }

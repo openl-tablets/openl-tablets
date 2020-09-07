@@ -30,7 +30,7 @@ public class ProjectHistoryService {
 
     @GET
     @Path("project")
-    public List<ProjectHistoryItem> getProjectHistory() throws IOException {
+    public List<ProjectHistoryItem> getProjectHistory() {
         WebStudio webStudio = WebStudioUtils.getWebStudio(httpSession);
         ProjectModel model = webStudio.getModel();
         String projectHistoryPath = Paths

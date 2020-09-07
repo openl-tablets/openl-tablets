@@ -73,7 +73,8 @@ import org.springframework.core.io.support.ResourcePropertySource;
  * </ol>
  *
  * @see <a href=
- *      "https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config">Spring
+ *      "https://docs.spring.io/spring-boot/docs/current/reference
+ *          /html/spring-boot-features.html#boot-features-external-config">Spring
  *      Boot. Externalized Configuration.</a>
  * @author Yury Molchan
  */

@@ -150,6 +150,11 @@ public abstract class AbstractTableMethodWrapper extends TableMethod {
     }
 
     @Override
+    public boolean isAlias() {
+        return delegate.isAlias();
+    }
+
+    @Override
     public boolean isStatic() {
         return delegate.isStatic();
     }

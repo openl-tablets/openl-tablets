@@ -73,7 +73,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
             for (int i = 0; i < expectedTypes.length; i++) {
                 Class<?> expectedType = expectedTypes[i];
                 IOpenCast openCast = getConfiguration().getObjectToDataOpenCastConvertor()
-                    .getConvertor(expectedType, valueForStoraging.getClass());
+                    .getConvertor(valueForStoraging.getClass(), expectedType);
                 if (openCast != null && openCast.getDistance() < minConvertDistance) {
                     theBestCast = openCast;
                     minConvertDistance = openCast.getDistance();

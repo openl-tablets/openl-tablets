@@ -368,7 +368,7 @@ public class CastFactory implements ICastFactory {
         return null;
     }
 
-    private IOpenCast selectBetterCast(IOpenClass from, IOpenClass to, IOpenCast castA, IOpenCast castB) {
+    private static IOpenCast selectBetterCast(IOpenClass from, IOpenClass to, IOpenCast castA, IOpenCast castB) {
         if (castA == null && castB == null) {
             return null;
         }
@@ -385,7 +385,7 @@ public class CastFactory implements ICastFactory {
         return distanceA > distanceB ? castB : castA;
     }
 
-    private IOpenCast getUpCast(Class<?> from, Class<?> to) {
+    private static IOpenCast getUpCast(Class<?> from, Class<?> to) {
         if (from.isArray() && to.isArray()) {
             return JavaUpArrayCast.getInstance();
         }
@@ -454,7 +454,7 @@ public class CastFactory implements ICastFactory {
      * @param openClass type to check
      * @return <code>true</code> if instance class is primitive type; <code>false</code> - otherwise
      */
-    private boolean isPrimitive(IOpenClass openClass) {
+    private static boolean isPrimitive(IOpenClass openClass) {
         return openClass != null && openClass.getInstanceClass() != null && openClass.getInstanceClass().isPrimitive();
     }
 
@@ -633,7 +633,7 @@ public class CastFactory implements ICastFactory {
     }
 
     @SuppressWarnings("unchecked")
-    private boolean isFromValuesIncludedToValues(DomainOpenClass from, DomainOpenClass to, IOpenCast openCast) {
+    private static boolean isFromValuesIncludedToValues(DomainOpenClass from, DomainOpenClass to, IOpenCast openCast) {
         IDomain<Object> fromDomain = (IDomain<Object>) from.getDomain();
         IDomain<Object> toDomain = (IDomain<Object>) to.getDomain();
         for (Object value : fromDomain) {
@@ -645,7 +645,9 @@ public class CastFactory implements ICastFactory {
     }
 
     @SuppressWarnings("unchecked")
-    private boolean isFromValuesIntersectedWithToValues(DomainOpenClass from, DomainOpenClass to, IOpenCast openCast) {
+    private static boolean isFromValuesIntersectedWithToValues(DomainOpenClass from,
+                                                               DomainOpenClass to,
+                                                               IOpenCast openCast) {
         IDomain<Object> fromDomain = (IDomain<Object>) from.getDomain();
         IDomain<Object> toDomain = (IDomain<Object>) to.getDomain();
         for (Object value : fromDomain) {
@@ -695,7 +697,7 @@ public class CastFactory implements ICastFactory {
      * @param methodFactory {@link IMethodFactory} object
      * @return cast operation
      */
-    private IOpenCast findMethodCast(IOpenClass from, IOpenClass to, IMethodFactory methodFactory) {
+    private static IOpenCast findMethodCast(IOpenClass from, IOpenClass to, IMethodFactory methodFactory) {
 
         if (methodFactory == null) {
             return null;
@@ -870,7 +872,7 @@ public class CastFactory implements ICastFactory {
      * @return <code>true</code> is downcast operation is allowed for given types; <code>false</code> - otherwise
      * @link http://java.sun.com/docs/books/jls/second_edition/html/conversions.doc .html
      */
-    private boolean isAllowJavaDownCast(IOpenClass from, IOpenClass to) {
+    private static boolean isAllowJavaDownCast(IOpenClass from, IOpenClass to) {
 
         if (from.isAssignableFrom(to)) {
             return true;

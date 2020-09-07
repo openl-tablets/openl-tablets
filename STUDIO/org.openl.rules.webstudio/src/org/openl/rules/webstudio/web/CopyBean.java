@@ -317,10 +317,16 @@ public class CopyBean {
             WebStudioUtils.validate(!designRepository.branchExists(newBranchName),
                 "Branch " + newBranchName + " already exists.");
             for (String branch : designRepository.getBranches(null)) {
-                String message = "Can't create the branch '" + newBranchName + "' because the branch '" + branch + "' already exists.\n" + "Explanation: for example a branch 'foo/bar'exists. That branch can be considered as a file 'bar' located in the folder 'foo'.\n" + "So you can't create a branch 'foo/bar/baz' because you can't create the folder 'foo/bar': the file with such name already exists.";
+                String message = "Can't create the branch '" +
+                    newBranchName + "' because the branch '" +
+                    branch + "' already exists.\n" + "Explanation: for example a branch 'foo/bar'exists. " +
+                    "That branch can be considered as a file 'bar' located in the folder 'foo'.\n" +
+                    "So you can't create a branch 'foo/bar/baz' because you can't create the folder 'foo/bar': " +
+                    "the file with such name already exists.";
                 WebStudioUtils.validate(!newBranchName.startsWith(branch + "/"), message);
             }
         } catch (WorkspaceException | IOException ignored) {
+            LOG.debug("Ignored error: ", ignored);
         }
 
     }
@@ -338,7 +344,7 @@ public class CopyBean {
         }
     }
 
-    private Boolean isSeparateProjectSubmitted(FacesContext context) {
+    private static Boolean isSeparateProjectSubmitted(FacesContext context) {
         return (Boolean) ((UIInput) context.getViewRoot().findComponent("copyProjectForm:separateProjectCheckbox"))
             .getValue();
     }
@@ -425,7 +431,7 @@ public class CopyBean {
         }
     }
 
-    private UserWorkspace getUserWorkspace() throws WorkspaceException {
+    private static UserWorkspace getUserWorkspace() throws WorkspaceException {
         RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
         return rulesUserSession.getUserWorkspace();
     }

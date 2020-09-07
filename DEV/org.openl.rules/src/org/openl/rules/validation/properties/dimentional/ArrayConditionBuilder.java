@@ -74,7 +74,7 @@ public class ArrayConditionBuilder extends AConditionBuilder {
         }
     }
 
-    private void mergeArrayCells(IWritableGrid sheet, int rowIndex, int columnIndex, int numberOfValues) {
+    private static void mergeArrayCells(IWritableGrid sheet, int rowIndex, int columnIndex, int numberOfValues) {
         // counting begins from 0
         int lastMergedColumnIndex = columnIndex + numberOfValues - 1;
         sheet.addMergedRegion(new GridRegion(rowIndex, columnIndex, rowIndex, lastMergedColumnIndex));

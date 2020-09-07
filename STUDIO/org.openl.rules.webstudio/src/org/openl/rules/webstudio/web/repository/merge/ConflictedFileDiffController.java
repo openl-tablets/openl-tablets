@@ -103,7 +103,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
         setDiffTree(getRichDiffTree().getDiffTreeNode());
     }
 
-    private void clearTreeSelection() {
+    private static void clearTreeSelection() {
         UIComponent treeComponent = RichFunction.findComponent("newTree");
         if (treeComponent instanceof UITree) {
             ((UITree) treeComponent).setSelection(Collections.emptyList());
@@ -150,7 +150,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
         return null;
     }
 
-    private boolean isExcelFile(String conflictedFile) {
+    private static boolean isExcelFile(String conflictedFile) {
         return conflictedFile.endsWith(".xls") || conflictedFile.endsWith(".xlsx");
     }
 }

@@ -81,7 +81,7 @@ public final class CompileMojo extends BaseOpenLMojo {
         return "OPENL COMPILATION";
     }
 
-    private long memUsed() throws InterruptedException {
+    private static long memUsed() throws InterruptedException {
         Runtime rt = Runtime.getRuntime();
         rt.gc();
         rt.gc();

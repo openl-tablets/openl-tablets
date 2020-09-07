@@ -114,7 +114,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
 
     @Override
     public String getRuleName(int col) {
-        return ruleRow == null ? "R" + (col + 1) : ruleRow.getRuleName(col);
+        return ruleRow == null ? ("R" + (col + 1)) : ruleRow.getRuleName(col);
     }
 
     public RuleRow getRuleRow() {

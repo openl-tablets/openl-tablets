@@ -42,7 +42,7 @@ public final class Avg {
         return process(values, new Result<Float, Float>() {
             @Override
             public void processNonNull(Float value) {
-                result = result == null ? value : result + value;
+                result = result == null ? value : (result + value);
             }
 
             @Override

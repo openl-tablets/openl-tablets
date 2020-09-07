@@ -64,14 +64,14 @@ public class DataOpenField extends AOpenField implements IUriMember {
         if (target == null) {
             return getType().nullObject();
         }
-        Object data = ((IDynamicObject) target).getFieldValue(getName());
+        Object dynamicObject = ((IDynamicObject) target).getFieldValue(getName());
 
-        if (data == null) {
-            data = this.data;
-            ((IDynamicObject) target).setFieldValue(getName(), data);
+        if (dynamicObject == null) {
+            dynamicObject = this.data;
+            ((IDynamicObject) target).setFieldValue(getName(), dynamicObject);
         }
 
-        return data;
+        return dynamicObject;
     }
 
     @Override

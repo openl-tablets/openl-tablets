@@ -61,7 +61,9 @@ public class DateRange {
             upperBound -= 1;
         }
         if (lowerBound > upperBound) {
-            throw new IllegalArgumentException(String.format("%s must be greater or equal than %s", range.max, range.min));
+            throw new IllegalArgumentException(
+                    String.format("%s must be greater or equal than %s", range.max, range.min)
+            );
         }
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
@@ -100,7 +102,10 @@ public class DateRange {
             return false;
         }
         DateRange dateRange = (DateRange) o;
-        return lowerBound == dateRange.lowerBound && upperBound == dateRange.upperBound && lowerBoundType == dateRange.lowerBoundType && upperBoundType == dateRange.upperBoundType;
+        return lowerBound == dateRange.lowerBound
+                && upperBound == dateRange.upperBound
+                && lowerBoundType == dateRange.lowerBoundType
+                && upperBoundType == dateRange.upperBoundType;
     }
 
     @Override

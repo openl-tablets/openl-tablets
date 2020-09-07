@@ -29,6 +29,7 @@ import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.constants.ConstantOpenField;
+import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -90,6 +91,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private ITableProperties globalTableProperties;
 
+    private final ObjectToDataOpenCastConvertor objectToDataOpenCastConvertor = new ObjectToDataOpenCastConvertor();
+
     public RulesModuleBindingContext getRulesModuleBindingContext() {
         return rulesModuleBindingContext;
     }
@@ -131,6 +134,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     public ITableProperties getGlobalTableProperties() {
         return globalTableProperties;
+    }
+
+    public ObjectToDataOpenCastConvertor getObjectToDataOpenCastConvertor() {
+        return objectToDataOpenCastConvertor;
     }
 
     public void addGlobalTableProperties(ITableProperties globalProperties) {
@@ -316,10 +323,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             IOpenField existedField = fields.get(openField.getName());
             if (openField instanceof ConstantOpenField && existedField instanceof ConstantOpenField) {
                 // Ignore constants with the same values
-                if (Objects.equals(
-                        ((ConstantOpenField) openField).getValue(),
-                        ((ConstantOpenField) existedField).getValue()
-                    ) && openField.getType().equals(existedField.getType())) {
+                if (Objects.equals(((ConstantOpenField) openField).getValue(),
+                    ((ConstantOpenField) existedField).getValue()) && openField.getType()
+                        .equals(existedField.getType())) {
                     return;
                 }
 
@@ -507,7 +513,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     CustomSpreadsheetResultOpenClass csrType = (CustomSpreadsheetResultOpenClass) t;
                     if (Objects.equals(csrType.getName(), type.getName()) && csrType.isBeanClassInitialized()) {
                         throw new IllegalStateException(String.format(
-                            "This module does not support adding '%s' custom spreadsheet result types. Bean class has already been initialized for this custom spreadsheet result type.",
+                            "This module does not support adding '%s' custom spreadsheet result types. Bean class has already been initialized for existing custom spreadsheet result type.",
                             csrType.getName()));
                     }
                 }

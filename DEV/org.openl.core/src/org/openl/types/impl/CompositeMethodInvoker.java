@@ -55,7 +55,7 @@ public class CompositeMethodInvoker implements Invokable {
         }
     }
 
-    private void clearSyntaxNodes(IBoundNode boundNode) {
+    private static void clearSyntaxNodes(IBoundNode boundNode) {
         if (boundNode instanceof ABoundNode) {
             ((ABoundNode) boundNode).setSyntaxNode(null);
         }

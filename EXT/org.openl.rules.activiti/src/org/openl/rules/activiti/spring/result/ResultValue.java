@@ -15,7 +15,7 @@ public class ResultValue {
 
     @SuppressWarnings("unchecked")
     private <T> T convert(Class<T> to) {
-        IOpenCast openCast = convertor.getConvertor(to, value.getClass());
+        IOpenCast openCast = convertor.getConvertor(value.getClass(), to);
         if (openCast != null) {
             return (T) openCast.convert(value);
         } else {

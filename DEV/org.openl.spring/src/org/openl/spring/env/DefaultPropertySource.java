@@ -1,12 +1,17 @@
 package org.openl.spring.env;
 
+import java.io.InputStream;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.springframework.core.env.CompositePropertySource;
+import org.openl.util.StringUtils;
 import org.springframework.core.env.EnumerablePropertySource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.core.io.support.ResourcePropertySource;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -16,13 +21,16 @@ import org.springframework.util.ClassUtils;
  * 
  * @author Yury Molchan
  */
-public class DefaultPropertySource extends CompositePropertySource {
+public class DefaultPropertySource extends EnumerablePropertySource<Map<String, String>> {
+
     public static final String PROPS_NAME = "OpenL default properties";
 
     static final String OPENL_CONFIG_LOADED = "openl.config.loaded";
 
     DefaultPropertySource() {
-        super(PROPS_NAME);
+        super(PROPS_NAME, new HashMap<>());
+
+        Properties prop = new Properties();
         try {
             ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
             if (classLoader == null) {
@@ -31,22 +39,26 @@ public class DefaultPropertySource extends CompositePropertySource {
             Enumeration<URL> resources = classLoader.getResources("openl-default.properties");
             while (resources.hasMoreElements()) {
                 URL url = resources.nextElement();
-                addPropertySource(new ResourcePropertySource(new UrlResource(url)));
+                try (InputStream is = url.openStream()) {
+                    prop.load(is);
+                }
                 ConfigLog.LOG.info("+        Add: '{}'", url);
             }
         } catch (Exception e) {
             ConfigLog.LOG.error("!     Error:", e);
         }
-        addPropertySource(new EnumerablePropertySource<Object>(OPENL_CONFIG_LOADED) {
-            @Override
-            public Object getProperty(String name) {
-                return OPENL_CONFIG_LOADED.equals(name) ? true : null;
-            }
+        source.putAll(new HashMap<>((Map)prop));
+        source.put(OPENL_CONFIG_LOADED, Boolean.TRUE.toString());
+    }
 
-            @Override
-            public String[] getPropertyNames() {
-                return new String[] { OPENL_CONFIG_LOADED };
-            }
-        });
+    @Override
+    public String[] getPropertyNames() {
+        Set<String> propertyNames = source.keySet();
+        return propertyNames.toArray(StringUtils.EMPTY_STRING_ARRAY);
+    }
+
+    @Override
+    public Object getProperty(String name) {
+        return source.get(name);
     }
 }

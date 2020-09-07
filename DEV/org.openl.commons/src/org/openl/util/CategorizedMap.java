@@ -17,9 +17,9 @@ import java.util.Objects;
 public class CategorizedMap {
 
     private static class Category {
-        private Category parent = null;
+        private Category parent;
 
-        int parentDistance = 0;
+        int parentDistance;
 
         private String category;
 

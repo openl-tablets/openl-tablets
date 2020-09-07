@@ -32,7 +32,7 @@ public class ActionInvoker implements Invokable {
         return returnValue;
     }
 
-    private Object addReturnValues(Map<Object, Object> returnValue,
+    private static Object addReturnValues(Map<Object, Object> returnValue,
             Object returnValues,
             Object keyValues,
             boolean[] f) {

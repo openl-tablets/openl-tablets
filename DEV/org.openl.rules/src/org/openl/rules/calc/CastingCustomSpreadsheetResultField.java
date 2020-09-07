@@ -84,10 +84,9 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
         }
     }
 
-    private void extractAllTypes(IOpenField field, Set<IOpenField> resultFields) {
+    private static void extractAllTypes(IOpenField field, Set<IOpenField> resultFields) {
         if (field instanceof CastingCustomSpreadsheetResultField) {
-            CastingCustomSpreadsheetResultField castingCustomSpreadsheetResultField =
-                    (CastingCustomSpreadsheetResultField) field;
+            CastingCustomSpreadsheetResultField castingCustomSpreadsheetResultField = (CastingCustomSpreadsheetResultField) field;
             extractAllTypes(castingCustomSpreadsheetResultField.field1, resultFields);
             extractAllTypes(castingCustomSpreadsheetResultField.field2, resultFields);
         } else {
@@ -110,15 +109,14 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
         return declaredClasses.toArray(new IOpenClass[] {});
     }
 
-    private void getFieldDeclaredClasses(IOpenField field, List<IOpenClass> declaredClasses) {
+    private static void getFieldDeclaredClasses(IOpenField field, List<IOpenClass> declaredClasses) {
         if (declaredClasses.contains(field.getDeclaringClass())) {
             return;
         }
         if (field instanceof IOriginalDeclaredClassesOpenField) {
             IOpenClass[] fieldDeclaredClasses = ((IOriginalDeclaredClassesOpenField) field).getDeclaredClasses();
             declaredClasses.addAll(Arrays.asList(fieldDeclaredClasses));
-        } else if (field instanceof CustomSpreadsheetResultField
-                && ((CustomSpreadsheetResultField) field).field != null) {
+        } else if (field instanceof CustomSpreadsheetResultField && ((CustomSpreadsheetResultField) field).field != null) {
             CustomSpreadsheetResultField customSpreadsheetResultField = (CustomSpreadsheetResultField) field;
             declaredClasses.add(customSpreadsheetResultField.field.getDeclaringClass());
         } else {

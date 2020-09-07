@@ -73,7 +73,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         this.serviceConfigurer = Objects.requireNonNull(serviceConfigurer, "serviceConfigurer cannot be null");
     }
 
-
     @Autowired(required = false)
     public void setListeners(Collection<RuleServicePublisherListener> listeners) {
         this.listeners = listeners;

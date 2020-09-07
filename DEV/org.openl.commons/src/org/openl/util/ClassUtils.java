@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  *
  * @author Yury Molchan
  */
-public class ClassUtils {
+public final class ClassUtils {
 
     private static final Method DEFINE_CLASS;
     private static final Method DEFINE_PACKAGE;
@@ -33,7 +33,7 @@ public class ClassUtils {
         Throwable ex = null;
         try {
             pd = (ProtectionDomain) AccessController
-                .doPrivileged((PrivilegedAction) () -> ClassUtils.class.getProtectionDomain());
+                .doPrivileged((PrivilegedAction) ClassUtils.class::getProtectionDomain);
             dc = (Method) AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
                 Class<?> loader = Class.forName("java.lang.ClassLoader");
                 Method defineClass = loader.getDeclaredMethod("defineClass",
@@ -91,12 +91,10 @@ public class ClassUtils {
         if (DEFINE_CLASS != null && DEFINE_PACKAGE != null) {
             Object[] args = new Object[] { className, b, 0, b.length, PROTECTION_DOMAIN };
             clazz = (Class<?>) DEFINE_CLASS.invoke(loader, args);
-            String pkgName = className.substring(0, className.lastIndexOf("."));
-            if (StringUtils.isNotEmpty(pkgName)) {
-                if (GET_PACKAGE.invoke(loader, pkgName) == null) {
-                    Object[] args1 = new Object[] { pkgName, null, null, null, null, null, null, null };
-                    DEFINE_PACKAGE.invoke(loader, args1);
-                }
+            String pkgName = className.substring(0, className.lastIndexOf('.'));
+            if (StringUtils.isNotEmpty(pkgName) && GET_PACKAGE.invoke(loader, pkgName) == null) {
+                Object[] args1 = new Object[] { pkgName, null, null, null, null, null, null, null };
+                DEFINE_PACKAGE.invoke(loader, args1);
             }
         } else {
             throw new IllegalStateException(THROWABLE);
@@ -309,10 +307,17 @@ public class ClassUtils {
                 return Double.TYPE == toClass;
             }
             if (Character.TYPE == cls || Short.TYPE == cls) {
-                return Integer.TYPE == toClass || Long.TYPE == toClass || Float.TYPE == toClass || Double.TYPE == toClass;
+                return Integer.TYPE == toClass
+                        || Long.TYPE == toClass
+                        || Float.TYPE == toClass
+                        || Double.TYPE == toClass;
             }
             if (Byte.TYPE.equals(cls)) {
-                return Short.TYPE == toClass || Integer.TYPE == toClass || Long.TYPE == toClass || Float.TYPE == toClass || Double.TYPE == toClass;
+                return Short.TYPE == toClass
+                        || Integer.TYPE == toClass
+                        || Long.TYPE == toClass
+                        || Float.TYPE == toClass
+                        || Double.TYPE == toClass;
             }
             // should never get here
             return false;

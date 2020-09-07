@@ -10,8 +10,11 @@ import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.types.IOpenField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AlgorithmOpenClass extends ComponentOpenClass {
+    private static final Logger LOG = LoggerFactory.getLogger(AlgorithmOpenClass.class);
 
     private Set<String> invisibleFields = new HashSet<>();
 
@@ -45,6 +48,7 @@ public class AlgorithmOpenClass extends ComponentOpenClass {
         try {
             super.addField(field);
         } catch (DuplicatedFieldException e) {
+            LOG.debug("Error occurred: ", e);
             throw new DuplicatedVarException("", e.getFieldName());
         }
     }

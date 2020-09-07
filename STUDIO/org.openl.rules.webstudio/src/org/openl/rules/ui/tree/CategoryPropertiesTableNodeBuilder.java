@@ -69,7 +69,7 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
         return makeFolderNode(FOLDER_NAME);
     }
 
-    private boolean isCategoryPropertyTable(TableSyntaxNode tableSyntaxNode) {
+    private static boolean isCategoryPropertyTable(TableSyntaxNode tableSyntaxNode) {
         boolean result = false;
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
         if (tableProperties != null) {
@@ -81,7 +81,7 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
         return result;
     }
 
-    private ProjectTreeNode makeFolderNode(String folderName) {
+    private static ProjectTreeNode makeFolderNode(String folderName) {
         return new ProjectTreeNode(new String[] { folderName, folderName, folderName },
             IProjectTypes.PT_FOLDER,
             null,

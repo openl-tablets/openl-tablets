@@ -79,7 +79,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
         }
     }
 
-    private LoggingMessage setupBuffer(Message message) {
+    private static LoggingMessage setupBuffer(Message message) {
         String id = (String) message.getExchange().get(LoggingMessage.ID_KEY);
         if (id == null) {
             id = LoggingMessage.nextId();

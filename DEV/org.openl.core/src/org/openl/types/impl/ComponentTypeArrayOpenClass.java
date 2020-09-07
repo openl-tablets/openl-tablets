@@ -111,7 +111,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
         return javaName;
     }
 
-    private String createJavaName(IOpenClass componentClass) {
+    private static String createJavaName(IOpenClass componentClass) {
         String componentName = componentClass.getJavaName();
         if (componentName.charAt(0) == '[') {
             return '[' + componentName;

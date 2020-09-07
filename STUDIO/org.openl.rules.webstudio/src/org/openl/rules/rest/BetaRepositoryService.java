@@ -488,7 +488,7 @@ public class BetaRepositoryService {
         }
     }
 
-    private String getProjectName(File file) {
+    private static String getProjectName(File file) {
         try {
             InputSource inputSource = new InputSource(new FileInputStream(file));
             XPathFactory factory = XPathFactory.newInstance();
@@ -611,7 +611,7 @@ public class BetaRepositoryService {
         return description;
     }
 
-    private ProjectDescription getProjectDescription(FileData project) {
+    private static ProjectDescription getProjectDescription(FileData project) {
         ProjectDescription description = new ProjectDescription();
         description.setName(project.getName());
         description.setVersion(project.getVersion());
@@ -620,7 +620,7 @@ public class BetaRepositoryService {
         return description;
     }
 
-    private WorkspaceUserImpl getUser() {
+    private static WorkspaceUserImpl getUser() {
         String name = getUserName();
         return new WorkspaceUserImpl(name);
     }

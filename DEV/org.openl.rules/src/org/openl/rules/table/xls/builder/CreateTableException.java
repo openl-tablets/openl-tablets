@@ -5,8 +5,6 @@ package org.openl.rules.table.xls.builder;
  */
 public class CreateTableException extends Exception {
 
-    private static final long serialVersionUID = 9041897689424313975L;
-
     /**
      * Constructs a new exception with <code>null</code> as its detail message. The cause is not initialized, and may
      * subsequently be initialized by a call to {@link #initCause}.

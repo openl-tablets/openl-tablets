@@ -272,7 +272,7 @@ public class AProjectFolder extends AProjectArtefact {
         return copy;
     }
 
-    private FileData find(List<FileData> list, String name) {
+    private static FileData find(List<FileData> list, String name) {
         for (FileData fileData : list) {
             if (fileData.getName().equals(name)) {
                 return fileData;

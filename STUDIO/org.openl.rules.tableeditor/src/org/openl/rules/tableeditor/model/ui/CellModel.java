@@ -89,8 +89,8 @@ public class CellModel implements ICellModel {
 
         String[] bwidth = new String[4];
         for (int i = 0; i < borderStyle.length; i++) {
-            int width = borderStyle[i] == null ? 0 : borderStyle[i].getWidth();
-            bwidth[i] = width + (width != 0 ? "px" : "");
+            int borderStyleWidth = borderStyle[i] == null ? 0 : borderStyle[i].getWidth();
+            bwidth[i] = borderStyleWidth + (borderStyleWidth != 0 ? "px" : "");
         }
         String widthStr = boxCSStoString(bwidth);
         if (!widthStr.equals(DEFAULT_CELL_STYLES.get("border-width"))) {

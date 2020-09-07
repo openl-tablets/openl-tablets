@@ -13,8 +13,6 @@ import org.openl.message.OpenLMessage;
  */
 public class CompositeOpenlException extends CompositeSyntaxNodeException {
 
-    private static final long serialVersionUID = 5130142151601932536L;
-
     private Collection<OpenLMessage> errorMessages = new ArrayList<>();
 
     public CompositeOpenlException(String message,

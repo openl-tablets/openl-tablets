@@ -166,16 +166,12 @@ public class AlgoritmNodesCompiler {
         return operation;
     }
 
-    private boolean hasUnreachableCode(List<AlgorithmTreeNode> nodesToProcess, int indexOfReturn) {
-        if (indexOfReturn < nodesToProcess.size() - 1) {
-            if (TBasicSpecificationKey.BREAK.toString()
-                .equals(nodesToProcess.get(indexOfReturn).getSpecificationKeyword()) || TBasicSpecificationKey.CONTINUE
-                    .toString()
-                    .equals(nodesToProcess.get(indexOfReturn).getSpecificationKeyword())) {
-                return true;
-            }
-        }
-        return false;
+    private static boolean hasUnreachableCode(List<AlgorithmTreeNode> nodesToProcess, int indexOfReturn) {
+        return indexOfReturn < nodesToProcess.size() - 1
+                && (TBasicSpecificationKey.BREAK.toString()
+                        .equals(nodesToProcess.get(indexOfReturn).getSpecificationKeyword())
+                    || TBasicSpecificationKey.CONTINUE.toString()
+                        .equals(nodesToProcess.get(indexOfReturn).getSpecificationKeyword()));
     }
 
     private List<RuntimeOperation> processConversionStep(List<AlgorithmTreeNode> nodesToCompile,

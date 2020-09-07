@@ -45,8 +45,15 @@ import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 import org.openl.vm.IRuntimeEnv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DataTableBindHelper {
+
+    private DataTableBindHelper() {
+    }
+
+    private static final Logger LOG = LoggerFactory.getLogger(DataTableBindHelper.class);
 
     private static final char INDEX_ROW_REFERENCE_START_SYMBOL = '>';
 
@@ -608,6 +615,7 @@ public class DataTableBindHelper {
                     fieldAccessorChainTokens = trimAndSplitPrecisionToken(
                         Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS));
                 } catch (OpenLCompilationException e) {
+                    LOG.debug("Error occurred: ", e);
                     String message = String.format("Cannot parse field source '%s'", code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
                     processError(bindingContext, table, error);
@@ -796,13 +804,16 @@ public class DataTableBindHelper {
                     continue;
                 }
                 // Multi-rows support. PK for arrays.
-                CollectionElementWithMultiRowField datatypeCollectionMultiRowElementField = (CollectionElementWithMultiRowField) fieldAccessorChain[fieldIndex - 1];
-                CollectionElementWithMultiRowField newDatatypeArrayMultiRowElementField = new CollectionElementWithMultiRowField(
-                    datatypeCollectionMultiRowElementField.getField(),
-                    datatypeCollectionMultiRowElementField.getFieldPathFromRoot(),
-                    JavaOpenClass.STRING,
-                    datatypeCollectionMultiRowElementField.getCollectionType(),
-                    true);
+                CollectionElementWithMultiRowField datatypeCollectionMultiRowElementField =
+                        (CollectionElementWithMultiRowField) fieldAccessorChain[fieldIndex - 1];
+                CollectionElementWithMultiRowField newDatatypeArrayMultiRowElementField =
+                        new CollectionElementWithMultiRowField(
+                                datatypeCollectionMultiRowElementField.getField(),
+                                datatypeCollectionMultiRowElementField.getFieldPathFromRoot(),
+                                JavaOpenClass.STRING,
+                                datatypeCollectionMultiRowElementField.getCollectionType(),
+                                true
+                        );
                 IOpenField[] fieldAccessorChainTmp = new IOpenField[fieldAccessorChainTokens.length - 1];
                 System.arraycopy(fieldAccessorChain, 0, fieldAccessorChainTmp, 0, fieldAccessorChainTokens.length - 1);
                 fieldAccessorChain = fieldAccessorChainTmp;
@@ -872,13 +883,13 @@ public class DataTableBindHelper {
                 }
             }
 
-            if (fieldIndex > 0 && (fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementField || fieldAccessorChain[fieldIndex - 1] instanceof SpreadsheetResultField) && fieldAccessorChain[fieldIndex - 1]
-                .getType()
-                .equals(JavaOpenClass.OBJECT)) {
-                if (StringUtils.matches(SPREADSHEETRESULT_FIELD_PATTERN, identifier)) {
-                    AOpenField aOpenField = (AOpenField) fieldAccessorChain[fieldIndex - 1];
-                    aOpenField.setType(JavaOpenClass.getOpenClass(SpreadsheetResult.class));
-                }
+            if (fieldIndex > 0
+                    && ((fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementField
+                        || fieldAccessorChain[fieldIndex - 1] instanceof SpreadsheetResultField))
+                    && fieldAccessorChain[fieldIndex - 1].getType().equals(JavaOpenClass.OBJECT)
+                    && StringUtils.matches(SPREADSHEETRESULT_FIELD_PATTERN, identifier)) {
+                AOpenField aOpenField = (AOpenField) fieldAccessorChain[fieldIndex - 1];
+                aOpenField.setType(JavaOpenClass.getOpenClass(SpreadsheetResult.class));
             }
 
             if (fieldInChain == null) {
@@ -927,7 +938,8 @@ public class DataTableBindHelper {
             String txtIndex = fieldName.substring(fieldName.indexOf('(') + 1, fieldName.indexOf(')'));
 
             return Integer.parseInt(txtIndex);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
+            LOG.debug("Ignored error: ", ignored);
             return null;
         }
     }
@@ -1103,6 +1115,7 @@ public class DataTableBindHelper {
                     processError(bindingContext, table, e);
                     return null;
                 } catch (Exception e) {
+                    LOG.debug("Error occurred: ", e);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse a map key.",
                         currentFieldNameNode);
                     processError(bindingContext, table, error);
@@ -1118,6 +1131,7 @@ public class DataTableBindHelper {
                 try {
                     index = getCollectionIndex(currentFieldNameNode);
                 } catch (Exception e) {
+                    LOG.debug("Error occurred: ", e);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse an array index.",
                         currentFieldNameNode);
                     processError(bindingContext, table, error);
@@ -1166,16 +1180,15 @@ public class DataTableBindHelper {
                 IOpenClass keyOpenClass = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
                     tableSyntaxNode.getHeader().getCollectParameters()[0]);
                 if (keyOpenClass != null) {
-                    if (keyOpenClass.getInstanceClass() == String.class) {
-                        if (StringUtils.matches(QUOTED, s)) {
-                            s = s.substring(1, s.length() - 1);
-                        }
+                    if (keyOpenClass.getInstanceClass() == String.class && StringUtils.matches(QUOTED, s)) {
+                        s = s.substring(1, s.length() - 1);
                     }
                     try {
                         IString2DataConvertor<?> converter = String2DataConvertorFactory
                             .getConvertor(keyOpenClass.getInstanceClass());
                         return converter.parse(s, null);
                     } catch (Exception e) {
+                        LOG.debug("Error occurred: ", e);
                         throw SyntaxNodeExceptionUtils.createError(
                             String.format("Cannot convert a key value '%s' to type '%s'.", s, keyOpenClass.getName()),
                             currentFieldNameNode);

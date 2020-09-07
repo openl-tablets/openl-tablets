@@ -2,6 +2,9 @@ package org.openl.rules.webstudio.web.admin;
 
 import java.io.Closeable;
 import java.net.ConnectException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -66,6 +69,31 @@ public final class RepositoryValidators {
                     throw new RepositoryValidationException(msg);
                 }
             }
+        }
+
+        // Check for path uniqueness. only for git
+        if (RepositoryType.GIT.equals(prodConfig.getRepositoryType())) {
+            Path path = Paths.get(((GitRepositorySettings) prodConfig.getSettings()).getLocalRepositoryPath());
+            for (RepositoryConfiguration other : productionRepositoryConfigurations) {
+                if (other != prodConfig && RepositoryType.GIT.equals(other.getRepositoryType())) {
+                    Path otherPath = Paths.get(((GitRepositorySettings) other.getSettings()).getLocalRepositoryPath());
+                    if (path.equals(otherPath)) {
+                        String msg = String.format(
+                            "Repository local path '%s' already exists. Please, insert a new one.",
+                            path.toString());
+                        throw new RepositoryValidationException(msg);
+                    }
+                }
+            }
+        }
+
+        List<String> names = new ArrayList<>();
+        if (prodConfig.getType().equalsIgnoreCase("git")) {
+            String localRepositoryPath = ((GitRepositorySettings) prodConfig.getSettings()).getLocalRepositoryPath();
+            if (names.contains(localRepositoryPath)) {
+                throw new RepositoryValidationException("ALARMA!!!");
+            }
+            names.add(localRepositoryPath);
         }
 
         RepositorySettings settings = prodConfig.getSettings();

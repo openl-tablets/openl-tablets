@@ -219,6 +219,11 @@ public abstract class AbstractColumnMatchWrapper extends ColumnMatch {
     }
 
     @Override
+    public boolean isAlias() {
+        return delegate.isAlias();
+    }
+
+    @Override
     public boolean isStatic() {
         return delegate.isStatic();
     }

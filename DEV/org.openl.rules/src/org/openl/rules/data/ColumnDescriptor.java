@@ -317,7 +317,7 @@ public class ColumnDescriptor {
         return isSameSingleValueAllowsNull(res, prevRes) || (prevRes != PREV_RES_EMPTY && res == null);
     }
 
-    private boolean isSameSingleValueAllowsNull(Object res, Object prevRes) {
+    private static boolean isSameSingleValueAllowsNull(Object res, Object prevRes) {
         return (prevRes == null && res == null) || (prevRes != null && prevRes.equals(res));
     }
 

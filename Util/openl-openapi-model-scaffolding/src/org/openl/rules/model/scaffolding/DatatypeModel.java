@@ -3,7 +3,7 @@ package org.openl.rules.model.scaffolding;
 import java.util.List;
 import java.util.Objects;
 
-public class DatatypeModel implements Model{
+public class DatatypeModel implements Model {
 
     private String parent;
     private String name;
@@ -39,13 +39,21 @@ public class DatatypeModel implements Model{
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         DatatypeModel that = (DatatypeModel) o;
 
-        if (!Objects.equals(parent, that.parent)) return false;
-        if (!Objects.equals(name, that.name)) return false;
+        if (!Objects.equals(parent, that.parent)) {
+            return false;
+        }
+        if (!Objects.equals(name, that.name)) {
+            return false;
+        }
         return Objects.equals(fields, that.fields);
     }
 

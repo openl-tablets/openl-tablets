@@ -122,7 +122,7 @@ public class CellStyleGridFilter extends AGridFilter {
             return colors;
         }
 
-        private short[][] createBorderRGB(short[] rgb) {
+        private static short[][] createBorderRGB(short[] rgb) {
             short[][] colors = new short[BORDER_SIDES_COUNT][];
             for (int i = 0; i < colors.length; i++) {
                 colors[i] = rgb;

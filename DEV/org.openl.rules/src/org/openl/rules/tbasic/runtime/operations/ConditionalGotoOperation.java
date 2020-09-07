@@ -66,7 +66,7 @@ public class ConditionalGotoOperation extends GotoOperation {
     /**
      * @return
      */
-    private Result skipGoto() {
+    private static Result skipGoto() {
         Result result;
         result = new Result(ReturnType.NEXT);
         return result;

@@ -60,6 +60,7 @@
                 <ref bean="diffService"/>
                 <ref bean="notificationService"/>
                 <ref bean="projectHistoryService"/>
+                <ref bean="propertyService"/>
             </list>
         </property>
         <property name="providers">

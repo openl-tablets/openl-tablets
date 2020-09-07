@@ -190,7 +190,7 @@ public class CassandraOperations
         return statement.replaceAll("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)|(?:--.*)", "");
     }
 
-    private String extractCqlQueryForEntity(Class<?> entityClass) throws IOException {
+    private static String extractCqlQueryForEntity(Class<?> entityClass) throws IOException {
         InputStream inputStream = entityClass
             .getResourceAsStream("/" + entityClass.getName().replaceAll("\\.", "/") + ".cql");
         if (inputStream == null) {

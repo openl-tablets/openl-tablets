@@ -136,6 +136,7 @@ public class ClassFactory extends AConfigurationElement {
         } catch (OpenLConfigurationException ex) {
             throw ex;
         } catch (Exception | LinkageError t) {
+            LOG.debug("Error occurred: ", t);
             throw new OpenLConfigurationException(String.format("Default constructor is not found in class '%s'.",
                 clazz.getTypeName()), uri, null);
         }

@@ -116,7 +116,7 @@ final class DateIntervalImpl extends DateInterval {
         if (d == 0.0d) {
             return d;
         }
-        return isNegative ? -1 * d : d;
+        return isNegative ? (-1 * d) : d;
     }
 
     /**

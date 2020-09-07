@@ -50,7 +50,7 @@ public class CharRange extends IntRange {
         return isPrintable(ch) ? String.valueOf((char) ch) : ("'u" + Integer.toHexString((char) ch) + "'");
     }
 
-    private boolean isPrintable(long ch) {
+    private static boolean isPrintable(long ch) {
         if (StringUtils.isSpaceOrControl((char) ch)) {
             return false;
         }

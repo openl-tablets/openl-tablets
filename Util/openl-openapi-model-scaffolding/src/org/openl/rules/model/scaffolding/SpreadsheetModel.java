@@ -12,6 +12,7 @@ public class SpreadsheetModel implements Model {
     private List<StepModel> steps = new ArrayList<>();
 
     public SpreadsheetModel() {
+        // empty constructor
     }
 
     public String getName() {

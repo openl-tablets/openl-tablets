@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DatatypeOpenClass extends ADynamicClass {
 
-    private final Logger log = LoggerFactory.getLogger(DatatypeOpenClass.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DatatypeOpenClass.class);
 
     private IOpenClass superClass;
 
@@ -125,7 +125,7 @@ public class DatatypeOpenClass extends ADynamicClass {
         return (LinkedHashMap<String, IOpenField>) fieldMap;
     }
 
-    private volatile Map<String, IOpenField> fields = null;
+    private volatile Map<String, IOpenField> fields;
 
     @Override
     public Collection<IOpenField> getFields() {
@@ -142,8 +142,8 @@ public class DatatypeOpenClass extends ADynamicClass {
     private Map<String, IOpenField> initializeFields() {
         Map<String, IOpenField> fields = new LinkedHashMap<>();
         Iterable<IOpenClass> superClasses = superClasses();
-        for (IOpenClass superClass : superClasses) {
-            for (IOpenField field : superClass.getFields()) {
+        for (IOpenClass superClassValue : superClasses) {
+            for (IOpenField field : superClassValue.getFields()) {
                 fields.put(field.getName(), field);
             }
         }
@@ -169,7 +169,7 @@ public class DatatypeOpenClass extends ADynamicClass {
         try {
             instance = getInstanceClass().newInstance();
         } catch (Exception e) {
-            log.error("{}", this, e);
+            LOG.error("{}", this, e);
         }
         return instance;
     }

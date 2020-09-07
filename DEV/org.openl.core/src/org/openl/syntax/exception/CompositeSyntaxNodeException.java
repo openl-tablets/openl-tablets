@@ -19,8 +19,6 @@ import org.openl.exception.OpenlNotCheckedException;
  */
 public class CompositeSyntaxNodeException extends OpenlNotCheckedException {
 
-    private static final long serialVersionUID = 6239517302604363701L;
-
     /**
      * Exception message.
      */
