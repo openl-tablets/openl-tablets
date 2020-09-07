@@ -57,23 +57,30 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField implements I
     }
 
     protected Object processResult(Object res) {
-        if (res != null && !ClassUtils.isAssignable(res.getClass(), getType().getInstanceClass())) {
-            IOpenCast cast = ((CustomSpreadsheetResultOpenClass) getDeclaringClass()).getModule()
-                .getObjectToDataOpenCastConvertor()
-                .getConvertor(res.getClass(), getType().getInstanceClass());
-            if (cast != null && cast.isImplicit()) {
-                return cast.convert(res);
-            } else {
-                throw new UnexpectedSpreadsheetResultFieldTypeException(
-                    String.format("Unexpected type for field '%s' in '%s'. Expected type '%s', but found '%s'.",
-                        getName(),
-                        getDeclaringClass().getName(),
-                        getType().getDisplayName(INamedThing.LONG),
-                        res.getClass().getTypeName()));
+        if (res != null) {
+            if (!ClassUtils.isAssignable(res.getClass(), getType().getInstanceClass())) {
+                return convertWithFailSafeCast(res);
             }
+            return res;
+        } else {
+            return getType().nullObject();
         }
+    }
 
-        return res != null ? res : getType().nullObject();
+    protected final Object convertWithFailSafeCast(Object res) {
+        IOpenCast cast = ((CustomSpreadsheetResultOpenClass) getDeclaringClass()).getModule()
+            .getObjectToDataOpenCastConvertor()
+            .getConvertor(res.getClass(), getType().getInstanceClass());
+        if (cast != null && cast.isImplicit()) {
+            return cast.convert(res);
+        } else {
+            throw new UnexpectedSpreadsheetResultFieldTypeException(
+                String.format("Unexpected type for field '%s' in '%s'. Expected type '%s', but found '%s'.",
+                    getName(),
+                    getDeclaringClass().getName(),
+                    getType().getDisplayName(INamedThing.LONG),
+                    res.getClass().getTypeName()));
+        }
     }
 
     @Override
