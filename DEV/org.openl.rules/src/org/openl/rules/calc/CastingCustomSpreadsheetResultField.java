@@ -49,6 +49,9 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                 }
             }
         }
+        if (!ClassUtils.isAssignable(res.getClass(), getType().getInstanceClass())) {
+            return convertWithFailSafeCast(res);
+        }
         return res;
     }
 

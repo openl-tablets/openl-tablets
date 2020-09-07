@@ -52,24 +52,25 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
 
     protected Object processResult(Object res) {
         if (res != null && !ClassUtils.isAssignable(res.getClass(), getType().getInstanceClass())) {
-            if (!ClassUtils.isAssignable(res.getClass(), getType().getInstanceClass())) {
-                IOpenCast cast = ((CustomSpreadsheetResultOpenClass) getDeclaringClass())
-                    .getObjectToDataOpenCastConvertor()
-                    .getConvertor(getType().getInstanceClass(), res.getClass());
-                if (cast != null && cast.isImplicit()) {
-                    return cast.convert(res);
-                } else {
-                    throw new UnexpectedSpreadsheetResultFieldTypeException(
-                        String.format("Unexpected type for field '%s' in '%s'. Expected type '%s', but found '%s'.",
-                            getName(),
-                            getDeclaringClass().getName(),
-                            getType().getDisplayName(INamedThing.LONG),
-                            res.getClass().getTypeName()));
-                }
-            }
+            return convertWithFailSafeCast(res);
         }
 
         return res != null ? res : getType().nullObject();
+    }
+
+    protected final Object convertWithFailSafeCast(Object res) {
+        IOpenCast cast = ((CustomSpreadsheetResultOpenClass) getDeclaringClass()).getObjectToDataOpenCastConvertor()
+            .getConvertor(getType().getInstanceClass(), res.getClass());
+        if (cast != null && cast.isImplicit()) {
+            return cast.convert(res);
+        } else {
+            throw new UnexpectedSpreadsheetResultFieldTypeException(
+                String.format("Unexpected type for field '%s' in '%s'. Expected type '%s', but found '%s'.",
+                    getName(),
+                    getDeclaringClass().getName(),
+                    getType().getDisplayName(INamedThing.LONG),
+                    res.getClass().getTypeName()));
+        }
     }
 
     @Override
