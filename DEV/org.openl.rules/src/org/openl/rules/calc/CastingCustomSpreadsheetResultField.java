@@ -10,7 +10,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.CastToWiderType;
 import org.openl.binding.impl.cast.IOpenCast;
-import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.ClassUtils;
@@ -52,8 +51,8 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
             }
         }
         if (!ClassUtils.isAssignable(res.getClass(), getType().getInstanceClass())) {
-            IOpenCast cast = new ObjectToDataOpenCastConvertor().getConvertor(res.getClass(),
-                getType().getInstanceClass());
+            IOpenCast cast = getDeclaringClass().getObjectToDataOpenCastConvertor()
+                .getConvertor(getType().getInstanceClass(), res.getClass());
             if (cast != null && cast.isImplicit()) {
                 return cast.convert(res);
             } else {
