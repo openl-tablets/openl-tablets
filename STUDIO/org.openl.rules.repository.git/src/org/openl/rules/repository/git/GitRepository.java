@@ -106,9 +106,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private BranchesData branches = new BranchesData();
 
     private boolean closed;
+    private String branchesConfigFile = "design/branches.yaml";
 
     public void setId(String id) {
         this.id = id;
+        branchesConfigFile = id + "/branches.yaml";
     }
 
     @Override
@@ -695,7 +697,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 }
             }
 
-            readBranches();
+            lockSettings();
+            try {
+                readBranches();
+            } finally {
+                unlockSettings();
+            }
 
             monitor = new ChangesMonitor(new GitRevisionGetter(), listenerTimerPeriod);
         } catch (Exception e) {
@@ -893,23 +900,28 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             TreeSet<String> availableBranches = getAvailableBranches();
 
-            BranchesData branches = getBranches();
-            Set<String> projectBranches = branches.getDescriptions()
-                .stream()
-                .map(BranchDescription::getName)
-                .collect(Collectors.toCollection(HashSet::new));
-            branches.getProjectBranches().values().forEach(projectBranches::addAll);
+            lockSettings();
+            try {
+                BranchesData branches = getBranches(false);
+                Set<String> projectBranches = branches.getDescriptions()
+                    .stream()
+                    .map(BranchDescription::getName)
+                    .collect(Collectors.toCollection(HashSet::new));
+                branches.getProjectBranches().values().forEach(projectBranches::addAll);
 
-            AtomicBoolean modified = new AtomicBoolean(false);
-            projectBranches.forEach(projectBranch -> {
-                if (!availableBranches.contains(projectBranch)) {
-                    modified.set(true);
-                    branches.removeBranch(null, projectBranch);
+                AtomicBoolean modified = new AtomicBoolean(false);
+                projectBranches.forEach(projectBranch -> {
+                    if (!availableBranches.contains(projectBranch)) {
+                        modified.set(true);
+                        branches.removeBranch(null, projectBranch);
+                    }
+                });
+
+                if (modified.get()) {
+                    saveBranches();
                 }
-            });
-
-            if (modified.get()) {
-                saveBranches();
+            } finally {
+                unlockSettings();
             }
         } finally {
             writeLock.unlock();
@@ -930,9 +942,18 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private BranchesData getBranches() throws IOException {
-        if (!repositorySettings.getSyncDate().equals(settingsSyncDate)) {
-            readBranches();
+    private BranchesData getBranches(boolean withLock) throws IOException {
+        if (repositorySettings != null && !repositorySettings.getSyncDate().equals(settingsSyncDate)) {
+            if (withLock) {
+                lockSettings();
+                try {
+                    readBranches();
+                } finally {
+                    unlockSettings();
+                }
+            } else {
+                readBranches();
+            }
         }
         return branches;
     }
@@ -1911,6 +1932,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     @Override
     public void createBranch(String projectName, String newBranch) throws IOException {
         Lock writeLock = repositoryLock.writeLock();
+        lockSettings();
         try {
             log.debug("createBranch(): lock");
             writeLock.lock();
@@ -1932,7 +1954,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 pushBranch(new RefSpec().setSource(newBranch).setDestination(Constants.R_HEADS + newBranch));
             }
 
-            BranchesData branches = getBranches();
+            BranchesData branches = getBranches(false);
             branches.addBranch(projectName, branch, null);
             branches.addBranch(projectName, newBranch, branchRef.getObjectId().getName());
 
@@ -1952,6 +1974,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
             throw new IOException(e.getMessage(), e);
         } finally {
+            unlockSettings();
             writeLock.unlock();
             log.debug("createBranch(): unlock");
         }
@@ -1960,13 +1983,15 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     @Override
     public void deleteBranch(String projectName, String branch) throws IOException {
         Lock writeLock = repositoryLock.writeLock();
+        lockSettings();
         try {
             log.debug("deleteBranch(): lock");
             writeLock.lock();
 
             reset();
 
-            BranchesData branches = getBranches();
+            lockSettings();
+            BranchesData branches = getBranches(false);
             if (projectName == null) {
                 // Remove the branch from all mappings.
                 if (branches.removeBranch(null, branch)) {
@@ -1991,6 +2016,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             reset();
             throw new IOException(e.getMessage(), e);
         } finally {
+            unlockSettings();
             writeLock.unlock();
             log.debug("deleteBranch(): unlock");
         }
@@ -2002,7 +2028,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("getBranches(): lock");
             readLock.lock();
-            BranchesData branches = getBranches();
+            BranchesData branches = getBranches(true);
             if (projectName == null) {
                 // Return all available branches
                 TreeSet<String> branchNames = getAvailableBranches();
@@ -2155,7 +2181,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
 
         settingsSyncDate = repositorySettings.getSyncDate();
-        FileItem fileItem = repositorySettings.getRepository().read(id + "/branches.yaml");
+        FileItem fileItem = repositorySettings.getRepository().read(branchesConfigFile);
         if (fileItem != null) {
             try (InputStreamReader in = new InputStreamReader(fileItem.getStream(), StandardCharsets.UTF_8)) {
                 TypeDescription projectsDescription = new TypeDescription(BranchesData.class);
@@ -2168,7 +2194,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 branches.copyFrom(yaml.loadAs(in, BranchesData.class));
             }
         }
-
     }
 
     private void saveBranches() throws IOException {
@@ -2186,7 +2211,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
 
         FileData data = new FileData();
-        data.setName(id + "/branches.yaml");
+        data.setName(branchesConfigFile);
         data.setAuthor(getClass().getName());
         data.setComment("Update branches info");
         repositorySettings.getRepository().save(data, new ByteArrayInputStream(outputStream.toByteArray()));
@@ -2249,6 +2274,18 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         String userMessage = new MergeMessageFormatter().format(Collections.singletonList(r),
             git.getRepository().exactRef(Constants.HEAD));
         return MessageFormat.format(escapedCommentTemplate, CommitType.MERGE, userMessage, mergeAuthor);
+    }
+
+    private void unlockSettings() {
+        if (repositorySettings != null) {
+            repositorySettings.unlock(branchesConfigFile);
+        }
+    }
+
+    private void lockSettings() {
+        if (repositorySettings != null) {
+            repositorySettings.lock(branchesConfigFile);
+        }
     }
 
     boolean isCheckoutOldVersion(String path, String baseVersion) throws GitAPIException, IOException {

@@ -136,7 +136,8 @@ public class ProtectedBranchTest {
         repo.setLocalRepositoryPath(local.getAbsolutePath());
         FileSystemRepository settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(local.getParent() + "/git-settings");
-        repo.setRepositorySettings(new RepositorySettings(settingsRepository));
+        String locksRoot = new File(root, "locks").getAbsolutePath();
+        repo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
         repo.setCommentTemplate("WebStudio: {commit-type}. {user-message}");
         repo.initialize();
 

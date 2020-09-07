@@ -9,6 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -42,7 +44,8 @@ public class Lock {
     public boolean tryLock(String lockedBy) {
         LockInfo info = info();
         if (info.isLocked()) {
-            return info.getLockedBy().equals(lockedBy);
+            // If lockedBy is empty, will return false. Can't lock second time with empty user.
+            return !info.getLockedBy().isEmpty() && info.getLockedBy().equals(lockedBy);
         }
         boolean lockAcquired = false;
         if (!Files.exists(lockPath)) {
@@ -74,6 +77,50 @@ public class Lock {
             }
         }
         return result;
+    }
+
+    public void forceLock(String lockedBy, long timeToLive, TimeUnit unit) {
+        // Time to wait while it's unlocked by somebody
+        long timeToWait = timeToLive / 10;
+        boolean result = tryLock(lockedBy, timeToWait, unit);
+        while (!result) {
+            LockInfo info = info();
+            if (info.isLocked()) {
+                Instant deadline = info.getLockedAt().plus(timeToLive, toTemporalUnit(unit));
+                if (deadline.isBefore(Instant.now())) {
+                    String message = "Too much time after the lock was created. Looks like the lock is never gonna unlocked. Unlock it ourselves.\n"
+                        + "Lock path: {}\n"
+                        + "Locked at: {}\n"
+                        + "Locked by: {}\n"
+                        + "Time to live: {} {}";
+                    LOG.warn(
+                        message,
+                        lockPath,
+                        info.getLockedAt(),
+                        info.getLockedBy(),
+                        timeToLive,
+                        unit);
+                    unlock();
+                }
+            }
+            result = tryLock(lockedBy, timeToWait, unit);
+        }
+    }
+
+    /**
+     * TODO: replace this method with unit.toChronoUnit() when we stop supporting java 8
+     */
+    private TemporalUnit toTemporalUnit(TimeUnit unit) {
+        switch (unit) {
+            case NANOSECONDS:  return ChronoUnit.NANOS;
+            case MICROSECONDS: return ChronoUnit.MICROS;
+            case MILLISECONDS: return ChronoUnit.MILLIS;
+            case SECONDS:      return ChronoUnit.SECONDS;
+            case MINUTES:      return ChronoUnit.MINUTES;
+            case HOURS:        return ChronoUnit.HOURS;
+            case DAYS:         return ChronoUnit.DAYS;
+            default: throw new IllegalArgumentException();
+        }
     }
 
     public void unlock() {
@@ -108,13 +155,13 @@ public class Lock {
             Instant date;
             try {
                 date = Instant.parse(stringDate);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
                 try {
                     // Fallback to the old approach when date was stored in milliseconds
                     date = Instant.ofEpochMilli(Long.parseLong(stringDate));
                 } catch (Exception ignored2) {
                     date = Instant.ofEpochMilli(0);
-                    LOG.warn("Impossible to parse date {}", stringDate, ignored);
+                    LOG.warn("Impossible to parse date {}", stringDate, e);
                 }
             }
             return new LockInfo(date, userName);

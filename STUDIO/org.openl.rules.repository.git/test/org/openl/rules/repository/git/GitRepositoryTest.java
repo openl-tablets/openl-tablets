@@ -1192,7 +1192,8 @@ public class GitRepositoryTest {
         String settingsPath = local.getParent() + "/git-settings";
         FileSystemRepository settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(settingsPath);
-        repo.setRepositorySettings(new RepositorySettings(settingsRepository));
+        String locksRoot = new File(root, "locks").getAbsolutePath();
+        repo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
         repo.setGcAutoDetach(false);
         repo.initialize();
 

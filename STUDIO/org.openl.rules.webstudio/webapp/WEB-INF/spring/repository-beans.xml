@@ -18,6 +18,8 @@
 
     <bean name="repositorySettings" class="org.openl.rules.repository.api.RepositorySettings">
         <constructor-arg name="repository" ref="settingsRepository"/>
+        <constructor-arg name="locksRoot" value="${repository.settings.locks.root}"/>
+        <constructor-arg name="lockTimeToLive" value="${repository.settings.locks.time-to-live}"/>
     </bean>
 
     <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl"

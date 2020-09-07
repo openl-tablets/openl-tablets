@@ -71,7 +71,7 @@ public class LockTest {
     }
 
     @Test
-    public void testTryLockWithTimeout() throws IOException {
+    public void testTryLockWithTimeout() {
         boolean lock1 = lock.tryLock("user1");
         assertTrue(lock1);
         boolean lock2 = lock.tryLock("user2", 1, TimeUnit.SECONDS);
@@ -84,4 +84,12 @@ public class LockTest {
         assertFalse(lockInfo.isLocked());
     }
 
+    @Test
+    public void testForceLock() {
+        boolean lock1 = lock.tryLock("user1");
+        assertTrue(lock1);
+        lock.forceLock("user2", 1, TimeUnit.SECONDS);
+        LockInfo lockInfo = lock.info();
+        assertEquals("user2", lockInfo.getLockedBy());
+    }
 }
