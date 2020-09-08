@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -32,6 +33,9 @@ import org.openl.util.BooleanUtils;
 
 public class DefaultPropertiesFileNameProcessor implements PropertiesFileNameProcessor, FileNamePatternValidator {
 
+    private static final String SINGLE_PATTERN_ERROR_MSG = "Module '%s' does not match file name pattern '%s'.";
+    private static final String MULTI_PATTERN_ERROR_MSG = "Module '%s' does not match any file name pattern: '%s'.";
+
     private static final String EMPTY_STRING = "";
     private static final String ARRAY_SEPARATOR = ",";
     private static final String DEFAULT_PATTERN = ".+?";
@@ -55,14 +59,48 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     }
 
     @Override
-    public ITableProperties process(Module module, String fileNamePattern) throws NoMatchFileNameException,
-                                                                           InvalidFileNamePatternException {
+    public ITableProperties process(Module module, String... fileNamePatterns) throws NoMatchFileNameException,
+                                                                               InvalidFileNamePatternException {
         String fileName = FilenameExtractorUtil.extractFileNameFromModule(module);
-        return process(fileName, fileNamePattern);
+        return process(fileName, fileNamePatterns);
     }
 
-    ITableProperties process(String fileName, String fileNamePattern) throws InvalidFileNamePatternException,
-                                                                      NoMatchFileNameException {
+    ITableProperties process(String fileName, String... fileNamePatterns) throws InvalidFileNamePatternException,
+                                                                          NoMatchFileNameException {
+        if (fileNamePatterns == null) {
+            fileNamePatterns = new String[]{EMPTY_STRING};
+        }
+        NoMatchFileNameException error = null;
+        //choose the suitable pattern
+        for (String fileNamePattern : fileNamePatterns) {
+            try {
+                ITableProperties properties = process(fileName, fileNamePattern);
+                if (properties != null) {
+                    return properties;
+                }
+            } catch (NoMatchFileNameException e) {
+                if (error != null) {
+                    e.addSuppressed(error);
+                }
+                error = e;
+            }
+        }
+
+        if (error != null) {
+            throw error;
+        }
+
+        if (fileNamePatterns.length == 1) {
+            throw new NoMatchFileNameException(String.format(SINGLE_PATTERN_ERROR_MSG, fileName, fileNamePatterns[0]));
+        } else {
+            throw new NoMatchFileNameException(String.format(MULTI_PATTERN_ERROR_MSG,
+                    fileName,
+                    Arrays.toString(fileNamePatterns)));
+        }
+    }
+
+    private ITableProperties process(String fileName, String fileNamePattern) throws InvalidFileNamePatternException,
+                                                                              NoMatchFileNameException {
         if (fileNamePattern == null) {
             fileNamePattern = EMPTY_STRING;
         }
@@ -89,19 +127,17 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                     props.setFieldValue(propertyName, value);
                 } catch (Exception e) {
                     throw new NoMatchFileNameException(String.format(
-                        "Module '%s' does not match file name pattern '%s'.%n Invalid property: %s.%n Message: %s.",
-                        fileName,
-                        fileNamePattern,
-                        propertyName,
-                        e.getMessage()));
+                            "Module '%s' does not match file name pattern '%s'.%n Invalid property: %s.%n Message: %s.",
+                            fileName,
+                            fileNamePattern,
+                            propertyName,
+                            e.getMessage()));
                 }
             }
 
             return props;
-        } else {
-            throw new NoMatchFileNameException(
-                String.format("Module '%s' does not match file name pattern '%s'.", fileName, fileNamePattern));
         }
+        return null;
     }
 
     protected PatternModel getPatternModel(String fileNamePattern) throws InvalidFileNamePatternException {

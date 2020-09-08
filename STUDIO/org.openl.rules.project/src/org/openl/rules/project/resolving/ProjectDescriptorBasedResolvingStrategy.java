@@ -2,7 +2,12 @@ package org.openl.rules.project.resolving;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.openl.engine.OpenLCompileManager;
 import org.openl.rules.project.ProjectDescriptorManager;
@@ -11,6 +16,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesLoader;
+import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,15 +52,15 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
             PropertiesFileNameProcessor processor = null;
             if (StringUtils.isNotBlank(projectDescriptor.getPropertiesFileNameProcessor())) {
                 try {
-                    processor = propertiesFileNameProcessorBuilder.buildCustomProcessor(projectDescriptor);
+                    processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
                 } catch (InvalidFileNameProcessorException e1) {
                     String message = e1.getMessage();
                     LOG.warn(message);
                     globalErrorMessages.add(message);
                 }
             } else {
-                if (StringUtils.isNotBlank(projectDescriptor.getPropertiesFileNamePattern())) {
-                    processor = propertiesFileNameProcessorBuilder.buildDefaultProcessor(projectDescriptor);
+                if (CollectionUtils.isNotEmpty(projectDescriptor.getPropertiesFileNamePatterns())) {
+                    processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
                 }
             }
             if (processor != null) {
@@ -68,14 +74,21 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                     Map<String, Object> params = new HashMap<>();
                     try {
                         ITableProperties tableProperties = processor.process(module,
-                            projectDescriptor.getPropertiesFileNamePattern());
+                            projectDescriptor.getPropertiesFileNamePatterns());
                         params.put(PropertiesLoader.EXTERNAL_MODULE_PROPERTIES_KEY, tableProperties);
                     } catch (NoMatchFileNameException e) {
                         String moduleFileName = FilenameExtractorUtil.extractFileNameFromModule(module);
                         String defaultMessage;
-                        if (projectDescriptor.getPropertiesFileNamePattern() != null) {
-                            defaultMessage = "Module file name '" + moduleFileName + "' does not match file name pattern! File name pattern is: " + projectDescriptor
-                                .getPropertiesFileNamePattern();
+                        if (CollectionUtils.isNotEmpty(projectDescriptor.getPropertiesFileNamePatterns())) {
+                            if (projectDescriptor.getPropertiesFileNamePatterns().length == 1) {
+                                defaultMessage = String.format("Module file name '%s' does not match file name pattern! File name pattern is: %s",
+                                        moduleFileName,
+                                        projectDescriptor.getPropertiesFileNamePatterns()[0]);
+                            } else {
+                                defaultMessage = String.format("Module file name '%s' does not match file name pattern! File name patterns are: %s",
+                                        moduleFileName,
+                                        Arrays.toString(projectDescriptor.getPropertiesFileNamePatterns()));
+                            }
                         } else {
                             defaultMessage = "Module file name '" + moduleFileName + "' does not match file name pattern.";
                         }

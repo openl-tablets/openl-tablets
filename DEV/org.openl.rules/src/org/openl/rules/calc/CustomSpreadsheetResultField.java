@@ -3,6 +3,7 @@ package org.openl.rules.calc;
 import java.util.Objects;
 
 import org.openl.base.INamedThing;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.binding.RecursiveSpreadsheetMethodPreBindingException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -51,6 +52,18 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
 
     protected Object processResult(Object res) {
         if (res != null && !ClassUtils.isAssignable(res.getClass(), getType().getInstanceClass())) {
+            return convertWithFailSafeCast(res);
+        }
+
+        return res != null ? res : getType().nullObject();
+    }
+
+    protected final Object convertWithFailSafeCast(Object res) {
+        IOpenCast cast = ((CustomSpreadsheetResultOpenClass) getDeclaringClass()).getObjectToDataOpenCastConvertor()
+            .getConvertor(getType().getInstanceClass(), res.getClass());
+        if (cast != null && cast.isImplicit()) {
+            return cast.convert(res);
+        } else {
             throw new UnexpectedSpreadsheetResultFieldTypeException(
                 String.format("Unexpected type for field '%s' in '%s'. Expected type '%s', but found '%s'.",
                     getName(),
@@ -58,8 +71,6 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
                     getType().getDisplayName(INamedThing.LONG),
                     res.getClass().getTypeName()));
         }
-
-        return res != null ? res : getType().nullObject();
     }
 
     @Override

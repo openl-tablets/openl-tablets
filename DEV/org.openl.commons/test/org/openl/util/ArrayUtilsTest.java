@@ -124,7 +124,7 @@ public class ArrayUtilsTest {
     }
 
     @Test
-    public void test5DArray(){
+    public void test5DArray() {
         Object o = ArrayUtils.repackArray(array5D, A[][][][][].class);
         assertArrayEquals((Object[][][]) o, resultArray5D);
         Class<?> resultType = o.getClass();

@@ -3,7 +3,11 @@ package org.openl.rules.project.model;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,20 +20,19 @@ public class ProjectDescriptor {
     private String name;
     private String comment;
     private File projectFolder;
-    private List<Module> modules = Collections.emptyList();
+    private List<Module> modules;
     private List<PathEntry> classpath;
-    private List<Property> properties;
 
     private List<ProjectDependencyDescriptor> dependencies;
-    private String propertiesFileNamePattern;
+    private String[] propertiesFileNamePatterns;
     private String propertiesFileNameProcessor;
 
-    public String getPropertiesFileNamePattern() {
-        return propertiesFileNamePattern;
+    public String[] getPropertiesFileNamePatterns() {
+        return propertiesFileNamePatterns;
     }
 
-    public void setPropertiesFileNamePattern(String propertiesFileNamePattern) {
-        this.propertiesFileNamePattern = propertiesFileNamePattern;
+    public void setPropertiesFileNamePatterns(String[] propertiesFileNamePatterns) {
+        this.propertiesFileNamePatterns = propertiesFileNamePatterns;
     }
 
     public String getPropertiesFileNameProcessor() {
@@ -93,7 +96,7 @@ public class ProjectDescriptor {
     }
 
     public void setModules(List<Module> modules) {
-        this.modules = modules == null ? Collections.emptyList() : modules;
+        this.modules = modules;
     }
 
     public List<PathEntry> getClasspath() {
@@ -180,13 +183,5 @@ public class ProjectDescriptor {
                 }
             }
         }
-    }
-
-    public List<Property> getProperties() {
-        return properties;
-    }
-
-    public void setProperties(List<Property> properties) {
-        this.properties = properties;
     }
 }

@@ -2,7 +2,6 @@ package org.openl.rules.method;
 
 import java.util.Map;
 
-import org.openl.binding.IBindingContext;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -235,5 +234,9 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
         }
 
         return null;
+    }
+
+    public boolean isAlias() {
+        return false;
     }
 }

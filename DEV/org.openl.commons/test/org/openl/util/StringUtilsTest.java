@@ -100,6 +100,19 @@ public class StringUtilsTest {
     }
 
     @Test
+    public void testToLines() {
+        assertNull(StringUtils.toLines(null));
+        assertNull(StringUtils.toLines(""));
+        assertNull(StringUtils.toLines("\r\n\t "));
+        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.toLines("a"));
+        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.toLines("\r\n\t  a\r\n\t "));
+        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.toLines("a\r\nb\r\nc"));
+        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.toLines("\na\rb\nc\r"));
+        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.toLines("\n\ra\r\tb \nc\n"));
+        assertArrayEquals("Returned array is not valid", new String[]{"a", "c"}, StringUtils.toLines("\r a\n\t\r \n c \n"));
+    }
+
+    @Test
     public void testJoinObject() {
         assertNull("Returned string is not valid", StringUtils.join(null, "*"));
         assertEquals("Returned string is not valid", "", StringUtils.join(new Object[]{}, "*"));

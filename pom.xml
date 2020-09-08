@@ -101,8 +101,8 @@
         <maven.plugin.version>3.6.0</maven.plugin.version>
         <jetty.server.version>9.4.31.v20200723</jetty.server.version>
         <awaitility.version>3.1.6</awaitility.version>
-        <elasticsearch-cluster-runner.version>6.8.1.0</elasticsearch-cluster-runner.version>
-        <elasticsearch.version>6.8.8</elasticsearch.version>
+        <elasticsearch-cluster-runner.version>6.8.9.0</elasticsearch-cluster-runner.version>
+        <elasticsearch.version>6.8.12</elasticsearch.version>
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
         <!-- 48MB Should be enough to don't fall in OutOfMemoryError. It equals to MaxNonGCSize=30MB + ~50%-->
@@ -618,12 +618,6 @@
                 <version>${awaitility.version}</version>
                 <scope>test</scope>
             </dependency>
-            <dependency>
-                <groupId>org.awaitility</groupId>
-                <artifactId>awaitility-proxy</artifactId>
-                <version>${awaitility.version}</version>
-                <scope>test</scope>
-            </dependency>
             <!-- Mock objects library for java -->
             <dependency>
                 <groupId>org.mockito</groupId>
@@ -1126,17 +1120,17 @@
             <dependency>
                 <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jakarta.xml.bind-api</artifactId>
-                <version>2.3.2</version>
+                <version>2.3.3</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.activation</groupId>
                 <artifactId>jakarta.activation-api</artifactId>
-                <version>1.2.1</version>
+                <version>1.2.2</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.istack</groupId>
                 <artifactId>istack-commons-runtime</artifactId>
-                <version>3.0.8</version>
+                <version>3.0.11</version>
             </dependency>
             <!-- Full jar with all schemas. It's a replacement for poi-ooxml-schemas jar when the full schema is needed -->
             <dependency>

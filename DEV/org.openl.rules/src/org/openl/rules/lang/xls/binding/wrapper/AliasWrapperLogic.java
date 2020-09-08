@@ -18,57 +18,146 @@ public final class AliasWrapperLogic {
     private AliasWrapperLogic() {
     }
 
-    public static IOpenMethod wrapOpenMethod(final IOpenMethod openMethod, final String aliasMethodName) {
-        if (openMethod instanceof Algorithm) {
-            return new AbstractAlgorithmWrapper((Algorithm) openMethod) {
-                @Override
-                public String getName() {
-                    return aliasMethodName;
-                }
-            };
-        }
-        if (openMethod instanceof AlgorithmSubroutineMethod) {
-            return new AbstractAlgorithmSubroutineMethodWrapper((AlgorithmSubroutineMethod) openMethod) {
-                @Override
-                public String getName() {
-                    return aliasMethodName;
-                }
-            };
-        }
-        if (openMethod instanceof DecisionTable) {
-            return new AbstractDecisionTableWrapper((DecisionTable) openMethod) {
-                @Override
-                public String getName() {
-                    return aliasMethodName;
-                }
-            };
-        }
-        if (openMethod instanceof ColumnMatch) {
-            return new AbstractColumnMatchWrapper((ColumnMatch) openMethod) {
-                @Override
-                public String getName() {
-                    return aliasMethodName;
-                }
-            };
-        }
-        if (openMethod instanceof Spreadsheet) {
-            return new AbstractSpreadsheetWrapper((Spreadsheet) openMethod) {
-                @Override
-                public String getName() {
-                    return aliasMethodName;
-                }
-            };
-        }
-        if (openMethod instanceof TableMethod) {
-            return new AbstractTableMethodWrapper((TableMethod) openMethod) {
-                @Override
-                public String getName() {
-                    return aliasMethodName;
-                }
-            };
+    private static class AliasAlgorithmWrapper extends AbstractAlgorithmWrapper {
+        private final String aliasMethodName;
+
+        public AliasAlgorithmWrapper(Algorithm delegate, String aliasMethodName) {
+            super(delegate);
+            this.aliasMethodName = aliasMethodName;
         }
 
-        throw new IllegalStateException(String.format("Unsupported method type '%s' for service method wrapping",
-            openMethod.getClass().getTypeName()));
+        @Override
+        public String getName() {
+            return aliasMethodName;
+        }
+
+        @Override
+        public boolean isAlias() {
+            return true;
+        }
+    }
+
+    private static class AliasAlgorithmSubroutineMethodWrapper extends AbstractAlgorithmSubroutineMethodWrapper {
+        private final String aliasMethodName;
+
+        public AliasAlgorithmSubroutineMethodWrapper(AlgorithmSubroutineMethod delegate, String aliasMethodName) {
+            super(delegate);
+            this.aliasMethodName = aliasMethodName;
+        }
+
+        @Override
+        public String getName() {
+            return aliasMethodName;
+        }
+
+        @Override
+        public boolean isAlias() {
+            return true;
+        }
+
+    }
+
+    private static class AliasDecisionTableWrapper extends AbstractDecisionTableWrapper {
+        private final String aliasMethodName;
+
+        public AliasDecisionTableWrapper(DecisionTable delegate, String aliasMethodName) {
+            super(delegate);
+            this.aliasMethodName = aliasMethodName;
+        }
+
+        @Override
+        public String getName() {
+            return aliasMethodName;
+        }
+
+        @Override
+        public boolean isAlias() {
+            return true;
+        }
+
+    }
+
+    private static class AliasColumnMatchWrapper extends AbstractColumnMatchWrapper {
+        private final String aliasMethodName;
+
+        public AliasColumnMatchWrapper(ColumnMatch delegate, String aliasMethodName) {
+            super(delegate);
+            this.aliasMethodName = aliasMethodName;
+        }
+
+        @Override
+        public String getName() {
+            return aliasMethodName;
+        }
+
+        @Override
+        public boolean isAlias() {
+            return true;
+        }
+
+    }
+
+    private static class AliasSpreadsheetWrapper extends AbstractSpreadsheetWrapper {
+        private final String aliasMethodName;
+
+        public AliasSpreadsheetWrapper(Spreadsheet delegate, String aliasMethodName) {
+            super(delegate);
+            this.aliasMethodName = aliasMethodName;
+        }
+
+        @Override
+        public String getName() {
+            return aliasMethodName;
+        }
+
+        @Override
+        public boolean isAlias() {
+            return true;
+        }
+
+    }
+
+    private static class AliasTableMethodWrapper extends AbstractTableMethodWrapper {
+        private final String aliasMethodName;
+
+        public AliasTableMethodWrapper(TableMethod delegate, String aliasMethodName) {
+            super(delegate);
+            this.aliasMethodName = aliasMethodName;
+        }
+
+        @Override
+        public String getName() {
+            return aliasMethodName;
+        }
+
+        @Override
+        public boolean isAlias() {
+            return true;
+        }
+
+    }
+
+    public static IOpenMethod wrapOpenMethod(final IOpenMethod openMethod, final String aliasMethodName) {
+        if (openMethod instanceof Algorithm) {
+            return new AliasAlgorithmWrapper((Algorithm) openMethod, aliasMethodName);
+        }
+        if (openMethod instanceof AlgorithmSubroutineMethod) {
+            return new AliasAlgorithmSubroutineMethodWrapper((AlgorithmSubroutineMethod) openMethod, aliasMethodName);
+        }
+        if (openMethod instanceof DecisionTable) {
+            return new AliasDecisionTableWrapper((DecisionTable) openMethod, aliasMethodName);
+        }
+        if (openMethod instanceof ColumnMatch) {
+            return new AliasColumnMatchWrapper((ColumnMatch) openMethod, aliasMethodName);
+        }
+        if (openMethod instanceof Spreadsheet) {
+            return new AliasSpreadsheetWrapper((Spreadsheet) openMethod, aliasMethodName);
+        }
+        if (openMethod instanceof TableMethod) {
+            return new AliasTableMethodWrapper((TableMethod) openMethod, aliasMethodName);
+        }
+        throw new IllegalStateException(
+            String.format("Unsupported method type '%s' for method wrapping with alias functionality",
+                openMethod.getClass().getTypeName()));
     }
 }

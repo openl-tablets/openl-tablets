@@ -24,10 +24,6 @@
         <h:inputText value="#{settings.login}" rendered="#{settings.secure}"/>
         <h:outputText value="Password:" rendered="#{settings.secure}"/>
         <h:inputSecret value="#{settings.password}" rendered="#{settings.secure}" redisplay="true"/>
-
-        <h:outputLabel value="Version in deployment name:" rendered="#{isProductionRepo}" for="#{prependId}includeVersionInDeploymentName"/>
-        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProductionRepo}" disabled="#{isEditing}" id="#{prependId}includeVersionInDeploymentName"/>
-        <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProductionRepo and isEditing}"/>
     </h:panelGrid>
 
     <h:panelGroup rendered="#{isDesignRepo}">

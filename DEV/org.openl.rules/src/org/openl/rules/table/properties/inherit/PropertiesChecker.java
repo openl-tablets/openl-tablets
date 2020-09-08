@@ -59,10 +59,9 @@ public final class PropertiesChecker {
 
                 addError(bindingContext, tableSyntaxNode, message);
             } else if (level != null && !PropertiesChecker.isPropertySuitableForLevel(level, propertyNameToCheck)) {
-                String message = String.format("Property '%s' cannot be defined on the '%s' level.",
+                String message = String.format("Property '%s' cannot be defined on level '%s'.",
                     propertyNameToCheck,
                     level.getDisplayName());
-
                 addError(bindingContext, tableSyntaxNode, message);
             }
         }
