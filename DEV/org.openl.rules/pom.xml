@@ -77,5 +77,15 @@
             <!-- Annotation classes are used in generated from Datatype Table classes.
             To compile them without adding extra dependency in client's project "compile" scope is used -->
         </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility-proxy</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
