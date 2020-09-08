@@ -14,6 +14,7 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.ruleservice.conf.ServiceConfigurer;
+import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.OpenLServiceHolder;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
@@ -144,33 +145,51 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     }
 
     private void deployServices(Map<String, ServiceDescription> newServices) {
-        for (ServiceDescription serviceDescription : newServices.values()) {
-            String serviceName = serviceDescription.getName();
-            ServiceDescription old = services.get(serviceName);
-            try {
-
-                if (old != null) {
-                    CommonVersion oldVersion = old.getDeployment().getVersion();
-                    if (oldVersion.compareTo(serviceDescription.getDeployment().getVersion()) != 0) {
-                        Lock lock = RuleServiceRedeployLock.getInstance().getWriteLock();
-                        try {
-                            lock.lock();
-                            // Do redeploy
-                            undeploy(old);
-                            deploy(serviceDescription);
-                        } finally {
-                            lock.unlock();
+        final Map<DeploymentDescription, List<ServiceDescription>> groupedServices = newServices.values()
+            .stream()
+            .collect(Collectors.groupingBy(ServiceDescription::getDeployment));
+        Lock lock = RuleServiceRedeployLock.getInstance().getWriteLock();
+        try {
+            lock.lock();
+            for (List<ServiceDescription> serviceDescriptionsForDeployment : groupedServices.values()) {
+                if (hasAtLeastOneToDeploy(serviceDescriptionsForDeployment)) {
+                    for (ServiceDescription serviceDescription : serviceDescriptionsForDeployment) {
+                        ServiceDescription old = services.get(serviceDescription.getName());
+                        if (old != null) {
+                            try {
+                                undeploy(old);
+                            } catch (RuleServiceUndeployException e) {
+                                log.error("Failed to undeploy service '{}'.", serviceDescription.getName(), e);
+                            }
                         }
                     }
-                } else {
-                    deploy(serviceDescription);
+                    for (ServiceDescription serviceDescription : serviceDescriptionsForDeployment) {
+                        try {
+                            deploy(serviceDescription);
+                        } catch (RuleServiceDeployException e) {
+                            log.error("Failed to deploy service '{}'.", serviceDescription.getName(), e);
+                        }
+                    }
                 }
-            } catch (RuleServiceDeployException e) {
-                log.error("Failed to deploy service '{}'.", serviceName, e);
-            } catch (RuleServiceUndeployException e) {
-                log.error("Failed to undeploy service '{}'.", serviceName, e);
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private boolean hasAtLeastOneToDeploy(List<ServiceDescription> serviceDescriptionsForCurrentDeployment) {
+        for (ServiceDescription serviceDescription : serviceDescriptionsForCurrentDeployment) {
+            ServiceDescription old = services.get(serviceDescription.getName());
+            if (old != null) {
+                CommonVersion oldVersion = old.getDeployment().getVersion();
+                if (oldVersion.compareTo(serviceDescription.getDeployment().getVersion()) != 0) {
+                    return true;
+                }
+            } else {
+                return true;
             }
         }
+        return false;
     }
 
     private void undeploy(ServiceDescription serviceDescription) throws RuleServiceUndeployException {
@@ -191,12 +210,12 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                 }
                 OpenClassUtil.releaseClassLoader(classloader);
             }
-            log.info("Service '{}' was undeployed successfully.", serviceName);
-            startDates.remove(serviceName);
-            services.remove(serviceName);
+            log.info("Service '{}' has been undeployed successfully.", serviceName);
         } finally {
             ServiceDescriptionHolder.getInstance().remove();
             OpenLServiceHolder.getInstance().remove();
+            startDates.remove(serviceName);
+            services.remove(serviceName);
         }
     }
 
@@ -218,7 +237,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         OpenLService service = getServiceByName(serviceName);
         if (service != null) {
             throw new RuleServiceDeployException(
-                String.format("The service with name '%s' has already been deployed.", serviceName));
+                String.format("The service with name '%s' is already deployed.", serviceName));
         }
         try {
             ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
@@ -229,7 +248,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         } catch (RuleServiceInstantiationException e) {
             throw new RuleServiceDeployException("Failed on deploy a service.", e);
         } finally {
-            cleanDeploymentResources(serviceDescription);
             ServiceDescriptionHolder.getInstance().remove();
             OpenLServiceHolder.getInstance().remove();
 
@@ -330,7 +348,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                 if (ruleServicePublisher != null) {
                     publishers.add(ruleServicePublisher);
                 } else {
-                    log.warn("Publisher for '{}' is registered. Please, validate your configuration for service '{}'.",
+                    log.warn("Publisher for '{}' is not registered. Please, check the configuration for service '{}'.",
                         p,
                         service.getName());
                 }
@@ -385,7 +403,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     public void undeploy(String serviceName) throws RuleServiceUndeployException {
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
         OpenLService undeployService = services2.get(serviceName);
-        Objects.requireNonNull(undeployService, "service '" + serviceName + "' has not been found");
+        Objects.requireNonNull(undeployService, String.format("Service '%s' has not been found.", serviceName));
         RuleServiceUndeployException e1 = null;
         for (RuleServicePublisher publisher : supportedPublishers.values()) {
             if (publisher.getServiceByName(serviceName) != null) {
@@ -413,13 +431,13 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     @Override
     public void afterPropertiesSet() {
         if (CollectionUtils.isEmpty(supportedPublishers)) {
-            throw new BeanInitializationException("You must define at least one supported publisher.");
+            throw new BeanInitializationException("At least one supported publisher must be registered.");
         }
 
         for (String defPublisher : defaultRuleServicePublishers) {
             if (!supportedPublishers.containsKey(defPublisher)) {
                 throw new BeanInitializationException(
-                    String.format("Default publisher with id=%s is not found in the map of supported publishers",
+                    String.format("Default publisher with id '%s' is not found in the map of supported publishers.",
                         defPublisher));
             }
         }

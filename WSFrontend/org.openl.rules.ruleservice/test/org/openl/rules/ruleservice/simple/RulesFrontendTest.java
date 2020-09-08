@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 
 import org.junit.Test;
@@ -65,18 +66,16 @@ public class RulesFrontendTest {
         Object result = frontend.execute("RulesFrontendTest_multimodule", "worldHello", 10);
         assertEquals("World, Good Morning!", result);
         OpenLService openLService = serviceManager.getServiceByName("RulesFrontendTest_multimodule");
-        try {
-            serviceManager.undeploy("RulesFrontendTest_multimodule");
-            assertEquals(Arrays.asList("org.openl.rules.tutorial4.Tutorial4Interface"), frontend.getServiceNames());
 
-            try {
-                frontend.execute("RulesFrontendTest_multimodule", "notExistedMethod", 10);
-                fail();
-            } catch (MethodInvocationException e) {
-                assertTrue(e.getMessage().contains("Service 'RulesFrontendTest_multimodule' is not found."));
-            }
-        } finally {
-            serviceManager.deploy(openLService);
+        serviceManager.undeploy("RulesFrontendTest_multimodule");
+        assertEquals(Collections.singletonList("org.openl.rules.tutorial4.Tutorial4Interface"),
+            frontend.getServiceNames());
+
+        try {
+            frontend.execute("RulesFrontendTest_multimodule", "notExistedMethod", 10);
+            fail();
+        } catch (MethodInvocationException e) {
+            assertTrue(e.getMessage().contains("Service 'RulesFrontendTest_multimodule' is not found."));
         }
     }
 }

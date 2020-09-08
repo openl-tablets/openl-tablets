@@ -13,7 +13,7 @@ public final class RuleServiceRedeployLock {
         return RuleServiceRedeployLockHolder.INSTANCE;
     }
 
-    private ReadWriteLock reentrantReadWriteLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock reentrantReadWriteLock = new ReentrantReadWriteLock();
 
     public Lock getReadLock() {
         return reentrantReadWriteLock.readLock();
