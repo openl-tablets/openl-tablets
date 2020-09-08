@@ -110,7 +110,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     public void setId(String id) {
         this.id = id;
-        branchesConfigFile = id + "/branches.yaml";
+        if (id != null) {
+            branchesConfigFile = id + "/branches.yaml";
+        }
     }
 
     @Override
@@ -943,16 +945,23 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private BranchesData getBranches(boolean withLock) throws IOException {
-        if (repositorySettings != null && !repositorySettings.getSyncDate().equals(settingsSyncDate)) {
-            if (withLock) {
-                lockSettings();
-                try {
+        if (repositorySettings != null) {
+            boolean modified = !repositorySettings.getSyncDate().equals(settingsSyncDate);
+            if (!modified) {
+                FileData fileData = repositorySettings.getRepository().check(branchesConfigFile);
+                modified = fileData != null && settingsSyncDate.before(fileData.getModifiedAt());
+            }
+            if (modified) {
+                if (withLock) {
+                    lockSettings();
+                    try {
+                        readBranches();
+                    } finally {
+                        unlockSettings();
+                    }
+                } else {
                     readBranches();
-                } finally {
-                    unlockSettings();
                 }
-            } else {
-                readBranches();
             }
         }
         return branches;
@@ -1990,7 +1999,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             reset();
 
-            lockSettings();
             BranchesData branches = getBranches(false);
             if (projectName == null) {
                 // Remove the branch from all mappings.
@@ -2183,6 +2191,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         settingsSyncDate = repositorySettings.getSyncDate();
         FileItem fileItem = repositorySettings.getRepository().read(branchesConfigFile);
         if (fileItem != null) {
+            if (settingsSyncDate.before(fileItem.getData().getModifiedAt())) {
+                settingsSyncDate = fileItem.getData().getModifiedAt();
+            }
             try (InputStreamReader in = new InputStreamReader(fileItem.getStream(), StandardCharsets.UTF_8)) {
                 TypeDescription projectsDescription = new TypeDescription(BranchesData.class);
                 projectsDescription.addPropertyParameters("descriptions", BranchDescription.class);

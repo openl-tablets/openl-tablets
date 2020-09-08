@@ -202,10 +202,20 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     @Override
     public void setListener(final Listener callback) {
         delegate.setListener(() -> {
+            repositorySettings.lock(configFile);
             try {
-                initialize();
+                refreshMapping();
+
+                ProjectIndex projectIndex = externalToInternal;
+                boolean modified = syncProjectIndex(delegate, repositoryMode, projectIndex);
+                if (modified) {
+                    saveProjectIndex(projectIndex);
+                    setExternalToInternal(projectIndex);
+                }
             } catch (Exception e) {
                 log.warn(e.getMessage(), e);
+            } finally {
+                repositorySettings.unlock(configFile);
             }
 
             if (callback != null) {
@@ -506,7 +516,18 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
      *            matter.
      */
     private ProjectIndex getUpToDateMapping(boolean withLock) {
-        if (!repositorySettings.getSyncDate().equals(settingsSyncDate)) {
+        boolean modified = !repositorySettings.getSyncDate().equals(settingsSyncDate);
+        if (!modified) {
+            try {
+                FileData fileData = repositorySettings.getRepository().check(configFile);
+                modified = fileData != null && settingsSyncDate.before(fileData.getModifiedAt());
+            } catch (IOException e) {
+                // Some IO error. Skip refreshing, do it next time.
+                log.warn(e.getMessage(), e);
+            }
+        }
+
+        if (modified) {
             if (withLock) {
                 refreshMappingWithLock();
             } else {
@@ -626,7 +647,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     @Override
     public void initialize() throws RRepositoryException {
         try {
-            refreshMapping();
+            refreshMappingWithLock();
         } catch (Exception e) {
             throw new RRepositoryException(e.getMessage(), e);
         }
@@ -653,6 +674,10 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             return generateExternalToInternalMap(delegate, repositoryMode, baseFolder);
         }
 
+        if (settingsSyncDate.before(fileItem.getData().getModifiedAt())) {
+            settingsSyncDate = fileItem.getData().getModifiedAt();
+        }
+
         TypeDescription projectsDescription = new TypeDescription(ProjectIndex.class);
         projectsDescription.addPropertyParameters("projects", ProjectInfo.class);
         Constructor constructor = new Constructor(ProjectIndex.class);
@@ -665,11 +690,6 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             Yaml yaml = new Yaml(constructor, representer);
             ProjectIndex projectIndex = yaml.loadAs(in, ProjectIndex.class);
             if (projectIndex != null) {
-                boolean modified = syncProjectIndex(delegate, repositoryMode, projectIndex);
-                if (modified) {
-                    saveProjectIndex(projectIndex);
-                }
-
                 return projectIndex;
             }
         }
@@ -843,7 +863,10 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
         repositorySettings.lock(configFile);
         try {
+            // We must ensure that our externalToInternal.getProjects() is up to date.
+            getUpToDateMapping(false);
             List<ProjectInfo> projects = externalToInternal.getProjects();
+
             Optional<ProjectInfo> project = findProject(folderData);
             if (project.isPresent()) {
                 project.get().setPath(mappingData.getInternalPath());
@@ -864,7 +887,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             return externalToInternal;
         } catch (IOException | RuntimeException e) {
             // Failed to update mapping. Restore current saved version.
-            refreshMappingWithLock();
+            refreshMapping();
             throw e;
         } finally {
             repositorySettings.unlock(configFile);
