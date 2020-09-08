@@ -472,7 +472,7 @@ public class ProjectBean {
             clean(newProjectDescriptor);
             save(newProjectDescriptor);
         }
-
+        studio.resetProjects();
     }
 
     public void removeDependency(String name) {
