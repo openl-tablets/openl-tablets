@@ -82,10 +82,5 @@
             <artifactId>awaitility</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility-proxy</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 </project>

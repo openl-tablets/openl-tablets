@@ -127,10 +127,6 @@
             <artifactId>awaitility</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility-proxy</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.codelibs</groupId>
             <artifactId>elasticsearch-cluster-runner</artifactId>
             <scope>test</scope>

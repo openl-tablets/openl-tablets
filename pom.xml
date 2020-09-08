@@ -618,12 +618,6 @@
                 <version>${awaitility.version}</version>
                 <scope>test</scope>
             </dependency>
-            <dependency>
-                <groupId>org.awaitility</groupId>
-                <artifactId>awaitility-proxy</artifactId>
-                <version>${awaitility.version}</version>
-                <scope>test</scope>
-            </dependency>
             <!-- Mock objects library for java -->
             <dependency>
                 <groupId>org.mockito</groupId>
