@@ -135,8 +135,6 @@ public class RulesProject extends UserWorkspaceProject {
     @Override
     public void delete(CommonUser user, String comment) throws ProjectException {
         if (isLocalOnly()) {
-            // If for some reason the project is locked we must unlock it.
-            unlock();
             erase(user, comment);
         } else {
             super.delete(user, comment);
@@ -223,11 +221,16 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public LockInfo getLockInfo() {
-        return lockEngine.getLockInfo(getDesignRepository().getId(), getBranch(), getName());
+        String repoId = isLocalOnly() ? "local" : getDesignRepository().getId();
+        return lockEngine.getLockInfo(repoId, getBranch(), getName());
     }
 
     @Override
     public void unlock() {
+        if (isLocalOnly()) {
+            // No need to unlock local only projects. Other users don't see it.
+            return;
+        }
         lockEngine.unlock(getDesignRepository().getId(), getBranch(), getName());
     }
 
