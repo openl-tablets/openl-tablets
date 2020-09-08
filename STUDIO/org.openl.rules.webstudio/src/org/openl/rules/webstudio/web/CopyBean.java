@@ -289,7 +289,8 @@ public class CopyBean {
         RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
         try {
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
-            WebStudioUtils.validate(!userWorkspace.hasProject(toRepositoryId, newProjectName),
+            String targetRepo = ((UIInput) context.getViewRoot().findComponent("copyProjectForm:repository")).getSubmittedValue().toString();
+            WebStudioUtils.validate(!userWorkspace.hasProject(targetRepo, newProjectName),
                 "Project with such name already exists.");
         } catch (WorkspaceException e) {
             LOG.error(e.getMessage(), e);
