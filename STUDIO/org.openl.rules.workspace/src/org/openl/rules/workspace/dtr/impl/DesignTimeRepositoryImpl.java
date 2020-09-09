@@ -7,6 +7,7 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -407,7 +408,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             // repository field can be cleared in Admin page during testing connection to a new repository
             init();
         }
-
+        repositories.sort(Comparator.comparing(Repository::getName));
         return repositories;
     }
 
