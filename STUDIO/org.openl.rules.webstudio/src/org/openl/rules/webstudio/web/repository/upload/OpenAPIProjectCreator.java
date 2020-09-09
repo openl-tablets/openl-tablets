@@ -89,8 +89,9 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             comment);
 
         OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+
         try {
-            ProjectModel projectModel = converter.extractProjectModel(uploadedOpenAPIFile.getAbsolutePath());
+            ProjectModel projectModel = getProjectModel(projectBuilder, converter);
             List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
             List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
             EnvironmentModel environmentModel = new EnvironmentModel();
@@ -103,27 +104,53 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                 throw new ProjectException("Error creating the project, uploaded file has invalid structure.");
             }
             if (!dataTypesAreEmpty) {
-                InputStream dtis = generateDataTypesFile(datatypeModels);
-                projectBuilder.addFile(PATH + MODELS_FILE_NAME, dtis);
+                addFile(projectBuilder,
+                    generateDataTypesFile(datatypeModels),
+                    PATH + MODELS_FILE_NAME,
+                    "Error uploading dataTypes file.");
             }
             if (!sprsAreEmpty) {
-                InputStream spris = generateSpreadsheetsFile(spreadsheetModels, environmentModel);
-                projectBuilder.addFile(PATH + SPR_FILE_NAME, spris);
+                addFile(projectBuilder,
+                    generateSpreadsheetsFile(spreadsheetModels, environmentModel),
+                    PATH + SPR_FILE_NAME,
+                    "Error uploading spreadsheets file.");
             }
-
-            projectBuilder.addFile(fileName, new FileInputStream(uploadedOpenAPIFile));
-
-            InputStream ds = generateRulesFile();
-            projectBuilder.addFile(RULES_FILE_NAME, ds);
-
-            InputStream bais = generateRulesDeployFile(projectModel);
-            projectBuilder.addFile(RULES_DEPLOY_XML, bais);
-
-        } catch (IOException | ValidationException e) {
+            InputStream uploadedFile = new FileInputStream(uploadedOpenAPIFile);
+            addFile(projectBuilder, uploadedFile, fileName, "Error uploading openAPI file.");
+            InputStream rulesFile = generateRulesFile();
+            addFile(projectBuilder, rulesFile, RULES_FILE_NAME, "Error uploading rules.xml file.");
+            addFile(projectBuilder,
+                generateRulesDeployFile(projectModel),
+                RULES_DEPLOY_XML,
+                "Error uploading rules-deploy.xml file.");
+        } catch (Exception e) {
             projectBuilder.cancel();
             throw new ProjectException(e.getMessage(), e);
         }
         return projectBuilder;
+    }
+
+    private void addFile(RulesProjectBuilder projectBuilder,
+            InputStream inputStream,
+            String fileName,
+            String errorMessage) throws ProjectException {
+        try (InputStream file = inputStream) {
+            projectBuilder.addFile(fileName, file);
+        } catch (IOException e) {
+            throw new ProjectException(errorMessage, e);
+        }
+    }
+
+    private ProjectModel getProjectModel(RulesProjectBuilder projectBuilder,
+            OpenAPIModelConverter converter) throws ProjectException {
+        ProjectModel projectModel;
+        try {
+            projectModel = converter.extractProjectModel(uploadedOpenAPIFile.getAbsolutePath());
+        } catch (IOException e) {
+            projectBuilder.cancel();
+            throw new ProjectException(e.getMessage(), e);
+        }
+        return projectModel;
     }
 
     private InputStream generateDataTypesFile(List<DatatypeModel> datatypeModels) {
