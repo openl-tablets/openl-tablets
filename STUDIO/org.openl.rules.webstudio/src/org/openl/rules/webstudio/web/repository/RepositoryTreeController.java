@@ -1592,11 +1592,11 @@ public class RepositoryTreeController {
     }
 
     private CommentValidator getDesignCommentValidator() {
-        return repositoryId == null ? CommentValidator.forRepo("") : CommentValidator.forRepo(repositoryId);
+        return StringUtils.isEmpty(repositoryId) ? CommentValidator.forRepo("") : CommentValidator.forRepo(repositoryId);
     }
 
     private Comments getDesignRepoComments() {
-        return repositoryId == null ? new Comments(propertyResolver, Comments.DESIGN_CONFIG_REPO_ID)
+        return StringUtils.isEmpty(repositoryId) ? new Comments(propertyResolver, Comments.DESIGN_CONFIG_REPO_ID)
                                     : new Comments(propertyResolver, repositoryId);
     }
 
@@ -2196,7 +2196,7 @@ public class RepositoryTreeController {
      * Used when create a project.
      */
     public boolean isUseCustomComment() {
-        if (repositoryId == null) {
+        if (StringUtils.isEmpty(repositoryId)) {
             return false;
         }
         return Boolean
