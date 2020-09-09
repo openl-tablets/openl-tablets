@@ -6,10 +6,12 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.OpenLServiceHolder;
-import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.databinding.jackson.NonNullMixIn;
+import org.openl.rules.serialization.DatatypeOpenClassMixInAnnotationsWriter;
+import org.openl.rules.serialization.jackson.NonEmptyMixIn;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
@@ -35,29 +37,6 @@ public final class OpenLServiceObjectMapperEnhancerFactoryBean extends AbstractF
         return ObjectMapper.class;
     }
 
-    private Class<?> enhanceMixInClass(Class<?> originalMixInClass, ClassLoader classLoader) {
-        if (originalMixInClass.isInterface()) {
-            String className = originalMixInClass.getName() + "$Enhanced$" + incrementer.getAndIncrement();
-            try {
-                return classLoader.loadClass(className);
-            } catch (ClassNotFoundException e) {
-                ClassWriter classWriter = new ClassWriter(0);
-                ClassVisitor classVisitor = new SpreadsheetResultBeanClassMixInAnnotationsWriter(classWriter,
-                    className, originalMixInClass);
-                InterfaceTransformer transformer = new InterfaceTransformer(originalMixInClass, className, true);
-                transformer.accept(classVisitor);
-                classWriter.visitEnd();
-                try {
-                    ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
-                    return Class.forName(className, true, classLoader);
-                } catch (Exception e1) {
-                    throw new RuntimeException(e1);
-                }
-            }
-        }
-        return originalMixInClass;
-    }
-
     @Override
     protected ObjectMapper createInstance() throws Exception {
         ObjectMapper objectMapper = getJacksonObjectMapperFactoryBean().createJacksonObjectMapper();
@@ -69,7 +48,7 @@ public final class OpenLServiceObjectMapperEnhancerFactoryBean extends AbstractF
             for (IOpenClass openClass : openLService.getOpenClass().getTypes()) {
                 if (openClass instanceof CustomSpreadsheetResultOpenClass) {
                     Class<?> sprBeanClass = ((CustomSpreadsheetResultOpenClass) openClass).getBeanClass();
-                    addMixInAnnotationsToSprBeanClass(objectMapper, openLService, sprBeanClass);
+                    addMixInAnnotationsToSprBeanClass(objectMapper, sprBeanClass, openLService.getClassLoader());
                 }
             }
             if (openLService.getOpenClass() instanceof XlsModuleOpenClass) {
@@ -77,22 +56,72 @@ public final class OpenLServiceObjectMapperEnhancerFactoryBean extends AbstractF
                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                     .toCustomSpreadsheetResultOpenClass()
                     .getBeanClass();
-                addMixInAnnotationsToSprBeanClass(objectMapper, openLService, sprBeanClass);
+                addMixInAnnotationsToSprBeanClass(objectMapper, sprBeanClass, openLService.getClassLoader());
+            }
+            for (IOpenClass type : openLService.getOpenClass().getTypes()) {
+                if (type instanceof DatatypeOpenClass) {
+                    addMixInAnnotationsToDatatype(objectMapper, type.getInstanceClass(), openLService.getClassLoader());
+                }
             }
         }
         return objectMapper;
     }
 
+    private void addMixInAnnotationsToDatatype(ObjectMapper objectMapper,
+            Class<?> datatypeClass,
+            ClassLoader classLoader) {
+        Class<?> originalMixInClass = objectMapper.findMixInClassFor(datatypeClass);
+        Class<?> mixInClass = enhanceMixInClassForDatatypeClass(
+            originalMixInClass != null ? originalMixInClass : NonEmptyMixIn.class,
+            classLoader);
+        objectMapper.addMixIn(datatypeClass, mixInClass);
+    }
+
     private void addMixInAnnotationsToSprBeanClass(ObjectMapper objectMapper,
-            OpenLService openLService,
-            Class<?> sprBeanClass) throws RuleServiceInstantiationException {
+            Class<?> sprBeanClass,
+            ClassLoader classLoader) {
         Class<?> originalMixInClass = objectMapper.findMixInClassFor(sprBeanClass);
         Class<?> mixInClass;
         if (originalMixInClass == null) {
             mixInClass = NonNullMixIn.class;
         } else {
-            mixInClass = enhanceMixInClass(originalMixInClass, openLService.getClassLoader());
+            mixInClass = enhanceMixInClassForSprBeanClass(originalMixInClass, classLoader);
         }
         objectMapper.addMixIn(sprBeanClass, mixInClass);
+    }
+
+    private Class<?> enhanceMixInClassForSprBeanClass(Class<?> originalMixInClass, ClassLoader classLoader) {
+        String className = originalMixInClass.getName() + "$Enhanced$" + incrementer.getAndIncrement();
+        ClassWriter classWriter = new ClassWriter(0);
+        ClassVisitor classVisitor = new SpreadsheetResultBeanClassMixInAnnotationsWriter(classWriter,
+            className,
+            originalMixInClass);
+        return defineAndLoadClass(originalMixInClass, classLoader, className, classWriter, classVisitor);
+    }
+
+    private Class<?> enhanceMixInClassForDatatypeClass(Class<?> originalMixInClass, ClassLoader classLoader) {
+        String className = originalMixInClass.getName() + "$Enhanced$" + incrementer.getAndIncrement();
+        ClassWriter classWriter = new ClassWriter(0);
+        ClassVisitor classVisitor = new DatatypeOpenClassMixInAnnotationsWriter(classWriter,
+            className,
+            originalMixInClass);
+
+        return defineAndLoadClass(originalMixInClass, classLoader, className, classWriter, classVisitor);
+    }
+
+    private Class<?> defineAndLoadClass(Class<?> originalMixInClass,
+            ClassLoader classLoader,
+            String className,
+            ClassWriter classWriter,
+            ClassVisitor classVisitor) {
+        InterfaceTransformer transformer = new InterfaceTransformer(originalMixInClass, className, true);
+        transformer.accept(classVisitor);
+        classWriter.visitEnd();
+        try {
+            ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
+            return Class.forName(className, true, classLoader);
+        } catch (Exception e1) {
+            throw new RuntimeException(e1);
+        }
     }
 }
