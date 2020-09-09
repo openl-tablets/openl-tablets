@@ -315,10 +315,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     @Override
     public void clean(ServiceDescription serviceDescription) {
-        RuleServiceDependencyManager depMan = dependencyManagerMap.remove(serviceDescription.getDeployment());
-        if (depMan != null) {
-            depMan.resetAll();
-        }
+        dependencyManagerMap.remove(serviceDescription.getDeployment()).resetAll();
     }
 
     private RuleServiceDependencyManager getDependencyManager(ServiceDescription serviceDescription) {
