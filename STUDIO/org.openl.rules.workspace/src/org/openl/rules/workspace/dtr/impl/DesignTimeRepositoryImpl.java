@@ -108,6 +108,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 });
                 repository.setListener(callback);
             }
+            repositories.sort(Comparator.comparing(Repository::getName));
 
             deploymentConfigurationLocation = propertyResolver
                 .getProperty(DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME);
@@ -408,7 +409,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             // repository field can be cleared in Admin page during testing connection to a new repository
             init();
         }
-        repositories.sort(Comparator.comparing(Repository::getName));
         return repositories;
     }
 
