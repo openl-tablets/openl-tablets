@@ -13,10 +13,11 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.common.CommonVersion;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.conf.ServiceConfigurer;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.core.OpenLServiceHolder;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactory;
@@ -54,6 +55,9 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     private Map<String, RuleServicePublisher> supportedPublishers;
     private Collection<String> defaultRuleServicePublishers = Collections.emptyList();
     private Collection<RuleServicePublisherListener> listeners = Collections.emptyList();
+
+    private ServiceDescription serviceDescriptionInProcess;
+    private OpenLService openLServiceInProcess;
 
     public void setRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
         if (this.ruleServiceLoader != null) {
@@ -197,8 +201,8 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         String serviceName = serviceDescription.getName();
         OpenLService service = getServiceByName(serviceName);
         try {
-            OpenLServiceHolder.getInstance().setOpenLService(service);
-            ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
+            this.openLServiceInProcess = service;
+            this.serviceDescriptionInProcess = serviceDescription;
             try {
                 undeploy(serviceName);
             } finally {
@@ -212,8 +216,8 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             }
             log.info("Service '{}' has been undeployed successfully.", serviceName);
         } finally {
-            ServiceDescriptionHolder.getInstance().remove();
-            OpenLServiceHolder.getInstance().remove();
+            this.openLServiceInProcess = null;
+            this.serviceDescriptionInProcess = null;
             startDates.remove(serviceName);
             services.remove(serviceName);
         }
@@ -240,21 +244,38 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                 String.format("The service with name '%s' is already deployed.", serviceName));
         }
         try {
-            ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
+            this.serviceDescriptionInProcess = serviceDescription;
             OpenLService newService = ruleServiceInstantiationFactory.createService(serviceDescription);
-            OpenLServiceHolder.getInstance().setOpenLService(newService);
+            this.openLServiceInProcess = newService;
+            this.serviceDescriptionInProcess = serviceDescription;
             deploy(newService);
             log.info("Service '{}' has been deployed successfully.", serviceName);
         } catch (RuleServiceInstantiationException e) {
             throw new RuleServiceDeployException("Failed on deploy a service.", e);
         } finally {
-            ServiceDescriptionHolder.getInstance().remove();
-            OpenLServiceHolder.getInstance().remove();
-
+            this.serviceDescriptionInProcess = null;
+            this.openLServiceInProcess = null;
             // Register a service even it was deployed unsuccessfully.
             services.put(serviceName, serviceDescription);
             startDates.put(serviceName, new Date());
         }
+    }
+
+    public XlsModuleOpenClass getXlsModuleOpenClassInProcess() throws RuleServiceInstantiationException {
+        return openLServiceInProcess != null ? (XlsModuleOpenClass) openLServiceInProcess.getOpenClass()
+                                             : null;
+    }
+
+    public RulesDeploy getRulesDeployInProcess() {
+        return serviceDescriptionInProcess != null ? serviceDescriptionInProcess.getRulesDeploy() : null;
+    }
+
+    public OpenLService getOpenLServiceInProcess() {
+        return this.openLServiceInProcess;
+    }
+
+    public ServiceDescription getServiceDescriptionInProcess() {
+        return this.serviceDescriptionInProcess;
     }
 
     @Override

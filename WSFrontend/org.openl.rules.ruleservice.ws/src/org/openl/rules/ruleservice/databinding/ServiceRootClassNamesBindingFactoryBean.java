@@ -10,9 +10,7 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.model.RulesDeployHelper;
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.core.OpenLServiceHolder;
 import org.openl.rules.ruleservice.core.ServiceDescription;
-import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.openl.rules.serialization.ObjectMapperConfigurationParsingException;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.types.IOpenClass;
@@ -42,24 +40,16 @@ public class ServiceRootClassNamesBindingFactoryBean extends AbstractFactoryBean
         return Set.class;
     }
 
-    public final OpenLService getOpenLService() throws ServiceConfigurationException {
-        if (openLService == null) {
-            openLService = OpenLServiceHolder.getInstance().get();
-            if (openLService == null) {
-                throw new ServiceConfigurationException("Failed to locate a service.");
-            }
-        }
+    public OpenLService getOpenLService() {
         return openLService;
     }
 
-    public final ServiceDescription getServiceDescription() throws ServiceConfigurationException {
-        if (serviceDescription == null) {
-            serviceDescription = ServiceDescriptionHolder.getInstance().get();
-            if (serviceDescription == null) {
-                throw new ServiceConfigurationException("Failed to locate a service description.");
-            }
-        }
+    public ServiceDescription getServiceDescription() {
         return serviceDescription;
+    }
+
+    public void setServiceDescription(ServiceDescription serviceDescription) {
+        this.serviceDescription = serviceDescription;
     }
 
     public void setOverrideTypesAsString(String overrideTypes) {

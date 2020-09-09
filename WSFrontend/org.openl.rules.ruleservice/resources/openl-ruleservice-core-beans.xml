@@ -42,7 +42,12 @@
 		<property name="supportedPublishers" ref="ruleServicePublishers"/>
 		<property name="defaultRuleServicePublishers" ref="defaultRuleServicePublishers"/>
 	</bean>
-	
+
+	<bean id="openLServiceInProcess" factory-bean="serviceManager" factory-method="getOpenLServiceInProcess" scope="prototype"/>
+	<bean id="xlsModuleOpenClassInProcess" factory-bean="serviceManager" factory-method="getXlsModuleOpenClassInProcess" scope="prototype"/>
+	<bean id="rulesDeployInProcess" factory-bean="serviceManager" factory-method="getRulesDeployInProcess" scope="prototype"/>
+	<bean id="serviceDescriptionInProcess" factory-bean="serviceManager" factory-method="getServiceDescriptionInProcess" scope="prototype"/>
+
 	<bean id="serviceManagerStarter" class="org.openl.rules.ruleservice.conf.ServiceManagerStarterBean" depends-on="serviceManager" lazy-init="false">
 		<property name="serviceManager" ref="serviceManager"/>
 	</bean>

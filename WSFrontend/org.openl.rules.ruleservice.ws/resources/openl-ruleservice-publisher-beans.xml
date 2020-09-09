@@ -17,12 +17,6 @@
         <property name="rootClassNames" value="${ruleservice.databinding.rootClassNames}"/>
     </bean>
 
-    <bean id="serviceXlsModuleOpenClass"
-          class="org.openl.rules.ruleservice.databinding.ServiceXlsModuleOpenClassObjectFactoryBean" scope="prototype"/>
-
-    <bean id="serviceRulesDeploy" class="org.openl.rules.ruleservice.databinding.ServiceRulesDeployObjectFactoryBean"
-          scope="prototype"/>
-
     <util:map id="ruleServicePublishers">
         <entry key="WEBSERVICE" value-ref="jaxwsServiceRuleServicePublisher"/>
         <entry key="RESTFUL" value-ref="jaxrsServicesRuleServicePublisher"/>

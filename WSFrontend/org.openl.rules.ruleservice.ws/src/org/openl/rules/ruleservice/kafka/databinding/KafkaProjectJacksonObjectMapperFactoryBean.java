@@ -7,7 +7,6 @@ import org.openl.rules.ruleservice.databinding.ServiceConfigurationException;
 import org.openl.rules.ruleservice.kafka.conf.BaseKafkaConfig;
 import org.openl.rules.ruleservice.kafka.conf.KafkaDeploy;
 import org.openl.rules.ruleservice.kafka.conf.KafkaDeployUtils;
-import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 
 public class KafkaProjectJacksonObjectMapperFactoryBean extends ProjectJacksonObjectMapperFactoryBean {
@@ -15,16 +14,15 @@ public class KafkaProjectJacksonObjectMapperFactoryBean extends ProjectJacksonOb
     private Type type;
     private KafkaDeploy kafkaDeploy;
     private BaseKafkaConfig kafkaConfig;
+
     private ServiceDescription serviceDescription;
 
-    private ServiceDescription getServiceDescription() {
-        if (serviceDescription == null) {
-            serviceDescription = ServiceDescriptionHolder.getInstance().get();
-            if (serviceDescription == null) {
-                throw new ServiceConfigurationException("Failed to locate a service description.");
-            }
-        }
+    public ServiceDescription getServiceDescription() {
         return serviceDescription;
+    }
+
+    public void setServiceDescription(ServiceDescription serviceDescription) {
+        this.serviceDescription = serviceDescription;
     }
 
     private KafkaDeploy getKafkaDeploy() {

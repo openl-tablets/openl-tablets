@@ -11,8 +11,8 @@
           scope="prototype" abstract="true">
         <property name="overrideTypesAsString" value="${ruleservice.databinding.rootClassNames}"/>
         <property name="supportVariations" value="${ruleservice.isSupportVariations}"/>
-        <property name="xlsModuleOpenClass" ref="serviceXlsModuleOpenClass"/>
-        <property name="rulesDeploy" ref="serviceRulesDeploy"/>
+        <property name="xlsModuleOpenClass" ref="xlsModuleOpenClassInProcess"/>
+        <property name="rulesDeploy" ref="rulesDeployInProcess"/>
     </bean>
 
     <bean id="jaxrsProjectJacksonObjectMapperFactoryBean"
@@ -25,14 +25,15 @@
         <property name="supportVariations" value="${ruleservice.isSupportVariations}"/>
         <property name="serializationInclusion" value="${ruleservice.jackson.serializationInclusion}"/>
         <property name="polymorphicTypeValidation" value="true"/>
-        <property name="xlsModuleOpenClass" ref="serviceXlsModuleOpenClass"/>
-        <property name="rulesDeploy" ref="serviceRulesDeploy"/>
+        <property name="xlsModuleOpenClass" ref="xlsModuleOpenClassInProcess"/>
+        <property name="rulesDeploy" ref="rulesDeployInProcess"/>
     </bean>
 
     <bean id="jaxrsServiceConfigurationResolveMethodParameterNamesFactoryBean"
           class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean" scope="prototype">
         <property name="propertyName" value="jaxrs.resolveMethodParameterNames"/>
         <property name="defaultValue" value="${ruleservice.jaxrs.resolveMethodParameterNames:true}"/>
+        <property name="serviceDescription" ref="serviceDescriptionInProcess"/>
     </bean>
 
     <bean id="jaxrsSwaggerObjectMapper"
@@ -85,6 +86,8 @@
                 <property name="setOfClassNames">
                     <bean class="org.openl.rules.ruleservice.databinding.ServiceRootClassNamesBindingFactoryBean">
                         <property name="overrideTypesAsString" value="${ruleservice.databinding.rootClassNames}"/>
+                        <property name="serviceDescription" ref="serviceDescriptionInProcess"/>
+                        <property name="openLService" ref="openLServiceInProcess"/>
                     </bean>
                 </property>
             </bean>

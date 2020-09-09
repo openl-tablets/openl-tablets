@@ -2,10 +2,15 @@ package org.openl.rules.ruleservice.databinding;
 
 import java.util.Objects;
 
+import org.openl.rules.ruleservice.core.ServiceDescription;
+import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.util.Assert;
 
-public class ServiceConfigurationBooleanFactoryBean extends ServiceConfigurationFactoryBean<Boolean> {
+public class ServiceConfigurationBooleanFactoryBean extends AbstractFactoryBean<Boolean> {
 
+    private ServiceDescription serviceDescription;
+
+    private Boolean defaultValue;
     private String propertyName;
 
     public String getPropertyName() {
@@ -23,7 +28,7 @@ public class ServiceConfigurationBooleanFactoryBean extends ServiceConfiguration
 
     @Override
     protected Boolean createInstance() throws Exception {
-        boolean ret = getDefaultValue();
+        Boolean ret = getDefaultValue();
         Object value = getValue(getPropertyName().trim());
         if (value instanceof Boolean) {
             return (Boolean) value;
@@ -60,4 +65,25 @@ public class ServiceConfigurationBooleanFactoryBean extends ServiceConfiguration
         Assert.notNull(this.propertyName, "propertyName cannot be null");
     }
 
+    public ServiceDescription getServiceDescription() {
+        return serviceDescription;
+    }
+
+    public void setServiceDescription(ServiceDescription serviceDescription) {
+        this.serviceDescription = serviceDescription;
+    }
+
+    public Boolean getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(Boolean defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    protected Object getValue(String property) {
+        return getServiceDescription().getConfiguration() == null ? null
+                                                                  : getServiceDescription().getConfiguration()
+                                                                      .get(property);
+    }
 }

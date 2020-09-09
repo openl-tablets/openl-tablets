@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.publish;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import org.apache.cxf.frontend.ServerFactoryBean;
@@ -12,13 +13,7 @@ import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.OpenLService.OpenLServiceBuilder;
-import org.openl.rules.ruleservice.core.OpenLServiceHolder;
-import org.openl.rules.ruleservice.core.OpenLServiceInitializer;
-import org.openl.rules.ruleservice.core.Resource;
-import org.openl.rules.ruleservice.core.ResourceLoader;
-import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
-import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.openl.spring.env.PropertySourcesLoader;
 import org.springframework.beans.BeansException;
@@ -48,28 +43,27 @@ public class WebServicesExposingTest implements ApplicationContextAware {
         JAXWSRuleServicePublisher webServicesRuleServicePublisher = applicationContext
             .getBean(JAXWSRuleServicePublisher.class);
         assertNotNull(webServicesRuleServicePublisher);
+        Field serviceDescriptionInProcessField = ServiceManagerImpl.class
+            .getDeclaredField("serviceDescriptionInProcess");
+        serviceDescriptionInProcessField.setAccessible(true);
+
+        Field openLServiceInProcessField = ServiceManagerImpl.class.getDeclaredField("openLServiceInProcess");
+        openLServiceInProcessField.setAccessible(true);
+
         try {
-            ServiceDescriptionHolder.getInstance()
-                .setServiceDescription(new ServiceDescription.ServiceDescriptionBuilder().setName("mock")
-                    .setResourceLoader(new ResourceLoader() {
-                        @Override
-                        public Resource getResource(String location) {
-                            return null;
-                        }
-                    })
-                    .setModules(new ArrayList<>())
-                    .setDeployment(new DeploymentDescription("mock", new CommonVersionImpl(1)))
-                    .build());
+            ServiceDescription serviceDescription = new ServiceDescription.ServiceDescriptionBuilder().setName("mock")
+                .setResourceLoader(location -> null)
+                .setModules(new ArrayList<>())
+                .setDeployment(new DeploymentDescription("mock", new CommonVersionImpl(1)))
+                .build();
+
+            serviceDescriptionInProcessField.set(serviceManager, serviceDescription);
 
             OpenLServiceBuilder openLServiceBuilder = new OpenLService.OpenLServiceBuilder();
             openLServiceBuilder.setName("mock");
-            OpenLService openLService = openLServiceBuilder.build(new OpenLServiceInitializer() {
-                @Override
-                public void ensureInitialization(OpenLService openLService) throws RuleServiceInstantiationException {
-                }
+            OpenLService openLService = openLServiceBuilder.build(openLService1 -> {
             });
-
-            OpenLServiceHolder.getInstance().setOpenLService(openLService);
+            openLServiceInProcessField.set(serviceManager, openLService);
 
             ServerFactoryBean firstServer = webServicesRuleServicePublisher.getServerFactoryBeanObjectFactory()
                 .getObject();
@@ -77,8 +71,8 @@ public class WebServicesExposingTest implements ApplicationContextAware {
                 .getObject();
             assertNotSame(firstServer, secondServer);
         } finally {
-            ServiceDescriptionHolder.getInstance().remove();
-            OpenLServiceHolder.getInstance().remove();
+            serviceDescriptionInProcessField.set(serviceManager, null);
+            openLServiceInProcessField.set(serviceManager, null);
         }
     }
 

@@ -35,7 +35,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
 
     private final Logger log = LoggerFactory.getLogger(JAXWSRuleServicePublisher.class);
 
-    private Map<OpenLService, ServiceServer> runningServices = new HashMap<>();
+    private final Map<OpenLService, ServiceServer> runningServices = new HashMap<>();
     private boolean storeLogDataEnabled = false;
 
     @Autowired

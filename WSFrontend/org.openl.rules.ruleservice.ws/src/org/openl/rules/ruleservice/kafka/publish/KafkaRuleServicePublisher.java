@@ -28,6 +28,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
+import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.kafka.RequestMessage;
 import org.openl.rules.ruleservice.kafka.conf.BaseKafkaConfig;
 import org.openl.rules.ruleservice.kafka.conf.ClientIDGenerator;
@@ -37,7 +38,6 @@ import org.openl.rules.ruleservice.kafka.conf.KafkaMethodConfig;
 import org.openl.rules.ruleservice.kafka.conf.KafkaServiceConfig;
 import org.openl.rules.ruleservice.kafka.conf.YamlObjectMapperBuilder;
 import org.openl.rules.ruleservice.kafka.databinding.KafkaConfigHolder;
-import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
@@ -85,6 +85,10 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
 
     private boolean storeLogDataEnabled = false;
 
+    @Autowired
+    @Qualifier("serviceDescriptionInProcess")
+    private ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory;
+
     public void setStoreLogDataManager(StoreLogDataManager storeLogDataManager) {
         this.storeLogDataManager = storeLogDataManager;
     }
@@ -125,6 +129,14 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     public void setKafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory(
             ObjectFactory<JacksonObjectMapperFactory> kafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory) {
         this.kafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory = kafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory;
+    }
+
+    public ObjectFactory<ServiceDescription> getServiceDescriptionObjectFactory() {
+        return serviceDescriptionObjectFactory;
+    }
+
+    public void setServiceDescriptionObjectFactory(ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory) {
+        this.serviceDescriptionObjectFactory = serviceDescriptionObjectFactory;
     }
 
     private KafkaDeploy getDefaultKafkaDeploy() throws IOException {
@@ -483,7 +495,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
-            KafkaDeploy kafkaDeploy = KafkaDeployUtils.getKafkaDeploy(ServiceDescriptionHolder.getInstance().get());
+            KafkaDeploy kafkaDeploy = KafkaDeployUtils.getKafkaDeploy(getServiceDescriptionObjectFactory().getObject());
             List<KafkaMethodConfig> kafkaMethodConfigs = kafkaDeploy.getMethodConfigs() == null ? Collections
                 .emptyList() : kafkaDeploy.getMethodConfigs();
             Collection<KafkaService> kafkaServices = new HashSet<>();

@@ -7,23 +7,27 @@
           class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean" scope="prototype">
         <property name="propertyName" value="aegis.readXsiTypes"/>
         <property name="defaultValue" value="${ruleservice.aegis.readXsiTypes}"/>
+        <property name="serviceDescription" ref="serviceDescriptionInProcess"/>
     </bean>
 
     <bean id="jaxwsServiceConfigurationWriteXsiTypesFactoryBean"
           class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean" scope="prototype">
         <property name="propertyName" value="aegis.writeXsiTypes"/>
         <property name="defaultValue" value="${ruleservice.aegis.writeXsiTypes}"/>
+        <property name="serviceDescription" ref="serviceDescriptionInProcess"/>
     </bean>
 
     <bean id="jaxwsServiceConfigurationResolveMethodParameterNamesFactoryBean"
           class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean" scope="prototype">
         <property name="propertyName" value="jaxws.resolveMethodParameterNames"/>
         <property name="defaultValue" value="${ruleservice.jaxws.resolveMethodParameterNames:true}"/>
+        <property name="serviceDescription" ref="serviceDescriptionInProcess"/>
     </bean>
 
     <bean id="serviceConfigurationSupportVariationsFactoryBean"
           class="org.openl.rules.ruleservice.databinding.ServiceSupportVariationsFactoryBean"
           scope="prototype">
+        <property name="serviceDescription" ref="serviceDescriptionInProcess"/>
     </bean>
 
     <bean id="jaxwsAegisDatabindingFactoryBean"
@@ -34,6 +38,8 @@
         <property name="overrideTypes">
             <bean class="org.openl.rules.ruleservice.databinding.ServiceRootClassNamesBindingFactoryBean">
                 <property name="overrideTypesAsString" value="${ruleservice.databinding.rootClassNames}"/>
+                <property name="openLService" ref="openLServiceInProcess"/>
+                <property name="serviceDescription" ref="serviceDescriptionInProcess"/>
             </bean>
         </property>
         <property name="supportVariations" ref="serviceConfigurationSupportVariationsFactoryBean"/>

@@ -19,8 +19,8 @@ import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
+import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.databinding.annotation.JacksonBindingConfigurationUtils;
-import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer;
 import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiHackContainerRequestFilter;
@@ -87,6 +87,18 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     @Autowired
     @Qualifier("jaxrsOpenApiObjectMapper")
     private ObjectFactory<ObjectMapper> jaxrsOpenApiObjectMapper;
+
+    @Autowired
+    @Qualifier("serviceDescriptionInProcess")
+    private ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory;
+
+    public ObjectFactory<ServiceDescription> getServiceDescriptionObjectFactory() {
+        return serviceDescriptionObjectFactory;
+    }
+
+    public void setServiceDescriptionObjectFactory(ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory) {
+        this.serviceDescriptionObjectFactory = serviceDescriptionObjectFactory;
+    }
 
     public boolean isStoreLogDataEnabled() {
         return storeLogDataEnabled;
@@ -215,8 +227,9 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             List<Class<?>> extraClasses = (List<Class<?>>) extraClassesField.get(wadlGenerator);
             boolean noWadl = extraClasses.stream().anyMatch(JacksonBindingConfigurationUtils::isConfiguration);
             if (!noWadl) {
-                Map<String, Object> configuration = ServiceDescriptionHolder.getInstance().get().getConfiguration();
-                if (configuration != null && configuration.get(ProjectJacksonObjectMapperFactoryBean.JACKSON_SPREADSHEETRESULT_FIELD_NAME_RESOLVER) != null) {
+                Map<String, Object> configuration = serviceDescriptionObjectFactory.getObject().getConfiguration();
+                if (configuration != null && configuration
+                    .get(ProjectJacksonObjectMapperFactoryBean.JACKSON_SPREADSHEETRESULT_FIELD_NAME_RESOLVER) != null) {
                     noWadl = true;
                 }
             }

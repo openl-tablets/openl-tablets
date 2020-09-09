@@ -16,8 +16,9 @@
         <property name="supportVariations" value="${ruleservice.isSupportVariations}"/>
         <property name="serializationInclusion" value="${ruleservice.jackson.serializationInclusion}"/>
         <property name="polymorphicTypeValidation" value="true"/>
-        <property name="xlsModuleOpenClass" ref="serviceXlsModuleOpenClass"/>
-        <property name="rulesDeploy" ref="serviceRulesDeploy"/>
+        <property name="xlsModuleOpenClass" ref="xlsModuleOpenClassInProcess"/>
+        <property name="rulesDeploy" ref="rulesDeployInProcess"/>
+        <property name="serviceDescription" ref="serviceDescriptionInProcess"/>
     </bean>
 
     <bean id="kafkaServiceProducerJacksonObjectMapperFactoryBean" parent="kafkaJacksonObjectMapperFactoryBeanParent"
