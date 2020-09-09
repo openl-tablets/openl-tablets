@@ -6,10 +6,10 @@ import java.util.List;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
-import org.openl.rules.lock.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.BranchRepository;
@@ -18,8 +18,8 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
-import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,13 +33,13 @@ public class RulesProject extends UserWorkspaceProject {
     private String designFolderName;
     private final LockEngine lockEngine;
 
-    public RulesProject(UserWorkspace userWorkspace,
+    public RulesProject(WorkspaceUser user,
             LocalRepository localRepository,
             FileData localFileData,
             Repository designRepository,
             FileData designFileData,
             LockEngine lockEngine) {
-        super(userWorkspace.getUser(),
+        super(user,
             localFileData != null ? localRepository : designRepository,
             localFileData != null ? localFileData : designFileData);
         this.localRepository = localRepository;

@@ -50,7 +50,6 @@ public abstract class AProjectCreator {
         try {
             projectBuilder = getProjectBuilder();
             projectBuilder.save();
-            projectBuilder.getProject().open();
         } catch (Exception e) {
             Throwable cause = e.getCause();
             if (projectBuilder != null && cause instanceof MergeConflictException) {
@@ -58,7 +57,6 @@ public abstract class AProjectCreator {
                 // Try to save second time. It should resolve the issue if conflict in openl-projects.properties file.
                 try {
                     projectBuilder.save();
-                    projectBuilder.getProject().open();
                 } catch (Exception ex) {
                     LOG.error("Error creating project.", ex);
                     projectBuilder.cancel();

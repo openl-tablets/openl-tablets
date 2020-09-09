@@ -397,7 +397,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     local = null;
                 }
 
-                RulesProject project = new RulesProject(this,
+                RulesProject project = new RulesProject(getUser(),
                     localRepository,
                     local,
                     desRepo,
@@ -439,7 +439,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     FileData local = lp.getFileData();
                     LocalRepository repository = (LocalRepository) lp.getRepository();
                     userRulesProjects.put(new ProjectKey(repoId, name.toLowerCase()),
-                        new RulesProject(this, repository, local, null, null, projectsLockEngine));
+                        new RulesProject(getUser(), repository, local, null, null, projectsLockEngine));
                 }
             }
 
@@ -509,7 +509,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             createdProject.getFileData().setComment(comment);
             createdProject.update(project, user);
 
-            RulesProject rulesProject = new RulesProject(this,
+            RulesProject rulesProject = new RulesProject(getUser(),
                 localWorkspace.getRepository(repositoryId),
                 project.getFileData(),
                 designTimeRepository.getRepository(repositoryId),
