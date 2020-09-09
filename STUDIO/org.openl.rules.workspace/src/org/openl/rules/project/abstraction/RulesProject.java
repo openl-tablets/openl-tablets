@@ -345,9 +345,9 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     protected FileData getFileDataForUnversionableRepo(Repository repository) {
-        if (designFolderName == null) {
+        if (isLocalOnly()) {
             FileData fileData = super.getFileDataForUnversionableRepo(repository);
-            if (designRepository.supports().branches()) {
+            if (designRepository != null && designRepository.supports().branches()) {
                 fileData.setBranch(((BranchRepository) designRepository).getBranch());
             }
             return fileData;
