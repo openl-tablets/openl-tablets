@@ -8,11 +8,11 @@
             <xs:element name="Mixes" type="tns:Mixes"/>
             <xs:complexType name="Mixes">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="a" type="xs:string"/>
+                    <xs:element default="default" minOccurs="0" name="a" nillable="true" type="xs:string"/>
                     <xs:element default="10" minOccurs="0" name="B" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="aB" type="xs:double"/>
+                    <xs:element default="0" minOccurs="0" name="aB" nillable="true" type="xs:double"/>
                     <xs:element default="2020-01-15" minOccurs="0" name="Ba" nillable="true" type="xs:dateTime"/>
-                    <xs:element minOccurs="0" name="BB" type="xs:boolean"/>
+                    <xs:element default="true" minOccurs="0" name="BB" nillable="true" type="xs:boolean"/>
                     <xs:element default="154.2544" minOccurs="0" name="aa" nillable="true" type="xs:decimal"/>
                 </xs:sequence>
             </xs:complexType>
@@ -34,7 +34,8 @@
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
-        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="xxx.yyy" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="xxx.yyy" version="1.0">
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="xxx.yyy" attributeFormDefault="unqualified"
+                   elementFormDefault="unqualified" targetNamespace="xxx.yyy" version="1.0">
             <xs:complexType name="error">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="message" type="xs:string"/>
@@ -52,28 +53,10 @@
             <xs:element name="OverloadRequest3" type="tns:OverloadRequest3"/>
             <xs:element name="OverloadRequest4" type="tns:OverloadRequest4"/>
             <xs:element name="UPCaseRequest" type="tns:UPCaseRequest"/>
-            <xs:complexType name="UPCaseRequest">
+            <xs:complexType name="EDGECaseRequest">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="STRING" type="xs:string"/>
-                    <xs:element name="NUMBER" type="xs:double"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="OverloadRequest4">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="I" type="xs:int"/>
-                    <xs:element minOccurs="0" name="J" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="Mixes2Request">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="m1" type="ns1:Mixes"/>
-                    <xs:element minOccurs="0" name="m2" type="ns1:Mixes"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="MixedCaseRequest">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="numBer" type="xs:double"/>
-                    <xs:element minOccurs="0" name="String" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sTring" type="xs:string"/>
+                    <xs:element name="NUMBer" type="xs:double"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="OverloadRequest3">
@@ -88,10 +71,28 @@
                     <xs:element minOccurs="0" name="string" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType name="EDGECaseRequest">
+            <xs:complexType name="UPCaseRequest">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="sTring" type="xs:string"/>
-                    <xs:element name="NUMBer" type="xs:double"/>
+                    <xs:element minOccurs="0" name="STRING" type="xs:string"/>
+                    <xs:element name="NUMBER" type="xs:double"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="MixedCaseRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="numBer" type="xs:double"/>
+                    <xs:element minOccurs="0" name="String" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="Mixes2Request">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="m1" type="ns1:Mixes"/>
+                    <xs:element minOccurs="0" name="m2" type="ns1:Mixes"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OverloadRequest4">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="I" type="xs:int"/>
+                    <xs:element minOccurs="0" name="J" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
