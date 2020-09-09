@@ -56,8 +56,10 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     public ProjectModel extractProjectModel(String pathTo) {
         ParseOptions options = OpenLOpenAPIUtils.getParseOptions();
         OpenAPI openAPI = new OpenAPIV3Parser().read(pathTo, null, options);
+        if (openAPI == null) {
+            throw new IllegalStateException("Error creating the project, uploaded file has invalid structure.");
+        }
         JXPathContext jxPathContext = JXPathContext.newContext(openAPI);
-
         String projectName = openAPI.getInfo().getTitle();
         Map<String, Integer> allUsedSchemaRefs = OpenLOpenAPIUtils
             .getAllUsedSchemaRefs(openAPI, jxPathContext, OpenLOpenAPIUtils.PathTarget.ALL);
