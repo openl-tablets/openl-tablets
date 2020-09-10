@@ -571,11 +571,14 @@ public final class DecisionTableHelper {
             Set<String> generatedNames,
             Map<String, Map<IOpenField, String>> variables,
             String insertStatement,
+            Set<String> variableAssignments,
             StringBuilder sb) {
         if (fieldsChain == null) {
             return type;
         }
         String currentVariable = FUZZY_RET_VARIABLE_NAME;
+        Set<String> variablesInChain = new HashSet<>();
+        variablesInChain.add(currentVariable);
         for (int j = 0; j < fieldsChain.length; j++) {
             String var;
             type = fieldsChain[j].getType();
@@ -595,24 +598,33 @@ public final class DecisionTableHelper {
                         .append(" = new ")
                         .append(type.getName())
                         .append("();");
+                    sb.append("int ").append(var).append("_").append(" = 0;");
                     vm = variables.computeIfAbsent(currentVariable, e -> new HashMap<>());
                     vm.put(fieldsChain[j], var);
-
-                    sb.append(currentVariable).append(".");
-                    sb.append(fieldsChain[j].getName());
-                    sb.append(" = ");
-                    sb.append(var);
-                    sb.append(";");
+                    variableAssignments.add(
+                        currentVariable + "." + fieldsChain[j].getName() + " = " + var + "_ > 0 ? " + var + " : null;");
                 } else {
                     var = vm.get(fieldsChain[j]);
                 }
                 currentVariable = var;
+                variablesInChain.add(currentVariable);
             } else {
-                sb.append(currentVariable).append(".");
-                sb.append(fieldsChain[j].getName());
-                sb.append(" = ");
-                sb.append(insertStatement);
-                sb.append(";");
+                sb.append(currentVariable)
+                    .append(".")
+                    .append(fieldsChain[j].getName())
+                    .append(" = ")
+                    .append(insertStatement)
+                    .append(";");
+                for (String cv : variablesInChain) {
+                    sb.append(cv)
+                        .append("_ = (")
+                        .append(insertStatement)
+                        .append(" != null) ? ")
+                        .append(cv)
+                        .append("_ + 1 : ")
+                        .append(cv)
+                        .append("_;");
+                }
             }
         }
         return type;
@@ -633,6 +645,7 @@ public final class DecisionTableHelper {
             List<DTHeader> dtHeaders,
             Set<String> generatedNames,
             Map<String, Map<IOpenField, String>> variables,
+            Set<String> variableAssignments,
             StringBuilder sb,
             IBindingContext bindingContext) {
         List<FuzzyDTHeader> fuzzyReturns = dtHeaders.stream()
@@ -694,8 +707,13 @@ public final class DecisionTableHelper {
                         fieldsChain);
                     IOpenCast cast = bindingContext.getCast(type, p.getValue());
                     if (cast != null && cast.isImplicit()) {
-                        writeReturnStatement(fuzzyContext
-                            .getFuzzyReturnType(), fieldsChain, generatedNames, variables, statement, sb);
+                        writeReturnStatement(fuzzyContext.getFuzzyReturnType(),
+                            fieldsChain,
+                            generatedNames,
+                            variables,
+                            statement,
+                            variableAssignments,
+                            sb);
                         if (!bindingContext.isExecutionMode()) {
                             final String statementInReturn = fuzzyContext.getFuzzyReturnType()
                                 .getDisplayName(INamedThing.SHORT) + "." + buildStatementByFieldsChain(
@@ -727,6 +745,8 @@ public final class DecisionTableHelper {
             .filter(e -> e.getFieldsChain() != null)
             .collect(toList());
 
+        Set<String> variableAssignments = new HashSet<>();
+
         if (fuzzyReturns.isEmpty()) {
             throw new IllegalStateException("DT headers are not found.");
         }
@@ -738,6 +758,7 @@ public final class DecisionTableHelper {
             .append(" = new ")
             .append(compoundReturnType.getName())
             .append("();");
+        sb.append("int ").append(FUZZY_RET_VARIABLE_NAME).append("_").append(" = 0;");
 
         Set<String> generatedNames = new HashSet<>();
         while (generatedNames.size() < fuzzyReturns.size()) {
@@ -751,6 +772,7 @@ public final class DecisionTableHelper {
             dtHeaders,
             generatedNames,
             variables,
+            variableAssignments,
             sb,
             bindingContext);
 
@@ -761,6 +783,7 @@ public final class DecisionTableHelper {
                 generatedNames,
                 variables,
                 compoundColumnParamNames[i],
+                variableAssignments,
                 sb);
 
             grid.setCellValue(fuzzyDTHeader.getColumn(), 2, type.getName() + " " + compoundColumnParamNames[i]);
@@ -794,7 +817,8 @@ public final class DecisionTableHelper {
             }
             i++;
         }
-        sb.append(FUZZY_RET_VARIABLE_NAME).append(";");
+        variableAssignments.forEach(sb::append);
+        sb.append(FUZZY_RET_VARIABLE_NAME).append("_ > 0 ? ").append(FUZZY_RET_VARIABLE_NAME).append(" : null;");
         grid.setCellValue(fuzzyReturns.get(0).getColumn(), 0, header);
         grid.setCellValue(fuzzyReturns.get(0).getColumn(), 1, sb.toString());
         int j = fuzzyReturns.size() - 1;
@@ -1171,7 +1195,9 @@ public final class DecisionTableHelper {
                 // write vertical condition
                 //
                 numOfVCondition++;
-                if (numOfVCondition == 1 && numberOfHCondition == 0 && conditions.size() < 2 && !(isCollect && decisionTable.getType().isArray() && !decisionTable.getType().getComponentClass().isArray())) {
+                if (numOfVCondition == 1 && numberOfHCondition == 0 && conditions
+                    .size() < 2 && !(isCollect && decisionTable.getType()
+                        .isArray() && !decisionTable.getType().getComponentClass().isArray())) {
                     header = (DecisionTableColumnHeaders.MERGED_CONDITION.getHeaderKey() + numOfVCondition);
                 } else {
                     header = (DecisionTableColumnHeaders.CONDITION.getHeaderKey() + numOfVCondition);
