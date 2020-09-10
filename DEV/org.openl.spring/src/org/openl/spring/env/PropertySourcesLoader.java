@@ -95,7 +95,6 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         DynamicPropertySource.THE = propertySource;
         propertySources.addBefore(ApplicationPropertySource.PROPS_NAME, propertySource);
 
-        ConfigLog.LOG.info("Loading disable properties...");
         DisablePropertySource disablePropertySource = new DisablePropertySource(propertySources);
         DisablePropertySource.THE = disablePropertySource;
         propertySources.addBefore(DynamicPropertySource.PROPS_NAME, disablePropertySource);
