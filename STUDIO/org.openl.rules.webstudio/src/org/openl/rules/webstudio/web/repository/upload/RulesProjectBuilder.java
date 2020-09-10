@@ -1,16 +1,22 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.*;
+import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +25,7 @@ public class RulesProjectBuilder {
     private final RulesProject project;
     private final UserWorkspace workspace;
     private final String comment;
+    private final Path tempLocalRepositoryPath;
 
     public RulesProjectBuilder(UserWorkspace workspace,
         String repositoryId,
@@ -42,8 +49,22 @@ public class RulesProjectBuilder {
                 localData.addAdditionalData(mappingData);
             }
 
-            project = new RulesProject(workspace,
-                workspace.getLocalWorkspace().getRepository(repositoryId),
+            try {
+                tempLocalRepositoryPath = Files.createTempDirectory("openl-create");
+            } catch (IOException e) {
+                throw new IllegalStateException("Can't create temp folder");
+            }
+
+            LocalRepository localRepository = new LocalRepository(tempLocalRepositoryPath.toFile());
+            localRepository.setId(repositoryId);
+            try {
+                localRepository.initialize();
+            } catch (RRepositoryException e) {
+                throw new IllegalStateException(e.getMessage(), e);
+            }
+
+            project = new RulesProject(workspace.getUser(),
+                localRepository,
                 localData,
                 designRepository,
                 designData,
@@ -95,6 +116,8 @@ public class RulesProjectBuilder {
             }
         } catch (Exception e) {
             log.error("Failed to cancel new project", e);
+        } finally {
+            FileUtils.deleteQuietly(tempLocalRepositoryPath.toFile());
         }
     }
 
@@ -107,6 +130,7 @@ public class RulesProjectBuilder {
         project.getFileData().setComment(comment);
         project.save(user);
         workspace.refresh();
+        FileUtils.deleteQuietly(tempLocalRepositoryPath.toFile());
     }
 
     private void checkName(String artefactName) throws ProjectException {

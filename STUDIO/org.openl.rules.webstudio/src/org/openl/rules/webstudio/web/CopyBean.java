@@ -230,7 +230,7 @@ public class CopyBean {
                 designProject.update(localProject, userWorkspace.getUser());
                 designProject.setResourceTransformer(null);
 
-                RulesProject copiedProject = new RulesProject(userWorkspace,
+                RulesProject copiedProject = new RulesProject(userWorkspace.getUser(),
                     userWorkspace.getLocalWorkspace().getRepository(toRepositoryId),
                     null,
                     designRepository,
@@ -326,8 +326,8 @@ public class CopyBean {
                     "the file with such name already exists.";
                 WebStudioUtils.validate(!newBranchName.startsWith(branch + "/"), message);
             }
-        } catch (WorkspaceException | IOException ignored) {
-            LOG.debug("Ignored error: ", ignored);
+        } catch (WorkspaceException | IOException e) {
+            LOG.debug("Ignored error: ", e);
         }
 
     }

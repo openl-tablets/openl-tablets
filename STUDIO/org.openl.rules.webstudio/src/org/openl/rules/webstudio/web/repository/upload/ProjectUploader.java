@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
@@ -98,6 +99,13 @@ public class ProjectUploader {
                     uploadedFiles.toArray(new ProjectFile[0]);
                 }
                 errorMessage = projectCreator.createRulesProject();
+                if (errorMessage == null) {
+                    boolean alreadyOpened = userWorkspace.getProjects().stream().anyMatch(p -> p.isOpened() && p.getName().equals(projectName));
+                    if (!alreadyOpened) {
+                        RulesProject createdProject = userWorkspace.getProject(repositoryId, projectName);
+                        createdProject.open();
+                    }
+                }
             } catch (IOException e) {
                 errorMessage = e.getMessage();
             } catch (Exception e) {

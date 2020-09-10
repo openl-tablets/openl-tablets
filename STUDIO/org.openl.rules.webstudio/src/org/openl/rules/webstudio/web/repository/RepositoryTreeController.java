@@ -573,27 +573,36 @@ public class RepositoryTreeController {
             comment,
             zipFilter,
             templateFiles);
-        String creationMessage = projectCreator.createRulesProject();
-        if (creationMessage == null) {
-            try {
-                AProject createdProject = userWorkspace.getProject(repositoryId, projectName);
+        try {
+            String creationMessage = projectCreator.createRulesProject();
+            if (creationMessage == null) {
+                try {
+                    RulesProject createdProject = userWorkspace.getProject(repositoryId, projectName);
 
-                repositoryTreeState.addRulesProjectToTree(createdProject);
-                selectProject(projectName, repositoryTreeState.getRulesRepository());
+                    boolean alreadyOpened = userWorkspace.getProjects().stream().anyMatch(p -> p.isOpened() && p.getName().equals(projectName));
+                    if (!alreadyOpened) {
+                        createdProject.open();
+                    }
 
-                resetStudioModel();
+                    repositoryTreeState.addRulesProjectToTree(createdProject);
+                    selectProject(projectName, repositoryTreeState.getRulesRepository());
 
-                WebStudioUtils.addInfoMessage("Project was created successfully.");
-                /* Clear the load form */
-                this.clearForm();
-            } catch (Exception e) {
-                creationMessage = e.getMessage();
+                    resetStudioModel();
+
+                    WebStudioUtils.addInfoMessage("Project was created successfully.");
+                    /* Clear the load form */
+                    this.clearForm();
+                } catch (Exception e) {
+                    creationMessage = e.getMessage();
+                }
+            } else {
+                WebStudioUtils.addErrorMessage(creationMessage);
             }
-        } else {
-            WebStudioUtils.addErrorMessage(creationMessage);
-        }
 
-        return creationMessage;
+            return creationMessage;
+        } finally {
+            projectCreator.destroy();
+        }
     }
 
     private String validateCreateProjectParams(String comment) {

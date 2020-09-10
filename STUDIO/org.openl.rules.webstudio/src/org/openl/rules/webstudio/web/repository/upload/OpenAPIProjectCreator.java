@@ -94,11 +94,14 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             ProjectModel projectModel = getProjectModel(projectBuilder, converter);
             List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
             List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
-            EnvironmentModel environmentModel = new EnvironmentModel();
-            environmentModel.setDependencies(Collections.singletonList(MODELS_NAME));
-
+            EnvironmentModel environmentModel = null;
             boolean dataTypesAreEmpty = CollectionUtils.isEmpty(datatypeModels);
             boolean sprsAreEmpty = CollectionUtils.isEmpty(spreadsheetModels);
+
+            if (!dataTypesAreEmpty) {
+                environmentModel = new EnvironmentModel();
+                environmentModel.setDependencies(Collections.singletonList(MODELS_NAME));
+            }
 
             if (dataTypesAreEmpty && sprsAreEmpty) {
                 throw new ProjectException("Error creating the project, uploaded file has invalid structure.");
