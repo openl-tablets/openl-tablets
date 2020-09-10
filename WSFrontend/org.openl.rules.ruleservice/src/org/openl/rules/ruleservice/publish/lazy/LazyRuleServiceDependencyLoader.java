@@ -113,7 +113,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         try {
             LazyBinderMethodHandler.setPrebindHandler(new LazyPrebindHandler(modules, dependencyManager, classLoader, deployment));
             try {
-                dependencyManager.compilationBegin(this);
+                dependencyManager.compilationBegin();
                 lazyCompiledOpenClass = rulesInstantiationStrategy.compile();
                 if (!isProject() && realCompileRequired) {
                     synchronized (lazyCompiledOpenClass) {

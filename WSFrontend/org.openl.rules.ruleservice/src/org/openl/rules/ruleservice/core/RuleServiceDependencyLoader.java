@@ -21,7 +21,7 @@ final class RuleServiceDependencyLoader extends SimpleDependencyLoader {
             AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
         if (dependencyManager instanceof RuleServiceDependencyManager) {
             RuleServiceDependencyManager ruleServiceDeploymentRelatedDependencyManager = (RuleServiceDependencyManager) dependencyManager;
-            ruleServiceDeploymentRelatedDependencyManager.compilationBegin(this);
+            ruleServiceDeploymentRelatedDependencyManager.compilationBegin();
             CompiledDependency compiledDependency = null;
             try {
                 compiledDependency = super.compileDependency(dependencyName, dependencyManager);

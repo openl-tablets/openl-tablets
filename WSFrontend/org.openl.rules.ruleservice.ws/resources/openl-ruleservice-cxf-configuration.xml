@@ -11,7 +11,7 @@
 
     <http-conf:conduit name="*.http-conduit">
         <http-conf:client ConnectionTimeout="${ruleservice.http.connectionTimeout}"
-            ReceiveTimeout="${ruleservice.http.recieveTimeout}" />
+            ReceiveTimeout="${ruleservice.http.receiveTimeout}" />
     </http-conf:conduit>
 
 </beans>

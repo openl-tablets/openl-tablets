@@ -62,7 +62,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
         long embeddedTime;
     }
 
-    public void compilationBegin(IDependencyLoader dependencyLoader) {
+    public void compilationBegin() {
         CompilationInfo compilationInfo = new CompilationInfo();
         compilationInfo.time = System.currentTimeMillis();
         Deque<CompilationInfo> compilationInfoStack = compilationInfoThreadLocal.get();
@@ -133,7 +133,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
         throw new UnsupportedOperationException();
     }
 
-    private boolean compilationAfterLazyCompilationRequred(Set<String> wildcardPatterns, String moduleName) {
+    private boolean compilationAfterLazyCompilationRequired(Set<String> wildcardPatterns, String moduleName) {
         for (String pattern : wildcardPatterns) {
             if (wildcardPatternMatcher.match(pattern, moduleName)) {
                 return true;
@@ -188,7 +188,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
                     for (Module m : modules) {
                         IDependencyLoader moduleLoader;
                         if (isLazyCompilation()) {
-                            boolean compileAfterLazyCompilation = compilationAfterLazyCompilationRequred(
+                            boolean compileAfterLazyCompilation = compilationAfterLazyCompilationRequired(
                                 wildcardPatterns,
                                 m.getName());
                             moduleLoader = new LazyRuleServiceDependencyLoader(deployment,
