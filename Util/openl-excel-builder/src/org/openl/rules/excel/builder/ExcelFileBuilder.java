@@ -178,6 +178,9 @@ public class ExcelFileBuilder {
     }
 
     private static void writeEnvironment(EnvironmentModel environmentModel, SXSSFWorkbook workbook, TableStyle style) {
+        if (environmentModel == null) {
+            return;
+        }
         SXSSFSheet envSheet = workbook.createSheet(ENV_SHEET);
         EnvironmentTableExporter environmentTableExporter = new EnvironmentTableExporter();
         environmentTableExporter.setTableStyle(style);
