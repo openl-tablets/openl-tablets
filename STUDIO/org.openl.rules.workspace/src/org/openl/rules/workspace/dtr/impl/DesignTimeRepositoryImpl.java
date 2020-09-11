@@ -108,7 +108,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 });
                 repository.setListener(callback);
             }
-            repositories.sort(Comparator.comparing(Repository::getName));
+            repositories.sort(Comparator.comparing(Repository::getName, String.CASE_INSENSITIVE_ORDER));
 
             deploymentConfigurationLocation = propertyResolver
                 .getProperty(DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME);
