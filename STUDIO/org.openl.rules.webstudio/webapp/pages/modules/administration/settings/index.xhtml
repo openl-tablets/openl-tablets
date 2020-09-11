@@ -251,6 +251,7 @@
                                             <a4j:commandButton id="sbtClean" value="Clear all history"
                                                                title="Clear all changes between revisions for all users and all projects."
                                                                action="#{projectsInHistory.deleteAllHistory}"
+                                                               onclick="if(!window.confirm('Do you really want to clear all changes between revisions for all users and all projects?')) {return false;}"
                                                                render="commonProps"/>
                                         </div>
                                     </section>
