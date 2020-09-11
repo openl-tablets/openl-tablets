@@ -1,5 +1,7 @@
 package org.openl.rules.openapi.impl;
 
+import static org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter.ARRAY_MATCHER;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -653,8 +655,12 @@ public class OpenLOpenAPIUtils {
                 if (StringUtils.isBlank(name)) {
                     parameterModels = Collections.emptyList();
                 } else {
+                    String parameter = name;
+                    if (name.endsWith("[]")) {
+                        parameter = ARRAY_MATCHER.matcher(name).replaceAll("");
+                    }
                     parameterModels = new ArrayList<>(Collections.singletonList(
-                        new ParameterModel(StringUtils.capitalize(name), StringUtils.uncapitalize(name))));
+                        new ParameterModel(StringUtils.capitalize(name), StringUtils.uncapitalize(parameter))));
                 }
             }
         }

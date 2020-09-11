@@ -358,4 +358,22 @@ public class SpreadsheetsConverterTest {
         assertEquals(1, spreadsheetResultModels.size());
         assertEquals(1, modelsToClass.size());
     }
+
+    @Test
+    public void testArrayBrackets() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/spreadsheets/arrray_brackets.json");
+        List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
+        Optional<SpreadsheetModel> modelOptional = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("HelloKitty"))
+            .findFirst();
+        assertTrue(modelOptional.isPresent());
+        SpreadsheetModel spreadsheetModel = modelOptional.get();
+        List<InputParameter> parameters = spreadsheetModel.getParameters();
+        ;
+        assertEquals(1, parameters.size());
+        InputParameter param = parameters.iterator().next();
+        assertEquals("Double[]", param.getType());
+        assertEquals("double", param.getName());
+    }
 }
