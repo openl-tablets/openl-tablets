@@ -310,10 +310,17 @@ public final class RuleServiceInstantiationFactoryHelper {
                     Class<?> t = ((CustomSpreadsheetResultOpenClass) module.findType(type.getName())).getBeanClass();
                     return dim > 0 ? Array.newInstance(t, dim).getClass() : t;
                 } else if (type instanceof SpreadsheetResultOpenClass) {
-                    Class<?> t = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                        .toCustomSpreadsheetResultOpenClass()
-                        .getBeanClass();
+                    Class<?> t;
+                    //Check: custom spreadsheet is enabled
+                    if (module.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
+                        t = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                            .toCustomSpreadsheetResultOpenClass()
+                            .getBeanClass();
+                    } else {
+                        t = type.getInstanceClass();
+                    }
                     return dim > 0 ? Array.newInstance(t, dim).getClass() : t;
+
                 } else {
                     if (type instanceof ModuleSpecificType) {
                         Class<?> t = module.findType(type.getName()).getInstanceClass();
@@ -396,13 +403,16 @@ public final class RuleServiceInstantiationFactoryHelper {
                     ret.put(method, Pair.of(t, Boolean.FALSE));
                 } else if (type instanceof SpreadsheetResultOpenClass) {
                     XlsModuleOpenClass module = (XlsModuleOpenClass) openClass;
-                    Class<?> t = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                        .toCustomSpreadsheetResultOpenClass()
-                        .getBeanClass();
-                    if (dim > 0) {
-                        t = Array.newInstance(t, new int[dim]).getClass();
+                    //Check: custom spreadsheet is enabled
+                    if (module.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
+                        Class<?> t = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                            .toCustomSpreadsheetResultOpenClass()
+                            .getBeanClass();
+                        if (dim > 0) {
+                            t = Array.newInstance(t, new int[dim]).getClass();
+                        }
+                        ret.put(method, Pair.of(t, Boolean.FALSE));
                     }
-                    ret.put(method, Pair.of(t, Boolean.FALSE));
                 } else if (JavaOpenClass.OBJECT.equals(type)) {
                     ret.put(method, Pair.of(openMember.getType().getInstanceClass(), Boolean.FALSE));
                 }

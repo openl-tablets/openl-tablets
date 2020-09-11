@@ -124,6 +124,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                     rootClassNamesBindingClasses.add(((CustomSpreadsheetResultOpenClass) type).getBeanClass());
                 }
             }
+            //Check: custom spreadsheet is enabled
             if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
                 rootClassNamesBindingClasses
                     .add(xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
@@ -265,6 +266,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                         spreadsheetResultFieldNameResolver);
                 }
             }
+            //Check: custom spreadsheet is enabled
             if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
                 CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = xlsModuleOpenClass
                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()

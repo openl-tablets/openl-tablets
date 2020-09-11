@@ -98,15 +98,18 @@ public class ServiceRootClassNamesBindingFactoryBean extends AbstractFactoryBean
                     }
                 }
             }
-            Class<?> spreadsheetResultBeanClass = xlsModuleOpenClass
-                .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                .toCustomSpreadsheetResultOpenClass()
-                .getBeanClass();
-            sprBeanClassNames.add(spreadsheetResultBeanClass.getName());
-            if (!found) {
-                for (Method method : serviceClass.getMethods()) {
-                    if (!found && ClassUtils.isAssignable(spreadsheetResultBeanClass, method.getReturnType())) {
-                        found = true;
+            //Check: custom spreadsheet is enabled
+            if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
+                Class<?> spreadsheetResultBeanClass = xlsModuleOpenClass
+                    .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                    .toCustomSpreadsheetResultOpenClass()
+                    .getBeanClass();
+                sprBeanClassNames.add(spreadsheetResultBeanClass.getName());
+                if (!found) {
+                    for (Method method : serviceClass.getMethods()) {
+                        if (!found && ClassUtils.isAssignable(spreadsheetResultBeanClass, method.getReturnType())) {
+                            found = true;
+                        }
                     }
                 }
             }

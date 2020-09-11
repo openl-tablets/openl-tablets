@@ -49,9 +49,15 @@ public abstract class AbstractSPRToPlainConverterAdvice<T>
                         dim++;
                     }
                     if (openClass instanceof SpreadsheetResultOpenClass) {
-                        Class<?> t = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                        Class<?> t;
+                        //Check: custom spreadsheet is enabled
+                        if (module.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
+                            t = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                                 .toCustomSpreadsheetResultOpenClass()
                                 .getBeanClass();
+                        } else {
+                            t = openClass.getInstanceClass();
+                        }
                         if (dim > 0) {
                             t = Array.newInstance(t, dim).getClass();
                         }
