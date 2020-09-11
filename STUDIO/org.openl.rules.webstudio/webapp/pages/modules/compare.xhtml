@@ -24,7 +24,7 @@
 
         <h:messages styleClass="error" globalOnly="true" />
         <c:if test="#{param.disableUpload}">
-            #{uploadExcelDiffController.compareVersions(param.version1, param.version2)};
+            #{uploadExcelDiffController.compareVersions(param.version1, param.version2)}
         </c:if>
         <h:form id="diffForm" rendered="#{!param.disableUpload}">
             <div id="diffFormPanel">
