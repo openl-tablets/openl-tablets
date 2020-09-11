@@ -450,6 +450,13 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             }
 
             ProjectIndex externalToInternal = getUpToDateMapping(false);
+            boolean exist = externalToInternal.getProjects()
+                .stream()
+                .anyMatch(p -> p.getName().equals(project.getName()) && p.getPath().equals(project.getPath()));
+            if (exist) {
+                throw new IOException("Project \"" + project.getName() + "\" with path \"" + project
+                    .getPath() + "\" is already imported.");
+            }
             externalToInternal.getProjects().add(project);
 
             saveProjectIndex(externalToInternal);
