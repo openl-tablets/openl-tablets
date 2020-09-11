@@ -310,6 +310,7 @@ public class RepositoryTreeController {
     public String closeProject() {
         try {
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
+            ProjectsInHistoryController.deleteHistory(repositoryProject.getName());
             closeProjectAndReleaseResources(repositoryProject);
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
@@ -950,11 +951,16 @@ public class RepositoryTreeController {
     private void closeProjectForAllUsers(File workspacesRoot, String repoId, String projectName, String branch) throws ProjectException {
         // Needed to update UI of current user
         TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(repoId, projectName);
-        if (projectNode != null) {
-            AProjectArtefact artefact = projectNode.getData();
-            if (artefact instanceof RulesProject) {
-                ((RulesProject) artefact).close();
+        try {
+            ProjectsInHistoryController.deleteHistory(projectName);
+            if (projectNode != null) {
+                AProjectArtefact artefact = projectNode.getData();
+                if (artefact instanceof RulesProject) {
+                    ((RulesProject) artefact).close();
+                }
             }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
         }
 
         // List all folders. Those folders - workspaces for each user (except for reserved .locks folder)

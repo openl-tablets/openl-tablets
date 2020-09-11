@@ -62,10 +62,18 @@ public class LocalRepository extends FileSystemRepository {
     public List<FileData> list(String path) throws IOException {
         List<FileData> list = super.list(path);
 
-        // Property files must be hidden
-        list.removeIf(fileData -> propertiesEngine.isPropertyFile(fileData.getName()));
+        // Property and history files must be hidden
+        list.removeIf(fileData -> isShouldBeHidden(fileData.getName(), path));
 
         return list;
+    }
+
+    private boolean isShouldBeHidden(String fileName, String path) {
+        if (!path.endsWith("/")) {
+            path += "/";
+        }
+        return fileName.startsWith(path + FolderHelper.PROPERTIES_FOLDER + "/") || fileName
+            .contains(path + "/" + FolderHelper.HISTORY_FOLDER + "/");
     }
 
     @Override
@@ -360,7 +368,8 @@ public class LocalRepository extends FileSystemRepository {
                         // Backward compatibility for projects opened in previous version of WebStudio.
                         // Will be removed in the future.
                         String modifiedAtStr = properties.getProperty(MODIFIED_AT_PROPERTY);
-                        modifiedAt = modifiedAtStr == null ? null : new SimpleDateFormat(DATE_FORMAT).parse(modifiedAtStr);
+                        modifiedAt = modifiedAtStr == null ? null
+                                                           : new SimpleDateFormat(DATE_FORMAT).parse(modifiedAtStr);
                     }
                     String size = properties.getProperty(SIZE_PROPERTY);
                     String comment = properties.getProperty(COMMENT_PROPERTY);

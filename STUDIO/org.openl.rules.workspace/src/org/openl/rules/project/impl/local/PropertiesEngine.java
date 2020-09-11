@@ -68,10 +68,6 @@ class PropertiesEngine {
         }
     }
 
-    public boolean isPropertyFile(String path) {
-        return path.replace(File.separatorChar, '/').contains("/" + FolderHelper.PROPERTIES_FOLDER + "/");
-    }
-
     File getProjectFolder(String path) {
         return getPropertiesFolder(path).getParentFile();
     }
