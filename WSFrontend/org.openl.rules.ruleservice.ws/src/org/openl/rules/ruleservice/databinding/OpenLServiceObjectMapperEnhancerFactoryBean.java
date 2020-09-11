@@ -52,11 +52,13 @@ public final class OpenLServiceObjectMapperEnhancerFactoryBean extends AbstractF
                 }
             }
             if (openLService.getOpenClass() instanceof XlsModuleOpenClass) {
-                Class<?> sprBeanClass = ((XlsModuleOpenClass) openLService.getOpenClass())
-                    .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                    .toCustomSpreadsheetResultOpenClass()
-                    .getBeanClass();
-                addMixInAnnotationsToSprBeanClass(objectMapper, sprBeanClass, openLService.getClassLoader());
+                XlsModuleOpenClass xlsModuleOpenClass = ((XlsModuleOpenClass) openLService.getOpenClass());
+                if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
+                    Class<?> sprBeanClass = xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                        .toCustomSpreadsheetResultOpenClass()
+                        .getBeanClass();
+                    addMixInAnnotationsToSprBeanClass(objectMapper, sprBeanClass, openLService.getClassLoader());
+                }
             }
             for (IOpenClass type : openLService.getOpenClass().getTypes()) {
                 if (type instanceof DatatypeOpenClass) {

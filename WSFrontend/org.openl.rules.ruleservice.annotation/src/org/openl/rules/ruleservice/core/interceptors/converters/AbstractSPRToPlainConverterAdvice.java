@@ -46,9 +46,14 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
                         dim++;
                     }
                     if (openClass instanceof SpreadsheetResultOpenClass) {
-                        Class<?> t = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                        Class<?> t;
+                        if (module.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
+                            t = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                                 .toCustomSpreadsheetResultOpenClass()
                                 .getBeanClass();
+                        } else {
+                            t = openClass.getInstanceClass();
+                        }
                         if (dim > 0) {
                             t = Array.newInstance(t, dim).getClass();
                         }

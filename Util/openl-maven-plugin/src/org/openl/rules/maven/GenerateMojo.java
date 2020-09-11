@@ -153,10 +153,13 @@ public final class GenerateMojo extends BaseOpenLMojo {
             if (generateSpreadsheetResultBeans) {
                 writeCustomSpreadsheetResultBeans(openLRules.getTypes());
                 if (openLRules.getOpenClass() instanceof XlsModuleOpenClass) {
-                    CustomSpreadsheetResultOpenClass spreadsheetResultOpenClass = ((XlsModuleOpenClass) openLRules
-                        .getOpenClass()).getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                    XlsModuleOpenClass module = (XlsModuleOpenClass) openLRules.getOpenClass();
+                    if (module.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
+                        CustomSpreadsheetResultOpenClass spreadsheetResultOpenClass = (module)
+                            .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                             .toCustomSpreadsheetResultOpenClass();
-                    writeCustomSpreadsheetResultBeans(Collections.singleton(spreadsheetResultOpenClass));
+                        writeCustomSpreadsheetResultBeans(Collections.singleton(spreadsheetResultOpenClass));
+                    }
                 }
             }
 

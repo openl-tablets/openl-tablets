@@ -109,15 +109,19 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
                     }
                 }
                 if (openLService.getOpenClass() instanceof XlsModuleOpenClass) {
-                    Class<?> spreadsheetResultBeanClass = ((XlsModuleOpenClass) openLService.getOpenClass())
-                        .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                        .toCustomSpreadsheetResultOpenClass()
-                        .getBeanClass();
-                    ret.add(spreadsheetResultBeanClass.getName());
-                    if (!found) {
-                        for (Method method : openLService.getServiceClass().getMethods()) {
-                            if (!found && ClassUtils.isAssignable(spreadsheetResultBeanClass, method.getReturnType())) {
-                                found = true;
+                    XlsModuleOpenClass xlsModuleOpenClass = ((XlsModuleOpenClass) openLService.getOpenClass());
+                    if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
+                        Class<?> spreadsheetResultBeanClass = xlsModuleOpenClass
+                            .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                            .toCustomSpreadsheetResultOpenClass()
+                            .getBeanClass();
+                        ret.add(spreadsheetResultBeanClass.getName());
+                        if (!found) {
+                            for (Method method : openLService.getServiceClass().getMethods()) {
+                                if (!found && ClassUtils.isAssignable(spreadsheetResultBeanClass,
+                                    method.getReturnType())) {
+                                    found = true;
+                                }
                             }
                         }
                     }
