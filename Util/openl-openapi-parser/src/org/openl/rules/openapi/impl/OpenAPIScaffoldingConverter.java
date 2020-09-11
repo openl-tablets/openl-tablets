@@ -274,7 +274,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 nameOfSchema = ARRAY_MATCHER.matcher(usedSchemaInResponse).replaceAll("");
             }
             schema = getSchemas(openAPI).get(nameOfSchema);
-            spr.setType(SPREADSHEET_RESULT);
+            spr.setType(isArray ? usedSchemaInResponse : SPREADSHEET_RESULT);
             pathInfo.setReturnType(OBJECT);
             if (schema != null) {
                 Map<String, Schema> properties = schema.getProperties();

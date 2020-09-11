@@ -376,4 +376,26 @@ public class SpreadsheetsConverterTest {
         assertEquals("Double[]", param.getType());
         assertEquals("double", param.getName());
     }
+
+    @Test
+    public void testSprResultSignatureForArray() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/spreadsheets/spr_return_array_of_type.json");
+        List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
+        Optional<SpreadsheetModel> hko = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("HelloKitty"))
+            .findFirst();
+        assertTrue(hko.isPresent());
+        SpreadsheetModel hk = hko.get();
+        assertEquals("AnotherDatatype[]", hk.getType());
+
+        Optional<SpreadsheetModel> hpo = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("HelloPesi"))
+            .findFirst();
+        assertTrue(hpo.isPresent());
+        SpreadsheetModel hp = hpo.get();
+        assertEquals("AnotherDatatype[][][]", hp.getType());
+
+    }
 }
