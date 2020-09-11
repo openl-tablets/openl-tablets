@@ -21,7 +21,6 @@ public class GitRepositorySettings extends RepositorySettings {
     private String tagPrefix;
     private int listenerTimerPeriod;
     private int connectionTimeout;
-    private String settingsPath;
 
     private final String URI;
     private final String LOGIN;
@@ -34,8 +33,7 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String TAG_PREFIX;
     private final String LISTENER_TIMER_PERIOD;
     private final String CONNECTION_TIMEOUT;
-    private final String SETTINGS_PATH;
-    private String CONFIG_PREFIX;
+    private final String CONFIG_PREFIX;
 
     GitRepositorySettings(PropertiesHolder properties, String configPrefix) {
         super(properties, configPrefix);
@@ -51,7 +49,6 @@ public class GitRepositorySettings extends RepositorySettings {
         TAG_PREFIX = configPrefix + ".tag-prefix";
         LISTENER_TIMER_PERIOD = configPrefix + ".listener-timer-period";
         CONNECTION_TIMEOUT = configPrefix + ".connection-timeout";
-        SETTINGS_PATH = ".git-settings-path";
 
         load(properties);
     }
@@ -73,7 +70,6 @@ public class GitRepositorySettings extends RepositorySettings {
         tagPrefix = properties.getProperty(TAG_PREFIX);
         listenerTimerPeriod = Integer.parseInt(Optional.ofNullable(properties.getProperty(LISTENER_TIMER_PERIOD)).orElse("0"));
         connectionTimeout = Integer.parseInt(Optional.ofNullable(properties.getProperty(CONNECTION_TIMEOUT)).orElse("0"));
-        settingsPath = properties.getProperty(SETTINGS_PATH);
         newBranchTemplate = properties.getProperty(NEW_BRANCH_TEMPLATE);
 
         remoteRepository = StringUtils.isNotBlank(uri);
@@ -167,14 +163,6 @@ public class GitRepositorySettings extends RepositorySettings {
         this.connectionTimeout = connectionTimeout;
     }
 
-    public String getSettingsPath() {
-        return settingsPath;
-    }
-
-    public void setSettingsPath(String settingsPath) {
-        this.settingsPath = settingsPath;
-    }
-
     public String getNewBranchTemplate() {
         return newBranchTemplate;
     }
@@ -212,7 +200,6 @@ public class GitRepositorySettings extends RepositorySettings {
         propertiesHolder.setProperty(TAG_PREFIX, tagPrefix);
         propertiesHolder.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
         propertiesHolder.setProperty(CONNECTION_TIMEOUT, connectionTimeout);
-        propertiesHolder.setProperty(SETTINGS_PATH, settingsPath);
     }
 
     @Override
@@ -228,8 +215,7 @@ public class GitRepositorySettings extends RepositorySettings {
             BRANCH,
             NEW_BRANCH_TEMPLATE,
             TAG_PREFIX,
-            LISTENER_TIMER_PERIOD,
-            SETTINGS_PATH);
+            LISTENER_TIMER_PERIOD);
         load(properties);
     }
 
@@ -251,9 +237,18 @@ public class GitRepositorySettings extends RepositorySettings {
             setListenerTimerPeriod(otherSettings.getListenerTimerPeriod());
             setConnectionTimeout(otherSettings.getConnectionTimeout());
             setCommentTemplate(otherSettings.getCommentTemplate());
-            setSettingsPath(otherSettings.getSettingsPath());
             setRemoteRepository(otherSettings.isRemoteRepository());
         }
+    }
+
+    @Override
+    public void applyRepositorySuffix(String suffix) {
+        super.applyRepositorySuffix(suffix);
+        String path = getLocalRepositoryPath();
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+        setLocalRepositoryPath(path + suffix);
     }
 
     @Override

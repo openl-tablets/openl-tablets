@@ -227,6 +227,13 @@ public abstract class RepositorySettings {
         setBasePath(other.getBasePath());
     }
 
+    /**
+     * Change repository settings to distinguish from other repository. Used when create a new repository based on template.
+     * @param suffix repository id suffix
+     */
+    public void applyRepositorySuffix(String suffix) {
+    }
+
     public RepositorySettingsValidators getValidators() {
         return new RepositorySettingsValidators();
     }

@@ -20,7 +20,7 @@ public class RepositoryConfiguration {
 
     private String oldName = null;
 
-    private String configName;
+    private final String configName;
 
     private final String REPOSITORY_FACTORY;
     private final String REPOSITORY_NAME;
@@ -49,12 +49,17 @@ public class RepositoryConfiguration {
             PropertiesHolder properties,
             RepositoryConfiguration configToClone) {
         this(configName, properties);
+        String suffix = "";
+        if (configName.startsWith(configToClone.getConfigName())) {
+            suffix = configName.substring(configToClone.getConfigName().length());
+        }
         // do not copy configName, only content
-        setName(configToClone.getName());
+        setName(configToClone.getName() + suffix);
         oldName = name;
 
         setType(configToClone.getType());
         settings.copyContent(configToClone.getSettings());
+        settings.applyRepositorySuffix(suffix);
     }
 
     public PropertiesHolder getProperties() {

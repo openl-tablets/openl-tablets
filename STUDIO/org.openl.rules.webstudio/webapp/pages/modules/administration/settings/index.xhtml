@@ -6,8 +6,7 @@
         xmlns:ui="http://java.sun.com/jsf/facelets"
         xmlns:c="http://java.sun.com/jsp/jstl/core"
         xmlns:a4j="http://richfaces.org/a4j"
-        xmlns:rich="http://richfaces.org/rich"
-        xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+>
     <ui:define name="content">
         <c:set var="isNotSingleMode" value="#{environment.getProperty('user.mode') != 'single'}"/>
 
@@ -148,6 +147,14 @@
 
             function confirmSave() {
                 return !#{isNotSingleMode} || confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to apply these settings now?');
+            }
+
+            function updateRepoTab(repoId, input) {
+                $j('#repo-tab-' + repoId).text($j(input).val());
+            }
+
+            function selectLastTab(hrefPrefix) {
+                $j('a[href^="' + hrefPrefix + '"]').last().click();
             }
 
             //]]>
@@ -312,7 +319,7 @@
                                                         title="Add Design Repository Connection"
                                                         styleClass="toolbarButton menuButton"
                                                         render="repoSettings"
-                                                        oncomplete="initSettingsPage();"
+                                                        oncomplete="initSettingsPage();selectLastTab('#repo-design');"
                                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
                                                     <img src="#{request.contextPath}/webresource/images/add.png"
@@ -323,7 +330,7 @@
                                         <a4j:repeat value="#{designRepos}" var="repository" rowKeyVar="r">
                                             <li class="sub-repo-item tab-element #{r == 0 ? 'default-tab' : ''}">
                                                 <a href="#repo-#{repository.id}">
-                                                    <span><h:outputText value="#{repository.name}"/></span>
+                                                    <span id="repo-tab-#{repository.id}"><h:outputText value="#{repository.name}"/></span>
                                                 </a>
                                             </li>
                                         </a4j:repeat>
@@ -340,7 +347,7 @@
                                                         title="Add Deployment Repository Connection"
                                                         styleClass="toolbarButton menuButton"
                                                         render="repoSettings"
-                                                        oncomplete="initSettingsPage();"
+                                                        oncomplete="initSettingsPage();selectLastTab('#repo-production');"
                                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
                                                     <img src="#{request.contextPath}/webresource/images/add.png"
@@ -351,7 +358,7 @@
                                         <a4j:repeat value="#{productionRepos}" var="repository">
                                             <li class="sub-repo-item tab-element">
                                                 <a href="#repo-#{repository.id}">
-                                                    <span><h:outputText value="#{repository.name}"/></span>
+                                                    <span id="repo-tab-#{repository.id}"><h:outputText value="#{repository.name}"/></span>
                                                 </a>
                                             </li>
                                         </a4j:repeat>
@@ -366,7 +373,7 @@
                                                                 <h:panelGrid id="designInfoPanel" columns="2"
                                                                              columnClasses="titleColumn">
                                                                     <h:outputText value="Name:"/>
-                                                                    <h:inputText value="#{designRepository.name}"/>
+                                                                    <h:inputText value="#{designRepository.name}" onchange="updateRepoTab('#{designRepository.id}', this)"/>
                                                                     <h:outputText value="Type:"/>
                                                                     <h:selectOneMenu value="#{designRepository.type}">
                                                                         <f:ajax event="change"
@@ -579,7 +586,8 @@
                                                                                  columnClasses="titleColumn">
                                                                         <h:outputText value="Name:"/>
                                                                         <h:inputText value="#{repository.name}"
-                                                                                     styleClass="no-autocomplete"/>
+                                                                                     styleClass="no-autocomplete"
+                                                                                     onchange="updateRepoTab('#{repository.id}', this)"/>
                                                                         <h:outputText value="Type:"/>
                                                                         <h:selectOneMenu value="#{repository.type}">
                                                                             <f:ajax event="change"
