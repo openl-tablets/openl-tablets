@@ -406,14 +406,14 @@ public class ProjectBean {
             clean(newProjectDescriptor);
             save(newProjectDescriptor);
         } else {
-            refreshProject(studio.getCurrentProject().getName());
+            refreshProject(currentProject.getRepository().getId(), currentProject.getName());
         }
     }
 
-    private void refreshProject(String name) {
+    private void refreshProject(String repoId, String name) {
         studio.getModel().clearModuleInfo();
         studio.resolveProject(studio.getCurrentProjectDescriptor());
-        TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(name);
+        TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(repoId, name);
         if (projectNode != null) {
             // For example, repository wasn't refreshed yet
             projectNode.refresh();
@@ -466,7 +466,7 @@ public class ProjectBean {
             } else {
                 RulesProject currentProject = studio.getCurrentProject();
                 currentProject.setModified();
-                refreshProject(currentProject.getName());
+                refreshProject(currentProject.getRepository().getId(), currentProject.getName());
             }
         } else {
             clean(newProjectDescriptor);
@@ -576,7 +576,7 @@ public class ProjectBean {
                     rulesDeploySerializer.serialize(rulesDeploy).getBytes(StandardCharsets.UTF_8)));
             }
 
-            refreshProject(project.getName());
+            refreshProject(project.getRepository().getId(), project.getName());
         } catch (ValidationException e) {
             throw new Message(e.getMessage());
         } catch (Exception e) {

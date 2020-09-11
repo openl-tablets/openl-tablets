@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -57,4 +58,12 @@ public interface UserWorkspace extends ProjectsContainer {
     Collection<RulesProject> getProjects(boolean refreshBefore);
 
     LockEngine getProjectsLockEngine();
+
+    default boolean isOpenedOtherProject(AProject project) {
+        return getProjects()
+            .stream()
+            .anyMatch(p -> p.isOpened() && project.getName().equals(p.getName()) && (!project.getRepository().getId()
+                .equals(p.getRepository()
+                    .getId()) || !project.getRealPath().equals(p.getRealPath())));
+    }
 }

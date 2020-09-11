@@ -192,11 +192,18 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         return new ArrayList<>(Collections.singletonList(new SequenceRowKey(ids.toArray())));
     }
 
-    public TreeProject getProjectNodeByPhysicalName(String physicalName) {
+    TreeProject getProjectNodeByPhysicalName(String physicalName) {
+        return getProjectNodeByPhysicalName(null, physicalName);
+    }
+    
+    public TreeProject getProjectNodeByPhysicalName(String repoId, String physicalName) {
         for (TreeNode treeNode : getRulesRepository().getChildNodes()) {
             TreeProject project = (TreeProject) treeNode;
             if (project.getName().equals(physicalName)) {
-                return project;
+                if (repoId == null || project.getData() instanceof AProject && repoId
+                    .equals(project.getData().getRepository().getId())) {
+                    return project;
+                }
             }
         }
         return null;

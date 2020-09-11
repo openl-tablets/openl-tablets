@@ -100,9 +100,8 @@ public class ProjectUploader {
                 }
                 errorMessage = projectCreator.createRulesProject();
                 if (errorMessage == null) {
-                    boolean alreadyOpened = userWorkspace.getProjects().stream().anyMatch(p -> p.isOpened() && p.getName().equals(projectName));
-                    if (!alreadyOpened) {
-                        RulesProject createdProject = userWorkspace.getProject(repositoryId, projectName);
+                    RulesProject createdProject = userWorkspace.getProject(repositoryId, projectName);
+                    if (!userWorkspace.isOpenedOtherProject(createdProject)) {
                         createdProject.open();
                     }
                 }

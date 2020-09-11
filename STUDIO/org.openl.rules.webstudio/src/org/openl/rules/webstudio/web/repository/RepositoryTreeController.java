@@ -122,6 +122,7 @@ import com.thoughtworks.xstream.io.StreamException;
 public class RepositoryTreeController {
 
     private static final String CUSTOM_TEMPLATE_TYPE = "custom";
+    private static final String OPENED_OTHER_PROJECT = "WebStudio can't open two projects with the same name. Please close another project and open it again.";
 
     private final Logger log = LoggerFactory.getLogger(RepositoryTreeController.class);
 
@@ -579,8 +580,7 @@ public class RepositoryTreeController {
                 try {
                     RulesProject createdProject = userWorkspace.getProject(repositoryId, projectName);
 
-                    boolean alreadyOpened = userWorkspace.getProjects().stream().anyMatch(p -> p.isOpened() && p.getName().equals(projectName));
-                    if (!alreadyOpened) {
+                    if (!userWorkspace.isOpenedOtherProject(createdProject)) {
                         createdProject.open();
                     }
 
@@ -949,7 +949,7 @@ public class RepositoryTreeController {
      */
     private void closeProjectForAllUsers(File workspacesRoot, String repoId, String projectName, String branch) throws ProjectException {
         // Needed to update UI of current user
-        TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(projectName);
+        TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(repoId, projectName);
         if (projectNode != null) {
             AProjectArtefact artefact = projectNode.getData();
             if (artefact instanceof RulesProject) {
@@ -1198,9 +1198,10 @@ public class RepositoryTreeController {
             }
 
             AProject forExport;
+            String repositoryId = selectedProject.getRepository().getId();
             if (hasVersions && currentRevision == null) {
                 forExport = userWorkspace.getDesignTimeRepository()
-                    .getProject(selectedProject.getRepository().getId(), selectedProject.getName(), new CommonVersionImpl(version));
+                    .getProject(repositoryId, selectedProject.getName(), new CommonVersionImpl(version));
 
                 TreeNode selectedNode = repositoryTreeState.getSelectedNode();
                 ArtefactPath selectedNodePath = selectedNode.getData().getArtefactPath().withoutFirstSegment();
@@ -1209,7 +1210,7 @@ public class RepositoryTreeController {
                 TreeNode selectedNode = repositoryTreeState.getSelectedNode();
                 ArtefactPath pathForSelection = selectedNode.getData().getArtefactPath();
                 String projectName = pathForSelection.segment(0);
-                AProject uwp = userWorkspace.getProject(selectedProject.getRepository().getId(), projectName);
+                AProject uwp = userWorkspace.getProject(repositoryId, projectName);
 
                 ArtefactPath pathInProject = pathForSelection.withoutFirstSegment();
 
@@ -1220,7 +1221,7 @@ public class RepositoryTreeController {
                 .addResource(artefactPath.segment(artefactPath.segmentCount() - 1), is);
             fileName = addedFileResource.getName();
             repositoryTreeState
-                .refreshNode(repositoryTreeState.getProjectNodeByPhysicalName(selectedProject.getName()));
+                .refreshNode(repositoryTreeState.getProjectNodeByPhysicalName(repositoryId, selectedProject.getName()));
             registerInProjectDescriptor(addedFileResource);
             resetStudioModel();
             is.close();
@@ -1389,14 +1390,8 @@ public class RepositoryTreeController {
     public String openProject() {
         try {
             UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
-            boolean openedOther = userWorkspace.getLocalWorkspace().getProjects()
-                .stream()
-                .anyMatch(p -> project.getName().equals(p.getName()) && (!project.getRepository().getId()
-                    .equals(p.getRepository()
-                        .getId()) || !project.getRealPath().equals(p.getRealPath())));
-            if (openedOther) {
-                String msg = "WebStudio can't open two projects with the same name. Please close another project and open it again.";
-                WebStudioUtils.addErrorMessage(msg);
+            if (userWorkspace.isOpenedOtherProject(project)) {
+                WebStudioUtils.addErrorMessage(OPENED_OTHER_PROJECT);
                 return null;
             }
             project.open();
@@ -1424,7 +1419,11 @@ public class RepositoryTreeController {
                     continue;
                 }
                 String physicalName = projectNode.getName();
-                userWorkspace.getProject(selectedProject.getRepository().getId(), physicalName).open();
+                RulesProject project = userWorkspace.getProject(selectedProject.getRepository().getId(),
+                    physicalName);
+                if (!userWorkspace.isOpenedOtherProject(project)) {
+                    project.open();
+                }
             }
         }
     }
@@ -1432,6 +1431,12 @@ public class RepositoryTreeController {
     public String openProjectVersion() {
         try {
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
+            if (userWorkspace.isOpenedOtherProject(repositoryProject)) {
+                WebStudioUtils.addErrorMessage(OPENED_OTHER_PROJECT);
+                // To avoid unnecessary request for the version when it's not needed (from getHasDependenciesForVersion())
+                version = null;
+                return null;
+            }
 
             if (repositoryProject.isOpened()) {
                 studio.getModel().clearModuleInfo();
@@ -1442,6 +1447,8 @@ public class RepositoryTreeController {
             openDependenciesIfNeeded();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
+            // To avoid unnecessary request for the version when it's not needed (from getHasDependenciesForVersion())
+            version = null;
         } catch (Exception e) {
             String msg = "Failed to open project version.";
             log.error(msg, e);
@@ -2108,7 +2115,9 @@ public class RepositoryTreeController {
                 } else {
                     // Update files
                     ProjectsInHistoryController.deleteHistory(selectedProject.getName());
-                    selectedProject.open();
+                    if (!userWorkspace.isOpenedOtherProject(selectedProject)) {
+                        selectedProject.open();
+                    }
                 }
             }
 

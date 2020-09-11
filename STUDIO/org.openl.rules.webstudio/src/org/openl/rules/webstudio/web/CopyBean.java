@@ -236,7 +236,9 @@ public class CopyBean {
                     designRepository,
                     designProject.getFileData(),
                     userWorkspace.getProjectsLockEngine());
-                copiedProject.open();
+                if (!userWorkspace.isOpenedOtherProject(copiedProject)) {
+                    copiedProject.open();
+                }
             }
 
             WebStudioUtils.getWebStudio().resetProjects();
@@ -259,7 +261,8 @@ public class CopyBean {
             if (selectedProject == null) {
                 return;
             }
-            TreeProject node = repositoryTreeState.getProjectNodeByPhysicalName(selectedProject.getName());
+            TreeProject node = repositoryTreeState.getProjectNodeByPhysicalName(selectedProject.getRepository().getId(),
+                selectedProject.getName());
             selectedProject = repositoryTreeState.getProject(node);
             WebStudio studio = WebStudioUtils.getWebStudio();
 
@@ -269,7 +272,9 @@ public class CopyBean {
             }
             selectedProject.setBranch(newBranchName);
             // Update files
-            selectedProject.open();
+            if (!getUserWorkspace().isOpenedOtherProject(selectedProject)) {
+                selectedProject.open();
+            }
 
             repositoryTreeState.refreshNode(node);
             studio.reset();
