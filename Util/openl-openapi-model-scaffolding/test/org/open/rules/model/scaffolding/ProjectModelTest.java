@@ -44,14 +44,17 @@ public class ProjectModelTest {
             true,
             Collections.emptyList(),
             Collections.emptyList(),
+            Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
             true,
             Collections.emptyList(),
             Collections.emptyList(),
+            Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingWithoutContext = new ProjectModel(BANK_RATING,
             false,
+            Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());
@@ -74,16 +77,19 @@ public class ProjectModelTest {
             true,
             Collections.emptyList(),
             Arrays.asList(firstSpr, secondSpr),
+            Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
             true,
             Collections.emptyList(),
             Arrays.asList(firstSpr, secondSpr),
+            Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingWithOneSpr = new ProjectModel(BANK_RATING,
             true,
             Collections.emptyList(),
             Collections.singletonList(firstSpr),
+            Collections.emptyList(),
             Collections.emptyList());
 
         assertEquals(bankRating, bankRatingCopy);
@@ -103,15 +109,18 @@ public class ProjectModelTest {
             true,
             Arrays.asList(dm, oneMoreDm),
             Collections.emptyList(),
+            Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
             true,
             Arrays.asList(dm, oneMoreDm),
             Collections.emptyList(),
+            Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingWithOneDataType = new ProjectModel(BANK_RATING,
             true,
             Collections.singletonList(oneMoreDm),
+            Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());
 
@@ -132,17 +141,20 @@ public class ProjectModelTest {
             true,
             Collections.emptyList(),
             Collections.emptyList(),
-            Arrays.asList(xyInfo, xyzInfo));
+            Arrays.asList(xyInfo, xyzInfo),
+            Collections.emptyList());
         ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
             true,
             Collections.emptyList(),
             Collections.emptyList(),
-            Arrays.asList(xyInfo, xyzInfo));
+            Arrays.asList(xyInfo, xyzInfo),
+            Collections.emptyList());
         ProjectModel bankRatingWithOnePath = new ProjectModel(BANK_RATING,
             true,
             Collections.emptyList(),
             Collections.emptyList(),
-            Collections.singletonList(xyInfo));
+            Collections.singletonList(xyInfo),
+            Collections.emptyList());
 
         assertEquals(bankRating, bankRatingCopy);
         assertEquals(bankRating.hashCode(), bankRatingCopy.hashCode());

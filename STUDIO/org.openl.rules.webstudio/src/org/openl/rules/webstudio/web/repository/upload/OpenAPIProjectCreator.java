@@ -174,6 +174,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     private ByteArrayInputStream generateRulesDeployFile(ProjectModel projectModel) {
         RulesDeploy rd = new RulesDeploy();
         rd.setProvideRuntimeContext(projectModel.isRuntimeContextProvided());
+        rd.setPublishers(new RulesDeploy.PublisherType[] { RulesDeploy.PublisherType.RESTFUL });
         return new ByteArrayInputStream(serializer.serialize(rd).getBytes(StandardCharsets.UTF_8));
     }
 

@@ -11,6 +11,11 @@ public class ProjectModel {
     private List<DatatypeModel> datatypeModels = new ArrayList<>();
     private List<SpreadsheetModel> spreadsheetModels = new ArrayList<>();
     private List<PathInfo> pathInfos = new ArrayList<>();
+    /*
+     * Spreadsheets which will be generate through interface. for case, when isRuntimeContextProvided is true, but these
+     * spreadsheets don't have it.
+     */
+    private List<SpreadsheetModel> notOpenLModels = new ArrayList<>();
 
     public ProjectModel() {
     }
@@ -19,12 +24,14 @@ public class ProjectModel {
             boolean isRuntimeContextProvided,
             List<DatatypeModel> datatypeModels,
             List<SpreadsheetModel> spreadsheetModels,
-            List<PathInfo> pathInfos) {
+            List<PathInfo> pathInfos,
+            List<SpreadsheetModel> modelsForInterface) {
         this.name = name;
         this.isRuntimeContextProvided = isRuntimeContextProvided;
         this.datatypeModels = datatypeModels;
         this.spreadsheetModels = spreadsheetModels;
         this.pathInfos = pathInfos;
+        this.notOpenLModels = modelsForInterface;
     }
 
     public String getName() {
@@ -51,6 +58,10 @@ public class ProjectModel {
         return pathInfos;
     }
 
+    public List<SpreadsheetModel> getModelsToClass() {
+        return notOpenLModels;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -74,7 +85,10 @@ public class ProjectModel {
         if (!Objects.equals(pathInfos, that.pathInfos)) {
             return false;
         }
-        return Objects.equals(spreadsheetModels, that.spreadsheetModels);
+        if (!Objects.equals(spreadsheetModels, that.spreadsheetModels)) {
+            return false;
+        }
+        return Objects.equals(notOpenLModels, that.notOpenLModels);
     }
 
     @Override
@@ -83,6 +97,7 @@ public class ProjectModel {
         result = 31 * result + (isRuntimeContextProvided ? 1 : 0);
         result = 31 * result + (datatypeModels != null ? datatypeModels.hashCode() : 0);
         result = 31 * result + (spreadsheetModels != null ? spreadsheetModels.hashCode() : 0);
+        result = 31 * result + (notOpenLModels != null ? notOpenLModels.hashCode() : 0);
         result = 31 * result + (pathInfos != null ? pathInfos.hashCode() : 0);
         return result;
     }

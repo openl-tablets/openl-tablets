@@ -35,6 +35,7 @@ public class EnvironmentTableExporterTest {
             false,
             Collections.emptyList(),
             Collections.emptyList(),
+            Collections.emptyList(),
             Collections.emptyList());
 
         ByteArrayOutputStream sos = new ByteArrayOutputStream();

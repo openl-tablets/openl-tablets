@@ -337,9 +337,25 @@ public class SpreadsheetsConverterTest {
         OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter.extractProjectModel("test.converter/rd/EPBDS-10306_Runtime_context.json");
         assertFalse(projectModel.isRuntimeContextProvided());
+        List<SpreadsheetModel> sprModels = projectModel.getSpreadsheetResultModels();
+        assertEquals(2, sprModels.size());
+        assertEquals(0, projectModel.getModelsToClass().size());
 
         ProjectModel projectModelWithDRC = converter
             .extractProjectModel("test.converter/rd/EPBDS-10306_Runtime_context_provided.json");
         assertTrue(projectModelWithDRC.isRuntimeContextProvided());
+        assertEquals(2, projectModelWithDRC.getSpreadsheetResultModels().size());
+        List<InputParameter> params = projectModelWithDRC.getSpreadsheetResultModels()
+            .stream()
+            .flatMap(x -> x.getParameters().stream())
+            .collect(Collectors.toList());
+        assertEquals(0, params.size());
+
+        ProjectModel projectModelWithNotAllDRC = converter
+            .extractProjectModel("test.converter/rd/EPBDS-10306_Runtime_context_provided_partially.json");
+        List<SpreadsheetModel> modelsToClass = projectModelWithNotAllDRC.getModelsToClass();
+        List<SpreadsheetModel> spreadsheetResultModels = projectModelWithNotAllDRC.getSpreadsheetResultModels();
+        assertEquals(1, spreadsheetResultModels.size());
+        assertEquals(1, modelsToClass.size());
     }
 }

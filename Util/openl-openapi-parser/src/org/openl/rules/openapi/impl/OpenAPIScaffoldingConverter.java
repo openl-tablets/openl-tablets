@@ -133,23 +133,26 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         if (generateUnusedModels) {
             dts.addAll(extractDataTypeModels(openAPI, allUnusedRefs, true));
         }
+        Map<Boolean, List<SpreadsheetModel>> sprModelsDivided = spreadsheetModels.stream()
+            .collect(Collectors.partitioningBy(x -> containsRuntimeContext(x.getParameters())));
+        List<SpreadsheetModel> sprModelsWithRC = sprModelsDivided.get(Boolean.TRUE);
+        boolean isRuntimeContextProvided = !sprModelsWithRC.isEmpty();
+        removeContextFromParams(sprModelsWithRC);
         Map<String, List<InputParameter>> sprTypeNames = spreadsheetModels.stream()
             .collect(Collectors.toMap(SpreadsheetModel::getName, SpreadsheetModel::getParameters));
         fillStepValues(spreadsheetModels, sprTypeNames);
-        boolean isRuntimeContextProvided = findRuntimeContext(sprTypeNames.values());
-        return new ProjectModel(projectName, isRuntimeContextProvided, dts, spreadsheetModels, pathInfos);
+        return new ProjectModel(projectName,
+            isRuntimeContextProvided,
+            dts,
+            isRuntimeContextProvided ? sprModelsWithRC : spreadsheetModels,
+            pathInfos,
+            isRuntimeContextProvided ? sprModelsDivided.get(Boolean.FALSE) : Collections.emptyList());
     }
 
-    private boolean findRuntimeContext(Collection<List<InputParameter>> inputParameters) {
-        boolean result = true;
-        for (List<InputParameter> ip : inputParameters) {
-            boolean sprHasRC = containsRuntimeContext(ip);
-            if (!sprHasRC) {
-                result = false;
-                break;
-            }
+    private void removeContextFromParams(List<SpreadsheetModel> sprModelsWithRC) {
+        for (SpreadsheetModel spreadsheetModel : sprModelsWithRC) {
+            spreadsheetModel.getParameters().removeIf(parameter -> parameter.getType().equals(DEFAULT_RUNTIME_CONTEXT));
         }
-        return result;
     }
 
     private void fillStepValues(final List<SpreadsheetModel> spreadsheetModels,

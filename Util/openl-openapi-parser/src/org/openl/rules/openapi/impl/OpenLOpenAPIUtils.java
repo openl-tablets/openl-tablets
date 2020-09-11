@@ -637,8 +637,8 @@ public class OpenLOpenAPIUtils {
                 if (CollectionUtils.isNotEmpty(properties)) {
                     if (properties.size() > MAX_PARAMETERS_COUNT) {
                         String name = OpenAPITypeUtils.getSimpleName(ref);
-                        parameterModels = Collections.singletonList(
-                            new ParameterModel(StringUtils.capitalize(name), StringUtils.uncapitalize(name)));
+                        parameterModels = new ArrayList<>(Collections.singletonList(
+                            new ParameterModel(StringUtils.capitalize(name), StringUtils.uncapitalize(name))));
                         refsToExpand.remove(ref);
                     } else {
                         parameterModels = properties.entrySet()
@@ -653,8 +653,8 @@ public class OpenLOpenAPIUtils {
                 if (StringUtils.isBlank(name)) {
                     parameterModels = Collections.emptyList();
                 } else {
-                    parameterModels = Collections.singletonList(
-                        new ParameterModel(StringUtils.capitalize(name), StringUtils.uncapitalize(name)));
+                    parameterModels = new ArrayList<>(Collections.singletonList(
+                        new ParameterModel(StringUtils.capitalize(name), StringUtils.uncapitalize(name))));
                 }
             }
         }
