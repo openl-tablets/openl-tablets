@@ -1,7 +1,10 @@
 package org.openl.util;
 
 import java.io.*;
+import java.util.Enumeration;
+import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -82,5 +85,20 @@ public final class ZipUtils {
         try (ZipArchiver arch = new ZipArchiver(targetFile.toPath())) {
             ProjectPackager.addOpenLProject(sourceDirectory, arch);
         }
+    }
+
+    public static boolean contains(File zipFile, Predicate<String> names) {
+        try {
+            Enumeration<? extends ZipEntry> entries = new ZipFile(zipFile).entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry zipEntry = entries.nextElement();
+                if (names.test(zipEntry.getName())) {
+                    return true;
+                }
+            }
+        } catch (IOException ignored) {
+            // skip
+        }
+        return false;
     }
 }

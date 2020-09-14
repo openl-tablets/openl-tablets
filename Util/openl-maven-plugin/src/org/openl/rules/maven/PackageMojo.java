@@ -53,6 +53,7 @@ public final class PackageMojo extends BaseOpenLMojo {
 
     private static final String DEPLOYMENT_YAML = "deployment.yaml";
     private static final String DEPLOYMENT_CLASSIFIER = "deployment";
+    private static final String OPENL_ARTIFACT_TYPE = "zip";
 
     @Parameter(defaultValue = "${project.packaging}", readonly = true)
     private String packaging;
@@ -175,7 +176,7 @@ public final class PackageMojo extends BaseOpenLMojo {
             info("Skipping packaging of the empty OpenL project.");
             return;
         }
-        String[] types = StringUtils.split(format, ',');
+        String[] types = getFormats();
         if (CollectionUtils.isEmpty(types)) {
             throw new MojoFailureException("No formats have been defined in the plugin configuration.");
         }
@@ -201,7 +202,8 @@ public final class PackageMojo extends BaseOpenLMojo {
             }
             throw new MojoFailureException("The quantity of dependencies exceeds the limit");
         }
-        if (!mainArtifactExists && CollectionUtils.isNotEmpty(classesDirectory.list())) {
+        boolean openLJarPackaging = packaging.equals("openl-jar");
+        if (!mainArtifactExists && CollectionUtils.isNotEmpty(classesDirectory.list()) && !openLJarPackaging) {
             // create a jar file with compiled Java sources for OpenL rules
             dependencyLib = File.createTempFile(finalName, "-lib.jar", outputDirectory);
 
@@ -224,6 +226,10 @@ public final class PackageMojo extends BaseOpenLMojo {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     manifest.write(baos);
                     arch.addFile(new ByteArrayInputStream(baos.toByteArray()), JarFile.MANIFEST_NAME);
+                }
+
+                if (openLJarPackaging && CollectionUtils.isNotEmpty(classesDirectory.list())) {
+                    ProjectPackager.addOpenLProject(classesDirectory, arch);
                 }
 
                 ProjectPackager.addOpenLProject(openLSourceDir, includedFiles, arch);
@@ -254,10 +260,13 @@ public final class PackageMojo extends BaseOpenLMojo {
                 FileUtils.delete(outputDeploymentDir);
             }
             outputDeploymentDir.mkdir();
-            Set<Artifact> openLDependencies = getOpenLDependencies();
+            Set<Artifact> openLDependencies = getDependentOpenLProjects();
             for (Artifact openLArtifact : openLDependencies) {
-                File artifactFile = openLArtifact.getFile();
-                unpackZip(outputDeploymentDir, openLArtifact.getArtifactId(), artifactFile);
+                if (isRuntimeScope(openLArtifact.getScope())) {
+                    debug("ADD : ", openLArtifact);
+                    File artifactFile = openLArtifact.getFile();
+                    unpackZip(outputDeploymentDir, openLArtifact.getArtifactId(), artifactFile);
+                }
             }
             unpackZip(outputDeploymentDir, project.getArtifact().getArtifactId(), project.getArtifact().getFile());
             generateDeploymentFile(outputDeploymentDir);
@@ -273,11 +282,22 @@ public final class PackageMojo extends BaseOpenLMojo {
         }
     }
 
+    private String[] getFormats() {
+        switch (packaging) {
+            case "openl":
+                return new String[] { "zip" };
+            case "openl-jar":
+                return new String[] { "jar" };
+            default:
+                return StringUtils.split(format, ',');
+        }
+    }
+
     private Set<Artifact> getDependencies() {
         HashSet<String> allowed = getAllowedDependencies();
 
         Set<Artifact> dependencies = new HashSet<>();
-        for (Artifact artifact : project.getArtifacts()) {
+        for (Artifact artifact : getDependentNonOpenLProjects()) {
             String groupId = artifact.getGroupId();
             String type = artifact.getType();
             String scope = artifact.getScope();
@@ -323,7 +343,7 @@ public final class PackageMojo extends BaseOpenLMojo {
 
     private boolean skipToProcess(String groupId, String type, String scope) {
         return !isRuntimeScope(scope) || groupId.equals("org.openl.rules") || groupId.equals("org.openl") || groupId
-            .equals("org.slf4j") || OPENL_ARTIFACT_TYPE.equals(type);
+            .equals("org.slf4j");
     }
 
     private boolean isRuntimeScope(String scope) {
@@ -367,17 +387,6 @@ public final class PackageMojo extends BaseOpenLMojo {
         fileName.append('.').append(format);
 
         return new File(basedir, fileName.toString());
-    }
-
-    private Set<Artifact> getOpenLDependencies() {
-        Set<Artifact> openLDependencies = new HashSet<>();
-        for (Artifact artifact : project.getArtifacts()) {
-            if (OPENL_ARTIFACT_TYPE.equals(artifact.getType()) && isRuntimeScope(artifact.getScope())) {
-                openLDependencies.add(artifact);
-                debug("ADD : ", artifact);
-            }
-        }
-        return openLDependencies;
     }
 
     private void unpackZip(File baseDir, String name, File zip) throws IOException {
