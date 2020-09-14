@@ -73,7 +73,7 @@ public class LocalRepository extends FileSystemRepository {
             path += "/";
         }
         return fileName.startsWith(path + FolderHelper.PROPERTIES_FOLDER + "/") || fileName
-            .contains(path + "/" + FolderHelper.HISTORY_FOLDER + "/");
+            .startsWith(path + FolderHelper.HISTORY_FOLDER + "/");
     }
 
     @Override
