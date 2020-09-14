@@ -53,7 +53,8 @@ Usage
   The simplest way to create an OpenL Tablets artifact is as follows:
 
 +--------------------------------------
-<packaging>openl</packaging>
+<!-- <packaging>openl-jar</packaging> Packaging in a jar file. -->
+<packaging>openl</packaging> <!-- Packaging in a zip file. -->
 [...]
 <build>
   [...]
@@ -79,7 +80,7 @@ Usage
 
       * OpenL Tablets tests are run at the 'test' phase.
 
-      * ZIP archive is created and registered as a Maven artifact at the 'package' phase.
+      * ZIP or JAR archive is created and registered as a Maven artifact at the 'package' phase.
 
 * Configuring Interface and Generating Domain Classes
 

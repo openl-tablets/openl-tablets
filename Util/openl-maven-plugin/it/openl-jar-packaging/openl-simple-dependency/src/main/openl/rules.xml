@@ -1,0 +1,18 @@
+<project>
+    <name>OpenL Rules Simple Dependency Project</name>
+    <modules>
+        <module>
+            <name>Simple Rules Test</name>
+            <rules-root path="rules/SimpleRulesTest.xlsx"/>
+        </module>
+    </modules>
+    <classpath>
+        <entry path="lib/*.jar"/>
+    </classpath>
+    <dependencies>
+        <dependency>
+            <name>OpenL Rules Simple Project</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+    </dependencies>
+</project>
