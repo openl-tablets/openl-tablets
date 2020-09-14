@@ -94,20 +94,16 @@ public final class XlsDataFormatterFactory {
     }
 
     private static IFormatter getNumberFormatter(ICell cell) {
-        IFormatter formatter = null;
-
         ICellStyle xlsStyle = cell == null ? null : cell.getStyle();
-
         if (xlsStyle != null) {
             short formatIndex = xlsStyle.getFormatIndex();
             String format = xlsStyle.getFormatString();
             if (format.contains("#\" \"")) {
                 format = format.replaceAll("#\" \"", "# ");
             }
-            formatter = new XlsNumberFormatter(formatIndex, format, dataFormatter, locale);
+            return new XlsNumberFormatter(formatIndex, format, dataFormatter, locale);
         }
-
-        return formatter;
+        return new DefaultFormatter();
     }
 
     private static IFormatter getDateFormatter(ICell cell) {
