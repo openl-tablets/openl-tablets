@@ -43,7 +43,7 @@
 
                     <h:outputLabel for="repository" value="Repository:" styleClass="required"/>
                     <h:selectOneMenu id="repository" value="#{copyBean.toRepositoryId}">
-                        <f:ajax event="change" execute="@form" render="newProject" onevent="updateRevisionsCountState"/>
+                        <f:ajax event="change" execute="@form" render="newProject" onevent="onRepositoryChange"/>
                         <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
                         <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
                                        itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
@@ -130,6 +130,12 @@
             fixInputNumberSpinner('copyProjectForm:revisionsCount');
             updateStates();
             $j('#copyProjectForm\\:copy').prop('disabled', true);
+            addCopyListener();
+            RichFaces.$("modalCopyProject").show();
+            focusElement('copyProjectForm:newProjectName');
+        }
+        
+        function addCopyListener() {
             var copyListener = function () {
                 var shouldSeparateProject = true;
                 var branchName = '';
@@ -138,7 +144,6 @@
                     shouldSeparateProject = $separateProjectCheckbox.is(':checked');
                     branchName = $j('#copyProjectForm\\:newBranchName').val().trim();
                 }
-
                 var $projectName = $j('#copyProjectForm\\:newProjectName');
                 var projectName = $projectName.val().trim();
                 var disableCopy = !shouldSeparateProject && branchName.length === 0 || shouldSeparateProject && projectName.length === 0;
@@ -151,10 +156,12 @@
                     copyListener();
                 }, 0);
             });
-
             copyListener();
-            RichFaces.$("modalCopyProject").show();
-            focusElement('copyProjectForm:newProjectName');
+        }
+
+        function onRepositoryChange() {
+            updateRevisionsCountState();
+            addCopyListener();
         }
 
         function updateStates() {

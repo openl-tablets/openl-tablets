@@ -284,17 +284,18 @@ public class CopyBean {
     }
 
     public void newProjectNameValidator(FacesContext context, UIComponent toValidate, Object value) {
-        if (isSupportsBranches() && !isSeparateProjectSubmitted(context)) {
+        if ((isSupportsBranches() && !isSeparateProjectSubmitted(context)) || ((String) value).isEmpty()) {
             return;
         }
         String newProjectName = StringUtils.trim((String) value);
-        WebStudioUtils.validate(StringUtils.isNotBlank(newProjectName), "Cannot be empty");
         WebStudioUtils.validate(NameChecker.checkName(newProjectName), NameChecker.BAD_PROJECT_NAME_MSG);
 
         RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
         try {
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
-            String targetRepo = ((UIInput) context.getViewRoot().findComponent("copyProjectForm:repository")).getSubmittedValue().toString();
+            String targetRepo = ((UIInput) context.getViewRoot().findComponent("copyProjectForm:repository"))
+                .getSubmittedValue()
+                .toString();
             WebStudioUtils.validate(!userWorkspace.hasProject(targetRepo, newProjectName),
                 "Project with such name already exists.");
         } catch (WorkspaceException e) {
