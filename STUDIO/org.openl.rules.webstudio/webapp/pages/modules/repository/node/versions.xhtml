@@ -84,7 +84,7 @@
     <a4j:jsFunction name="openProjectVersion"
                     immediate="true"
                     render="nodeView nodeTabPanel projectTree content"
-                    oncomplete="refreshRulesDeployConfiguration()">
+                    oncomplete="if(!#{repositoryTree.hasMessages}) {refreshRulesDeployConfiguration();}">
         <a4j:param name="version" assignTo="#{repositoryTreeController.projectVersion}"/>
     </a4j:jsFunction>
 
