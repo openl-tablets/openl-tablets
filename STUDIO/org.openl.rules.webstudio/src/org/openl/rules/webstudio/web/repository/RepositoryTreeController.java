@@ -123,6 +123,7 @@ public class RepositoryTreeController {
 
     private static final String CUSTOM_TEMPLATE_TYPE = "custom";
     private static final String OPENED_OTHER_PROJECT = "WebStudio can't open two projects with the same name. Please close another project and open it again.";
+    private static final String NONE_REPO = "none";
 
     private final Logger log = LoggerFactory.getLogger(RepositoryTreeController.class);
 
@@ -1606,11 +1607,11 @@ public class RepositoryTreeController {
     }
 
     public String getRepositoryId() {
-        return repositoryId;
+        return StringUtils.isBlank(repositoryId) ? NONE_REPO : repositoryId;
     }
 
     public void setRepositoryId(String repositoryId) {
-        this.repositoryId = repositoryId;
+        this.repositoryId = NONE_REPO.equals(repositoryId) ? null : repositoryId;
     }
 
     private CommentValidator getDesignCommentValidator() {

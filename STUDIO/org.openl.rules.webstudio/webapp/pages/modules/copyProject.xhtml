@@ -44,7 +44,6 @@
                     <h:outputLabel for="repository" value="Repository:" styleClass="required"/>
                     <h:selectOneMenu id="repository" value="#{copyBean.toRepositoryId}">
                         <f:ajax event="change" execute="@form" render="newProject" onevent="onRepositoryChange"/>
-                        <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
                         <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
                                        itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
                     </h:selectOneMenu>
