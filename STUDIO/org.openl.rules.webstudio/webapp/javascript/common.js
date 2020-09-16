@@ -214,16 +214,25 @@ function makePopupPanelsReallyResizable() {
     RichFaces.ui.PopupPanel.prototype.show = function (event, opts) {
         showDelegate.call(this, event, opts);
         const self = this;
-        // ResizeObserver isn't supported by IE 11, so we use MutationObserver instead.
-        const observer = new MutationObserver(function () {
-            self.doResizeOrMove(RichFaces.ui.PopupPanel.Sizer.Diff.EMPTY);
-        });
-        observer.observe(this.contentDiv.get(0), {
-            attributes: true,
-            childList: true,
-            subtree: true
-        });
-        this['__observer'] = observer;
+
+        if ($j.browser.msie) {
+            // ResizeObserver isn't supported by IE 11, so we use MutationObserver instead.
+            const observer = new MutationObserver(function () {
+                self.doResizeOrMove(RichFaces.ui.PopupPanel.Sizer.Diff.EMPTY);
+            });
+            observer.observe(this.contentDiv.get(0), {
+                attributes: true,
+                childList: true,
+                subtree: true
+            });
+            this['__observer'] = observer;
+        } else {
+            const observer = new ResizeObserver(function () {
+                self.doResizeOrMove(RichFaces.ui.PopupPanel.Sizer.Diff.EMPTY);
+            });
+            observer.observe(this.contentDiv.get(0));
+            this['__observer'] = observer;
+        }
     };
 
     const hideDelegate = RichFaces.ui.PopupPanel.prototype.hide;
