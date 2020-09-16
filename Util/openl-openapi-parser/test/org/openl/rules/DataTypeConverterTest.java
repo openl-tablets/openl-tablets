@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -88,11 +89,21 @@ public class DataTypeConverterTest {
             .extractProjectModel("test.converter/datatype/datatypes_multiple_nesting.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(6, datatypeModels.size());
-        List<FieldModel> collect = datatypeModels.stream()
+        List<FieldModel> fieldModels = datatypeModels.stream()
             .flatMap(x -> x.getFields().stream())
             .collect(Collectors.toList());
-        assertFalse(collect.isEmpty());
-        assertEquals(6, collect.size());
+        assertFalse(fieldModels.isEmpty());
+        assertEquals(8, fieldModels.size());
+        Optional<FieldModel> birthDate = fieldModels.stream().filter(x -> x.getName().equals("birthDate")).findFirst();
+        assertTrue(birthDate.isPresent());
+        assertEquals("Date", birthDate.get().getType());
+        Optional<FieldModel> birthDateTime = fieldModels.stream()
+            .filter(x -> x.getName().equals("birthTime"))
+            .findFirst();
+        assertTrue(birthDateTime.isPresent());
+        FieldModel birthTimeField = birthDateTime.get();
+        assertEquals("Date", birthTimeField.getType());
+        assertTrue(birthTimeField.getDefaultValue() instanceof OffsetDateTime);
         Optional<DatatypeModel> crucian = datatypeModels.stream()
             .filter(x -> x.getName().equals("Crucian"))
             .findFirst();

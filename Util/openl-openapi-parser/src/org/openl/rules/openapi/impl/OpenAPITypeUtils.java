@@ -18,12 +18,11 @@ import io.swagger.v3.oas.models.media.Schema;
 
 public class OpenAPITypeUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenLOpenAPIUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenAPITypeUtils.class);
 
     public static final String OBJECT = "Object";
     public static final String SCHEMAS_LINK = "#/components/schemas/";
     public static final String DATE = "Date";
-    public static final String OFFSET_DATE_TIME = "OffsetDateTime";
     public static final String STRING = "String";
     public static final String FLOAT = "Float";
     public static final String DOUBLE = "Double";
@@ -43,7 +42,7 @@ public class OpenAPITypeUtils {
             if ("date".equals(schema.getFormat())) {
                 return DATE;
             } else if ("date-time".equals(schema.getFormat())) {
-                return OFFSET_DATE_TIME;
+                return DATE;
             } else {
                 return STRING;
             }
@@ -83,8 +82,8 @@ public class OpenAPITypeUtils {
     }
 
     public static boolean isSimpleType(String type) {
-        return STRING.equals(type) || FLOAT.equals(type) || DOUBLE.equals(type) || INTEGER.equals(type) || LONG.equals(
-            type) || BOOLEAN.equals(type) || DATE.equals(type) || OFFSET_DATE_TIME.equals(type) || OBJECT.equals(type);
+        return STRING.equals(type) || FLOAT.equals(type) || DOUBLE.equals(type) || INTEGER.equals(type) || LONG
+            .equals(type) || BOOLEAN.equals(type) || DATE.equals(type) || OBJECT.equals(type);
     }
 
     public static String getSimpleValue(String type) {
@@ -107,9 +106,6 @@ public class OpenAPITypeUtils {
                 break;
             case DATE:
                 result = "=new Date()";
-                break;
-            case OFFSET_DATE_TIME:
-                result = "=java.time.OffsetDateTime.now()";
                 break;
             case BOOLEAN:
                 result = "=false";

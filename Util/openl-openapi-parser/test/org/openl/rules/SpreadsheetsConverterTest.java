@@ -178,8 +178,8 @@ public class SpreadsheetsConverterTest {
             .findFirst();
         assertTrue(numAccidentsTwo.isPresent());
         StepModel dateTimeStep = numAccidentsTwo.get();
-        assertEquals("OffsetDateTime", dateTimeStep.getType());
-        assertEquals("=java.time.OffsetDateTime.now()", dateTimeStep.getValue());
+        assertEquals("Date", dateTimeStep.getType());
+        assertEquals("=new Date()", dateTimeStep.getValue());
 
         Optional<StepModel> numAccidentsFloat = steps.stream()
             .filter(x -> x.getName().equals("numAccidentsThree"))
@@ -397,5 +397,34 @@ public class SpreadsheetsConverterTest {
         SpreadsheetModel hp = hpo.get();
         assertEquals("AnotherDatatype[][][]", hp.getType());
 
+    }
+
+    @Test
+    public void testSprInputDateTimeType() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/spreadsheets/EPBDS-10392_date_time_input.json");
+        List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
+        Optional<SpreadsheetModel> helloKitty = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("helloKitty"))
+            .findFirst();
+        assertTrue(helloKitty.isPresent());
+        SpreadsheetModel model = helloKitty.get();
+        assertEquals("Date[]", model.getType());
+        List<InputParameter> parameters = model.getParameters();
+        assertEquals(4, parameters.size());
+        Optional<InputParameter> someField = parameters.stream()
+            .filter(x -> x.getName().equals("someField"))
+            .findFirst();
+        assertTrue(someField.isPresent());
+        InputParameter inputParameter = someField.get();
+        assertEquals("Date", inputParameter.getType());
+
+        Optional<InputParameter> oneMoreField = parameters.stream()
+            .filter(x -> x.getName().equals("oneMoreField"))
+            .findFirst();
+        assertTrue(oneMoreField.isPresent());
+        InputParameter oneMoreFieldParam = oneMoreField.get();
+        assertEquals("Date[][][]", oneMoreFieldParam.getType());
     }
 }
