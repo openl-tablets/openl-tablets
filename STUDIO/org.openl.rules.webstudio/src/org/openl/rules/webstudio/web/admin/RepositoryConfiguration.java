@@ -112,6 +112,7 @@ public class RepositoryConfiguration {
     }
 
     public void reload() {
+        load();
         settings.revert(properties);
     }
 
