@@ -18,4 +18,6 @@ public interface ProjectState {
     void saveFileData(String repositoryId, FileData fileData);
 
     FileData getFileData();
+
+    void delete();
 }

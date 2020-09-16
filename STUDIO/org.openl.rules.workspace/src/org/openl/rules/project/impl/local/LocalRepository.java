@@ -187,12 +187,6 @@ public class LocalRepository extends FileSystemRepository {
 
             @Override
             public void notifyModified() {
-                if (propertiesEngine.isEmptyProject(pathInProject)) {
-                    propertiesEngine.deleteAllProperties(pathInProject);
-                    invokeListener();
-                    return;
-                }
-
                 propertiesEngine.createPropertiesFile(pathInProject, MODIFIED_FILE_NAME);
                 setFileModified(pathInProject);
                 invokeListener();
@@ -393,6 +387,11 @@ public class LocalRepository extends FileSystemRepository {
                 } finally {
                     IOUtils.closeQuietly(is);
                 }
+            }
+
+            @Override
+            public void delete() {
+                propertiesEngine.deleteAllProperties(pathInProject);
             }
         };
     }
