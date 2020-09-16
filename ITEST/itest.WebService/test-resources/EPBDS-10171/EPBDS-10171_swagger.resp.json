@@ -159,12 +159,19 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          "additionalProperties": {
+            "type": "string"
           }
         }
       ]
     },
     "House": {
       "type": "object",
+      "required": [
+        "@class"
+      ],
+      "discriminator": "@class",
       "properties": {
         "rooms": {
           "type": "integer",
@@ -173,7 +180,13 @@
         "kithen": {
           "type": "integer",
           "format": "int32"
+        },
+        "@class": {
+          "type": "string"
         }
+      },
+      "additionalProperties": {
+        "type": "string"
       }
     },
     "Mansion": {
@@ -188,6 +201,9 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          "additionalProperties": {
+            "type": "string"
           }
         }
       ]

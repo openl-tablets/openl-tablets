@@ -30,7 +30,7 @@ public class SwaggerObjectMapperHack {
     @SuppressWarnings("unchecked")
     public void apply(ObjectMapper objectMapper) {
         List<ModelConverter> hackedConverters = new ArrayList<>();
-        hackedConverters.add(new SwaggerSupportConverter());
+        hackedConverters.add(new SwaggerSupportConverter(objectMapper));
         oldConverters = new ArrayList<>();
         for (Object converter : converters) {
             oldConverters.add(converter);

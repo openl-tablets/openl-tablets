@@ -181,13 +181,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
                 svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
             }
 
-            JAXRSOpenLServiceEnhancer jaxrsOpenLServiceEnhancer = getServiceEnhancerObjectFactory().getObject();
-            Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service, servletContextPath + url);
-            // The first one is a decorated interface
-            Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0];
-
-            svrFactory.setResourceClasses(serviceClass);
-
             // Swagger support
             ObjectMapper swaggerObjectMapper;
             ObjectMapper openApiObjectMapper;
@@ -199,6 +192,12 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             ((List) svrFactory.getProviders()).add(new SwaggerHackContainerResponseFilter());
             ((List) svrFactory.getProviders()).add(new OpenApiHackContainerRequestFilter(openApiObjectMapper));
             ((List) svrFactory.getProviders()).add(new OpenApiHackContainerResponseFilter());
+
+            JAXRSOpenLServiceEnhancer jaxrsOpenLServiceEnhancer = getServiceEnhancerObjectFactory().getObject();
+            Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service, servletContextPath + url);
+            // The first one is a decorated interface
+            Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0];
+            svrFactory.setResourceClasses(serviceClass);
 
             Swagger2Feature swagger2Feature = getSwagger2Feature(serviceClass);
             svrFactory.getFeatures().add(swagger2Feature);

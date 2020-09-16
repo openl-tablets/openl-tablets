@@ -182,23 +182,6 @@
           }
         }
       },
-      "Mansion": {
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/House"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "swimmingpool": {
-                "type": "integer",
-                "format": "int32"
-              }
-            }
-          }
-        ]
-      },
       "BusinessCenter": {
         "type": "object",
         "allOf": [
@@ -217,6 +200,9 @@
         ]
       },
       "House": {
+        "required": [
+          "@class"
+        ],
         "type": "object",
         "properties": {
           "rooms": {
@@ -226,8 +212,31 @@
           "kithen": {
             "type": "integer",
             "format": "int32"
+          },
+          "@class": {
+            "type": "string"
           }
+        },
+        "discriminator": {
+          "propertyName": "@class"
         }
+      },
+      "Mansion": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/House"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "swimmingpool": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        ]
       }
     }
   }

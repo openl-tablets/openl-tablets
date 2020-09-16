@@ -6,24 +6,38 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openl.util.ClassUtils;
 import org.openl.util.JAXBUtils;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import io.swagger.converter.ModelConverter;
 import io.swagger.converter.ModelConverterContext;
 import io.swagger.models.Model;
+import io.swagger.models.ModelImpl;
 import io.swagger.models.properties.Property;
+import io.swagger.models.properties.StringProperty;
 
 public class SwaggerSupportConverter implements ModelConverter {
+    private final ObjectMapper objectMapper;
+
+    public SwaggerSupportConverter(ObjectMapper objectMapper) {
+        this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper cannot be null");
+    }
 
     @Override
     public Model resolve(Type type, ModelConverterContext context, Iterator<ModelConverter> chain) {
@@ -53,6 +67,40 @@ public class SwaggerSupportConverter implements ModelConverter {
             model = chain.next().resolve(type, context, chain);
             t = null;
         }
+
+        if (model instanceof ModelImpl && t != null) {
+            ModelImpl impl = (ModelImpl) model;
+            if (StringUtils.isNotBlank(impl.getDiscriminator()) && (impl
+                .getProperties() == null || !impl.getProperties().containsKey(impl.getDiscriminator()))) {
+                boolean f;
+                if (t.getSuperclass() == null) {
+                    f = true;
+                } else {
+                    final BeanDescription superBeanDesc = objectMapper.getSerializationConfig()
+                        .introspect(TypeFactory.defaultInstance().constructType(t.getSuperclass()));
+                    JsonSubTypes jsonSubTypes = superBeanDesc.getClassInfo().getAnnotation(JsonSubTypes.class);
+                    f = jsonSubTypes == null;
+                    XmlSeeAlso xmlSeeAlso = superBeanDesc.getClassInfo().getAnnotation(XmlSeeAlso.class);
+                    if (xmlSeeAlso != null) {
+                        f = false;
+                    }
+                }
+                if (f) {
+                    StringProperty discProp = new StringProperty();
+                    discProp.setName(impl.getDiscriminator());
+                    discProp.setRequired(true);
+                    impl.addProperty(impl.getDiscriminator(), discProp);
+                }
+            }
+            final BeanDescription beanDesc = objectMapper.getSerializationConfig()
+                .introspect(TypeFactory.defaultInstance().constructType(t));
+            JsonSubTypes jsonSubTypes = beanDesc.getClassInfo().getAnnotation(JsonSubTypes.class);
+            XmlSeeAlso xmlSeeAlso = beanDesc.getClassInfo().getAnnotation(XmlSeeAlso.class);
+            if (jsonSubTypes != null || xmlSeeAlso != null) {
+                impl.setAdditionalProperties(new StringProperty());
+            }
+        }
+
         if (model != null && model.getProperties() != null && t != null) {
             List<Method> methods = SupportConverterHelper.getAllMethods(t);
             Set<String> methodNames = methods.stream().map(Method::getName).collect(Collectors.toSet());

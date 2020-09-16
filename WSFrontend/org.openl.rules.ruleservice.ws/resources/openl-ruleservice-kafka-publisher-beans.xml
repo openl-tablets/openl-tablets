@@ -75,6 +75,20 @@
         <property name="defaultValue" value="${ruleservice.jackson.failOnUnknownProperties}"/>
     </bean>
 
+    <bean id="kafkaProducerSimpleClassNameAsTypingPropertyValueFactoryBean"
+          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationBooleanFactoryBean">
+        <property name="type" value="PRODUCER"/>
+        <property name="propertyName" value="jackson.simpleClassNameAsTypingPropertyValue"/>
+        <property name="defaultValue" value="${ruleservice.jackson.simpleClassNameAsTypingPropertyValue}"/>
+    </bean>
+
+    <bean id="kafkaConsumerSimpleClassNameAsTypingPropertyValueFactoryBean"
+          class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationBooleanFactoryBean">
+        <property name="type" value="CONSUMER"/>
+        <property name="propertyName" value="jackson.simpleClassNameAsTypingPropertyValue"/>
+        <property name="defaultValue" value="${ruleservice.jackson.simpleClassNameAsTypingPropertyValue}"/>
+    </bean>
+
     <bean id="kafkaProducerCaseInsensitivePropertiesFactoryBean"
           class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationBooleanFactoryBean"
           scope="prototype">
@@ -101,6 +115,15 @@
         <property name="failOnUnknownProperties" ref="kafkaProducerFailOnMissPropertiesFactoryBean"/>
         <property name="caseInsensitiveProperties" ref="kafkaProducerCaseInsensitivePropertiesFactoryBean"/>
         <property name="polymorphicTypeValidation" value="true"/>
+        <property name="simpleClassNameAsTypingPropertyValue"
+                  ref="kafkaProducerSimpleClassNameAsTypingPropertyValueFactoryBean"/>
+        <property name="typingPropertyName">
+            <bean class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationStringFactoryBean">
+                <property name="type" value="PRODUCER"/>
+                <property name="propertyName" value="jackson.typingPropertyName"/>
+                <property name="defaultValue" value="${ruleservice.jackson.typingPropertyName}"/>
+            </bean>
+        </property>
     </bean>
 
     <bean id="serviceKafkaProducerJacksonDatabindingFactoryBean"
@@ -118,6 +141,15 @@
         <property name="failOnUnknownProperties" ref="kafkaConsumerFailOnMissPropertiesFactoryBean"/>
         <property name="caseInsensitiveProperties" ref="kafkaConsumerCaseInsensitivePropertiesFactoryBean"/>
         <property name="polymorphicTypeValidation" value="true"/>
+        <property name="simpleClassNameAsTypingPropertyValue"
+                  ref="kafkaConsumerSimpleClassNameAsTypingPropertyValueFactoryBean"/>
+        <property name="typingPropertyName">
+            <bean class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationStringFactoryBean">
+                <property name="type" value="CONSUMER"/>
+                <property name="propertyName" value="jackson.typingPropertyName"/>
+                <property name="defaultValue" value="${ruleservice.jackson.typingPropertyName}"/>
+            </bean>
+        </property>
     </bean>
 
     <bean id="serviceKafkaConsumerJacksonDatabindingFactoryBean"

@@ -43,6 +43,7 @@ import org.openl.rules.variation.NoVariation;
 import org.openl.rules.variation.Variation;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.util.ClassUtils;
+import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,11 +101,15 @@ public class JacksonObjectMapperFactoryBean {
 
     private boolean caseInsensitiveProperties = false;
 
-    private boolean generateSubtypeAnnotationsForDisabledMode = false;
+    private String typingPropertyName = JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
 
     private ClassLoader classLoader;
 
     private ObjectMapperFactory objectMapperFactory = DefaultObjectMapperFactory.getInstance();
+
+    private boolean disableDefaultTypingAfterObjectMapperBuilt = false;
+
+    private boolean simpleClassNameAsTypingPropertyValue = false;
 
     private Class<?> enhanceMixInClassWithSubTypes(Class<?> classFor,
             Class<?> originalMixInClass,
@@ -129,10 +134,17 @@ public class JacksonObjectMapperFactoryBean {
                 return classLoader.loadClass(className);
             } catch (ClassNotFoundException e) {
                 ClassWriter classWriter = new ClassWriter(0);
+                String typingPropertyName = StringUtils.isNotBlank(
+                    getTypingPropertyName()) ? getTypingPropertyName() : JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
+                if (DefaultTypingMode.DISABLED.equals(getDefaultTypingMode())) {
+                    typingPropertyName = null;
+                }
                 ClassVisitor classVisitor = new SubtypeMixInClassWriter(classWriter,
-                        className,
-                        originalClass,
-                        subTypeClasses.toArray(new Class<?>[0]));
+                    className,
+                    originalClass,
+                    subTypeClasses.toArray(new Class<?>[0]),
+                    typingPropertyName,
+                    isSimpleClassNameAsTypingPropertyValue());
                 InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className, true);
                 transformer.accept(classVisitor);
                 classWriter.visitEnd();
@@ -152,12 +164,12 @@ public class JacksonObjectMapperFactoryBean {
 
         mapper.enable(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS);
         mapper.registerModule(new ParameterNamesModule())
-                .registerModule(new Jdk8Module())
-                .registerModule(new JavaTimeModule());
+            .registerModule(new Jdk8Module())
+            .registerModule(new JavaTimeModule());
 
         AnnotationIntrospector primaryIntrospector = new JacksonAnnotationIntrospector();
         JaxbAnnotationIntrospector secondaryIntropsector = new JaxbAnnotationIntrospector(
-                TypeFactory.defaultInstance());
+            TypeFactory.defaultInstance());
 
         if (serializationInclusion != null) {
             mapper.setSerializationInclusion(serializationInclusion);
@@ -165,7 +177,7 @@ public class JacksonObjectMapperFactoryBean {
         }
 
         AnnotationIntrospector introspector = new AnnotationIntrospectorPair(primaryIntrospector,
-                secondaryIntropsector);
+            secondaryIntropsector);
 
         mapper.setAnnotationIntrospector(introspector);
 
@@ -203,7 +215,7 @@ public class JacksonObjectMapperFactoryBean {
         }
 
         Set<Class<?>> overrideClasses = extractOverrideClasses(basicPolymorphicTypeValidatorBuilder,
-                polymorphicTypeValidation);
+            polymorphicTypeValidation);
 
         for (Class<?> clazz : getConfigurationClasses()) {
             MixInClassFor mixInClass = clazz.getAnnotation(MixInClassFor.class);
@@ -242,24 +254,24 @@ public class JacksonObjectMapperFactoryBean {
                     defaultTyping = ObjectMapper.DefaultTyping.EVERYTHING;
                     break;
             }
-            mapper.activateDefaultTyping(
-                    polymorphicTypeValidation ? basicPolymorphicTypeValidatorBuilder.build()
-                                              : LaissezFaireSubTypeValidator.instance,
-                    defaultTyping,
-                    JsonTypeInfo.As.PROPERTY);
+
+            mapper.activateDefaultTypingAsProperty(
+                polymorphicTypeValidation ? basicPolymorphicTypeValidatorBuilder.build()
+                                          : LaissezFaireSubTypeValidator.instance,
+                defaultTyping,
+                StringUtils.isNotBlank(getTypingPropertyName()) ? getTypingPropertyName()
+                                                                : JsonTypeInfo.Id.CLASS.getDefaultPropertyName());
         } else {
             mapper.deactivateDefaultTyping();
         }
 
-        if (!DefaultTypingMode.DISABLED.equals(getDefaultTypingMode()) || isGenerateSubtypeAnnotationsForDisabledMode()) {
-            for (Class<?> clazz : overrideClasses) {
-                Class<?> subtypeMixInCLass = enhanceMixInClassWithSubTypes(clazz,
-                        mapper.findMixInClassFor(clazz),
-                        overrideClasses,
-                        getClassLoader());
-                if (subtypeMixInCLass != null) {
-                    mapper.addMixIn(clazz, subtypeMixInCLass);
-                }
+        for (Class<?> clazz : overrideClasses) {
+            Class<?> subtypeMixInCLass = enhanceMixInClassWithSubTypes(clazz,
+                mapper.findMixInClassFor(clazz),
+                overrideClasses,
+                getClassLoader());
+            if (subtypeMixInCLass != null) {
+                mapper.addMixIn(clazz, subtypeMixInCLass);
             }
         }
 
@@ -269,6 +281,10 @@ public class JacksonObjectMapperFactoryBean {
 
         if (getDefaultDateFormat() != null) {
             mapper.setDateFormat(getDefaultDateFormat());
+        }
+
+        if (isDisableDefaultTypingAfterObjectMapperBuilt()) {
+            mapper.deactivateDefaultTyping();
         }
 
         return mapper;
@@ -331,9 +347,9 @@ public class JacksonObjectMapperFactoryBean {
                 if (xmlSeeAlso != null) {
                     for (Class<?> cls : xmlSeeAlso.value()) {
                         registerOverrideClass(basicPolymorphicTypeValidatorBuilder,
-                                polymorphicTypeValidation,
-                                classes,
-                                cls);
+                            polymorphicTypeValidation,
+                            classes,
+                            cls);
                     }
                 }
             }
@@ -467,11 +483,27 @@ public class JacksonObjectMapperFactoryBean {
         this.objectMapperFactory = objectMapperFactory;
     }
 
-    public boolean isGenerateSubtypeAnnotationsForDisabledMode() {
-        return generateSubtypeAnnotationsForDisabledMode;
+    public String getTypingPropertyName() {
+        return typingPropertyName;
     }
 
-    public void setGenerateSubtypeAnnotationsForDisabledMode(boolean generateSubtypeAnnotationsForDisabledMode) {
-        this.generateSubtypeAnnotationsForDisabledMode = generateSubtypeAnnotationsForDisabledMode;
+    public void setTypingPropertyName(String typingPropertyName) {
+        this.typingPropertyName = typingPropertyName;
+    }
+
+    public boolean isSimpleClassNameAsTypingPropertyValue() {
+        return simpleClassNameAsTypingPropertyValue;
+    }
+
+    public void setSimpleClassNameAsTypingPropertyValue(boolean simpleClassNameAsTypingPropertyValue) {
+        this.simpleClassNameAsTypingPropertyValue = simpleClassNameAsTypingPropertyValue;
+    }
+
+    public boolean isDisableDefaultTypingAfterObjectMapperBuilt() {
+        return disableDefaultTypingAfterObjectMapperBuilt;
+    }
+
+    public void setDisableDefaultTypingAfterObjectMapperBuilt(boolean disableDefaultTypingAfterObjectMapperBuilt) {
+        this.disableDefaultTypingAfterObjectMapperBuilt = disableDefaultTypingAfterObjectMapperBuilt;
     }
 }

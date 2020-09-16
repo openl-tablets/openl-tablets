@@ -162,7 +162,7 @@ public final class JAXRSOpenLServiceEnhancer {
             }
 
             // OpenAPI annotation
-            if (originalClass.getAnnotation(OpenAPIDefinition.class) == null) {
+            if (!originalClass.isAnnotationPresent(OpenAPIDefinition.class)) {
                 AnnotationVisitor av = this.visitAnnotation(Type.getDescriptor(OpenAPIDefinition.class), true);
                 AnnotationVisitor av1 = av.visitAnnotation("info", Type.getDescriptor(Info.class));
                 av1.visit("title", service.getName());
@@ -194,13 +194,14 @@ public final class JAXRSOpenLServiceEnhancer {
             if (!originalClass.isAnnotationPresent(Produces.class)) {
                 addProducesAnnotation(this);
             }
-            //Error responses annotation
-            if (!originalClass.isAnnotationPresent(io.swagger.annotations.ApiResponses.class)
-                    && !originalClass.isAnnotationPresent(io.swagger.annotations.ApiResponse.class)) {
+            // Error responses annotation
+            if (!originalClass.isAnnotationPresent(io.swagger.annotations.ApiResponses.class) && !originalClass
+                .isAnnotationPresent(io.swagger.annotations.ApiResponse.class)) {
                 addSwaggerApiResponsesAnnotation(this);
             }
-            if (!originalClass.isAnnotationPresent(io.swagger.v3.oas.annotations.responses.ApiResponses.class)
-                    && !originalClass.isAnnotationPresent(io.swagger.v3.oas.annotations.responses.ApiResponse.class)) {
+            if (!originalClass
+                .isAnnotationPresent(io.swagger.v3.oas.annotations.responses.ApiResponses.class) && !originalClass
+                    .isAnnotationPresent(io.swagger.v3.oas.annotations.responses.ApiResponse.class)) {
                 addOpenApiResponsesAnnotation(this);
             }
         }
@@ -363,8 +364,8 @@ public final class JAXRSOpenLServiceEnhancer {
             }
             StringBuilder sb = new StringBuilder();
             sb.append("/").append(getPath(originalMethod));
-            if (numOfParameters < MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && originalMethod
-                .getAnnotation(POST.class) == null || originalMethod.getAnnotation(GET.class) != null) {
+            if (numOfParameters < MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && !originalMethod
+                .isAnnotationPresent(POST.class) || originalMethod.isAnnotationPresent(GET.class)) {
                 mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
                 String[] parameterNames = MethodUtils.getParameterNames(originalMethod, service);
                 processAnnotationsOnMethodParameters(originalMethod, mv);
@@ -384,12 +385,11 @@ public final class JAXRSOpenLServiceEnhancer {
                         sb.append("/{").append(p).append(": .*}");
                         addPathParamAnnotation(mv, i, p);
                         usedValues.add(p);
-                    } else if (paramAnnotationsValues.get(i).getAnnotationClass().isAssignableFrom(PathParam.class)) {
+                    } else if (paramAnnotationsValues.get(i) instanceof PathParam) {
                         sb.append("/{").append(paramAnnotationsValues.get(i).getFieldName()).append(": .*}");
                     }
                     i++;
                 }
-
                 addGetAnnotation(mv, originalMethod);
                 addPathAnnotation(mv, originalMethod, sb.toString());
             } else {
@@ -404,12 +404,12 @@ public final class JAXRSOpenLServiceEnhancer {
                     if (!hasResponse) {
                         annotateReturnElementClass(mv, returnType);
                     }
-                    if (originalMethod.getAnnotation(GET.class) == null) {
+                    if (!originalMethod.isAnnotationPresent(POST.class)) {
                         addPostAnnotation(mv, originalMethod);
                     }
                     addPathAnnotation(mv, originalMethod, sb.toString());
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    throw new IllegalStateException(e);
                 }
             }
             addConsumerProducesMethodAnnotations(mv, returnType, originalParameterTypes, originalMethod);
@@ -457,16 +457,16 @@ public final class JAXRSOpenLServiceEnhancer {
                 Class<?> returnType,
                 Class<?>[] originalParameterTypes,
                 Method originalMethod) {
-            if (returnType != null && isTextMediaType(returnType) && originalMethod
-                .getAnnotation(Produces.class) == null) {
+            if (returnType != null && isTextMediaType(returnType) && !originalMethod
+                .isAnnotationPresent(Produces.class)) {
                 AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Produces.class), true);
                 AnnotationVisitor av2 = av.visitArray("value");
                 av2.visit(null, MediaType.TEXT_PLAIN);
                 av2.visitEnd();
                 av.visitEnd();
             }
-            if (originalParameterTypes.length == 1 && isTextMediaType(originalParameterTypes[0]) && originalMethod
-                .getAnnotation(Consumes.class) == null) {
+            if (originalParameterTypes.length == 1 && isTextMediaType(originalParameterTypes[0]) && !originalMethod
+                .isAnnotationPresent(Consumes.class)) {
                 AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Consumes.class), true);
                 AnnotationVisitor av2 = av.visitArray("value");
                 av2.visit(null, MediaType.TEXT_PLAIN);
@@ -557,13 +557,7 @@ public final class JAXRSOpenLServiceEnhancer {
                         av2.visit("responseCode", String.valueOf(Response.Status.OK.getStatusCode()));
                         AnnotationVisitor av3 = av2.visitArray("content");
                         AnnotationVisitor av4 = av3.visitAnnotation("responses", Type.getDescriptor(Content.class));
-                        if (originalMethod.getReturnType().isArray()) {
-                            AnnotationVisitor av6 = av4.visitAnnotation("array", Type.getDescriptor(ArraySchema.class));
-                            addSchemaOpenApiAnnotation(av6, originalMethod.getReturnType().getComponentType());
-                            av6.visitEnd();
-                        } else {
-                            addSchemaOpenApiAnnotation(av4, originalMethod.getReturnType());
-                        }
+                        addSchemaOpenApiAnnotation(av4, originalMethod.getReturnType());
                         av4.visitEnd();
                         av3.visitEnd();
                         av2.visitEnd();
@@ -576,14 +570,17 @@ public final class JAXRSOpenLServiceEnhancer {
         }
 
         private void addSchemaOpenApiAnnotation(AnnotationVisitor av, Class<?> type) {
+            boolean isArray = type.isArray();
+            if (isArray) {
+                av = av.visitAnnotation("array", Type.getDescriptor(ArraySchema.class));
+                type = type.getComponentType();
+            }
             final Class<?> extractedType = extractOriginalType(type);
             if (extractedType != null) {
                 type = extractedType;
             }
             AnnotationVisitor av1 = av.visitAnnotation("schema", Type.getDescriptor(Schema.class));
-            if (type == Integer.class || type == int.class
-                    || type == Short.class || type == short.class
-                    || type == Byte.class || type == byte.class) {
+            if (type == Integer.class || type == int.class || type == Short.class || type == short.class || type == Byte.class || type == byte.class) {
                 av1.visit("type", "integer");
                 av1.visit("format", "int32");
             } else if (type == Long.class || type == long.class) {
@@ -595,14 +592,17 @@ public final class JAXRSOpenLServiceEnhancer {
             } else if (type == Double.class || type == double.class) {
                 av1.visit("type", "number");
                 av1.visit("format", "double");
-            }  else if (type == Boolean.class || type == boolean.class) {
+            } else if (type == Boolean.class || type == boolean.class) {
                 av1.visit("type", "boolean");
-            }  else if (type == Character.class || type == char.class) {
+            } else if (type == Character.class || type == char.class) {
                 av1.visit("type", "string");
             } else {
                 av1.visit("implementation", Type.getType(type));
             }
             av1.visitEnd();
+            if (isArray) {
+                av.visitEnd();
+            }
         }
 
         private void addPathParamAnnotation(MethodVisitor mv, int index, String paramName) {
@@ -628,27 +628,40 @@ public final class JAXRSOpenLServiceEnhancer {
         }
 
         private void addSwaggerApiResponsesAnnotation(ClassVisitor cv) {
-            AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(io.swagger.annotations.ApiResponses.class), true);
+            AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(io.swagger.annotations.ApiResponses.class),
+                true);
             AnnotationVisitor arrayAv = av.visitArray("value");
-            addSwaggerApiResponseAnnotation(arrayAv, ExceptionResponseDto.UNPROCESSABLE_ENTITY,
-                    UNPROCESSABLE_ENTITY_MESSAGE, UNPROCESSABLE_ENTITY_EXAMPLE);
-            addSwaggerApiResponseAnnotation(arrayAv, ExceptionResponseDto.BAD_REQUEST, BAD_REQUEST_MESSAGE,
-                    BAD_REQUEST_EXAMPLE);
-            addSwaggerApiResponseAnnotation(arrayAv, ExceptionResponseDto.INTERNAL_SERVER_ERROR_CODE,
-                    INTERNAL_SERVER_ERROR_MESSAGE, INTERNAL_SERVER_ERROR_EXAMPLE);
+            addSwaggerApiResponseAnnotation(arrayAv,
+                ExceptionResponseDto.UNPROCESSABLE_ENTITY,
+                UNPROCESSABLE_ENTITY_MESSAGE,
+                UNPROCESSABLE_ENTITY_EXAMPLE);
+            addSwaggerApiResponseAnnotation(arrayAv,
+                ExceptionResponseDto.BAD_REQUEST,
+                BAD_REQUEST_MESSAGE,
+                BAD_REQUEST_EXAMPLE);
+            addSwaggerApiResponseAnnotation(arrayAv,
+                ExceptionResponseDto.INTERNAL_SERVER_ERROR_CODE,
+                INTERNAL_SERVER_ERROR_MESSAGE,
+                INTERNAL_SERVER_ERROR_EXAMPLE);
             arrayAv.visitEnd();
             av.visitEnd();
         }
 
-        private void addSwaggerApiResponseAnnotation(AnnotationVisitor av, int code, String message, String jsonExample) {
-            AnnotationVisitor apiResponseAv = av.visitAnnotation(null, Type.getDescriptor(io.swagger.annotations.ApiResponse.class));
+        private void addSwaggerApiResponseAnnotation(AnnotationVisitor av,
+                int code,
+                String message,
+                String jsonExample) {
+            AnnotationVisitor apiResponseAv = av.visitAnnotation(null,
+                Type.getDescriptor(io.swagger.annotations.ApiResponse.class));
             apiResponseAv.visit("code", code);
             apiResponseAv.visit("message", message);
             apiResponseAv.visit("response", Type.getType(JAXRSErrorResponse.class));
 
-            AnnotationVisitor exampleAv = apiResponseAv.visitAnnotation("examples", Type.getDescriptor(io.swagger.annotations.Example.class));
-            AnnotationVisitor exampleArrAv  = exampleAv.visitArray("value");
-            AnnotationVisitor examplePropAv = exampleArrAv.visitAnnotation(null, Type.getDescriptor(io.swagger.annotations.ExampleProperty.class));
+            AnnotationVisitor exampleAv = apiResponseAv.visitAnnotation("examples",
+                Type.getDescriptor(io.swagger.annotations.Example.class));
+            AnnotationVisitor exampleArrAv = exampleAv.visitArray("value");
+            AnnotationVisitor examplePropAv = exampleArrAv.visitAnnotation(null,
+                Type.getDescriptor(io.swagger.annotations.ExampleProperty.class));
             examplePropAv.visit("mediaType", MediaType.APPLICATION_JSON);
             examplePropAv.visit("value", jsonExample);
             examplePropAv.visitEnd();
@@ -659,20 +672,28 @@ public final class JAXRSOpenLServiceEnhancer {
         }
 
         private void addOpenApiResponsesAnnotation(ClassVisitor cv) {
-            AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(io.swagger.v3.oas.annotations.responses.ApiResponses.class), true);
+            AnnotationVisitor av = cv
+                .visitAnnotation(Type.getDescriptor(io.swagger.v3.oas.annotations.responses.ApiResponses.class), true);
             AnnotationVisitor arrayAv = av.visitArray("value");
-            addOpenApiResponseAnnotation(arrayAv, ExceptionResponseDto.UNPROCESSABLE_ENTITY,
-                    UNPROCESSABLE_ENTITY_MESSAGE, UNPROCESSABLE_ENTITY_EXAMPLE);
-            addOpenApiResponseAnnotation(arrayAv, ExceptionResponseDto.BAD_REQUEST, BAD_REQUEST_MESSAGE,
-                    BAD_REQUEST_EXAMPLE);
-            addOpenApiResponseAnnotation(arrayAv, ExceptionResponseDto.INTERNAL_SERVER_ERROR_CODE,
-                    INTERNAL_SERVER_ERROR_MESSAGE, INTERNAL_SERVER_ERROR_EXAMPLE);
+            addOpenApiResponseAnnotation(arrayAv,
+                ExceptionResponseDto.UNPROCESSABLE_ENTITY,
+                UNPROCESSABLE_ENTITY_MESSAGE,
+                UNPROCESSABLE_ENTITY_EXAMPLE);
+            addOpenApiResponseAnnotation(arrayAv,
+                ExceptionResponseDto.BAD_REQUEST,
+                BAD_REQUEST_MESSAGE,
+                BAD_REQUEST_EXAMPLE);
+            addOpenApiResponseAnnotation(arrayAv,
+                ExceptionResponseDto.INTERNAL_SERVER_ERROR_CODE,
+                INTERNAL_SERVER_ERROR_MESSAGE,
+                INTERNAL_SERVER_ERROR_EXAMPLE);
             arrayAv.visitEnd();
             av.visitEnd();
         }
 
         private void addOpenApiResponseAnnotation(AnnotationVisitor av, int code, String message, String jsonExample) {
-            AnnotationVisitor apiResponseAv = av.visitAnnotation(null, Type.getDescriptor(io.swagger.v3.oas.annotations.responses.ApiResponse.class));
+            AnnotationVisitor apiResponseAv = av.visitAnnotation(null,
+                Type.getDescriptor(io.swagger.v3.oas.annotations.responses.ApiResponse.class));
             apiResponseAv.visit("responseCode", String.valueOf(code));
             apiResponseAv.visit("description", message);
 
@@ -685,7 +706,8 @@ public final class JAXRSOpenLServiceEnhancer {
             schemaAv.visitEnd();
 
             AnnotationVisitor examplesArrAv = contentAv.visitArray("examples");
-            AnnotationVisitor exampleObjectAv = examplesArrAv.visitAnnotation(null, Type.getDescriptor(ExampleObject.class));
+            AnnotationVisitor exampleObjectAv = examplesArrAv.visitAnnotation(null,
+                Type.getDescriptor(ExampleObject.class));
             exampleObjectAv.visit("value", jsonExample);
             exampleObjectAv.visitEnd();
             examplesArrAv.visitEnd();
@@ -694,6 +716,7 @@ public final class JAXRSOpenLServiceEnhancer {
             contentArrayAv.visitEnd();
             apiResponseAv.visitEnd();
         }
+
         private Class<?> extractOriginalType(Class<?> type) {
             Class<?> extractedType = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(type);
             return extractedType == null ? type : extractedType;
