@@ -42,7 +42,7 @@ public class RepositoryConfiguration {
         REPOSITORY_FACTORY = nameWithPrefix + ".factory";
         REPOSITORY_NAME = nameWithPrefix + ".name";
 
-        load(nameWithPrefix);
+        load();
     }
 
     public RepositoryConfiguration(String configName,
@@ -66,7 +66,7 @@ public class RepositoryConfiguration {
         return properties;
     }
 
-    private void load(String configName) {
+    private void load() {
         String factoryClassName = properties.getProperty(REPOSITORY_FACTORY);
         repositoryType = RepositoryType.findByFactory(factoryClassName);
         if (repositoryType == null) {
@@ -77,7 +77,7 @@ public class RepositoryConfiguration {
         }
         name = properties.getProperty(REPOSITORY_NAME);
         oldName = name;
-        settings = createSettings(repositoryType, properties, configName);
+        settings = createSettings(repositoryType, properties, nameWithPrefix);
     }
 
     private RepositorySettings createSettings(RepositoryType repositoryType,
@@ -107,11 +107,11 @@ public class RepositoryConfiguration {
 
     public void revert() {
         properties.revertProperties(REPOSITORY_NAME, REPOSITORY_FACTORY);
-        load(nameWithPrefix);
+        load();
         settings.revert(properties);
     }
 
-    public void reload(){
+    public void reload() {
         settings.revert(properties);
     }
 
