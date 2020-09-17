@@ -34,6 +34,7 @@ import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
 import org.richfaces.model.SequenceRowKey;
@@ -77,6 +78,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     private final Object lock = new Object();
     private String errorMessage;
+    private final WorkspaceListener workspaceListener = new WorkspaceListener();
 
     private void buildTree() {
         try {
@@ -403,12 +405,14 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
         this.userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
         userWorkspace.getDesignTimeRepository().addListener(this);
+        userWorkspace.addWorkspaceListener(workspaceListener);
     }
 
     @PreDestroy
     public void destroy() {
         if (userWorkspace != null) {
             userWorkspace.getDesignTimeRepository().removeListener(this);
+            userWorkspace.removeWorkspaceListener(workspaceListener);
         }
     }
 
@@ -662,6 +666,22 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
+        }
+    }
+
+    private class WorkspaceListener implements UserWorkspaceListener {
+        @Override
+        public void workspaceReleased(UserWorkspace workspace) {
+            synchronized (lock) {
+                root = null;
+            }
+        }
+
+        @Override
+        public void workspaceRefreshed() {
+            synchronized (lock) {
+                root = null;
+            }
         }
     }
 }
