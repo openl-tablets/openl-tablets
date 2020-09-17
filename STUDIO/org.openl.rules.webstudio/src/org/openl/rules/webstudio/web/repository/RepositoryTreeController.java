@@ -662,7 +662,7 @@ public class RepositoryTreeController {
 
     private String validateCreateProjectComment(String comment) {
         try {
-            getDesignCommentValidator().validate(comment);
+            getDesignCommentValidator(repositoryId).validate(comment);
             return null;
         } catch (Exception e) {
             return e.getMessage();
@@ -878,7 +878,7 @@ public class RepositoryTreeController {
     }
 
     private boolean isValidComment(UserWorkspaceProject project, String comment) {
-        CommentValidator commentValidator = project instanceof RulesProject ? getDesignCommentValidator()
+        CommentValidator commentValidator = project instanceof RulesProject ? getDesignCommentValidator(project)
                                                                             : deployConfigCommentValidator;
 
         try {
@@ -1614,7 +1614,13 @@ public class RepositoryTreeController {
         this.repositoryId = NONE_REPO.equals(repositoryId) ? null : repositoryId;
     }
 
-    private CommentValidator getDesignCommentValidator() {
+    private CommentValidator getDesignCommentValidator(UserWorkspaceProject project) {
+        Repository designRepository = project.getDesignRepository();
+        String repositoryId = designRepository == null ? null : designRepository.getId();
+        return getDesignCommentValidator(repositoryId);
+    }
+
+    private CommentValidator getDesignCommentValidator(String repositoryId) {
         return StringUtils.isEmpty(repositoryId) ? CommentValidator.forRepo("") : CommentValidator.forRepo(repositoryId);
     }
 
@@ -1993,10 +1999,10 @@ public class RepositoryTreeController {
         this.openDependencies = openDependencies;
     }
 
-    private AProject getSelectedProject() {
+    private UserWorkspaceProject getSelectedProject() {
         AProjectArtefact artefact = getSelectedNode().getData();
-        if (artefact instanceof AProject) {
-            return (AProject) artefact;
+        if (artefact instanceof UserWorkspaceProject) {
+            return (UserWorkspaceProject) artefact;
         }
         return null;
     }
@@ -2194,7 +2200,7 @@ public class RepositoryTreeController {
 
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
         if (project instanceof RulesProject) {
-            getDesignCommentValidator().validate(comment);
+            getDesignCommentValidator(project).validate(comment);
         } else if (project instanceof ADeploymentProject) {
             deployConfigCommentValidator.validate(comment);
         }
@@ -2233,7 +2239,7 @@ public class RepositoryTreeController {
      */
     public boolean isUseCustomCommentForProject() {
         // Only projects are supported for now. Deploy configs can be supported in future.
-        UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+        UserWorkspaceProject selectedProject = getSelectedProject();
         if (selectedProject == null) {
             return false;
         }
