@@ -1,6 +1,7 @@
 package org.openl.rules.openapi.impl;
 
 import static org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter.ARRAY_MATCHER;
+import static org.openl.rules.openapi.impl.OpenAPITypeUtils.SCHEMAS_LINK;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -80,8 +81,8 @@ public class OpenLOpenAPIUtils {
         return unusedSchemas;
     }
 
-    public static String getUsedSchemaInResponse(JXPathContext jxPathContext, PathItem pathItem) {
-        String type = null;
+    public static Schema<?> getUsedSchemaInResponse(JXPathContext jxPathContext, PathItem pathItem) {
+        Schema<?> type = null;
         Operation satisfyingOperation = OpenLOpenAPIUtils.getOperation(pathItem);
         if (satisfyingOperation != null) {
             ApiResponses responses = satisfyingOperation.getResponses();
@@ -92,7 +93,7 @@ public class OpenLOpenAPIUtils {
                     if (mediaType != null) {
                         Schema<?> mediaTypeSchema = mediaType.getSchema();
                         if (mediaTypeSchema != null) {
-                            type = OpenAPITypeUtils.extractType(mediaTypeSchema);
+                            type = mediaTypeSchema;
                         }
                     }
                 }
@@ -487,18 +488,14 @@ public class OpenLOpenAPIUtils {
         return propMap;
     }
 
-    public static Set<String> getRefsUsedInTypes(OpenAPI openAPI) {
-        Set<String> refs = new HashSet<>();
+    public static Map<String, Set<String>> getRefsInProperties(OpenAPI openAPI, JXPathContext jxPathContext) {
+        Map<String, Set<String>> refs = new HashMap<>();
         Map<String, Schema> schemas = getSchemas(openAPI);
         if (CollectionUtils.isNotEmpty(schemas)) {
-            for (Schema<?> schema : schemas.values()) {
-                Map<String, Schema> properties = schema.getProperties();
-                if (CollectionUtils.isNotEmpty(properties)) {
-                    for (Schema<?> propSchema : properties.values()) {
-                        if (propSchema.get$ref() != null) {
-                            refs.add(propSchema.get$ref());
-                        }
-                    }
+            for (Map.Entry<String, Schema> schema : schemas.entrySet()) {
+                Set<String> schemaRefs = new HashSet<>(visitSchema(jxPathContext, schema.getValue(), false, true));
+                if (CollectionUtils.isNotEmpty(schemaRefs)) {
+                    refs.put(SCHEMAS_LINK + schema.getKey(), schemaRefs);
                 }
             }
         }

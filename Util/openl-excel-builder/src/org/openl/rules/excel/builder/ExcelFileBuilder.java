@@ -43,12 +43,10 @@ public class ExcelFileBuilder {
      * @param projectModel - model of the project.
      */
     public static void generateProject(ProjectModel projectModel) {
-        List<SpreadsheetModel> sprs = projectModel.getSpreadsheetResultModels();
-        List<DatatypeModel> dts = projectModel.getDatatypeModels();
         String projectName = projectModel.getName();
         String fileName = projectName + ".xlsx";
         try (FileOutputStream fos = new FileOutputStream(fileName)) {
-            writeProject(sprs, dts, fos);
+            writeProject(projectModel, fos);
         } catch (IOException e) {
             LOGGER.error("Error on saving the file occurred.", e);
         }
@@ -61,7 +59,7 @@ public class ExcelFileBuilder {
      * @param outputStream - output stream, which contains result file.
      */
     public static void generateProject(ProjectModel projectModel, OutputStream outputStream) {
-        writeProject(projectModel.getSpreadsheetResultModels(), projectModel.getDatatypeModels(), outputStream);
+        writeProject(projectModel, outputStream);
     }
 
     /**
@@ -190,19 +188,17 @@ public class ExcelFileBuilder {
 
     /**
      * Writing project to Excel file with styles from template.
-     * 
-     * @param sprs - spreadsheets.
-     * @param dts - data types.
+     *
+     * @param projectModel - model of the project with data types, environment, spreadsheets
      * @param fos - output stream.
      */
-    private static void writeProject(List<SpreadsheetModel> sprs, List<DatatypeModel> dts, OutputStream fos) {
+    private static void writeProject(ProjectModel projectModel, OutputStream fos) {
         SXSSFWorkbook tempWorkbook = null;
         try (SXSSFWorkbook workbook = tempWorkbook = new CustomizedSXSSFWorkbook()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
 
             SXSSFSheet dtSheet = workbook.createSheet(DATATYPES_SHEET);
             SXSSFSheet sprSheet = workbook.createSheet(SPR_RESULT_SHEET);
-
             TableStyle datatypeStyles = stylesMap.get(DATATYPES_SHEET);
             TableStyle sprStyles = stylesMap.get(SPR_RESULT_SHEET);
 
@@ -212,8 +208,8 @@ public class ExcelFileBuilder {
             SpreadsheetResultTableExporter sprTableExporter = new SpreadsheetResultTableExporter();
             sprTableExporter.setTableStyle(sprStyles);
 
-            datatypeTableExporter.export(dts, dtSheet);
-            sprTableExporter.export(sprs, sprSheet);
+            datatypeTableExporter.export(projectModel.getDatatypeModels(), dtSheet);
+            sprTableExporter.export(projectModel.getSpreadsheetResultModels(), sprSheet);
             dtSheet.validateMergedRegions();
             sprSheet.validateMergedRegions();
             autoSizeSheets(workbook);

@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
+import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.ProjectModel;
@@ -426,5 +427,27 @@ public class SpreadsheetsConverterTest {
         assertTrue(oneMoreField.isPresent());
         InputParameter oneMoreFieldParam = oneMoreField.get();
         assertEquals("Date[][][]", oneMoreFieldParam.getType());
+    }
+
+    @Test
+    public void testMissedDataType() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/spreadsheets/EPBDS-10386_datatype_was_missed.json");
+        List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
+         assertEquals(3, datatypeModels.size());
+         Optional<DatatypeModel> anotherDatatype = datatypeModels.stream()
+         .filter(x -> x.getName().equals("AnotherDatatype"))
+         .findFirst();
+         assertTrue(anotherDatatype.isPresent());
+    }
+
+    @Test
+    public void testExtraDataType() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/spreadsheets/EPBDS-10387_extra_datatype.yaml");
+        List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
+        assertEquals(5, datatypeModels.size());
     }
 }

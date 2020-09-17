@@ -39,7 +39,7 @@ public class OpenAPIConverterTest {
         ProjectModel projectModel = converter.extractProjectModel(BANK_RATING);
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
-        assertEquals(7, datatypeModels.size());
+        assertEquals(6, datatypeModels.size());
         assertEquals(37, spreadsheetModels.size());
         assertTrue(projectModel.isRuntimeContextProvided());
     }
