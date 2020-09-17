@@ -367,7 +367,7 @@
                     </ui:fragment>
                     <tr>
                         <td></td>
-                        <td><h:panelGroup styleClass="warning" rendered="#{projectData.name != project.name}">
+                        <td><h:panelGroup styleClass="warning" rendered="#{!repositoryTreeController.isSupportsMappedFolders(projectData.getRepository().getId()) and projectData.name != project.name}">
                             <h:outputText
                                     value="Project name in rules.xml is '#{project.name}'. It will be replaced with '#{projectData.name}'."/>
                         </h:panelGroup>

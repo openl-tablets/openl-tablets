@@ -20,8 +20,8 @@
           <h:outputText value="Project Name:" />
           <h:outputText value="#{artefact.name}"/>
 
-          <h:outputText rendered="#{node.type == 'project' and repositoryTreeController.isRenamed(artefact)}" value=""/>
-          <h:panelGroup rendered="#{node.type == 'project' and repositoryTreeController.isRenamed(artefact)}" styleClass="warning">
+          <h:outputText rendered="#{node.type == 'project' and !repositoryTreeController.isSupportsMappedFolders(artefact.getRepository().getId()) and repositoryTreeController.isRenamed(artefact)}" value=""/>
+          <h:panelGroup rendered="#{node.type == 'project' and !repositoryTreeController.isSupportsMappedFolders(artefact.getRepository().getId()) and repositoryTreeController.isRenamed(artefact)}" styleClass="warning">
             <h:outputText value="Project name in rules.xml is '#{repositoryTreeController.getLogicalName(artefact)}'. It will be replaced with '#{artefact.name}'."/>
           </h:panelGroup>
 
