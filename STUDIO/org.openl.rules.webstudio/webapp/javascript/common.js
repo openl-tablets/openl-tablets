@@ -104,7 +104,14 @@ function initPopupPanels() {
     if (!$j) {
         return;
     }
-    $j('.rf-pp-cntr').parent().addClass('popup-panel');
+    const popupPanels = $j('.rf-pp-cntr').parent();
+    popupPanels.addClass('popup-panel');
+
+    // EPBDS-10407. By default Popup Panels are rendered with style="visibility:hidden; display: inline-block;" and
+    // because of this child div with z-index==100 causes in chrome resize icon for textarea appearing despite that it's
+    // hidden.
+    // Fix it by forcing display:none with jQuery.
+    popupPanels.hide();
 }
 
 function updateSubmitListener(listener) {
