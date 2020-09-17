@@ -373,7 +373,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                                     local.getName());
                             }
                         } else {
-                            branch = closedProjectBranches.get(new ProjectKey(repoId, name));
+                            branch = closedProjectBranches.get(new ProjectKey(repoId, name.toLowerCase()));
                         }
 
                         // If branch is null then keep default branch.
