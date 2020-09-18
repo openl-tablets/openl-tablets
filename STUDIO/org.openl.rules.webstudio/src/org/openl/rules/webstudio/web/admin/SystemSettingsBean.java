@@ -267,7 +267,7 @@ public class SystemSettingsBean {
             properties
                 .revertProperties(AdministrationSettings.getAllSettings().toArray(StringUtils.EMPTY_STRING_ARRAY));
             saveSystemConfig();
-            deployConfigRepositoryConfiguration.reload();
+            deployConfigRepositoryConfiguration.revert();
             productionRepositoryEditor.reload();
             designRepositoryEditor.reload();
         } catch (IOException e) {
