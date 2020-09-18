@@ -174,7 +174,7 @@ public class JacksonObjectMapperFactoryBeanTest {
     @Test
     public void testVariations() throws ClassNotFoundException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
-        bean.setDefaultTypingMode(DefaultTypingMode.OBJECT_AND_NON_CONCRETE);
+        bean.setDefaultTypingMode(DefaultTypingMode.JAVA_LANG_OBJECT);
         bean.setSupportVariations(true);
         Set<String> overrideTypes = new HashSet<>();
         overrideTypes.add(CompoundStep.class.getName());
@@ -185,18 +185,18 @@ public class JacksonObjectMapperFactoryBeanTest {
 
         ComplexVariation complexVariation = new ComplexVariation("complexVariationId", v);
 
-        String text = objectMapper.writeValueAsString(complexVariation);
+        String text = objectMapper.writerFor(Variation.class).writeValueAsString(complexVariation);
 
         Variation v1 = objectMapper.readValue(text, Variation.class);
         Assert.assertTrue(v1 instanceof ComplexVariation);
         Assert.assertEquals("complexVariationId", v1.getVariationID());
 
-        text = objectMapper.writeValueAsString(new DeepCloningVariation("deepCloningID", complexVariation));
+        text = objectMapper.writerFor(Variation.class).writeValueAsString(new DeepCloningVariation("deepCloningID", complexVariation));
         v1 = objectMapper.readValue(text, Variation.class);
         Assert.assertTrue(v1 instanceof DeepCloningVariation);
         Assert.assertEquals("deepCloningID", v1.getVariationID());
 
-        text = objectMapper.writeValueAsString(new JXPathVariation("jaxPathID", 1, "invalidPath", "value"));
+        text = objectMapper.writerFor(Variation.class).writeValueAsString(new JXPathVariation("jaxPathID", 1, "invalidPath", "value"));
         v1 = objectMapper.readValue(text, Variation.class);
         Assert.assertTrue(v1 instanceof JXPathVariation);
         Assert.assertEquals("jaxPathID", v1.getVariationID());
@@ -207,7 +207,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         text = objectMapper.writeValueAsString(variationsResult);
         variationsResult = objectMapper.readValue(text, new TypeReference<VariationsResult<CompoundStep>>() {
         });
-        Assert.assertTrue(variationsResult instanceof VariationsResult);
+        Assert.assertNotNull(variationsResult);
         Assert.assertEquals("errorMessage", variationsResult.getFailureErrorForVariation("variationErrorID"));
     }
 
@@ -219,7 +219,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         SpreadsheetResult value = new SpreadsheetResult(new Object[3][3], new String[3], new String[3]);
         String text = objectMapper.writeValueAsString(value);
         SpreadsheetResult result = objectMapper.readValue(text, SpreadsheetResult.class);
-        Assert.assertTrue(result instanceof SpreadsheetResult);
+        Assert.assertNotNull(result);
     }
 
     @Test
@@ -230,11 +230,11 @@ public class JacksonObjectMapperFactoryBeanTest {
         String text = objectMapper
             .writeValueAsString(new DoubleRange(0.0d, 1d, BoundType.EXCLUDING, BoundType.EXCLUDING));
         DoubleRange result = objectMapper.readValue(text, DoubleRange.class);
-        Assert.assertTrue(result instanceof DoubleRange);
+        Assert.assertNotNull(result);
 
         text = objectMapper.writeValueAsString(new IntRange(199, 299));
         IntRange intRange = objectMapper.readValue(text, IntRange.class);
-        Assert.assertTrue(intRange instanceof IntRange);
+        Assert.assertNotNull(intRange);
         Assert.assertEquals(199, intRange.getMin());
         Assert.assertEquals(299, intRange.getMax());
     }

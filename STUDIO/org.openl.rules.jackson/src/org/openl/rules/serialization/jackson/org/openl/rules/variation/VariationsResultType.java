@@ -11,14 +11,12 @@ package org.openl.rules.serialization.jackson.org.openl.rules.variation;
  */
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * Custom mapping for {@link VariationsResultType}.
  *
  * @author Marat Kamalov
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public class VariationsResultType {
 
     @JsonIgnore

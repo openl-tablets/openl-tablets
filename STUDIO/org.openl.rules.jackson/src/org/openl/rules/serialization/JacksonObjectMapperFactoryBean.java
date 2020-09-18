@@ -13,6 +13,7 @@ package org.openl.rules.serialization;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -119,44 +120,43 @@ public class JacksonObjectMapperFactoryBean {
         if (originalClass == null) {
             originalClass = SubtypeMixin.class;
         }
-        if (originalClass.isInterface()) {
-            List<Class<?>> subTypeClasses = new ArrayList<>();
-            for (Class<?> x : classes) {
-                if (x.getSuperclass() == classFor) {
-                    subTypeClasses.add(x);
-                }
+        List<Class<?>> subTypeClasses = new ArrayList<>();
+        Class<?> parentTypeClass = null;
+        for (Class<?> x : classes) {
+            if (x.getSuperclass() == classFor) {
+                subTypeClasses.add(x);
             }
-            if (subTypeClasses.isEmpty()) {
-                return originalMixInClass;
-            }
-            String className = classFor.getName() + "$SubtypeMixIn$" + incrementer.getAndIncrement();
-            try {
-                return classLoader.loadClass(className);
-            } catch (ClassNotFoundException e) {
-                ClassWriter classWriter = new ClassWriter(0);
-                String typingPropertyName = StringUtils.isNotBlank(
-                    getTypingPropertyName()) ? getTypingPropertyName() : JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
-                if (DefaultTypingMode.DISABLED.equals(getDefaultTypingMode())) {
-                    typingPropertyName = null;
-                }
-                ClassVisitor classVisitor = new SubtypeMixInClassWriter(classWriter,
-                    className,
-                    originalClass,
-                    subTypeClasses.toArray(new Class<?>[0]),
-                    typingPropertyName,
-                    isSimpleClassNameAsTypingPropertyValue());
-                InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className, true);
-                transformer.accept(classVisitor);
-                classWriter.visitEnd();
-                try {
-                    ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
-                    return Class.forName(className, true, classLoader);
-                } catch (Exception e1) {
-                    throw new RuntimeException(e1);
-                }
+            if (x == classFor.getSuperclass()) {
+                parentTypeClass = x;
             }
         }
-        return originalMixInClass;
+        String className = classFor.getName() + "$SubtypeMixIn$" + incrementer.getAndIncrement();
+        try {
+            return classLoader.loadClass(className);
+        } catch (ClassNotFoundException e) {
+            ClassWriter classWriter = new ClassWriter(0);
+            String typingPropertyName = StringUtils.isNotBlank(
+                getTypingPropertyName()) ? getTypingPropertyName() : JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
+            if (DefaultTypingMode.DISABLED.equals(getDefaultTypingMode())) {
+                typingPropertyName = null;
+            }
+            ClassVisitor classVisitor = new SubtypeMixInClassWriter(classWriter,
+                className,
+                originalClass,
+                parentTypeClass,
+                subTypeClasses.toArray(new Class<?>[0]),
+                typingPropertyName,
+                isSimpleClassNameAsTypingPropertyValue());
+            InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className, true);
+            transformer.accept(classVisitor);
+            classWriter.visitEnd();
+            try {
+                ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
+                return Class.forName(className, true, classLoader);
+            } catch (Exception e1) {
+                throw new RuntimeException(e1);
+            }
+        }
     }
 
     public ObjectMapper createJacksonObjectMapper() throws ClassNotFoundException {
@@ -190,28 +190,6 @@ public class JacksonObjectMapperFactoryBean {
             basicPolymorphicTypeValidatorBuilder.allowIfSubType(IRulesRuntimeContext.class);
             basicPolymorphicTypeValidatorBuilder.allowIfBaseType(DefaultRulesRuntimeContext.class);
             basicPolymorphicTypeValidatorBuilder.allowIfSubType(DefaultRulesRuntimeContext.class);
-        }
-        if (isSupportVariations()) {
-            addMixIn(mapper, Variation.class, VariationType.class);
-            addMixIn(mapper, ArgumentReplacementVariation.class, ArgumentReplacementVariationType.class);
-            addMixIn(mapper, ComplexVariation.class, ComplexVariationType.class);
-            addMixIn(mapper, DeepCloningVariation.class, DeepCloningVariationType.class);
-            addMixIn(mapper, JXPathVariation.class, JXPathVariationType.class);
-            addMixIn(mapper, VariationsResult.class, VariationsResultType.class);
-            if (polymorphicTypeValidation) {
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(Variation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(Variation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(ArgumentReplacementVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(ArgumentReplacementVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(ComplexVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(ComplexVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(DeepCloningVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(DeepCloningVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(JXPathVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(JXPathVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(VariationsResult.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(VariationsResult.class);
-            }
         }
 
         Set<Class<?>> overrideClasses = extractOverrideClasses(basicPolymorphicTypeValidatorBuilder,
@@ -265,13 +243,37 @@ public class JacksonObjectMapperFactoryBean {
             mapper.deactivateDefaultTyping();
         }
 
+        if (isSupportVariations()) {
+            addMixIn(mapper, Variation.class, VariationType.class);
+            addMixIn(mapper, ArgumentReplacementVariation.class, ArgumentReplacementVariationType.class);
+            addMixIn(mapper, ComplexVariation.class, ComplexVariationType.class);
+            addMixIn(mapper, DeepCloningVariation.class, DeepCloningVariationType.class);
+            addMixIn(mapper, JXPathVariation.class, JXPathVariationType.class);
+            addMixIn(mapper, VariationsResult.class, VariationsResultType.class);
+            Collections.addAll(overrideClasses, VARIATION_CLASSES);
+            if (polymorphicTypeValidation) {
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(Variation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(Variation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(ArgumentReplacementVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(ArgumentReplacementVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(ComplexVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(ComplexVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(DeepCloningVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(DeepCloningVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(JXPathVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(JXPathVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(VariationsResult.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(VariationsResult.class);
+            }
+        }
+
         for (Class<?> clazz : overrideClasses) {
-            Class<?> subtypeMixInCLass = enhanceMixInClassWithSubTypes(clazz,
+            Class<?> subtypeMixInClass = enhanceMixInClassWithSubTypes(clazz,
                 mapper.findMixInClassFor(clazz),
                 overrideClasses,
                 getClassLoader());
-            if (subtypeMixInCLass != null) {
-                mapper.addMixIn(clazz, subtypeMixInCLass);
+            if (subtypeMixInClass != null) {
+                mapper.addMixIn(clazz, subtypeMixInClass);
             }
         }
 
