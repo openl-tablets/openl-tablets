@@ -10,9 +10,6 @@ package org.openl.rules.serialization.jackson.org.openl.rules.variation;
  * #L%
  */
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public class VariationType {
 
 }

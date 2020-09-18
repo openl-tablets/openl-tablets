@@ -13,6 +13,7 @@ package org.openl.rules.serialization;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -118,9 +119,13 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
             originalClass = SubtypeMixin.class;
         }
         List<Class<?>> subTypeClasses = new ArrayList<>();
+        Class<?> parentTypeClass = null;
         for (Class<?> x : classes) {
             if (x.getSuperclass() == classFor) {
                 subTypeClasses.add(x);
+            }
+            if (x == classFor.getSuperclass()) {
+                parentTypeClass = x;
             }
         }
         String className = classFor.getName() + "$SubtypeMixIn$" + incrementer.getAndIncrement();
@@ -136,6 +141,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
             ClassVisitor classVisitor = new SubtypeMixInClassWriter(classWriter,
                 className,
                 originalClass,
+                parentTypeClass,
                 subTypeClasses.toArray(new Class<?>[0]),
                 typingPropertyName,
                 isSimpleClassNameAsTypingPropertyValue());
@@ -182,28 +188,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
             basicPolymorphicTypeValidatorBuilder.allowIfSubType(IRulesRuntimeContext.class);
             basicPolymorphicTypeValidatorBuilder.allowIfBaseType(DefaultRulesRuntimeContext.class);
             basicPolymorphicTypeValidatorBuilder.allowIfSubType(DefaultRulesRuntimeContext.class);
-        }
-        if (isSupportVariations()) {
-            addMixIn(mapper, Variation.class, VariationType.class);
-            addMixIn(mapper, ArgumentReplacementVariation.class, ArgumentReplacementVariationType.class);
-            addMixIn(mapper, ComplexVariation.class, ComplexVariationType.class);
-            addMixIn(mapper, DeepCloningVariation.class, DeepCloningVariationType.class);
-            addMixIn(mapper, JXPathVariation.class, JXPathVariationType.class);
-            addMixIn(mapper, VariationsResult.class, VariationsResultType.class);
-            if (polymorphicTypeValidation) {
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(Variation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(Variation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(ArgumentReplacementVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(ArgumentReplacementVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(ComplexVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(ComplexVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(DeepCloningVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(DeepCloningVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(JXPathVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(JXPathVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(VariationsResult.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(VariationsResult.class);
-            }
         }
 
         Set<Class<?>> overrideClasses = extractOverrideClasses(basicPolymorphicTypeValidatorBuilder,
@@ -254,6 +238,30 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                                                                 : JsonTypeInfo.Id.CLASS.getDefaultPropertyName());
         } else {
             mapper.deactivateDefaultTyping();
+        }
+
+        if (isSupportVariations()) {
+            addMixIn(mapper, Variation.class, VariationType.class);
+            addMixIn(mapper, ArgumentReplacementVariation.class, ArgumentReplacementVariationType.class);
+            addMixIn(mapper, ComplexVariation.class, ComplexVariationType.class);
+            addMixIn(mapper, DeepCloningVariation.class, DeepCloningVariationType.class);
+            addMixIn(mapper, JXPathVariation.class, JXPathVariationType.class);
+            addMixIn(mapper, VariationsResult.class, VariationsResultType.class);
+            Collections.addAll(overrideClasses, VARIATION_CLASSES);
+            if (polymorphicTypeValidation) {
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(Variation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(Variation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(ArgumentReplacementVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(ArgumentReplacementVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(ComplexVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(ComplexVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(DeepCloningVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(DeepCloningVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(JXPathVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(JXPathVariation.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(VariationsResult.class);
+                basicPolymorphicTypeValidatorBuilder.allowIfSubType(VariationsResult.class);
+            }
         }
 
         for (Class<?> clazz : overrideClasses) {

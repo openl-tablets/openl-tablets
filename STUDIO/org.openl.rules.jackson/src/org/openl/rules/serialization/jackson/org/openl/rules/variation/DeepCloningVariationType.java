@@ -14,7 +14,6 @@ import org.openl.rules.variation.Variation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * Custom mapping for {@link DeepCloningVariationType} due to it is not usual bean and should be initialized through
@@ -22,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  *
  * @author Marat Kamalov
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public class DeepCloningVariationType {
     public DeepCloningVariationType(@JsonProperty("variationID") String variationID,
             @JsonProperty("variation") Variation variation) {

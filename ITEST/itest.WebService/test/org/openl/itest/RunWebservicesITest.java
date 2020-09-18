@@ -562,13 +562,6 @@ public class RunWebservicesITest {
     }
 
     @Test
-    public void EPBDS_10212() {
-        client.post("/EPBDS-10212/EPBDS-10212/doSomething",
-            "/EPBDS-10212/doSomething.req.json",
-            "/EPBDS-10212/doSomething.resp.json");
-    }
-
-    @Test
     public void EPBDS_10366() {
         client.get("/EPBDS-10366/swagger.json", "/EPBDS-10366/EPBDS-10366_swagger.resp.json");
         client.get("/EPBDS-10366/openapi.json", "/EPBDS-10366/EPBDS-10366_openapi.resp.json");
@@ -586,5 +579,12 @@ public class RunWebservicesITest {
     public void EPBDS_10393_2() {
         client.get("/REST/EPBDS-10393_2/swagger.json", "/EPBDS-10393_2/EPBDS-10393_2_swagger.resp.json");
         client.get("/REST/EPBDS-10393_2/openapi.json", "/EPBDS-10393_2/EPBDS-10393_2_openapi.resp.json");
+    }
+
+    @Test
+    public void EPBDS_10393_3() {
+        client.post("/REST/EPBDS-10393_3/test1",
+            "/EPBDS-10393_3/EPBDS-10393_3_test1.req.json",
+            "/EPBDS-10393_3/EPBDS-10393_3_test1.resp.json");
     }
 }

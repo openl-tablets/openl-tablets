@@ -11,7 +11,6 @@ package org.openl.rules.serialization.jackson.org.openl.rules.variation;
  */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * Custom mapping for {@link ArgumentReplacementVariationType} due to it is not usual bean and should be initialized
@@ -19,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  *
  * @author Marat Kamalov
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public class ArgumentReplacementVariationType {
     public ArgumentReplacementVariationType(@JsonProperty("variationID") String variationID,
             @JsonProperty("updatedArgumentIndex") int updatedArgumentIndex,

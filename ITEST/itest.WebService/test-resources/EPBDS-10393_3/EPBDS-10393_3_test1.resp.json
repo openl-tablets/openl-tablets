@@ -2,7 +2,7 @@
   "data": null,
   "variationResults": {
     "Original calculation": {
-      "@class": "org.openl.generated.spreadsheetresults.Test",
+      "_type": "org.openl.generated.spreadsheetresults.Test",
       "Value_R10": 0.0,
       "Value1_R10": 11.0,
       "Value2_R10": "Good Morning",
@@ -17,7 +17,7 @@
       "Value2_R40": "Good Night"
     },
     "FOR_2": {
-      "@class": "org.openl.generated.spreadsheetresults.Test",
+      "_type": "org.openl.generated.spreadsheetresults.Test",
       "Value_R10": 0.0,
       "Value1_R10": 11.0,
       "Value2_R10": "Good Morning",
