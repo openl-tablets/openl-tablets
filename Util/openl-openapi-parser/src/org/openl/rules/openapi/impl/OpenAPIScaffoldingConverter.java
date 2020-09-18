@@ -293,7 +293,29 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         spr.setParameters(parameters);
         pathInfo.setFormattedPath(formattedName);
         pathInfo.setOperation(findOperation(pathItem));
+        List<StepModel> stepModels = getStepModels(openAPI,
+            pathType,
+            spreadsheetParserModel,
+            spr,
+            pathInfo,
+            usedSchemaInResponse,
+            isArray,
+            formattedName);
+        spr.setSteps(stepModels);
+        pathInfos.add(pathInfo);
+        return spreadsheetParserModel;
+    }
+
+    private List<StepModel> getStepModels(OpenAPI openAPI,
+            PathType pathType,
+            SpreadsheetParserModel spreadsheetParserModel,
+            SpreadsheetModel spr,
+            PathInfo pathInfo,
+            String usedSchemaInResponse,
+            boolean isArray,
+            String formattedName) {
         List<StepModel> stepModels = new ArrayList<>();
+        Schema<?> schema;
         if (PathType.SPREADSHEET_RESULT_PATH == pathType) {
             final String nameOfSchema = isArray ? ARRAY_MATCHER.matcher(usedSchemaInResponse).replaceAll("")
                                                 : usedSchemaInResponse;
@@ -301,14 +323,19 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             spr.setType(isArray ? usedSchemaInResponse : SPREADSHEET_RESULT);
             pathInfo.setReturnType(OBJECT);
             if (schema != null) {
-                Map<String, Schema> properties = schema.getProperties();
-                if (CollectionUtils.isNotEmpty(properties)) {
-                    stepModels = properties.entrySet().stream().map(this::extractStep).collect(Collectors.toList());
+                if (isArray) {
+                    stepModels = Collections
+                        .singletonList(new StepModel(RESULT, usedSchemaInResponse, makeValue(usedSchemaInResponse)));
+                } else {
+                    Map<String, Schema> properties = schema.getProperties();
+                    if (CollectionUtils.isNotEmpty(properties)) {
+                        stepModels = properties.entrySet().stream().map(this::extractStep).collect(Collectors.toList());
+                    }
                 }
+                boolean addToDataTypes = stepModels.stream()
+                    .anyMatch(x -> ARRAY_MATCHER.matcher(x.getType()).replaceAll("").equals(nameOfSchema));
+                spreadsheetParserModel.setStoreInModels(addToDataTypes || isArray);
             }
-            boolean addToDataTypes = stepModels.stream()
-                .anyMatch(x -> ARRAY_MATCHER.matcher(x.getType()).replaceAll("").equals(nameOfSchema));
-            spreadsheetParserModel.setStoreInModels(addToDataTypes || isArray);
             spreadsheetParserModel.setReturnRef(SCHEMAS_LINK + nameOfSchema);
         } else if (PathType.SPREADSHEET_PATH == pathType) {
             pathInfo.setReturnType(OBJECT);
@@ -321,9 +348,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             stepModels = Collections
                 .singletonList(new StepModel(formattedName, usedSchemaInResponse, makeValue(usedSchemaInResponse)));
         }
-        spr.setSteps(stepModels);
-        pathInfos.add(pathInfo);
-        return spreadsheetParserModel;
+        return stepModels;
     }
 
     private String findOperation(PathItem pathItem) {

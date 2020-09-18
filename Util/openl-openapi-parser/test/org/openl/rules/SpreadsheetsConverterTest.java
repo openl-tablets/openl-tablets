@@ -76,7 +76,9 @@ public class SpreadsheetsConverterTest {
             .findFirst();
         assertTrue(secondModel.isPresent());
         SpreadsheetModel blaArrayModel = secondModel.get();
-        assertEquals(4, blaArrayModel.getSteps().size());
+        List<StepModel> blaSteps = blaArrayModel.getSteps();
+        assertEquals(1, blaSteps.size());
+        assertEquals("=new AnotherDatatype[][][][]{}",blaSteps.iterator().next().getValue());
 
         Optional<SpreadsheetModel> thirdModel = spreadsheetModels.stream()
             .filter(x -> x.getName().equals("HelloWorld"))
@@ -435,11 +437,11 @@ public class SpreadsheetsConverterTest {
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10386_datatype_was_missed.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
-         assertEquals(3, datatypeModels.size());
-         Optional<DatatypeModel> anotherDatatype = datatypeModels.stream()
-         .filter(x -> x.getName().equals("AnotherDatatype"))
-         .findFirst();
-         assertTrue(anotherDatatype.isPresent());
+        assertEquals(3, datatypeModels.size());
+        Optional<DatatypeModel> anotherDatatype = datatypeModels.stream()
+            .filter(x -> x.getName().equals("AnotherDatatype"))
+            .findFirst();
+        assertTrue(anotherDatatype.isPresent());
     }
 
     @Test
@@ -449,5 +451,48 @@ public class SpreadsheetsConverterTest {
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10387_extra_datatype.yaml");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(5, datatypeModels.size());
+    }
+
+    @Test
+    public void testArraySprSteps() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel oneDimArray = converter
+            .extractProjectModel("test.converter/spreadsheets/EPBDS-10412_array_type_steps.json");
+        Optional<DatatypeModel> pokemonOptional = oneDimArray.getDatatypeModels()
+            .stream()
+            .filter(x -> x.getName().equals("Pokemon"))
+            .findFirst();
+        assertTrue(pokemonOptional.isPresent());
+        DatatypeModel pokemon = pokemonOptional.get();
+        assertEquals(4, pokemon.getFields().size());
+        List<SpreadsheetModel> spreadsheetResultModels = oneDimArray.getSpreadsheetResultModels();
+        Optional<SpreadsheetModel> helloKitty = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("helloKitty"))
+            .findFirst();
+        assertTrue(helloKitty.isPresent());
+        SpreadsheetModel helloKittyArray = helloKitty.get();
+        assertEquals(1, helloKittyArray.getSteps().size());
+        StepModel step = helloKittyArray.getSteps().iterator().next();
+        assertEquals("=new Pokemon[]{}", step.getValue());
+
+        ProjectModel nThArray = converter
+            .extractProjectModel("test.converter/spreadsheets/EPBDS-10412_multi_array_type_steps.json");
+        List<SpreadsheetModel> multiArrayModels = nThArray.getSpreadsheetResultModels();
+        Optional<DatatypeModel> pokemonArrOptional = nThArray.getDatatypeModels()
+            .stream()
+            .filter(x -> x.getName().equals("Pokemon"))
+            .findFirst();
+        assertTrue(pokemonArrOptional.isPresent());
+        DatatypeModel pokemonArr = pokemonArrOptional.get();
+        assertEquals(4, pokemonArr.getFields().size());
+        Optional<SpreadsheetModel> arrHello = multiArrayModels.stream()
+            .filter(x -> x.getName().equals("helloKitty"))
+            .findFirst();
+        assertTrue(arrHello.isPresent());
+        SpreadsheetModel arrModel = arrHello.get();
+        List<StepModel> arrSteps = arrModel.getSteps();
+        assertEquals(1, arrSteps.size());
+        StepModel arrStep = arrSteps.iterator().next();
+        assertEquals("=new Pokemon[][][][][]{}", arrStep.getValue());
     }
 }
