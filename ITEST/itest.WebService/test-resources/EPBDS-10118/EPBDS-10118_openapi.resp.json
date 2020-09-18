@@ -110,6 +110,9 @@
         }
       },
       "Benefit": {
+        "required": [
+          "@class"
+        ],
         "type": "object",
         "properties": {
           "fieldOne": {
@@ -117,7 +120,13 @@
           },
           "fieldTwo": {
             "type": "string"
+          },
+          "@class": {
+            "type": "string"
           }
+        },
+        "discriminator": {
+          "propertyName": "@class"
         }
       },
       "SubBenefit": {

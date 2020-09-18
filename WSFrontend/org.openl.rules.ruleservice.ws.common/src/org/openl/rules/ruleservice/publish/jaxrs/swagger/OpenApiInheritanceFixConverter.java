@@ -2,8 +2,8 @@ package org.openl.rules.ruleservice.publish.jaxrs.swagger;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -42,9 +42,10 @@ public class OpenApiInheritanceFixConverter implements ModelConverter {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     private void fixParentClasses(ModelConverterContextImpl modelConverterContext) {
-        HashMap<AnnotatedType, Schema> modelByType = getModelByType(modelConverterContext);
-        Set<Class<?>> baseClasses = new HashSet<>();
+        Map<AnnotatedType, Schema> modelByType = getModelByType(modelConverterContext);
+        Set<Class<?>> parentClasses = new LinkedHashSet<>();
         for (Map.Entry<AnnotatedType, Schema> entry : modelByType.entrySet()) {
             Class<?> clazz = null;
             if (entry.getKey().getType() instanceof JavaType) {
@@ -53,20 +54,30 @@ public class OpenApiInheritanceFixConverter implements ModelConverter {
             } else if (entry.getKey().getType() instanceof Class) {
                 clazz = (Class<?>) entry.getKey().getType();
             }
-            if (clazz != null) {
-                Class<?> baseClass = InheritanceFixConverterHelper.extractBaseClass(clazz, objectMapper);
-                if (baseClass != clazz) {
-                    baseClasses.add(baseClass);
-                }
+            Class<?> parentClass = InheritanceFixConverterHelper.extractParentClass(clazz, objectMapper);
+            if (parentClass != null) {
+                parentClasses.add(parentClass);
             }
         }
-        for (Class<?> type : baseClasses) {
-            modelConverterContext.resolve(new AnnotatedType().type(type));
+
+        Map<String, Schema> modelByNameInContext = getModelByName(modelConverterContext);
+        Map<AnnotatedType, Schema> modelByTypeInContext = getModelByType(modelConverterContext);
+        for (Class<?> parentClass : parentClasses) {
+            ModelConverterContextImpl modelConverterContext1 = new ModelConverterContextImpl(converters);
+            modelConverterContext1.resolve(new AnnotatedType().type(parentClass));
+            Map<String, Schema> modelByName1 = getModelByName(modelConverterContext1);
+            for (Map.Entry<String, Schema> entry : modelByName1.entrySet()) {
+                modelByNameInContext.put(entry.getKey(), entry.getValue());
+            }
+            Map<AnnotatedType, Schema> modelByType1 = getModelByType(modelConverterContext1);
+            for (Map.Entry<AnnotatedType, Schema> entry : modelByType1.entrySet()) {
+                modelByTypeInContext.put(entry.getKey(), entry.getValue());
+            }
         }
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static HashMap<AnnotatedType, Schema> getModelByType(ModelConverterContextImpl context) {
+    private static Map<AnnotatedType, Schema> getModelByType(ModelConverterContextImpl context) {
         try {
             Field modelByTypeField = ModelConverterContextImpl.class.getDeclaredField("modelByType");
             modelByTypeField.setAccessible(true);
@@ -76,4 +87,14 @@ public class OpenApiInheritanceFixConverter implements ModelConverter {
         }
     }
 
+    @SuppressWarnings({ "rawtypes" })
+    private static Map<String, Schema> getModelByName(ModelConverterContextImpl context) {
+        try {
+            Field modelByNameField = ModelConverterContextImpl.class.getDeclaredField("modelByName");
+            modelByNameField.setAccessible(true);
+            return (Map<String, Schema>) modelByNameField.get(context);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 }

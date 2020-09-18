@@ -3,9 +3,8 @@ package org.openl.rules.ruleservice.publish.jaxrs.swagger;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -21,12 +20,13 @@ import io.swagger.models.Model;
 import io.swagger.models.properties.Property;
 
 public class SwaggerInheritanceFixConverter implements ModelConverter {
-    private final List<ModelConverter> converters;
     private final ObjectMapper objectMapper;
+    private final ModelConverterContextImpl modelConverterContext;
 
     public SwaggerInheritanceFixConverter(ObjectMapper objectMapper, List<ModelConverter> converters) {
-        this.converters = Objects.requireNonNull(converters, "converters cannot be null");
+        Objects.requireNonNull(converters, "converters cannot be null");
         this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper cannot be null");
+        this.modelConverterContext = new ModelConverterContextImpl(converters);
     }
 
     @Override
@@ -34,7 +34,6 @@ public class SwaggerInheritanceFixConverter implements ModelConverter {
             ModelConverterContext context,
             Annotation[] annotations,
             Iterator<ModelConverter> chain) {
-        ModelConverterContextImpl modelConverterContext = new ModelConverterContextImpl(converters);
         try {
             modelConverterContext.resolveProperty(type, annotations);
             fixParentClasses(modelConverterContext);
@@ -47,8 +46,8 @@ public class SwaggerInheritanceFixConverter implements ModelConverter {
     }
 
     private void fixParentClasses(ModelConverterContextImpl modelConverterContext) {
-        HashMap<Type, Model> modelByType = getModelByType(modelConverterContext);
-        Set<Class<?>> baseClasses = new HashSet<>();
+        Map<Type, Model> modelByType = getModelByType(modelConverterContext);
+        Set<Class<?>> parentClasses = new LinkedHashSet<>();
         for (Map.Entry<Type, Model> entry : modelByType.entrySet()) {
             Class<?> clazz = null;
             if (entry.getKey() instanceof JavaType) {
@@ -57,21 +56,18 @@ public class SwaggerInheritanceFixConverter implements ModelConverter {
             } else if (entry.getKey() instanceof Class) {
                 clazz = (Class<?>) entry.getKey();
             }
-            if (clazz != null) {
-                Class<?> baseClass = InheritanceFixConverterHelper.extractBaseClass(clazz, objectMapper);
-                if (baseClass != null) {
-                    baseClasses.add(baseClass);
-                }
+            Class<?> parentClass = InheritanceFixConverterHelper.extractParentClass(clazz, objectMapper);
+            if (parentClass != null) {
+                parentClasses.add(parentClass);
             }
         }
-        for (Class<?> baseClass : baseClasses) {
-            modelConverterContext.resolve(baseClass);
+        for (Class<?> parentClass : parentClasses) {
+            modelConverterContext.resolve(parentClass);
         }
     }
 
     @Override
     public Model resolve(Type type, ModelConverterContext context, Iterator<ModelConverter> chain) {
-        ModelConverterContextImpl modelConverterContext = new ModelConverterContextImpl(converters);
         try {
             modelConverterContext.resolve(type);
             fixParentClasses(modelConverterContext);
@@ -84,14 +80,13 @@ public class SwaggerInheritanceFixConverter implements ModelConverter {
     }
 
     @SuppressWarnings({ "unchecked" })
-    private static HashMap<Type, Model> getModelByType(ModelConverterContextImpl context) {
+    private static Map<Type, Model> getModelByType(ModelConverterContextImpl context) {
         try {
             Field modelByTypeField = ModelConverterContextImpl.class.getDeclaredField("modelByType");
             modelByTypeField.setAccessible(true);
-            return (HashMap<Type, Model>) modelByTypeField.get(context);
+            return (Map<Type, Model>) modelByTypeField.get(context);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
     }
-
 }

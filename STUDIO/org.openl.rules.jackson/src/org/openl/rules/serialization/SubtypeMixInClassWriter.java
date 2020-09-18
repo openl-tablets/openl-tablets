@@ -10,6 +10,9 @@ package org.openl.rules.serialization;
  * #L%
  */
 
+import java.util.Objects;
+
+import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
@@ -22,15 +25,21 @@ class SubtypeMixInClassWriter extends ClassVisitor {
     private final String className;
     private final Class<?> originalMixInClass;
     private final Class<?>[] subTypes;
+    private final String typingPropertyName;
+    private final boolean simpleClassNameAsTypingPropertyValue;
 
     public SubtypeMixInClassWriter(ClassVisitor delegatedClassVisitor,
             String className,
             Class<?> originalMixInClass,
-            Class<?>[] subTypes) {
+            Class<?>[] subTypes,
+            String typingPropertyName,
+            boolean simpleClassNameAsTypingPropertyValue) {
         super(Opcodes.ASM5, delegatedClassVisitor);
-        this.className = className;
-        this.subTypes = subTypes;
-        this.originalMixInClass = originalMixInClass;
+        this.className = Objects.requireNonNull(className, "className cannot be null");
+        this.subTypes = Objects.requireNonNull(subTypes, "subTypes cannot be null");
+        this.originalMixInClass = Objects.requireNonNull(originalMixInClass, "originalMixInClass cannot be null");
+        this.typingPropertyName = typingPropertyName;
+        this.simpleClassNameAsTypingPropertyValue = simpleClassNameAsTypingPropertyValue;
     }
 
     @Override
@@ -43,22 +52,29 @@ class SubtypeMixInClassWriter extends ClassVisitor {
                 for (Class<?> subTypeClass : subTypes) {
                     AnnotationVisitor av2 = av1.visitAnnotation(null, Type.getDescriptor(JsonSubTypes.Type.class));
                     av2.visit("value", Type.getType(subTypeClass));
+                    if (simpleClassNameAsTypingPropertyValue) {
+                        av2.visit("name", subTypeClass.getSimpleName());
+                    }
                     av2.visitEnd();
                 }
                 av1.visitEnd();
                 av.visitEnd();
             }
-            if (!originalMixInClass.isAnnotationPresent(JsonTypeInfo.class)) {
-                AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(JsonTypeInfo.class), true);
-                av.visitEnum("use", Type.getDescriptor(JsonTypeInfo.Id.class), JsonTypeInfo.Id.CLASS.name());
-                av.visitEnd();
-            }
-        } else {
-            if (!originalMixInClass.isAnnotationPresent(JsonTypeInfo.class)) {
-                AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(JsonTypeInfo.class), true);
-                av.visitEnum("use", Type.getDescriptor(JsonTypeInfo.Id.class), JsonTypeInfo.Id.NONE.name());
-                av.visitEnd();
-            }
         }
+        if (!originalMixInClass.isAnnotationPresent(JsonTypeInfo.class)) {
+            AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(JsonTypeInfo.class), true);
+            if (subTypes.length > 0 && StringUtils.isNotBlank(typingPropertyName)) {
+                av.visit("property", typingPropertyName);
+                if (simpleClassNameAsTypingPropertyValue) {
+                    av.visitEnum("use", Type.getDescriptor(JsonTypeInfo.Id.class), JsonTypeInfo.Id.NAME.name());
+                } else {
+                    av.visitEnum("use", Type.getDescriptor(JsonTypeInfo.Id.class), JsonTypeInfo.Id.CLASS.name());
+                }
+            } else {
+                av.visitEnum("use", Type.getDescriptor(JsonTypeInfo.Id.class), JsonTypeInfo.Id.NONE.name());
+            }
+            av.visitEnd();
+        }
+
     }
 }

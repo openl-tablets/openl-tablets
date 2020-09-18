@@ -131,7 +131,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
 
             // OpenAPI annotation
-            if (originalClass.getAnnotation(OpenAPIDefinition.class) == null) {
+            if (!originalClass.isAnnotationPresent(OpenAPIDefinition.class)) {
                 AnnotationVisitor av = this.visitAnnotation(Type.getDescriptor(OpenAPIDefinition.class), true);
                 AnnotationVisitor av1 = av.visitAnnotation("info", Type.getDescriptor(Info.class));
                 av1.visit("title", serviceName);
@@ -347,8 +347,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
             StringBuilder sb = new StringBuilder();
             sb.append("/").append(getPath(originalMethod));
-            if (numOfParameters < MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && originalMethod
-                .getAnnotation(POST.class) == null || originalMethod.getAnnotation(GET.class) != null) {
+            if (numOfParameters < MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && !originalMethod
+                    .isAnnotationPresent(POST.class) || originalMethod.isAnnotationPresent(GET.class)) {
                 mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
                 String[] parameterNames = resolveParameterNames(originalMethod);
                 processAnnotationsOnMethodParameters(originalMethod, mv);
@@ -424,12 +424,12 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     if (!hasResponse) {
                         annotateReturnElementClass(mv, returnType);
                     }
-                    if (originalMethod.getAnnotation(GET.class) == null) {
+                    if (!originalMethod.isAnnotationPresent(POST.class)) {
                         addPostAnnotation(mv, originalMethod);
                     }
                     addPathAnnotation(mv, originalMethod, sb.toString());
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    throw new IllegalStateException(e);
                 }
             }
             addConsumerProducesMethodAnnotations(mv, returnType, originalParameterTypes, originalMethod);
@@ -474,16 +474,16 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 Class<?> returnType,
                 Class<?>[] originalParameterTypes,
                 Method originalMethod) {
-            if (returnType != null && isTextMediaType(returnType) && originalMethod
-                .getAnnotation(Produces.class) == null) {
+            if (returnType != null && isTextMediaType(returnType) && !originalMethod
+                .isAnnotationPresent(Produces.class)) {
                 AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Produces.class), true);
                 AnnotationVisitor av2 = av.visitArray("value");
                 av2.visit(null, MediaType.TEXT_PLAIN);
                 av2.visitEnd();
                 av.visitEnd();
             }
-            if (originalParameterTypes.length == 1 && isTextMediaType(originalParameterTypes[0]) && originalMethod
-                .getAnnotation(Consumes.class) == null) {
+            if (originalParameterTypes.length == 1 && isTextMediaType(originalParameterTypes[0]) && !originalMethod
+                .isAnnotationPresent(Consumes.class)) {
                 AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Consumes.class), true);
                 AnnotationVisitor av2 = av.visitArray("value");
                 av2.visit(null, MediaType.TEXT_PLAIN);
@@ -574,13 +574,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                         av2.visit("responseCode", String.valueOf(Response.Status.OK.getStatusCode()));
                         AnnotationVisitor av3 = av2.visitArray("content");
                         AnnotationVisitor av4 = av3.visitAnnotation("responses", Type.getDescriptor(Content.class));
-                        if (originalMethod.getReturnType().isArray()) {
-                            AnnotationVisitor av6 = av4.visitAnnotation("array", Type.getDescriptor(ArraySchema.class));
-                            addSchemaOpenApiAnnotation(av6, originalMethod.getReturnType().getComponentType());
-                            av6.visitEnd();
-                        } else {
-                            addSchemaOpenApiAnnotation(av4, originalMethod.getReturnType());
-                        }
+                        addSchemaOpenApiAnnotation(av4, originalMethod.getReturnType());
                         av4.visitEnd();
                         av3.visitEnd();
                         av2.visitEnd();
@@ -593,6 +587,11 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private void addSchemaOpenApiAnnotation(AnnotationVisitor av, Class<?> type) {
+            boolean isArray = type.isArray();
+            if (isArray) {
+                av = av.visitAnnotation("array", Type.getDescriptor(ArraySchema.class));
+                type = type.getComponentType();
+            }
             final Class<?> extractedType = extractOriginalType(type);
             if (extractedType != null) {
                 type = extractedType;
@@ -618,6 +617,9 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 av1.visit("implementation", Type.getType(type));
             }
             av1.visitEnd();
+            if (isArray) {
+                av.visitEnd();
+            }
         }
 
         private void addPathParamAnnotation(MethodVisitor mv, int index, String paramName) {

@@ -42,6 +42,8 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     public static final String JACKSON_DEFAULT_TYPING_MODE = "jackson.defaultTypingMode";
     public static final String JACKSON_SERIALIZATION_INCLUSION = "jackson.serializationInclusion";
     public static final String JACKSON_FAIL_ON_UNKNOWN_PROPERTIES = "jackson.failOnUnknownProperties";
+    public static final String JACKSON_SIMPLE_CLASS_NAME_AS_TYPING_PROPERTY_VALUE = "jackson.simpleClassNameAsTypingPropertyValue";
+    public static final String JACKSON_TYPING_PROPERTY_NAME = "jackson.typingPropertyName";
     public static final String JACKSON_SPREADSHEETRESULT_FIELD_NAME_RESOLVER = "jackson.spreadsheetResultFieldNameResolver";
 
     private final JacksonObjectMapperFactoryBean delegate = new JacksonObjectMapperFactoryBean();
@@ -94,10 +96,13 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
             Map<String, Object> configuration = rulesDeploy.getConfiguration();
             if (configuration != null) {
                 processCaseInsensitivePropertiesSetting(configuration.get(JACKSON_CASE_INSENSITIVE_PROPERTIES));
-                processFailOnUnknownPropertiesSetting(configuration.get(JACKSON_FAIL_ON_UNKNOWN_PROPERTIES));
+                processJacksonFailOnUnknownPropertiesSetting(configuration.get(JACKSON_FAIL_ON_UNKNOWN_PROPERTIES));
                 processJacksonDefaultDateFormatSetting(configuration.get(JACKSON_DEFAULT_DATE_FORMAT));
                 processJacksonDefaultTypingModeSetting(configuration.get(JACKSON_DEFAULT_TYPING_MODE));
                 processJacksonSerializationInclusionSetting(configuration.get(JACKSON_SERIALIZATION_INCLUSION));
+                processJacksonTypingPropertyNameSetting(configuration.get(JACKSON_TYPING_PROPERTY_NAME));
+                processJacksonSimpleClassNameAsTypingPropertyValueSetting(
+                    configuration.get(JACKSON_SIMPLE_CLASS_NAME_AS_TYPING_PROPERTY_VALUE));
             }
         }
         processRootClassNamesBindingSetting(
@@ -124,7 +129,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                     rootClassNamesBindingClasses.add(((CustomSpreadsheetResultOpenClass) type).getBeanClass());
                 }
             }
-            //Check: custom spreadsheet is enabled
+            // Check: custom spreadsheet is enabled
             if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
                 rootClassNamesBindingClasses
                     .add(xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
@@ -135,7 +140,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         }
     }
 
-    protected void processFailOnUnknownPropertiesSetting(Object failOnUnknownProperties) {
+    protected void processJacksonFailOnUnknownPropertiesSetting(Object failOnUnknownProperties) {
         if (failOnUnknownProperties != null) {
             if (failOnUnknownProperties instanceof Boolean) {
                 delegate.setFailOnUnknownProperties((Boolean) failOnUnknownProperties);
@@ -145,6 +150,23 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 throw new ObjectMapperConfigurationParsingException(
                     String.format("Expected true/false value for '%s' in the configuration for service '%s'.",
                         JACKSON_FAIL_ON_UNKNOWN_PROPERTIES,
+                        rulesDeploy.getServiceName()));
+            }
+        }
+    }
+
+    protected void processJacksonSimpleClassNameAsTypingPropertyValueSetting(
+            Object simpleClassNameAsTypingPropertyValue) {
+        if (simpleClassNameAsTypingPropertyValue != null) {
+            if (simpleClassNameAsTypingPropertyValue instanceof Boolean) {
+                delegate.setSimpleClassNameAsTypingPropertyValue((Boolean) simpleClassNameAsTypingPropertyValue);
+            } else if (simpleClassNameAsTypingPropertyValue instanceof String) {
+                delegate.setSimpleClassNameAsTypingPropertyValue(
+                    Boolean.parseBoolean((String) simpleClassNameAsTypingPropertyValue));
+            } else {
+                throw new ObjectMapperConfigurationParsingException(
+                    String.format("Expected true/false value for '%s' in the configuration for service '%s'.",
+                        JACKSON_SIMPLE_CLASS_NAME_AS_TYPING_PROPERTY_VALUE,
                         rulesDeploy.getServiceName()));
             }
         }
@@ -187,6 +209,20 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 throw new ObjectMapperConfigurationParsingException(
                     String.format("Expected string value for '%s' in the configuration for service '%s'.",
                         ROOT_CLASS_NAMES_BINDING,
+                        rulesDeploy.getServiceName()));
+            }
+        }
+    }
+
+    protected void processJacksonTypingPropertyNameSetting(Object typingPropertyName) {
+        if (typingPropertyName instanceof String) {
+            String stringValue = (String) typingPropertyName;
+            delegate.setTypingPropertyName(stringValue);
+        } else {
+            if (typingPropertyName != null) {
+                throw new ObjectMapperConfigurationParsingException(
+                    String.format("Expected string value for '%s' in the configuration for service '%s'.",
+                        JACKSON_TYPING_PROPERTY_NAME,
                         rulesDeploy.getServiceName()));
             }
         }
@@ -266,7 +302,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                         spreadsheetResultFieldNameResolver);
                 }
             }
-            //Check: custom spreadsheet is enabled
+            // Check: custom spreadsheet is enabled
             if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
                 CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = xlsModuleOpenClass
                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
@@ -500,12 +536,11 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         delegate.setObjectMapperFactory(objectMapperFactory);
     }
 
-    public boolean isGenerateSubtypeAnnotationsForDisabledMode() {
-        return delegate.isGenerateSubtypeAnnotationsForDisabledMode();
+    public void setSimpleClassNameAsTypingPropertyValue(boolean simpleClassNameAsTypingPropertyValue) {
+        delegate.setSimpleClassNameAsTypingPropertyValue(simpleClassNameAsTypingPropertyValue);
     }
 
-    public void setGenerateSubtypeAnnotationsForDisabledMode(boolean generateSubtypeAnnotationsForDisabledMode) {
-        delegate.setGenerateSubtypeAnnotationsForDisabledMode(generateSubtypeAnnotationsForDisabledMode);
+    public void setTypingPropertyName(String typingPropertyName) {
+        delegate.setTypingPropertyName(typingPropertyName);
     }
-
 }

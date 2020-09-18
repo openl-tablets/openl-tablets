@@ -52,7 +52,7 @@ public class KafkaProjectJacksonObjectMapperFactoryBean extends ProjectJacksonOb
         applyKafkaConfiguration();
         processRootClassNamesBindingSetting(getConfigurationValue(ROOT_CLASS_NAMES_BINDING));
         processCaseInsensitivePropertiesSetting(getConfigurationValue(JACKSON_CASE_INSENSITIVE_PROPERTIES));
-        processFailOnUnknownPropertiesSetting(getConfigurationValue(JACKSON_FAIL_ON_UNKNOWN_PROPERTIES));
+        processJacksonFailOnUnknownPropertiesSetting(getConfigurationValue(JACKSON_FAIL_ON_UNKNOWN_PROPERTIES));
         processJacksonDefaultDateFormatSetting(getConfigurationValue(JACKSON_DEFAULT_DATE_FORMAT));
         processJacksonDefaultTypingModeSetting(getConfigurationValue(JACKSON_DEFAULT_TYPING_MODE));
         processJacksonSerializationInclusionSetting(getConfigurationValue(JACKSON_SERIALIZATION_INCLUSION));

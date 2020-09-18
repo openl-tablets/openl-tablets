@@ -78,13 +78,23 @@
   "definitions": {
     "Benefit": {
       "type": "object",
+      "required": [
+        "@class"
+      ],
+      "discriminator": "@class",
       "properties": {
         "fieldOne": {
           "type": "string"
         },
         "fieldTwo": {
           "type": "string"
+        },
+        "@class": {
+          "type": "string"
         }
+      },
+      "additionalProperties": {
+        "type": "string"
       }
     },
     "SubBenefit": {
@@ -98,6 +108,9 @@
             "fieldThree": {
               "type": "string"
             }
+          },
+          "additionalProperties": {
+            "type": "string"
           }
         }
       ]

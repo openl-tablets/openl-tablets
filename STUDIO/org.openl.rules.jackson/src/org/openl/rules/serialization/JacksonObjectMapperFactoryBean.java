@@ -43,6 +43,7 @@ import org.openl.rules.variation.NoVariation;
 import org.openl.rules.variation.Variation;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.util.ClassUtils;
+import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,11 +101,13 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
     private boolean caseInsensitiveProperties = false;
 
-    private boolean generateSubtypeAnnotationsForDisabledMode = false;
-
     private ClassLoader classLoader;
 
     private ObjectMapperFactory objectMapperFactory = DefaultObjectMapperFactory.getInstance();
+
+    private boolean simpleClassNameAsTypingPropertyValue = false;
+
+    private String typingPropertyName = JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
 
     private Class<?> enhanceMixInClassWithSubTypes(Class<?> classFor,
             Class<?> originalMixInClass,
@@ -125,10 +128,17 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
             return classLoader.loadClass(className);
         } catch (ClassNotFoundException e) {
             ClassWriter classWriter = new ClassWriter(0);
+            String typingPropertyName = StringUtils.isNotBlank(
+                getTypingPropertyName()) ? getTypingPropertyName() : JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
+            if (DefaultTypingMode.DISABLED.equals(getDefaultTypingMode())) {
+                typingPropertyName = null;
+            }
             ClassVisitor classVisitor = new SubtypeMixInClassWriter(classWriter,
                 className,
                 originalClass,
-                subTypeClasses.toArray(new Class<?>[0]));
+                subTypeClasses.toArray(new Class<?>[0]),
+                typingPropertyName,
+                isSimpleClassNameAsTypingPropertyValue());
             InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className, true);
             transformer.accept(classVisitor);
             classWriter.visitEnd();
@@ -236,25 +246,23 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                     defaultTyping = ObjectMapper.DefaultTyping.EVERYTHING;
                     break;
             }
-            mapper.activateDefaultTyping(
+            mapper.activateDefaultTypingAsProperty(
                 polymorphicTypeValidation ? basicPolymorphicTypeValidatorBuilder.build()
                                           : LaissezFaireSubTypeValidator.instance,
                 defaultTyping,
-                JsonTypeInfo.As.PROPERTY);
+                StringUtils.isNotBlank(getTypingPropertyName()) ? getTypingPropertyName()
+                                                                : JsonTypeInfo.Id.CLASS.getDefaultPropertyName());
         } else {
             mapper.deactivateDefaultTyping();
         }
 
-        if (!DefaultTypingMode.DISABLED
-            .equals(getDefaultTypingMode()) || isGenerateSubtypeAnnotationsForDisabledMode()) {
-            for (Class<?> clazz : overrideClasses) {
-                Class<?> subtypeMixInCLass = enhanceMixInClassWithSubTypes(clazz,
-                    mapper.findMixInClassFor(clazz),
-                    overrideClasses,
-                    getClassLoader());
-                if (subtypeMixInCLass != null) {
-                    mapper.addMixIn(clazz, subtypeMixInCLass);
-                }
+        for (Class<?> clazz : overrideClasses) {
+            Class<?> subtypeMixInCLass = enhanceMixInClassWithSubTypes(clazz,
+                mapper.findMixInClassFor(clazz),
+                overrideClasses,
+                getClassLoader());
+            if (subtypeMixInCLass != null) {
+                mapper.addMixIn(clazz, subtypeMixInCLass);
             }
         }
 
@@ -462,11 +470,19 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         this.objectMapperFactory = objectMapperFactory;
     }
 
-    public boolean isGenerateSubtypeAnnotationsForDisabledMode() {
-        return generateSubtypeAnnotationsForDisabledMode;
+    public String getTypingPropertyName() {
+        return typingPropertyName;
     }
 
-    public void setGenerateSubtypeAnnotationsForDisabledMode(boolean generateSubtypeAnnotationsForDisabledMode) {
-        this.generateSubtypeAnnotationsForDisabledMode = generateSubtypeAnnotationsForDisabledMode;
+    public void setTypingPropertyName(String typingPropertyName) {
+        this.typingPropertyName = typingPropertyName;
+    }
+
+    public boolean isSimpleClassNameAsTypingPropertyValue() {
+        return simpleClassNameAsTypingPropertyValue;
+    }
+
+    public void setSimpleClassNameAsTypingPropertyValue(boolean simpleClassNameAsTypingPropertyValue) {
+        this.simpleClassNameAsTypingPropertyValue = simpleClassNameAsTypingPropertyValue;
     }
 }

@@ -73,78 +73,11 @@
         }
       }
     },
-    "/myMethod3": {
+    "/myMethod5": {
       "post": {
-        "summary": "MyMethod3 myMethod3(IRulesRuntimeContext, MyType1, MyType2, MyType3)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyMethod3 myMethod3(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyType1, org.openl.generated.beans.MyType2, org.openl.generated.beans.MyType3)",
-        "operationId": "myMethod3",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/MyMethod3Request"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MyMethod3"
-            }
-          },
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "examples": {
-              "application/json": {
-                "message": "Some message",
-                "type": "USER_ERROR"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Cannot parse 'bar' to JSON",
-                "type": "BAD_REQUEST"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Failed to load lazy method.",
-                "type": "COMPILATION"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          }
-        }
-      }
-    },
-    "/getMyType4Data": {
-      "post": {
-        "summary": "MyType4[] getMyType4Data(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.beans.MyType4[] getMyType4Data(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyType4Data",
+        "summary": "MyMethod5 myMethod5(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyMethod5 myMethod5(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "myMethod5",
         "consumes": [
           "application/json"
         ],
@@ -165,147 +98,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/MyType4"
-              }
-            }
-          },
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "examples": {
-              "application/json": {
-                "message": "Some message",
-                "type": "USER_ERROR"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Cannot parse 'bar' to JSON",
-                "type": "BAD_REQUEST"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Failed to load lazy method.",
-                "type": "COMPILATION"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          }
-        }
-      }
-    },
-    "/getMyType3Data": {
-      "post": {
-        "summary": "MyType3[] getMyType3Data(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.beans.MyType3[] getMyType3Data(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyType3Data",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/MyType3"
-              }
-            }
-          },
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "examples": {
-              "application/json": {
-                "message": "Some message",
-                "type": "USER_ERROR"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Cannot parse 'bar' to JSON",
-                "type": "BAD_REQUEST"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Failed to load lazy method.",
-                "type": "COMPILATION"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          }
-        }
-      }
-    },
-    "/myMethod": {
-      "post": {
-        "summary": "MyMethod myMethod(IRulesRuntimeContext, MyType1, MyType2, MyType3, MyType4)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyMethod myMethod(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyType1, org.openl.generated.beans.MyType2, org.openl.generated.beans.MyType3, org.openl.generated.beans.MyType4)",
-        "operationId": "myMethod",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/MyMethodRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MyMethod"
+              "$ref": "#/definitions/MyMethod5"
             }
           },
           "422": {
@@ -484,6 +277,73 @@
         }
       }
     },
+    "/myMethod": {
+      "post": {
+        "summary": "MyMethod myMethod(IRulesRuntimeContext, MyType1, MyType2, MyType3, MyType4)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyMethod myMethod(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyType1, org.openl.generated.beans.MyType2, org.openl.generated.beans.MyType3, org.openl.generated.beans.MyType4)",
+        "operationId": "myMethod",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/MyMethodRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MyMethod"
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    },
     "/getMyType1Data": {
       "post": {
         "summary": "MyType1[] getMyType1Data(IRulesRuntimeContext)",
@@ -554,11 +414,11 @@
         }
       }
     },
-    "/myMethod5": {
+    "/getMyType3Data": {
       "post": {
-        "summary": "MyMethod5 myMethod5(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyMethod5 myMethod5(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "myMethod5",
+        "summary": "MyType3[] getMyType3Data(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.beans.MyType3[] getMyType3Data(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyType3Data",
         "consumes": [
           "application/json"
         ],
@@ -579,7 +439,147 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/MyMethod5"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MyType3"
+              }
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/getMyType4Data": {
+      "post": {
+        "summary": "MyType4[] getMyType4Data(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.beans.MyType4[] getMyType4Data(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyType4Data",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MyType4"
+              }
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/myMethod3": {
+      "post": {
+        "summary": "MyMethod3 myMethod3(IRulesRuntimeContext, MyType1, MyType2, MyType3)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyMethod3 myMethod3(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyType1, org.openl.generated.beans.MyType2, org.openl.generated.beans.MyType3)",
+        "operationId": "myMethod3",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/MyMethod3Request"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MyMethod3"
             }
           },
           "422": {
@@ -763,7 +763,19 @@
       }
     },
     "Base": {
-      "type": "object"
+      "type": "object",
+      "required": [
+        "@class"
+      ],
+      "discriminator": "@class",
+      "properties": {
+        "@class": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
     },
     "DefaultRulesRuntimeContext": {
       "type": "object",
@@ -1131,6 +1143,9 @@
             "field4": {
               "type": "string"
             }
+          },
+          "additionalProperties": {
+            "type": "string"
           }
         }
       ]
@@ -1146,6 +1161,9 @@
             "field3": {
               "type": "string"
             }
+          },
+          "additionalProperties": {
+            "type": "string"
           }
         }
       ]
@@ -1161,6 +1179,9 @@
             "field2": {
               "type": "string"
             }
+          },
+          "additionalProperties": {
+            "type": "string"
           }
         }
       ]
@@ -1176,6 +1197,9 @@
             "field4": {
               "type": "string"
             }
+          },
+          "additionalProperties": {
+            "type": "string"
           }
         }
       ]
@@ -1191,6 +1215,9 @@
             "field2": {
               "type": "string"
             }
+          },
+          "additionalProperties": {
+            "type": "string"
           }
         }
       ]
@@ -1206,6 +1233,9 @@
             "field4": {
               "type": "string"
             }
+          },
+          "additionalProperties": {
+            "type": "string"
           }
         }
       ]
@@ -1230,6 +1260,9 @@
               "type": "string",
               "default": "defaultValue4"
             }
+          },
+          "additionalProperties": {
+            "type": "string"
           }
         }
       ]
@@ -1246,13 +1279,19 @@
               "type": "string",
               "default": "defaultValue3"
             }
+          },
+          "additionalProperties": {
+            "type": "string"
           }
         }
       ]
     },
-    "MyMethod3": {
+    "MyMethod5": {
       "type": "object",
       "properties": {
+        "Step0": {
+          "$ref": "#/definitions/MyType5"
+        },
         "Step1": {
           "type": "string"
         },
@@ -1264,47 +1303,26 @@
         },
         "Step4": {
           "type": "string"
-        },
-        "Step5": {
-          "type": "string"
-        },
-        "Step6": {
-          "type": "string"
-        },
-        "Step7": {
-          "type": "string"
-        },
-        "Step8": {
-          "type": "string"
-        },
-        "Step9": {
-          "type": "string"
-        },
-        "Step10": {
-          "type": "string"
-        },
-        "Step11": {
-          "type": "string"
-        },
-        "Step12": {
-          "type": "string"
         }
       }
     },
-    "MyMethod3Request": {
+    "MyMethod6": {
       "type": "object",
       "properties": {
-        "runtimeContext": {
-          "$ref": "#/definitions/DefaultRulesRuntimeContext"
+        "Step0": {
+          "$ref": "#/definitions/MyType5"
         },
-        "myType1": {
-          "$ref": "#/definitions/MyType1"
+        "Step1": {
+          "type": "string"
         },
-        "myType2": {
-          "$ref": "#/definitions/MyType2"
+        "Step2": {
+          "type": "string"
         },
-        "myType3": {
-          "$ref": "#/definitions/MyType3"
+        "Step3": {
+          "type": "string"
+        },
+        "Step4": {
+          "type": "string"
         }
       }
     },
@@ -1381,12 +1399,9 @@
         }
       }
     },
-    "MyMethod6": {
+    "MyMethod3": {
       "type": "object",
       "properties": {
-        "Step0": {
-          "$ref": "#/definitions/MyType5"
-        },
         "Step1": {
           "type": "string"
         },
@@ -1397,27 +1412,48 @@
           "type": "string"
         },
         "Step4": {
+          "type": "string"
+        },
+        "Step5": {
+          "type": "string"
+        },
+        "Step6": {
+          "type": "string"
+        },
+        "Step7": {
+          "type": "string"
+        },
+        "Step8": {
+          "type": "string"
+        },
+        "Step9": {
+          "type": "string"
+        },
+        "Step10": {
+          "type": "string"
+        },
+        "Step11": {
+          "type": "string"
+        },
+        "Step12": {
           "type": "string"
         }
       }
     },
-    "MyMethod5": {
+    "MyMethod3Request": {
       "type": "object",
       "properties": {
-        "Step0": {
-          "$ref": "#/definitions/MyType5"
+        "runtimeContext": {
+          "$ref": "#/definitions/DefaultRulesRuntimeContext"
         },
-        "Step1": {
-          "type": "string"
+        "myType1": {
+          "$ref": "#/definitions/MyType1"
         },
-        "Step2": {
-          "type": "string"
+        "myType2": {
+          "$ref": "#/definitions/MyType2"
         },
-        "Step3": {
-          "type": "string"
-        },
-        "Step4": {
-          "type": "string"
+        "myType3": {
+          "$ref": "#/definitions/MyType3"
         }
       }
     },

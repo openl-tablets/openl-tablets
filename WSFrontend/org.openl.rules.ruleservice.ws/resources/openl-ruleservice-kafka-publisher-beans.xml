@@ -15,6 +15,9 @@
         <property name="defaultTypingMode" value="${ruleservice.jackson.defaultTypingMode}"/>
         <property name="supportVariations" value="${ruleservice.isSupportVariations}"/>
         <property name="serializationInclusion" value="${ruleservice.jackson.serializationInclusion}"/>
+        <property name="simpleClassNameAsTypingPropertyValue"
+                  value="${ruleservice.jackson.simpleClassNameAsTypingPropertyValue}"/>
+        <property name="typingPropertyName" value="${ruleservice.jackson.typingPropertyName}"/>
         <property name="polymorphicTypeValidation" value="true"/>
         <property name="xlsModuleOpenClass" ref="xlsModuleOpenClassInProcess"/>
         <property name="rulesDeploy" ref="rulesDeployInProcess"/>

@@ -343,7 +343,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         Wrapper wrapper = new Wrapper();
         wrapper.animal = new Dog();
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
-        String text = objectMapper.writeValueAsString(wrapper);
+        String text = objectMapper.writeValueAsString(wrapper).replace("$Wrapper", "$Wrapper1");
         objectMapper.readValue(text, Wrapper.class);
     }
 }

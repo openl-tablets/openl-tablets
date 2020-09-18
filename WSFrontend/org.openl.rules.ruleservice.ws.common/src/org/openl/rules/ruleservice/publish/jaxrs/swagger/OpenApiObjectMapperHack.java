@@ -35,7 +35,7 @@ public final class OpenApiObjectMapperHack {
         for (Object converter : converters) {
             oldConverters.add(converter);
             hackedConverters
-                .add(converter instanceof ModelResolver ? new ModelResolver(objectMapper) : (ModelConverter) converter);
+                .add(converter instanceof ModelResolver ? new ObjectMapperSupportModelResolver(objectMapper) : (ModelConverter) converter);
         }
         converters.clear();
         OpenApiInheritanceFixConverter openApiInheritanceFixConverter = new OpenApiInheritanceFixConverter(objectMapper,
