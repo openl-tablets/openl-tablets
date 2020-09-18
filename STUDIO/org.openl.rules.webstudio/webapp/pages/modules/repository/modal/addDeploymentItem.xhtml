@@ -25,7 +25,7 @@
             </h:selectOneMenu>
 
             <h:outputLabel for="projectName" styleClass="required" value="Name:" rendered="#{not empty availableProjects}"/>
-            <h:selectOneMenu id="projectName" value="#{deploymentController.projectName}" style="width:250px;" rendered="#{not empty availableProjects}">
+            <h:selectOneMenu id="projectName" value="#{deploymentController.projectName}" rendered="#{not empty availableProjects}">
                 <f:selectItems value="#{availableProjects}" />
                 <f:ajax event="change" render="branchSelector projectVersion" execute="@this" onevent="onProjectNameChange"/>
             </h:selectOneMenu>

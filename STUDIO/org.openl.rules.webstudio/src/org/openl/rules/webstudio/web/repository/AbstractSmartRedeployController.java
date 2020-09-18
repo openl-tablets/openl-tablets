@@ -141,6 +141,7 @@ public abstract class AbstractSmartRedeployController {
 
     private List<DeploymentProjectItem> getItems4Project(AProject project, String repositoryConfigName) {
         String projectName = project.getName();
+        String repoId = project.getRepository().getId();
 
         List<DeploymentProjectItem> result = new LinkedList<>();
         if (userWorkspace == null) {
@@ -172,7 +173,8 @@ public abstract class AbstractSmartRedeployController {
             @SuppressWarnings("rawtypes")
             Collection<ProjectDescriptor> descriptors = latestDeploymentVersion.getProjectDescriptors();
             for (ProjectDescriptor<?> descr : descriptors) {
-                if (projectName.equals(descr.getProjectName())) {
+                if (projectName.equals(descr
+                    .getProjectName()) && (descr.getRepositoryId() == null || descr.getRepositoryId().equals(repoId))) {
                     projectDescriptor = descr;
                     break;
                 }
@@ -493,7 +495,21 @@ public abstract class AbstractSmartRedeployController {
 
     public void setRepositoryConfigName(String repositoryConfigName) {
         if (repositoryConfigName == null || !repositoryConfigName.equals(this.repositoryConfigName)) {
-            this.items = null;
+            AProject project = getSelectedProject();
+            if (project != null && items != null) {
+                List<DeploymentProjectItem> newItems = getItems4Project(project, getRepositoryConfigName());
+                if (newItems.size() == items.size()) {
+                    for (int i = 0; i < items.size(); i++) {
+                        DeploymentProjectItem item = items.get(i);
+                        if (item.isSelected()) {
+                            newItems.get(i).setSelected(true);
+                        }
+                    }
+                }
+                items = newItems;
+            } else {
+                items = null;
+            }
         }
         this.repositoryConfigName = repositoryConfigName;
     }

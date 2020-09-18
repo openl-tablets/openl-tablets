@@ -40,11 +40,10 @@ public class SpreadsheetTableExporterTest {
         StepModel sprStep = new StepModel("calculateIndex", "IndexCalculation", "=new IndexCalculation()");
         StepModel booleanStep = new StepModel("booleanStep", "Boolean", "=false");
         StepModel dateStep = new StepModel("dateStep", "Date", "=new Date()");
-        StepModel dateTimeStep = new StepModel("dateTimeStep", "OffsetDateTime", "=java.time.OffsetDateTime.now()");
         StepModel integerStep = new StepModel("integerStep", "Integer", "=0");
         StepModel longStep = new StepModel("longStep", "Long", "=0L");
-        resultModel.setSteps(
-            Arrays.asList(doubleStep, stringStep, sprStep, booleanStep, dateStep, dateTimeStep, integerStep, longStep));
+        resultModel
+            .setSteps(Arrays.asList(doubleStep, stringStep, sprStep, booleanStep, dateStep, integerStep, longStep));
 
         ProjectModel projectModel = new ProjectModel(TEST_PROJECT,
             false,
@@ -115,15 +114,7 @@ public class SpreadsheetTableExporterTest {
             XSSFCell dateValueCell = dateRow.getCell(2);
             assertEquals("=new Date()", dateValueCell.getStringCellValue());
 
-            XSSFRow dateTimeRow = dtsSheet.getRow(TOP_MARGIN + 7);
-            assertNotNull(dateTimeRow);
-            XSSFCell dateTimeNameCell = dateTimeRow.getCell(1);
-            assertNotNull(dateTimeNameCell);
-            assertEquals("dateTimeStep", dateTimeNameCell.getStringCellValue());
-            XSSFCell dateTimeValueCell = dateTimeRow.getCell(2);
-            assertEquals("=java.time.OffsetDateTime.now()", dateTimeValueCell.getStringCellValue());
-
-            XSSFRow integerStepRow = dtsSheet.getRow(TOP_MARGIN + 8);
+            XSSFRow integerStepRow = dtsSheet.getRow(TOP_MARGIN + 7);
             assertNotNull(integerStepRow);
             XSSFCell integerNameCell = integerStepRow.getCell(1);
             assertNotNull(integerNameCell);
@@ -131,7 +122,7 @@ public class SpreadsheetTableExporterTest {
             XSSFCell integerValueCell = integerStepRow.getCell(2);
             assertEquals("=0", integerValueCell.getStringCellValue());
 
-            XSSFRow longStepRow = dtsSheet.getRow(TOP_MARGIN + 9);
+            XSSFRow longStepRow = dtsSheet.getRow(TOP_MARGIN + 8);
             assertNotNull(longStepRow);
             XSSFCell longNameCell = longStepRow.getCell(1);
             assertNotNull(longNameCell);

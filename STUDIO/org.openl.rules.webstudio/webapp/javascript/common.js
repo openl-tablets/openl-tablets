@@ -104,7 +104,14 @@ function initPopupPanels() {
     if (!$j) {
         return;
     }
-    $j('.rf-pp-cntr').parent().addClass('popup-panel');
+    const popupPanels = $j('.rf-pp-cntr').parent();
+    popupPanels.addClass('popup-panel');
+
+    // EPBDS-10407. By default Popup Panels are rendered with style="visibility:hidden; display: inline-block;" and
+    // because of this child div with z-index==100 causes in chrome resize icon for textarea appearing despite that it's
+    // hidden.
+    // Fix it by forcing display:none with jQuery.
+    popupPanels.hide();
 }
 
 function updateSubmitListener(listener) {
@@ -214,16 +221,25 @@ function makePopupPanelsReallyResizable() {
     RichFaces.ui.PopupPanel.prototype.show = function (event, opts) {
         showDelegate.call(this, event, opts);
         const self = this;
-        // ResizeObserver isn't supported by IE 11, so we use MutationObserver instead.
-        const observer = new MutationObserver(function () {
-            self.doResizeOrMove(RichFaces.ui.PopupPanel.Sizer.Diff.EMPTY);
-        });
-        observer.observe(this.contentDiv.get(0), {
-            attributes: true,
-            childList: true,
-            subtree: true
-        });
-        this['__observer'] = observer;
+
+        if ($j.browser.msie) {
+            // ResizeObserver isn't supported by IE 11, so we use MutationObserver instead.
+            const observer = new MutationObserver(function () {
+                self.doResizeOrMove(RichFaces.ui.PopupPanel.Sizer.Diff.EMPTY);
+            });
+            observer.observe(this.contentDiv.get(0), {
+                attributes: true,
+                childList: true,
+                subtree: true
+            });
+            this['__observer'] = observer;
+        } else {
+            const observer = new ResizeObserver(function () {
+                self.doResizeOrMove(RichFaces.ui.PopupPanel.Sizer.Diff.EMPTY);
+            });
+            observer.observe(this.contentDiv.get(0));
+            this['__observer'] = observer;
+        }
     };
 
     const hideDelegate = RichFaces.ui.PopupPanel.prototype.hide;

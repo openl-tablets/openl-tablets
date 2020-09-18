@@ -21,8 +21,8 @@
           <h:outputText value="Project Name:" />
           <h:outputText value="#{artefact.name}"/>
 
-          <h:outputText rendered="#{studio.isRenamed(artefact)}" value=""/>
-          <h:panelGroup rendered="#{studio.isRenamed(artefact)}" styleClass="warning">
+          <h:outputText rendered="#{!repositoryTreeController.isSupportsMappedFolders(artefact.getRepository().getId()) and studio.isRenamed(artefact)}" value=""/>
+          <h:panelGroup rendered="#{!repositoryTreeController.isSupportsMappedFolders(artefact.getRepository().getId()) and studio.isRenamed(artefact)}" styleClass="warning">
             <h:outputText value="Project name in rules.xml is '#{studio.getLogicalName(artefact)}'. It will be replaced with '#{artefact.name}'."/>
           </h:panelGroup>
 

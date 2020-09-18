@@ -122,10 +122,12 @@
                                 </td>
                                 <td>
                                     <h:selectOneMenu id="repositoryTemplate"
-                                                     value="#{repositoryTreeController.repositoryId}">
+                                                     value="#{repositoryTreeController.repositoryId}"
+                                                     hideNoSelectionOption="true">
                                         <f:ajax event="change" render="templatePanelRepo"
                                                 onevent="checkCreateOnTemplatePanel()"/>
-                                        <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                                        <f:selectItem itemLabel="-- Select a repository --" itemValue="none"
+                                                      itemDisabled="true" noSelectionOption="true"/>
                                         <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
                                                        itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
                                     </h:selectOneMenu>
@@ -201,9 +203,11 @@
                     <h:panelGrid id="excelPanelRepo" columns="2" styleClass="formfields" cellspacing="1"
                                  columnClasses="label,">
                         <h:outputLabel for="repositoryExcel" value="Repository:" styleClass="required"/>
-                        <h:selectOneMenu id="repositoryExcel" value="#{repositoryTreeController.repositoryId}">
+                        <h:selectOneMenu id="repositoryExcel" value="#{repositoryTreeController.repositoryId}"
+                                         hideNoSelectionOption="true">
                             <f:ajax event="change" render="excelPanelRepo" onevent="checkCreateOnExcelPanel()"/>
-                            <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                            <f:selectItem itemLabel="-- Select a repository --" itemValue="none"
+                                          itemDisabled="true" noSelectionOption="true"/>
                             <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
                                            itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
                         </h:selectOneMenu>
@@ -268,9 +272,11 @@
                     <h:panelGrid id="zipPanelRepo" columns="2" styleClass="formfields" cellspacing="1"
                                  columnClasses="label,">
                         <h:outputLabel for="repositoryZip" value="Repository:" styleClass="required" width="121px"/>
-                        <h:selectOneMenu id="repositoryZip" value="#{repositoryTreeController.repositoryId}">
+                        <h:selectOneMenu id="repositoryZip" value="#{repositoryTreeController.repositoryId}"
+                                         hideNoSelectionOption="true">
                             <f:ajax event="change" render="zipPanelRepo" onevent="checkCreateOnZipPanel()"/>
-                            <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                            <f:selectItem itemLabel="-- Select a repository --" itemValue="none"
+                                          itemDisabled="true" noSelectionOption="true"/>
                             <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
                                            itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
                         </h:selectOneMenu>
@@ -334,9 +340,11 @@
                     <h:panelGrid id="openApiPanel" columns="2" styleClass="formfields" cellspacing="1"
                                  columnClasses="label,">
                         <h:outputLabel for="repositoryOpenAPI" value="Repository:" styleClass="required"/>
-                        <h:selectOneMenu id="repositoryOpenAPI" value="#{repositoryTreeController.repositoryId}">
+                        <h:selectOneMenu id="repositoryOpenAPI" value="#{repositoryTreeController.repositoryId}"
+                                         hideNoSelectionOption="true">
                             <f:ajax event="change" render="openApiPanel" onevent="checkCreateOnOpenApiPanel()"/>
-                            <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                            <f:selectItem itemLabel="-- Select a repository --" itemValue="none"
+                                          itemDisabled="true" noSelectionOption="true"/>
                             <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
                                            itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
                         </h:selectOneMenu>
@@ -474,9 +482,11 @@
                 <h:form id="importFromRepoForm" style="padding-top: 6px">
                     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                         <h:outputLabel for="repositoryImport" value="Repository:" styleClass="required"/>
-                        <h:selectOneMenu id="repositoryImport" value="#{repositoryTreeController.repositoryId}">
+                        <h:selectOneMenu id="repositoryImport" value="#{repositoryTreeController.repositoryId}"
+                                         hideNoSelectionOption="true">
                             <f:ajax event="change" execute="@form" render="@form" onevent="checkImportRepoPanel()"/>
-                            <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                            <f:selectItem itemLabel="-- Select a repository --" itemValue="none"
+                                          itemDisabled="true" noSelectionOption="true"/>
                             <f:selectItems value="#{repositoryTreeController.nonFlatRepositories}" var="repository"
                                            itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
                         </h:selectOneMenu>
@@ -488,7 +498,7 @@
                                          value="#{repositoryTreeController.projectFolder}"/>
 
                             <input type="button" value="..."
-                                   class="button-select #{empty repositoryTreeController.repositoryId ? 'hidden' : ''}"
+                                   class="button-select #{'none' == repositoryTreeController.repositoryId ? 'hidden' : ''}"
                                    onclick="openSelectFolderDialog('#{repositoryTreeController.repositoryId}', 'importFromRepoForm:projectFolderImport')"/>
                         </h:panelGroup>
 

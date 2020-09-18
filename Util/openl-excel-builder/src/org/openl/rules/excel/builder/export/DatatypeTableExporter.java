@@ -76,11 +76,7 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
             Cursor next = endPosition.moveDown(1);
             Cell typeCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
             String type = field.getType();
-            if (type.equals("OffsetDateTime")) {
-                typeCell.setCellValue("Date");
-            } else {
-                typeCell.setCellValue(type);
-            }
+            typeCell.setCellValue(type);
             typeCell
                 .setCellStyle(lastRow ? style.getLastRowStyle().getTypeStyle() : style.getRowStyle().getTypeStyle());
             next = next.moveRight(1);
@@ -116,12 +112,8 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
             try {
                 setDefaultValue(field, valueCell, dateStyle, dateTimeStyle);
             } catch (ParseException e) {
-                LOGGER.error(
-                        "Error is occurred on writing field: {}, model: {} .",
-                        field.getName(),
-                        model.getName(),
-                        e
-                );
+                LOGGER
+                    .error("Error is occurred on writing field: {}, model: {} .", field.getName(), model.getName(), e);
             }
         }
     }
@@ -166,14 +158,15 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
                 valueCell.setCellValue(Boolean.parseBoolean(valueAsString));
                 break;
             case "Date":
-                Date dateValue = (Date) defaultValue;
-                valueCell.setCellValue(dateValue);
-                valueCell.setCellStyle(dateStyle);
-                break;
-            case "OffsetDateTime":
-                OffsetDateTime dateTimeValue = (OffsetDateTime) defaultValue;
-                valueCell.setCellValue(new Date((dateTimeValue).toInstant().toEpochMilli()));
-                valueCell.setCellStyle(dateTimeStyle);
+                if (defaultValue instanceof Date) {
+                    Date dateValue = (Date) defaultValue;
+                    valueCell.setCellValue(dateValue);
+                    valueCell.setCellStyle(dateStyle);
+                } else {
+                    OffsetDateTime dateValue = (OffsetDateTime) defaultValue;
+                    valueCell.setCellValue(new Date((dateValue).toInstant().toEpochMilli()));
+                    valueCell.setCellStyle(dateTimeStyle);
+                }
                 break;
             default:
                 valueCell.setCellValue("");

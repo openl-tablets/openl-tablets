@@ -42,4 +42,13 @@ public class ProjectInfo {
     public void setArchived(boolean archived) {
         this.archived = archived;
     }
+
+    public ProjectInfo copy() {
+        ProjectInfo info = new ProjectInfo();
+        info.setName(getName());
+        info.setPath(getPath());
+        info.setModifiedAt(getModifiedAt());
+        info.setArchived(isArchived());
+        return info;
+    }
 }

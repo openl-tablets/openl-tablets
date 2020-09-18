@@ -92,10 +92,6 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         this.repositorySettings = repositorySettings;
     }
 
-    private void setExternalToInternal(ProjectIndex externalToInternal) {
-        this.externalToInternal = externalToInternal;
-    }
-
     @Override
     public void close() throws IOException {
         externalToInternal = new ProjectIndex();
@@ -184,10 +180,11 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         if (delegate.supports().versions()) {
             repositorySettings.lock(configFile);
             try {
-                Optional<ProjectInfo> projectInfo = findProject(data);
+                ProjectIndex projectIndex = getUpToDateMapping(false);
+                Optional<ProjectInfo> projectInfo = findProject(projectIndex, data);
                 if (projectInfo.isPresent()) {
                     projectInfo.get().setArchived(true);
-                    saveProjectIndex(externalToInternal);
+                    saveProjectIndex(projectIndex);
                     return true;
                 }
             } finally {
@@ -206,11 +203,10 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             try {
                 refreshMapping();
 
-                ProjectIndex projectIndex = externalToInternal;
+                ProjectIndex projectIndex = externalToInternal.copy();
                 boolean modified = syncProjectIndex(delegate, repositoryMode, projectIndex);
                 if (modified) {
                     saveProjectIndex(projectIndex);
-                    setExternalToInternal(projectIndex);
                 }
             } catch (Exception e) {
                 log.warn(e.getMessage(), e);
@@ -261,12 +257,13 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             if (delegate.supports().versions()) {
                 repositorySettings.lock(configFile);
                 try {
-                    Optional<ProjectInfo> project = findProject(data);
+                    ProjectIndex projectIndex = getUpToDateMapping(false);
+                    Optional<ProjectInfo> project = findProject(projectIndex, data);
                     if (project.isPresent()) {
                         ProjectInfo projectInfo = project.get();
                         if (projectInfo.isArchived()) {
                             projectInfo.setArchived(false);
-                            saveProjectIndex(externalToInternal);
+                            saveProjectIndex(projectIndex);
                             return true;
                         }
                     }
@@ -302,7 +299,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 // "external" is direct child of "path"
                 FileData data = delegate.check(project.getPath());
                 if (data == null) {
-                    log.error("Project {} is not found.", project.getPath());
+                    // It can be intermediate state: project is added to index, but not still committed.
+                    // Or project could be removed from repository, but index isn't updated. Will be updated later.
+                    log.debug("Project {} is not found.", project.getPath());
                 } else {
                     if (delegate.supports().versions()) {
                         if (project.isArchived()) {
@@ -495,11 +494,11 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         }
     }
 
-    private Optional<ProjectInfo> findProject(FileData data) {
+    private Optional<ProjectInfo> findProject(ProjectIndex projectIndex, FileData data) {
         String name = data.getName().startsWith(baseFolder) ?
                       data.getName().substring(baseFolder.length()) :
                       data.getName();
-        return getUpToDateMapping(false).getProjects()
+        return projectIndex.getProjects()
             .stream()
             .filter(p -> name.equals(p.getName()))
             .findFirst();
@@ -513,6 +512,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         configData.setAuthor(getClass().getName());
         configData.setComment("Update mapping");
         repositorySettings.getRepository().save(configData, configInputStream);
+        this.externalToInternal = projectIndex;
     }
 
     /**
@@ -542,7 +542,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             }
         }
 
-        return externalToInternal;
+        return externalToInternal.copy();
     }
 
     private Iterable<FileItem> toInternal(final ProjectIndex mapping, final Iterable<FileItem> files) {
@@ -716,6 +716,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                     // Folder was removed.
                     iterator.remove();
                     modified = true;
+                    log.info("Sync project index: remove project '{}'", project.getName());
                 } else {
                     Date modifiedAt = project.getModifiedAt();
                     String fullName = project.getPath() + "/rules.xml";
@@ -730,6 +731,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                             try (InputStream is = descriptorItem.getStream()) {
                                 project.setName(getProjectName(is));
                             }
+                            log.info("Sync project index: update name to '{}'", project.getName());
                             modified = true;
                         }
                     } else {
@@ -741,10 +743,12 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                             project.setModifiedAt(null);
                             project.setName(folderName);
                             modified = true;
+                            log.info("Sync project index: update name to '{}'", project.getName());
                         } else {
                             if (!project.getName().equals(folderName)) {
                                 project.setName(folderName);
                                 modified = true;
+                                log.info("Sync project index: update name to '{}'", project.getName());
                             }
                         }
                     }
@@ -849,15 +853,14 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     private void refreshMapping() {
         try {
             settingsSyncDate = repositorySettings.getSyncDate();
-            ProjectIndex currentMapping = readExternalToInternalMap(delegate,
+
+            this.externalToInternal = readExternalToInternalMap(delegate,
                 repositoryMode,
                 configFile,
                 baseFolder);
-
-            setExternalToInternal(currentMapping);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            setExternalToInternal(new ProjectIndex());
+            this.externalToInternal = new ProjectIndex();
         }
     }
 
@@ -865,16 +868,17 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         FileMappingData mappingData = folderData.getAdditionalData(FileMappingData.class);
         if (mappingData == null) {
             log.warn("Unexpected behavior: FileMappingData is absent.");
-            return externalToInternal;
+            return externalToInternal.copy();
         }
 
         repositorySettings.lock(configFile);
         try {
             // We must ensure that our externalToInternal.getProjects() is up to date.
             getUpToDateMapping(false);
-            List<ProjectInfo> projects = externalToInternal.getProjects();
+            ProjectIndex projectIndex = externalToInternal.copy();
+            List<ProjectInfo> projects = projectIndex.getProjects();
 
-            Optional<ProjectInfo> project = findProject(folderData);
+            Optional<ProjectInfo> project = findProject(projectIndex, folderData);
             if (project.isPresent()) {
                 project.get().setPath(mappingData.getInternalPath());
             } else {
@@ -885,13 +889,13 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 projects.add(info);
             }
 
-            ByteArrayInputStream configStream = getStreamFromProperties(externalToInternal);
+            ByteArrayInputStream configStream = getStreamFromProperties(projectIndex);
             FileData configData = new FileData();
             configData.setName(configFile);
             configData.setAuthor(folderData.getAuthor());
             configData.setComment(folderData.getComment());
             repositorySettings.getRepository().save(configData, configStream);
-            return externalToInternal;
+            return projectIndex;
         } catch (IOException | RuntimeException e) {
             // Failed to update mapping. Restore current saved version.
             refreshMapping();

@@ -363,6 +363,7 @@ public class DeploymentController {
                 }
             }
             item.setSelected(false);
+            WebStudioUtils.getWebStudio().reset();
         }
         return null;
     }

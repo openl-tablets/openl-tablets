@@ -48,7 +48,7 @@ public class DatatypeTableExporterTest {
         FieldModel dateField = new FieldModel("registrationDate", "Date", dateValue);
 
         OffsetDateTime dateTimeValue = OffsetDateTime.now(ZoneId.systemDefault());
-        FieldModel dateTimeField = new FieldModel("registrationDateTime", "OffsetDateTime", dateTimeValue);
+        FieldModel dateTimeField = new FieldModel("registrationDateTime", "Date", dateTimeValue);
 
         FieldModel booleanField = new FieldModel("isOk", "Boolean", true);
 

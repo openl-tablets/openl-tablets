@@ -310,6 +310,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private void scheduleProjectsRefresh() {
         synchronized (userRulesProjects) {
             projectsRefreshNeeded = true;
+            for (UserWorkspaceListener listener : listeners) {
+                listener.workspaceRefreshed();
+            }
         }
     }
 
@@ -370,7 +373,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                                     local.getName());
                             }
                         } else {
-                            branch = closedProjectBranches.get(new ProjectKey(repoId, name));
+                            branch = closedProjectBranches.get(new ProjectKey(repoId, name.toLowerCase()));
                         }
 
                         // If branch is null then keep default branch.
