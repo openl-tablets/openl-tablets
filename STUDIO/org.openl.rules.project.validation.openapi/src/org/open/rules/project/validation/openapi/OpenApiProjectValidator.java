@@ -914,7 +914,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 Schema<?> resolvedExpectedSchema = context.getExpectedOpenAPIResolver()
                     .resolve(expectedSchema, Schema::get$ref);
                 if (resolvedExpectedSchema != null) {
-                    if (validatedSchemas.contains(resolvedActualSchema)) {
+                    if (validatedSchemas.contains(resolvedExpectedSchema)) {
                         return;
                     } else {
                         validatedSchemas.add(resolvedExpectedSchema);
