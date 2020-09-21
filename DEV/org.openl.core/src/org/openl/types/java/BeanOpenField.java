@@ -68,8 +68,8 @@ public final class BeanOpenField implements IOpenField {
                             fieldName = field.getName();
                             pd.setName(fieldName);
                             LOG.debug("Error occurred: ", e1);
-                        } catch (NoSuchFieldException ignored) {
-                            LOG.debug("Ignored error: ", ignored);
+                        } catch (NoSuchFieldException e) {
+                            LOG.debug("Ignored error: ", e);
                             // It is possible that there is no such field at all
                         }
                     }

@@ -1,23 +1,18 @@
 package org.open.rules.project.validation.openapi;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-
-import javax.xml.bind.annotation.XmlElement;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.ClassUtils;
+import org.openl.util.StringUtils;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.introspect.AnnotatedField;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 class OpenClassPropertiesResolver {
     private final Context context;
@@ -27,91 +22,42 @@ class OpenClassPropertiesResolver {
         this.context = Objects.requireNonNull(context, "context cannot be null");
     }
 
-    private void getFieldAnnotations(Class<?> clazz,
-            String fieldName,
-            Map<Class<?>, Annotation> annotationsMap,
-            boolean isMixInClass) {
-        while (clazz != Object.class && clazz != null) {
-            if (!isMixInClass) {
-                Class<?> mixInClass = context.getObjectMapper().findMixInClassFor(clazz);
-                if (mixInClass != null) {
-                    getFieldAnnotations(mixInClass, fieldName, annotationsMap, true);
-                }
-            }
-            try {
-                Field field = clazz.getDeclaredField(fieldName);
-                extractAnnotation(field, XmlElement.class, annotationsMap);
-                extractAnnotation(field, JsonProperty.class, annotationsMap);
-                if (!isMixInClass) {
-                    break;
-                }
-            } catch (NoSuchFieldException ignore) {
-            }
-            clazz = clazz.getSuperclass();
-        }
-    }
-
-    private void getMethodAnnotations(Class<?> clazz,
-            String getterName,
-            Map<Class<?>, Annotation> annotationsMap,
-            boolean isMixInClass) {
-        Set<Class<?>> interfaces = new LinkedHashSet<>();
-        while (clazz != Object.class && clazz != null) {
-            if (!isMixInClass) {
-                Class<?> mixInClass = context.getObjectMapper().findMixInClassFor(clazz);
-                if (mixInClass != null) {
-                    getMethodAnnotations(mixInClass, getterName, annotationsMap, true);
-                }
-            }
-            try {
-                Method method = clazz.getMethod(getterName);
-                extractAnnotation(method, XmlElement.class, annotationsMap);
-                extractAnnotation(method, JsonProperty.class, annotationsMap);
-            } catch (NoSuchMethodException ignore) {
-            }
-            interfaces.addAll(Arrays.asList(clazz.getInterfaces()));
-            clazz = clazz.getSuperclass();
-        }
-        for (Class<?> interfaceClass : interfaces) {
-            getMethodAnnotations(interfaceClass, getterName, annotationsMap, false);
-        }
-    }
-
-    private void extractAnnotation(AnnotatedElement annotatedElement,
-            Class<? extends Annotation> annotationClass,
-            Map<Class<?>, Annotation> annotationMap) {
-        Annotation annotation = annotatedElement.getAnnotation(annotationClass);
-        if (annotation != null) {
-            annotationMap.put(annotationClass, annotation);
-        }
-    }
-
     private IOpenField resolveOpenFieldByPropertyName(IOpenClass openClass, String propertyName) {
-        for (IOpenField openField : openClass.getFields()) {
-            Map<Class<?>, Annotation> annotationsMap = new HashMap<>();
-            getFieldAnnotations(openClass.getInstanceClass(), openField.getName(), annotationsMap, false);
-            if (isMatchToPropertyName(annotationsMap, propertyName)) {
+        BeanPropertyDefinition beanPropertyDefinition = resolveOpenBeanPropertyDefinitionByPropertyName(openClass,
+            propertyName);
+        if (beanPropertyDefinition != null) {
+            String fieldName;
+            if (beanPropertyDefinition.getAccessor() instanceof AnnotatedField) {
+                fieldName = beanPropertyDefinition.getAccessor().getName();
+            } else {
+                String getterName = beanPropertyDefinition.getAccessor().getName();
+                fieldName = ClassUtils.toFieldName(getterName);
+            }
+            //Fail safe lines if class is not handled by openl (imported)
+            IOpenField openField = openClass.getField(fieldName);
+            if (openField != null) {
                 return openField;
             }
-            annotationsMap = new HashMap<>();
-            String getterName = ClassUtils.getter(openField.getName());
-            getMethodAnnotations(openClass.getInstanceClass(), getterName, annotationsMap, false);
-            if (isMatchToPropertyName(annotationsMap, propertyName)) {
+            openField = openClass.getField(ClassUtils.capitalize(fieldName));
+            if (openField != null) {
                 return openField;
             }
+            return openClass.getField(StringUtils.uncapitalize(fieldName));
         }
-        return openClass.getField(propertyName);
+        return null;
     }
 
-    private boolean isMatchToPropertyName(Map<Class<?>, Annotation> annotationsMap, String propertyName) {
-        JsonProperty jsonProperty = (JsonProperty) annotationsMap.get(JsonProperty.class);
-        XmlElement xmlElement = (XmlElement) annotationsMap.get(XmlElement.class);
-        if (jsonProperty != null) {
-            return Objects.equals(propertyName, jsonProperty.value());
-        } else if (xmlElement != null) {
-            return Objects.equals(propertyName, xmlElement.name());
+    private BeanPropertyDefinition resolveOpenBeanPropertyDefinitionByPropertyName(IOpenClass openClass,
+            String propertyName) {
+        final BeanDescription beanDesc = context.getObjectMapper()
+            .getSerializationConfig()
+            .introspect(TypeFactory.defaultInstance().constructType(openClass.getInstanceClass()));
+        for (BeanPropertyDefinition beanPropertyDefinition : beanDesc.findProperties()) {
+            if (Objects.equals(propertyName, beanPropertyDefinition.getName())) {
+                return beanPropertyDefinition;
+            }
         }
-        return false;
+        return null;
     }
 
     public IOpenField getField(IOpenClass openClass, String propertyName) {

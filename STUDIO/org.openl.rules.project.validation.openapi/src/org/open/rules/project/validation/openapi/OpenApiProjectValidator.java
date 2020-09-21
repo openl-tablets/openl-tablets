@@ -272,7 +272,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     context.setExpectedPathItem(expectedPathItem);
                     if (expectedPathItem == null) {
                         OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                            String.format(OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected method '%s' is found for path '%s'.",
+                            String.format(
+                                OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected method '%s' is found for path '%s'.",
                                 openMethod == null ? method.getName() : openMethod.getMethod(),
                                 entry.getKey()));
                     }
@@ -319,7 +320,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         if (expectedOperation != null || actualOperation != null) {
             if (actualOperation == null) {
                 OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                    String.format(OPEN_API_VALIDATION_MSG_PREFIX + "Expected operation '%s' is not found for path '%s'.",
+                    String.format(
+                        OPEN_API_VALIDATION_MSG_PREFIX + "Expected operation '%s' is not found for path '%s'.",
                         operationType,
                         context.getPath()));
             } else if (expectedOperation == null) {
@@ -977,18 +979,20 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     } else {
                         IOpenField openField = context.getOpenClassPropertiesResolver()
                             .getField(openClass, entry.getKey());
-                        if (isIncompatibleTypes(fieldActualSchema, entry.getValue(), openField.getType())) {
-                            final String type = resolveType(entry.getValue());
-                            final String format = entry.getValue().getFormat();
-                            wrongFields.add(() -> OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                                String.format(
-                                    OPEN_API_VALIDATION_MSG_PREFIX + "Type of field '%s' in type '%s' must be compatible with OpenAPI type '%s%s'.",
-                                    openField.getName(),
-                                    openClass.getDisplayName(INamedThing.REGULAR),
-                                    type,
-                                    format != null ? "('" + format + ")" : "")));
-                        } else {
-                            fieldsToValidate++;
+                        if (openField != null) {
+                            if (isIncompatibleTypes(fieldActualSchema, entry.getValue(), openField.getType())) {
+                                final String type = resolveType(entry.getValue());
+                                final String format = entry.getValue().getFormat();
+                                wrongFields.add(() -> OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                    String.format(
+                                        OPEN_API_VALIDATION_MSG_PREFIX + "Type of field '%s' in type '%s' must be compatible with OpenAPI type '%s%s'.",
+                                        openField.getName(),
+                                        openClass.getDisplayName(INamedThing.REGULAR),
+                                        type,
+                                        format != null ? "('" + format + ")" : "")));
+                            } else {
+                                fieldsToValidate++;
+                            }
                         }
                     }
                 }
@@ -1016,36 +1020,38 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     if (fieldActualSchema != null) {
                         IOpenField openField = context.getOpenClassPropertiesResolver()
                             .getField(openClass, entry.getKey());
-                        if (!isIncompatibleTypes(fieldActualSchema, entry.getValue(), openField.getType())) {
-                            try {
-                                validateType(context,
-                                    fieldActualSchema,
-                                    entry.getValue(),
-                                    openField.getType(),
-                                    validatedSchemas);
-                            } catch (DifferentTypesException e) {
-                                String resolvedSchemaTypeName = resolveSimplifiedName(entry.getValue());
-                                if (isSimpleJavaType(resolvedSchemaTypeName)) {
-                                    String type = resolveType(entry.getValue());
-                                    String format = entry.getValue().getFormat();
-                                    OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                                        String.format(
-                                            OPEN_API_VALIDATION_MSG_PREFIX + "Type '%s' of field '%s' in type '%s' must be compatible with OpenAPI type '%s%s'.",
-                                            openField.getType().getDisplayName(INamedThing.REGULAR),
-                                            openField.getName(),
-                                            openClass.getDisplayName(INamedThing.REGULAR),
-                                            type,
-                                            format != null ? "('" + format + ")" : ""));
-                                } else {
-                                    OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                                        String.format(
-                                            OPEN_API_VALIDATION_MSG_PREFIX + "Type '%s' of field '%s' in type '%s'%s",
-                                            openField.getType().getDisplayName(INamedThing.REGULAR),
-                                            openField.getName(),
-                                            openClass.getDisplayName(INamedThing.REGULAR),
-                                            resolvedSchemaTypeName != null ? " mismatches to declared schema '" + resolvedSchemaTypeName + "'."
-                                                                           : "."));
+                        if (openField != null) {
+                            if (!isIncompatibleTypes(fieldActualSchema, entry.getValue(), openField.getType())) {
+                                try {
+                                    validateType(context,
+                                        fieldActualSchema,
+                                        entry.getValue(),
+                                        openField.getType(),
+                                        validatedSchemas);
+                                } catch (DifferentTypesException e) {
+                                    String resolvedSchemaTypeName = resolveSimplifiedName(entry.getValue());
+                                    if (isSimpleJavaType(resolvedSchemaTypeName)) {
+                                        String type = resolveType(entry.getValue());
+                                        String format = entry.getValue().getFormat();
+                                        OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                            String.format(
+                                                OPEN_API_VALIDATION_MSG_PREFIX + "Type '%s' of field '%s' in type '%s' must be compatible with OpenAPI type '%s%s'.",
+                                                openField.getType().getDisplayName(INamedThing.REGULAR),
+                                                openField.getName(),
+                                                openClass.getDisplayName(INamedThing.REGULAR),
+                                                type,
+                                                format != null ? "('" + format + ")" : ""));
+                                    } else {
+                                        OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                            String.format(
+                                                OPEN_API_VALIDATION_MSG_PREFIX + "Type '%s' of field '%s' in type '%s'%s",
+                                                openField.getType().getDisplayName(INamedThing.REGULAR),
+                                                openField.getName(),
+                                                openClass.getDisplayName(INamedThing.REGULAR),
+                                                resolvedSchemaTypeName != null ? " mismatches to declared schema '" + resolvedSchemaTypeName + "'."
+                                                                               : "."));
 
+                                    }
                                 }
                             }
                         }
