@@ -563,7 +563,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     method.getName(),
                     getMethodForPathStringPart(method.getName(), context.getPath()),
                     type,
-                    format != null ? "('" + format + ")" : ""));
+                    format != null ? "(" + format + ")" : ""));
         } else {
             try {
                 context.setTypeValidationInProgress(true);
@@ -576,7 +576,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                             method.getName(),
                             getMethodForPathStringPart(method.getName(), context.getPath()),
                             type,
-                            format != null ? "('" + format + ")" : ""));
+                            format != null ? "(" + format + ")" : ""));
                 }
             } finally {
                 context.setTypeValidationInProgress(false);
@@ -745,7 +745,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         method.getName(),
                         getMethodRelatedPathStringPart(method.getName(), context.getPath()),
                         type,
-                        format != null ? "('" + format + ")" : ""));
+                        format != null ? "(" + format + ")" : ""));
             } else {
                 try {
                     context.setTypeValidationInProgress(true);
@@ -764,7 +764,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                                 method.getName(),
                                 getMethodRelatedPathStringPart(method.getName(), context.getPath()),
                                 type,
-                                format != null ? "('" + format + ")" : ""));
+                                format != null ? "(" + format + ")" : ""));
                     }
                 } finally {
                     context.setTypeValidationInProgress(false);
@@ -868,7 +868,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             } else if ("double".equals(schema.getFormat())) {
                 return "Double";
             } else {
-                return "Double";
+                return "BigDecimal";
             }
         } else if ("integer".equals(schema.getType())) {
             if ("int32".equals(schema.getFormat())) {
@@ -876,7 +876,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             } else if ("int64".equals(schema.getFormat())) {
                 return "Long";
             } else {
-                return "Long";
+                return "BigInteger";
             }
         } else if ("boolean".equals(schema.getType())) {
             return "Boolean";
@@ -983,13 +983,27 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                             if (isIncompatibleTypes(fieldActualSchema, entry.getValue(), openField.getType())) {
                                 final String type = resolveType(entry.getValue());
                                 final String format = entry.getValue().getFormat();
-                                wrongFields.add(() -> OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                                    String.format(
-                                        OPEN_API_VALIDATION_MSG_PREFIX + "Type of field '%s' in type '%s' must be compatible with OpenAPI type '%s%s'.",
-                                        openField.getName(),
-                                        openClass.getDisplayName(INamedThing.REGULAR),
-                                        type,
-                                        format != null ? "('" + format + ")" : "")));
+                                if (isSimpleJavaType(resolveSimplifiedName(fieldActualSchema))) {
+                                    final String actualType = fieldActualSchema.getType();
+                                    final String actualFormat = fieldActualSchema.getFormat();
+                                    wrongFields.add(() -> OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                        String.format(
+                                            OPEN_API_VALIDATION_MSG_PREFIX + "Type of field '%s' in type '%s' must be compatible with OpenAPI type '%s%s'. Found OpenAPI type: '%s%s'.",
+                                            openField.getName(),
+                                            openClass.getDisplayName(INamedThing.REGULAR),
+                                            type,
+                                            format != null ? "(" + format + ")" : "",
+                                            actualType,
+                                            actualFormat != null ? "(" + actualFormat + ")" : "")));
+                                } else {
+                                    wrongFields.add(() -> OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                        String.format(
+                                            OPEN_API_VALIDATION_MSG_PREFIX + "Type of field '%s' in type '%s' must be compatible with OpenAPI type '%s%s'.",
+                                            openField.getName(),
+                                            openClass.getDisplayName(INamedThing.REGULAR),
+                                            type,
+                                            format != null ? "(" + format + ")" : "")));
+                                }
                             } else {
                                 fieldsToValidate++;
                             }
@@ -1040,7 +1054,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                                                 openField.getName(),
                                                 openClass.getDisplayName(INamedThing.REGULAR),
                                                 type,
-                                                format != null ? "('" + format + ")" : ""));
+                                                format != null ? "(" + format + ")" : ""));
                                     } else {
                                         OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                                             String.format(
