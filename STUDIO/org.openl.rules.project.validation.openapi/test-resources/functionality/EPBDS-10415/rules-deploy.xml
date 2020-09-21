@@ -1,6 +1,0 @@
-<rules-deploy>
-  <isProvideRuntimeContext>false</isProvideRuntimeContext>
-  <publishers>
-    <publisher>RESTFUL</publisher>
-  </publishers>
-</rules-deploy>
