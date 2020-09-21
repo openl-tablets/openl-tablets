@@ -18,6 +18,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 
@@ -135,6 +136,10 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                 String version = projectState.getProjectVersion();
                 lpi = new AProject(repository, name, version);
             } else {
+                FileMappingData mappingData = fileData.getAdditionalData(FileMappingData.class);
+                if (mappingData != null) {
+                    mappingData.setExternalPath(designTimeRepository.getRulesLocation() + name);
+                }
                 lpi = new AProject(repository, fileData);
             }
             synchronized (localProjects) {

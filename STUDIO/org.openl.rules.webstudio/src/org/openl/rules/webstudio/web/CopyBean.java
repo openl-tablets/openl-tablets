@@ -201,7 +201,7 @@ public class CopyBean {
                 FileData designData = new FileData();
                 designData.setName(designPath);
 
-                FileMappingData mappingData = new FileMappingData(projectFolder + newProjectName);
+                FileMappingData mappingData = new FileMappingData(designPath, projectFolder + newProjectName);
 
                 if (copyOldRevisions && repositoryId.equals(toRepositoryId)) {
                     List<ProjectVersion> versions = project.getVersions();

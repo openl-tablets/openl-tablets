@@ -351,7 +351,7 @@ public class LocalRepository extends FileSystemRepository {
                     String pathIntRepository = properties.getProperty(PATH_IN_REPOSITORY);
 
                     if (pathIntRepository != null) {
-                        fileData.addAdditionalData(new FileMappingData(pathIntRepository));
+                        fileData.addAdditionalData(new FileMappingData(name, pathIntRepository));
                     }
 
                     Date modifiedAt;

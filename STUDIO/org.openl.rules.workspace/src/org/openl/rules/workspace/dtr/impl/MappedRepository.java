@@ -334,7 +334,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         }
         try {
             return toExternal(mapping,
-                delegate.save(toInternal(mapping, folderData), toInternal(mapping, files), changesetType));
+                delegate.save(toInternal(mapping, folderData), toInternal(mapping, folderData, files), changesetType));
         } catch (MergeConflictException e) {
             throw new MergeConflictException(toExternalKeys(mapping, e.getDiffs()),
                 e.getBaseCommit(),
@@ -358,7 +358,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         List<FolderItem> folderItemsInternal = new ArrayList<>(folderItems.size());
         for (FolderItem fi : folderItems) {
             folderItemsInternal
-                .add(new FolderItem(toInternal(mapping, fi.getData()), toInternal(mapping, fi.getFiles())));
+                .add(new FolderItem(toInternal(mapping, fi.getData()), toInternal(mapping, null, fi.getFiles())));
         }
         List<FileData> result = delegate.save(folderItemsInternal, changesetType);
 
@@ -495,13 +495,15 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     private Optional<ProjectInfo> findProject(ProjectIndex projectIndex, FileData data) {
-        String name = data.getName().startsWith(baseFolder) ?
-                      data.getName().substring(baseFolder.length()) :
-                      data.getName();
-        return projectIndex.getProjects()
-            .stream()
-            .filter(p -> name.equals(p.getName()))
-            .findFirst();
+        FileMappingData mappingData = data.getAdditionalData(FileMappingData.class);
+        if (mappingData != null) {
+            String internalPath = mappingData.getInternalPath();
+            return projectIndex.getProjects().stream().filter(p -> internalPath.equals(p.getPath())).findFirst();
+        } else {
+            String name = data.getName().startsWith(baseFolder) ? data.getName().substring(baseFolder.length())
+                                                                : data.getName();
+            return projectIndex.getProjects().stream().filter(p -> name.equals(p.getName())).findFirst();
+        }
     }
 
     private void saveProjectIndex(ProjectIndex projectIndex) throws IOException {
@@ -545,7 +547,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         return externalToInternal.copy();
     }
 
-    private Iterable<FileItem> toInternal(final ProjectIndex mapping, final Iterable<FileItem> files) {
+    private Iterable<FileItem> toInternal(final ProjectIndex mapping,
+            FileData folderData,
+            final Iterable<FileItem> files) {
         return () -> new Iterator<FileItem>() {
             private final Iterator<FileItem> delegate = files.iterator();
 
@@ -558,7 +562,17 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             public FileItem next() {
                 FileItem external = delegate.next();
                 FileData data = external.getData();
-                String name = toInternal(mapping, external.getData().getName());
+                String name;
+                if (folderData != null && folderData.getAdditionalData(FileMappingData.class) != null) {
+                    String path = external.getData().getName();
+                    if (path.startsWith(folderData.getName())) {
+                        String folderPath = folderData.getAdditionalData(FileMappingData.class).getExternalPath();
+                        path = folderPath + path.substring(folderData.getName().length());
+                    }
+                    name = toInternal(mapping, path);
+                } else {
+                    name = toInternalPath(mapping, external.getData());
+                }
                 data.setName(name);
                 return new FileItem(data, external.getStream());
             }
@@ -577,7 +591,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         copy.setComment(data.getComment());
         copy.setSize(data.getSize());
         copy.setDeleted(data.isDeleted());
-        copy.setName(toInternal(externalToInternal, data.getName()));
+        copy.setName(toInternalPath(externalToInternal, data));
 
         for (AdditionalData<?> value : data.getAdditionalData().values()) {
             copy.addAdditionalData(value.convertPaths(oldPath -> toInternal(externalToInternal, oldPath)));
@@ -596,6 +610,15 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
         log.debug("Mapping for external folder '{}' is not found. Use it as is.", externalPath);
         return externalPath;
+    }
+
+    private String toInternalPath(ProjectIndex externalToInternal, FileData data) {
+        FileMappingData mappingData = data.getAdditionalData(FileMappingData.class);
+        if (mappingData != null) {
+            return mappingData.getInternalPath();
+        }
+
+        return toInternal(externalToInternal, data.getName());
     }
 
     private List<FileData> toExternal(ProjectIndex externalToInternal, List<FileData> internal) {
@@ -620,8 +643,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             return null;
         }
 
-        data.addAdditionalData(new FileMappingData(data.getName()));
-        data.setName(toExternal(externalToInternal, data.getName()));
+        String name = toExternal(externalToInternal, data.getName());
+        data.addAdditionalData(new FileMappingData(name, data.getName()));
+        data.setName(name);
         return data;
     }
 
@@ -879,10 +903,12 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             List<ProjectInfo> projects = projectIndex.getProjects();
 
             Optional<ProjectInfo> project = findProject(projectIndex, folderData);
+            String externalPath = mappingData.getExternalPath();
+            String projectName = externalPath.startsWith(baseFolder) ? externalPath.substring(baseFolder.length())
+                                                              : externalPath;
             if (project.isPresent()) {
-                project.get().setPath(mappingData.getInternalPath());
+                project.get().setName(projectName);
             } else {
-                String projectName = folderData.getName().substring(baseFolder.length());
                 ProjectInfo info = new ProjectInfo();
                 info.setName(projectName);
                 info.setPath(mappingData.getInternalPath());
@@ -934,12 +960,14 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     private boolean isUpdateConfigNeeded(FileData folderData) {
         FileMappingData mappingData = folderData.getAdditionalData(FileMappingData.class);
         if (mappingData != null) {
-            String external = folderData.getName();
-            String internal = getUpToDateMapping(true).getProjects()
+            String internalPath = mappingData.getInternalPath();
+            String externalPath = baseFolder + getUpToDateMapping(true).getProjects()
                 .stream()
-                .filter(p -> (baseFolder + p.getName()).equals(external))
-                .findFirst().map(ProjectInfo::getPath).orElse(null);
-            return !mappingData.getInternalPath().equals(internal);
+                .filter(p -> p.getPath().equals(internalPath))
+                .findFirst()
+                .map(ProjectInfo::getName)
+                .orElse("");
+            return !externalPath.equals(mappingData.getExternalPath());
         }
         return false;
     }

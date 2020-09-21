@@ -507,7 +507,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             project.refresh();
             if (designTimeRepository.getRepository(repositoryId).supports().mappedFolders()) {
                 FileData fileData = createdProject.getFileData();
-                fileData.addAdditionalData(new FileMappingData(projectFolder + name));
+                fileData.addAdditionalData(new FileMappingData(designPath, projectFolder + name));
             }
             createdProject.getFileData().setComment(comment);
             createdProject.update(project, user);
