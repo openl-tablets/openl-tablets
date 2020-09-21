@@ -421,13 +421,15 @@
                                           rendered="#{empty localUpload.projects4Upload}"/>
                         </h:panelGrid>
 
-                        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
+                        <h:panelGrid id="workPanelRepo" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                                      rendered="#{not empty localUpload.projects4Upload}">
                             <h:outputLabel for="repositoryLocal" value="Repository:" styleClass="required"/>
-                            <h:selectOneMenu id="repositoryLocal" value="#{localUpload.repositoryId}">
-                                <f:ajax event="change" render="workspacePanelFolder workspacePanelComment"
+                            <h:selectOneMenu id="repositoryLocal" value="#{localUpload.repositoryId}"
+                                             hideNoSelectionOption="true">
+                                <f:ajax event="change" render="workspacePanelFolder workspacePanelComment workPanelRepo"
                                         onevent="checkCreateWorkspacePanel()"/>
-                                <f:selectItem itemLabel="" itemValue="#{null}" itemDisabled="true"/>
+                                <f:selectItem itemLabel="-- Select a repository --" itemValue="none"
+                                              itemDisabled="true" noSelectionOption="true"/>
                                 <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
                                                itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
                             </h:selectOneMenu>
@@ -694,7 +696,7 @@
         var checkedCount = 0;
 
         function checkCreateOnTemplatePanel(){
-            if($j("#createProjectFormTempl\\:projectName").val() && $j("#createProjectFormTempl\\:repositoryTemplate").val()){
+            if($j("#createProjectFormTempl\\:projectName").val() && $j("#createProjectFormTempl\\:repositoryTemplate").val()!=="none"){
                 enableCreateButton(true, #{rich:element("sbtTemplates")});
             }else{
                 enableCreateButton(false, #{rich:element("sbtTemplates")});
@@ -702,7 +704,7 @@
         }
 
         function checkCreateOnExcelPanel(){
-            if(excelFileUploaded && $j("#createProjectFormFiles\\:projectName").val() && $j("#createProjectFormFiles\\:repositoryExcel").val()){
+            if(excelFileUploaded && $j("#createProjectFormFiles\\:projectName").val() && $j("#createProjectFormFiles\\:repositoryExcel").val()!=="none"){
                 enableCreateButton(true, #{rich:element("sbtFiles")});
             }else{
                 enableCreateButton(false, #{rich:element("sbtFiles")});
@@ -710,7 +712,7 @@
         }
 
         function checkCreateOnZipPanel(){
-            if(zipFileUploaded && $j("#uploadProjectForm\\:projectName").val() && $j("#uploadProjectForm\\:repositoryZip").val()){
+            if(zipFileUploaded && $j("#uploadProjectForm\\:projectName").val() && $j("#uploadProjectForm\\:repositoryZip").val()!=="none"){
                 enableCreateButton(true, #{rich:element("sbtZips")});
             }else{
                 enableCreateButton(false, #{rich:element("sbtZips")});
@@ -718,7 +720,7 @@
         }
 
         function checkCreateOnOpenApiPanel(){
-            if(openApiFileUploaded && $j("#openAPIProjectForm\\:projectName").val() && $j("#openAPIProjectForm\\:repositoryOpenAPI").val()){
+            if(openApiFileUploaded && $j("#openAPIProjectForm\\:projectName").val() && $j("#openAPIProjectForm\\:repositoryOpenAPI").val()!=="none"){
                 enableCreateButton(true, #{rich:element("submitOpenAPIFile")});
             }else{
                 enableCreateButton(false, #{rich:element("submitOpenAPIFile")});
@@ -726,7 +728,7 @@
         }
 
         function checkCreateWorkspacePanel(){
-            if(checkedCount !== 0 && $j("#repositoryLocal").val()){
+            if(checkedCount !== 0 && $j("#repositoryLocal").val()!=="none"){
                 enableCreateButton(true, #{rich:element("sbtWorkspace")});
             }else{
                 enableCreateButton(false, #{rich:element("sbtWorkspace")});
@@ -734,7 +736,7 @@
         }
 
         function checkImportRepoPanel(){
-            if($j("#importFromRepoForm\\:repositoryImport").val()){
+            if($j("#importFromRepoForm\\:repositoryImport").val()!=="none"){
                 enableCreateButton(true, #{rich:element("importFromRepoForm:sbtRepo")});
             }else{
                 enableCreateButton(false, #{rich:element("importFromRepoForm:sbtRepo")});

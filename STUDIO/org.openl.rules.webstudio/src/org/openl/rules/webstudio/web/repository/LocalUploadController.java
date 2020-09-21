@@ -63,6 +63,8 @@ public class LocalUploadController {
 
     private final PropertyResolver propertyResolver;
 
+    private static final String NONE_REPO = "none";
+
     public LocalUploadController(PropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;
     }
@@ -117,11 +119,11 @@ public class LocalUploadController {
     }
 
     public String getRepositoryId() {
-        return repositoryId;
+        return StringUtils.isBlank(repositoryId) ? NONE_REPO : repositoryId;
     }
 
     public void setRepositoryId(String repositoryId) {
-        this.repositoryId = repositoryId;
+        this.repositoryId = NONE_REPO.equals(repositoryId) ? null : repositoryId;
     }
 
     public String getProjectFolder() {
