@@ -418,6 +418,15 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     @Override
     public void onRepositoryModified() {
+        Collection<RulesProject> projects;
+        List<ADeploymentProject> deployConfigs;
+        try {
+            projects = userWorkspace.getProjects(false);
+            deployConfigs = userWorkspace.getDDProjects();
+        } catch (ProjectException e) {
+            log.error(e.getMessage(), e);
+            return;
+        }
         synchronized (lock) {
             // We must not refresh the table when getting selected node.
             TreeNode selectedNode = selectionHolder.getSelectedNode();
@@ -427,16 +436,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                                                                             : artefact.getProject();
 
                 String name = project.getName();
-                try {
-                    if (project instanceof RulesProject) {
-                        // We cannot use hasProject() and then getProject(name) in multithreaded environment
-                        invalidateSelectionIfDeleted(name, userWorkspace.getProjects(false));
-                    } else if (project instanceof ADeploymentProject) {
-                        // We cannot use hasDDProject() and then getDDProject(name) in multithreaded environment
-                        invalidateSelectionIfDeleted(name, userWorkspace.getDDProjects());
-                    }
-                } catch (ProjectException e) {
-                    log.error(e.getMessage(), e);
+                if (project instanceof RulesProject) {
+                    // We cannot use hasProject() and then getProject(name) in multithreaded environment
+                    invalidateSelectionIfDeleted(name, projects);
+                } else if (project instanceof ADeploymentProject) {
+                    // We cannot use hasDDProject() and then getDDProject(name) in multithreaded environment
+                    invalidateSelectionIfDeleted(name, deployConfigs);
                 }
             }
 
