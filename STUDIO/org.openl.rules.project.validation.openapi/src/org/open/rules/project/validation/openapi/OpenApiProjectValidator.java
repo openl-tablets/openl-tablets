@@ -319,7 +319,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         if (expectedOperation != null || actualOperation != null) {
             if (actualOperation == null) {
                 OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                    String.format(OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected operation '%s' is found for path '%s'.",
+                    String.format(OPEN_API_VALIDATION_MSG_PREFIX + "Expected operation '%s' is not found for path '%s'.",
                         operationType,
                         context.getPath()));
             } else if (expectedOperation == null) {
