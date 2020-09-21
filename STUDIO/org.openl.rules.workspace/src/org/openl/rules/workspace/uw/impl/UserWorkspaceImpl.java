@@ -310,9 +310,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private void scheduleProjectsRefresh() {
         synchronized (userRulesProjects) {
             projectsRefreshNeeded = true;
-            for (UserWorkspaceListener listener : listeners) {
-                listener.workspaceRefreshed();
-            }
+        }
+        for (UserWorkspaceListener listener : listeners) {
+            listener.workspaceRefreshed();
         }
     }
 
