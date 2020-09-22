@@ -80,6 +80,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
+import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -282,21 +283,27 @@ public class WebStudio implements DesignTimeRepositoryListener {
             String logicalName = getLogicalName(project);
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
             boolean renameProject = !logicalName.equals(project.getName());
-            if (renameProject && !project.getDesignRepository().supports().mappedFolders()) {
-                getModel().clearModuleInfo();
+            if (renameProject) {
+                if (!project.getDesignRepository().supports().mappedFolders()) {
+                    getModel().clearModuleInfo();
 
-                // Revert project name in rules.xml
-                IProjectDescriptorSerializer serializer = WebStudioUtils
-                    .getBean(ProjectDescriptorSerializerFactory.class)
-                    .getSerializer(project);
-                AProjectResource artefact = (AProjectResource) project
-                    .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-                content = artefact.getContent();
-                ProjectDescriptor projectDescriptor = serializer.deserialize(content);
-                projectDescriptor.setName(project.getName());
-                artefact.setContent(IOUtils.toInputStream(serializer.serialize(projectDescriptor)));
+                    // Revert project name in rules.xml
+                    IProjectDescriptorSerializer serializer = WebStudioUtils.getBean(ProjectDescriptorSerializerFactory.class)
+                        .getSerializer(project);
+                    AProjectResource artefact = (AProjectResource) project.getArtefact(
+                        ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                    content = artefact.getContent();
+                    ProjectDescriptor projectDescriptor = serializer.deserialize(content);
+                    projectDescriptor.setName(project.getName());
+                    artefact.setContent(IOUtils.toInputStream(serializer.serialize(projectDescriptor)));
 
-                resetProjects();
+                    resetProjects();
+                } else {
+                    FileMappingData mappingData = project.getFileData().getAdditionalData(FileMappingData.class);
+                    if (mappingData != null) {
+                        mappingData.setExternalPath(userWorkspace.getDesignTimeRepository().getRulesLocation() + logicalName);
+                    }
+                }
             }
             ProjectsInHistoryController.deleteHistory(projectName);
             project.save();

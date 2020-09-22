@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -902,28 +901,30 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             TreeSet<String> availableBranches = getAvailableBranches();
 
-            lockSettings();
-            try {
-                BranchesData branches = getBranches(false);
-                Set<String> projectBranches = branches.getDescriptions()
-                    .stream()
-                    .map(BranchDescription::getName)
-                    .collect(Collectors.toCollection(HashSet::new));
-                branches.getProjectBranches().values().forEach(projectBranches::addAll);
+            BranchesData branches = getBranches(true);
+            Set<String> projectBranches = branches.getDescriptions()
+                .stream()
+                .map(BranchDescription::getName)
+                .collect(Collectors.toCollection(HashSet::new));
+            branches.getProjectBranches().values().forEach(projectBranches::addAll);
 
-                AtomicBoolean modified = new AtomicBoolean(false);
-                projectBranches.forEach(projectBranch -> {
-                    if (!availableBranches.contains(projectBranch)) {
-                        modified.set(true);
+            List<String> branchesToRemove = new ArrayList<>();
+            projectBranches.forEach(projectBranch -> {
+                if (!availableBranches.contains(projectBranch)) {
+                    branchesToRemove.add(projectBranch);
+                }
+            });
+
+            if (!branchesToRemove.isEmpty()) {
+                lockSettings();
+                try {
+                    for (String projectBranch : branchesToRemove) {
                         branches.removeBranch(null, projectBranch);
                     }
-                });
-
-                if (modified.get()) {
                     saveBranches();
+                } finally {
+                    unlockSettings();
                 }
-            } finally {
-                unlockSettings();
             }
         } finally {
             writeLock.unlock();
@@ -1941,7 +1942,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     @Override
     public void createBranch(String projectName, String newBranch) throws IOException {
         Lock writeLock = repositoryLock.writeLock();
-        lockSettings();
         try {
             log.debug("createBranch(): lock");
             writeLock.lock();
@@ -1963,11 +1963,16 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 pushBranch(new RefSpec().setSource(newBranch).setDestination(Constants.R_HEADS + newBranch));
             }
 
-            BranchesData branches = getBranches(false);
-            branches.addBranch(projectName, branch, null);
-            branches.addBranch(projectName, newBranch, branchRef.getObjectId().getName());
+            lockSettings();
+            try {
+                BranchesData branches = getBranches(false);
+                branches.addBranch(projectName, branch, null);
+                branches.addBranch(projectName, newBranch, branchRef.getObjectId().getName());
 
-            saveBranches();
+                saveBranches();
+            } finally {
+                unlockSettings();
+            }
         } catch (IOException e) {
             reset();
             try {
@@ -1983,7 +1988,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
             throw new IOException(e.getMessage(), e);
         } finally {
-            unlockSettings();
             writeLock.unlock();
             log.debug("createBranch(): unlock");
         }
@@ -1992,18 +1996,22 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     @Override
     public void deleteBranch(String projectName, String branch) throws IOException {
         Lock writeLock = repositoryLock.writeLock();
-        lockSettings();
         try {
             log.debug("deleteBranch(): lock");
             writeLock.lock();
 
             reset();
 
-            BranchesData branches = getBranches(false);
             if (projectName == null) {
-                // Remove the branch from all mappings.
-                if (branches.removeBranch(null, branch)) {
-                    saveBranches();
+                lockSettings();
+                try {
+                    BranchesData branches = getBranches(false);
+                    // Remove the branch from all mappings.
+                    if (branches.removeBranch(null, branch)) {
+                        saveBranches();
+                    }
+                } finally {
+                    unlockSettings();
                 }
 
                 // Remove the branch from git itself.
@@ -2012,9 +2020,15 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 git.branchDelete().setBranchNames(branch).setForce(true).call();
                 pushBranch(new RefSpec().setSource(null).setDestination(Constants.R_HEADS + branch));
             } else {
-                // Remove branch mapping for specific project only.
-                if (branches.removeBranch(projectName, branch)) {
-                    saveBranches();
+                lockSettings();
+                try {
+                    BranchesData branches = getBranches(false);
+                    // Remove branch mapping for specific project only.
+                    if (branches.removeBranch(projectName, branch)) {
+                        saveBranches();
+                    }
+                } finally {
+                    unlockSettings();
                 }
             }
         } catch (IOException e) {
@@ -2024,7 +2038,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             reset();
             throw new IOException(e.getMessage(), e);
         } finally {
-            unlockSettings();
             writeLock.unlock();
             log.debug("deleteBranch(): unlock");
         }

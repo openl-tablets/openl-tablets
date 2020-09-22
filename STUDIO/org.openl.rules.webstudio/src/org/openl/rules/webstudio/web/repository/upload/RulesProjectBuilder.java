@@ -44,7 +44,7 @@ public class RulesProjectBuilder {
 
             Repository designRepository = workspace.getDesignTimeRepository().getRepository(repositoryId);
             if (designRepository.supports().mappedFolders()) {
-                FileMappingData mappingData = new FileMappingData(internalPath);
+                FileMappingData mappingData = new FileMappingData(designData.getName(), internalPath);
                 designData.addAdditionalData(mappingData);
                 localData.addAdditionalData(mappingData);
             }

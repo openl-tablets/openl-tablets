@@ -108,6 +108,7 @@ public class RulesProject extends UserWorkspaceProject {
         designProject.update(localProject, user);
 
         // Process saved data
+        designFolderName = designProject.getFileData().getName(); // Project can be renamed.
         String version = designProject.getFileData().getVersion();
         setLastHistoryVersion(version);
         setHistoryVersion(version);
