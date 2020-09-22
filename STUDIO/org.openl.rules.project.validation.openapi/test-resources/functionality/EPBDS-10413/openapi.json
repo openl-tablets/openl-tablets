@@ -1,0 +1,105 @@
+{
+	"openapi": "3.0.1",
+	"info": {
+		"title": "claims-dental-openl-rules",
+		"version": "1.0.0"
+	},
+	"servers": [
+		{
+			"url": "/webservice/REST/claims-dental-openl-rules",
+			"variables": {}
+		}
+	],
+	"paths": {
+		"/ProcessClaim": {
+			"post": {
+				"summary": "ProcessClaim ProcessClaim(ClaimInfo)",
+				"description": "Rules method: SpreadsheetResultProcessClaim ProcessClaim(org.openl.generated.beans.ClaimInfo claimInfo)",
+				"operationId": "ProcessClaim",
+				"requestBody": {
+					"content": {
+						"text/plain": {
+							"schema": {
+								"type": "string"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ProcessClaim"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/ProcessProcedure": {
+			"post": {
+				"summary": "ProcessProcedure ProcessProcedure(Procedure, Procedure[], Procedure[], Patient, ClaimInfo)",
+				"description": "Rules method: SpreadsheetResultProcessProcedure ProcessProcedure(org.openl.generated.beans.Procedure currentProcedure, org.openl.generated.beans.Procedure[] submittedProcedures, org.openl.generated.beans.Procedure[] historyProcedures, org.openl.generated.beans.Patient patient, org.openl.generated.beans.ClaimInfo claiminfo)",
+				"operationId": "ProcessProcedure",
+				"requestBody": {
+					"content": {
+						"text/plain": {
+							"schema": {
+								"type": "string"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ProcessProcedure"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"ProcessClaim": {
+				"type": "object",
+				"properties": {
+					"Status": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/ProcessProcedure"
+						}
+					}
+				}
+			},
+			"ProcessProcedure": {
+				"type": "object",
+				"properties": {
+					"CDTcodeValidationResult": {
+						"type": "string"
+					},
+					"CDTCodeToBeProcessed": {
+						"type": "string"
+					},
+					"UseEPOCoinsuranceValue": {
+						"type": "boolean"
+					},
+					"EPOCoinsuranceTypeGet": {
+						"type": "string"
+					},
+					"EPOCoinsuranceValue": {
+						"type": "number",
+						"format": "double"
+					}
+				}
+			}
+		}
+	}
+}

@@ -926,6 +926,27 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 Map<String, Schema> propertiesOfExpectedSchema = null;
                 Map<String, Schema> propertiesOfActualSchema = null;
                 boolean parentPresentedInBothSchemas = false;
+                Schema<?> s = resolvedActualSchema;
+                Schema<?> p = resolvedExpectedSchema;
+                IOpenClass t = openClass;
+                int d = 0;
+                int k = 0;
+                while (t.isArray() && s instanceof ArraySchema) {
+                    s = ((ArraySchema) s).getItems();
+                    s = context.getActualOpenAPIResolver().resolve(s, Schema::get$ref);
+                    t = t.getComponentClass();
+                    d++;
+                    if (p instanceof ArraySchema) {
+                        p = ((ArraySchema) p).getItems();
+                        p = context.getActualOpenAPIResolver().resolve(p, Schema::get$ref);
+                        k++;
+                    }
+                }
+
+                if (d != k || p instanceof ArraySchema) {
+                    throw new DifferentTypesException();
+                }
+
                 if (resolvedExpectedSchema instanceof ComposedSchema && resolvedActualSchema instanceof ComposedSchema) {
                     ComposedSchema actualComposedSchema = (ComposedSchema) resolvedActualSchema;
                     ComposedSchema expectedComposedSchema = (ComposedSchema) resolvedExpectedSchema;
@@ -939,7 +960,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                                     superClass,
                                     validatedSchemas);
                             } catch (DifferentTypesException e) {
-                                OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                OpenApiProjectValidatorMessagesUtils.addTypeError(context,
                                     String.format(
                                         OPEN_API_VALIDATION_MSG_PREFIX + "Parent '%s' of type '%s' mismatches to declared schema '%s'.",
                                         superClass.getDisplayName(INamedThing.REGULAR),
@@ -986,7 +1007,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                                 if (isSimpleJavaType(resolveSimplifiedName(fieldActualSchema))) {
                                     final String actualType = fieldActualSchema.getType();
                                     final String actualFormat = fieldActualSchema.getFormat();
-                                    wrongFields.add(() -> OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                    wrongFields.add(() -> OpenApiProjectValidatorMessagesUtils.addTypeError(context,
                                         String.format(
                                             OPEN_API_VALIDATION_MSG_PREFIX + "Type of field '%s' in type '%s' must be compatible with OpenAPI type '%s%s'. Found OpenAPI type: '%s%s'.",
                                             openField.getName(),
@@ -996,7 +1017,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                                             actualType,
                                             actualFormat != null ? "(" + actualFormat + ")" : "")));
                                 } else {
-                                    wrongFields.add(() -> OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                    wrongFields.add(() -> OpenApiProjectValidatorMessagesUtils.addTypeError(context,
                                         String.format(
                                             OPEN_API_VALIDATION_MSG_PREFIX + "Type of field '%s' in type '%s' must be compatible with OpenAPI type '%s%s'.",
                                             openField.getName(),
@@ -1047,7 +1068,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                                     if (isSimpleJavaType(resolvedSchemaTypeName)) {
                                         String type = resolveType(entry.getValue());
                                         String format = entry.getValue().getFormat();
-                                        OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                        OpenApiProjectValidatorMessagesUtils.addTypeError(context,
                                             String.format(
                                                 OPEN_API_VALIDATION_MSG_PREFIX + "Type '%s' of field '%s' in type '%s' must be compatible with OpenAPI type '%s%s'.",
                                                 openField.getType().getDisplayName(INamedThing.REGULAR),
@@ -1056,7 +1077,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                                                 type,
                                                 format != null ? "(" + format + ")" : ""));
                                     } else {
-                                        OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                        OpenApiProjectValidatorMessagesUtils.addTypeError(context,
                                             String.format(
                                                 OPEN_API_VALIDATION_MSG_PREFIX + "Type '%s' of field '%s' in type '%s'%s",
                                                 openField.getType().getDisplayName(INamedThing.REGULAR),
