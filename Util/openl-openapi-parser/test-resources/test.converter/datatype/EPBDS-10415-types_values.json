@@ -5,14 +5,43 @@
     "version": "v1"
   },
   "paths": {
-    "/api/Todo": {
+    "/apiTodo": {
       "post": {
         "summary": "TodoSmth",
         "description": "test",
         "operationId": "TodoSmth",
         "requestBody": {
           "content": {
-            "application/json": {
+            "text/plain": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnotherDatatype"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/apiBla": {
+      "post": {
+        "summary": "TodoSmth",
+        "description": "test",
+        "operationId": "TodoSmthBla",
+        "requestBody": {
+          "content": {
+            "text/plain": {
               "schema": {
                 "type": "integer",
                 "format": "int32"
@@ -34,48 +63,10 @@
           }
         }
       }
-    },
-    "/api/Bla": {
-      "post": {
-        "summary": "TodoSmth",
-        "description": "test",
-        "operationId": "TodoSmthBla",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "integer",
-                "format": "int32"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AnotherDatatype"
-                }
-              }
-            },
-            "description": ""
-          }
-        }
-      }
     }
   },
   "components": {
     "schemas": {
-      "XItem": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
       "ToDoItem": {
         "type": "object",
         "properties": {
@@ -95,6 +86,27 @@
           }
         },
         "additionalProperties": false
+      },
+      "Dynamo": {
+        "type": "object",
+        "properties": {
+          "A": {
+            "type": "number",
+            "default": 0
+          },
+          "B": {
+            "type": "integer",
+            "default": 0
+          },
+          "C": {
+            "type": "integer",
+            "default": 2432902008176640000
+          },
+          "D": {
+            "type": "number",
+            "default": 2975671681509007947508815
+          }
+        }
       },
       "DriverRisk": {
         "type": "object",
@@ -118,61 +130,59 @@
         "type": "object",
         "properties": {
           "numAccidents": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": 0
+          },
+          "numAccidentsString": {
+            "type": "string",
+            "default": "aaaa"
+          },
+          "numAccidentsStringByte": {
+            "type": "string",
+            "format": "byte",
+            "default": 777
+          },
+          "numAccidentsStringBinary": {
+            "type": "string",
+            "format": "binary",
+            "default": 101
           },
           "numAccidentsOne": {
             "type": "string",
-            "format": "date"
+            "format": "date",
+            "default": "2017-07-21"
           },
           "numAccidentsTwo": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "default": "2017-07-21T17:32:28Z"
           },
-          "numAccidentsThree": {
-            "type": "number",
-            "format": "float"
+          "numAccidentsnumber": {
+            "type": "boolean",
+            "default": false
           },
-          "numAccidentsFour": {
-            "type": "integer"
-          },
-          "numAccidentsFive": {
-            "type": "object"
-          },
-          "numAccidentsSix": {
-            "$ref": "#/components/schemas/XItem"
-          },
-          "numAccidentsSeven": {
-            "type": "number",
-            "format": "double"
-          },
-          "numAccidentsEight": {
+          "CDTcodeValidationResult": {
             "type": "integer",
-            "format": "int64"
+            "default": 0
           },
-          "numAccidentsNine": {
-            "type": "array",
-            "items": {
-              "type": "boolean"
-            }
+          "numAccidentsnumberDouble": {
+            "type": "number",
+            "format": "double",
+            "default": 0
           },
-          "numAccidentsTen": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "array",
-                "items": {
-                  "type": "array",
-                  "items": {
-                    "type": "array",
-                    "items": {
-                      "type": "integer",
-                      "format": "int32"
-                    }
-                  }
-                }
-              }
-            }
+          "numAccidentsnumberinteger32": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          },
+          "numAccidentsnumberinteger64": {
+            "type": "integer",
+            "format": "int64",
+            "default": 0
+          },
+          "CDTCodeToBeProcessed": {
+            "type": "number",
+            "default": 0
           }
         }
       }

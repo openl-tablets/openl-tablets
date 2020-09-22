@@ -72,7 +72,7 @@ public class OpenAPIConverterTest {
         List<InputParameter> parameters = sprResult.getParameters();
         assertEquals(1, parameters.size());
         InputParameter param = parameters.iterator().next();
-        assertEquals("Integer", param.getType());
+        assertEquals("BigInteger", param.getType());
     }
 
     @Test

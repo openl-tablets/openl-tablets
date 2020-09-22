@@ -141,11 +141,17 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
             case "Long":
                 valueCell.setCellValue(Long.parseLong(valueAsString));
                 break;
+            case "BigInteger":
+                valueCell.setCellValue(0);
+                break;
             case "Double":
                 valueCell.setCellValue(Double.parseDouble(valueAsString));
                 break;
             case "Float":
                 valueCell.setCellValue(new BigDecimal(valueAsString).doubleValue());
+                break;
+            case "BigDecimal":
+                valueCell.setCellValue(valueAsString);
                 break;
             case "String":
                 if (StringUtils.isBlank(valueAsString)) {

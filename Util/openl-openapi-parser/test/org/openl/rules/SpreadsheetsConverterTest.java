@@ -197,8 +197,8 @@ public class SpreadsheetsConverterTest {
             .findFirst();
         assertTrue(numAccidentsInt.isPresent());
         StepModel integerStep = numAccidentsInt.get();
-        assertEquals("Integer", integerStep.getType());
-        assertEquals("=0", integerStep.getValue());
+        assertEquals("BigInteger", integerStep.getType());
+        assertEquals("=java.math.BigInteger.ZERO", integerStep.getValue());
 
         Optional<StepModel> numAccidentsObject = steps.stream()
             .filter(x -> x.getName().equals("numAccidentsFive"))

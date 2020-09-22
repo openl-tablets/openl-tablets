@@ -10,6 +10,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -52,10 +54,22 @@ public class DatatypeTableExporterTest {
 
         FieldModel booleanField = new FieldModel("isOk", "Boolean", true);
 
+        FieldModel bigDecimalField = new FieldModel("bigNum",
+            "BigDecimal",
+            new BigDecimal("2975671681509007947508815"));
+
+        FieldModel bigIntegerField = new FieldModel("bigInt", "BigInteger", BigInteger.TEN);
         FieldModel customTypeField = new FieldModel("driver", "Human");
 
-        dt.setFields(Arrays
-            .asList(stringField, doubleField, dateField, booleanField, customTypeField, dateTimeField, floatField));
+        dt.setFields(Arrays.asList(stringField,
+            doubleField,
+            dateField,
+            booleanField,
+            customTypeField,
+            dateTimeField,
+            floatField,
+            bigDecimalField,
+            bigIntegerField));
 
         DatatypeModel oneMoreModel = new DatatypeModel("NextModel");
         FieldModel nextModelField = new FieldModel("color", STRING_TYPE, "red");
@@ -186,12 +200,42 @@ public class DatatypeTableExporterTest {
             assertEquals("weight", floatNameCellValue);
             assertEquals(1.3124124, floatDefaultCell, 1e-8);
 
-            XSSFRow nextModelHeaderRow = dtsSheet.getRow(TOP_MARGIN + 10);
+            XSSFRow bigDecimalRow = dtsSheet.getRow(TOP_MARGIN + 8);
+            assertNotNull(bigDecimalRow);
+            XSSFCell bigDecimalTypeCell = bigDecimalRow.getCell(DT_TYPE_CELL);
+            assertNotNull(bigDecimalTypeCell);
+            String bigDecimalTypeCellValue = bigDecimalTypeCell.getStringCellValue();
+            XSSFCell bigDecimalNameCell = bigDecimalRow.getCell(DT_NAME_CELL);
+            assertNotNull(bigDecimalNameCell);
+            String bigDecimalNameCellValue = bigDecimalNameCell.getStringCellValue();
+            XSSFCell bdDefaultValueCell = bigDecimalRow.getCell(DT_DEFAULT_VALUE_CELL);
+            assertNotNull(bdDefaultValueCell);
+            String bdDefValue = bdDefaultValueCell.getStringCellValue();
+            assertEquals("BigDecimal", bigDecimalTypeCellValue);
+            assertEquals("bigNum", bigDecimalNameCellValue);
+            assertEquals("2975671681509007947508815", bdDefValue);
+
+            XSSFRow bigIntegerRow = dtsSheet.getRow(TOP_MARGIN + 9);
+            assertNotNull(bigIntegerRow);
+            XSSFCell bigIntegerTypeCell = bigIntegerRow.getCell(DT_TYPE_CELL);
+            assertNotNull(bigIntegerTypeCell);
+            String bigIntegerTypeCellValue = bigIntegerTypeCell.getStringCellValue();
+            XSSFCell bigIntegerNameCell = bigIntegerRow.getCell(DT_NAME_CELL);
+            assertNotNull(bigIntegerNameCell);
+            String bigIntegerNameCellValue = bigIntegerNameCell.getStringCellValue();
+            XSSFCell biDefaultValueCell = bigIntegerRow.getCell(DT_DEFAULT_VALUE_CELL);
+            assertNotNull(biDefaultValueCell);
+            double biDefValue = biDefaultValueCell.getNumericCellValue();
+            assertEquals("BigInteger", bigIntegerTypeCellValue);
+            assertEquals("bigInt", bigIntegerNameCellValue);
+            assertEquals(0, biDefValue, 1e-8);
+
+            XSSFRow nextModelHeaderRow = dtsSheet.getRow(TOP_MARGIN + 12);
             assertNotNull(nextModelHeaderRow);
             XSSFCell nextModelHeaderCell = nextModelHeaderRow.getCell(1);
             assertNotNull(nextModelHeaderCell);
             assertEquals("Datatype NextModel extends Test", nextModelHeaderCell.getStringCellValue());
-            XSSFRow nextModelRow = dtsSheet.getRow(TOP_MARGIN + 11);
+            XSSFRow nextModelRow = dtsSheet.getRow(TOP_MARGIN + 13);
             XSSFCell nextModelDtCell = nextModelRow.getCell(DT_TYPE_CELL);
             assertNotNull(nextModelDtCell);
             XSSFCell nextModelNameCell = nextModelRow.getCell(DT_NAME_CELL);

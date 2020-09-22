@@ -6,6 +6,7 @@ import static org.openl.rules.openapi.impl.OpenAPITypeUtils.getSimpleName;
 import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.getSchemas;
 import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.normalizeName;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,6 +33,8 @@ import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.media.ComposedSchema;
+import io.swagger.v3.oas.models.media.IntegerSchema;
+import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
@@ -284,7 +287,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Schema<?> responseSchema = OpenLOpenAPIUtils.getUsedSchemaInResponse(jxPathContext, pathItem);
         String usedSchemaInResponse = OpenAPITypeUtils.extractType(responseSchema);
         boolean isArray = usedSchemaInResponse.endsWith("[]");
-        Schema<?> schema;
         List<InputParameter> parameters = OpenLOpenAPIUtils
             .extractParameters(jxPathContext, openAPI, refsToExpand, pathItem, dts, path);
         String normalizedPath = replaceBrackets(path);
@@ -417,7 +419,15 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Schema<?> valueSchema = property.getValue();
 
         String typeModel = OpenAPITypeUtils.extractType(valueSchema);
-        Object defaultValue = valueSchema.getDefault();
+        Object defaultValue;
+        if ((valueSchema instanceof IntegerSchema) && valueSchema.getFormat() == null) {
+            defaultValue = BigInteger.ZERO;
+        } else if (valueSchema instanceof NumberSchema && valueSchema.getFormat() == null && valueSchema
+            .getDefault() != null) {
+            defaultValue = valueSchema.getDefault().toString();
+        } else {
+            defaultValue = valueSchema.getDefault();
+        }
 
         return new FieldModel(propertyName, typeModel, defaultValue);
     }
