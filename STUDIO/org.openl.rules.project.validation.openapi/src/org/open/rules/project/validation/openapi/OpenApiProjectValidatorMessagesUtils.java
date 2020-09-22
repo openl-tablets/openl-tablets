@@ -8,6 +8,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.project.validation.base.ValidatedCompiledOpenClass;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenMethod;
@@ -54,18 +55,26 @@ final class OpenApiProjectValidatorMessagesUtils {
     }
 
     public static void addMethodError(Context context, IOpenMethod method, String summary) {
-        TableSyntaxNode tableSyntaxNode = extractTableSyntaxNode(method);
-        if (tableSyntaxNode != null) {
-            SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary, tableSyntaxNode);
-            if (isNotExistingError(tableSyntaxNode, summary)) {
-                tableSyntaxNode.addError(syntaxNodeException);
-            }
-            if (isNotExistingError(context.getValidatedCompiledOpenClass(), summary)) {
-                OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
-                context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
+        if (method instanceof OpenMethodDispatcher) {
+            OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) method;
+            for (IOpenMethod m : openMethodDispatcher.getCandidates()) {
+                addMethodError(context, m, summary);
             }
         } else {
-            addError(context, summary);
+            TableSyntaxNode tableSyntaxNode = extractTableSyntaxNode(method);
+            if (tableSyntaxNode != null) {
+                SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary,
+                    tableSyntaxNode);
+                if (isNotExistingError(tableSyntaxNode, summary)) {
+                    tableSyntaxNode.addError(syntaxNodeException);
+                }
+                if (isNotExistingError(context.getValidatedCompiledOpenClass(), summary)) {
+                    OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
+                    context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
+                }
+            } else {
+                addError(context, summary);
+            }
         }
     }
 
