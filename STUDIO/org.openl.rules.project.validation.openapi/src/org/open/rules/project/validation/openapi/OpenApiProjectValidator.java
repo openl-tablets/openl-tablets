@@ -284,19 +284,6 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 }
             }
         }
-
-        /*
-         * if (context.getExpectedOpenAPI().getComponents() != null && context.getActualOpenAPI() .getComponents() !=
-         * null) { Components expectedComponents = context.getExpectedOpenAPI().getComponents(); Components
-         * actualComponents = context.getActualOpenAPI().getComponents(); if (expectedComponents.getSchemas() != null &&
-         * actualComponents.getSchemas() != null) { for (Map.Entry<String, Schema> entry :
-         * expectedComponents.getSchemas().entrySet()) { Schema actualSchema =
-         * actualComponents.getSchemas().get(entry.getKey()); Schema expectedSchema = entry.getValue(); IOpenClass type
-         * = context.getOpenClass().findType(entry.getKey()); if (actualSchema != null && expectedSchema != null && type
-         * != null) { try { context.setTypeValidationInProgress(true); try { validateType(context, actualSchema,
-         * expectedSchema, type, new HashSet<>()); } catch (DifferentTypesException ignore) { } } finally {
-         * context.setTypeValidationInProgress(false); } } } } }
-         */
     }
 
     private void getAndValidateOperation(Context context,
@@ -1030,9 +1017,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 for (Map.Entry<String, Schema> entry : propertiesOfActualSchema.entrySet()) {
                     Schema<?> fieldExpectedSchema = propertiesOfExpectedSchema.get(entry.getKey());
                     if (fieldExpectedSchema == null) {
-                        if (openClass.getField(entry.getKey()) != null) {
-                            IOpenField openField = context.getOpenClassPropertiesResolver()
+                        IOpenField openField = context.getOpenClassPropertiesResolver()
                                 .getField(openClass, entry.getKey());
+                        if (openField != null) {
                             OpenApiProjectValidatorMessagesUtils.addTypeError(context,
                                 String.format(
                                     OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected field '%s' is found in type '%s'.",
