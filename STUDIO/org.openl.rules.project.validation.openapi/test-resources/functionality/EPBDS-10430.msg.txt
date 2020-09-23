@@ -1,0 +1,6 @@
+WARN: Spreadsheet has empty body. Spreadsheet table should has at least 2x3 cells.
+WARN: Spreadsheet has empty body. Spreadsheet table should has at least 2x3 cells.
+ERROR: OpenAPI validation: Return type of method 'pets' must be compatible with OpenAPI type 'Pet'.
+ERROR: OpenAPI validation: Expected operation 'GET' is not found for path '/petsA'.
+ERROR: OpenAPI validation: Unexpected operation 'POST' is found for path '/petsA'.
+ERROR: OpenAPI validation: Expected operation 'DELETE' is not found for path '/petsA'.

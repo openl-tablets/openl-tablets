@@ -438,13 +438,13 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         context.getOperationType(),
                         context.getPath()));
             } else {
-                ApiResponse expectedApiResponse = expectedOperation.getResponses().getDefault();
+                ApiResponse expectedApiResponse = expectedOperation.getResponses().get("200");
                 if (expectedApiResponse == null) {
-                    expectedApiResponse = expectedOperation.getResponses().get("200");
+                    expectedApiResponse = expectedOperation.getResponses().getDefault();
                 }
-                ApiResponse actualApiResponse = actualOperation.getResponses().getDefault();
+                ApiResponse actualApiResponse = actualOperation.getResponses().get("200");
                 if (actualApiResponse == null) {
-                    actualApiResponse = actualOperation.getResponses().get("200");
+                    actualApiResponse = actualOperation.getResponses().getDefault();
                 }
                 expectedApiResponse = context.getExpectedOpenAPIResolver()
                     .resolve(expectedApiResponse, ApiResponse::get$ref);
