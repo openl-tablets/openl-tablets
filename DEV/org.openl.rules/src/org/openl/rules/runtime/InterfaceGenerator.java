@@ -242,24 +242,29 @@ public class InterfaceGenerator {
         return member instanceof JavaOpenConstructor || member instanceof ThisField || member instanceof GetOpenClass || member instanceof TestSuiteMethod;
     }
 
-    private static boolean isInvalidType(IOpenClass openClass, Map<IOpenClass, Boolean> validationMap) {
-        Boolean v = validationMap.get(openClass);
+    private static boolean isInvalidType(IOpenClass openClass, Map<IOpenClass, Boolean> invalidTypeMap) {
+        Boolean v = invalidTypeMap.get(openClass);
         if (v != null) {
             return v;
         }
+        if (openClass.isArray()) {
+            boolean isInvalidComponentType = isInvalidType(openClass.getComponentClass(), invalidTypeMap);
+            invalidTypeMap.put(openClass, isInvalidComponentType);
+            return isInvalidComponentType;
+        }
         if (openClass instanceof DatatypeOpenClass) {
             if (openClass.getInstanceClass() == null) {
-                validationMap.put(openClass, Boolean.TRUE);
+                invalidTypeMap.put(openClass, Boolean.TRUE);
                 return true;
             }
             for (IOpenField openField : openClass.getFields()) {
-                if (isInvalidType(openField.getType(), validationMap)) {
-                    validationMap.put(openClass, Boolean.TRUE);
+                if (isInvalidType(openField.getType(), invalidTypeMap)) {
+                    invalidTypeMap.put(openClass, Boolean.TRUE);
                     return true;
                 }
             }
         }
-        validationMap.put(openClass, Boolean.FALSE);
+        invalidTypeMap.put(openClass, Boolean.FALSE);
         return false;
     }
 

@@ -52,7 +52,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.jaxrs2.Reader;
-import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -286,26 +285,18 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             }
         }
 
-        if (context.getExpectedOpenAPI().getComponents() != null && context.getActualOpenAPI()
-            .getComponents() != null) {
-            Components expectedComponents = context.getExpectedOpenAPI().getComponents();
-            Components actualComponents = context.getActualOpenAPI().getComponents();
-            if (expectedComponents.getSchemas() != null && actualComponents.getSchemas() != null) {
-                for (Map.Entry<String, Schema> entry : expectedComponents.getSchemas().entrySet()) {
-                    Schema actualSchema = actualComponents.getSchemas().get(entry.getKey());
-                    Schema expectedSchema = entry.getValue();
-                    IOpenClass type = context.getOpenClass().findType(entry.getKey());
-                    if (actualSchema != null && expectedSchema != null && type != null) {
-                        try {
-                            context.setTypeValidationInProgress(true);
-                            // validateType(context, actualSchema, expectedSchema, type, new HashSet<>());
-                        } finally {
-                            context.setTypeValidationInProgress(false);
-                        }
-                    }
-                }
-            }
-        }
+        /*
+         * if (context.getExpectedOpenAPI().getComponents() != null && context.getActualOpenAPI() .getComponents() !=
+         * null) { Components expectedComponents = context.getExpectedOpenAPI().getComponents(); Components
+         * actualComponents = context.getActualOpenAPI().getComponents(); if (expectedComponents.getSchemas() != null &&
+         * actualComponents.getSchemas() != null) { for (Map.Entry<String, Schema> entry :
+         * expectedComponents.getSchemas().entrySet()) { Schema actualSchema =
+         * actualComponents.getSchemas().get(entry.getKey()); Schema expectedSchema = entry.getValue(); IOpenClass type
+         * = context.getOpenClass().findType(entry.getKey()); if (actualSchema != null && expectedSchema != null && type
+         * != null) { try { context.setTypeValidationInProgress(true); try { validateType(context, actualSchema,
+         * expectedSchema, type, new HashSet<>()); } catch (DifferentTypesException ignore) { } } finally {
+         * context.setTypeValidationInProgress(false); } } } } }
+         */
     }
 
     private void getAndValidateOperation(Context context,
