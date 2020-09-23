@@ -31,9 +31,9 @@ public class BranchesData {
         this.descriptions = descriptions == null ? new ArrayList<>() : descriptions;
     }
 
-    public void addBranch(String projectName, String branch, String commit) {
+    public void addBranch(String projectPath, String branch, String commit) {
         Map<String, List<String>> branches = getProjectBranches();
-        List<String> projectBranches = branches.computeIfAbsent(projectName, k -> new ArrayList<>());
+        List<String> projectBranches = branches.computeIfAbsent(projectPath, k -> new ArrayList<>());
 
         if (!projectBranches.contains(branch)) {
             projectBranches.add(branch);
@@ -44,9 +44,9 @@ public class BranchesData {
         }
     }
 
-    public boolean removeBranch(String projectName, String branch) {
+    public boolean removeBranch(String projectPath, String branch) {
         Map<String, List<String>> branches = getProjectBranches();
-        if (projectName == null) {
+        if (projectPath == null) {
             // Remove the branch from all mappings.
             boolean removed = false;
             for (List<String> projectBranchesList : branches.values()) {
@@ -58,7 +58,7 @@ public class BranchesData {
             return removed;
         } else {
             // Remove branch mapping for specific project only.
-            List<String> projectBranchesList = branches.get(projectName);
+            List<String> projectBranchesList = branches.get(projectPath);
             if (projectBranchesList != null) {
                 return projectBranchesList.remove(branch);
             } else {

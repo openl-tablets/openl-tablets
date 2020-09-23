@@ -45,7 +45,7 @@ import org.openl.util.IOUtils;
 
 public class GitRepositoryTest {
     private static final String BRANCH = "test";
-    private static final String FOLDER_IN_REPOSITORY = "rules/project1/";
+    private static final String FOLDER_IN_REPOSITORY = "rules/project1";
     private static final String TAG_PREFIX = "Rules_";
 
     private static File template;
@@ -963,9 +963,9 @@ public class GitRepositoryTest {
 
     @Test
     public void testBranches() throws IOException, RRepositoryException {
-        repo.createBranch("project1", "project1/test1");
-        repo.createBranch("project1", "project1/test2");
-        List<String> branches = repo.getBranches("project1");
+        repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test1");
+        repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test2");
+        List<String> branches = repo.getBranches(FOLDER_IN_REPOSITORY);
         assertTrue(branches.contains("test"));
         assertTrue(branches.contains("project1/test1"));
         assertTrue(branches.contains("project1/test2"));
@@ -979,8 +979,8 @@ public class GitRepositoryTest {
         assertEquals("project1/test1", repoTest1.getBranch());
         assertEquals("project1/test2", repoTest2.getBranch());
 
-        repoTest1.deleteBranch("project1", "project1/test1");
-        branches = repo.getBranches("project1");
+        repoTest1.deleteBranch(FOLDER_IN_REPOSITORY, "project1/test1");
+        branches = repo.getBranches(FOLDER_IN_REPOSITORY);
         assertTrue(branches.contains("test"));
         assertFalse(branches.contains("project1/test1"));
         assertTrue(branches.contains("project1/test2"));
@@ -1087,7 +1087,7 @@ public class GitRepositoryTest {
     @Test
     public void testPullDoesntAutoMerge() throws IOException {
         final String newBranch = "new-branch";
-        repo.createBranch("project1", newBranch);
+        repo.createBranch(FOLDER_IN_REPOSITORY, newBranch);
         GitRepository newBranchRepo = repo.forBranch(newBranch);
 
         // Add a new commit in the new branch.
@@ -1114,11 +1114,11 @@ public class GitRepositoryTest {
     @Test
     public void testOnlySpecifiedBranchesAreMerged() throws IOException {
         final String branch1 = "branch1";
-        repo.createBranch("project1", branch1);
+        repo.createBranch(FOLDER_IN_REPOSITORY, branch1);
         GitRepository branch1Repo = repo.forBranch(branch1);
 
         final String branch2 = "branch2";
-        repo.createBranch("project1", branch2);
+        repo.createBranch(FOLDER_IN_REPOSITORY, branch2);
         GitRepository branch2Repo = repo.forBranch(branch2);
 
         // Add commits in the new branches.

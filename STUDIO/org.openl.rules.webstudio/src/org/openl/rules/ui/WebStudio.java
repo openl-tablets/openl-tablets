@@ -1304,7 +1304,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 return Collections.emptyList();
             }
             RulesProject project = getCurrentProject();
-            return ((BranchRepository) getCurrentProject().getDesignRepository()).getBranches(project.getName());
+            return ((BranchRepository) getCurrentProject().getDesignRepository()).getBranches(project.getDesignFolderName());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return Collections.emptyList();
@@ -1322,7 +1322,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             if (project.isModified()) {
                 return false;
             }
-            List<String> branches = ((BranchRepository) project.getDesignRepository()).getBranches(project.getName());
+            List<String> branches = ((BranchRepository) project.getDesignRepository()).getBranches(project.getDesignFolderName());
             if (branches.size() < 2) {
                 return false;
             }

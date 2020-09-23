@@ -2162,13 +2162,13 @@ public class RepositoryTreeController {
     public List<String> getProjectBranches() {
         try {
             UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
-            if (selectedProject == null) {
+            if (!(selectedProject instanceof RulesProject)) {
                 return Collections.emptyList();
             }
 
             List<String> branches = new ArrayList<>(
                 ((BranchRepository) userWorkspace.getDesignTimeRepository().getRepository(selectedProject.getRepository().getId()))
-                    .getBranches(selectedProject.getName()));
+                    .getBranches(((RulesProject) selectedProject).getDesignFolderName()));
             String projectBranch = getProjectBranch();
             if (projectBranch != null && !branches.contains(projectBranch)) {
                 branches.add(projectBranch);

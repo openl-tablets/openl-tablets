@@ -394,18 +394,25 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     @Override
-    public void createBranch(String projectName, String branch) throws IOException {
-        ((BranchRepository) delegate).createBranch(projectName, branch);
+    public void createBranch(String projectPath, String branch) throws IOException {
+        ProjectIndex mapping = getUpToDateMapping(true);
+        ((BranchRepository) delegate).createBranch(toInternal(mapping, projectPath), branch);
     }
 
     @Override
-    public void deleteBranch(String projectName, String branch) throws IOException {
-        ((BranchRepository) delegate).deleteBranch(projectName, branch);
+    public void deleteBranch(String projectPath, String branch) throws IOException {
+        ProjectIndex mapping = getUpToDateMapping(true);
+        ((BranchRepository) delegate).deleteBranch(toInternal(mapping, projectPath), branch);
     }
 
     @Override
-    public List<String> getBranches(String projectName) throws IOException {
-        return ((BranchRepository) delegate).getBranches(projectName);
+    public List<String> getBranches(String projectPath) throws IOException {
+        String internalPath = null;
+        if (projectPath != null) {
+            ProjectIndex mapping = getUpToDateMapping(true);
+            internalPath = toInternal(mapping, projectPath);
+        }
+        return ((BranchRepository) delegate).getBranches(internalPath);
     }
 
     @Override

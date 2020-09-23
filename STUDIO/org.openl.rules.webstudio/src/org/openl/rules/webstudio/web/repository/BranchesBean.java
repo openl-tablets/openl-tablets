@@ -80,7 +80,7 @@ public class BranchesBean {
             Repository repository = project.getDesignRepository();
             if (repository.supports().branches()) {
                 try {
-                    List<String> projectBranches = ((BranchRepository) repository).getBranches(currentProjectName);
+                    List<String> projectBranches = ((BranchRepository) repository).getBranches(project.getDesignFolderName());
 
                     List<SelectItem> projectBranchesList = new ArrayList<>();
                     for (String projectBranch : projectBranches) {
@@ -207,13 +207,13 @@ public class BranchesBean {
                 List<String> existingBranches = getBranches(project);
                 for (String branch : branches) {
                     if (!existingBranches.contains(branch)) {
-                        repository.createBranch(currentProjectName, branch);
+                        repository.createBranch(project.getDesignFolderName(), branch);
                     }
                 }
 
                 for (String branch : existingBranches) {
                     if (!branches.contains(branch)) {
-                        repository.deleteBranch(currentProjectName, branch);
+                        repository.deleteBranch(project.getDesignFolderName(), branch);
                     }
                 }
             }
@@ -239,7 +239,7 @@ public class BranchesBean {
                 }
                 branches = getBranches(project);
                 currentBranch = project.getBranch();
-                initBranchToMerge(currentProjectName, (BranchRepository) repository);
+                initBranchToMerge(project, (BranchRepository) repository);
             } else {
                 currentBranch = null;
             }
@@ -252,10 +252,10 @@ public class BranchesBean {
         this.editorMode = editorMode;
     }
 
-    private void initBranchToMerge(String currentProjectName, BranchRepository repository) throws IOException,
+    private void initBranchToMerge(RulesProject project, BranchRepository repository) throws IOException,
                                                                                            WorkspaceException {
         // Try to find a parent branch based on project's branch names.
-        List<String> projectBranches = repository.getBranches(currentProjectName);
+        List<String> projectBranches = repository.getBranches(project.getDesignFolderName());
         Collections.sort(projectBranches);
         boolean found = false;
         for (int i = projectBranches.size() - 1; i >= 0; i--) {
@@ -325,11 +325,10 @@ public class BranchesBean {
     }
 
     private static List<String> getBranches(RulesProject project) {
-        String projectName = project.getName();
         Repository repository = project.getDesignRepository();
         if (repository.supports().branches()) {
             try {
-                return new ArrayList<>(((BranchRepository) repository).getBranches(projectName));
+                return new ArrayList<>(((BranchRepository) repository).getBranches(project.getDesignFolderName()));
             } catch (IOException e) {
                 LOG.error(e.getMessage(), e);
             }

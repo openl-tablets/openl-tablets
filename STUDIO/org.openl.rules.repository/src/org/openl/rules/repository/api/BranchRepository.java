@@ -8,11 +8,11 @@ public interface BranchRepository extends Repository {
 
     String getBranch();
 
-    void createBranch(String projectName, String branch) throws IOException;
+    void createBranch(String projectPath, String branch) throws IOException;
 
-    void deleteBranch(String projectName, String branch) throws IOException;
+    void deleteBranch(String projectPath, String branch) throws IOException;
 
-    List<String> getBranches(String projectName) throws IOException;
+    List<String> getBranches(String projectPath) throws IOException;
 
     BranchRepository forBranch(String branch) throws IOException;
 

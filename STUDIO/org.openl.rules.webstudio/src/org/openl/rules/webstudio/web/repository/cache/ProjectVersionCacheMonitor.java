@@ -57,7 +57,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
         Repository repository = designRepository.getRepository(project.getRepository().getId());
         List<ProjectVersion> versions = project.getVersions();
         if (repository.supports().branches()) {
-            for (String branch : ((BranchRepository) repository).getBranches(project.getName())) {
+            for (String branch : ((BranchRepository) repository).getBranches(project.getFolderPath())) {
                 versions.addAll(new AProject(((BranchRepository) repository).forBranch(branch), project.getFolderPath())
                     .getVersions());
             }

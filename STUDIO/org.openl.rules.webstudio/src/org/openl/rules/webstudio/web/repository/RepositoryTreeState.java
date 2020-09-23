@@ -612,10 +612,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
         try {
             UserWorkspaceProject project = getSelectedProject();
-            if (project.isModified()) {
+            if (project.isModified() || !(project instanceof RulesProject)) {
                 return false;
             }
-            List<String> branches = ((BranchRepository) project.getDesignRepository()).getBranches(project.getName());
+            List<String> branches = ((BranchRepository) project.getDesignRepository())
+                .getBranches(((RulesProject) project).getDesignFolderName());
             if (branches.size() < 2) {
                 return false;
             }

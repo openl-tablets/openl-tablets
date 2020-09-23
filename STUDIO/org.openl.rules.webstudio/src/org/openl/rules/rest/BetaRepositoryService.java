@@ -141,7 +141,7 @@ public class BetaRepositoryService {
                 .entity("This repository does not support 'branches' feature")
                 .build();
         }
-        List<String> branches = ((BranchRepository) repository).getBranches(name);
+        List<String> branches = ((BranchRepository) repository).getBranches(getFileName(name));
         return Response.ok(new GenericEntity<List<String>>(branches) {
         }).build();
     }
@@ -192,7 +192,7 @@ public class BetaRepositoryService {
             Repository repo = getRepository();
             if (repo.supports().branches()) {
                 BranchRepository brRepo = (BranchRepository) repo;
-                List<String> branches = brRepo.getBranches(name);
+                List<String> branches = brRepo.getBranches(getFileName(name));
                 if (branches.contains(rev)) {
                     repo = brRepo.forBranch(rev);
 
@@ -441,7 +441,7 @@ public class BetaRepositoryService {
 
             if (branch != null && repo.supports().branches()) {
                 BranchRepository brRepo = (BranchRepository) repo;
-                List<String> branches = brRepo.getBranches(name);
+                List<String> branches = brRepo.getBranches(fileName);
                 if (branches.contains(branch)) {
                     repo = brRepo.forBranch(branch);
                 }

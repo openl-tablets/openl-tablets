@@ -258,7 +258,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                         project = new AProject(repository, fileData);
                     } else {
                         BranchRepository branchRepository = (BranchRepository) repository;
-                        List<String> branches = branchRepository.getBranches(name);
+                        List<String> branches = branchRepository.getBranches(projectPath);
                         for (String branch : branches) {
                             BranchRepository secondaryBranch = branchRepository.forBranch(branch);
                             fileData = secondaryBranch.checkHistory(projectPath, repoVersion);

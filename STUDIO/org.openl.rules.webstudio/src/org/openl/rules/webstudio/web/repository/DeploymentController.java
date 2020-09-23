@@ -504,7 +504,8 @@ public class DeploymentController {
                 return Collections.emptyList();
             }
 
-            List<String> branches = new ArrayList<>(((BranchRepository) repository).getBranches(projectName));
+            String rulesPath = workspace.getDesignTimeRepository().getRulesLocation();
+            List<String> branches = new ArrayList<>(((BranchRepository) repository).getBranches(rulesPath + projectName));
             if (projectBranch != null && !branches.contains(projectBranch)) {
                 branches.add(projectBranch);
                 branches.sort(String.CASE_INSENSITIVE_ORDER);

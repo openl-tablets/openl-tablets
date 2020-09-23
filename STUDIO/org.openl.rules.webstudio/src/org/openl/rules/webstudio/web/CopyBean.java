@@ -194,7 +194,7 @@ public class CopyBean {
             ProjectsInHistoryController.deleteHistory(project.getName());
             if (isSupportsBranches() && !separateProject) {
                 Repository designRepository = project.getDesignRepository();
-                ((BranchRepository) designRepository).createBranch(currentProjectName, newBranchName);
+                ((BranchRepository) designRepository).createBranch(project.getDesignFolderName(), newBranchName);
             } else {
                 Repository designRepository = designTimeRepository.getRepository(toRepositoryId);
                 String designPath = designTimeRepository.getRulesLocation() + newProjectName;
