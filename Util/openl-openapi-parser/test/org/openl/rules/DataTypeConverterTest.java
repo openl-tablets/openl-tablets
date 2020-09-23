@@ -214,7 +214,7 @@ public class DataTypeConverterTest {
         FieldModel bField = b.get();
         assertEquals("B", bField.getName());
         assertEquals("BigInteger", bField.getType());
-        assertEquals(BigInteger.ZERO, bField.getDefaultValue());
+        assertEquals(0, bField.getDefaultValue());
         Optional<FieldModel> c = fields.stream().filter(x -> x.getName().equals("C")).findFirst();
         assertTrue(c.isPresent());
         FieldModel cField = c.get();
@@ -227,6 +227,18 @@ public class DataTypeConverterTest {
         assertEquals("D", dField.getName());
         assertEquals("BigDecimal", dField.getType());
         assertEquals("2975671681509007947508815", dField.getDefaultValue());
+        Optional<FieldModel> e = fields.stream().filter(x -> x.getName().equals("E")).findFirst();
+        assertTrue(e.isPresent());
+        FieldModel eField = e.get();
+        assertEquals("E", eField.getName());
+        assertEquals("BigInteger", eField.getType());
+        assertEquals(2147483647, eField.getDefaultValue());
+        Optional<FieldModel> f = fields.stream().filter(x -> x.getName().equals("F")).findFirst();
+        assertTrue(f.isPresent());
+        FieldModel fField = f.get();
+        assertEquals("F", fField.getName());
+        assertEquals("BigInteger", fField.getType());
+        assertEquals(BigInteger.ZERO, fField.getDefaultValue());
 
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         Optional<SpreadsheetModel> apiTodo = spreadsheetResultModels.stream()

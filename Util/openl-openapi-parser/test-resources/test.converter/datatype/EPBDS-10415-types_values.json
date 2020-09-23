@@ -105,6 +105,14 @@
           "D": {
             "type": "number",
             "default": 2975671681509007947508815
+          },
+          "E": {
+            "type": "integer",
+            "default": 2147483647
+          },
+          "F": {
+            "type": "integer",
+            "default": 21474836477
           }
         }
       },

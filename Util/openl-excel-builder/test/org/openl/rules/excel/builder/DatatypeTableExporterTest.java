@@ -228,7 +228,7 @@ public class DatatypeTableExporterTest {
             double biDefValue = biDefaultValueCell.getNumericCellValue();
             assertEquals("BigInteger", bigIntegerTypeCellValue);
             assertEquals("bigInt", bigIntegerNameCellValue);
-            assertEquals(0, biDefValue, 1e-8);
+            assertEquals(10.0, biDefValue, 1e-8);
 
             XSSFRow nextModelHeaderRow = dtsSheet.getRow(TOP_MARGIN + 12);
             assertNotNull(nextModelHeaderRow);
