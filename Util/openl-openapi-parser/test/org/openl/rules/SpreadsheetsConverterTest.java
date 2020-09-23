@@ -78,7 +78,7 @@ public class SpreadsheetsConverterTest {
         SpreadsheetModel blaArrayModel = secondModel.get();
         List<StepModel> blaSteps = blaArrayModel.getSteps();
         assertEquals(1, blaSteps.size());
-        assertEquals("=new AnotherDatatype[][][][]{}",blaSteps.iterator().next().getValue());
+        assertEquals("=new AnotherDatatype[][][][]{}", blaSteps.iterator().next().getValue());
 
         Optional<SpreadsheetModel> thirdModel = spreadsheetModels.stream()
             .filter(x -> x.getName().equals("HelloWorld"))
@@ -197,8 +197,8 @@ public class SpreadsheetsConverterTest {
             .findFirst();
         assertTrue(numAccidentsInt.isPresent());
         StepModel integerStep = numAccidentsInt.get();
-        assertEquals("Integer", integerStep.getType());
-        assertEquals("=0", integerStep.getValue());
+        assertEquals("BigInteger", integerStep.getType());
+        assertEquals("=java.math.BigInteger.ZERO", integerStep.getValue());
 
         Optional<StepModel> numAccidentsObject = steps.stream()
             .filter(x -> x.getName().equals("numAccidentsFive"))
@@ -494,5 +494,22 @@ public class SpreadsheetsConverterTest {
         assertEquals(1, arrSteps.size());
         StepModel arrStep = arrSteps.iterator().next();
         assertEquals("=new Pokemon[][][][][]{}", arrStep.getValue());
+    }
+
+    @Test
+    public void testSprChild() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/spreadsheets/EPBDS-10432_child_spr.json");
+        List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
+        Optional<SpreadsheetModel> spr = spreadsheetResultModels.stream().findAny();
+        assertTrue(spr.isPresent());
+        SpreadsheetModel spreadsheetModel = spr.get();
+        assertEquals("Pet", spreadsheetModel.getType());
+        assertEquals(1, spreadsheetModel.getSteps().size());
+        StepModel step = spreadsheetModel.getSteps().iterator().next();
+        assertEquals("Pet", step.getType());
+        assertEquals("Result", step.getName());
+        assertEquals("=new Pet()", step.getValue());
     }
 }

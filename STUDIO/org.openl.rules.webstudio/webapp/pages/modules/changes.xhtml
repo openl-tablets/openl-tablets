@@ -37,6 +37,22 @@
             display: table-cell;
         }
 
+        div.row.current {
+            background-color: #DAEBFF;
+        }
+
+        div.row.current a {
+            display: none;
+        }
+
+        div.row span {
+            display: none;
+        }
+
+        div.row.current span {
+            display: inline;
+        }
+
         div.row:hover {
             background-color: #FAE5C1;
         }
@@ -54,10 +70,10 @@
                     <div>Modified On</div>
                     <div>Action</div>
                 </header>
-                <div class="row">
+                <div class="row {current}">
                     <div><input type="checkbox" value="{version}"/></div>
                     <div class="modifiedOn">{modifiedOn}</div>
-                    <div><a href="#">Restore</a></div>
+                    <div><a href="#">Restore</a><span>Current</span></div>
                 </div>
             </section>
 
@@ -121,8 +137,8 @@
 
         function compare() {
             var url = '#{contextPath}/faces/pages/modules/compare.xhtml?disableUpload=true';
-            url += "&version1=" + $jq(checkbox1).val();
-            url += "&version2=" + $jq(checkbox2).val();
+            url += "&version1=" +  $jq(checkbox1).val();
+            url += "&version2=" +  $jq(checkbox2).val();
             window.open(url, 'Compare', 'width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');
         }
 
@@ -137,6 +153,7 @@
                 $jq('#changes').trigger('refresh');
                 ws.ui.success("Restoring changes was successful!");
                 ws.nav.reloadPanel('left');
+                $compareBtn.prop("disabled", true);
             }).fail(function () {
                 ws.ui.error("Restoring changes was failed!");
             });
@@ -157,7 +174,10 @@
                         $jq('#changes div.row').remove();
 
                         data.forEach(function (item) {
-                            history += htmlTemplate.replace(/{version}/g, item.version).replace(/{modifiedOn}/g, item.modifiedOn);
+                            history += htmlTemplate
+                                .replace(/{version}/g, item.version)
+                                .replace(/{current}/g, item.version.endsWith("(current)") ? "current" : "")
+                                .replace(/{modifiedOn}/g, item.modifiedOn);
                         });
                         $jq('#changes').append(history);
                         $jq('.page .page-header span').text(data.length - 1);
@@ -166,6 +186,8 @@
                         $jq('.page .historyTable').hide();
                         $jq('.page .noChanges').show();
                     }
+                    checkbox1 = $jq(".current input[type='checkbox']");
+                    $jq(checkbox1).prop("checked", true);
                 });
         });
         $jq('#changes').trigger('refresh');

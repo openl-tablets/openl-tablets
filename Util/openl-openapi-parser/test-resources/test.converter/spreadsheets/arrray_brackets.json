@@ -17,7 +17,7 @@
                 "type": "array",
                 "items": {
                   "type": "number",
-                  "format": "object"
+                  "format": "double"
                 }
               }
             }

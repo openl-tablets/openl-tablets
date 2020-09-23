@@ -2,7 +2,9 @@ package org.openl.rules.ui;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.source.SourceHistoryManager;
@@ -21,6 +23,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
     private final String storagePath;
 
     private static final String REVISION_VERSION = "Revision Version";
+    public static final String CURRENT_VERSION = "(current)";
 
     FileBasedProjectHistoryManager(ProjectModel projectModel, String storagePath, Integer maxFilesInStorage) {
         if (projectModel == null) {
@@ -56,7 +59,8 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
     @Override
     public synchronized void save(File source) {
         Objects.requireNonNull(source);
-        File destFile = new File(storagePath, String.valueOf(System.currentTimeMillis()));
+        removeCurrentVersion();
+        File destFile = new File(storagePath, String.valueOf(System.currentTimeMillis()) + CURRENT_VERSION);
         try {
             FileUtils.copy(source, destFile);
         } catch (Exception e) {
@@ -66,6 +70,9 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
 
     @Override
     public File get(String version) {
+        if (version.endsWith(CURRENT_VERSION)) {
+            return getCurrentVersion();
+        }
         return new File(storagePath, version);
     }
 
@@ -85,12 +92,14 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
     @Override
     public void restore(String version) throws Exception {
         File fileToRestore = get(version);
+        removeCurrentVersion();
         if (fileToRestore != null) {
             File currentSourceFile = projectModel.getCurrentModuleWorkbook().getSourceFile();
             try {
                 FileUtils.copy(fileToRestore, currentSourceFile);
                 projectModel.reset(ReloadType.FORCED);
                 projectModel.buildProjectTree();
+                fileToRestore.renameTo(new File(fileToRestore.getPath() + CURRENT_VERSION));
                 LOG.info("Project was restored successfully");
             } catch (Exception e) {
                 LOG.error("Cannot restore project at {}", version);
@@ -99,4 +108,25 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
         }
     }
 
+    private File getCurrentVersion() {
+        File dir = new File(storagePath);
+        String[] historyListFiles = dir.list();
+        if (historyListFiles == null) {
+            return null;
+        }
+        Arrays.sort(historyListFiles, Comparator.reverseOrder());
+        for (String file : historyListFiles) {
+            if (file.endsWith(CURRENT_VERSION)) {
+                return new File(storagePath, file);
+            }
+        }
+        return null;
+    }
+
+    private void removeCurrentVersion() {
+        File currentVersion = getCurrentVersion();
+        if (currentVersion != null) {
+            currentVersion.renameTo(new File(currentVersion.getPath().replaceAll(Pattern.quote(CURRENT_VERSION) + "$", "")));
+        }
+    }
 }
