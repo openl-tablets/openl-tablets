@@ -82,9 +82,4 @@ public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
         this.params = params;
     }
 
-    @Override
-    public boolean isModified() {
-        return baseModule.isModified();
-    }
-
 }

@@ -23,7 +23,6 @@ import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule.ModificationChecker;
 import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.load.LazyWorkbookLoaderFactory;
@@ -500,12 +499,7 @@ public class ProjectModel {
     }
 
     public void resetSourceModified() {
-        WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
-        if (workbookNodes != null) {
-            for (WorkbookSyntaxNode node : workbookNodes) {
-                node.getWorkbookSourceCodeModule().resetModified();
-            }
-        }
+        isModified();
     }
 
     public CompiledOpenClass getCompiledOpenClass() {
@@ -1185,34 +1179,6 @@ public class ProjectModel {
         return recentlyVisitedTables;
     }
 
-    public void openWorkbookForEdit(String workBookName) {
-        for (WorkbookSyntaxNode workbookSyntaxNode : getWorkbookNodes()) {
-            XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
-
-            if (module.getSourceFile().getName().equals(workBookName)) {
-                module.setModificationChecker(new EditXlsModificationChecker(module));
-                break;
-            }
-        }
-
-    }
-
-    public void afterOpenWorkbookForEdit(String workBookName) {
-        for (WorkbookSyntaxNode workbookSyntaxNode : getWorkbookNodes()) {
-            XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
-            if (module.getSourceFile().getName().equals(workBookName)) {
-                ModificationChecker checker = module.getModificationChecker();
-
-                if (checker instanceof EditXlsModificationChecker) {
-                    ((EditXlsModificationChecker) checker).afterXlsOpened();
-                }
-
-                break;
-            }
-        }
-
-    }
-
     public XlsWorkbookSourceCodeModule getCurrentModuleWorkbook() {
         PathEntry rulesRootPath = studio.getCurrentModule().getRulesRootPath();
 
@@ -1259,52 +1225,6 @@ public class ProjectModel {
     public boolean isConfirmOverwriteNewerRevision() {
         RulesProject project = getProject();
         return project != null && project.isOpenedOtherVersion() && !project.isModified();
-    }
-
-    private static class EditXlsModificationChecker implements ModificationChecker {
-        private final XlsWorkbookSourceCodeModule module;
-        private final File sourceFile;
-
-        private final long beforeOpenFileSize;
-        private final long beforeOpenModifiedTime;
-        private long afterOpenModifiedTime;
-
-        private boolean initializing = true;
-
-        public EditXlsModificationChecker(XlsWorkbookSourceCodeModule module) {
-            this.module = module;
-            this.sourceFile = module.getSourceFile();
-            this.beforeOpenFileSize = sourceFile.length();
-            this.beforeOpenModifiedTime = sourceFile.lastModified();
-        }
-
-        public void afterXlsOpened() {
-            if (module.DEFAULT_MODIDFICATION_CHECKER.isModified() && sourceFile.length() == beforeOpenFileSize) {
-                // workaround for xls
-                afterOpenModifiedTime = sourceFile.lastModified();
-                initializing = false;
-            } else {
-                // not xls or file is changed. There is no need for a workaround
-                module.setModificationChecker(module.DEFAULT_MODIDFICATION_CHECKER);
-            }
-        }
-
-        @Override
-        public boolean isModified() {
-            if (initializing) {
-                // assume that during opening file for edit it is not changed
-                return false;
-            }
-
-            if (sourceFile.lastModified() == afterOpenModifiedTime && sourceFile.length() == beforeOpenFileSize) {
-                return false;
-            }
-
-            // file is modified or closed (modification time is reverted to
-            // original state)
-            module.setModificationChecker(module.DEFAULT_MODIDFICATION_CHECKER);
-            return !(sourceFile.lastModified() == beforeOpenModifiedTime && sourceFile.length() == beforeOpenFileSize);
-        }
     }
 
     public void destroy() {

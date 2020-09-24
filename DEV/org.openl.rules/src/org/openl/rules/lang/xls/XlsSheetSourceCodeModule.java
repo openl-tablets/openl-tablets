@@ -80,9 +80,4 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule {
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
-
-    @Override
-    public boolean isModified() {
-        return workbookSource.isModified();
-    }
 }
