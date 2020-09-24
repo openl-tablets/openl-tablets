@@ -734,7 +734,7 @@
             var handleError = function(code) {
                 if (code == 399) { // Session Timeout
                     location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
-                } else if (code != 404) {
+                } else if (code != 404 && code != 0) { // 0 - timeout/abort
                     // 404 error is handled in other place. Other errors are unexpected errors
                     api.ui.info("#{msg['ws.common.error.500']}");
                 }
@@ -961,6 +961,24 @@
         $j(function () {
             fixRichFaces();
         });
+
+        function checkModification() {
+            $j.ajax({
+                url: "#{contextPath}/web/module/isModified",
+                datatype: "text",
+                timeout: 5000
+            })
+                .done(function (data) {
+                    if (data === "true" && confirm('Project source file was modified.\nClick \'OK\' to reload WebStudio with changes, and \'Cancel\' to ignore changes.')) {
+                        forceReload(); // from the topPanel.xhtml
+                    }
+                })
+                .complete(function () {
+                    setTimeout(checkModification, 5000)
+                });
+        }
+
+        setTimeout(checkModification, 10000);//time in milliseconds
     //]]>
     </script>
 
@@ -1008,7 +1026,6 @@
     <div style="display: none">
         <a4j:status onstart="ws.ui.showLoader()" onstop="ws.ui.hideLoader()" />
 
-        <iframe src="#{contextPath}/faces/pages/modules/sourceModified.xhtml" width="0" height="0" />
         <iframe name="hidden" width="0" height="0" />
 
         <!-- Init RichFaces resources -->

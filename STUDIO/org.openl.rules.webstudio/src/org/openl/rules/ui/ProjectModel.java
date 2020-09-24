@@ -97,6 +97,7 @@ public class ProjectModel {
     private WorkbookSyntaxNode[] workbookSyntaxNodes;
 
     private Module moduleInfo;
+    private long moduleLastModified;
 
     private boolean openedInSingleModuleMode;
 
@@ -491,16 +492,9 @@ public class ProjectModel {
             return false;
         }
 
-        WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
-        if (workbookNodes != null) {
-            for (WorkbookSyntaxNode node : workbookNodes) {
-                XlsWorkbookSourceCodeModule workbookSourceCodeModule = node.getWorkbookSourceCodeModule();
-                if (workbookSourceCodeModule.isModified()) {
-                    getLocalRepository().getProjectState(workbookSourceCodeModule.getSourceFile().getPath())
-                        .notifyModified();
-                    return true;
-                }
-            }
+        if (isModified()) {
+            getLocalRepository().getProjectState(moduleInfo.getRulesRootPath().getPath()).notifyModified();
+            return true;
         }
         return false;
     }
@@ -925,6 +919,7 @@ public class ProjectModel {
             this.moduleInfo = moduleInfo;
         }
 
+        isModified();
         clearModuleResources(); // prevent memory leak
         if (openedInSingleModuleMode) {
             OpenClassUtil.release(compiledOpenClass);
@@ -1009,6 +1004,15 @@ public class ProjectModel {
 
             WorkbookLoaders.resetCurrentFactory();
         }
+    }
+
+    private boolean isModified() {
+        if (moduleInfo == null) {
+            return false;
+        }
+        long modificationTime = moduleLastModified;
+        moduleLastModified = new File(moduleInfo.getRulesRootPath().getPath()).lastModified();
+        return modificationTime != moduleLastModified;
     }
 
     private CompiledOpenClass validate(
@@ -1363,7 +1367,7 @@ public class ProjectModel {
         return messageNodeIds.get(message);
     }
 
-    private static class XlsModificationListener implements XlsWorkbookListener {
+    private class XlsModificationListener implements XlsWorkbookListener {
 
         private final LocalRepository repository;
 
@@ -1378,6 +1382,7 @@ public class ProjectModel {
 
         @Override
         public void afterSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
+            isModified();
             repository.getProjectState(workbookSourceCodeModule.getSourceFile().getPath()).notifyModified();
         }
     }
