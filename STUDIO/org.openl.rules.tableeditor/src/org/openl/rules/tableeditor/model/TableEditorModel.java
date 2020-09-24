@@ -184,10 +184,6 @@ public class TableEditorModel {
         return xlsgrid.getSheetSource();
     }
 
-    public synchronized void saveAs(String fname) throws IOException {
-        getSheetSource().getWorkbookSource().saveAs(fname);
-    }
-
     public synchronized void setCellValue(int row, int col, String value, IFormatter formatter) {
         IGridRegion originalRegion = getOriginalTableRegion();
         int gcol = originalRegion.getLeft() + col;
