@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -32,7 +33,6 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -64,6 +64,7 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.admin.ProjectsInHistoryController;
+import org.openl.rules.webstudio.web.admin.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -83,6 +84,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.LocalWorkspace;
+import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.util.CollectionUtils;
@@ -288,10 +290,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     getModel().clearModuleInfo();
 
                     // Revert project name in rules.xml
-                    IProjectDescriptorSerializer serializer = WebStudioUtils.getBean(ProjectDescriptorSerializerFactory.class)
+                    IProjectDescriptorSerializer serializer = WebStudioUtils
+                        .getBean(ProjectDescriptorSerializerFactory.class)
                         .getSerializer(project);
-                    AProjectResource artefact = (AProjectResource) project.getArtefact(
-                        ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                    AProjectResource artefact = (AProjectResource) project
+                        .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                     content = artefact.getContent();
                     ProjectDescriptor projectDescriptor = serializer.deserialize(content);
                     projectDescriptor.setName(project.getName());
@@ -301,7 +304,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 } else {
                     FileMappingData mappingData = project.getFileData().getAdditionalData(FileMappingData.class);
                     if (mappingData != null) {
-                        mappingData.setExternalPath(userWorkspace.getDesignTimeRepository().getRulesLocation() + logicalName);
+                        mappingData
+                            .setExternalPath(userWorkspace.getDesignTimeRepository().getRulesLocation() + logicalName);
                     }
                 }
             }
@@ -635,10 +639,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
             stream = uploadedFile.getInput();
             XlsWorkbookSourceHistoryListener historyListener = new XlsWorkbookSourceHistoryListener(
-                model.getHistoryManager());
+                model.getHistoryStoragePath());
             Module module = getCurrentModule();
             File sourceFile = new File(module.getRulesRootPath().getPath());
 
+            historyListener.beforeSave(sourceFile);
             LocalRepository repository = rulesUserSession.getUserWorkspace()
                 .getLocalWorkspace()
                 .getRepository(currentRepositoryId);
@@ -648,6 +653,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             FileData data = new FileData();
             data.setName(projectFolder.getName() + "/" + relativePath);
             repository.save(data, stream);
+            historyListener.afterSave(sourceFile);
         } catch (Exception e) {
             log.error("Error updating file in user workspace.", e);
             throw new IllegalStateException("Error while updating the module.", e);
@@ -675,6 +681,13 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
         ProjectDescriptor projectDescriptor;
         try {
+            for (Module module : currentProject.getModules()) {
+                File moduleFile = new File(module.getRulesRootPath().getPath());
+                String moduleHistoryPath = Paths
+                    .get(currentProject.getProjectFolder().getPath(), FolderHelper.HISTORY_FOLDER, module.getName())
+                    .toString();
+                ProjectsInHistoryController.init(moduleHistoryPath, moduleFile);
+            }
             tryLockProject();
 
             projectDescriptor = getCurrentProjectDescriptor();
@@ -724,18 +737,17 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 @Override
                 public boolean execute(String filePath, InputStream inputStream) throws IOException {
                     File outputFile = new File(projectFolder, filePath);
-
                     FileData data = new FileData();
                     data.setAuthor(userName);
                     data.setComment("Uploaded from external source");
                     data.setName(projectPath + "/" + filePath);
                     repository.save(data, inputStream);
-
                     return true;
                 }
             });
 
             resetProjects();
+
         } catch (ValidationException e) {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
             throw e;
@@ -746,6 +758,13 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
 
         currentProject = resolveProject(projectDescriptor);
+        for (Module module : currentProject.getModules()) {
+            File moduleFile = new File(module.getRulesRootPath().getPath());
+            String moduleHistoryPath = Paths
+                .get(currentProject.getProjectFolder().getPath(), FolderHelper.HISTORY_FOLDER, module.getName())
+                .toString();
+            ProjectsInHistoryController.save(moduleHistoryPath, moduleFile);
+        }
         if (currentProject == null) {
             log.warn("The project has not been resolved after update.");
         }
