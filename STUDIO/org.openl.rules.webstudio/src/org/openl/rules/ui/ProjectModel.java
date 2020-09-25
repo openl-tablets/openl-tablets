@@ -23,8 +23,6 @@ import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule.ModificationChecker;
-import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.load.LazyWorkbookLoaderFactory;
 import org.openl.rules.lang.xls.load.WorkbookLoaders;
@@ -45,6 +43,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
+import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
@@ -69,7 +68,6 @@ import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.source.SourceHistoryManager;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.impl.IdentifierNode;
@@ -97,6 +95,7 @@ public class ProjectModel {
     private WorkbookSyntaxNode[] workbookSyntaxNodes;
 
     private Module moduleInfo;
+    private long moduleLastModified;
 
     private boolean openedInSingleModuleMode;
 
@@ -116,8 +115,7 @@ public class ProjectModel {
     private final Map<OpenLMessage, String> messageNodeIds = new HashMap<>();
 
     private DependencyRulesGraph dependencyGraph;
-
-    private SourceHistoryManager<File> historyManager;
+    private String historyStoragePath;
 
     private final RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
     private final TestSuiteExecutor testSuiteExecutor;
@@ -491,27 +489,15 @@ public class ProjectModel {
             return false;
         }
 
-        WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
-        if (workbookNodes != null) {
-            for (WorkbookSyntaxNode node : workbookNodes) {
-                XlsWorkbookSourceCodeModule workbookSourceCodeModule = node.getWorkbookSourceCodeModule();
-                if (workbookSourceCodeModule.isModified()) {
-                    getLocalRepository().getProjectState(workbookSourceCodeModule.getSourceFile().getPath())
-                        .notifyModified();
-                    return true;
-                }
-            }
+        if (isModified()) {
+            getLocalRepository().getProjectState(moduleInfo.getRulesRootPath().getPath()).notifyModified();
+            return true;
         }
         return false;
     }
 
     public void resetSourceModified() {
-        WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
-        if (workbookNodes != null) {
-            for (WorkbookSyntaxNode node : workbookNodes) {
-                node.getWorkbookSourceCodeModule().resetModified();
-            }
-        }
+        isModified();
     }
 
     public CompiledOpenClass getCompiledOpenClass() {
@@ -661,8 +647,6 @@ public class ProjectModel {
         cacheTree(projectRoot);
 
         dependencyGraph = null;
-
-        historyManager = null;
         initProjectHistory();
     }
 
@@ -676,14 +660,12 @@ public class ProjectModel {
 
                 Collection<XlsWorkbookListener> listeners = sourceCodeModule.getListeners();
                 for (XlsWorkbookListener listener : listeners) {
-                    if (listener instanceof XlsWorkbookSourceHistoryListener) {
+                    if (listener instanceof XlsModificationListener) {
                         return;
                     }
                 }
 
-                XlsWorkbookListener historyListener = new XlsWorkbookSourceHistoryListener(getHistoryManager());
-                sourceCodeModule.addListener(historyListener);
-                sourceCodeModule.addListener(new XlsModificationListener(repository));
+                sourceCodeModule.addListener(new XlsModificationListener(repository, getHistoryStoragePath()));
             }
         }
     }
@@ -925,6 +907,7 @@ public class ProjectModel {
             this.moduleInfo = moduleInfo;
         }
 
+        isModified();
         clearModuleResources(); // prevent memory leak
         if (openedInSingleModuleMode) {
             OpenClassUtil.release(compiledOpenClass);
@@ -1009,6 +992,15 @@ public class ProjectModel {
 
             WorkbookLoaders.resetCurrentFactory();
         }
+    }
+
+    private boolean isModified() {
+        if (moduleInfo == null) {
+            return false;
+        }
+        long modificationTime = moduleLastModified;
+        moduleLastModified = new File(moduleInfo.getRulesRootPath().getPath()).lastModified();
+        return modificationTime != moduleLastModified;
     }
 
     private CompiledOpenClass validate(
@@ -1163,50 +1155,19 @@ public class ProjectModel {
         return null;
     }
 
-    public SourceHistoryManager<File> getHistoryManager() {
-        if (historyManager == null) {
-            Integer maxFilesInStorage = Props.integer("project.history.count");
+    public String getHistoryStoragePath() {
+        if (historyStoragePath == null) {
             File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
                 .getLocalWorkspace()
                 .getLocation();
-            String storagePath = Paths
-                .get(location.getPath(), getProject().getName(), ".history", getModuleInfo().getName())
+            return Paths.get(location.getPath(), getProject().getName(), ".history", getModuleInfo().getName())
                 .toString();
-            historyManager = new FileBasedProjectHistoryManager(this, storagePath, maxFilesInStorage);
         }
-        return historyManager;
+        return historyStoragePath;
     }
 
     public RecentlyVisitedTables getRecentlyVisitedTables() {
         return recentlyVisitedTables;
-    }
-
-    public void openWorkbookForEdit(String workBookName) {
-        for (WorkbookSyntaxNode workbookSyntaxNode : getWorkbookNodes()) {
-            XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
-
-            if (module.getSourceFile().getName().equals(workBookName)) {
-                module.setModificationChecker(new EditXlsModificationChecker(module));
-                break;
-            }
-        }
-
-    }
-
-    public void afterOpenWorkbookForEdit(String workBookName) {
-        for (WorkbookSyntaxNode workbookSyntaxNode : getWorkbookNodes()) {
-            XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
-            if (module.getSourceFile().getName().equals(workBookName)) {
-                ModificationChecker checker = module.getModificationChecker();
-
-                if (checker instanceof EditXlsModificationChecker) {
-                    ((EditXlsModificationChecker) checker).afterXlsOpened();
-                }
-
-                break;
-            }
-        }
-
     }
 
     public XlsWorkbookSourceCodeModule getCurrentModuleWorkbook() {
@@ -1257,52 +1218,6 @@ public class ProjectModel {
         return project != null && project.isOpenedOtherVersion() && !project.isModified();
     }
 
-    private static class EditXlsModificationChecker implements ModificationChecker {
-        private final XlsWorkbookSourceCodeModule module;
-        private final File sourceFile;
-
-        private final long beforeOpenFileSize;
-        private final long beforeOpenModifiedTime;
-        private long afterOpenModifiedTime;
-
-        private boolean initializing = true;
-
-        public EditXlsModificationChecker(XlsWorkbookSourceCodeModule module) {
-            this.module = module;
-            this.sourceFile = module.getSourceFile();
-            this.beforeOpenFileSize = sourceFile.length();
-            this.beforeOpenModifiedTime = sourceFile.lastModified();
-        }
-
-        public void afterXlsOpened() {
-            if (module.DEFAULT_MODIDFICATION_CHECKER.isModified() && sourceFile.length() == beforeOpenFileSize) {
-                // workaround for xls
-                afterOpenModifiedTime = sourceFile.lastModified();
-                initializing = false;
-            } else {
-                // not xls or file is changed. There is no need for a workaround
-                module.setModificationChecker(module.DEFAULT_MODIDFICATION_CHECKER);
-            }
-        }
-
-        @Override
-        public boolean isModified() {
-            if (initializing) {
-                // assume that during opening file for edit it is not changed
-                return false;
-            }
-
-            if (sourceFile.lastModified() == afterOpenModifiedTime && sourceFile.length() == beforeOpenFileSize) {
-                return false;
-            }
-
-            // file is modified or closed (modification time is reverted to
-            // original state)
-            module.setModificationChecker(module.DEFAULT_MODIDFICATION_CHECKER);
-            return !(sourceFile.lastModified() == beforeOpenModifiedTime && sourceFile.length() == beforeOpenFileSize);
-        }
-    }
-
     public void destroy() {
         clearModuleInfo();
     }
@@ -1323,7 +1238,7 @@ public class ProjectModel {
                 Iterator<XlsWorkbookListener> iterator = sourceCodeModule.getListeners().iterator();
                 while (iterator.hasNext()) {
                     XlsWorkbookListener listener = iterator.next();
-                    if (listener instanceof XlsWorkbookSourceHistoryListener) {
+                    if (listener instanceof XlsModificationListener) {
                         iterator.remove();
                         break;
                     }
@@ -1363,22 +1278,28 @@ public class ProjectModel {
         return messageNodeIds.get(message);
     }
 
-    private static class XlsModificationListener implements XlsWorkbookListener {
+    private class XlsModificationListener implements XlsWorkbookListener {
 
         private final LocalRepository repository;
+        private final String historyStoragePath;
 
-        private XlsModificationListener(LocalRepository repository) {
+        private XlsModificationListener(LocalRepository repository, String historyStoragePath) {
             this.repository = repository;
+            this.historyStoragePath = historyStoragePath;
         }
 
         @Override
         public void beforeSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
-
+            File sourceFile = workbookSourceCodeModule.getSourceFile();
+            ProjectHistoryService.init(historyStoragePath, sourceFile);
         }
 
         @Override
         public void afterSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
-            repository.getProjectState(workbookSourceCodeModule.getSourceFile().getPath()).notifyModified();
+            isModified();
+            File sourceFile = workbookSourceCodeModule.getSourceFile();
+            repository.getProjectState(sourceFile.getPath()).notifyModified();
+            ProjectHistoryService.save(historyStoragePath, sourceFile);
         }
     }
 }

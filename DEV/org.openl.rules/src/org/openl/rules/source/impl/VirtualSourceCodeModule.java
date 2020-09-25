@@ -9,7 +9,7 @@ import org.openl.source.impl.ASourceCodeModule;
 public class VirtualSourceCodeModule extends ASourceCodeModule {
 
     public static final String SOURCE_URI = "<virtual_uri>";
-    public static final String VIRTUAL_SHEET_NAME = "$virtual_sheet$";
+    private static final String VIRTUAL_SHEET_NAME = "$virtual_sheet$";
 
     private Workbook workbook;
 
@@ -39,14 +39,5 @@ public class VirtualSourceCodeModule extends ASourceCodeModule {
     @Override
     public Reader getCharacterStream() {
         return new InputStreamReader(getByteStream());
-    }
-
-    @Override
-    public boolean isModified() {
-        return false;
-    }
-
-    @Override
-    public void resetModified() {
     }
 }

@@ -11,6 +11,7 @@ public class XlsCellArrayWriter extends AXlsCellWriter {
 
     @Override
     public void writeCellValue() {
+        removeFormulaIfPresent();
         Object[] values = (Object[]) getValueToWrite();
         getCellToWrite().setCellValue(StringUtils.join(values, ","));
     }

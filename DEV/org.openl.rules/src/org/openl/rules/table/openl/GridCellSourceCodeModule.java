@@ -127,11 +127,6 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
     }
 
     @Override
-    public boolean isModified() {
-        return false;
-    }
-
-    @Override
     public String toString() {
         if (StringUtils.isNotBlank(code)) {
             return code;

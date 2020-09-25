@@ -387,6 +387,7 @@ public class TableBuilder {
                     currentRow + j + region.getTop(),
                     gridModel.getSheetSource().getSheet());
                 if (cell.getType() != IGrid.CELL_TYPE_FORMULA && newCell.getCellType() == CellType.FORMULA) {
+                    newCell.removeFormula();
                     newCell.setCellValue(cellValue.toString());
                 }
                 ICellComment iCellComment = cell.getComment();

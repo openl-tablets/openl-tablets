@@ -51,9 +51,6 @@
         <property name="matchers">
             <list>
                 <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
-                    <constructor-arg value="/**/sourceModified.xhtml"/>
-                </bean>
-                <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
                     <!-- accessDenied.xhtml, login.xhtml, sessionExpired.xhtml -->
                     <constructor-arg value="/**/pages/*.xhtml"/>
                 </bean>
