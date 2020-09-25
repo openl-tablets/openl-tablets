@@ -59,7 +59,7 @@
     </style>
     <div class="page">
 
-        <h1 class="page-header">Changes (<span>0</span>)</h1>
+        <h1 class="page-header">Local Changes (<span>0</span>)</h1>
 
         <span class="problem-info noChanges" style="display: none">No changes in history</span>
 
@@ -137,8 +137,8 @@
 
         function compare() {
             var url = '#{contextPath}/faces/pages/modules/compare.xhtml?disableUpload=true';
-            url += "&version1=" +  $jq(checkbox1).val();
-            url += "&version2=" +  $jq(checkbox2).val();
+            url += "&version1=" + $jq(checkbox1).val();
+            url += "&version2=" + $jq(checkbox2).val();
             window.open(url, 'Compare', 'width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');
         }
 
@@ -175,8 +175,8 @@
 
                         data.forEach(function (item) {
                             history += htmlTemplate
-                                .replace(/{version}/g, item.version)
-                                .replace(/{current}/g, item.version.endsWith("(current)") ? "current" : "")
+                                .replace(/{version}/g, item.current ? item.version + "_current" : item.version)
+                                .replace(/{current}/g, item.current ? "current" : "")
                                 .replace(/{modifiedOn}/g, item.modifiedOn);
                         });
                         $jq('#changes').append(history);

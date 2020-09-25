@@ -1,23 +1,22 @@
-package org.openl.rules.lang.xls;
+package org.openl.rules.webstudio.web.admin;
 
 import java.io.File;
-import java.util.List;
-import java.util.Map;
 
-import org.openl.source.SourceHistoryManager;
+import org.openl.rules.lang.xls.XlsWorkbookListener;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 
 /**
  * @author Andrei Astrouski
  */
 public class XlsWorkbookSourceHistoryListener implements XlsWorkbookListener {
 
-    private SourceHistoryManager<File> historyManager;
+    private String historyStoragePath;
 
-    public XlsWorkbookSourceHistoryListener(SourceHistoryManager<File> historyManager) {
-        if (historyManager == null) {
+    public XlsWorkbookSourceHistoryListener(String historyStoragePath) {
+        if (historyStoragePath == null) {
             throw new IllegalArgumentException();
         }
-        this.historyManager = historyManager;
+        this.historyStoragePath = historyStoragePath;
     }
 
     @Override
@@ -27,7 +26,7 @@ public class XlsWorkbookSourceHistoryListener implements XlsWorkbookListener {
     }
 
     public void beforeSave(File sourceFile) {
-        historyManager.init(sourceFile);
+        ProjectsInHistoryController.init(historyStoragePath, sourceFile);
     }
 
     @Override
@@ -37,7 +36,7 @@ public class XlsWorkbookSourceHistoryListener implements XlsWorkbookListener {
     }
 
     public void afterSave(File sourceFile) {
-        historyManager.save(sourceFile);
+        ProjectsInHistoryController.save(historyStoragePath, sourceFile);
     }
 
 }

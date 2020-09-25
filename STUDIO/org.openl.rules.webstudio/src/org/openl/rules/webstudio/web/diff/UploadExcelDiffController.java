@@ -12,9 +12,9 @@ import javax.faces.context.FacesContext;
 
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.webstudio.web.admin.ProjectsInHistoryController;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.source.SourceHistoryManager;
 import org.openl.util.FileTool;
 import org.richfaces.component.UITree;
 import org.richfaces.event.FileUploadEvent;
@@ -101,9 +101,10 @@ public class UploadExcelDiffController extends ExcelDiffController {
     public String compareVersions(String version1, String version2) {
         try {
             ProjectModel model = WebStudioUtils.getProjectModel();
-            SourceHistoryManager<File> historyManager = model.getHistoryManager();
-            File file1ToCompare = historyManager.get(version1);
-            File file2ToCompare = historyManager.get(version2);
+
+            String historyStoragePath = model.getHistoryStoragePath();
+            File file1ToCompare = ProjectsInHistoryController.get(historyStoragePath, version1);
+            File file2ToCompare = ProjectsInHistoryController.get(historyStoragePath, version2);
 
             UploadExcelDiffController diffController = (UploadExcelDiffController) WebStudioUtils
                 .getBackingBean("uploadExcelDiffController");

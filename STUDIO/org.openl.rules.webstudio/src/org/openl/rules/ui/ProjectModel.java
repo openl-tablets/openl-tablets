@@ -23,7 +23,6 @@ import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.load.LazyWorkbookLoaderFactory;
 import org.openl.rules.lang.xls.load.WorkbookLoaders;
@@ -65,10 +64,10 @@ import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManage
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
+import org.openl.rules.webstudio.web.admin.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.source.SourceHistoryManager;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.impl.IdentifierNode;
@@ -116,8 +115,7 @@ public class ProjectModel {
     private final Map<OpenLMessage, String> messageNodeIds = new HashMap<>();
 
     private DependencyRulesGraph dependencyGraph;
-
-    private SourceHistoryManager<File> historyManager;
+    private String historyStoragePath;
 
     private final RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
     private final TestSuiteExecutor testSuiteExecutor;
@@ -649,8 +647,6 @@ public class ProjectModel {
         cacheTree(projectRoot);
 
         dependencyGraph = null;
-
-        historyManager = null;
         initProjectHistory();
     }
 
@@ -669,7 +665,7 @@ public class ProjectModel {
                     }
                 }
 
-                XlsWorkbookListener historyListener = new XlsWorkbookSourceHistoryListener(getHistoryManager());
+                XlsWorkbookListener historyListener = new XlsWorkbookSourceHistoryListener(getHistoryStoragePath());
                 sourceCodeModule.addListener(historyListener);
                 sourceCodeModule.addListener(new XlsModificationListener(repository));
             }
@@ -1161,18 +1157,15 @@ public class ProjectModel {
         return null;
     }
 
-    public SourceHistoryManager<File> getHistoryManager() {
-        if (historyManager == null) {
-            Integer maxFilesInStorage = Props.integer("project.history.count");
+    public String getHistoryStoragePath() {
+        if (historyStoragePath == null) {
             File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
                 .getLocalWorkspace()
                 .getLocation();
-            String storagePath = Paths
-                .get(location.getPath(), getProject().getName(), ".history", getModuleInfo().getName())
+            return Paths.get(location.getPath(), getProject().getName(), ".history", getModuleInfo().getName())
                 .toString();
-            historyManager = new FileBasedProjectHistoryManager(this, storagePath, maxFilesInStorage);
         }
-        return historyManager;
+        return historyStoragePath;
     }
 
     public RecentlyVisitedTables getRecentlyVisitedTables() {
