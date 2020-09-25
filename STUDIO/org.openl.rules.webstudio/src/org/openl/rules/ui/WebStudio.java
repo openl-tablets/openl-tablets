@@ -51,6 +51,7 @@ import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.MergeConflictException;
+import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.tree.view.CategoryDetailedView;
 import org.openl.rules.ui.tree.view.CategoryInversedView;
@@ -63,8 +64,6 @@ import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
-import org.openl.rules.webstudio.web.admin.ProjectsInHistoryController;
-import org.openl.rules.webstudio.web.admin.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -309,7 +308,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     }
                 }
             }
-            ProjectsInHistoryController.deleteHistory(projectName);
+            ProjectHistoryService.deleteHistory(projectName);
             project.save();
             if (renameProject) {
                 if (project.getDesignRepository().supports().mappedFolders()) {
@@ -638,12 +637,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
             tryLockProject();
 
             stream = uploadedFile.getInput();
-            XlsWorkbookSourceHistoryListener historyListener = new XlsWorkbookSourceHistoryListener(
-                model.getHistoryStoragePath());
+
             Module module = getCurrentModule();
             File sourceFile = new File(module.getRulesRootPath().getPath());
 
-            historyListener.beforeSave(sourceFile);
+            ProjectHistoryService.init(model.getHistoryStoragePath(), sourceFile);
             LocalRepository repository = rulesUserSession.getUserWorkspace()
                 .getLocalWorkspace()
                 .getRepository(currentRepositoryId);
@@ -653,7 +651,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             FileData data = new FileData();
             data.setName(projectFolder.getName() + "/" + relativePath);
             repository.save(data, stream);
-            historyListener.afterSave(sourceFile);
+            ProjectHistoryService.save(model.getHistoryStoragePath(), sourceFile);
         } catch (Exception e) {
             log.error("Error updating file in user workspace.", e);
             throw new IllegalStateException("Error while updating the module.", e);
@@ -686,7 +684,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 String moduleHistoryPath = Paths
                     .get(currentProject.getProjectFolder().getPath(), FolderHelper.HISTORY_FOLDER, module.getName())
                     .toString();
-                ProjectsInHistoryController.init(moduleHistoryPath, moduleFile);
+                ProjectHistoryService.init(moduleHistoryPath, moduleFile);
             }
             tryLockProject();
 
@@ -763,7 +761,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             String moduleHistoryPath = Paths
                 .get(currentProject.getProjectFolder().getPath(), FolderHelper.HISTORY_FOLDER, module.getName())
                 .toString();
-            ProjectsInHistoryController.save(moduleHistoryPath, moduleFile);
+            ProjectHistoryService.save(moduleHistoryPath, moduleFile);
         }
         if (currentProject == null) {
             log.warn("The project has not been resolved after update.");
