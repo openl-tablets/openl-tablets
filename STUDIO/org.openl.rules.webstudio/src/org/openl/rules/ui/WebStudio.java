@@ -64,7 +64,6 @@ import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
-import org.openl.rules.webstudio.web.admin.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -638,12 +637,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
             tryLockProject();
 
             stream = uploadedFile.getInput();
-            XlsWorkbookSourceHistoryListener historyListener = new XlsWorkbookSourceHistoryListener(
-                model.getHistoryStoragePath());
+
             Module module = getCurrentModule();
             File sourceFile = new File(module.getRulesRootPath().getPath());
 
-            historyListener.beforeSave(sourceFile);
+            ProjectHistoryService.init(model.getHistoryStoragePath(), sourceFile);
             LocalRepository repository = rulesUserSession.getUserWorkspace()
                 .getLocalWorkspace()
                 .getRepository(currentRepositoryId);
@@ -653,7 +651,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             FileData data = new FileData();
             data.setName(projectFolder.getName() + "/" + relativePath);
             repository.save(data, stream);
-            historyListener.afterSave(sourceFile);
+            ProjectHistoryService.save(model.getHistoryStoragePath(), sourceFile);
         } catch (Exception e) {
             log.error("Error updating file in user workspace.", e);
             throw new IllegalStateException("Error while updating the module.", e);
