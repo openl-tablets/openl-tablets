@@ -17,6 +17,9 @@ final class SchemaResolver {
 
     @SuppressWarnings("rawtypes")
     public static Schema resolve(Context context, Type type) {
+        if (type == null) {
+            type = Object.class;
+        }
         ModelConverterContextImpl modelConverterContext;
         synchronized (OpenApiRulesCacheWorkaround.class) {
             OpenApiObjectMapperHack openApiObjectMapperHack = new OpenApiObjectMapperHack();
