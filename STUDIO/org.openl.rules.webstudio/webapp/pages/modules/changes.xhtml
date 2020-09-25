@@ -70,7 +70,7 @@
                     <div>Modified On</div>
                     <div>Action</div>
                 </header>
-                <div class="row {current}">
+                <div class="row {type}">
                     <div><input type="checkbox" value="{version}"/></div>
                     <div class="modifiedOn">{modifiedOn}</div>
                     <div><a href="#">Restore</a><span>Current</span></div>
@@ -175,8 +175,8 @@
 
                         data.forEach(function (item) {
                             history += htmlTemplate
-                                .replace(/{version}/g, item.current ? item.version + "_current" : item.version)
-                                .replace(/{current}/g, item.current ? "current" : "")
+                                .replace(/{version}/g, item.id)
+                                .replace(/{type}/g, item.type)
                                 .replace(/{modifiedOn}/g, item.modifiedOn);
                         });
                         $jq('#changes').append(history);

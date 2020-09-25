@@ -136,15 +136,6 @@
 
             }
 
-            function changeStatus(element) {
-                $j("#avaliableProjectsInHistory INPUT[type='checkbox']").attr('checked', element.checked);
-                if (element.checked) {
-                    $j("#systemSettingsForm\\:sbtClean").removeAttr('disabled');
-                } else {
-                    $j("#systemSettingsForm\\:sbtClean").attr('disabled', 'disabled');
-                }
-            }
-
             function confirmSave() {
                 return !#{isNotSingleMode} || confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to apply these settings now?');
             }

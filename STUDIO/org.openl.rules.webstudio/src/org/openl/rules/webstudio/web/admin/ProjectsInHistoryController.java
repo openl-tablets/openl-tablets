@@ -9,17 +9,13 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.webstudio.web.ProjectHistoryItem;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
@@ -37,21 +33,6 @@ public class ProjectsInHistoryController {
     public static final String CURRENT_VERSION = "_current";
 
     private ProjectsInHistoryController() {
-    }
-
-    public static List<ProjectHistoryItem> getProjectHistory(String projectHistoryPath) {
-        File dir = new File(projectHistoryPath);
-        String[] historyListFiles = dir.list();
-        if (historyListFiles == null || historyListFiles.length == 1) {
-            return Collections.emptyList();
-        }
-        Arrays.sort(historyListFiles, Comparator.reverseOrder());
-        List<ProjectHistoryItem> collect = Arrays.stream(historyListFiles)
-            .map(ProjectHistoryItem::new)
-            .collect(Collectors.toList());
-        ProjectHistoryItem revisionVersion = collect.remove(0);
-        collect.add(revisionVersion);
-        return collect;
     }
 
     public static void deleteHistory(String projectName) throws IOException {
@@ -95,7 +76,7 @@ public class ProjectsInHistoryController {
         }
     }
 
-    public static void deleteHistoryOverLimit(String storagePath) {
+    private static void deleteHistoryOverLimit(String storagePath) {
         int count = Props.integer("project.history.count");
         File dir = new File(storagePath);
         File[] files = dir.listFiles();
