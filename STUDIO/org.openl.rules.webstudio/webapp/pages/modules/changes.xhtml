@@ -176,7 +176,7 @@
                         data.forEach(function (item) {
                             history += htmlTemplate
                                 .replace(/{version}/g, item.id)
-                                .replace(/{type}/g, item.type)
+                                .replace(/{type}/g, item.current ? "current" : "")
                                 .replace(/{modifiedOn}/g, item.modifiedOn);
                         });
                         $jq('#changes').append(history);

@@ -70,9 +70,7 @@ public class ProjectHistoryService {
     }
 
     private ProjectHistoryItem createItem(String name) {
-        String[] parts = name.split("_");
-        String type = parts.length == 2 ? parts[1] : null;
-        String version = parts[0];
+        String version = name.split("_")[0];
         SimpleDateFormat formatter = new SimpleDateFormat(WebStudioFormats.getInstance().dateTime());
         String modifiedOn;
         try {
@@ -82,7 +80,7 @@ public class ProjectHistoryService {
             modifiedOn = version;
         }
 
-        return new ProjectHistoryItem(name, modifiedOn, type);
+        return new ProjectHistoryItem(name, modifiedOn, name.endsWith(ProjectsInHistoryController.CURRENT_VERSION));
     }
 
     @POST
