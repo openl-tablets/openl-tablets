@@ -1,0 +1,257 @@
+{
+    "components": {
+        "schemas": {
+            "JAXRSErrorResponse": {
+                "properties": {
+                    "details": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "enum": [
+                            "USER_ERROR",
+                            "RULES_RUNTIME",
+                            "COMPILATION",
+                            "SYSTEM",
+                            "BAD_REQUEST",
+                            "VALIDATION"
+                        ],
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Main1": {
+                "properties": {
+                    "Value1_BigDecimal": {
+                        "type": "number"
+                    },
+                    "Value1_BigInteger": {
+                        "type": "integer"
+                    },
+                    "Value1_Double": {
+                        "format": "double",
+                        "type": "number"
+                    },
+                    "Value1_Float": {
+                        "format": "double",
+                        "type": "number"
+                    },
+                    "Value1_Integer": {
+                        "format": "int64",
+                        "type": "integer"
+                    },
+                    "Value1_Long": {
+                        "type": "integer"
+                    },
+                    "Value2_BigDecimal": {
+                        "type": "number"
+                    },
+                    "Value2_BigInteger": {
+                        "type": "integer"
+                    },
+                    "Value2_Double": {
+                        "type": "number"
+                    },
+                    "Value2_Float": {
+                        "type": "number"
+                    },
+                    "Value2_Integer": {
+                        "type": "integer"
+                    },
+                    "Value2_Long": {
+                        "format": "float",
+                        "type": "number"
+                    },
+                    "Value3_BigDecimal": {
+                        "type": "number"
+                    },
+                    "Value3_BigInteger": {
+                        "type": "integer"
+                    },
+                    "Value3_Double": {
+                        "format": "double",
+                        "type": "number"
+                    },
+                    "Value3_Float": {
+                        "format": "float",
+                        "type": "number"
+                    },
+                    "Value3_Integer": {
+                        "format": "float",
+                        "type": "number"
+                    },
+                    "Value3_Long": {
+                        "format": "double",
+                        "type": "number"
+                    },
+                    "Value4_BigDecimal": {
+                        "type": "number"
+                    },
+                    "Value4_BigInteger": {
+                        "type": "integer"
+                    },
+                    "Value4_Double": {
+                        "format": "double",
+                        "type": "number"
+                    },
+                    "Value4_Float": {
+                        "format": "float",
+                        "type": "number"
+                    },
+                    "Value4_Integer": {
+                        "format": "double",
+                        "type": "number"
+                    },
+                    "Value4_Long": {
+                        "type": "number"
+                    },
+                    "Value5_BigDecimal": {
+                        "type": "number"
+                    },
+                    "Value5_BigInteger": {
+                        "type": "integer"
+                    },
+                    "Value5_Double": {
+                        "format": "double",
+                        "type": "number"
+                    },
+                    "Value5_Float": {
+                        "format": "float",
+                        "type": "number"
+                    },
+                    "Value5_Integer": {
+                        "type": "number"
+                    },
+                    "Value5_Long": {
+                        "format": "int64",
+                        "type": "integer"
+                    },
+                    "Value6_BigDecimal": {
+                        "type": "number"
+                    },
+                    "Value6_BigInteger": {
+                        "type": "integer"
+                    },
+                    "Value6_Double": {
+                        "format": "double",
+                        "type": "number"
+                    },
+                    "Value6_Float": {
+                        "format": "float",
+                        "type": "number"
+                    },
+                    "Value6_Integer": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "Value6_Long": {
+                        "format": "int64",
+                        "type": "integer"
+                    },
+                    "Value7_BigDecimal": {
+                        "type": "number"
+                    },
+                    "Value7_BigInteger": {
+                        "type": "integer"
+                    },
+                    "Value7_Double": {
+                        "format": "double",
+                        "type": "number"
+                    },
+                    "Value7_Float": {
+                        "format": "float",
+                        "type": "number"
+                    },
+                    "Value7_Integer": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "Value7_Long": {
+                        "format": "int64",
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "info": {
+        "title": "deployment1_simple1",
+        "version": "1.0.0"
+    },
+    "openapi": "3.0.1",
+    "paths": {
+        "/main1": {
+            "get": {
+                "description": "Rules method: SpreadsheetResultmain1 main1()",
+                "operationId": "main1",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Main1"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Main1 main1()"
+            }
+        }
+    },
+    "servers": [
+        {
+            "url": "/org_openl_rules_ruleservice_ws_war/deployment1/simple1",
+            "variables": {}
+        }
+    ]
+}

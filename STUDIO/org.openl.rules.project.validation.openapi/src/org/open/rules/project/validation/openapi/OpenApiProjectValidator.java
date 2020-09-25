@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -810,16 +811,33 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         return false;
     }
 
+    private static final List<String> ORDER_TYPES1 = Arrays.asList("Integer", "Long", "BigInteger", "BigDecimal");
+    private static final List<String> ORDER_TYPES2 = Arrays.asList("Integer", "Long", "Float", "Double", "BigDecimal");
+
+    private boolean isCompatibleTypes(String actualType, String expectedType) {
+        int actualIndex = ORDER_TYPES1.indexOf(actualType);
+        int expectedIndex = ORDER_TYPES1.indexOf(expectedType);
+        if (actualIndex >= 0 && expectedIndex >= 0 && actualIndex <= expectedIndex) {
+            return true;
+        }
+        actualIndex = ORDER_TYPES2.indexOf(actualType);
+        expectedIndex = ORDER_TYPES2.indexOf(expectedType);
+        if (actualIndex >= 0 && expectedIndex >= 0 && actualIndex <= expectedIndex) {
+            return true;
+        }
+        return Objects.equals(actualType, expectedType);
+    }
+
     private boolean isIncompatibleTypes(Schema<?> parameterSchema,
             Schema<?> expectedParameterSchema,
             IOpenClass parameterOpenClass) {
         String expectedParameterSchemaType = resolveSimplifiedName(expectedParameterSchema);
         String actualParameterSchemaType = resolveSimplifiedName(parameterSchema);
-        return !Objects.equals(expectedParameterSchemaType,
-            actualParameterSchemaType) && expectedParameterSchemaType != null && actualParameterSchemaType != null && (isSimpleJavaType(
-                expectedParameterSchemaType) || isSimpleJavaType(
-                    actualParameterSchemaType) || parameterOpenClass instanceof DatatypeOpenClass && Objects
-                        .equals(expectedParameterSchema.getName(), parameterSchema.getName()));
+        return expectedParameterSchemaType != null && actualParameterSchemaType != null && (!isCompatibleTypes(
+            actualParameterSchemaType,
+            expectedParameterSchemaType)) && (isSimpleJavaType(expectedParameterSchemaType) || isSimpleJavaType(
+                actualParameterSchemaType) || parameterOpenClass instanceof DatatypeOpenClass && Objects
+                    .equals(expectedParameterSchema.getName(), parameterSchema.getName()));
     }
 
     private boolean isSimpleJavaType(String type) {
