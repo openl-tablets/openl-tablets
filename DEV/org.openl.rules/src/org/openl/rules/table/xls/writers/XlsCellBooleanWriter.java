@@ -10,6 +10,7 @@ public class XlsCellBooleanWriter extends AXlsCellWriter {
 
     @Override
     public void writeCellValue() {
+        removeFormulaIfPresent();
         Boolean boolValue = (Boolean) getValueToWrite();
         getCellToWrite().setCellValue(boolValue);
     }
