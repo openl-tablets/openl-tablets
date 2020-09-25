@@ -48,15 +48,6 @@ public class ProjectsInHistoryController {
         }
     }
 
-    public static void deleteAllHistory() throws IOException {
-        String projectHistoryHome = Props.text(AdministrationSettings.USER_WORKSPACE_HOME);
-        File userWorkspace = new File(projectHistoryHome);
-        if (userWorkspace.exists() && userWorkspace.isDirectory()) {
-            Files.walkFileTree(userWorkspace.toPath(), new HashSet<>(), 3, new DeleteHistoryVisitor());
-        }
-        WebStudioUtils.addInfoMessage("History has been successfully deleted");
-    }
-
     public static void save(String storagePath, File source) {
         Objects.requireNonNull(source);
         File currentVersion = getCurrentVersion(storagePath);
@@ -148,18 +139,6 @@ public class ProjectsInHistoryController {
         File currentVersion = getCurrentVersion(storagePath);
         if (currentVersion != null) {
             currentVersion.renameTo(new File(currentVersion.getPath().replaceAll(CURRENT_VERSION + "$", "")));
-        }
-    }
-
-    static class DeleteHistoryVisitor extends SimpleFileVisitor<Path> {
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            FileVisitResult fileVisitResult = super.visitFile(file, attrs);
-            File f = file.toFile();
-            if (f.isDirectory() && f.getName().equals(FolderHelper.HISTORY_FOLDER)) {
-                FileUtils.delete(f);
-            }
-            return fileVisitResult;
         }
     }
 
