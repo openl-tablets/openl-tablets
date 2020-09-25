@@ -63,13 +63,13 @@ import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
-import org.openl.rules.webstudio.web.admin.ProjectsInHistoryController;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
@@ -311,7 +311,7 @@ public class RepositoryTreeController {
     public String closeProject() {
         try {
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
-            ProjectsInHistoryController.deleteHistory(repositoryProject.getName());
+            ProjectHistoryService.deleteHistory(repositoryProject.getName());
             closeProjectAndReleaseResources(repositoryProject);
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
@@ -953,7 +953,7 @@ public class RepositoryTreeController {
         // Needed to update UI of current user
         TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(repoId, projectName);
         try {
-            ProjectsInHistoryController.deleteHistory(projectName);
+            ProjectHistoryService.deleteHistory(projectName);
             if (projectNode != null) {
                 AProjectArtefact artefact = projectNode.getData();
                 if (artefact instanceof RulesProject) {
@@ -2127,7 +2127,7 @@ public class RepositoryTreeController {
                     selectedProject.close();
                 } else {
                     // Update files
-                    ProjectsInHistoryController.deleteHistory(selectedProject.getName());
+                    ProjectHistoryService.deleteHistory(selectedProject.getName());
                     if (!userWorkspace.isOpenedOtherProject(selectedProject)) {
                         selectedProject.open();
                     }

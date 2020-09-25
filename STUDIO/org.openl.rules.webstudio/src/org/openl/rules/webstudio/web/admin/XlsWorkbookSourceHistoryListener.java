@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.rest.ProjectHistoryService;
 
 /**
  * @author Andrei Astrouski
@@ -26,7 +27,7 @@ public class XlsWorkbookSourceHistoryListener implements XlsWorkbookListener {
     }
 
     public void beforeSave(File sourceFile) {
-        ProjectsInHistoryController.init(historyStoragePath, sourceFile);
+        ProjectHistoryService.init(historyStoragePath, sourceFile);
     }
 
     @Override
@@ -36,7 +37,7 @@ public class XlsWorkbookSourceHistoryListener implements XlsWorkbookListener {
     }
 
     public void afterSave(File sourceFile) {
-        ProjectsInHistoryController.save(historyStoragePath, sourceFile);
+        ProjectHistoryService.save(historyStoragePath, sourceFile);
     }
 
 }

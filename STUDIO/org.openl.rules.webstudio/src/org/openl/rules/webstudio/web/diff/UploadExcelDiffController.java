@@ -10,9 +10,9 @@ import java.util.List;
 import javax.annotation.PreDestroy;
 import javax.faces.context.FacesContext;
 
+import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.webstudio.web.admin.ProjectsInHistoryController;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.FileTool;
@@ -103,8 +103,8 @@ public class UploadExcelDiffController extends ExcelDiffController {
             ProjectModel model = WebStudioUtils.getProjectModel();
 
             String historyStoragePath = model.getHistoryStoragePath();
-            File file1ToCompare = ProjectsInHistoryController.get(historyStoragePath, version1);
-            File file2ToCompare = ProjectsInHistoryController.get(historyStoragePath, version2);
+            File file1ToCompare = ProjectHistoryService.get(historyStoragePath, version1);
+            File file2ToCompare = ProjectHistoryService.get(historyStoragePath, version2);
 
             UploadExcelDiffController diffController = (UploadExcelDiffController) WebStudioUtils
                 .getBackingBean("uploadExcelDiffController");

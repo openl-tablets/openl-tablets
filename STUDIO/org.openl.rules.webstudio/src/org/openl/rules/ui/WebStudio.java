@@ -51,6 +51,7 @@ import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.MergeConflictException;
+import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.tree.view.CategoryDetailedView;
 import org.openl.rules.ui.tree.view.CategoryInversedView;
@@ -63,7 +64,6 @@ import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
-import org.openl.rules.webstudio.web.admin.ProjectsInHistoryController;
 import org.openl.rules.webstudio.web.admin.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
@@ -309,7 +309,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     }
                 }
             }
-            ProjectsInHistoryController.deleteHistory(projectName);
+            ProjectHistoryService.deleteHistory(projectName);
             project.save();
             if (renameProject) {
                 if (project.getDesignRepository().supports().mappedFolders()) {
@@ -686,7 +686,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 String moduleHistoryPath = Paths
                     .get(currentProject.getProjectFolder().getPath(), FolderHelper.HISTORY_FOLDER, module.getName())
                     .toString();
-                ProjectsInHistoryController.init(moduleHistoryPath, moduleFile);
+                ProjectHistoryService.init(moduleHistoryPath, moduleFile);
             }
             tryLockProject();
 
@@ -763,7 +763,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             String moduleHistoryPath = Paths
                 .get(currentProject.getProjectFolder().getPath(), FolderHelper.HISTORY_FOLDER, module.getName())
                 .toString();
-            ProjectsInHistoryController.save(moduleHistoryPath, moduleFile);
+            ProjectHistoryService.save(moduleHistoryPath, moduleFile);
         }
         if (currentProject == null) {
             log.warn("The project has not been resolved after update.");
