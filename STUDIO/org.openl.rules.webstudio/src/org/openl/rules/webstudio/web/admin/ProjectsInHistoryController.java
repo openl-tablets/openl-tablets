@@ -61,7 +61,11 @@ public class ProjectsInHistoryController {
     }
 
     private static void deleteHistoryOverLimit(String storagePath) {
-        int count = Props.integer("project.history.count");
+        Integer count = Props.integer("project.history.count");
+        if (count == null) {
+            // Infinity history
+            return;
+        }
         File dir = new File(storagePath);
         File[] files = dir.listFiles();
         if (files == null) {
