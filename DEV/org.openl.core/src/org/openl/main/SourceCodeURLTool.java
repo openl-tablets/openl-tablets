@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author snshor
  */
-public final class SourceCodeURLTool implements SourceCodeURLConstants {
+public final class SourceCodeURLTool {
 
     private SourceCodeURLTool() {
     }
@@ -52,13 +52,13 @@ public final class SourceCodeURLTool implements SourceCodeURLConstants {
                 log.warn("Cannot make source location URL", e);
             }
 
-            lineInfo = START + "=" + start + QSEP + END + "=" + end;
+            lineInfo = "start=" + start + "&end=" + end;
 
         }
 
         String moduleUri = getUri(module, location);
 
-        String suffix = !moduleUri.contains(QSTART) ? QSTART : QSEP;
+        String suffix = !moduleUri.contains("?") ? "?" : "&";
 
         String url = moduleUri;
         if (lineInfo != null) {
@@ -156,7 +156,8 @@ public final class SourceCodeURLTool implements SourceCodeURLConstants {
 
     static public void printSourceLocation(String sourceLocation, PrintWriter pw) {
         if (!StringUtils.isEmpty(sourceLocation)) {
-            pw.print(SourceCodeURLConstants.AT_PREFIX + sourceLocation);
+            pw.print("    at ");
+            pw.print(sourceLocation);
             pw.print("\r\n");
         }
     }

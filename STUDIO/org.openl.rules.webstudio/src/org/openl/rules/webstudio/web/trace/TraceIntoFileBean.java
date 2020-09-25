@@ -11,7 +11,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
 import org.openl.rules.webstudio.util.WebTool;
-import org.openl.main.SourceCodeURLConstants;
 import org.openl.rules.webstudio.web.test.RunTestHelper;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -80,11 +79,9 @@ public class TraceIntoFileBean {
             writer.write(TraceFormatter.getDisplayName(aTrace));
             writer.write('\n');
             writer.write(indents, 0, level % indents.length);
-            writer.write(SourceCodeURLConstants.AT_PREFIX);
+            writer.write("    at ");
             writer.write(FileUtils.getBaseName(aTrace.getUri()));
-            writer.write('&');
-            writer.write(SourceCodeURLConstants.OPENL);
-            writer.write('=');
+            writer.write("&openl=");
             writer.write('\n');
 
             print(aTrace, level + 1, writer);

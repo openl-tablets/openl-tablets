@@ -48,7 +48,6 @@ import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsUrlParser;
-import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestSuite;
@@ -139,12 +138,7 @@ public class ProjectModel {
     }
 
     public TableSyntaxNode findNode(String url) {
-        XlsUrlParser parsedUrl = new XlsUrlParser();
-        parsedUrl.parse(url);
-
-        if (parsedUrl.getRange() == null) {
-            return null;
-        }
+        XlsUrlParser parsedUrl = new XlsUrlParser(url);
 
         return findNode(parsedUrl);
     }
@@ -166,7 +160,7 @@ public class ProjectModel {
                     return true;
                 }
             } else {
-                if (XlsUrlUtils.intersects(p1, gridTable.getUriParser())) {
+                if (p1.intersects(gridTable.getUriParser())) {
                     return true;
                 }
             }
@@ -179,7 +173,7 @@ public class ProjectModel {
         TableSyntaxNode[] nodes = getAllTableSyntaxNodes();
 
         for (TableSyntaxNode node : nodes) {
-            if (XlsUrlUtils.intersects(p1, node.getGridTable().getUriParser())) {
+            if (p1.intersects(node.getGridTable().getUriParser())) {
                 if (XlsNodeTypes.XLS_TABLEPART.equals(node.getNodeType())) {
                     for (TableSyntaxNode tableSyntaxNode : nodes) {
                         IGridTable table = tableSyntaxNode.getGridTable();

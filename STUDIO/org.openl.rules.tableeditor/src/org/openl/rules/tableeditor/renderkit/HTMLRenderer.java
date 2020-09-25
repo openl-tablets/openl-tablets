@@ -422,8 +422,7 @@ public class HTMLRenderer {
                     if (cell instanceof CellModel) {
                         boolean selectErrorCell = false;
                         if (cellUri != null) {
-                            XlsUrlParser uriParser = new XlsUrlParser();
-                            uriParser.parse(cellUri);
+                            XlsUrlParser uriParser = new XlsUrlParser(cellUri);
                             if (errorCell != null && errorCell.equals(uriParser.getCell())) {
                                 selectErrorCell = true;
                             }

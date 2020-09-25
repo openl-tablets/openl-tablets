@@ -32,7 +32,6 @@ import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUrlParser;
-import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.ProjectHelper;
@@ -222,9 +221,8 @@ public class TableBean {
                 } else {
                     String warnUri = warning.getSourceLocation();
 
-                    XlsUrlParser uriParser = new XlsUrlParser();
-                    uriParser.parse(warnUri);
-                    if (XlsUrlUtils.intersects(uriParser, table.getUriParser())) {
+                    XlsUrlParser uriParser = new XlsUrlParser(warnUri);
+                    if (uriParser.intersects(table.getUriParser())) {
                         warnings.add(warning);
                     }
                 }
