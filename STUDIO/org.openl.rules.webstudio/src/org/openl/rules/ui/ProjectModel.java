@@ -43,6 +43,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
+import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
@@ -64,7 +65,6 @@ import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManage
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
-import org.openl.rules.webstudio.web.admin.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -660,14 +660,12 @@ public class ProjectModel {
 
                 Collection<XlsWorkbookListener> listeners = sourceCodeModule.getListeners();
                 for (XlsWorkbookListener listener : listeners) {
-                    if (listener instanceof XlsWorkbookSourceHistoryListener) {
+                    if (listener instanceof XlsModificationListener) {
                         return;
                     }
                 }
 
-                XlsWorkbookListener historyListener = new XlsWorkbookSourceHistoryListener(getHistoryStoragePath());
-                sourceCodeModule.addListener(historyListener);
-                sourceCodeModule.addListener(new XlsModificationListener(repository));
+                sourceCodeModule.addListener(new XlsModificationListener(repository, getHistoryStoragePath()));
             }
         }
     }
@@ -1240,7 +1238,7 @@ public class ProjectModel {
                 Iterator<XlsWorkbookListener> iterator = sourceCodeModule.getListeners().iterator();
                 while (iterator.hasNext()) {
                     XlsWorkbookListener listener = iterator.next();
-                    if (listener instanceof XlsWorkbookSourceHistoryListener) {
+                    if (listener instanceof XlsModificationListener) {
                         iterator.remove();
                         break;
                     }
@@ -1283,20 +1281,25 @@ public class ProjectModel {
     private class XlsModificationListener implements XlsWorkbookListener {
 
         private final LocalRepository repository;
+        private final String historyStoragePath;
 
-        private XlsModificationListener(LocalRepository repository) {
+        private XlsModificationListener(LocalRepository repository, String historyStoragePath) {
             this.repository = repository;
+            this.historyStoragePath = historyStoragePath;
         }
 
         @Override
         public void beforeSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
-
+            File sourceFile = workbookSourceCodeModule.getSourceFile();
+            ProjectHistoryService.init(historyStoragePath, sourceFile);
         }
 
         @Override
         public void afterSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
             isModified();
-            repository.getProjectState(workbookSourceCodeModule.getSourceFile().getPath()).notifyModified();
+            File sourceFile = workbookSourceCodeModule.getSourceFile();
+            repository.getProjectState(sourceFile.getPath()).notifyModified();
+            ProjectHistoryService.save(historyStoragePath, sourceFile);
         }
     }
 }
