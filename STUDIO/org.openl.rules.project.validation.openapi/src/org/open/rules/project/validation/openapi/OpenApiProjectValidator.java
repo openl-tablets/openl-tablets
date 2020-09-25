@@ -989,7 +989,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 }
 
                 List<Function> wrongFields = new ArrayList<>();
-                int fieldsToValidate = 0;
+                int countOfValidFields = 0;
                 for (Map.Entry<String, Schema> entry : propertiesOfExpectedSchema.entrySet()) {
                     Schema<?> fieldActualSchema = propertiesOfActualSchema.get(entry.getKey());
                     if (fieldActualSchema == null) {
@@ -1047,15 +1047,10 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                                     });
                                 }
                             } else {
-                                fieldsToValidate++;
+                                countOfValidFields++;
                             }
                         }
                     }
-                }
-                if (fieldsToValidate == 0 && !wrongFields.isEmpty()) {
-                    throw new DifferentTypesException();
-                } else {
-                    wrongFields.forEach(Function::run);
                 }
                 for (Map.Entry<String, Schema> entry : propertiesOfActualSchema.entrySet()) {
                     Schema<?> fieldExpectedSchema = propertiesOfExpectedSchema.get(entry.getKey());
@@ -1063,18 +1058,25 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         IOpenField openField = context.getOpenClassPropertiesResolver()
                             .getField(openClass, entry.getKey());
                         if (openField != null) {
-                            try {
-                                context.setField(openField);
-                                OpenApiProjectValidatorMessagesUtils.addTypeError(context,
-                                    String.format(
-                                        OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected field '%s' is found in type '%s'.",
-                                        openField.getName(),
-                                        openClass.getDisplayName(INamedThing.REGULAR)));
-                            } finally {
-                                context.setField(null);
-                            }
+                            wrongFields.add(() -> {
+                                try {
+                                    context.setField(openField);
+                                    OpenApiProjectValidatorMessagesUtils.addTypeError(context,
+                                        String.format(
+                                            OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected field '%s' is found in type '%s'.",
+                                            openField.getName(),
+                                            openClass.getDisplayName(INamedThing.REGULAR)));
+                                } finally {
+                                    context.setField(null);
+                                }
+                            });
                         }
                     }
+                }
+                if (countOfValidFields == 0 && !wrongFields.isEmpty()) {
+                    throw new DifferentTypesException();
+                } else {
+                    wrongFields.forEach(Function::run);
                 }
                 for (Map.Entry<String, Schema> entry : propertiesOfExpectedSchema.entrySet()) {
                     Schema<?> fieldActualSchema = propertiesOfActualSchema.get(entry.getKey());

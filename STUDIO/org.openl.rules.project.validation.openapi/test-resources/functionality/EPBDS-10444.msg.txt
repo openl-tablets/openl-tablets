@@ -1,0 +1,2 @@
+ERROR: OpenAPI validation: Type 'AnySpreadsheetResult' of field 'step3' in type 'MainSpr' mismatches to declared schema 'AnySpreadsheetResult'.
+ERROR: OpenAPI validation: Return type of method 'callTestSrp' must be compatible with OpenAPI type 'AnySpreadsheetResult'.
