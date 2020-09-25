@@ -118,8 +118,7 @@ public class MessagesBean {
             return null;
         }
 
-        XlsUrlParser uriParser = new XlsUrlParser();
-        uriParser.parse(errorUri);
+        XlsUrlParser uriParser = new XlsUrlParser(errorUri);
 
         return uriParser.getCell();
     }

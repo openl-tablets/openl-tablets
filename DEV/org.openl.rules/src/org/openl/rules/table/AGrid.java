@@ -1,7 +1,5 @@
 package org.openl.rules.table;
 
-import org.openl.rules.table.syntax.XlsURLConstants;
-
 public abstract class AGrid implements IGrid {
 
     public static final String RANGE_SEPARATOR = ":";
@@ -24,16 +22,16 @@ public abstract class AGrid implements IGrid {
             ICell cell = getCell(colStart, rowStart);
             IGridRegion region = cell.getRegion();
             if (region == null || (region.getRight() == region.getLeft() && region.getBottom() == region.getTop())) {
-                return getUri() + "&" + "cell=" + cell.getUri();
+                return getUri() + "&cell=" + cell.getUri();
             } else {
                 String range = getCell(region.getLeft(), region.getTop())
                     .getUri() + RANGE_SEPARATOR + getCell(region.getRight(), region.getBottom()).getUri();
-                return getUri() + "&" + XlsURLConstants.RANGE + "=" + range;
+                return getUri() + "&range=" + range;
             }
         }
 
         String range = getCell(colStart, rowStart).getUri() + RANGE_SEPARATOR + getCell(colEnd, rowEnd).getUri();
-        return getUri() + "&" + XlsURLConstants.RANGE + "=" + range;
+        return getUri() + "&range=" + range;
     }
 
     @Override

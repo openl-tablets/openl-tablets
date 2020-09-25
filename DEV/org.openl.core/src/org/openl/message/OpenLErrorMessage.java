@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
-import org.openl.main.SourceCodeURLConstants;
 import org.openl.util.StringUtils;
 
 /**
@@ -43,7 +42,7 @@ public class OpenLErrorMessage extends OpenLMessage {
             String url = getError().getSourceLocation();
 
             if (StringUtils.isNotEmpty(url)) {
-                printWriter.print(SourceCodeURLConstants.AT_PREFIX + url + "\r\n");
+                printWriter.print("    at " + url + "\r\n");
             }
             if (getError().getCause() != null && getError().getLocation() == null) {
                 getError().getCause().printStackTrace(printWriter);

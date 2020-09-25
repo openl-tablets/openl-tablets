@@ -47,10 +47,10 @@ public class GridLocation implements ILocation {
     public String toString() {
 
         if (end == null) {
-            return XlsURLConstants.CELL + "=" + start;
+            return "cell=" + start;
         }
 
-        return XlsURLConstants.RANGE + "=" + start + ":" + end;
+        return "range=" + start + ":" + end;
     }
 
 }

@@ -34,7 +34,7 @@ public class MessageHandler {
      */
     public String getUrlForEmptySource(OpenLMessage message) {
         return WebStudioUtils.getWebStudio()
-            .url("message" + "?type" + "=" + message.getSeverity().name() + "&summary" + "=" + message.getId());
+            .url("message?type=" + message.getSeverity().name() + "&summary=" + message.getId());
     }
 
     protected String getUri(OpenLMessage message) {
@@ -85,19 +85,17 @@ public class MessageHandler {
     }
 
     private String getUrlForCurrentModule(String errorUri, String tableId) {
-        XlsUrlParser uriParser = new XlsUrlParser();
-        uriParser.parse(errorUri);
+        XlsUrlParser uriParser = new XlsUrlParser(errorUri);
         String url = "table?id=" + tableId;
         if (StringUtils.isNotBlank(uriParser.getCell())) {
-            url += "&" + org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_ERROR_CELL + "=" + uriParser
-                .getCell();
+            url += "&errorCell=" + uriParser.getCell();
         }
         return WebStudioUtils.getWebStudio().url(url);
     }
 
     private String getErrorUrlForDependency(OpenLMessage message) {
         return WebStudioUtils.getWebStudio()
-            .url("message" + "?type" + "=" + message.getSeverity().name() + "&summary" + "=" + message.getId());
+            .url("message?type=" + message.getSeverity().name() + "&summary=" + message.getId());
     }
 
 }
