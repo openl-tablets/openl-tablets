@@ -4,7 +4,6 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.PropertySourcesPropertyResolver;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.jndi.JndiLocatorDelegate;
@@ -83,7 +82,7 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
                 propertySources.addFirst(new JndiPropertySource("JNDI properties"));
             }
             ConfigLog.LOG.info("Loading ServletContext init parameters...");
-            propertySources.addFirst(new PropertySource.StubPropertySource("ServletContext init parameters"));
+            propertySources.addFirst(new ServletContextPropertySource("ServletContext init parameters", servletContext));
         }
 
         ConfigLog.LOG.info("Loading application properties...");
