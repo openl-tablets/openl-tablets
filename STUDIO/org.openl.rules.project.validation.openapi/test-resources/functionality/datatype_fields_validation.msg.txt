@@ -1,6 +1,6 @@
-ERROR: OpenAPI validation: Expected non transient field 'missedInRulesField' is not found in type 'Bank'.
-ERROR: OpenAPI validation: Expected non transient field 'bankFullName' is not found in type 'Bank'.
 ERROR: OpenAPI validation: Unexpected field 'missedInOpenApiField' is found in type 'Bank'.
-ERROR: OpenAPI validation: Expected non transient field 'isAdequateMaxCreditRisk' is not found in type 'QualityIndicators'.
-ERROR: OpenAPI validation: Expected non transient field 'missedInRulesField' is not found in type 'QualityIndicators'.
 ERROR: OpenAPI validation: Unexpected field 'missedInOpenApiField' is found in type 'QualityIndicators'.
+ERROR: OpenAPI validation: Expected non transient field for schema property 'missedInRulesField' is not found in type 'Bank'.
+ERROR: OpenAPI validation: Expected non transient field for schema property 'bankFullName' is not found in type 'Bank'.
+ERROR: OpenAPI validation: Expected non transient field for schema property 'isAdequateMaxCreditRisk' is not found in type 'QualityIndicators'.
+ERROR: OpenAPI validation: Expected non transient field for schema property 'missedInRulesField' is not found in type 'QualityIndicators'.

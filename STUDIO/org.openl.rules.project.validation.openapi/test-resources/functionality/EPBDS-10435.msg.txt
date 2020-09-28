@@ -1,1 +1,1 @@
-ERROR: OpenAPI validation: Unexpected field 'step7' is found in type 'MySpr'.
+ERROR: OpenAPI validation: Unexpected cell '$Step7' is found.

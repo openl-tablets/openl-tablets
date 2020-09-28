@@ -1,7 +1,5 @@
 package org.open.rules.project.validation.openapi;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import org.openl.message.OpenLMessage;
@@ -68,17 +66,8 @@ final class OpenApiProjectValidatorMessagesUtils {
             for (IOpenMethod m : openMethodDispatcher.getCandidates()) {
                 if (context.getField() != null && m instanceof Spreadsheet && m
                     .getType() instanceof CustomSpreadsheetResultOpenClass) {
-                    Map<String, List<IOpenField>> beanFieldsMap = ((CustomSpreadsheetResultOpenClass) m.getType())
-                        .getBeanFieldsMap();
-                    IOpenField openField = context.getField();
-                    Spreadsheet spreadsheet = (Spreadsheet) m;
-                    List<IOpenField> sprFields = beanFieldsMap.get(openField.getName());
-                    IOpenField openFieldInSpr = null;
-                    for (IOpenField f : sprFields) {
-                        if (openFieldInSpr == null) {
-                            openFieldInSpr = spreadsheet.getSpreadsheetType().getField(f.getName());
-                        }
-                    }
+                    IOpenField openFieldInSpr = SpreadsheetMethodResolver.findSpreadsheetOpenField((Spreadsheet) m,
+                        context.getField());
                     if (openFieldInSpr != null) {
                         if (context.getIsIncompatibleTypesPredicate() != null) {
                             Schema actualSchema = SchemaResolver.resolve(context,

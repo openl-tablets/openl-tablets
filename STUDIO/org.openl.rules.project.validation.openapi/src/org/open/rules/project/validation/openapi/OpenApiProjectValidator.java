@@ -993,11 +993,18 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 for (Map.Entry<String, Schema> entry : propertiesOfExpectedSchema.entrySet()) {
                     Schema<?> fieldActualSchema = propertiesOfActualSchema.get(entry.getKey());
                     if (fieldActualSchema == null) {
-                        wrongFields.add(() -> OpenApiProjectValidatorMessagesUtils.addTypeError(context,
-                            String.format(
-                                OPEN_API_VALIDATION_MSG_PREFIX + "Expected non transient field '%s' is not found in type '%s'.",
-                                entry.getKey(),
-                                openClass.getDisplayName(INamedThing.REGULAR))));
+                        if (context.getSpreadsheetMethodResolver().resolve(openClass) == null) {
+                            wrongFields.add(() -> OpenApiProjectValidatorMessagesUtils.addTypeError(context,
+                                String.format(
+                                    OPEN_API_VALIDATION_MSG_PREFIX + "Expected non transient field for schema property '%s' is not found in type '%s'.",
+                                    entry.getKey(),
+                                    openClass.getDisplayName(INamedThing.REGULAR))));
+                        } else {
+                            wrongFields.add(() -> OpenApiProjectValidatorMessagesUtils.addTypeError(context,
+                                String.format(
+                                    OPEN_API_VALIDATION_MSG_PREFIX + "Expected non transient cell for schema property '%s' is not found.",
+                                    entry.getKey())));
+                        }
                     } else {
                         IOpenField openField = context.getOpenClassPropertiesResolver()
                             .getField(openClass, entry.getKey());
@@ -1007,6 +1014,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                             if (isIncompatibleTypesPredicate.test(fieldActualSchema, openField)) {
                                 final String type = resolveType(entry.getValue());
                                 final String format = entry.getValue().getFormat();
+                                final String stepName = context.getSpreadsheetMethodResolver()
+                                    .resolveStepName(context.getType(), openField);
                                 if (isSimpleJavaType(resolveSimplifiedName(fieldActualSchema))) {
                                     final String actualType = fieldActualSchema.getType();
                                     final String actualFormat = fieldActualSchema.getFormat();
@@ -1014,15 +1023,28 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                                         try {
                                             context.setField(openField);
                                             context.setIsIncompatibleTypesPredicate(isIncompatibleTypesPredicate);
-                                            OpenApiProjectValidatorMessagesUtils.addTypeError(context,
-                                                String.format(
-                                                    OPEN_API_VALIDATION_MSG_PREFIX + "Type of field '%s' in type '%s' must be compatible with OpenAPI type '%s%s'. Found OpenAPI type: '%s%s'.",
-                                                    openField.getName(),
-                                                    openClass.getDisplayName(INamedThing.REGULAR),
-                                                    type,
-                                                    format != null ? "(" + format + ")" : "",
-                                                    actualType,
-                                                    actualFormat != null ? "(" + actualFormat + ")" : ""));
+                                            if (stepName == null) {
+                                                OpenApiProjectValidatorMessagesUtils.addTypeError(context,
+                                                    String.format(
+                                                        OPEN_API_VALIDATION_MSG_PREFIX + "Type of field '%s' in type '%s' must be compatible with OpenAPI type '%s%s' of schema property '%s'. Found OpenAPI type: '%s%s'.",
+                                                        openField.getName(),
+                                                        openClass.getDisplayName(INamedThing.REGULAR),
+                                                        type,
+                                                        format != null ? "(" + format + ")" : "",
+                                                        entry.getKey(),
+                                                        actualType,
+                                                        actualFormat != null ? "(" + actualFormat + ")" : ""));
+                                            } else {
+                                                OpenApiProjectValidatorMessagesUtils.addTypeError(context,
+                                                    String.format(
+                                                        OPEN_API_VALIDATION_MSG_PREFIX + "Type of cell '%s' must be compatible with type '%s%s' of schema property '%s'. Found OpenAPI type: '%s%s'.",
+                                                        stepName,
+                                                        type,
+                                                        format != null ? "(" + format + ")" : "",
+                                                        entry.getKey(),
+                                                        actualType,
+                                                        actualFormat != null ? "(" + actualFormat + ")" : ""));
+                                            }
                                         } finally {
                                             context.setIsIncompatibleTypesPredicate(null);
                                             context.setField(null);
@@ -1033,13 +1055,24 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                                         try {
                                             context.setField(openField);
                                             context.setIsIncompatibleTypesPredicate(isIncompatibleTypesPredicate);
-                                            OpenApiProjectValidatorMessagesUtils.addTypeError(context,
-                                                String.format(
-                                                    OPEN_API_VALIDATION_MSG_PREFIX + "Type of field '%s' in type '%s' must be compatible with OpenAPI type '%s%s'.",
-                                                    openField.getName(),
-                                                    openClass.getDisplayName(INamedThing.REGULAR),
-                                                    type,
-                                                    format != null ? "(" + format + ")" : ""));
+                                            if (stepName == null) {
+                                                OpenApiProjectValidatorMessagesUtils.addTypeError(context,
+                                                    String.format(
+                                                        OPEN_API_VALIDATION_MSG_PREFIX + "Type of field '%s' in type '%s' must be compatible with OpenAPI type '%s%s' of schema property '%s'.",
+                                                        openField.getName(),
+                                                        openClass.getDisplayName(INamedThing.REGULAR),
+                                                        entry.getKey(),
+                                                        type,
+                                                        format != null ? "(" + format + ")" : ""));
+                                            } else {
+                                                OpenApiProjectValidatorMessagesUtils.addTypeError(context,
+                                                    String.format(
+                                                        OPEN_API_VALIDATION_MSG_PREFIX + "Type of cell '%s' must be compatible with OpenAPI type '%s%s' of schema property '%s'.",
+                                                        stepName,
+                                                        type,
+                                                        format != null ? "(" + format + ")" : "",
+                                                        entry.getKey()));
+                                            }
                                         } finally {
                                             context.setIsIncompatibleTypesPredicate(null);
                                             context.setField(null);
@@ -1058,14 +1091,23 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         IOpenField openField = context.getOpenClassPropertiesResolver()
                             .getField(openClass, entry.getKey());
                         if (openField != null) {
+                            final String stepName = context.getSpreadsheetMethodResolver()
+                                .resolveStepName(context.getType(), openField);
                             wrongFields.add(() -> {
                                 try {
                                     context.setField(openField);
-                                    OpenApiProjectValidatorMessagesUtils.addTypeError(context,
-                                        String.format(
-                                            OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected field '%s' is found in type '%s'.",
-                                            openField.getName(),
-                                            openClass.getDisplayName(INamedThing.REGULAR)));
+                                    if (stepName == null) {
+                                        OpenApiProjectValidatorMessagesUtils.addTypeError(context,
+                                            String.format(
+                                                OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected field '%s' is found in type '%s'.",
+                                                openField.getName(),
+                                                openClass.getDisplayName(INamedThing.REGULAR)));
+                                    } else {
+                                        OpenApiProjectValidatorMessagesUtils.addTypeError(context,
+                                            String.format(
+                                                OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected cell '%s' is found.",
+                                                stepName));
+                                    }
                                 } finally {
                                     context.setField(null);
                                 }
