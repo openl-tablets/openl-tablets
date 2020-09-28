@@ -19,6 +19,9 @@ public final class PoiExcelHelper {
     private static final short MAX_STYLES = 4030;
 
     public static void copyCellValue(Cell cellFrom, Cell cellTo) {
+        if (cellFrom.getCellType() != CellType.FORMULA && cellTo.getCellType() == CellType.FORMULA) {
+            cellTo.removeFormula();
+        }
         switch (cellFrom.getCellType()) {
             case BLANK:
                 cellTo.setBlank();
@@ -124,6 +127,9 @@ public final class PoiExcelHelper {
 
     public static void setCellStringValue(int col, int row, String value, Sheet sheet) {
         Cell cell = getOrCreateCell(col, row, sheet);
+        if (cell.getCellType() == CellType.FORMULA) {
+            cell.removeFormula();
+        }
         cell.setCellValue(value);
     }
 
