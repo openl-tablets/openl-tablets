@@ -25,15 +25,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.openl.rules.diff.tree.DiffStatus;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
-import org.openl.rules.webstudio.web.diff.UploadExcelDiffController;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.util.FileUtils;
@@ -181,6 +178,12 @@ public class ProjectHistoryService {
             for (int i = 0; i < files.length - count - 1; i++) {
                 File file = files[i];
                 FileUtils.delete(file);
+            }
+            if (count == 0) {
+                File revisionVersion = new File(storagePath, REVISION_VERSION);
+                if (revisionVersion.exists()) {
+                    revisionVersion.renameTo(new File(revisionVersion.getPath() + CURRENT_VERSION));
+                }
             }
         } catch (Exception e) {
             LOG.error("Cannot delete history", e);
