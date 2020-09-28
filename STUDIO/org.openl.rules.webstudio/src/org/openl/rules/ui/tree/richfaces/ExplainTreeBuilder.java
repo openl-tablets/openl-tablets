@@ -3,7 +3,6 @@ package org.openl.rules.ui.tree.richfaces;
 import org.openl.base.INamedThing;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.Formulas;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
@@ -50,8 +49,7 @@ public class ExplainTreeBuilder extends TreeBuilder {
     private String getUrlToElement(ITreeElement<?> element, String url) {
         return WebStudioUtils.getExternalContext().getRequestContextPath()
                 + SHOW_TABLE_PAGE
-                + Constants.REQUEST_PARAM_URI
-                + "="
+                + "uri="
                 + StringTool.encodeURL("" + url)
                 + "&text="
                 + StringTool.encodeURL(getDisplayName(element, INamedThing.REGULAR));

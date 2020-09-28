@@ -154,6 +154,11 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         List<SpreadsheetModel> spreadsheetModels = spreadsheetParserModels.stream()
             .map(SpreadsheetParserModel::getModel)
             .collect(Collectors.toList());
+        Map<Boolean, List<SpreadsheetModel>> sprModelsDivided = spreadsheetModels.stream()
+            .collect(Collectors.partitioningBy(x -> containsRuntimeContext(x.getParameters())));
+        List<SpreadsheetModel> sprModelsWithRC = sprModelsDivided.get(Boolean.TRUE);
+        boolean isRuntimeContextProvided = !sprModelsWithRC.isEmpty();
+        removeContextFromParams(sprModelsWithRC);
         fillCallsInSteps(spreadsheetModels, datatypeRefs);
 
         List<String> allFieldsRefs = refsWithFields.entrySet()
@@ -172,11 +177,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             dts.addAll(extractDataTypeModels(openAPI, allUnusedRefs, true));
         }
 
-        Map<Boolean, List<SpreadsheetModel>> sprModelsDivided = spreadsheetModels.stream()
-            .collect(Collectors.partitioningBy(x -> containsRuntimeContext(x.getParameters())));
-        List<SpreadsheetModel> sprModelsWithRC = sprModelsDivided.get(Boolean.TRUE);
-        boolean isRuntimeContextProvided = !sprModelsWithRC.isEmpty();
-        removeContextFromParams(sprModelsWithRC);
         return new ProjectModel(projectName,
             isRuntimeContextProvided,
             dts,

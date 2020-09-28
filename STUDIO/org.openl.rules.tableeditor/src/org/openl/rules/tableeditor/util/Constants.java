@@ -25,13 +25,8 @@ public final class Constants {
     public static final String ATTRIBUTE_LINK_BUILDER = "linkBuilder";
 
     public static final String REQUEST_PARAM_EDITOR_ID = "editorId";
-    public static final String REQUEST_PARAM_MODE = "mode";
-    public static final String REQUEST_PARAM_CELL = "cell";
-    public static final String REQUEST_PARAM_ERROR_CELL = "errorCell";
-    public static final String REQUEST_PARAM_URI = "uri";
     public static final String REQUEST_PARAM_VALUE = "value";
     public static final String REQUEST_PARAM_EDITOR = "editor";
-    // public static final String REQUEST_PARAM_MOVE = "move";
     public static final String REQUEST_PARAM_ALIGN = "align";
     public static final String REQUEST_PARAM_COLOR = "color";
     public static final String REQUEST_PARAM_INDENT = "indent";
@@ -39,8 +34,6 @@ public final class Constants {
     public static final String REQUEST_PARAM_FONT_ITALIC = "italic";
     public static final String REQUEST_PARAM_FONT_UNDERLINE = "underline";
 
-    public static final String REQUEST_PARAM_ROW = "row";
-    public static final String REQUEST_PARAM_COL = "col";
     public static final String REQUEST_PARAM_PROP_NAME = "propName";
     public static final String REQUEST_PARAM_PROP_VALUE = "propValue";
 

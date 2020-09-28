@@ -118,8 +118,7 @@ public class LaunchFileServlet extends HttpServlet {
         try {
             log.debug("decodedUriParameter: {}", decodedUriParameter);
 
-            XlsUrlParser parser = new XlsUrlParser();
-            parser.parse(decodedUriParameter);
+            XlsUrlParser parser = new XlsUrlParser(decodedUriParameter);
             wbPath = parser.getWbPath();
             wbName = parser.getWbName();
             wsName = parser.getWsName();
