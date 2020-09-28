@@ -26,12 +26,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.openl.rules.diff.tree.DiffStatus;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
+import org.openl.rules.webstudio.web.diff.UploadExcelDiffController;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.util.FileUtils;
@@ -149,11 +151,11 @@ public class ProjectHistoryService {
         File currentVersion = getCurrentVersion(storagePath);
         if (currentVersion != null) {
             try {
-                String currentVersionHash = DigestUtils.md5Hex(Files.readAllBytes(currentVersion.toPath()));
-                String sourceVersionHash = DigestUtils.md5Hex(Files.readAllBytes(source.toPath()));
-                if (!currentVersionHash.equals(sourceVersionHash)) {
+                byte[] currentVersionBytes = Files.readAllBytes(currentVersion.toPath());
+                byte[] sourceBytes = Files.readAllBytes(source.toPath());
+                if (!Arrays.equals(currentVersionBytes, sourceBytes)) {
                     removeCurrentVersion(storagePath);
-                    File destFile = new File(storagePath, String.valueOf(System.currentTimeMillis()) + CURRENT_VERSION);
+                    File destFile = new File(storagePath, System.currentTimeMillis() + CURRENT_VERSION);
                     FileUtils.copy(source, destFile);
                     deleteHistoryOverLimit(storagePath);
                 }
