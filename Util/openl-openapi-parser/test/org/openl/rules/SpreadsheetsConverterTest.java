@@ -452,6 +452,19 @@ public class SpreadsheetsConverterTest {
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10387_extra_datatype.yaml");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(5, datatypeModels.size());
+        Optional<SpreadsheetModel> corporateRatingCalculation = projectModel.getSpreadsheetResultModels()
+            .stream()
+            .filter(x -> x.getName().equals("CorporateRatingCalculation"))
+            .findAny();
+        assertTrue(corporateRatingCalculation.isPresent());
+        SpreadsheetModel spreadsheetModel = corporateRatingCalculation.get();
+        List<StepModel> steps = spreadsheetModel.getSteps();
+        Optional<StepModel> financialRatingCalculation = steps.stream()
+            .filter(x -> x.getName().equals("Value_FinancialRatingCalculation"))
+            .findAny();
+        assertTrue(financialRatingCalculation.isPresent());
+        StepModel stepModel = financialRatingCalculation.get();
+        assertEquals("=FinancialRatingCalculation(null,null)", stepModel.getValue());
     }
 
     @Test
