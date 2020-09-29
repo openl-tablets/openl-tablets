@@ -869,6 +869,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
     }
 
     private String resolveSimplifiedName(Schema<?> schema) {
+        if (schema == null) {
+            return "void";
+        }
         if (schema.get$ref() != null) {
             return RefUtils.computeDefinitionName(schema.get$ref());
         }
