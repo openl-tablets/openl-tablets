@@ -21,10 +21,10 @@ import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
+import org.springframework.web.context.annotation.RequestScope;
 
 @Service
-@SessionScope
+@RequestScope
 public class UploadExcelDiffController extends ExcelDiffController {
     private final Logger log = LoggerFactory.getLogger(UploadExcelDiffController.class);
 
