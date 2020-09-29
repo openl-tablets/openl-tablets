@@ -239,7 +239,9 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             .collect(Collectors.toSet());
         for (SpreadsheetModel model : models) {
             for (StepModel step : model.getSteps()) {
-                String type = ARRAY_MATCHER.matcher(step.getType()).replaceAll("");
+                String stepType = step.getType();
+                boolean isArray = stepType.endsWith("[]");
+                String type = ARRAY_MATCHER.matcher(stepType).replaceAll("");
                 if (sprNames.contains(type)) {
                     Optional<SpreadsheetModel> foundSpr = models.stream()
                         .filter(x -> x.getName().equals(type))
@@ -247,11 +249,39 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                     if (foundSpr.isPresent()) {
                         SpreadsheetModel calledSpr = foundSpr.get();
                         String value = String.join(",", Collections.nCopies(calledSpr.getParameters().size(), "null"));
-                        step.setValue(makeCall(type, value));
+                        String call = makeCall(type, value);
+                        if (isArray) {
+                            step.setValue(makeArrayCall(stepType, call));
+                        } else {
+                            step.setValue("=" + call);
+                        }
                     }
                 }
             }
         }
+    }
+
+    private String makeArrayCall(String stepType, String call) {
+        int dimension = calculateDimension(stepType);
+        String openingBrackets = String.join("", Collections.nCopies(dimension, "{"));
+        String closingBrackets = String.join("", Collections.nCopies(dimension, "}"));
+        return "=new SpreadsheetResult" + stepType + openingBrackets + call + closingBrackets;
+    }
+
+    private int calculateDimension(String stepType) {
+        int count = 0;
+        boolean brackets = false;
+        for (char c : stepType.toCharArray()) {
+            if (c == '[') {
+                if (!brackets) {
+                    count++;
+                }
+                brackets = true;
+            } else if (c == ']') {
+                brackets = false;
+            }
+        }
+        return count;
     }
 
     public boolean containsRuntimeContext(final Collection<InputParameter> inputParameters) {
@@ -537,6 +567,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     }
 
     private String makeCall(String type, String value) {
-        return "=" + type + "(" + value + ")";
+        return type + "(" + value + ")";
     }
 }

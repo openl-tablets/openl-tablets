@@ -610,4 +610,39 @@ public class SpreadsheetsConverterTest {
         assertEquals("=new TierRate()", tierRates.get().getValue());
     }
 
+    @Test
+    public void testIncorrectSpreadsheetArray() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/spreadsheets/EPBDS-10465-incorrect_spreadsheet_array.json");
+        List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
+        Optional<SpreadsheetModel> petsA = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("petsA"))
+            .findAny();
+        assertTrue(petsA.isPresent());
+        SpreadsheetModel spreadsheetModel = petsA.get();
+        List<StepModel> steps = spreadsheetModel.getSteps();
+        assertEquals(2, steps.size());
+        Optional<StepModel> petArray = steps.stream().filter(x -> x.getName().equals("PetArray")).findFirst();
+        assertTrue(petArray.isPresent());
+        StepModel stepModel = petArray.get();
+        assertEquals("=new SpreadsheetResultNewPet[]{NewPet(null,null)}", stepModel.getValue());
+
+        ProjectModel nThDimensionalArray = converter
+            .extractProjectModel("test.converter/spreadsheets/EPBDS-10465-incorrect_spreadsheet_n_array.json");
+
+        Optional<SpreadsheetModel> petsN = nThDimensionalArray.getSpreadsheetResultModels()
+            .stream()
+            .filter(x -> x.getName().equals("petsN"))
+            .findAny();
+        assertTrue(petsN.isPresent());
+        SpreadsheetModel model = petsN.get();
+        List<StepModel> stepModels = model.getSteps();
+        assertEquals(2, stepModels.size());
+        Optional<StepModel> petNArray = stepModels.stream().filter(x -> x.getName().equals("PetArray")).findFirst();
+        assertTrue(petNArray.isPresent());
+        StepModel step = petNArray.get();
+        assertEquals("=new SpreadsheetResultNewPet[][][][]{{{{NewPet(null,null)}}}}", step.getValue());
+    }
+
 }
