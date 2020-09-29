@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -49,6 +50,7 @@ public class PredefinedTemplatesResolver extends TemplatesResolver {
         } catch (Exception e) {
             log.error("Failed to get project templates", e);
         }
+        Collections.sort(templateNames);
         return templateNames;
     }
 

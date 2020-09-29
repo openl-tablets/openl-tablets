@@ -139,6 +139,7 @@
               <tr>
                <td colspan="2">
                   <rich:panel styleClass="comparison-tree">
+                    <h:outputText value="File elements are identical" style="font-weight:bold;" rendered="#{repositoryDiffController.richDiffTree.status=='EQUALS'}"/>
                     <rich:tree id="newTree" toggleType="client" selectionType="ajax"
                       value="#{repositoryDiffController.richDiffTree}"
                       var="item" nodeType="any" selectionChangeListener="#{repositoryDiffController.processSelection}"
