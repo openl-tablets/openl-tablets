@@ -30,6 +30,7 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
