@@ -172,44 +172,48 @@ public final class DecisionTableHelper {
     }
 
     static boolean isValidConditionHeader(String s) {
-        return s.length() >= 2 && s.charAt(0) == DecisionTableColumnHeaders.CONDITION.getHeaderKey()
-            .charAt(0) && Character.isDigit(s.charAt(1));
+        return s != null && s.length() >= 2 && s.charAt(0) == DecisionTableColumnHeaders.CONDITION.getHeaderKey()
+            .charAt(0) && s.substring(1).chars().allMatch(Character::isDigit);
     }
 
     static boolean isValidHConditionHeader(String headerStr) {
-        return headerStr.startsWith(
-            DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey()) && headerStr.length() > 2 && Character
-                .isDigit(headerStr.charAt(2));
+        return headerStr != null && headerStr.startsWith(
+            DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey()) && headerStr.length() > 2 && headerStr
+                .substring(2)
+                .chars()
+                .allMatch(Character::isDigit);
     }
 
     static boolean isValidMergedConditionHeader(String headerStr) {
-        return headerStr.startsWith(
-            DecisionTableColumnHeaders.MERGED_CONDITION.getHeaderKey()) && headerStr.length() > 2 && Character
-                .isDigit(headerStr.charAt(2));
+        return headerStr != null && headerStr.startsWith(
+            DecisionTableColumnHeaders.MERGED_CONDITION.getHeaderKey()) && headerStr.length() > 2 && headerStr
+                .substring(2)
+                .chars()
+                .allMatch(Character::isDigit);
     }
 
     static boolean isValidActionHeader(String s) {
-        return s.length() >= 2 && s.charAt(0) == DecisionTableColumnHeaders.ACTION.getHeaderKey().charAt(0) && Character
-            .isDigit(s.charAt(1));
+        return s != null && s.length() >= 2 && s.charAt(0) == DecisionTableColumnHeaders.ACTION.getHeaderKey()
+            .charAt(0) && s.substring(1).chars().allMatch(Character::isDigit);
     }
 
     static boolean isValidRetHeader(String s) {
-        return s.length() >= 3 && s.startsWith(
-            DecisionTableColumnHeaders.RETURN.getHeaderKey()) && (s.length() == 3 || Character.isDigit(s.charAt(3)));
+        return s != null && s.length() >= 3 && s.startsWith(DecisionTableColumnHeaders.RETURN
+            .getHeaderKey()) && (s.length() == 3 || s.substring(3).chars().allMatch(Character::isDigit));
     }
 
     static boolean isValidKeyHeader(String s) {
-        return s.length() >= 3 && s.startsWith(
-            DecisionTableColumnHeaders.KEY.getHeaderKey()) && (s.length() == 3 || Character.isDigit(s.charAt(3)));
+        return s != null && s.length() >= 3 && s.startsWith(DecisionTableColumnHeaders.KEY
+            .getHeaderKey()) && (s.length() == 3 || s.substring(3).chars().allMatch(Character::isDigit));
     }
 
     static boolean isValidCRetHeader(String s) {
-        return s.length() >= 4 && s.startsWith(DecisionTableColumnHeaders.COLLECT_RETURN
-            .getHeaderKey()) && (s.length() == 4 || Character.isDigit(s.charAt(4)));
+        return s != null && s.length() >= 4 && s.startsWith(DecisionTableColumnHeaders.COLLECT_RETURN
+            .getHeaderKey()) && (s.length() == 4 || s.substring(4).chars().allMatch(Character::isDigit));
     }
 
     static boolean isValidRuleHeader(String s) {
-        return s.equals(DecisionTableColumnHeaders.RULE.getHeaderKey());
+        return Objects.equals(s, DecisionTableColumnHeaders.RULE.getHeaderKey());
     }
 
     static boolean isConditionHeader(String s) {
@@ -244,16 +248,16 @@ public final class DecisionTableHelper {
         IGridTable[] tables;
         if (isSmart(tableSyntaxNode) && originalTable.getHeight() < 2) {
             GridTable virtualDefaultRulesRowGridTable = new GridTable(0,
-                    0,
-                    0,
-                    originalTable.getSource().getWidth() - 1,
-                    createVirtualGrid());
-            tables = new IGridTable[]{virtualGridTable, originalTable.getSource(), virtualDefaultRulesRowGridTable};
+                0,
+                0,
+                originalTable.getSource().getWidth() - 1,
+                createVirtualGrid());
+            tables = new IGridTable[] { virtualGridTable, originalTable.getSource(), virtualDefaultRulesRowGridTable };
             finalHeight++;
-            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
-                    "The table must have at least one row with values.", tableSyntaxNode));
+            bindingContext.addMessage(OpenLMessagesUtils
+                .newWarnMessage("The table must have at least one row with values.", tableSyntaxNode));
         } else {
-            tables = new IGridTable[]{virtualGridTable, originalTable.getSource()};
+            tables = new IGridTable[] { virtualGridTable, originalTable.getSource() };
         }
 
         IGrid grid = new CompositeGrid(tables, true);
@@ -262,11 +266,8 @@ public final class DecisionTableHelper {
         int sizeofGrid = virtualGridTable.getWidth() < originalTable.getSource().getWidth() ? originalTable.getSource()
             .getWidth() - 1 : virtualGridTable.getWidth() - 1;
 
-        return LogicalTableHelper.logicalTable(new GridTable(0,
-            0,
-            finalHeight,
-            sizeofGrid /* originalTable.getSource().getWidth() - 1 */,
-            grid));
+        return LogicalTableHelper.logicalTable(
+            new GridTable(0, 0, finalHeight, sizeofGrid /* originalTable.getSource().getWidth() - 1 */, grid));
     }
 
     private static FuzzyContext buildFuzzyContext(TableSyntaxNode tableSyntaxNode,

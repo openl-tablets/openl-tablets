@@ -24,7 +24,7 @@ public class ExternalDependenciesTest {
         factory.getCompiledOpenClass();
         Class<?> interfaceClass = factory.getInterfaceClass();
 
-        Method method = interfaceClass.getMethod("hello1", new Class[] { int.class });
+        Method method = interfaceClass.getMethod("hello1", int.class);
         Object res = method.invoke(factory.newInstance(), 10);
 
         assertEquals("Good Morning", res);
@@ -40,19 +40,19 @@ public class ExternalDependenciesTest {
         Class<?> interfaceClass = factory.getInterfaceClass();
         Object instance = factory.newInstance();
 
-        Method method = interfaceClass.getMethod("hello", new Class[] { int.class });
+        Method method = interfaceClass.getMethod("hello", int.class);
         Object res = method.invoke(instance, 10);
 
         assertEquals("Good Morning", res);
 
         // Get policy profile.
         //
-        method = interfaceClass.getMethod("getPolicyProfile4", new Class[] {});
-        res = method.invoke(instance, new Object[] {});
+        method = interfaceClass.getMethod("getPolicyProfile4");
+        res = method.invoke(instance);
         Object policy = ((Object[]) res)[0];
 
-        method = interfaceClass.getMethod("processPolicy", new Class[] { policy.getClass() });
-        res = method.invoke(instance, new Object[] { policy });
+        method = interfaceClass.getMethod("processPolicy", policy.getClass());
+        res = method.invoke(instance, policy);
 
         SpreadsheetResult spreadsheetResult = (SpreadsheetResult) res;
         assertEquals("Eligible", spreadsheetResult.getFieldValue("$Value$Eligibility"));
@@ -78,13 +78,12 @@ public class ExternalDependenciesTest {
 
         // Get policy profile.
         //
-        Method method = interfaceClass.getMethod("getPolicyProfile4", new Class[] { IRulesRuntimeContext.class });
-        Object res = method.invoke(instance, new Object[] { context });
+        Method method = interfaceClass.getMethod("getPolicyProfile4", IRulesRuntimeContext.class);
+        Object res = method.invoke(instance, context);
         Object policy = ((Object[]) res)[0];
 
-        method = interfaceClass.getMethod("processPolicy",
-            new Class[] { IRulesRuntimeContext.class, policy.getClass() });
-        res = method.invoke(instance, new Object[] { context, policy });
+        method = interfaceClass.getMethod("processPolicy", IRulesRuntimeContext.class, policy.getClass());
+        res = method.invoke(instance, context, policy);
 
         SpreadsheetResult spreadsheetResult = (SpreadsheetResult) res;
         assertEquals("Eligible", spreadsheetResult.getFieldValue("$Value$Eligibility"));
@@ -95,7 +94,7 @@ public class ExternalDependenciesTest {
 
         context.setLob("main");
 
-        res = method.invoke(instance, new Object[] { context, policy });
+        res = method.invoke(instance, context, policy);
 
         spreadsheetResult = (SpreadsheetResult) res;
         assertEquals("Eligible", spreadsheetResult.getFieldValue("$Value$Eligibility"));
@@ -120,13 +119,12 @@ public class ExternalDependenciesTest {
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         // Get policy profile.
         //
-        Method method = interfaceClass.getMethod("getPolicyProfile4", new Class[] { IRulesRuntimeContext.class });
-        Object res = method.invoke(instance, new Object[] { context });
+        Method method = interfaceClass.getMethod("getPolicyProfile4", IRulesRuntimeContext.class);
+        Object res = method.invoke(instance, context);
         Object policy = ((Object[]) res)[0];
 
-        method = interfaceClass.getMethod("processPolicy",
-            new Class[] { IRulesRuntimeContext.class, policy.getClass() });
-        res = method.invoke(instance, new Object[] { context, policy });
+        method = interfaceClass.getMethod("processPolicy", IRulesRuntimeContext.class, policy.getClass());
+        res = method.invoke(instance, context, policy);
 
         SpreadsheetResult spreadsheetResult = (SpreadsheetResult) res;
         assertEquals("Eligible", spreadsheetResult.getFieldValue("$Value$Eligibility"));
@@ -142,19 +140,22 @@ public class ExternalDependenciesTest {
         // Setting current date in context, which will be used in dispatch
         context.setCurrentDate(calendar.getTime());
 
-        method = interfaceClass.getMethod("getTestCars", new Class[] { IRulesRuntimeContext.class });
-        res = method.invoke(instance, new Object[] { context });
+        method = interfaceClass.getMethod("getTestCars", IRulesRuntimeContext.class);
+        res = method.invoke(instance, context);
 
         Object car = ((Object[]) res)[1];
 
-        method = interfaceClass.getMethod("getTestAddresses", new Class[] { IRulesRuntimeContext.class });
-        res = method.invoke(instance, new Object[] { context });
+        method = interfaceClass.getMethod("getTestAddresses", IRulesRuntimeContext.class);
+        res = method.invoke(instance, context);
 
         Object address = ((Object[]) res)[4];
 
         method = interfaceClass.getMethod("getPriceForOrder",
-            new Class[] { IRulesRuntimeContext.class, car.getClass(), int.class, address.getClass() });
-        res = method.invoke(instance, new Object[] { context, car, 4, address });
+                IRulesRuntimeContext.class,
+                car.getClass(),
+                int.class,
+                address.getClass());
+        res = method.invoke(instance, context, car, 4, address);
 
         assertEquals(Double.valueOf(189050), Double.valueOf(((DoubleValue) res).getValue()));
     }
