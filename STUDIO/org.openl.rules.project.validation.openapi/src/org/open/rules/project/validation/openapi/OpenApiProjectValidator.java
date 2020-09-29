@@ -49,6 +49,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -81,15 +82,30 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
     private OpenAPI loadOpenAPI(ProjectDescriptor projectDescriptor,
             ValidatedCompiledOpenClass validatedCompiledOpenClass) {
         ProjectResourceLoader projectResourceLoader = new ProjectResourceLoader(validatedCompiledOpenClass);
-        String openApiFile = OPENAPI_JSON;
-        ProjectResource projectResource = loadProjectResource(projectResourceLoader, projectDescriptor, OPENAPI_JSON);
-        if (projectResource == null) {
-            openApiFile = OPENAPI_YAML;
-            projectResource = loadProjectResource(projectResourceLoader, projectDescriptor, OPENAPI_YAML);
-        }
-        if (projectResource == null) {
-            openApiFile = OPENAPI_YML;
-            projectResource = loadProjectResource(projectResourceLoader, projectDescriptor, OPENAPI_YML);
+        String openApiFile;
+        ProjectResource projectResource;
+        if (projectDescriptor.getOpenapi() != null && StringUtils
+            .isNotBlank(projectDescriptor.getOpenapi().getPath())) {
+            openApiFile = projectDescriptor.getOpenapi().getPath();
+            projectResource = loadProjectResource(projectResourceLoader,
+                projectDescriptor,
+                projectDescriptor.getOpenapi().getPath());
+            if (projectResource == null) {
+                validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils
+                    .newErrorMessage(String.format(OPEN_API_VALIDATION_MSG_PREFIX + "File '%s' is not found.",
+                        projectDescriptor.getOpenapi().getPath())));
+            }
+        } else {
+            openApiFile = OPENAPI_JSON;
+            projectResource = loadProjectResource(projectResourceLoader, projectDescriptor, OPENAPI_JSON);
+            if (projectResource == null) {
+                openApiFile = OPENAPI_YAML;
+                projectResource = loadProjectResource(projectResourceLoader, projectDescriptor, OPENAPI_YAML);
+            }
+            if (projectResource == null) {
+                openApiFile = OPENAPI_YML;
+                projectResource = loadProjectResource(projectResourceLoader, projectDescriptor, OPENAPI_YML);
+            }
         }
         if (projectResource != null) {
             OpenAPIParser openApiParser = new OpenAPIParser();

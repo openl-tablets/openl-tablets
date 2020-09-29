@@ -7,6 +7,7 @@ import java.util.HashSet;
 
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -20,9 +21,8 @@ import com.thoughtworks.xstream.security.NoTypePermission;
  * Project Descriptor serializer/deserializer.
  * <p>
  * Keep in mind that this serializer is for last version of OpenL. Needed version can be obtained: 1) from each project
- * settings (stored inside ".settings" folder) 2) from openl.compatibility.version property of WebStudio
- * configuration. Thus if project descriptor serializing is needed consider using ProjectDescriptorSerializerFactory
- * instead.
+ * settings (stored inside ".settings" folder) 2) from openl.compatibility.version property of WebStudio configuration.
+ * Thus if project descriptor serializing is needed consider using ProjectDescriptorSerializerFactory instead.
  */
 public class XmlProjectDescriptorSerializer implements IProjectDescriptorSerializer {
 
@@ -84,6 +84,10 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         xstream.aliasField("rules-root", Module.class, "rulesRootPath");
         xstream.aliasField(METHOD_FILTER_TAG, Module.class, "methodFilter");
         xstream.registerConverter(new StringValueConverter());
+
+        xstream.aliasField("openapi", ProjectDescriptor.class, "openapi");
+        xstream.aliasField("model-module-name", OpenAPI.class, "modelModuleName");
+        xstream.aliasField("algorithm-module-name", OpenAPI.class, "algorithmModuleName");
 
         this.postProcess = postProcess;
     }

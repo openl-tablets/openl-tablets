@@ -19,6 +19,7 @@ public class ProjectDescriptor {
     private File projectFolder;
     private List<Module> modules;
     private List<PathEntry> classpath;
+    private OpenAPI openapi;
 
     private List<ProjectDependencyDescriptor> dependencies;
     private String[] propertiesFileNamePatterns;
@@ -70,6 +71,14 @@ public class ProjectDescriptor {
     @Deprecated
     public void setId(String id) {
         this.id = id;
+    }
+
+    public OpenAPI getOpenapi() {
+        return openapi;
+    }
+
+    public void setOpenapi(OpenAPI openapi) {
+        this.openapi = openapi;
     }
 
     public String getName() {
