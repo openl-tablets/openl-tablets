@@ -39,8 +39,8 @@ import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.richfaces.component.UITree;
 import org.richfaces.function.RichFunction;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Supplies repository structured diff UI tree with data.
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * @author Andrey Naumenko
  */
 @ManagedBean
-@SessionScoped
+@RequestScope
 public class RepositoryDiffController extends AbstractDiffController {
     private final Logger log = LoggerFactory.getLogger(RepositoryDiffController.class);
 
@@ -107,6 +107,7 @@ public class RepositoryDiffController extends AbstractDiffController {
             if (designTimeRepository.getRepository().supports().branches()) {
                 Repository repository = ((BranchRepository) designTimeRepository.getRepository()).forBranch(branch);
                 String folderPath = designTimeRepository.getProject(projectUW.getName()).getFolderPath();
+                    .getFolderPath();
                 versions = new AProject(repository, folderPath).getVersions();
             } else {
                 versions = projectUW.getVersions();
@@ -178,10 +179,12 @@ public class RepositoryDiffController extends AbstractDiffController {
 
             if (designTimeRepository.getRepository().supports().branches()) {
                 projectRepo = designTimeRepository.getProject(branch, projectUW.getName(), selectedVersionRepo);
+                    .getProject(designRepository.getId(), branch, projectUW.getName(), selectedVersionRepo);
             } else {
                 CommonVersionImpl version = new CommonVersionImpl(selectedVersionRepo);
                 try {
                     projectRepo = designTimeRepository.getProject(projectUW.getName(), version);
+                        .getProject(designRepository.getId(), projectUW.getName(), version);
                 } catch (Exception e) {
                     log.warn("Could not get project'{}' of version '{}'",
                         projectUW.getName(),
