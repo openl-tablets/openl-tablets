@@ -30,7 +30,6 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -46,8 +45,10 @@ import org.yaml.snakeyaml.Yaml;
  * This class allows to deploy a zip-based project to a production repository. By default configuration of destination
  * repository is get from "deployer.properties" file.
  *
+ * @deprecated use {@link org.openl.rules.ruleservice.deployer.RulesDeployerService}
  * @author Yury Molchan
  */
+@Deprecated
 public class ProductionRepositoryDeployer {
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoryDeployer.class);
     private static final String DEPLOYMENT_DESCRIPTOR_FILE_NAME = "deployment";
