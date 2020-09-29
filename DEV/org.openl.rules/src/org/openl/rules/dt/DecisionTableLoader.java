@@ -229,21 +229,16 @@ public class DecisionTableLoader {
         if (nHConditions > 0) {
             try {
                 DecisionTableLookupConvertor dtlc = new DecisionTableLookupConvertor();
-
                 IGridTable convertedTable = dtlc.convertTable(toParse);
-                ILogicalTable offsetConvertedTable = LogicalTableHelper.logicalTable(convertedTable);
-                toParse = offsetConvertedTable.transpose();
+                toParse = LogicalTableHelper.logicalTable(convertedTable);
                 tableStructure.info = new DTInfo(nHConditions, nVConditions, dtlc.getScale());
             } catch (OpenLCompilationException e) {
                 throw SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
             } catch (Exception e) {
                 throw SyntaxNodeExceptionUtils.createError("Cannot convert table.", e, tableSyntaxNode);
             }
-        } else if (DecisionTableHelper.looksLikeVertical(toParse)) {
-            // parsing is based on horizontal representation of decision table.
-            //
-            toParse = toParse.transpose();
         }
+        toParse = toParse.transpose();
 
         if (needToUnmergeFirstRow(toParse)) {
             toParse = unmergeFirstRow(toParse);
