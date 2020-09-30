@@ -71,7 +71,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
             if (projectVersion.isDeleted()) {
                 continue;
             }
-            String hash = projectVersionCacheDB.getHash(project.getName(),
+            String hash = projectVersionCacheDB.getHash(project.getBusinessName(),
                 projectVersion.getVersionName(),
                 projectVersion.getVersionInfo().getCreatedAt(),
                 ProjectVersionH2CacheDB.RepoType.DESIGN);
@@ -84,7 +84,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
 
     void cacheProjectVersion(AProject project, ProjectVersionH2CacheDB.RepoType repoType) throws IOException {
         String md5 = projectVersionCacheManager.computeMD5(project);
-        projectVersionCacheDB.insertProject(project.getName(), project.getVersion(), md5, repoType);
+        projectVersionCacheDB.insertProject(project.getBusinessName(), project.getVersion(), md5, repoType);
     }
 
     public void setProjectVersionCacheDB(ProjectVersionH2CacheDB projectVersionCacheDB) {

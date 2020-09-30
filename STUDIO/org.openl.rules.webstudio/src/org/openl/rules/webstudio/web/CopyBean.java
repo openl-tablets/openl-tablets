@@ -22,6 +22,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
@@ -87,6 +88,19 @@ public class CopyBean {
         return currentProjectName;
     }
 
+    public String getBusinessName() {
+        if (repositoryId == null || currentProjectName == null) {
+            return currentProjectName;
+        }
+        try {
+            return getUserWorkspace().getProject(repositoryId, currentProjectName, false).getBusinessName();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+
+        return currentProjectName;
+    }
+
     public void setCurrentProjectName(String currentProjectName) {
         this.currentProjectName = currentProjectName;
     }
@@ -137,7 +151,7 @@ public class CopyBean {
     public String getComment() {
         if (comment == null && toRepositoryId != null) {
             Comments designRepoComments = new Comments(propertyResolver, toRepositoryId);
-            return designRepoComments.copiedFrom(getCurrentProjectName());
+            return designRepoComments.copiedFrom(getBusinessName());
         }
         return comment;
     }
@@ -191,7 +205,7 @@ public class CopyBean {
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
             RulesProject project = userWorkspace.getProject(repositoryId, currentProjectName, false);
-            ProjectsInHistoryController.deleteHistory(project.getName());
+            ProjectsInHistoryController.deleteHistory(project.getBusinessName());
             if (isSupportsBranches() && !separateProject) {
                 Repository designRepository = project.getDesignRepository();
                 ((BranchRepository) designRepository).createBranch(project.getDesignFolderName(), newBranchName);
@@ -384,7 +398,7 @@ public class CopyBean {
             errorMessage = null;
             if (isSupportsBranches()) {
                 // Remove restricted symbols
-                String simplifiedProjectName = currentProjectName.replaceAll("[^\\w\\-]", "");
+                String simplifiedProjectName = getBusinessName().replaceAll("[^\\w\\-]", "");
                 String userName = getUserWorkspace().getUser().getUserName();
                 String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
                 String pattern = applicationContext.getEnvironment()

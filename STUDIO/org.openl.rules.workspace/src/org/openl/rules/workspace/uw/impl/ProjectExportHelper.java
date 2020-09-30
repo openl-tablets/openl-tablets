@@ -25,7 +25,7 @@ public final class ProjectExportHelper {
     public static File export(WorkspaceUser user, AProject project) throws ProjectException {
         File zipFile = null;
         try {
-            String zipComment = "Project '" + project.getName() + "' version " + project.getFileData()
+            String zipComment = "Project '" + project.getBusinessName() + "' version " + project.getFileData()
                 .getVersion() + "\nExported by " + user.getUserName();
 
             zipFile = File.createTempFile("export-", "-zip");

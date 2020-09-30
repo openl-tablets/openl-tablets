@@ -31,6 +31,9 @@ public class ProjectDescriptorHelper {
             if (descriptor.getRepositoryId() != null) {
                 builder.append("    <repositoryId>").append(descriptor.getRepositoryId()).append("</repositoryId>\n");
             }
+            if (descriptor.getPath() != null) {
+                builder.append("    <path>").append(descriptor.getPath()).append("</path>\n");
+            }
             builder.append("    <projectName>").append(descriptor.getProjectName()).append("</projectName>\n");
             if (descriptor.getBranch() != null) {
                 builder.append("    <branch>").append(descriptor.getBranch()).append("</branch>\n");
@@ -111,6 +114,7 @@ public class ProjectDescriptorHelper {
     private static ProjectDescriptor parseDescripor(XMLStreamReader streamReader) throws XMLStreamException {
         String repositoryId = null;
         String projectName = null;
+        String path = null;
         String branch = null;
         String projectVersion = null;
         while (streamReader.hasNext()) {
@@ -125,6 +129,8 @@ public class ProjectDescriptorHelper {
                         projectVersion = parseElementAsString("projectVersion", streamReader);
                     } else if ("repositoryId".equals(localName)) {
                         repositoryId = parseElementAsString("repositoryId", streamReader);
+                    } else if ("path".equals(localName)) {
+                        path = parseElementAsString("path", streamReader);
                     } else if ("branch".equals(localName)) {
                         branch = parseElementAsString("branch", streamReader);
                     } else {
@@ -137,7 +143,7 @@ public class ProjectDescriptorHelper {
                             String.format("An inappropriate closing element </%s>", streamReader.getLocalName()));
                     }
                     CommonVersionImpl commonVersion = new CommonVersionImpl(projectVersion);
-                    return new ProjectDescriptorImpl(repositoryId, projectName, branch, commonVersion);
+                    return new ProjectDescriptorImpl(repositoryId, projectName, path, branch, commonVersion);
             }
         }
         throw new IllegalStateException("Unexpected end of the document");

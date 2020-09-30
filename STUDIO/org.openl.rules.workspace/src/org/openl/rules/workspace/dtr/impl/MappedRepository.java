@@ -9,6 +9,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -17,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
@@ -38,7 +41,9 @@ import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.representer.Representer;
 
 public class MappedRepository implements FolderRepository, BranchRepository, RRepositoryFactory, Closeable, FolderMapper {
-    private final Logger log = LoggerFactory.getLogger(MappedRepository.class);
+    private static final Logger log = LoggerFactory.getLogger(MappedRepository.class);
+    private static final String SEPARATOR = ":";
+    private final MessageDigest digest;
 
     private FolderRepository delegate;
 
@@ -65,6 +70,14 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     private MappedRepository() {
+        MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            log.error(e.getMessage(), e);
+            digest = null;
+        }
+        this.digest = digest;
     }
 
     @Override
@@ -117,7 +130,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
         List<FileData> internal = new ArrayList<>();
         for (ProjectInfo project : mapping.getProjects()) {
-            String external = baseFolder + project.getName();
+            String external = baseFolder + getMappedName(project);
             if (external.startsWith(path)) {
                 internal.addAll(delegate.list(project.getPath() + "/"));
             } else if (path.startsWith(external + "/")) {
@@ -135,7 +148,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         if (delegate.supports().versions()) {
             Optional<ProjectInfo> project = externalToInternal.getProjects()
                 .stream()
-                .filter(p -> name.equals(baseFolder + p.getName()))
+                .filter(p -> name.equals(baseFolder + getMappedName(p)))
                 .findFirst();
             if (project.isPresent() && project.get().isArchived()) {
                 check.setDeleted(true);
@@ -294,7 +307,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
         List<FileData> internal = new ArrayList<>();
         for (ProjectInfo project : mapping.getProjects()) {
-            String external = baseFolder + project.getName();
+            String external = baseFolder + getMappedName(project);
             if (external.startsWith(path) && !external.substring(path.length()).contains("/")) {
                 // "external" is direct child of "path"
                 FileData data = delegate.check(project.getPath());
@@ -456,30 +469,19 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             }
 
             ProjectIndex externalToInternal = getUpToDateMapping(false);
-            boolean exist = externalToInternal.getProjects()
+            List<ProjectInfo> projectsWithSameName = externalToInternal.getProjects()
                 .stream()
-                .anyMatch(p -> p.getName().equals(project.getName()) && p.getPath().equals(project.getPath()));
-            if (exist) {
-                throw new IOException("Project \"" + project.getName() + "\" with path \"" + project
-                    .getPath() + "\" is already imported.");
+                .filter(p -> p.getName().equals(project.getName()))
+                .collect(Collectors.toList());
+            if (!projectsWithSameName.isEmpty()) {
+                if (projectsWithSameName.stream().anyMatch(p -> p.getPath().equals(project.getPath()))) {
+                    throw new IOException("Project \"" + project.getName() + "\" with path \"" + project.getPath() + "\" is already imported.");
+                }
+
+                projectsWithSameName.forEach(p -> p.setDuplicated(true));
+                project.setDuplicated(true);
             }
             externalToInternal.getProjects().add(project);
-
-            saveProjectIndex(externalToInternal);
-        } finally {
-            repositorySettings.unlock(configFile);
-        }
-    }
-
-    @Override
-    public void renameMapping(String externalBefore, String externalAfter) throws IOException {
-        repositorySettings.lock(configFile);
-        try {
-            ProjectIndex externalToInternal = getUpToDateMapping(false);
-            externalToInternal.getProjects()
-                .stream()
-                .filter(p -> externalBefore.equals(baseFolder + p.getName()))
-                .findFirst().ifPresent(p -> p.setName(externalAfter.substring(baseFolder.length())));
 
             saveProjectIndex(externalToInternal);
         } finally {
@@ -493,7 +495,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         try {
             ProjectIndex externalToInternal = getUpToDateMapping(false);
             externalToInternal.getProjects()
-                .removeIf(projectInfo -> external.equals(baseFolder + projectInfo.getName()));
+                .removeIf(projectInfo -> external.equals(baseFolder + getMappedName(projectInfo)));
 
             saveProjectIndex(externalToInternal);
         } finally {
@@ -509,7 +511,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         } else {
             String name = data.getName().startsWith(baseFolder) ? data.getName().substring(baseFolder.length())
                                                                 : data.getName();
-            return projectIndex.getProjects().stream().filter(p -> name.equals(p.getName())).findFirst();
+            return projectIndex.getProjects().stream().filter(p -> name.equals(getMappedName(p))).findFirst();
         }
     }
 
@@ -609,7 +611,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     private String toInternal(ProjectIndex externalToInternal, String externalPath) {
         for (ProjectInfo project : externalToInternal.getProjects()) {
-            String externalBase = baseFolder + project.getName();
+            String externalBase = baseFolder + getMappedName(project);
             if (externalPath.equals(externalBase) || externalPath.startsWith(externalBase + "/")) {
                 return project.getPath() + externalPath.substring(externalBase.length());
             }
@@ -673,7 +675,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 internalBase = internalBase.substring(0, internalBase.length() - 1);
             }
             if (internalPath.equals(internalBase) || internalPath.startsWith(internalBase + "/")) {
-                return baseFolder + project.getName() + internalPath.substring(internalBase.length());
+                return baseFolder + getMappedName(project) + internalPath.substring(internalBase.length());
             }
         }
 
@@ -747,7 +749,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                     // Folder was removed.
                     iterator.remove();
                     modified = true;
-                    log.info("Sync project index: remove project '{}'", project.getName());
+                    log.info("Sync project index: remove project '{}' with path '{}'",
+                        project.getName(),
+                        project.getPath());
                 } else {
                     Date modifiedAt = project.getModifiedAt();
                     String fullName = project.getPath() + "/rules.xml";
@@ -762,7 +766,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                             try (InputStream is = descriptorItem.getStream()) {
                                 project.setName(getProjectName(is));
                             }
-                            log.info("Sync project index: update name to '{}'", project.getName());
+                            log.info("Sync project index: update name to '{}' the project in path '{}'",
+                                project.getName(),
+                                project.getPath());
                             modified = true;
                         }
                     } else {
@@ -774,12 +780,16 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                             project.setModifiedAt(null);
                             project.setName(folderName);
                             modified = true;
-                            log.info("Sync project index: update name to '{}'", project.getName());
+                            log.info("Sync project index: update name to '{}' the project in path '{}'",
+                                project.getName(),
+                                project.getPath());
                         } else {
                             if (!project.getName().equals(folderName)) {
                                 project.setName(folderName);
                                 modified = true;
-                                log.info("Sync project index: update name to '{}'", project.getName());
+                                log.info("Sync project index: update name to '{}' the project in path {}",
+                                    project.getName(),
+                                    project.getPath());
                             }
                         }
                     }
@@ -972,7 +982,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 .stream()
                 .filter(p -> p.getPath().equals(internalPath))
                 .findFirst()
-                .map(ProjectInfo::getName)
+                .map(this::getMappedName)
                 .orElse("");
             return !externalPath.equals(mappingData.getExternalPath());
         }
@@ -996,5 +1006,44 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     public String getRealPath(String externalPath) {
         ProjectIndex mapping = getUpToDateMapping(true);
         return toInternal(mapping, externalPath);
+    }
+
+    @Override
+    public String getBusinessName(String mappedName) {
+        int index = mappedName.lastIndexOf(SEPARATOR);
+        return index >= 0 ? mappedName.substring(0, index) : mappedName;
+    }
+
+    @Override
+    public String getMappedName(String businessName, String path) {
+        return businessName + MappedRepository.SEPARATOR + getHash(path);
+    }
+
+    private String getMappedName(ProjectInfo project) {
+        return getMappedName(project.getName(), project.getPath());
+    }
+
+    private String getHash(String s) {
+        if (StringUtils.isEmpty(s)) {
+            return "";
+        }
+        if (digest != null) {
+            return bytesToHex(digest.digest(s.getBytes(StandardCharsets.UTF_8)));
+        } else {
+            // Fallback
+            return String.valueOf(s.hashCode());
+        }
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 }

@@ -7,12 +7,14 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.ProjectKey;
@@ -87,21 +89,26 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     public AProject getProject(String repositoryId, String name) throws ProjectException {
         AProject lp;
         synchronized (localProjects) {
-            if (repositoryId == null) {
-                lp = localProjects.values()
-                    .stream()
-                    .filter(p -> p.getName().toLowerCase().equals(name.toLowerCase()))
-                    .findFirst()
-                    .orElse(null);
-            } else {
-                lp = localProjects.get(new ProjectKey(repositoryId, name.toLowerCase()));
-            }
+            lp = localProjects.values()
+                .stream()
+                .filter(p -> (repositoryId == null || repositoryId.equals(p.getRepository().getId())) && p.getName()
+                    .toLowerCase()
+                    .equals(name.toLowerCase()))
+                .findFirst()
+                .orElse(null);
         }
         if (lp == null) {
             throw new ProjectException("Cannot find project ''{0}''.", null, name);
         }
 
         return lp;
+    }
+
+    @Override
+    public AProject getProjectForPath(String repositoryId, String path) {
+        synchronized (localProjects) {
+            return localProjects.get(new ProjectKey(repositoryId, path));
+        }
     }
 
     @Override
@@ -120,30 +127,44 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     @Override
     public boolean hasProject(String repositoryId, String name) {
         synchronized (localProjects) {
-            return localProjects.get(new ProjectKey(repositoryId, name.toLowerCase())) != null;
+            Optional<AProject> lp = localProjects.values()
+                .stream()
+                .filter(p -> (repositoryId == null || repositoryId.equals(p.getRepository().getId())) && p.getName()
+                    .toLowerCase()
+                    .equals(name.toLowerCase()))
+                .findFirst();
+            return lp.isPresent();
         }
     }
 
     private void loadProjects() {
         List<FileData> folders = localRepository.listFolders("");
-        for (FileData folder : folders) {
-            AProject lpi;
-            String name = folder.getName();
-            ProjectState projectState = localRepository.getProjectState(name);
-            LocalRepository repository = getRepository(projectState.getRepositoryId());
-            FileData fileData = projectState.getFileData();
-            if (fileData == null) {
-                String version = projectState.getProjectVersion();
-                lpi = new AProject(repository, name, version);
-            } else {
-                FileMappingData mappingData = fileData.getAdditionalData(FileMappingData.class);
-                if (mappingData != null) {
-                    mappingData.setExternalPath(designTimeRepository.getRulesLocation() + name);
+        synchronized (localProjects) {
+            for (FileData folder : folders) {
+                AProject lpi;
+                String name = folder.getName();
+                String repositoryPath = designTimeRepository.getRulesLocation() + name;
+                ProjectState projectState = localRepository.getProjectState(name);
+                LocalRepository repository = getRepository(projectState.getRepositoryId());
+                FileData fileData = projectState.getFileData();
+                if (fileData == null) {
+                    String version = projectState.getProjectVersion();
+                    lpi = new AProject(repository, name, version);
+                } else {
+                    FileMappingData mappingData = fileData.getAdditionalData(FileMappingData.class);
+                    if (mappingData != null) {
+                        repositoryPath = mappingData.getInternalPath();
+
+                        String mappedName = name;
+                        Repository designRepo = designTimeRepository.getRepository(repository.getId());
+                        if (designRepo != null && designRepo.supports().mappedFolders()) {
+                            mappedName = ((FolderMapper) designRepo).getMappedName(name, repositoryPath);
+                        }
+                        mappingData.setExternalPath(designTimeRepository.getRulesLocation() + mappedName);
+                    }
+                    lpi = new AProject(repository, fileData);
                 }
-                lpi = new AProject(repository, fileData);
-            }
-            synchronized (localProjects) {
-                localProjects.put(new ProjectKey(repository.getId(), name.toLowerCase()), lpi);
+                localProjects.put(new ProjectKey(repository.getId(), repositoryPath), lpi);
             }
         }
     }

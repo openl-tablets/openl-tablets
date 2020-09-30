@@ -56,7 +56,7 @@ public class LockEngineImpl implements LockEngine {
      */
     private String getId(String repo, String branch, String projectName) {
         // In this method we return only folder without locks filename.
-        String branchId = branch == null ? ".no-branch" : ".branches/" + branch;
-        return repo + "/" + projectName + "/" + branchId;
+        String branchId = branch == null ? "" : "/[branches]/" + branch;
+        return repo + "/" + projectName + branchId;
     }
 }

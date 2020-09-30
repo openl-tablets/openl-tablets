@@ -42,7 +42,7 @@ public class DependencyChecker {
     }
 
     public void addProject(AProject project) {
-        String projectName = project.getName();
+        String projectName = project.getBusinessName();
         try {
             projectDependencies.put(projectName, projectDescriptorArtefactResolver.getDependencies(project));
             projectVersions.put(projectName, project.getVersion());
@@ -61,6 +61,8 @@ public class DependencyChecker {
 
         for (ProjectDescriptor descriptor : deploymentProject.getProjectDescriptors()) {
             String projectName = descriptor.getProjectName();
+            String branch = descriptor.getBranch();
+            String projectPath = descriptor.getPath();
             CommonVersion projectVersion = descriptor.getProjectVersion();
 
             try {
@@ -68,10 +70,21 @@ public class DependencyChecker {
                 if (repositoryId == null) {
                     repositoryId = designRepository.getRepositories().get(0).getId();
                 }
-                if (designRepository.hasProject(repositoryId, projectName)) {
-                    addProject(designRepository.getProject(repositoryId, projectName, projectVersion));
+                AProject project;
+                if (projectPath != null) {
+                    project = designRepository
+                        .getProjectByPath(repositoryId, branch, projectPath, projectVersion.getVersionName());
                 } else {
+                    if (designRepository.hasProject(repositoryId, projectName)) {
+                        project = designRepository.getProject(repositoryId, projectName, projectVersion);
+                    } else {
+                        project = null;
+                    }
+                }
+                if (project == null) {
                     projectVersions.put(projectName, null);
+                } else {
+                    addProject(project);
                 }
             } catch (Exception e) {
                 LOG.error("Cannot get project '{}' version {}.", projectName, projectVersion.getVersionName(), e);

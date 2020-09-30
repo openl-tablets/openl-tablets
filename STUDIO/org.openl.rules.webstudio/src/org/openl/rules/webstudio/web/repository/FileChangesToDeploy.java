@@ -15,7 +15,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipInputStream;
 
 import org.openl.rules.common.ProjectDescriptor;
-import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
@@ -70,15 +70,30 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                     Repository repository = designRepo.getRepository(repositoryId);
                     String version = pd.getProjectVersion().getVersionName();
                     String projectName = pd.getProjectName();
+                    String projectPath = pd.getPath();
+                    String branch = pd.getBranch();
                     DeploymentManifestBuilder manifestBuilder = new DeploymentManifestBuilder()
                             .setBuiltBy(username)
                             .setBuildNumber(pd.getProjectVersion().getRevision())
                             .setImplementationTitle(projectName)
                             .setImplementationVersion(resolveProjectVersion(repositoryId, projectName, version));
-                    if (pd.getBranch() != null) {
-                        manifestBuilder.setBuildBranch(pd.getBranch());
+                    if (branch != null) {
+                        manifestBuilder.setBuildBranch(branch);
                     }
-                    projectIterator = getProjectIterator(repository, projectName, version, manifestBuilder);
+                    String technicalName = projectName;
+                    try {
+                        AProject designProject = designRepo.getProjectByPath(repositoryId,
+                            branch,
+                            projectPath,
+                            version);
+                        if (designProject != null) {
+                            technicalName = designProject.getName();
+                        }
+                    } catch (IOException e) {
+                        LOG.error(e.getMessage(), e);
+                        return false;
+                    }
+                    projectIterator = getProjectIterator(repository, technicalName, version, manifestBuilder);
                     return projectIterator != null && projectIterator.hasNext();
                 } else {
                     return false;

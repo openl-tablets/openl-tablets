@@ -118,13 +118,15 @@ public class DeploymentManager implements InitializingBean {
                 }
 
                 for (ProjectDescriptor<?> pd : projectDescriptors) {
-                        String repositoryId = pd.getRepositoryId();
-                        if (repositoryId == null) {
-                            repositoryId = designRepository.getRepositories().get(0).getId();
-                        }
-                        Repository designRepo = designRepository.getRepository(repositoryId);
+                    String repositoryId = pd.getRepositoryId();
+                    if (repositoryId == null) {
+                        repositoryId = designRepository.getRepositories().get(0).getId();
+                    }
+                    Repository designRepo = designRepository.getRepository(repositoryId);
                     String version = pd.getProjectVersion().getVersionName();
                     String projectName = pd.getProjectName();
+                    String projectPath = pd.getPath();
+                    String branch = pd.getBranch();
 
                     FileData dest = new FileData();
                     dest.setName(deploymentPath + projectName);
@@ -142,9 +144,17 @@ public class DeploymentManager implements InitializingBean {
                     }
 
                     if (designRepo.supports().folders()) {
+                        String technicalName = projectName;
+                        AProject designProject = designRepository.getProjectByPath(repositoryId,
+                            branch,
+                            projectPath,
+                            version);
+                        if (designProject != null) {
+                            technicalName = designProject.getName();
+                        }
                         archiveAndSave((FolderRepository) designRepo,
                                 rulesPath,
-                                projectName,
+                                technicalName,
                                 version,
                                 deployRepo,
                                 dest,
@@ -228,11 +238,21 @@ public class DeploymentManager implements InitializingBean {
                     if (repositoryId == null) {
                         repositoryId = designRepository.getRepositories().get(0).getId();
                     }
-                    AProject project = designRepository.getProject(
-                            repositoryId,
-                            pd.getProjectName(),
-                            pd.getProjectVersion()
-                    );
+                    String branch = pd.getBranch();
+                    String projectPath = pd.getPath();
+                    AProject project;
+                    if (projectPath != null) {
+                        project = designRepository.getProjectByPath(repositoryId,
+                            branch,
+                            projectPath,
+                            pd.getProjectVersion().getVersionName());
+                    } else {
+                        project = designRepository.getProject(
+                                repositoryId,
+                                pd.getProjectName(),
+                                pd.getProjectVersion()
+                        );
+                    }
 
                     AProjectArtefact artifact = project.getArtefact(DeployUtils.RULES_DEPLOY_XML);
                     if (artifact instanceof AProjectResource) {
