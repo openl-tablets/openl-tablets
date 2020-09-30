@@ -18,6 +18,7 @@ import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
@@ -197,7 +198,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
             if (manifest != null) {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 manifest.write(out);
-                this.manifest = new FileItem(deploymentPath + projectName + "/" + JarFile.MANIFEST_NAME,
+                this.manifest = new FileItem(deploymentPath + getBusinessName(projectName) + "/" + JarFile.MANIFEST_NAME,
                         new ByteArrayInputStream(out.toByteArray()));
                 this.writeManifest = true;
             } else {
@@ -218,7 +219,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                 return manifest;
             }
             FileData file = files.get(fileIndex++);
-            String srcFileName = file.getName();
+            String srcFileName = getBusinessName(file.getName());
             String fileTo = deploymentPath + srcFileName.substring(rulesPath.length());
             FileItem fileItem;
             try {
@@ -236,6 +237,14 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
         @Override
         public void remove() {
             throw new UnsupportedOperationException("Remove is not supported");
+        }
+
+        private String getBusinessName(String mappedPath) {
+            if (baseRepo.supports().mappedFolders()) {
+                return ((FolderMapper) baseRepo).getBusinessName(mappedPath);
+            }
+
+            return mappedPath;
         }
     }
 }

@@ -1363,8 +1363,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     return historyVisitor.getResult();
                 }
 
-                RevCommit commit = walk.parseCommit(getCommitByVersion(version));
-                historyVisitor.visit(name, commit, getVersionName(git.getRepository(), tags, commit));
+                ObjectId id = getCommitByVersion(version);
+                if (id != null) {
+                    RevCommit commit = walk.parseCommit(id);
+                    historyVisitor.visit(name, commit, getVersionName(git.getRepository(), tags, commit));
+                } else {
+                    log.warn("Can't find commit for version {}", version);
+                }
                 return historyVisitor.getResult();
             }
         } catch (MissingObjectException e) {

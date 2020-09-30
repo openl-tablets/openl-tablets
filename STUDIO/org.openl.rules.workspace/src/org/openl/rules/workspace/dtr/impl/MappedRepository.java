@@ -1010,8 +1010,13 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public String getBusinessName(String mappedName) {
-        int index = mappedName.lastIndexOf(SEPARATOR);
-        return index >= 0 ? mappedName.substring(0, index) : mappedName;
+        int separatorIndex = mappedName.lastIndexOf(SEPARATOR);
+        if (separatorIndex >= 0) {
+            String projectName = mappedName.substring(0, separatorIndex);
+            int subFolderIndex = mappedName.indexOf('/', separatorIndex + 1);
+            return subFolderIndex >= 0 ? projectName + mappedName.substring(subFolderIndex) : projectName;
+        }
+        return mappedName;
     }
 
     @Override
