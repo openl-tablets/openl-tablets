@@ -10,21 +10,21 @@ import java.util.List;
 import javax.annotation.PreDestroy;
 import javax.faces.context.FacesContext;
 
+import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.source.SourceHistoryManager;
 import org.openl.util.FileTool;
 import org.richfaces.component.UITree;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
+import org.springframework.web.context.annotation.RequestScope;
 
 @Service
-@SessionScope
+@RequestScope
 public class UploadExcelDiffController extends ExcelDiffController {
     private final Logger log = LoggerFactory.getLogger(UploadExcelDiffController.class);
 
@@ -101,9 +101,10 @@ public class UploadExcelDiffController extends ExcelDiffController {
     public String compareVersions(String version1, String version2) {
         try {
             ProjectModel model = WebStudioUtils.getProjectModel();
-            SourceHistoryManager<File> historyManager = model.getHistoryManager();
-            File file1ToCompare = historyManager.get(version1);
-            File file2ToCompare = historyManager.get(version2);
+
+            String historyStoragePath = model.getHistoryStoragePath();
+            File file1ToCompare = ProjectHistoryService.get(historyStoragePath, version1);
+            File file2ToCompare = ProjectHistoryService.get(historyStoragePath, version2);
 
             UploadExcelDiffController diffController = (UploadExcelDiffController) WebStudioUtils
                 .getBackingBean("uploadExcelDiffController");

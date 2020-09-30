@@ -29,6 +29,8 @@ public class OpenAPITypeUtils {
     public static final String INTEGER = "Integer";
     public static final String BOOLEAN = "Boolean";
     public static final String LONG = "Long";
+    public static final String BIG_DECIMAL = "BigDecimal";
+    public static final String BIG_INTEGER = "BigInteger";
 
     private OpenAPITypeUtils() {
     }
@@ -52,13 +54,15 @@ public class OpenAPITypeUtils {
             } else if ("double".equals(schema.getFormat())) {
                 return DOUBLE;
             } else {
-                return DOUBLE;
+                return BIG_DECIMAL;
             }
         } else if ("integer".equals(schemaType)) {
             if ("int64".equals(schema.getFormat())) {
                 return LONG;
-            } else {
+            } else if ("int32".equals(schema.getFormat())) {
                 return INTEGER;
+            } else {
+                return BIG_INTEGER;
             }
         } else if ("boolean".equals(schemaType)) {
             return BOOLEAN;
@@ -83,7 +87,8 @@ public class OpenAPITypeUtils {
 
     public static boolean isSimpleType(String type) {
         return STRING.equals(type) || FLOAT.equals(type) || DOUBLE.equals(type) || INTEGER.equals(type) || LONG
-            .equals(type) || BOOLEAN.equals(type) || DATE.equals(type) || OBJECT.equals(type);
+            .equals(type) || BOOLEAN.equals(type) || DATE
+                .equals(type) || OBJECT.equals(type) || BIG_INTEGER.equals(type) || BIG_DECIMAL.equals(type);
     }
 
     public static String getSimpleValue(String type) {
@@ -91,6 +96,9 @@ public class OpenAPITypeUtils {
         switch (type) {
             case INTEGER:
                 result = "=0";
+                break;
+            case BIG_INTEGER:
+                result = "=java.math.BigInteger.ZERO";
                 break;
             case LONG:
                 result = "=0L";
@@ -100,6 +108,9 @@ public class OpenAPITypeUtils {
                 break;
             case FLOAT:
                 result = "=0.0f";
+                break;
+            case BIG_DECIMAL:
+                result = "=java.math.BigDecimal.ZERO";
                 break;
             case STRING:
                 result = "=" + "\"\"";

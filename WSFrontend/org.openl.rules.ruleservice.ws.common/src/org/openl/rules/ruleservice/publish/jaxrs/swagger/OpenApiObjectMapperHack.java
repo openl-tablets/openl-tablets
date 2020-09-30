@@ -17,14 +17,7 @@ public final class OpenApiObjectMapperHack {
     private List<Object> oldConverters;
 
     public OpenApiObjectMapperHack() {
-        try {
-            ModelConverters modelConverters = ModelConverters.getInstance();
-            Field convertersField = ModelConverters.class.getDeclaredField("converters");
-            convertersField.setAccessible(true);
-            this.converters = (List) convertersField.get(modelConverters);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(e);
-        }
+        this.converters = getModelConverters();
     }
 
     @SuppressWarnings("unchecked")
@@ -34,13 +27,25 @@ public final class OpenApiObjectMapperHack {
         oldConverters = new ArrayList<>();
         for (Object converter : converters) {
             oldConverters.add(converter);
-            hackedConverters
-                .add(converter instanceof ModelResolver ? new ObjectMapperSupportModelResolver(objectMapper) : (ModelConverter) converter);
+            hackedConverters.add(converter instanceof ModelResolver ? new ObjectMapperSupportModelResolver(objectMapper)
+                                                                    : (ModelConverter) converter);
         }
         converters.clear();
         OpenApiInheritanceFixConverter openApiInheritanceFixConverter = new OpenApiInheritanceFixConverter(objectMapper,
             hackedConverters);
         converters.addAll(Collections.singleton(openApiInheritanceFixConverter));
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<ModelConverter> getModelConverters() {
+        try {
+            ModelConverters modelConverters = ModelConverters.getInstance();
+            Field convertersField = ModelConverters.class.getDeclaredField("converters");
+            convertersField.setAccessible(true);
+            return (List<ModelConverter>) convertersField.get(modelConverters);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @SuppressWarnings("unchecked")

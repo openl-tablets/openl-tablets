@@ -229,21 +229,16 @@ public class DecisionTableLoader {
         if (nHConditions > 0) {
             try {
                 DecisionTableLookupConvertor dtlc = new DecisionTableLookupConvertor();
-
                 IGridTable convertedTable = dtlc.convertTable(toParse);
-                ILogicalTable offsetConvertedTable = LogicalTableHelper.logicalTable(convertedTable);
-                toParse = offsetConvertedTable.transpose();
+                toParse = LogicalTableHelper.logicalTable(convertedTable);
                 tableStructure.info = new DTInfo(nHConditions, nVConditions, dtlc.getScale());
             } catch (OpenLCompilationException e) {
                 throw SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
             } catch (Exception e) {
                 throw SyntaxNodeExceptionUtils.createError("Cannot convert table.", e, tableSyntaxNode);
             }
-        } else if (DecisionTableHelper.looksLikeVertical(toParse)) {
-            // parsing is based on horizontal representation of decision table.
-            //
-            toParse = toParse.transpose();
         }
+        toParse = toParse.transpose();
 
         if (needToUnmergeFirstRow(toParse)) {
             toParse = unmergeFirstRow(toParse);
@@ -261,7 +256,7 @@ public class DecisionTableLoader {
 
         // NOTE! this method call depends on upper stacks calls, don`t move it upper.
         //
-        putTableForBusinessView(tableSyntaxNode);
+        putTableForBusinessView(tableSyntaxNode, transpose);
         for (int i = 0; i < toParse.getHeight(); i++) {
             loadRow(decisionTable, tableStructure, toParse, i, bindingContext);
         }
@@ -401,29 +396,24 @@ public class DecisionTableLoader {
      *
      * @param tableSyntaxNode table syntax node
      */
-    private void putTableForBusinessView(TableSyntaxNode tableSyntaxNode) {
+    @SuppressWarnings("StatementWithEmptyBody")
+    private void putTableForBusinessView(TableSyntaxNode tableSyntaxNode, boolean transpose) {
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
 
         if (DecisionTableHelper.isSmartDecisionTable(tableSyntaxNode) || DecisionTableHelper
-            .isSimpleDecisionTable(tableSyntaxNode) || DecisionTableHelper
+                .isSimpleDecisionTable(tableSyntaxNode) || DecisionTableHelper
                 .isSimpleLookupTable(tableSyntaxNode) || DecisionTableHelper.isSmartLookupTable(tableSyntaxNode)) {
             // if DT is simple, its body does not contain conditions and return headers.
             // so put the body as it is.
-            tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
+        } else if (transpose) {
+            // table is horizontal, so remove service columns.
+            tableBody = tableBody.getColumns(IDecisionTableConstants.SERVICE_COLUMNS_NUMBER - 1);
         } else {
-            // need to get the subtable without conditions and return headers.
-            ILogicalTable businessView;
-            if (DecisionTableHelper.looksLikeVertical(tableBody)) {
-                // if table is vertical, remove service rows.
-                businessView = tableBody.getRows(IDecisionTableConstants.SERVICE_COLUMNS_NUMBER - 1);
-            } else {
-                // table is horizontal, so remove service columns.
-                businessView = tableBody.getColumns(IDecisionTableConstants.SERVICE_COLUMNS_NUMBER - 1);
-            }
-
-            tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, businessView);
+            // if table is vertical, remove service rows.
+            tableBody = tableBody.getRows(IDecisionTableConstants.SERVICE_COLUMNS_NUMBER - 1);
         }
 
+        tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
     }
 
     private String getHeaderStr(int row, ILogicalTable table) {

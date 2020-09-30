@@ -3,35 +3,24 @@ package org.openl.rules.lang.xls;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
-import org.openl.util.FileUtils;
 
 public class XlsWorkbookSourceCodeModuleTest {
-
-    private static final String TEST_FILE_NAME = "testCorruptedFile.xls";
-    private static final String TEXT = "test";
-
-    @Before
-    public void init() throws Exception {
-        OutputStream os = new FileOutputStream(TEST_FILE_NAME);
-        os.write(TEXT.getBytes());
-        os.close();
-    }
 
     @Test
     public void testUrlWithWhiteSpaces() throws MalformedURLException {
@@ -43,7 +32,13 @@ public class XlsWorkbookSourceCodeModuleTest {
 
     @Test
     public void testFileIsNotCorrupted() throws IOException {
-        IOpenSourceCodeModule src = mock(IOpenSourceCodeModule.class);
+        File tempFile = File.createTempFile("test", ".tmp");
+        tempFile.deleteOnExit();
+        try (FileWriter writer = new FileWriter(tempFile)) {
+            writer.write("TEST");
+        }
+
+        IOpenSourceCodeModule src = new URLSourceCodeModule(URLSourceCodeModule.toUrl(tempFile));
         Workbook workbook = mock(Workbook.class);
         when(workbook.getSpreadsheetVersion()).thenReturn(SpreadsheetVersion.EXCEL2007);
         doThrow(new OutOfMemoryError()).when(workbook).write(any(OutputStream.class));
@@ -51,17 +46,10 @@ public class XlsWorkbookSourceCodeModuleTest {
         try {
             XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(src,
                 new SimpleWorkbookLoader(workbook));
-            module.saveAs(TEST_FILE_NAME);
+            module.save();
         } catch (OutOfMemoryError ignored) {
         }
 
-        assertEquals("File should not cleared if there are no actual write operations",
-            TEXT.getBytes().length,
-            new File(TEST_FILE_NAME).length());
-    }
-
-    @After
-    public void tearDown() {
-        FileUtils.deleteQuietly(new File(TEST_FILE_NAME));
+        assertEquals("File should not cleared if there are no actual write operations", 4, tempFile.length());
     }
 }

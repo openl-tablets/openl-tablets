@@ -171,134 +171,53 @@ public final class DecisionTableHelper {
     private DecisionTableHelper() {
     }
 
-    /**
-     * Check if table is vertical.<br>
-     * Vertical table is when conditions are represented from left to right, table is reading from top to bottom.</br>
-     * Example of vertical table:
-     *
-     * <table cellspacing="2">
-     * <tr>
-     * <td align="center" bgcolor="#ccffff"><b>Rule</b></td>
-     * <td align="center" bgcolor="#ccffff"><b>C1</b></td>
-     * <td align="center" bgcolor="#ccffff"><b>C2</b></td>
-     * </tr>
-     * <tr>
-     * <td align="center" bgcolor="#ccffff"></td>
-     * <td align="center" bgcolor="#ccffff">paramLocal1==paramInc</td>
-     * <td align="center" bgcolor="#ccffff">paramLocal2==paramInc</td>
-     * </tr>
-     * <tr>
-     * <td align="center" bgcolor="#ccffff"></td>
-     * <td align="center" bgcolor="#ccffff">String paramLocal1</td>
-     * <td align="center" bgcolor="#ccffff">String paramLocal2</td>
-     * </tr>
-     * <tr>
-     * <td align="center" bgcolor="#8FCB52">Rule</td>
-     * <td align="center" bgcolor="#ffff99">Local Param 1</td>
-     * <td align="center" bgcolor="#ffff99">Local Param 2</td>
-     * </tr>
-     * <tr>
-     * <td align="center" bgcolor="#8FCB52">Rule1</td>
-     * <td align="center" bgcolor="#ffff99">value11</td>
-     * <td align="center" bgcolor="#ffff99">value21</td>
-     * </tr>
-     * <tr>
-     * <td align="center" bgcolor="#8FCB52">Rule2</td>
-     * <td align="center" bgcolor="#ffff99">value12</td>
-     * <td align="center" bgcolor="#ffff99">value22</td>
-     * </tr>
-     * <tr>
-     * <td align="center" bgcolor="#8FCB52">Rule3</td>
-     * <td align="center" bgcolor="#ffff99">value13</td>
-     * <td align="center" bgcolor="#ffff99">value23</td>
-     * </tr>
-     * </table>
-     *
-     * @param table checked table
-     * @return <code>TRUE</code> if table is vertical.
-     */
-    static boolean looksLikeVertical(ILogicalTable table) {
-
-        if (table.getWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
-            return true;
-        }
-
-        if (table.getHeight() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
-            return false;
-        }
-
-        int cnt1 = countConditionsAndActions(table);
-        int cnt2 = countConditionsAndActions(table.transpose());
-
-        if (cnt1 != cnt2) {
-            return cnt1 > cnt2;
-        }
-
-        return table.getWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
-    }
-
     static boolean isValidConditionHeader(String s) {
-        return s.length() >= 2 && s.charAt(0) == DecisionTableColumnHeaders.CONDITION.getHeaderKey()
-            .charAt(0) && Character.isDigit(s.charAt(1));
+        return s != null && s.length() >= 2 && s.charAt(0) == DecisionTableColumnHeaders.CONDITION.getHeaderKey()
+            .charAt(0) && s.substring(1).chars().allMatch(Character::isDigit);
     }
 
     static boolean isValidHConditionHeader(String headerStr) {
-        return headerStr.startsWith(
-            DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey()) && headerStr.length() > 2 && Character
-                .isDigit(headerStr.charAt(2));
+        return headerStr != null && headerStr.startsWith(
+            DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey()) && headerStr.length() > 2 && headerStr
+                .substring(2)
+                .chars()
+                .allMatch(Character::isDigit);
     }
 
     static boolean isValidMergedConditionHeader(String headerStr) {
-        return headerStr.startsWith(
-            DecisionTableColumnHeaders.MERGED_CONDITION.getHeaderKey()) && headerStr.length() > 2 && Character
-                .isDigit(headerStr.charAt(2));
+        return headerStr != null && headerStr.startsWith(
+            DecisionTableColumnHeaders.MERGED_CONDITION.getHeaderKey()) && headerStr.length() > 2 && headerStr
+                .substring(2)
+                .chars()
+                .allMatch(Character::isDigit);
     }
 
     static boolean isValidActionHeader(String s) {
-        return s.length() >= 2 && s.charAt(0) == DecisionTableColumnHeaders.ACTION.getHeaderKey().charAt(0) && Character
-            .isDigit(s.charAt(1));
+        return s != null && s.length() >= 2 && s.charAt(0) == DecisionTableColumnHeaders.ACTION.getHeaderKey()
+            .charAt(0) && s.substring(1).chars().allMatch(Character::isDigit);
     }
 
     static boolean isValidRetHeader(String s) {
-        return s.length() >= 3 && s.startsWith(
-            DecisionTableColumnHeaders.RETURN.getHeaderKey()) && (s.length() == 3 || Character.isDigit(s.charAt(3)));
+        return s != null && s.length() >= 3 && s.startsWith(DecisionTableColumnHeaders.RETURN
+            .getHeaderKey()) && (s.length() == 3 || s.substring(3).chars().allMatch(Character::isDigit));
     }
 
     static boolean isValidKeyHeader(String s) {
-        return s.length() >= 3 && s.startsWith(
-            DecisionTableColumnHeaders.KEY.getHeaderKey()) && (s.length() == 3 || Character.isDigit(s.charAt(3)));
+        return s != null && s.length() >= 3 && s.startsWith(DecisionTableColumnHeaders.KEY
+            .getHeaderKey()) && (s.length() == 3 || s.substring(3).chars().allMatch(Character::isDigit));
     }
 
     static boolean isValidCRetHeader(String s) {
-        return s.length() >= 4 && s.startsWith(DecisionTableColumnHeaders.COLLECT_RETURN
-            .getHeaderKey()) && (s.length() == 4 || Character.isDigit(s.charAt(4)));
+        return s != null && s.length() >= 4 && s.startsWith(DecisionTableColumnHeaders.COLLECT_RETURN
+            .getHeaderKey()) && (s.length() == 4 || s.substring(4).chars().allMatch(Character::isDigit));
     }
 
     static boolean isValidRuleHeader(String s) {
-        return s.equals(DecisionTableColumnHeaders.RULE.getHeaderKey());
+        return Objects.equals(s, DecisionTableColumnHeaders.RULE.getHeaderKey());
     }
 
     static boolean isConditionHeader(String s) {
         return isValidConditionHeader(s) || isValidHConditionHeader(s) || isValidMergedConditionHeader(s);
-    }
-
-    private static int countConditionsAndActions(ILogicalTable table) {
-
-        int width = table.getWidth();
-        int count = 0;
-
-        for (int i = 0; i < width; i++) {
-
-            String value = table.getColumn(i).getSource().getCell(0, 0).getStringValue();
-
-            if (value != null) {
-                value = value.toUpperCase();
-                count += isValidConditionHeader(value) || isValidActionHeader(value) || isValidRetHeader(
-                    value) || isValidCRetHeader(value) || isValidKeyHeader(value) ? 1 : 0;
-            }
-        }
-
-        return count;
     }
 
     /**
@@ -325,17 +244,30 @@ public final class DecisionTableHelper {
             sizeOfVirtualGridTable/* originalTable.getSource().getWidth() - 1 */,
             virtualGrid);
 
-        IGrid grid = new CompositeGrid(new IGridTable[] { virtualGridTable, originalTable.getSource() }, true);
+        int finalHeight = originalTable.getSource().getHeight() + IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1;
+        IGridTable[] tables;
+        if (isSmart(tableSyntaxNode) && originalTable.getHeight() < 2) {
+            GridTable virtualDefaultRulesRowGridTable = new GridTable(0,
+                0,
+                0,
+                originalTable.getSource().getWidth() - 1,
+                createVirtualGrid());
+            tables = new IGridTable[] { virtualGridTable, originalTable.getSource(), virtualDefaultRulesRowGridTable };
+            finalHeight++;
+            bindingContext.addMessage(OpenLMessagesUtils
+                .newWarnMessage("The table must have at least one row with values.", tableSyntaxNode));
+        } else {
+            tables = new IGridTable[] { virtualGridTable, originalTable.getSource() };
+        }
+
+        IGrid grid = new CompositeGrid(tables, true);
         // If the new table header size bigger than the size of the old table we
         // use the new table size
         int sizeofGrid = virtualGridTable.getWidth() < originalTable.getSource().getWidth() ? originalTable.getSource()
             .getWidth() - 1 : virtualGridTable.getWidth() - 1;
 
-        return LogicalTableHelper.logicalTable(new GridTable(0,
-            0,
-            originalTable.getSource().getHeight() + IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1,
-            sizeofGrid /* originalTable.getSource().getWidth() - 1 */,
-            grid));
+        return LogicalTableHelper.logicalTable(
+            new GridTable(0, 0, finalHeight, sizeofGrid /* originalTable.getSource().getWidth() - 1 */, grid));
     }
 
     private static FuzzyContext buildFuzzyContext(TableSyntaxNode tableSyntaxNode,

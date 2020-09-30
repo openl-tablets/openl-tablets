@@ -2,10 +2,12 @@ package org.open.rules.project.validation.openapi;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.function.BiPredicate;
 
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.validation.base.ValidatedCompiledOpenClass;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.Schema;
 
 class Context {
     private ValidatedCompiledOpenClass validatedCompiledOpenClass;
@@ -37,9 +40,12 @@ class Context {
     private MediaType actualMediaType;
     private String mediaType;
 
+    private IOpenClass type;
+    private IOpenField field;
     private Method method;
     private IOpenMethod openMethod;
     private ObjectMapper objectMapper;
+    BiPredicate<Schema, IOpenField> isIncompatibleTypesPredicate;
 
     private final OpenClassPropertiesResolver openClassPropertiesResolver = new OpenClassPropertiesResolver(this);
     private OpenAPIResolver actualOpenAPIResolver;
@@ -47,7 +53,6 @@ class Context {
     private final SpreadsheetMethodResolver spreadsheetMethodResolver = new SpreadsheetMethodResolver(this);
 
     private boolean typeValidationInProgress;
-    private IOpenClass type;
 
     public ValidatedCompiledOpenClass getValidatedCompiledOpenClass() {
         return validatedCompiledOpenClass;
@@ -263,5 +268,21 @@ class Context {
 
     public void setServiceClassLoader(ClassLoader serviceClassLoader) {
         this.serviceClassLoader = serviceClassLoader;
+    }
+
+    public IOpenField getField() {
+        return field;
+    }
+
+    public void setField(IOpenField field) {
+        this.field = field;
+    }
+
+    public BiPredicate<Schema, IOpenField> getIsIncompatibleTypesPredicate() {
+        return isIncompatibleTypesPredicate;
+    }
+
+    public void setIsIncompatibleTypesPredicate(BiPredicate<Schema, IOpenField> isIncompatibleTypesPredicate) {
+        this.isIncompatibleTypesPredicate = isIncompatibleTypesPredicate;
     }
 }

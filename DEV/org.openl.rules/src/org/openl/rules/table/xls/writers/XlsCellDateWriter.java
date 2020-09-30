@@ -16,6 +16,7 @@ public class XlsCellDateWriter extends AXlsCellWriter {
 
     @Override
     public void writeCellValue() {
+        removeFormulaIfPresent();
         Date dateValue = (Date) getValueToWrite();
         getCellToWrite().setCellValue(dateValue);
 

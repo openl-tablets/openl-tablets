@@ -1,1 +1,1 @@
-ERROR: OpenAPI validation: Type of field 'CDTcodeValidationResult' in type 'ApiTodo' must be compatible with OpenAPI type 'integer'. Found OpenAPI type: 'integer(int32)'.
+ERROR: OpenAPI validation: Type of cell '$CDTcodeValidationResult' must be compatible with type 'integer' of schema property 'CDTcodeValidationResult'. Found OpenAPI type: 'number(double)'.

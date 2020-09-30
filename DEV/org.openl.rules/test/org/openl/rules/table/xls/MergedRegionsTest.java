@@ -2,7 +2,6 @@ package org.openl.rules.table.xls;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -22,7 +21,6 @@ import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
 import org.openl.rules.table.*;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.source.impl.URLSourceCodeModule;
-import org.openl.util.StringUtils;
 
 /**
  * Tests correctness of resizing and moving merged regions during removing/inserting of columns and rows.
@@ -123,7 +121,6 @@ public class MergedRegionsTest {
     }
 
     private static String __src = "test/rules/MergedRegions.xls";
-    private static boolean saveAfterFailure = false;
 
     private List<TestDesctiption> findAllTests(IWritableGrid grid) {
         List<TestDesctiption> result = new ArrayList<>();
@@ -241,14 +238,6 @@ public class MergedRegionsTest {
             removeRowsActions.undoAction(table);
             compareTablesByCell(test.getTestRegion(), test.getOriginalTableRegion(), grid);
         } catch (DifferentCellsException e) {
-            if (saveAfterFailure) {
-                try {
-                    workbook.saveAs(
-                        String.format("test/rules/MergedRegionsAfter%s.xls", grid.getSheetSource().getSheetName()));
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
             fail("Different cells:\n" + e.getResultCell().getUri() + "\n and \n" + e.getExpectedCell().getUri());
         }
     }

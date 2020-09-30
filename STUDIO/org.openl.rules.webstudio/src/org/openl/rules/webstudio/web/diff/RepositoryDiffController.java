@@ -39,7 +39,7 @@ import org.richfaces.function.RichFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Supplies repository structured diff UI tree with data.
@@ -47,7 +47,7 @@ import org.springframework.web.context.annotation.SessionScope;
  * @author Andrey Naumenko
  */
 @Service
-@SessionScope
+@RequestScope
 public class RepositoryDiffController extends AbstractDiffController {
     private final Logger log = LoggerFactory.getLogger(RepositoryDiffController.class);
 
@@ -65,7 +65,7 @@ public class RepositoryDiffController extends AbstractDiffController {
     private String selectedVersionRepo;
 
     public RepositoryDiffController(RepositoryTreeState repositoryTreeState,
-        DesignTimeRepository designTimeRepository) {
+            DesignTimeRepository designTimeRepository) {
         this.repositoryTreeState = repositoryTreeState;
         this.designTimeRepository = designTimeRepository;
     }
@@ -110,7 +110,8 @@ public class RepositoryDiffController extends AbstractDiffController {
             Repository designRepository = projectUW.getDesignRepository();
             if (designRepository.supports().branches()) {
                 Repository repository = ((BranchRepository) designRepository).forBranch(branch);
-                String folderPath = designTimeRepository.getProject(designRepository.getId(), projectUW.getName()).getFolderPath();
+                String folderPath = designTimeRepository.getProject(designRepository.getId(), projectUW.getName())
+                    .getFolderPath();
                 versions = new AProject(repository, folderPath).getVersions();
             } else {
                 versions = projectUW.getVersions();
@@ -178,11 +179,13 @@ public class RepositoryDiffController extends AbstractDiffController {
 
             Repository designRepository = projectUW.getDesignRepository();
             if (designRepository.supports().branches()) {
-                projectRepo = designTimeRepository.getProject(designRepository.getId(), branch, projectUW.getName(), selectedVersionRepo);
+                projectRepo = designTimeRepository
+                    .getProject(designRepository.getId(), branch, projectUW.getName(), selectedVersionRepo);
             } else {
                 CommonVersionImpl version = new CommonVersionImpl(selectedVersionRepo);
                 try {
-                    projectRepo = designTimeRepository.getProject(designRepository.getId(), projectUW.getName(), version);
+                    projectRepo = designTimeRepository
+                        .getProject(designRepository.getId(), projectUW.getName(), version);
                 } catch (Exception e) {
                     log.warn("Could not get project'{}' of version '{}'",
                         projectUW.getName(),

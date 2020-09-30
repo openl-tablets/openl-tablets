@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.publish.jaxrs.swagger;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.Priority;
@@ -13,6 +15,10 @@ import javax.ws.rs.container.PreMatching;
 public class SwaggerHackContainerResponseFilter implements ContainerResponseFilter {
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
+        List<String> contentType = requestContext.getHeaders().get("Content-Type");
+        if (contentType.stream().filter(Objects::nonNull).noneMatch(e -> e.contains("charset"))) {
+            requestContext.getHeaders().add("Content-Type", "charset=UTF-8");
+        }
         Object swaggerObjectMapperHack = requestContext.getProperty("SwaggerObjectMapperHack");
         if (swaggerObjectMapperHack instanceof SwaggerObjectMapperHack) {
             ((SwaggerObjectMapperHack) swaggerObjectMapperHack).revert();

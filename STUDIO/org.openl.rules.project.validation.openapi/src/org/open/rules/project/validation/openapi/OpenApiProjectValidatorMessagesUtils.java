@@ -4,13 +4,19 @@ import java.util.Objects;
 
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
+import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.project.validation.base.ValidatedCompiledOpenClass;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+
+import io.swagger.v3.oas.models.media.Schema;
 
 final class OpenApiProjectValidatorMessagesUtils {
 
@@ -53,19 +59,45 @@ final class OpenApiProjectValidatorMessagesUtils {
         addMethodError(context, context.getOpenMethod(), summary);
     }
 
+    @SuppressWarnings("rawtypes")
     public static void addMethodError(Context context, IOpenMethod method, String summary) {
-        TableSyntaxNode tableSyntaxNode = extractTableSyntaxNode(method);
-        if (tableSyntaxNode != null) {
-            SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary, tableSyntaxNode);
-            if (isNotExistingError(tableSyntaxNode, summary)) {
-                tableSyntaxNode.addError(syntaxNodeException);
-            }
-            if (isNotExistingError(context.getValidatedCompiledOpenClass(), summary)) {
-                OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
-                context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
+        if (method instanceof OpenMethodDispatcher) {
+            OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) method;
+            for (IOpenMethod m : openMethodDispatcher.getCandidates()) {
+                if (context.getField() != null && m instanceof Spreadsheet && m
+                    .getType() instanceof CustomSpreadsheetResultOpenClass) {
+                    IOpenField openFieldInSpr = SpreadsheetMethodResolver.findSpreadsheetOpenField((Spreadsheet) m,
+                        context.getField());
+                    if (openFieldInSpr != null) {
+                        if (context.getIsIncompatibleTypesPredicate() != null) {
+                            Schema actualSchema = SchemaResolver.resolve(context,
+                                openFieldInSpr.getType().getInstanceClass());
+                            if (context.getIsIncompatibleTypesPredicate().test(actualSchema, openFieldInSpr)) {
+                                addMethodError(context, m, summary);
+                            }
+                        } else {
+                            addMethodError(context, m, summary);
+                        }
+                    }
+                } else {
+                    addMethodError(context, m, summary);
+                }
             }
         } else {
-            addError(context, summary);
+            TableSyntaxNode tableSyntaxNode = extractTableSyntaxNode(method);
+            if (tableSyntaxNode != null) {
+                SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary,
+                    tableSyntaxNode);
+                if (isNotExistingError(tableSyntaxNode, summary)) {
+                    tableSyntaxNode.addError(syntaxNodeException);
+                }
+                if (isNotExistingError(context.getValidatedCompiledOpenClass(), summary)) {
+                    OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
+                    context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
+                }
+            } else {
+                addError(context, summary);
+            }
         }
     }
 

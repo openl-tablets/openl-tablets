@@ -1,0 +1,1 @@
+ERROR: OpenAPI validation: Type 'ProcessProcedure' of field 'status' in type 'ProcessClaim' mismatches to declared schema 'ProcessProcedure[]'.

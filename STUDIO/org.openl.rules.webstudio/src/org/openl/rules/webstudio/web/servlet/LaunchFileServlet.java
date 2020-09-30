@@ -118,8 +118,7 @@ public class LaunchFileServlet extends HttpServlet {
         try {
             log.debug("decodedUriParameter: {}", decodedUriParameter);
 
-            XlsUrlParser parser = new XlsUrlParser();
-            parser.parse(decodedUriParameter);
+            XlsUrlParser parser = new XlsUrlParser(decodedUriParameter);
             wbPath = parser.getWbPath();
             wbName = parser.getWbName();
             wsName = parser.getWsName();
@@ -138,12 +137,8 @@ public class LaunchFileServlet extends HttpServlet {
         boolean local = b;
         if (local) { // local mode
             try {
-                model.openWorkbookForEdit(wbName);
-
                 String excelScriptPath = getServletContext().getRealPath("/scripts/LaunchExcel.vbs");
                 ExcelLauncher.launch(excelScriptPath, wbPath, wbName, wsName, range);
-
-                model.afterOpenWorkbookForEdit(wbName);
 
                 return;
             } catch (Exception e) {

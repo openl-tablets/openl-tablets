@@ -1,6 +1,5 @@
 package org.openl.rules.table.xls.writers;
 
-import org.apache.poi.ss.usermodel.CellType;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 
 public class XlsCellStringWriter extends AXlsCellWriter {
@@ -11,6 +10,7 @@ public class XlsCellStringWriter extends AXlsCellWriter {
 
     @Override
     public void writeCellValue() {
+        removeFormulaIfPresent();
         getCellToWrite().setCellValue(getStringValue());
     }
 

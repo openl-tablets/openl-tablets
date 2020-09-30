@@ -131,6 +131,7 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
         String valueAsString = defaultValue.toString();
         switch (model.getType()) {
             case "Integer":
+            case "BigInteger":
                 Number casted = NumberFormat.getInstance().parse(valueAsString);
                 if (casted.longValue() <= Integer.MAX_VALUE) {
                     valueCell.setCellValue(Integer.parseInt(valueAsString));
@@ -146,6 +147,9 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
                 break;
             case "Float":
                 valueCell.setCellValue(new BigDecimal(valueAsString).doubleValue());
+                break;
+            case "BigDecimal":
+                valueCell.setCellValue(valueAsString);
                 break;
             case "String":
                 if (StringUtils.isBlank(valueAsString)) {

@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,7 @@ import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
+import org.openl.rules.model.scaffolding.StepModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 
@@ -191,4 +193,75 @@ public class DataTypeConverterTest {
         assertEquals("anotherDatatype", inputParameter.getName());
     }
 
+    @Test
+    public void dataTypeNumberValuesTest() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/datatype/EPBDS-10415-types_values.json");
+        List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
+        Optional<DatatypeModel> dynamo = datatypeModels.stream().filter(x -> x.getName().equals("Dynamo")).findFirst();
+        assertTrue(dynamo.isPresent());
+        DatatypeModel datatypeModel = dynamo.get();
+        List<FieldModel> fields = datatypeModel.getFields();
+        Optional<FieldModel> a = fields.stream().filter(x -> x.getName().equals("A")).findFirst();
+        assertTrue(a.isPresent());
+        FieldModel aField = a.get();
+        assertEquals("A", aField.getName());
+        assertEquals("BigDecimal", aField.getType());
+        assertEquals("0", aField.getDefaultValue());
+        Optional<FieldModel> b = fields.stream().filter(x -> x.getName().equals("B")).findFirst();
+        assertTrue(b.isPresent());
+        FieldModel bField = b.get();
+        assertEquals("B", bField.getName());
+        assertEquals("BigInteger", bField.getType());
+        assertEquals(0, bField.getDefaultValue());
+        Optional<FieldModel> c = fields.stream().filter(x -> x.getName().equals("C")).findFirst();
+        assertTrue(c.isPresent());
+        FieldModel cField = c.get();
+        assertEquals("C", cField.getName());
+        assertEquals("BigInteger", cField.getType());
+        assertEquals(BigInteger.ZERO, cField.getDefaultValue());
+        Optional<FieldModel> d = fields.stream().filter(x -> x.getName().equals("D")).findFirst();
+        assertTrue(d.isPresent());
+        FieldModel dField = d.get();
+        assertEquals("D", dField.getName());
+        assertEquals("BigDecimal", dField.getType());
+        assertEquals("2975671681509007947508815", dField.getDefaultValue());
+        Optional<FieldModel> e = fields.stream().filter(x -> x.getName().equals("E")).findFirst();
+        assertTrue(e.isPresent());
+        FieldModel eField = e.get();
+        assertEquals("E", eField.getName());
+        assertEquals("BigInteger", eField.getType());
+        assertEquals(2147483647, eField.getDefaultValue());
+        Optional<FieldModel> f = fields.stream().filter(x -> x.getName().equals("F")).findFirst();
+        assertTrue(f.isPresent());
+        FieldModel fField = f.get();
+        assertEquals("F", fField.getName());
+        assertEquals("BigInteger", fField.getType());
+        assertEquals(BigInteger.ZERO, fField.getDefaultValue());
+
+        List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
+        Optional<SpreadsheetModel> apiTodo = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("apiTodo"))
+            .findFirst();
+        assertTrue(apiTodo.isPresent());
+        SpreadsheetModel sm = apiTodo.get();
+        Optional<StepModel> cdTcodeValidationResultStep = sm.getSteps()
+            .stream()
+            .filter(x -> x.getName().equals("CDTcodeValidationResult"))
+            .findFirst();
+        assertTrue(cdTcodeValidationResultStep.isPresent());
+        StepModel stepModel = cdTcodeValidationResultStep.get();
+        assertEquals("BigInteger", stepModel.getType());
+        assertEquals("=java.math.BigInteger.ZERO", stepModel.getValue());
+
+        Optional<StepModel> cdTCodeToBeProcessedStep = sm.getSteps()
+            .stream()
+            .filter(x -> x.getName().equals("CDTCodeToBeProcessed"))
+            .findFirst();
+        assertTrue(cdTCodeToBeProcessedStep.isPresent());
+        StepModel cdTCodeToBeProcessedStepModel = cdTCodeToBeProcessedStep.get();
+        assertEquals("BigDecimal", cdTCodeToBeProcessedStepModel.getType());
+        assertEquals("=java.math.BigDecimal.ZERO", cdTCodeToBeProcessedStepModel.getValue());
+    }
 }

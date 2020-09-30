@@ -177,7 +177,7 @@ public class TableEditorController extends BaseTableEditorController {
     private int getCol() {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         int numberOfNonShownColumns = editorModel.getNumberOfNonShownCols();
-        return getRequestIntParam(Constants.REQUEST_PARAM_COL) - 1 + numberOfNonShownColumns;
+        return getRequestIntParam("col") - 1 + numberOfNonShownColumns;
     }
 
     private String getEditorId() {
@@ -213,7 +213,7 @@ public class TableEditorController extends BaseTableEditorController {
     private int getRow() {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         int numberOfNonShownRows = editorModel.getNumberOfNonShownRows();
-        return getRequestIntParam(Constants.REQUEST_PARAM_ROW) - 1 + numberOfNonShownRows;
+        return getRequestIntParam("row") - 1 + numberOfNonShownRows;
     }
 
     public String removeRow() {

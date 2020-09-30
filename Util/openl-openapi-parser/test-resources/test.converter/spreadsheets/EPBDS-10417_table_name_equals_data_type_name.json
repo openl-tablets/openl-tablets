@@ -1,0 +1,135 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Deploy_REN Accident",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/webservice/REST/Deploy/REN%20Accident",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/TierRate": {
+      "post": {
+        "summary": "Double TierRate(IRulesRuntimeContext, String, MemberRate[])",
+        "description": "Method: java.lang.Double TierRate(org.openl.rules.context.IRulesRuntimeContext, java.lang.String, org.openl.generated.model.gb.ac.MemberRate[])",
+        "operationId": "TierRate",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "number",
+                "format": "double"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/CalculateCoverageRate": {
+      "post": {
+        "summary": "CoverageRate CalculateCoverageRate(IRulesRuntimeContext, Coverage, String, Double, Double, Double, String[])",
+        "description": "Method: org.openl.generated.model.gb.ac.CoverageRate CalculateCoverageRate(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.model.gb.ac.Coverage, java.lang.String, java.lang.Double, java.lang.Double, java.lang.Double, java.lang.String[])",
+        "operationId": "CalculateCoverageRate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalculateCoverageRateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoverageRate"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CoverageRate": {
+        "type": "object",
+        "properties": {
+          "coverageName": {
+            "type": "string"
+          },
+          "planName": {
+            "type": "string"
+          },
+          "tolerableLossRatio": {
+            "type": "number",
+            "format": "double"
+          },
+          "tierRates": {
+            "$ref": "#/components/schemas/TierRate"
+          }
+        }
+      },
+      "TierRate": {
+        "type": "object",
+        "properties": {
+          "coverageTier": {
+            "type": "string"
+          },
+          "tierRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "optionalTierRate": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "CalculateCoverageRateRequest": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string"
+          },
+          "associationFactor": {
+            "type": "number",
+            "format": "double"
+          },
+          "adminExpenses": {
+            "type": "number",
+            "format": "double"
+          },
+          "tolerableLossRatioOverride": {
+            "type": "number",
+            "format": "double"
+          },
+          "plansWithWOP": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

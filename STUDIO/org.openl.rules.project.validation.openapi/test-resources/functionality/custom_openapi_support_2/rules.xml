@@ -1,0 +1,11 @@
+<project>
+  <name>custom_openapi_support</name>
+  <modules>
+    <module>
+       <rules-root path="*.xlsx"/>
+    </module>
+  </modules>
+  <openapi>
+    <path>custom1.yaml</path>
+  </openapi>
+</project>
