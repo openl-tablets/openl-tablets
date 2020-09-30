@@ -440,7 +440,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 String repoId = lp.getRepository().getId();
                 String name = lp.getName();
 
-                if (!designTimeRepository.hasProject(repoId, name)) {
+                if (!userRulesProjects.containsKey(new ProjectKey(repoId, name.toLowerCase()))) {
                     FileData local = lp.getFileData();
                     LocalRepository repository = (LocalRepository) lp.getRepository();
                     RulesProject project = new RulesProject(getUser(), repository, local, null, null, projectsLockEngine);

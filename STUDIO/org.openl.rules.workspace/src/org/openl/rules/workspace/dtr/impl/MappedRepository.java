@@ -1023,6 +1023,16 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         return getMappedName(project.getName(), project.getPath());
     }
 
+    @Override
+    public String findMappedName(String internalPath) {
+        ProjectIndex mapping = getUpToDateMapping(true);
+        Optional<ProjectInfo> projectInfo = mapping.getProjects()
+            .stream()
+            .filter(p -> p.getPath().equals(internalPath))
+            .findFirst();
+        return projectInfo.map(p -> baseFolder + getMappedName(p)).orElse(null);
+    }
+
     private String getHash(String s) {
         if (StringUtils.isEmpty(s)) {
             return "";

@@ -11,6 +11,7 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ConflictResolveData;
@@ -105,10 +106,18 @@ public class RulesProject extends UserWorkspaceProject {
 
         AProject designProject = new AProject(designRepository, designData);
         AProject localProject = new AProject(localRepository, localFolderName);
+        String realPath = designProject.getRealPath();
         designProject.update(localProject, user);
 
         // Process saved data
-        designFolderName = designProject.getFileData().getName(); // Project can be renamed.
+        if (designRepository.supports().mappedFolders()) {
+            String mappedName = ((FolderMapper) designRepository).findMappedName(realPath);
+            if (mappedName != null && !mappedName.equals(designFolderName)) {
+                // Project can be renamed.
+                log.debug("Project was renamed from {} to {}", designFolderName, mappedName);
+                designFolderName = mappedName;
+            }
+        }
         String version = designProject.getFileData().getVersion();
         setLastHistoryVersion(version);
         setHistoryVersion(version);
@@ -510,6 +519,15 @@ public class RulesProject extends UserWorkspaceProject {
         String folderPath = getDesignFolderName();
         Repository repository = getDesignRepository();
         if (repository.supports().mappedFolders()) {
+            if (isOpened()) {
+                ProjectState state = localRepository.getProjectState(getFolderPath());
+                if (state.getFileData() != null) {
+                    FileMappingData mappingData = state.getFileData().getAdditionalData(FileMappingData.class);
+                    if (mappingData != null) {
+                        return mappingData.getInternalPath();
+                    }
+                }
+            }
             return ((FolderMapper) repository).getRealPath(folderPath);
         } else {
             return folderPath;
