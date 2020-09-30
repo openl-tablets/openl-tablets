@@ -175,14 +175,20 @@ public class DecisionTableLoader {
             return false;
         }
 
-        int cnt1 = countValidHeaders(table);
-        int cnt2 = countValidHeaders(table.transpose());
+        int validCnt1 = countValidHeaders(table);
+        int validCnt2 = countValidHeaders(table.transpose());
 
-        if (cnt1 != cnt2) {
-            return cnt1 > cnt2;
+        int invalidCnt1 = table.getWidth() - validCnt1 - countEmptyHeaders(table);
+        int invalidCnt2 = table.getHeight() - validCnt2 - countEmptyHeaders(table.transpose());
+
+        if (invalidCnt1 == invalidCnt2) {
+            if (validCnt1 != validCnt2) {
+                return validCnt1 > validCnt2;
+            }
+            return table.getWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
+        } else {
+            return invalidCnt1 < invalidCnt2;
         }
-
-        return table.getWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
     }
 
     private static boolean looksLikeVertical(ILogicalTable table) {
@@ -194,28 +200,44 @@ public class DecisionTableLoader {
             return false;
         }
 
-        int cnt1 = countValidHeaders(table);
-        int cnt2 = countValidHeaders(table.transpose());
+        int validCnt1 = countValidHeaders(table);
+        int validCnt2 = countValidHeaders(table.transpose());
 
-        if (cnt1 != cnt2) {
-            return cnt1 < cnt2;
+        int invalidCnt1 = table.getWidth() - validCnt1 - countEmptyHeaders(table);
+        int invalidCnt2 = table.getHeight() - validCnt2 - countEmptyHeaders(table.transpose());
+
+        if (invalidCnt1 == invalidCnt2) {
+            if (validCnt1 != validCnt2) {
+                return validCnt1 < validCnt2;
+            }
+            return table.getHeight() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
+        } else {
+            return invalidCnt1 > invalidCnt2;
         }
-
-        return table.getHeight() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
     }
 
     private static int countValidHeaders(ILogicalTable table) {
         int width = table.getWidth();
         int count = 0;
         for (int i = 0; i < width; i++) {
-
             String value = table.getColumn(i).getSource().getCell(0, 0).getStringValue();
-
             if (value != null) {
                 value = value.toUpperCase();
                 count += DecisionTableHelper.isValidConditionHeader(value) || DecisionTableHelper
                     .isValidActionHeader(value) || DecisionTableHelper.isValidRetHeader(value) || DecisionTableHelper
                         .isValidCRetHeader(value) || DecisionTableHelper.isValidKeyHeader(value) ? 1 : 0;
+            }
+        }
+        return count;
+    }
+
+    private static int countEmptyHeaders(ILogicalTable table) {
+        int width = table.getWidth();
+        int count = 0;
+        for (int i = 0; i < width; i++) {
+            String value = table.getColumn(i).getSource().getCell(0, 0).getStringValue();
+            if (StringUtils.isBlank(value)) {
+                count++;
             }
         }
         return count;

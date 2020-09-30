@@ -66,9 +66,6 @@ public class RulesInFolderTestRunner {
         }
 
         for (File file : files) {
-            if (!file.getName().startsWith("EPBDS-10468_DT_Errors")) {
-                continue;
-            }
             int messagesCount = 0;
             final long startTime = System.nanoTime();
             String sourceFile = file.getName();
