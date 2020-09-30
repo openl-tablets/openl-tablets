@@ -84,7 +84,7 @@ public class ProjectDescriptorArtefactResolver {
                 e.getMessage(),
                 e);
         }
-        return pd != null ? pd.getName() : project.getName();
+        return pd != null ? pd.getName() : project.getBusinessName();
     }
 
     public void deleteRevisionsFromCache(AProject project) {

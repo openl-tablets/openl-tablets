@@ -22,9 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
+import org.springframework.web.context.annotation.SessionScope;
 
 @Service
-@RequestScope
+@SessionScope
 public class UploadExcelDiffController extends ExcelDiffController {
     private final Logger log = LoggerFactory.getLogger(UploadExcelDiffController.class);
 

@@ -20,7 +20,7 @@
             <h:panelGroup id="modalCopyProjectData">
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                     <h:outputLabel value="Project Name:"/>
-                    <h:outputText id="currentProjectName" value="#{copyBean.currentProjectName}" />
+                    <h:outputText id="currentProjectName" value="#{copyBean.businessName}" />
                 </h:panelGrid>
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                              rendered="#{copyBean.supportsBranches}">

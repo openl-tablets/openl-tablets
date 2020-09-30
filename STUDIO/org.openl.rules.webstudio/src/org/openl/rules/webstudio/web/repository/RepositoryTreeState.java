@@ -194,16 +194,23 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         return new ArrayList<>(Collections.singletonList(new SequenceRowKey(ids.toArray())));
     }
 
-    TreeProject getProjectNodeByPhysicalName(String physicalName) {
-        return getProjectNodeByPhysicalName(null, physicalName);
+    TreeProject getProjectNodeByBusinessName(String repoId, String businessName) {
+        for (TreeNode treeNode : getRulesRepository().getChildNodes()) {
+            TreeProject project = (TreeProject) treeNode;
+            if (((RulesProject) project.getData()).getBusinessName().equals(businessName)) {
+                if (repoId == null || repoId.equals(project.getData().getRepository().getId())) {
+                    return project;
+                }
+            }
+        }
+        return null;
     }
     
     public TreeProject getProjectNodeByPhysicalName(String repoId, String physicalName) {
         for (TreeNode treeNode : getRulesRepository().getChildNodes()) {
             TreeProject project = (TreeProject) treeNode;
-            if (project.getName().equals(physicalName)) {
-                if (repoId == null || project.getData() instanceof AProject && repoId
-                    .equals(project.getData().getRepository().getId())) {
+            if (project.getData().getName().equals(physicalName)) {
+                if (repoId == null || repoId.equals(project.getData().getRepository().getId())) {
                     return project;
                 }
             }
@@ -310,7 +317,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public void addRulesProjectToTree(AProject project) {
-        String name = project.getName();
+        String name = project.getBusinessName();
         String id = RepositoryUtils.getTreeNodeId(project);
         if (!project.isDeleted() || !hideDeleted) {
             TreeProject prj = new TreeProject(id, name, filter, projectDescriptorResolver);
@@ -594,7 +601,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     // for any project artefact
     public boolean getCanModify() {
         AProjectArtefact selectedArtefact = getSelectedNode().getData();
-        String projectName = selectedArtefact.getProject().getName();
         String projectId = RepositoryUtils.getTreeNodeId(selectedArtefact.getProject());
         RulesProject project = (RulesProject) getRulesRepository().getChild(projectId).getData();
         return project.isOpenedForEditing() && isGranted(EDIT_PROJECTS);
@@ -612,10 +618,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
         try {
             UserWorkspaceProject project = getSelectedProject();
-            if (project.isModified()) {
+            if (project.isModified() || !(project instanceof RulesProject)) {
                 return false;
             }
-            List<String> branches = ((BranchRepository) project.getDesignRepository()).getBranches(project.getName());
+            List<String> branches = ((BranchRepository) project.getDesignRepository())
+                .getBranches(((RulesProject) project).getDesignFolderName());
             if (branches.size() < 2) {
                 return false;
             }

@@ -35,8 +35,18 @@ import org.slf4j.LoggerFactory;
 public class UserWorkspaceImpl implements UserWorkspace {
     private final Logger log = LoggerFactory.getLogger(UserWorkspaceImpl.class);
 
-    private static final Comparator<AProject> PROJECTS_COMPARATOR = (o1, o2) -> o1.getName()
-        .compareToIgnoreCase(o2.getName());
+    private static final Comparator<AProject> PROJECTS_COMPARATOR = (o1, o2) -> {
+        int compare = o1.getBusinessName().compareToIgnoreCase(o2.getBusinessName());
+        if (compare != 0) {
+            return compare;
+        }
+        compare = o1.getRepository().getId().compareTo(o2.getRepository().getId());
+        if (compare != 0) {
+            return compare;
+        }
+        compare = o1.getRealPath().compareToIgnoreCase(o2.getRealPath());
+        return compare;
+    };
 
     private final WorkspaceUser user;
     private final LocalWorkspace localWorkspace;
@@ -345,15 +355,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 LocalRepository localRepository = localWorkspace.getRepository(repoId);
                 String name = rp.getName();
 
-                AProject lp = null;
-                if (localWorkspace.hasProject(repoId, name)) {
-                    try {
-                        lp = localWorkspace.getProject(repoId, name);
-                    } catch (ProjectException e) {
-                        // ignore
-                        log.error("refreshRulesProjects", e);
-                    }
-                }
+                AProject lp = localWorkspace.getProjectForPath(repoId, rp.getRealPath());
 
                 FileData local = lp == null ? null : lp.getFileData();
 
@@ -429,7 +431,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         log.warn("Can't close the project {}", project.getName(), e);
                     }
                 }
-                userRulesProjects.put(new ProjectKey(repoId, name.toLowerCase()), project);
+                userRulesProjects.put(new ProjectKey(repoId, project.getName().toLowerCase()), project);
             }
 
             // LocalProjects that hasn't corresponding project in
@@ -441,8 +443,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 if (!designTimeRepository.hasProject(repoId, name)) {
                     FileData local = lp.getFileData();
                     LocalRepository repository = (LocalRepository) lp.getRepository();
-                    userRulesProjects.put(new ProjectKey(repoId, name.toLowerCase()),
-                        new RulesProject(getUser(), repository, local, null, null, projectsLockEngine));
+                    RulesProject project = new RulesProject(getUser(), repository, local, null, null, projectsLockEngine);
+                    userRulesProjects.put(new ProjectKey(repoId, project.getName().toLowerCase()), project);
                 }
             }
 
@@ -538,5 +540,15 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public LockEngine getProjectsLockEngine() {
         return projectsLockEngine;
+    }
+
+    @Override
+    public boolean isOpenedOtherProject(AProject project) {
+        return getProjects(false).stream()
+            .anyMatch(p -> p.isOpened() && project.getBusinessName()
+                .equals(p.getBusinessName()) && (!project.getRepository()
+                    .getId()
+                    .equals(p.getRepository().getId()) || !project.getRealPath().equals(p.getRealPath())));
+
     }
 }

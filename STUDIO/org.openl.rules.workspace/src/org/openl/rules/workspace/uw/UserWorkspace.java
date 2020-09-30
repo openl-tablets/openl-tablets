@@ -59,11 +59,5 @@ public interface UserWorkspace extends ProjectsContainer {
 
     LockEngine getProjectsLockEngine();
 
-    default boolean isOpenedOtherProject(AProject project) {
-        return getProjects()
-            .stream()
-            .anyMatch(p -> p.isOpened() && project.getName().equals(p.getName()) && (!project.getRepository().getId()
-                .equals(p.getRepository()
-                    .getId()) || !project.getRealPath().equals(p.getRealPath())));
-    }
+    boolean isOpenedOtherProject(AProject project);
 }

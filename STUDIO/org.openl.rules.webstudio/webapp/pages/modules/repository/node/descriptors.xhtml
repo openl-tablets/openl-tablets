@@ -16,6 +16,9 @@
           <h:outputText value="Name" />
         </rich:column>
         <rich:column>
+          <h:outputText value="Path" />
+        </rich:column>
+        <rich:column>
           <h:outputText value="Revision ID" />
         </rich:column>
         <rich:column>
@@ -32,6 +35,9 @@
     </rich:column>
     <rich:column style="text-align: center">
       <h:outputText value="#{item.name}" />
+    </rich:column>
+    <rich:column style="text-align: center">
+      <h:outputText value="#{item.path}" />
     </rich:column>
     <rich:column style="text-align: center">
       <ui:param name="revisionNo" value="#{item.version.versionName}" />

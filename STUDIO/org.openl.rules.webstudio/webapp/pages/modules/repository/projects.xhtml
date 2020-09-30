@@ -42,7 +42,7 @@
               <rich:column>
                 <h:commandLink value="#{prj.name}" action="#{repositoryTreeController.selectRulesProject}">
                   <f:param name="repositoryId" value="#{prj.data.repository.id}" />
-                  <f:param name="projectName" value="#{prj.name}" />
+                  <f:param name="projectName" value="#{prj.data.name}" />
                 </h:commandLink>
               </rich:column>
               <rich:column style="text-align:center" rendered="#{repositoryTreeController.anySupportsBranches}">
@@ -64,7 +64,7 @@
                   &#160;
                   <h:commandLink immediate="true"
                       rendered="#{repositoryTreeState.canCreate}"
-                      onclick="openCopyProjectDialog('#{prj.data.repository.id}', '#{prj.name}', function() {location.href = location.href;}); return false;" title="Copy project">
+                      onclick="openCopyProjectDialog('#{prj.data.repository.id}', '#{prj.data.name}', function() {location.href = location.href;}); return false;" title="Copy project">
                       <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" alt="Copy"/>
                   </h:commandLink>
                   <h:panelGroup rendered="#{repositoryTreeController.canUnlock and prj.data.locked and not prj.data.lockedByMe}">
@@ -74,7 +74,7 @@
                           onclick="if(!window.confirm('All unsaved user changes will be lost during unlock. Do you want to proceed?')) {return false;}"
                           title="Unlock project">
                           <f:param name="repositoryId" value="#{prj.data.repository.id}" />
-                          <f:param name="projectName" value="#{prj.name}" />
+                          <f:param name="projectName" value="#{prj.data.name}" />
                           <h:graphicImage url="/webresource/images/unlock.png" styleClass="actionImage" alt="Unlock"/>
                       </h:commandLink>
                   </h:panelGroup>
@@ -84,7 +84,7 @@
                           onclick="#{rich:component('modalDeleteNode')}.show();"
                           title="Archive project">
                           <f:param name="repositoryId" value="#{prj.data.repository.id}" />
-                          <f:param name="projectName" value="#{prj.name}" />
+                          <f:param name="projectName" value="#{prj.data.name}" />
                           <f:ajax listener="#{repositoryTreeController.deleteRulesProjectListener}" render=":deleteNodeForm"/>
                           <h:graphicImage url="/webresource/images/delete.png" styleClass="actionImage" alt="Delete"/>
                       </h:commandLink>

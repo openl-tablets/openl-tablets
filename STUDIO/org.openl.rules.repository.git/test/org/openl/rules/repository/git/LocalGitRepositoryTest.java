@@ -29,6 +29,8 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
 public class LocalGitRepositoryTest {
+    private static final String FOLDER_IN_REPOSITORY = "rules/project1";
+
     private File root;
     private GitRepository repo;
 
@@ -102,7 +104,7 @@ public class LocalGitRepositoryTest {
     @Test
     public void testBranches() throws IOException {
         try {
-            repo.createBranch("project1", "project1/test1");
+            repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test1");
             fail("Must fail when create a branch on empty repository");
         } catch (IOException e) {
             assertEquals("Can't create a branch on the empty repository.", e.getMessage());
@@ -111,9 +113,9 @@ public class LocalGitRepositoryTest {
         String text = "Some text";
         repo.save(createFileData("initial.txt", text), IOUtils.toInputStream(text));
 
-        repo.createBranch("project1", "project1/test1");
-        repo.createBranch("project1", "project1/test2");
-        List<String> branches = repo.getBranches("project1");
+        repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test1");
+        repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test2");
+        List<String> branches = repo.getBranches(FOLDER_IN_REPOSITORY);
         assertTrue(branches.contains(Constants.MASTER));
         assertTrue(branches.contains("project1/test1"));
         assertTrue(branches.contains("project1/test2"));
@@ -129,7 +131,7 @@ public class LocalGitRepositoryTest {
         assertEquals(1, repo.listHistory("rules/project11").size());
         assertEquals(1, repo.listHistory("rules/project2").size());
 
-        repo.createBranch("project1", "branch1");
+        repo.createBranch(FOLDER_IN_REPOSITORY, "branch1");
 
         writeSampleFile(repo, "rules/project1/file2", "'file2' in the branch 'master' was added");
         writeSampleFile(repo.forBranch("branch1"), "rules/project1/file3", "'file3' in the branch 'branch1' was added");
@@ -154,7 +156,7 @@ public class LocalGitRepositoryTest {
         final String textInBranch1 = "In branch1";
 
         writeSampleFile(repo, file, "Project1 was created");
-        repo.createBranch("project1", "branch1");
+        repo.createBranch(FOLDER_IN_REPOSITORY, "branch1");
 
         writeSampleFile(repo, file, textInMaster, "Modify master");
         writeSampleFile(repo.forBranch("branch1"), file, textInBranch1, "Modify branch1");
@@ -188,7 +190,7 @@ public class LocalGitRepositoryTest {
         final String textInBranch1 = "In branch1";
 
         writeSampleFile(repo, file, "Project1 was created");
-        repo.createBranch("project1", "branch1");
+        repo.createBranch(FOLDER_IN_REPOSITORY, "branch1");
 
         writeSampleFile(repo, file, textInMaster, "Modify master");
         writeSampleFile(repo.forBranch("branch1"), file, textInBranch1, "Modify branch1");

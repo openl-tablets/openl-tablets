@@ -223,7 +223,7 @@ public class RulesProject extends UserWorkspaceProject {
     @Override
     public LockInfo getLockInfo() {
         String repoId = isLocalOnly() ? "local" : getDesignRepository().getId();
-        return lockEngine.getLockInfo(repoId, getBranch(), getName());
+        return lockEngine.getLockInfo(repoId, getBranch(), getRealPath());
     }
 
     @Override
@@ -232,7 +232,7 @@ public class RulesProject extends UserWorkspaceProject {
             // No need to unlock local only projects. Other users don't see it.
             return;
         }
-        lockEngine.unlock(getDesignRepository().getId(), getBranch(), getName());
+        lockEngine.unlock(getDesignRepository().getId(), getBranch(), getRealPath());
     }
 
     /**
@@ -246,7 +246,7 @@ public class RulesProject extends UserWorkspaceProject {
             // No need to lock local only projects. Other users don't see it.
             return true;
         }
-        return lockEngine.tryLock(getDesignRepository().getId(), getBranch(), getName(), getUser().getUserName());
+        return lockEngine.tryLock(getDesignRepository().getId(), getBranch(), getRealPath(), getUser().getUserName());
     }
 
     public String getLockedUserName() {
@@ -325,7 +325,7 @@ public class RulesProject extends UserWorkspaceProject {
         AProject designProject = new AProject(designRepository, designFolderName, version);
 
         if (localFolderName == null) {
-            localFolderName = designProject.getName();
+            localFolderName = designProject.getBusinessName();
         }
 
         AProject localProject = new AProject(localRepository, localFolderName);
@@ -504,6 +504,9 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public String getRealPath() {
+        if (isLocalOnly()) {
+            return localFolderName;
+        }
         String folderPath = getDesignFolderName();
         Repository repository = getDesignRepository();
         if (repository.supports().mappedFolders()) {

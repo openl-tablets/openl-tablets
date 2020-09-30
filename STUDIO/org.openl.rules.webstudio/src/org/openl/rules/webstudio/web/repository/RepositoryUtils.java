@@ -131,7 +131,7 @@ public final class RepositoryUtils {
                 return folderRepo;
             } else {
                 // Use secondary branch
-                List<String> branches = branchRepository.getBranches(projectName);
+                List<String> branches = branchRepository.getBranches(rulesPath + projectName);
                 for (String branch : branches) {
                     BranchRepository secondaryBranch = branchRepository.forBranch(branch);
                     FileData fileData = secondaryBranch.checkHistory(srcProjectPath, version);

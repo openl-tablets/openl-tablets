@@ -14,6 +14,7 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
+import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
@@ -147,6 +148,15 @@ public class AProject extends AProjectFolder {
         return versions;
     }
 
+    public String getBusinessName() {
+        String folderPath = getFolderPath();
+        Repository repository = getRepository();
+        if (repository.supports().mappedFolders()) {
+            folderPath = ((FolderMapper) repository).getBusinessName(folderPath);
+        }
+        return folderPath.substring(folderPath.lastIndexOf('/') + 1);
+    }
+
     @Override
     public int getVersionsCount() {
         return getHistoryFileDatas().size();
@@ -198,7 +208,7 @@ public class AProject extends AProjectFolder {
 
     public void delete(CommonUser user, String comment) throws ProjectException {
         if (isDeleted()) {
-            throw new ProjectException("Project ''{0}'' is already marked for deletion.", null, getName());
+            throw new ProjectException("Project ''{0}'' is already marked for deletion.", null, getBusinessName());
         }
 
         unlock();
@@ -250,7 +260,7 @@ public class AProject extends AProjectFolder {
     public void undelete(CommonUser user, String comment) throws ProjectException {
         try {
             if (!isDeleted()) {
-                throw new ProjectException("Cannot undelete non-marked project ''{0}''.", null, getName());
+                throw new ProjectException("Cannot undelete non-marked project ''{0}''.", null, getBusinessName());
             }
 
             Repository repository = getRepository();
@@ -365,8 +375,8 @@ public class AProject extends AProjectFolder {
                         try (FileSystemRepository tempRepository = new FileSystemRepository()) {
                             tempRepository.setRoot(tempFolder);
                             tempRepository.initialize();
-                            unpack(projectFrom, tempRepository, projectFrom.getName(), user);
-                            AProject tempProject = new AProject(tempRepository, projectFrom.getName());
+                            unpack(projectFrom, tempRepository, projectFrom.getBusinessName(), user);
+                            AProject tempProject = new AProject(tempRepository, projectFrom.getBusinessName());
 
                             transformAndArchive(tempProject, user);
                         }

@@ -121,6 +121,9 @@ public abstract class UserWorkspaceProject extends AProject {
     }
 
     public void setBranch(String newBranch) throws ProjectException {
+        if (isLocalOnly()) {
+            return;
+        }
         BranchRepository branchRepository = (BranchRepository) getDesignRepository();
         String currentBranch = branchRepository.getBranch();
         if (!newBranch.equals(currentBranch)) {

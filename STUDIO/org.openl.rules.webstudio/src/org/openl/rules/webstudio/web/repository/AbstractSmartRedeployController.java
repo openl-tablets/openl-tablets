@@ -140,8 +140,9 @@ public abstract class AbstractSmartRedeployController {
     }
 
     private List<DeploymentProjectItem> getItems4Project(AProject project, String repositoryConfigName) {
-        String projectName = project.getName();
+        String projectName = project.getBusinessName();
         String repoId = project.getRepository().getId();
+        String path = project.getRealPath();
 
         List<DeploymentProjectItem> result = new LinkedList<>();
         if (userWorkspace == null) {
@@ -174,7 +175,8 @@ public abstract class AbstractSmartRedeployController {
             Collection<ProjectDescriptor> descriptors = latestDeploymentVersion.getProjectDescriptors();
             for (ProjectDescriptor<?> descr : descriptors) {
                 if (projectName.equals(descr
-                    .getProjectName()) && (descr.getRepositoryId() == null || descr.getRepositoryId().equals(repoId))) {
+                    .getProjectName()) && (descr.getRepositoryId() == null || descr.getRepositoryId().equals(repoId))
+                    && (descr.getPath() == null || descr.getPath().equals(path))) {
                     projectDescriptor = descr;
                     break;
                 }
@@ -195,7 +197,7 @@ public abstract class AbstractSmartRedeployController {
             String lastDeployedVersion = "";
             AProject deployedProject = null;
             try {
-                String name = getSelectedProject().getName();
+                String name = getSelectedProject().getBusinessName();
                 deployedProject = getDeployedProject(project, name);
                 lastDeployedVersion = deployedProject != null ? projectVersionCacheManager
                     .getDeployedProjectVersion(deployedProject) : null;
@@ -267,18 +269,33 @@ public abstract class AbstractSmartRedeployController {
                             if (repositoryId == null) {
                                 repositoryId = userWorkspace.getDesignTimeRepository().getRepositories().get(0).getId();
                             }
-                            ProjectVersion version = userWorkspace.getDesignTimeRepository()
-                                .getProject(repositoryId, projectDescriptor.getProjectName(),
-                                    new CommonVersionImpl(lastDeployedVersion))
-                                .getVersion();
-
-                            if (version.getVersionInfo() == null) {
-                                item.setMessages(
-                                    "Can be updated to '" + to + "' and then deployed. Deployed version not defined");
+                            ProjectVersion version;
+                            if (projectDescriptor.getPath() != null) {
+                                try {
+                                    version = userWorkspace.getDesignTimeRepository()
+                                        .getProjectByPath(repositoryId,
+                                            projectDescriptor.getBranch(),
+                                            projectDescriptor.getPath(),
+                                            lastDeployedVersion).getVersion();
+                                } catch (IOException e) {
+                                    LOG.error(e.getMessage(), e);
+                                    version = null;
+                                    item.setMessages("Can't find a project due to error.");
+                                }
                             } else {
-                                String from = Utils.getDescriptiveVersion(version, dateTimeFormat);
-                                item.setMessages(
-                                    "Can be updated to '" + to + "' from '" + from + "' and then deployed");
+                                version = userWorkspace.getDesignTimeRepository()
+                                    .getProject(repositoryId, projectDescriptor.getProjectName(),
+                                        new CommonVersionImpl(lastDeployedVersion))
+                                    .getVersion();
+                            }
+
+                            if (version != null) {
+                                if (version.getVersionInfo() == null) {
+                                    item.setMessages("Can be updated to '" + to + "' and then deployed. Deployed version not defined");
+                                } else {
+                                    String from = Utils.getDescriptiveVersion(version, dateTimeFormat);
+                                    item.setMessages("Can be updated to '" + to + "' from '" + from + "' and then deployed");
+                                }
                             }
                         }
                     } else {
@@ -367,13 +384,13 @@ public abstract class AbstractSmartRedeployController {
             try {
                 DeployID id = deploymentManager.deploy(deploymentProject, repositoryConfigName);
                 String message = String.format("Project '%s' is successfully deployed with id '%s' to repository '%s'",
-                    project.getName(),
+                    project.getBusinessName(),
                     id.getName(),
                     repositoryName);
                 WebStudioUtils.addInfoMessage(message);
             } catch (Exception e) {
                 String msg = String
-                    .format("Failed to deploy '%s' to repository '%s'", project.getName(), repositoryName);
+                    .format("Failed to deploy '%s' to repository '%s'", project.getBusinessName(), repositoryName);
                 LOG.error(msg, e);
                 WebStudioUtils.addErrorMessage(msg, e.getMessage());
             }
@@ -422,7 +439,7 @@ public abstract class AbstractSmartRedeployController {
                 return null; // must never happen
             }
 
-            if (deploymentName.equals(project.getName()) && !userWorkspace.hasDDProject(deploymentName)) {
+            if (deploymentName.equals(project.getBusinessName()) && !userWorkspace.hasDDProject(deploymentName)) {
                 // the same name, than create if absent
                 deployConfiguration = userWorkspace.createDDProject(deploymentName);
             }
@@ -436,8 +453,8 @@ public abstract class AbstractSmartRedeployController {
                 create = true;
             }
 
-            boolean sameVersion = deployConfiguration.hasProjectDescriptor(project.getName()) && project.getVersion()
-                .compareTo(deployConfiguration.getProjectDescriptor(project.getName()).getProjectVersion()) == 0;
+            boolean sameVersion = deployConfiguration.hasProjectDescriptor(project.getBusinessName()) && project.getVersion()
+                .compareTo(deployConfiguration.getProjectDescriptor(project.getBusinessName()).getProjectVersion()) == 0;
 
             if (sameVersion) {
                 return deployConfiguration;
@@ -453,7 +470,8 @@ public abstract class AbstractSmartRedeployController {
                         : null;
                 deployConfiguration.addProjectDescriptor(
                         project.getRepository().getId(),
-                        project.getName(),
+                        project.getBusinessName(),
+                        project.getRealPath(),
                         branch,
                         project.getVersion()
                 );

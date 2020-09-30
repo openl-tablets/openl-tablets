@@ -18,7 +18,7 @@
       <h:panelGroup id="modalOpenVersionData">
           <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," rendered="#{repositoryTreeController.currentProjectSelected}">
             <h:outputText value="Project Name:" />
-            <input value="#{artefact.name}" type="text" size="35" readonly="true" title="#{artefact.name}"/>
+            <input value="#{artefact.businessName}" type="text" size="35" readonly="true" title="#{artefact.businessName}"/>
             <h:outputLabel for="projectVersion" styleClass="required" value="Project Revision:" />
             <h:selectOneMenu id="projectVersion" value="#{repositoryTreeController.version}" required="true">
                 <f:selectItems value="#{repositoryTreeController.selectedProjectVersions}" />

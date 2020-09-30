@@ -1940,7 +1940,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public void createBranch(String projectName, String newBranch) throws IOException {
+    public void createBranch(String projectPath, String newBranch) throws IOException {
         Lock writeLock = repositoryLock.writeLock();
         try {
             log.debug("createBranch(): lock");
@@ -1966,8 +1966,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             lockSettings();
             try {
                 BranchesData branches = getBranches(false);
-                branches.addBranch(projectName, branch, null);
-                branches.addBranch(projectName, newBranch, branchRef.getObjectId().getName());
+                branches.addBranch(projectPath, branch, null);
+                branches.addBranch(projectPath, newBranch, branchRef.getObjectId().getName());
 
                 saveBranches();
             } finally {
@@ -1994,7 +1994,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public void deleteBranch(String projectName, String branch) throws IOException {
+    public void deleteBranch(String projectPath, String branch) throws IOException {
         Lock writeLock = repositoryLock.writeLock();
         try {
             log.debug("deleteBranch(): lock");
@@ -2002,7 +2002,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             reset();
 
-            if (projectName == null) {
+            if (projectPath == null) {
                 lockSettings();
                 try {
                     BranchesData branches = getBranches(false);
@@ -2024,7 +2024,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 try {
                     BranchesData branches = getBranches(false);
                     // Remove branch mapping for specific project only.
-                    if (branches.removeBranch(projectName, branch)) {
+                    if (branches.removeBranch(projectPath, branch)) {
                         saveBranches();
                     }
                 } finally {
@@ -2044,13 +2044,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public List<String> getBranches(String projectName) throws IOException {
+    public List<String> getBranches(String projectPath) throws IOException {
         Lock readLock = repositoryLock.readLock();
         try {
             log.debug("getBranches(): lock");
             readLock.lock();
             BranchesData branches = getBranches(true);
-            if (projectName == null) {
+            if (projectPath == null) {
                 // Return all available branches
                 TreeSet<String> branchNames = getAvailableBranches();
 
@@ -2062,7 +2062,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 return new ArrayList<>(branchNames);
             } else {
                 // Return branches mapped to a specific project
-                List<String> projectBranches = branches.getProjectBranches().get(projectName);
+                List<String> projectBranches = branches.getProjectBranches().get(projectPath);
                 List<String> result;
                 if (projectBranches == null) {
                     result = new ArrayList<>(Collections.singletonList(branch));

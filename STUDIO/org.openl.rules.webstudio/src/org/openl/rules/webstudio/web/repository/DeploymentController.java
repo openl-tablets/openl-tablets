@@ -92,40 +92,28 @@ public class DeploymentController {
         this.propertyResolver = propertyResolver;
     }
 
-    public synchronized String addItem() {
-        ADeploymentProject project = getSelectedProject();
-
-        ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(
-                repositoryId,
-                projectName,
-                projectBranch,
-                new CommonVersionImpl(version)
-        );
-        List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName, newItem);
-
-        try {
-            project.setProjectDescriptors(newDescriptors);
-        } catch (ProjectException e) {
-            LOG.error("Failed to add project descriptor.", e);
-            WebStudioUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
-        }
-
-        return null;
-    }
-
     public synchronized String addItem(String version) {
         this.version = version;
         ADeploymentProject project = getSelectedProject();
-
-        ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(
-                repositoryId,
-                projectName,
-                projectBranch,
-                new CommonVersionImpl(version)
-        );
-        List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName, newItem);
+        if (project == null) {
+            return null;
+        }
 
         try {
+            UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
+            AProject projectToAdd = workspace.getDesignTimeRepository().getProject(repositoryId, projectName);
+            String businessName = projectToAdd.getBusinessName();
+            String path = projectToAdd.getRealPath();
+
+            ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(
+                repositoryId,
+                businessName,
+                path,
+                projectBranch,
+                new CommonVersionImpl(version)
+            );
+            List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, businessName, newItem);
+
             project.setProjectDescriptors(newDescriptors);
         } catch (ProjectException e) {
             LOG.error("Failed to add project descriptor.", e);
@@ -251,6 +239,7 @@ public class DeploymentController {
             DeploymentDescriptorItem item = new DeploymentDescriptorItem(
                     descriptor.getRepositoryId(),
                     descriptor.getProjectName(),
+                    descriptor.getPath(),
                     descriptor.getProjectVersion()
             );
             items.add(item);
@@ -287,8 +276,8 @@ public class DeploymentController {
         }
 
         for (RulesProject project : workspaceProjects) {
-            if (!(existing.contains(project.getName()) || project.isLocalOnly() || project.isDeleted())) {
-                selectItems.add(new SelectItem(project.getName()));
+            if (!(existing.contains(project.getBusinessName()) || project.isLocalOnly() || project.isDeleted())) {
+                selectItems.add(new SelectItem(project.getName(), project.getBusinessName()));
             }
         }
 
@@ -504,7 +493,8 @@ public class DeploymentController {
                 return Collections.emptyList();
             }
 
-            List<String> branches = new ArrayList<>(((BranchRepository) repository).getBranches(projectName));
+            String rulesPath = workspace.getDesignTimeRepository().getRulesLocation();
+            List<String> branches = new ArrayList<>(((BranchRepository) repository).getBranches(rulesPath + projectName));
             if (projectBranch != null && !branches.contains(projectBranch)) {
                 branches.add(projectBranch);
                 branches.sort(String.CASE_INSENSITIVE_ORDER);

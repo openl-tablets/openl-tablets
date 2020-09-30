@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.util.Objects;
+
 import org.openl.rules.common.CommonVersion;
 
 /**
@@ -9,18 +11,16 @@ public class DeploymentDescriptorItem extends AbstractItem {
     private static final long serialVersionUID = -3870494832804679843L;
 
     private final String repositoryId;
+    private final String path;
     /** Project version. */
-    private CommonVersion version;
+    private final CommonVersion version;
 
-    DeploymentDescriptorItem(String repositoryId, String name, CommonVersion version) {
-        this(repositoryId, name, version, null);
-    }
-
-    private DeploymentDescriptorItem(String repositoryId, String name, CommonVersion version, String messages) {
+    DeploymentDescriptorItem(String repositoryId, String name, String path, CommonVersion version) {
         this.repositoryId = repositoryId;
+        this.path = path;
         setName(name);
         this.version = version;
-        setMessages(messages);
+        setMessages(null);
     }
 
     @Override
@@ -34,9 +34,10 @@ public class DeploymentDescriptorItem extends AbstractItem {
 
         DeploymentDescriptorItem that = (DeploymentDescriptorItem) o;
 
-        return repositoryId.equals(that.repositoryId)
-                && getName().equals(that.getName())
-                && version.equals(that.version);
+        return Objects.equals(getRepositoryId(), that.getRepositoryId())
+                && Objects.equals(getName(), that.getName())
+                && Objects.equals(getPath(), that.getPath())
+                && Objects.equals(getVersion(), that.getVersion());
     }
 
     public String getRepositoryId() {
@@ -47,12 +48,12 @@ public class DeploymentDescriptorItem extends AbstractItem {
         return version;
     }
 
+    public String getPath() {
+        return path;
+    }
+
     @Override
     public int hashCode() {
-        int result;
-        result = getName().hashCode();
-        result = 31 * result + repositoryId.hashCode();
-        result = 31 * result + version.hashCode();
-        return result;
+        return Objects.hash(getName(), repositoryId, path, version);
     }
 }

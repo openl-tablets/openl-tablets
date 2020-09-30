@@ -40,6 +40,7 @@ import org.openl.rules.project.resolving.PropertiesFileNameProcessorBuilder;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.project.xml.RulesDeploySerializerFactory;
 import org.openl.rules.project.xml.SupportedVersion;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.util.ListItem;
@@ -298,7 +299,9 @@ public class ProjectBean {
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
         RulesProject currentProject = studio.getCurrentProject();
-        if (studio.isRenamed(currentProject)) {
+        Repository designRepository = currentProject.getDesignRepository();
+        boolean supportsMappedFolders = designRepository != null && designRepository.supports().mappedFolders();
+        if (!supportsMappedFolders && studio.isRenamed(currentProject)) {
             // Restore physical project name
             newProjectDescriptor.setName(currentProject.getName());
         }
