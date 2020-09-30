@@ -421,9 +421,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) m;
                     if (memberMetaInfo.getSyntaxNode() != null) {
                         if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
+                            TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) memberMetaInfo.getSyntaxNode();
                             error = SyntaxNodeExceptionUtils
                                 .createError(e.getMessage(), e, memberMetaInfo.getSyntaxNode());
-                            ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(error);
+                            boolean g = false;
+                            for (SyntaxNodeException sne : tableSyntaxNode.getErrors()) {
+                                if (Objects.equals(sne.getMessage(), error.getMessage())) {
+                                    g = true;
+                                    break;
+                                }
+                            }
+                            if (!g) {
+                                ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(error);
+                            }
                         }
                     }
                 }
