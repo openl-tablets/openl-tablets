@@ -117,7 +117,9 @@ public class DecisionTableLoader {
         if (loadAndBindErrors != null) {
             // If table have errors, try to compile transposed variant.
             // Note that compiling transposed table consumes memory twice and for big tables it does not make any sense
-            if (tableBody == null || firstTransposedThenNormal || height <= MAX_COLUMNS_IN_DT) {
+            // for smart tables
+            if (tableBody == null || !isSmart(
+                tableSyntaxNode) || (firstTransposedThenNormal ? width : height) <= MAX_COLUMNS_IN_DT) {
                 CompilationErrors altLoadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode, () -> {
                     loadAndBind(tableSyntaxNode,
                         decisionTable,
@@ -130,17 +132,29 @@ public class DecisionTableLoader {
                 if (altLoadAndBindErrors == null) {
                     return;
                 } else {
-                    // Select compilation with less errors count
-                    if (loadAndBindErrors.getBindingSyntaxNodeException().size() > altLoadAndBindErrors
-                        .getBindingSyntaxNodeException()
-                        .size() || loadAndBindErrors.getSyntaxNodeExceptions().length > altLoadAndBindErrors
-                            .getSyntaxNodeExceptions().length && loadAndBindErrors.getBindingSyntaxNodeException()
-                                .size() == altLoadAndBindErrors.getBindingSyntaxNodeException().size()) {
-                        altLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
-                        if (altLoadAndBindErrors.getEx() != null) {
-                            throw altLoadAndBindErrors.getEx();
+                    if (tableBody == null || isSmart(tableSyntaxNode) || isSimple(tableSyntaxNode)) {
+                        // Select compilation with less errors count for smart tables
+                        if (loadAndBindErrors.getBindingSyntaxNodeException().size() > altLoadAndBindErrors
+                            .getBindingSyntaxNodeException()
+                            .size() || loadAndBindErrors.getSyntaxNodeExceptions().length > altLoadAndBindErrors
+                                .getSyntaxNodeExceptions().length && loadAndBindErrors.getBindingSyntaxNodeException()
+                                    .size() == altLoadAndBindErrors.getBindingSyntaxNodeException().size()) {
+                            altLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
+                            if (altLoadAndBindErrors.getEx() != null) {
+                                throw altLoadAndBindErrors.getEx();
+                            }
+                            return;
                         }
-                        return;
+                    } else {
+                        // Try to analyze what errors is better to use based on table headers
+                        if (!firstTransposedThenNormal && looksLikeVertical(
+                            tableBody) || firstTransposedThenNormal && looksLikeHorizontal(tableBody)) {
+                            altLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
+                            if (altLoadAndBindErrors.getEx() != null) {
+                                throw altLoadAndBindErrors.getEx();
+                            }
+                            return;
+                        }
                     }
                 }
                 decisionTable.setDtInfo(dtInfo);
@@ -150,6 +164,61 @@ public class DecisionTableLoader {
                 throw loadAndBindErrors.getEx();
             }
         }
+    }
+
+    private static boolean looksLikeHorizontal(ILogicalTable table) {
+        if (table.getWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+            return true;
+        }
+
+        if (table.getHeight() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+            return false;
+        }
+
+        int cnt1 = countValidHeaders(table);
+        int cnt2 = countValidHeaders(table.transpose());
+
+        if (cnt1 != cnt2) {
+            return cnt1 > cnt2;
+        }
+
+        return table.getWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
+    }
+
+    private static boolean looksLikeVertical(ILogicalTable table) {
+        if (table.getHeight() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+            return true;
+        }
+
+        if (table.getWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+            return false;
+        }
+
+        int cnt1 = countValidHeaders(table);
+        int cnt2 = countValidHeaders(table.transpose());
+
+        if (cnt1 != cnt2) {
+            return cnt1 < cnt2;
+        }
+
+        return table.getHeight() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
+    }
+
+    private static int countValidHeaders(ILogicalTable table) {
+        int width = table.getWidth();
+        int count = 0;
+        for (int i = 0; i < width; i++) {
+
+            String value = table.getColumn(i).getSource().getCell(0, 0).getStringValue();
+
+            if (value != null) {
+                value = value.toUpperCase();
+                count += DecisionTableHelper.isValidConditionHeader(value) || DecisionTableHelper
+                    .isValidActionHeader(value) || DecisionTableHelper.isValidRetHeader(value) || DecisionTableHelper
+                        .isValidCRetHeader(value) || DecisionTableHelper.isValidKeyHeader(value) ? 1 : 0;
+            }
+        }
+        return count;
     }
 
     private static void validateCollectSyntaxNode(TableSyntaxNode tableSyntaxNode,
@@ -401,7 +470,7 @@ public class DecisionTableLoader {
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
 
         if (DecisionTableHelper.isSmartDecisionTable(tableSyntaxNode) || DecisionTableHelper
-                .isSimpleDecisionTable(tableSyntaxNode) || DecisionTableHelper
+            .isSimpleDecisionTable(tableSyntaxNode) || DecisionTableHelper
                 .isSimpleLookupTable(tableSyntaxNode) || DecisionTableHelper.isSmartLookupTable(tableSyntaxNode)) {
             // if DT is simple, its body does not contain conditions and return headers.
             // so put the body as it is.
