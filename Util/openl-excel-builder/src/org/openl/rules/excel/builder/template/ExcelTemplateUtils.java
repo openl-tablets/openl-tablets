@@ -20,6 +20,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.streaming.CustomizedSXSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -45,6 +47,16 @@ public class ExcelTemplateUtils {
         .getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT);
 
     private ExcelTemplateUtils() {
+    }
+
+    public static SXSSFWorkbook getTemplate() throws IOException {
+        ClassLoader classLoader = ExcelTemplateUtils.class.getClassLoader();
+        XSSFWorkbook template = new XSSFWorkbook(classLoader.getResourceAsStream("template.xlsx"));
+        int sheets = template.getNumberOfSheets();
+        for(int i = 0; i < sheets; i++) {
+            template.removeSheetAt(0);
+        }
+        return new CustomizedSXSSFWorkbook(template);
     }
 
     public static Map<String, TableStyle> extractTemplateInfo(Workbook targetWorkbook) {

@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.xssf.streaming.CustomizedSXSSFWorkbook;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -102,7 +101,7 @@ public class ExcelFileBuilder {
      */
     private static void writeDataTypes(List<DatatypeModel> datatypeModels, OutputStream outputStream) {
         SXSSFWorkbook tempWorkbook = null;
-        try (SXSSFWorkbook workbook = tempWorkbook = new CustomizedSXSSFWorkbook()) {
+        try (SXSSFWorkbook workbook = tempWorkbook = ExcelTemplateUtils.getTemplate()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
             SXSSFSheet dtSheet = workbook.createSheet(DATATYPES_SHEET);
             TableStyle datatypeStyles = stylesMap.get(DATATYPES_SHEET);
@@ -129,7 +128,7 @@ public class ExcelFileBuilder {
      */
     private static void writeSpreadsheets(List<SpreadsheetModel> spreadsheetModels, OutputStream outputStream) {
         SXSSFWorkbook tempWorkbook = null;
-        try (SXSSFWorkbook workbook = tempWorkbook = new CustomizedSXSSFWorkbook()) {
+        try (SXSSFWorkbook workbook = tempWorkbook = ExcelTemplateUtils.getTemplate()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
             TableStyle sprStyles = stylesMap.get(SPR_RESULT_SHEET);
             writeSpreadsheets(spreadsheetModels, workbook, sprStyles);
@@ -158,7 +157,7 @@ public class ExcelFileBuilder {
             OutputStream outputStream,
             EnvironmentModel environmentModel) {
         SXSSFWorkbook tempWorkbook = null;
-        try (SXSSFWorkbook workbook = tempWorkbook = new CustomizedSXSSFWorkbook()) {
+        try (SXSSFWorkbook workbook = tempWorkbook = ExcelTemplateUtils.getTemplate()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
             TableStyle sprStyle = stylesMap.get(SPR_RESULT_SHEET);
             TableStyle envStyle = stylesMap.get(ENV_SHEET);
@@ -194,7 +193,7 @@ public class ExcelFileBuilder {
      */
     private static void writeProject(ProjectModel projectModel, OutputStream fos) {
         SXSSFWorkbook tempWorkbook = null;
-        try (SXSSFWorkbook workbook = tempWorkbook = new CustomizedSXSSFWorkbook()) {
+        try (SXSSFWorkbook workbook = tempWorkbook = ExcelTemplateUtils.getTemplate()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
 
             SXSSFSheet dtSheet = workbook.createSheet(DATATYPES_SHEET);
