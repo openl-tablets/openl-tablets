@@ -16,12 +16,12 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTWorksheet;
  */
 public class CustomizedSXSSFWorkbook extends SXSSFWorkbook {
 
-
     public CustomizedSXSSFWorkbook() {
     }
 
     public CustomizedSXSSFWorkbook(XSSFWorkbook workbook) {
-        super(workbook);
+        // WebStudio cannot edit tables in case inline text in cells is used, so workaround is to use shared strings
+        super(workbook, 100, false, true);
     }
 
     /**
