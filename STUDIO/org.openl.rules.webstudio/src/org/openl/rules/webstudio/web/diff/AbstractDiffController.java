@@ -131,6 +131,12 @@ public abstract class AbstractDiffController {
         selectedNode = null;
     }
 
+    public void reset(){
+        richDiffTree = null;
+        selectedNode = null;
+        showEqualElements = false;
+    }
+
     private void rebuild(AtomicInteger idGenerator, TreeNode parent) {
         for (DiffTreeNode d : parent.getDiffTreeNode().getChildren()) {
             List<PropertyNode> propertyNodes = getPropertyNodes(d);

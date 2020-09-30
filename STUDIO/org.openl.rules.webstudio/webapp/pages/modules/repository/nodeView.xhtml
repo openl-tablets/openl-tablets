@@ -138,7 +138,7 @@
                                          title="Deploy selected deployments with the latest version of this project"/>
 
                         <h:commandButton id="compareId" rendered="#{repositoryTreeState.canCompare}" value="Compare"
-                                         onclick="window.open('#{contextPath}/faces/pages/modules/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=1240,height=700,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');return false;"
+                                         onclick="openCompareWindow(); return false;"
                                          title="Compare tables in Excel file between two project versions"/>
                         <h:commandButton id="addFolder2" rendered="#{artefact.openedForEditing}" value="Add Folder"
                                          onclick="if (!canOverwriteRevision()) return false; openNewFolderDialog();return false;"
@@ -149,6 +149,8 @@
                         <h:commandButton id="exportVersionId" rendered="#{repositoryTreeState.canExport}" value="Export"
                                          onclick="openExportVersionDialog();return false;"
                                          title="Download the project as a zip archive"/>
+                        <a4j:jsFunction name="openCompareWindow" action="#{repositoryDiffController.reset()}"
+                                        oncomplete=" window.open('#{contextPath}/faces/pages/modules/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=1240,height=700,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');"/>
                     </h:panelGroup>
 
                 </h:panelGroup>
