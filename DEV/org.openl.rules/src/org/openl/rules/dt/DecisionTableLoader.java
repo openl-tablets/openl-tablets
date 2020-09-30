@@ -471,6 +471,9 @@ public class DecisionTableLoader {
     @SuppressWarnings("StatementWithEmptyBody")
     private void putTableForBusinessView(TableSyntaxNode tableSyntaxNode, boolean transpose) {
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
+        if (tableBody == null) {
+            return;
+        }
 
         if (DecisionTableHelper.isSmartDecisionTable(tableSyntaxNode) || DecisionTableHelper
             .isSimpleDecisionTable(tableSyntaxNode) || DecisionTableHelper
