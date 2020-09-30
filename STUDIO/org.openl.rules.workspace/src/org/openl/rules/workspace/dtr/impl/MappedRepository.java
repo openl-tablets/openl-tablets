@@ -573,14 +573,14 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 FileData data = external.getData();
                 String name;
                 if (folderData != null && folderData.getAdditionalData(FileMappingData.class) != null) {
-                    String path = external.getData().getName();
+                    String path = data.getName();
                     if (path.startsWith(folderData.getName())) {
-                        String folderPath = folderData.getAdditionalData(FileMappingData.class).getExternalPath();
+                        String folderPath = folderData.getAdditionalData(FileMappingData.class).getInternalPath();
                         path = folderPath + path.substring(folderData.getName().length());
                     }
-                    name = toInternal(mapping, path);
+                    name = path;
                 } else {
-                    name = toInternalPath(mapping, external.getData());
+                    name = toInternalPath(mapping, data);
                 }
                 data.setName(name);
                 return new FileItem(data, external.getStream());
