@@ -136,6 +136,7 @@ public class DecisionTableLoader {
                         .size() || loadAndBindErrors.getSyntaxNodeExceptions().length > altLoadAndBindErrors
                             .getSyntaxNodeExceptions().length && loadAndBindErrors.getBindingSyntaxNodeException()
                                 .size() == altLoadAndBindErrors.getBindingSyntaxNodeException().size()) {
+                        putTableForBusinessView(tableSyntaxNode, !firstTransposedThenNormal);
                         altLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
                         if (altLoadAndBindErrors.getEx() != null) {
                             throw altLoadAndBindErrors.getEx();
@@ -145,6 +146,7 @@ public class DecisionTableLoader {
                 }
                 decisionTable.setDtInfo(dtInfo);
             }
+            putTableForBusinessView(tableSyntaxNode, firstTransposedThenNormal);
             loadAndBindErrors.apply(tableSyntaxNode, bindingContext);
             if (loadAndBindErrors.getEx() != null) {
                 throw loadAndBindErrors.getEx();
