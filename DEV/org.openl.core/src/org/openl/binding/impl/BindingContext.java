@@ -29,14 +29,14 @@ public class BindingContext implements IBindingContext {
     private IOpenClass returnType;
     private OpenL openl;
 
-    private LocalFrameBuilder localFrame = new LocalFrameBuilder();
+    private final LocalFrameBuilder localFrame = new LocalFrameBuilder();
     private List<SyntaxNodeException> errors = new ArrayList<>();
-    private LinkedList<List<SyntaxNodeException>> errorStack = new LinkedList<>();
+    private final LinkedList<List<SyntaxNodeException>> errorStack = new LinkedList<>();
 
     private Map<String, Object> externalParams = new HashMap<>();
 
     private Collection<OpenLMessage> messages = new LinkedHashSet<>();
-    private LinkedList<Collection<OpenLMessage>> messagesStack = new LinkedList<>();
+    private final LinkedList<Collection<OpenLMessage>> messagesStack = new LinkedList<>();
 
     private boolean executionMode = false;
 

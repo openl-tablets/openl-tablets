@@ -1,14 +1,16 @@
 package org.openl.rules.types;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.openl.base.INamedThing;
+import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.types.IModuleInfo;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public final class UriMemberHelper {
 
@@ -29,7 +31,7 @@ public final class UriMemberHelper {
                 throw new DuplicatedMethodException(message, existedMethod, method);
             }
         } else {
-            throw new IllegalStateException("Implementation supports only IUriMember.");
+            throw new IllegalStateException("The implementation supports only IUriMember.");
         }
     }
 
@@ -39,7 +41,7 @@ public final class UriMemberHelper {
                 throw new DuplicatedFieldException("", openField.getName());
             }
         } else {
-            throw new IllegalStateException("Implementation supports only IUriMember.");
+            throw new IllegalStateException("The implementation supports only IUriMember.");
         }
     }
 
@@ -68,9 +70,10 @@ public final class UriMemberHelper {
             if (canBeDispatched) {
                 message = String.format(
                     "Method '%s' is already used with the same version, active status, properties set.",
-                    existedMethod.getName());
+                    MethodUtil.printSignature(existedMethod, INamedThing.REGULAR));
             } else {
-                message = String.format("Method '%s' is already used.", existedMethod.getName());
+                message = String.format("Method '%s' is already used.",
+                    MethodUtil.printSignature(existedMethod, INamedThing.REGULAR));
             }
         } else {
             // Case when the module names where set to the methods
@@ -79,7 +82,7 @@ public final class UriMemberHelper {
                 if (canBeDispatched) {
                     message = String.format(
                         "Method '%s' is already used in modules '%s' and '%s' with the same version, active status, properties set.",
-                        existedMethod.getName(),
+                        MethodUtil.printSignature(existedMethod, INamedThing.REGULAR),
                         modulesString,
                         modules.get(1));
                 } else {
@@ -92,11 +95,12 @@ public final class UriMemberHelper {
                 if (canBeDispatched) {
                     message = String.format(
                         "Method '%s' is already used in module '%s' with the same version, active status, properties set.",
-                        existedMethod.getName(),
+                        MethodUtil.printSignature(existedMethod, INamedThing.REGULAR),
                         modulesString);
                 } else {
-                    message = String
-                        .format("Method '%s' is already used in module '%s'.", existedMethod.getName(), modulesString);
+                    message = String.format("Method '%s' is already used in module '%s'.",
+                        MethodUtil.printSignature(existedMethod, INamedThing.REGULAR),
+                        modulesString);
                 }
             }
         }

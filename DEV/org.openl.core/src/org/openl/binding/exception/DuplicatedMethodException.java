@@ -18,9 +18,9 @@ public class DuplicatedMethodException extends OpenlNotCheckedException {
 
     private static final long serialVersionUID = 4145939391957085009L;
 
-    private IOpenMethod existedMethod;
+    private final IOpenMethod existedMethod;
 
-    private IOpenMethod newMethod;
+    private final IOpenMethod newMethod;
 
     public DuplicatedMethodException(String msg, IOpenMethod existedMethod, IOpenMethod newMethod) {
         super(msg);

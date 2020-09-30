@@ -119,12 +119,12 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
             values.add(tableProperties.getPropertyValue(property));
         }
 
-        builder.append("[").append(join(values, ", ")).append(tableProperties.getVersion()).append("]");
+        builder.append("[").append(join(values)).append(tableProperties.getVersion()).append("]");
 
         return builder.toString();
     }
 
-    static String join(Collection<?> collection, String separator) {
+    static String join(Collection<?> collection) {
 
         // handle null, zero and one elements before building a buffer
         if (collection == null) {
@@ -148,9 +148,7 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
         }
 
         while (iterator.hasNext()) {
-            if (separator != null) {
-                buf.append(separator);
-            }
+            buf.append(", ");
             Object obj = iterator.next();
             if (obj != null) {
                 if (obj.getClass().isArray()) {
