@@ -139,6 +139,7 @@ public class DecisionTableLoader {
                             .size() || loadAndBindErrors.getSyntaxNodeExceptions().length > altLoadAndBindErrors
                                 .getSyntaxNodeExceptions().length && loadAndBindErrors.getBindingSyntaxNodeException()
                                     .size() == altLoadAndBindErrors.getBindingSyntaxNodeException().size()) {
+                            putTableForBusinessView(tableSyntaxNode, !firstTransposedThenNormal);
                             altLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
                             if (altLoadAndBindErrors.getEx() != null) {
                                 throw altLoadAndBindErrors.getEx();
@@ -149,6 +150,7 @@ public class DecisionTableLoader {
                         // Try to analyze what errors is better to use based on table headers
                         if (!firstTransposedThenNormal && looksLikeVertical(
                             tableBody) || firstTransposedThenNormal && looksLikeHorizontal(tableBody)) {
+                            putTableForBusinessView(tableSyntaxNode, !firstTransposedThenNormal);
                             altLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
                             if (altLoadAndBindErrors.getEx() != null) {
                                 throw altLoadAndBindErrors.getEx();
@@ -159,6 +161,7 @@ public class DecisionTableLoader {
                 }
                 decisionTable.setDtInfo(dtInfo);
             }
+            putTableForBusinessView(tableSyntaxNode, firstTransposedThenNormal);
             loadAndBindErrors.apply(tableSyntaxNode, bindingContext);
             if (loadAndBindErrors.getEx() != null) {
                 throw loadAndBindErrors.getEx();
@@ -468,6 +471,9 @@ public class DecisionTableLoader {
     @SuppressWarnings("StatementWithEmptyBody")
     private void putTableForBusinessView(TableSyntaxNode tableSyntaxNode, boolean transpose) {
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
+        if (tableBody == null) {
+            return;
+        }
 
         if (DecisionTableHelper.isSmartDecisionTable(tableSyntaxNode) || DecisionTableHelper
             .isSimpleDecisionTable(tableSyntaxNode) || DecisionTableHelper
