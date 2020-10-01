@@ -540,14 +540,10 @@ public class XlsBinder implements IOpenBinder {
                     final String sprResTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + TableSyntaxNodeHelper
                         .getTableName(tableSyntaxNode);
                     if (rulesModuleBindingContext.getModule().findType(sprResTypeName) == null) {
-                        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass =
-                                new CustomSpreadsheetResultOpenClass(
-                                        sprResTypeName,
-                                        rulesModuleBindingContext.getModule(),
-                                        rulesModuleBindingContext.isExecutionMode()
-                                                ? null
-                                                : tableSyntaxNode.getTableBody()
-                                );
+                        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
+                            sprResTypeName,
+                            rulesModuleBindingContext.getModule(),
+                            rulesModuleBindingContext.isExecutionMode() ? null : tableSyntaxNode.getTableBody());
                         customSpreadsheetResultOpenClasses.add(customSpreadsheetResultOpenClass);
                     }
                 }
@@ -636,8 +632,7 @@ public class XlsBinder implements IOpenBinder {
             }
             for (IOpenClass openClass : module.getTypes()) {
                 if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass =
-                            (CustomSpreadsheetResultOpenClass) openClass;
+                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
                     if (!skip.contains(customSpreadsheetResultOpenClass)) {
                         customSpreadsheetResultOpenClass.getFields().forEach(IOpenField::getType);
                         skip.add(customSpreadsheetResultOpenClass);
