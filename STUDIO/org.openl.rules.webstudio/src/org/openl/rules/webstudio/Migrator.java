@@ -146,8 +146,8 @@ public class Migrator {
                                 continue;
                             }
                             for (String branch : branchesStr.split(",")) {
-                                name = projectPathMap.get(name) != null ? projectPathMap.get(name) : "\\DESIGN\\rules\\" + name;
-                                branches.addBranch(projectPathMap.get(name), branch, null);
+                                String namePath = projectPathMap.get(name) != null ? projectPathMap.get(name) : "\\DESIGN\\rules\\" + name;
+                                branches.addBranch(namePath, branch, null);
                             }
                         }
                         createYaml(branches, Paths.get(openlHome, "repositories", "settings", "design", "branches.yaml"));
